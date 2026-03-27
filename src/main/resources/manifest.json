@@ -1,0 +1,17 @@
+{
+  "Group": "cookieukw",
+  "Name": "SimTale",
+  "Version": "0.0.2",
+  "Description": "SimTale is a plugin for HyTale!",
+  "Authors": [
+    {
+      "Name": "cookieukw"
+    }
+  ],
+
+  "Dependencies": {},
+  "OptionalDependencies": {},
+  "DisabledByDefault": false,
+  "Main": "com.cookieukw.SimTale.SimTale",
+  "IncludesAssetPack": true
+}
