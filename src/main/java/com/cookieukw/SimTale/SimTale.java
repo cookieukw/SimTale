@@ -1,18 +1,27 @@
 package com.cookieukw.SimTale;
 
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.systems.SimTaleEventHandler;
+import com.cookieukw.SimTale.systems.SimTaleTickSystem;
+import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.event.events.player.PlayerInteractEvent;
+import com.hypixel.hytale.event.EventPriority;
 
 import javax.annotation.Nonnull;
 
 /**
- * This class serves as the entrypoint for the SimTale plugin.
+ * Main entrypoint for the SimTale plugin.
  */
 public class SimTale extends JavaPlugin {
 
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
     private static SimTale instance;
+
+    public static ComponentType<EntityStore, SimNPCComponent> SIM_NPC_COMPONENT_TYPE;
 
     public SimTale(@Nonnull JavaPluginInit init) {
         super(init);
@@ -26,20 +35,23 @@ public class SimTale extends JavaPlugin {
 
     @Override
     protected void setup() {
-        LOGGER.atInfo().log("Setting up SimTale...");
+        LOGGER.atInfo().log("Setting up SimTale registries...");
+
+        // Register data components
+        // registerComponent(Class, Supplier) is the available method in
+        // ComponentRegistryProxy
+        SIM_NPC_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(SimNPCComponent.class,
+                SimNPCComponent::new);
+
+        // Register tick systems
+        this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
+
+        // Register event handlers
+        this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerInteractEvent.class, null,
+                new SimTaleEventHandler());
 
         // Register commands
         this.getCommandRegistry()
                 .registerCommand(new SimTaleCommand(this.getName(), this.getManifest().getVersion().toString()));
-    }
-
-    @Override
-    protected void start() {
-        LOGGER.atInfo().log("SimTale has been enabled!");
-    }
-
-    @Override
-    public void shutdown() {
-        LOGGER.atInfo().log("SimTale is shutting down...");
     }
 }
