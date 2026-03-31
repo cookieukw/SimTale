@@ -9,6 +9,8 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.event.events.player.PlayerInteractEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
+import com.cookieukw.SimTale.systems.SimTaleChatHandler;
 import com.hypixel.hytale.event.EventPriority;
 
 import javax.annotation.Nonnull;
@@ -49,6 +51,10 @@ public class SimTale extends JavaPlugin {
         // Register event handlers
         this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerInteractEvent.class, null,
                 new SimTaleEventHandler());
+        
+        // MobsAndMates: Register chat handler
+        this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerChatEvent.class, null,
+                new SimTaleChatHandler());
 
         // Register commands
         this.getCommandRegistry()

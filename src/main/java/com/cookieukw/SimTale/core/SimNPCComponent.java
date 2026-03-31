@@ -6,6 +6,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import com.cookieukw.SimTale.logic.JobType;
 
 /**
  * Persists SimTale data for an entity.
@@ -17,6 +18,13 @@ public class SimNPCComponent implements Component<EntityStore> {
     public Needs needs;
     public SocialStats stats;
     public Map<UUID, Relationship> relationships = new HashMap<>();
+
+    // MobsAndMates job and conversation state
+    public UUID currentConversationPartner;
+    public long conversationTimeoutTick;
+    public JobType currentJob = JobType.NONE;
+    public long jobCompletionTick;
+    public UUID jobEmployer;
 
     /**
      * Default constructor for registry and codecs.
@@ -47,6 +55,13 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.stats.level = stats.level;
         clone.stats.xp = stats.xp;
         clone.relationships = new HashMap<>(relationships);
+        
+        // Clone new states
+        clone.currentConversationPartner = currentConversationPartner;
+        clone.conversationTimeoutTick = conversationTimeoutTick;
+        clone.currentJob = currentJob;
+        clone.jobCompletionTick = jobCompletionTick;
+        clone.jobEmployer = jobEmployer;
         return clone;
     }
 

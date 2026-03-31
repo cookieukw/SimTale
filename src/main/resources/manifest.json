@@ -1,6 +1,6 @@
 {
   "Group": "cookieukw",
-  "Name": "SimTale",
+  "Name": "simtale",
   "Version": "0.0.2",
   "Description": "SimTale is a plugin for HyTale!",
   "Authors": [
@@ -10,7 +10,7 @@
   ],
 
   "Dependencies": {
-    "caskara": "*"
+    "cookieukw:caskara": "*"
   },
   "OptionalDependencies": {},
   "DisabledByDefault": false,
