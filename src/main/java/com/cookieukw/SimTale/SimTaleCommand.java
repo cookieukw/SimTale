@@ -1,48 +1,75 @@
 package com.cookieukw.SimTale;
 
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.SimNPCFactory;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.protocol.GameMode;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
-import com.hypixel.hytale.server.core.command.system.basecommands.CommandBase;
-import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-
 import javax.annotation.Nonnull;
 
 /**
  * Commands for the SimTale plugin.
  */
-public class SimTaleCommand extends CommandBase {
+public class SimTaleCommand extends AbstractPlayerCommand {
 
-    private final String pluginName;
     private final String pluginVersion;
 
     public SimTaleCommand(String pluginName, String pluginVersion) {
-        super("simtale", "Commands for SimTale.");
+        super("simtale");
         this.setPermissionGroup(GameMode.Adventure);
-        this.pluginName = pluginName;
         this.pluginVersion = pluginVersion;
     }
 
     @Override
-    protected void executeSync(@Nonnull CommandContext ctx) {
+    protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+
         String input = ctx.getInputString();
-        if (input != null && input.toLowerCase().contains("spawn")) {
-            spawnNPC(ctx, "SimNPC");
+        if (input == null) {
+            sendUsage(ctx);
             return;
         }
 
-        ctx.sendMessage(
-                Message.raw("SimTale v" + pluginVersion + " is active. Use /simtale spawn <name> to create an NPC."));
+        String[] args = input.split(" ");
+        if (args.length >= 2 && args[0].equalsIgnoreCase("spawn")) {
+            handleSpawn(ctx, store, ref, args[1]);
+            return;
+        }
+
+        sendUsage(ctx);
     }
 
-    private void spawnNPC(CommandContext ctx, String name) {
-        Ref<EntityStore> playerRef = ctx.senderAsPlayerRef();
-        if (playerRef == null) {
-            ctx.sendMessage(Message.raw("This command can only be used by players."));
+    private void handleSpawn(CommandContext ctx, Store<EntityStore> store, Ref<EntityStore> ref, String typeName) {
+        SimNPCFactory.NPCType type;
+        try {
+            type = SimNPCFactory.NPCType.valueOf(typeName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            ctx.sendMessage(Message.raw("Invalid NPC type. Use SLOTHIAN or TRORK."));
             return;
         }
 
-        ctx.sendMessage(Message.raw("Spawning NPC '" + name + "'... (Integration in progress)"));
+        TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+        Vector3d pos = transform.getPosition().add(2, 0, 2);
+
+        Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
+        SimNPCComponent comp = store.getComponent(npcRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+
+        // Save initial state to DB
+        SimNPCPersistence.saveNPC(comp);
+
+        ctx.sendMessage(Message.raw("Spawned " + type.name() + " at " + pos.toString()));
+    }
+
+    private void sendUsage(CommandContext ctx) {
+        ctx.sendMessage(Message.raw("SimTale v" + pluginVersion + " - Use /simtale spawn <SLOTHIAN|TRORK>"));
     }
 }

@@ -9,7 +9,9 @@
     }
   ],
 
-  "Dependencies": {},
+  "Dependencies": {
+    "caskara": "*"
+  },
   "OptionalDependencies": {},
   "DisabledByDefault": false,
   "Main": "com.cookieukw.SimTale.SimTale",

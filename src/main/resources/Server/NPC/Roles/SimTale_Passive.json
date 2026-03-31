@@ -1,0 +1,8 @@
+{
+  "Type": "DecisionMaking",
+  "Reference": "Passive",
+  "Wander": {
+    "Radius": 10,
+    "Interval": 5
+  }
+}

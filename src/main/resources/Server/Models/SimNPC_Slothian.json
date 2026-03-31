@@ -1,0 +1,40 @@
+{
+  "Model": "NPC/Intelligent/Slothian/Models/Model.blockymodel",
+  "Texture": "NPC/Intelligent/Slothian/Models/Model_Textures/Blue.png",
+  "EyeHeight": 1.6,
+  "HitBox": {
+    "Max": {
+      "X": 0.5,
+      "Y": 1.8,
+      "Z": 0.5
+    },
+    "Min": {
+      "X": -0.5,
+      "Y": 0,
+      "Z": -0.5
+    }
+  },
+  "AnimationSets": {
+    "Idle": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Default/Idle.blockyanim"
+        }
+      ]
+    },
+    "Walk": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Default/Walk.blockyanim"
+        }
+      ]
+    },
+    "Run": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Default/Run.blockyanim"
+        }
+      ]
+    }
+  }
+}

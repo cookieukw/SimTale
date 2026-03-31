@@ -17,6 +17,12 @@ public class Personality {
     }
 
     /**
+     * No-op constructor for codecs.
+     */
+    protected Personality() {
+    }
+
+    /**
      * Creates a default balanced personality.
      */
     public static Personality createDefault() {
