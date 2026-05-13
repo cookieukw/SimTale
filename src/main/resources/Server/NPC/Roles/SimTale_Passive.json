@@ -1,8 +1,76 @@
 {
-  "Type": "DecisionMaking",
-  "Reference": "Passive",
-  "Wander": {
-    "Radius": 10,
-    "Interval": 5
-  }
+  "Type": "Variant",
+  "Reference": "Slothian",
+  "Debug": "DisplayState",
+  "StartState": "Idle",
+  "MotionControllerList": [
+    {
+      "Type": "Walk",
+      "MaxWalkSpeed": 3,
+      "Gravity": 10,
+      "MaxFallSpeed": 8,
+      "Acceleration": 10
+    }
+  ],
+  "Parameters": {
+    "MaxHealth": {
+      "Value": 200
+    }
+  },
+  "Instructions": [
+    {
+      "Sensor": {
+        "Type": "State",
+        "State": "Idle"
+      },
+      "Instructions": [
+        {
+          "Sensor": {
+            "Type": "State",
+            "State": ".Default"
+          },
+          "Actions": [
+            {
+              "Type": "Random",
+              "Actions": [
+                {
+                  "Weight": 100,
+                  "Action": {
+                    "Type": "State",
+                    "State": ".Wander"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Sensor": {
+            "Type": "State",
+            "State": ".Wander"
+          },
+          "Continue": true,
+          "ActionsBlocking": true,
+          "Actions": [
+            {
+              "Type": "Timeout",
+              "Delay": [5, 15]
+            },
+            {
+              "Type": "State",
+              "State": ".Default"
+            }
+          ],
+          "BodyMotion": {
+            "Type": "Wander",
+            "Range": 10,
+            "SlowDownDistance": 1,
+            "StopDistance": 0.5,
+            "RelativeSpeed": 0.5,
+            "UsePathfinder": true
+          }
+        }
+      ]
+    }
+  ]
 }

@@ -13,6 +13,9 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.cookieukw.SimTale.systems.SimTaleChatHandler;
 import com.hypixel.hytale.event.EventPriority;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -24,6 +27,7 @@ public class SimTale extends JavaPlugin {
     private static SimTale instance;
 
     public static ComponentType<EntityStore, SimNPCComponent> SIM_NPC_COMPONENT_TYPE;
+    public static final List<SimNPCComponent> ACTIVE_NPCS = new ArrayList<>();
 
     public SimTale(@Nonnull JavaPluginInit init) {
         super(init);

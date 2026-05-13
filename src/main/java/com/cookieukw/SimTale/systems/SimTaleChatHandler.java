@@ -34,48 +34,31 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         message = message.toLowerCase();
 
-        World world = null;
-        for (World w : Universe.get().getWorlds().values()) {
-            world = w;
-            break;
+        // Use the tracking list to find NPCs instead of broken reflection
+        SimNPCComponent targetNpc = null;
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            // Check if currently focused on this player
+            if (sender.getUuid().equals(npc.currentConversationPartner)) {
+                targetNpc = npc;
+                break;
+            }
+
+            // Otherwise check if name is in the chat
+            if (npc.name != null && message.contains(npc.name.toLowerCase())) {
+                targetNpc = npc;
+                break;
+            }
         }
 
-        if (world == null) return;
-
-        Store<EntityStore> store = world.getEntityStore().getStore();
-        ComponentAccessor<EntityStore> accessor = (ComponentAccessor<EntityStore>) store;
-        
-        try {
-            Collection npcs = (Collection) accessor.getClass().getMethod("getComponents", com.hypixel.hytale.component.ComponentType.class)
-                    .invoke(accessor, SimTale.SIM_NPC_COMPONENT_TYPE);
-
-            if (npcs != null) {
-                SimNPCComponent targetNpc = null;
-
-                for (Object obj : npcs) {
-                    if (obj instanceof SimNPCComponent) {
-                        SimNPCComponent npc = (SimNPCComponent) obj;
-
-                        // Check if currently focused on this player
-                        if (sender.getUuid().equals(npc.currentConversationPartner)) {
-                            targetNpc = npc;
-                            break;
-                        }
-
-                        // Otherwise check if name is in the chat
-                        if (npc.name != null && message.contains(npc.name.toLowerCase())) {
-                            targetNpc = npc;
-                            break;
-                        }
-                    }
-                }
-
-                if (targetNpc != null) {
-                    handleNpcCommand(sender, message, targetNpc, world);
-                }
+        if (targetNpc != null) {
+            World world = null;
+            for (World w : Universe.get().getWorlds().values()) {
+                world = w;
+                break;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            if (world != null) {
+                handleNpcCommand(sender, message, targetNpc, world);
+            }
         }
     }
 

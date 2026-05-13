@@ -1,6 +1,6 @@
 {
   "Model": "NPC/Intelligent/Slothian/Models/Model.blockymodel",
-  "Texture": "NPC/Intelligent/Slothian/Models/Model_Textures/Blue.png",
+  "Texture": "NPC/Intelligent/Slothian/Models/Texture.png",
   "EyeHeight": 1.6,
   "HitBox": {
     "Max": {

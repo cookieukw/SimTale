@@ -9,6 +9,8 @@ import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.protocol.GameMode;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
+import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
+import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -22,10 +24,14 @@ import javax.annotation.Nonnull;
 public class SimTaleCommand extends AbstractPlayerCommand {
 
     private final String pluginVersion;
+    private final RequiredArg<String> subCommandArg;
+    private final RequiredArg<String> npcTypeArg;
 
     public SimTaleCommand(String pluginName, String pluginVersion) {
-        super("simtale");
+        super("simtale", "SimTale plugin commands");
         this.setPermissionGroup(GameMode.Adventure);
+        this.subCommandArg = this.withRequiredArg("subcommand", "spawn", ArgTypes.STRING);
+        this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK", ArgTypes.STRING);
         this.pluginVersion = pluginVersion;
     }
 
@@ -33,15 +39,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
             @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
 
-        String input = ctx.getInputString();
-        if (input == null) {
-            sendUsage(ctx);
-            return;
-        }
+        String sub = ctx.get(this.subCommandArg);
+        String typeName = ctx.get(this.npcTypeArg);
 
-        String[] args = input.split(" ");
-        if (args.length >= 2 && args[0].equalsIgnoreCase("spawn")) {
-            handleSpawn(ctx, store, ref, args[1]);
+        if ("spawn".equalsIgnoreCase(sub)) {
+            handleSpawn(ctx, store, ref, typeName);
             return;
         }
 
