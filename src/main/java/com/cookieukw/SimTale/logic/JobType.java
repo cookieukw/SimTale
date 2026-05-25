@@ -5,11 +5,11 @@ package com.cookieukw.SimTale.logic;
  */
 public enum JobType {
     NONE(0, "nenhum"),
-    MINE(300, "minerar"), // Duration in seconds
-    FARM(240, "farmar"),
-    GATHER(180, "coletar"),
-    FISH(200, "pescar"),
-    EXPLORE(400, "explorar");
+    MINE(15, "minerar"), // Reduced to 15 seconds for testing
+    FARM(15, "farmar"),
+    GATHER(15, "coletar"),
+    FISH(15, "pescar"),
+    EXPLORE(15, "explorar");
 
     private final int durationSeconds;
     private final String portugueseName;

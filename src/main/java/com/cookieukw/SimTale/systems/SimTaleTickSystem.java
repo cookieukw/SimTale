@@ -23,6 +23,7 @@ import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.math.vector.Vector3d;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 
 import java.util.Collection;
 import java.util.List;
@@ -67,7 +68,14 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             }
         }
         if (!found) {
+            // Load memory state from Caskara database when spawning/restarting
+            SimNPCPersistence.loadNPC(npc);
             SimTale.ACTIVE_NPCS.add(npc);
+        }
+
+        // Auto-save logic (every 30 seconds = 600 ticks)
+        if (absoluteTick % 600 == 0) {
+            SimNPCPersistence.saveNPC(npc);
         }
 
         npc.needs.tickDecay();
@@ -81,8 +89,6 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
 
         // Job Handling
         if (npc.currentJob != JobType.NONE) {
-            System.out.println("[SimTale DEBUG] NPC: " + npc.name + " | Job: " + npc.currentJob + " | absoluteTick: " + absoluteTick + " | departure: " + npc.jobDepartureTick + " | isAway: " + npc.isAway);
-
             if (absoluteTick >= npc.jobDepartureTick && absoluteTick < npc.jobCompletionTick && !npc.isAway) {
                 // DEPARTURE PHASE (5 seconds have passed)
                 npc.isAway = true;
@@ -96,8 +102,8 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                     ComponentAccessor<EntityStore> accessor = (ComponentAccessor<EntityStore>) store;
                     TransformComponent npcTransform = accessor.getComponent(ref, TransformComponent.getComponentType());
                     if (npcTransform != null) {
-                        // Teleport to the void so the client naturally unloads them
-                        npcTransform.setPosition(new Vector3d(0, -1000, 0));
+                        // Teleport to the sky so the client naturally unloads them (and bypasses -32 limit)
+                        npcTransform.setPosition(new Vector3d(0, 1000, 0));
                     }
                 }
             } else if (absoluteTick >= npc.jobCompletionTick) {
