@@ -16,6 +16,13 @@ import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.ArchetypeChunk;
+import com.hypixel.hytale.component.CommandBuffer;
+import com.hypixel.hytale.component.query.Query;
+import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
+import com.hypixel.hytale.component.ComponentAccessor;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.math.vector.Vector3d;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,97 +31,109 @@ import java.util.List;
  * Core ticking system for SimTale.
  * Handles needs decay and autonomous NPC logic.
  */
-public class SimTaleTickSystem extends TickingSystem<EntityStore> {
+public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
+
+    @Override
+    public Query<EntityStore> getQuery() {
+        return (Query<EntityStore>) (Object) SimTale.SIM_NPC_COMPONENT_TYPE;
+    }
 
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void tick(float deltaTime, int currentTick, Store<EntityStore> store) {
-        // Run every 20 ticks (1 second) to save performance
-        if (currentTick % 20 != 0)
-            return;
+    public void tick(float dt, int index, ArchetypeChunk<EntityStore> chunk,
+                     Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
 
-        // Use raw types and reflection-like pattern to bypass compiler issues
-        try {
-            ComponentAccessor accessor = (ComponentAccessor) store;
-            // Explicitly cast to the generic method signature expected by the compiler
-            Collection npcs = (Collection) accessor.getClass().getMethod("getComponents", ComponentType.class)
-                    .invoke(accessor, SimTale.SIM_NPC_COMPONENT_TYPE);
+        SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
+        if (npc == null) return;
 
-            if (npcs != null) {
-                for (Object obj : npcs) {
-                    if (obj instanceof SimNPCComponent) {
-                        SimNPCComponent npc = (SimNPCComponent) obj;
-                        
-                        // Auto-register NPCs loaded from world save
-                        boolean found = false;
-                        for (SimNPCComponent active : SimTale.ACTIVE_NPCS) {
-                            if (active.entityId != null && active.entityId.equals(npc.entityId)) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            SimTale.ACTIVE_NPCS.add(npc);
-                        }
+        World world = null;
+        for (World w : Universe.get().getWorlds().values()) {
+            world = w;
+            break;
+        }
 
-                        npc.needs.tickDecay();
+        if (world == null) return;
+        long absoluteTick = world.getTick();
 
-                        // Conversation Timeout Handling
-                        if (npc.currentConversationPartner != null) {
-                            World world = null;
-                            for (World w : Universe.get().getWorlds().values()) {
-                                world = w;
-                                break;
-                            }
-                            if (world != null && world.getTick() > npc.conversationTimeoutTick) {
-                                npc.currentConversationPartner = null;
-                            }
-                        }
+        // Run logic only once per second (every 20 ticks) to save performance
+        if (absoluteTick % 20 != 0) return;
 
-                        // Job Handling
-                        if (npc.currentJob != JobType.NONE) {
-                            World world = null;
-                            for (World w : Universe.get().getWorlds().values()) {
-                                world = w;
-                                break;
-                            }
-                            if (world != null) {
-                                long absoluteTick = world.getTick();
-                                if (absoluteTick >= npc.jobDepartureTick && absoluteTick < npc.jobCompletionTick && !npc.isAway) {
-                                    // DEPARTURE PHASE (5 seconds have passed)
-                                    npc.isAway = true;
-                                    for (PlayerRef pr : Universe.get().getPlayers()) {
-                                        if (pr.getUuid().equals(npc.jobEmployer)) {
-                                            pr.sendMessage(Message.raw("<" + npc.name + "> Estou saindo agora! Volto assim que terminar."));
-                                        }
-                                    }
-                                    // TODO: Hide the NPC (teleport to waiting box, add invisibility, or detach ModelComponent)
-                                } else if (absoluteTick >= npc.jobCompletionTick) {
-                                    // RETURN AND COMPLETION PHASE
-                                    if (npc.jobEmployer != null) {
-                                        sendLootToPlayer(npc, world, accessor);
-                                    }
-                                    npc.currentJob = JobType.NONE;
-                                    npc.jobEmployer = null;
-                                    npc.isAway = false;
-                                    // TODO: Show the NPC again (teleport back, remove invisibility, reattach ModelComponent)
-                                }
-                            }
-                        } else {
-                            // Simple autonomous interaction: 5% chance to socialize with themselves
-                            if (Math.random() < 0.05) {
-                                InteractionManager.performInteraction(npc, npc, InteractionType.RANDOM);
+        // Auto-register NPCs loaded from world save
+        boolean found = false;
+        for (SimNPCComponent active : SimTale.ACTIVE_NPCS) {
+            if (active.entityId != null && active.entityId.equals(npc.entityId)) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            SimTale.ACTIVE_NPCS.add(npc);
+        }
+
+        npc.needs.tickDecay();
+
+        // Conversation Timeout Handling
+        if (npc.currentConversationPartner != null) {
+            if (absoluteTick > npc.conversationTimeoutTick) {
+                npc.currentConversationPartner = null;
+            }
+        }
+
+        // Job Handling
+        if (npc.currentJob != JobType.NONE) {
+            System.out.println("[SimTale DEBUG] NPC: " + npc.name + " | Job: " + npc.currentJob + " | absoluteTick: " + absoluteTick + " | departure: " + npc.jobDepartureTick + " | isAway: " + npc.isAway);
+
+            if (absoluteTick >= npc.jobDepartureTick && absoluteTick < npc.jobCompletionTick && !npc.isAway) {
+                // DEPARTURE PHASE (5 seconds have passed)
+                npc.isAway = true;
+                for (PlayerRef pr : Universe.get().getPlayers()) {
+                    if (pr.getUuid().equals(npc.jobEmployer)) {
+                        pr.sendMessage(Message.raw("<" + npc.name + "> Estou saindo agora! Volto assim que terminar."));
+                    }
+                }
+                Ref<EntityStore> ref = world.getEntityStore().getRefFromUUID(npc.entityId);
+                if (ref != null) {
+                    ComponentAccessor<EntityStore> accessor = (ComponentAccessor<EntityStore>) store;
+                    TransformComponent npcTransform = accessor.getComponent(ref, TransformComponent.getComponentType());
+                    if (npcTransform != null) {
+                        // Teleport to the void so the client naturally unloads them
+                        npcTransform.setPosition(new Vector3d(0, -1000, 0));
+                    }
+                }
+            } else if (absoluteTick >= npc.jobCompletionTick) {
+                // RETURN AND COMPLETION PHASE
+                ComponentAccessor<EntityStore> accessor = (ComponentAccessor<EntityStore>) store;
+                if (npc.jobEmployer != null) {
+                    sendLootToPlayer(npc, world, accessor);
+                }
+                
+                Ref<EntityStore> ref = world.getEntityStore().getRefFromUUID(npc.entityId);
+                if (ref != null) {
+                    if (npc.jobEmployer != null) {
+                        Ref<EntityStore> playerRef = world.getEntityStore().getRefFromUUID(npc.jobEmployer);
+                        if (playerRef != null) {
+                            TransformComponent playerTransform = accessor.getComponent(playerRef, TransformComponent.getComponentType());
+                            TransformComponent npcTransform = accessor.getComponent(ref, TransformComponent.getComponentType());
+                            if (playerTransform != null && npcTransform != null) {
+                                npcTransform.setPosition(playerTransform.getPosition());
                             }
                         }
                     }
                 }
+
+                npc.currentJob = JobType.NONE;
+                npc.jobEmployer = null;
+                npc.isAway = false;
             }
-        } catch (Exception e) {
-            // Log or ignore if the accessor doesn't support getComponents or reflection fails
+        } else {
+            // Simple autonomous interaction: 5% chance to socialize with themselves
+            if (Math.random() < 0.05) {
+                InteractionManager.performInteraction(npc, npc, InteractionType.RANDOM);
+            }
         }
     }
 
-    private void sendLootToPlayer(SimNPCComponent npc, World world, ComponentAccessor<EntityStore> accessor) {
+    private void sendLootToPlayer(SimNPCComponent npc, World world, ComponentAccessor accessor) {
         try {
             // Find the employer in the universe's player list
             for (PlayerRef pr : Universe.get().getPlayers()) {
@@ -135,3 +154,13 @@ public class SimTaleTickSystem extends TickingSystem<EntityStore> {
         }
     }
 }
+
+
+    
+    
+        
+        // 
+    
+                            
+
+                    

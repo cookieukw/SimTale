@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.core;
 
 import com.cookieukw.SimTale.logic.SocialStats;
 import com.hypixel.hytale.component.Component;
+import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,10 @@ public class SimNPCComponent implements Component<EntityStore> {
     public SocialStats stats;
     public Map<UUID, Relationship> relationships = new HashMap<>();
 
+    // Runtime properties
+    public transient Ref<EntityStore> entityRef;
+    public transient com.hypixel.hytale.server.core.modules.entity.component.ModelComponent originalModel;
+    
     // MobsAndMates job and conversation state
     public UUID currentConversationPartner;
     public long conversationTimeoutTick;

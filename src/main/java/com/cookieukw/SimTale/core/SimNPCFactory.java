@@ -65,6 +65,7 @@ public class SimNPCFactory {
         
         String name = SimNPCNameGenerator.generate();
         SimNPCComponent simComponent = new SimNPCComponent(entityId, name);
+        simComponent.entityRef = ref;
 
         // Try to load existing data if available
         SimNPCPersistence.loadNPC(simComponent);
