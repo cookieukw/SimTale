@@ -139,7 +139,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         } else {
             // Simple autonomous interaction: 5% chance to socialize with themselves
             if (Math.random() < 0.05) {
-                InteractionManager.performInteraction(npc, npc, InteractionType.RANDOM);
+                InteractionManager.performInteraction(npc, npc.entityId, InteractionType.RANDOM);
             }
         }
     }

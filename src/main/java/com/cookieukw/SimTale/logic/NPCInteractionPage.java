@@ -55,23 +55,23 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         boolean interactionHappened = false;
 
         if (eventData.contains("ChatButton")) {
-            InteractionManager.performInteraction(npc, npc, InteractionType.FRIENDLY);
+            InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.FRIENDLY);
             playerRefComp.sendMessage(Message.raw("Você bateu papo com " + npc.name + "!"));
             interactionHappened = true;
         } else if (eventData.contains("JokeButton")) {
-            InteractionManager.performInteraction(npc, npc, InteractionType.FUNNY);
+            InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.FUNNY);
             playerRefComp.sendMessage(Message.raw("Você contou uma piada para " + npc.name + "!"));
             interactionHappened = true;
         } else if (eventData.contains("FlirtButton")) {
-            InteractionManager.performInteraction(npc, npc, InteractionType.ROMANTIC);
+            InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.ROMANTIC);
             playerRefComp.sendMessage(Message.raw("Você paquerou o " + npc.name + "!"));
             interactionHappened = true;
         } else if (eventData.contains("InsultButton")) {
-            InteractionManager.performInteraction(npc, npc, InteractionType.MEAN);
+            InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.MEAN);
             playerRefComp.sendMessage(Message.raw("Você insultou o " + npc.name + "."));
             interactionHappened = true;
         } else if (eventData.contains("GiftButton")) {
-            InteractionManager.performInteraction(npc, npc, InteractionType.FRIENDLY);
+            InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.FRIENDLY);
             playerRefComp.sendMessage(Message.raw("Você deu um presente pro " + npc.name + "!"));
             interactionHappened = true;
         }

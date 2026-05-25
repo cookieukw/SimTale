@@ -1,13 +1,17 @@
 package com.cookieukw.SimTale.logic;
 
+import java.util.UUID;
+
+import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 
 /**
  * Manages social logic and stat changes.
  */
 public class InteractionManager {
 
-    public static void performInteraction(SimNPCComponent npc, java.util.UUID playerUuid, InteractionType type) {
+    public static void performInteraction(SimNPCComponent npc, UUID playerUuid, InteractionType type) {
         // Logic for relationship and stat changes
         int baseChange = switch (type) {
             case FRIENDLY -> 5;
@@ -18,12 +22,12 @@ public class InteractionManager {
             default -> 0;
         };
 
-        com.cookieukw.SimTale.core.MemoryEvent memEvent = switch (type) {
-            case FRIENDLY -> com.cookieukw.SimTale.core.MemoryEvent.CHATTED;
-            case FUNNY -> com.cookieukw.SimTale.core.MemoryEvent.JOKED;
-            case ROMANTIC -> com.cookieukw.SimTale.core.MemoryEvent.FLIRTED;
-            case MEAN -> com.cookieukw.SimTale.core.MemoryEvent.INSULTED;
-            default -> com.cookieukw.SimTale.core.MemoryEvent.CHATTED;
+       MemoryEvent memEvent = switch (type) {
+            case FRIENDLY -> MemoryEvent.CHATTED;
+            case FUNNY -> MemoryEvent.JOKED;
+            case ROMANTIC -> MemoryEvent.FLIRTED;
+            case MEAN -> MemoryEvent.INSULTED;
+            default -> MemoryEvent.CHATTED;
         };
 
         // Salvar Memoria Curta e Afinidade
@@ -37,6 +41,6 @@ public class InteractionManager {
         npc.needs.social = Math.min(100, npc.needs.social + 10);
 
         // Caskara real-time saving
-        com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
+        SimNPCPersistence.saveNPC(npc);
     }
 }

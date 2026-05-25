@@ -8,7 +8,7 @@ Este documento é o guia definitivo para transformarmos os NPCs do SimTale de "b
 - [x] **Afinidade Base (-100 a 100):** Medidor de longo prazo que define o *Status* (`Odeia` até `Apaixonado`).
 - [ ] **Humor Temporário:** Estado emocional volátil (`Feliz`, `Bravo`, `Triste`, `Assustado`).
 - [ ] **Sistema de Confiança:** Eixo separado da afinidade (Um NPC pode te amar, mas achar você um traidor).
-- [ ] **Memória Curta (Short-term Memory):** Registro dos últimos 5-10 eventos (ex: "Me bateu há 2 min", "Me deu pão hoje").
+- [x] **Memória Curta (Short-term Memory):** Registro dos últimos 5-10 eventos (ex: "Me bateu há 2 min", "Me deu pão hoje").
 
 ### 💡 Snippet: Memória Curta
 ```java
