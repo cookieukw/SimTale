@@ -1,5 +1,6 @@
 package com.cookieukw.SimTale.logic;
 
+import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
@@ -33,13 +34,13 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         
         commandBuilder.set("#NpcName.Text", npc.name);
         
-        String mood = "Feliz";
-        if (npc.needs != null && npc.needs.isMiserable()) {
-            mood = "Irritado";
-        } else if (npc.needs != null && npc.needs.fun > 80 && npc.needs.social > 80) {
-            mood = "Eufórico";
+        Mood currentMood = npc.getMood();
+        commandBuilder.set("#NpcMood.Text", "Humor: " + currentMood.ptName);
+
+        if (currentMood == Mood.ANGRY) {
+            commandBuilder.set("#NpcName.Style.TextColor", "#FF0000"); 
+            commandBuilder.set("#NpcName.Classes", "ShakeAnimation");
         }
-        commandBuilder.set("#NpcMood.Text", "Humor: " + mood);
 
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ChatButton");
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#JokeButton");
@@ -55,24 +56,24 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         boolean interactionHappened = false;
 
         if (eventData.contains("ChatButton")) {
-            InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.FRIENDLY);
-            playerRefComp.sendMessage(Message.raw("Você bateu papo com " + npc.name + "!"));
+            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.FRIENDLY);
+            playerRefComp.sendMessage(Message.raw(resp));
             interactionHappened = true;
         } else if (eventData.contains("JokeButton")) {
-            InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.FUNNY);
-            playerRefComp.sendMessage(Message.raw("Você contou uma piada para " + npc.name + "!"));
+            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.FUNNY);
+            playerRefComp.sendMessage(Message.raw(resp));
             interactionHappened = true;
         } else if (eventData.contains("FlirtButton")) {
-            InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.ROMANTIC);
-            playerRefComp.sendMessage(Message.raw("Você paquerou o " + npc.name + "!"));
+            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.ROMANTIC);
+            playerRefComp.sendMessage(Message.raw(resp));
             interactionHappened = true;
         } else if (eventData.contains("InsultButton")) {
-            InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.MEAN);
-            playerRefComp.sendMessage(Message.raw("Você insultou o " + npc.name + "."));
+            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.MEAN);
+            playerRefComp.sendMessage(Message.raw(resp));
             interactionHappened = true;
         } else if (eventData.contains("GiftButton")) {
-            InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.FRIENDLY);
-            playerRefComp.sendMessage(Message.raw("Você deu um presente pro " + npc.name + "!"));
+            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.FRIENDLY);
+            playerRefComp.sendMessage(Message.raw(resp));
             interactionHappened = true;
         }
 

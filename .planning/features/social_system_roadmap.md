@@ -6,7 +6,7 @@ Este documento é o guia definitivo para transformarmos os NPCs do SimTale de "b
 
 ## 1. Núcleo Cognitivo e Sentimental
 - [x] **Afinidade Base (-100 a 100):** Medidor de longo prazo que define o *Status* (`Odeia` até `Apaixonado`).
-- [ ] **Humor Temporário:** Estado emocional volátil (`Feliz`, `Bravo`, `Triste`, `Assustado`).
+- [x] **Humor Temporário:** Estado emocional volátil (`Feliz`, `Bravo`, `Triste`, `Assustado`).
 - [ ] **Sistema de Confiança:** Eixo separado da afinidade (Um NPC pode te amar, mas achar você um traidor).
 - [x] **Memória Curta (Short-term Memory):** Registro dos últimos 5-10 eventos (ex: "Me bateu há 2 min", "Me deu pão hoje").
 
@@ -36,8 +36,8 @@ public class MemoryManager {
 ## 2. Dinâmica de Interações
 - [x] **Ações Básicas:** Papo, Piada, Paquera, Insulto, Presente.
 - [ ] **Bate-Papo Contextual:** Sistema de lore, fofoca e observações do bioma ao redor.
-- [ ] **Piadas com Consequência:** Probabilidade de sucesso dependente do *Humor* atual.
-- [ ] **Flerte com Barreira:** Flerte falha miseravelmente e gera penalidade se feito no status `Estranho` ou com humor `Bravo`.
+- [x] **Piadas com Consequência:** Probabilidade de sucesso dependente do *Humor* atual.
+- [x] **Flerte com Barreira:** Flerte falha miseravelmente e gera penalidade se feito no status `Estranho` ou com humor `Bravo`.
 - [ ] **Presentes Favoritos/Odiados:** Dicionário de itens preferidos para cada NPC ou tipo de Personalidade.
 
 ### 💡 Snippet: Interação com Barreira e Humor

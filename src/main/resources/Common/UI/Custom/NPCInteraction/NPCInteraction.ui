@@ -41,7 +41,7 @@ Group {
             );
         }
 
-        Image #NpcPortrait {
+        Group #NpcPortrait {
             Anchor: (Top: 140, HorizontalCenter: 0, Width: 180, Height: 180);
             Background: (TexturePath: "Textures/zovil_happy.png");
         }

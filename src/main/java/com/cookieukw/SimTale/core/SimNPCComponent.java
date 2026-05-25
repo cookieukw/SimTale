@@ -80,4 +80,17 @@ public class SimNPCComponent implements Component<EntityStore> {
     public Relationship getRelationship(UUID target) {
         return relationships.computeIfAbsent(target, Relationship::new);
     }
+
+    public Mood getMood() {
+        if (memory.remembers(MemoryEvent.ATTACKED, null, 300000)) return Mood.SCARED;
+        if (memory.remembers(MemoryEvent.INSULTED, null, 120000)) return Mood.ANGRY;
+        
+        if (needs != null) {
+            if (needs.energy < 20) return Mood.SLEEPY;
+            if (needs.isMiserable()) return Mood.SAD;
+            if (needs.fun > 80 && needs.social > 80) return Mood.EXCITED;
+            if (needs.social > 50 && needs.fun > 50) return Mood.HAPPY;
+        }
+        return Mood.NEUTRAL;
+    }
 }
