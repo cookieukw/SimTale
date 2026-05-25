@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.logic;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 
 import java.util.UUID;
@@ -29,6 +30,9 @@ public class InteractionManager {
                 if (mood == Mood.ANGRY || mood == Mood.SAD) {
                     baseChange = -5;
                     response = npc.name + ": ...isso era pra ser engraçado?";
+                } else if (npc.personality.traits.contains(Trait.FUNNY)) {
+                    baseChange = 10;
+                    response = npc.name + ": HAHAHA! Boa! Você leva jeito pra comédia.";
                 } else {
                     baseChange = 5;
                     response = "Você contou uma piada! " + npc.name + " riu bastante.";
@@ -40,15 +44,26 @@ public class InteractionManager {
                 if (affinity < 20 || mood == Mood.ANGRY) {
                     baseChange = -10;
                     response = npc.name + ": Cara... que? Sai pra lá.";
+                } else if (npc.personality.traits.contains(Trait.SHY)) {
+                    baseChange = 5;
+                    response = npc.name + " cora e desvia o olhar: O-obrigado...";
                 } else {
                     baseChange = 10;
                     response = npc.name + ": Heh... continua falando.";
                 }
             }
             case MEAN -> {
-                baseChange = -15;
                 memEvent = MemoryEvent.INSULTED;
-                response = "Você insultou o " + npc.name + "!";
+                if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
+                    baseChange = -20;
+                    response = npc.name + " saca a arma: Você quer resolver isso agora?!";
+                } else if (npc.personality.traits.contains(Trait.NEEDY)) {
+                    baseChange = -10;
+                    response = npc.name + " quase chora: Por que você é tão mau comigo?";
+                } else {
+                    baseChange = -15;
+                    response = "Você insultou o " + npc.name + "!";
+                }
             }
             case RANDOM -> {
                 baseChange = 1;

@@ -63,7 +63,7 @@ public void attemptFlirt(SimNPCComponent npc, Player player) {
 ---
 
 ## 3. O Mundo Vivo (Sistemas Emergentes)
-- [ ] **Traits de Personalidade Exclusivos:** `Tímido`, `Agressivo`, `Ganancioso`. (Ex: Gananciosos cobram mais caro se afinidade for baixa).
+- [x] **Traits de Personalidade Exclusivos:** `Tímido`, `Agressivo`, `Ganancioso`. (Ex: Gananciosos cobram mais caro se afinidade for baixa).
 - [ ] **Sistema de Fofoca (Gossip):** Se o Player bater em um NPC, os NPCs próximos salvam essa memória e espalham pro resto da vila.
 - [ ] **Reações ao Ambiente (Contexto Mágico):**
   - Jogador está com HP baixo? *"Meu deus, você está sangrando!"*
