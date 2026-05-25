@@ -44,6 +44,19 @@ public class SimTaleTickSystem extends TickingSystem<EntityStore> {
                 for (Object obj : npcs) {
                     if (obj instanceof SimNPCComponent) {
                         SimNPCComponent npc = (SimNPCComponent) obj;
+                        
+                        // Auto-register NPCs loaded from world save
+                        boolean found = false;
+                        for (SimNPCComponent active : SimTale.ACTIVE_NPCS) {
+                            if (active.entityId != null && active.entityId.equals(npc.entityId)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            SimTale.ACTIVE_NPCS.add(npc);
+                        }
+
                         npc.needs.tickDecay();
 
                         // Conversation Timeout Handling
@@ -53,7 +66,7 @@ public class SimTaleTickSystem extends TickingSystem<EntityStore> {
                                 world = w;
                                 break;
                             }
-                            if (world != null && currentTick > npc.conversationTimeoutTick) {
+                            if (world != null && world.getTick() > npc.conversationTimeoutTick) {
                                 npc.currentConversationPartner = null;
                             }
                         }
@@ -66,7 +79,8 @@ public class SimTaleTickSystem extends TickingSystem<EntityStore> {
                                 break;
                             }
                             if (world != null) {
-                                if (currentTick >= npc.jobDepartureTick && currentTick < npc.jobCompletionTick && !npc.isAway) {
+                                long absoluteTick = world.getTick();
+                                if (absoluteTick >= npc.jobDepartureTick && absoluteTick < npc.jobCompletionTick && !npc.isAway) {
                                     // DEPARTURE PHASE (5 seconds have passed)
                                     npc.isAway = true;
                                     for (PlayerRef pr : Universe.get().getPlayers()) {
@@ -75,7 +89,7 @@ public class SimTaleTickSystem extends TickingSystem<EntityStore> {
                                         }
                                     }
                                     // TODO: Hide the NPC (teleport to waiting box, add invisibility, or detach ModelComponent)
-                                } else if (currentTick >= npc.jobCompletionTick) {
+                                } else if (absoluteTick >= npc.jobCompletionTick) {
                                     // RETURN AND COMPLETION PHASE
                                     if (npc.jobEmployer != null) {
                                         sendLootToPlayer(npc, world, accessor);

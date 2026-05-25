@@ -90,23 +90,21 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
     }
 
     private void handleNpcCommand(PlayerRef sender, String message, SimNPCComponent npc, World world) {
-        boolean isGreeting = message.contains("olá") || message.contains("ola") || message.contains("hello") || message.contains("hi");
+        boolean isGreeting = message.contains("olá") || message.contains("ola") || message.contains("hello") || message.contains("hi") || message.contains("oi") || message.contains("eae");
         boolean wantMine = message.contains("mine") || message.contains("minerar");
         boolean wantFish = message.contains("fish") || message.contains("pescar");
         boolean wantFarm = message.contains("farm") || message.contains("farmar") || message.contains("plantar");
         boolean wantGather = message.contains("gather") || message.contains("catar") || message.contains("coletar");
         boolean wantExplore = message.contains("explore") || message.contains("explorar");
-        boolean wantCome = message.contains("vem") || message.contains("come");
+        boolean wantCome = message.contains("vem") || message.contains("come") || message.contains("aqui");
 
         if (npc.currentJob != JobType.NONE && !wantCome) {
-            sendReply(sender, "<" + npc.name + "> Já estou ocupado!");
+            sendReply(sender, "<" + npc.name + "> Já estou ocupado com meu trabalho de " + npc.currentJob.getPortugueseName() + "!");
+            npc.currentConversationPartner = null; // Free the lock so player can talk to others
             return;
         }
 
-        // Engage conversation
-        npc.currentConversationPartner = sender.getUuid();
         long currentTick = world.getTick();
-        npc.conversationTimeoutTick = currentTick + CONVERSATION_TIMEOUT_TICKS;
 
         if (wantMine) {
             assignJob(sender, npc, currentTick, JobType.MINE);
@@ -121,10 +119,16 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         } else if (wantCome) {
             sendReply(sender, "<" + npc.name + "> Estou indo!");
             npc.currentJob = JobType.NONE;
+            npc.currentConversationPartner = null; // Free lock
         } else if (isGreeting) {
-            sendReply(sender, "<" + npc.name + "> O que você quer que eu faça?");
+            npc.currentConversationPartner = sender.getUuid();
+            npc.conversationTimeoutTick = currentTick + CONVERSATION_TIMEOUT_TICKS;
+            sendReply(sender, "<" + npc.name + "> Olá! O que você precisa que eu faça? (Diga 'pescar', 'minerar', etc)");
         } else {
-            sendReply(sender, "<" + npc.name + "> Não entendi. Fale 'pescar', 'minerar', 'farmar', 'coletar', 'explorar'.");
+            // Unclear intent: lock conversation so next chat goes to them without name
+            npc.currentConversationPartner = sender.getUuid();
+            npc.conversationTimeoutTick = currentTick + CONVERSATION_TIMEOUT_TICKS;
+            sendReply(sender, "<" + npc.name + "> Hmm, não entendi o que você quis dizer. (Fale 'pescar', 'minerar', 'farmar', 'coletar', 'explorar')");
         }
     }
 
@@ -134,6 +138,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         npc.jobCompletionTick = npc.jobDepartureTick + (job.getDurationSeconds() * 20L);
         npc.jobEmployer = sender.getUuid();
         npc.isAway = false;
+        npc.currentConversationPartner = null; // Unlock conversation now that intent is clear
         sendReply(sender, "<" + npc.name + "> Certo, me preparando para ir " + job.getPortugueseName() + "!");
     }
 
