@@ -15,6 +15,7 @@ src/main/assets
 *.iml
 *.ipr
 .agent
+agents/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/

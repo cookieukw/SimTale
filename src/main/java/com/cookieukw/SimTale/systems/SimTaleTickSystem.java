@@ -13,10 +13,12 @@ import com.cookieukw.SimTale.logic.JobType;
 import com.cookieukw.SimTale.logic.JobLootTable;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.component.Ref;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Core ticking system for SimTale.
@@ -97,14 +99,14 @@ public class SimTaleTickSystem extends TickingSystem<EntityStore> {
             // Find the employer in the universe's player list
             for (PlayerRef pr : Universe.get().getPlayers()) {
                 if (pr.getUuid().equals(npc.jobEmployer)) {
-                    pr.sendMessage(com.hypixel.hytale.server.core.Message.raw("<" + npc.name + "> Terminei meu trabalho de " + npc.currentJob.name().toLowerCase() + "!"));
+                    pr.sendMessage(Message.raw("<" + npc.name + "> Terminei meu trabalho de " + npc.currentJob.getPortugueseName() + "!"));
                     
                     // Hand over the items
-                    java.util.List<JobLootTable.LootEntry> loots = JobLootTable.getLootForJob(npc.currentJob);
+                    List<JobLootTable.LootEntry> loots = JobLootTable.getLootForJob(npc.currentJob);
                     for (JobLootTable.LootEntry loot : loots) {
                         int qty = loot.rollQty();
                         if (qty > 0) {
-                            pr.sendMessage(com.hypixel.hytale.server.core.Message.raw(" Recebido: " + qty + "x " + loot.itemId));
+                            pr.sendMessage(Message.raw(" Recebido: " + qty + "x " + loot.itemId));
                         }
                     }
                 }

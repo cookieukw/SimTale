@@ -10,6 +10,8 @@ import com.hypixel.hytale.server.npc.NPCPlugin;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.npc.systems.NewSpawnStartTickingSystem;
 import com.hypixel.hytale.server.core.modules.entity.component.DisplayNameComponent;
+import com.hypixel.hytale.server.core.modules.entity.component.Interactable;
+import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.Message;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.SimTale;
@@ -22,37 +24,46 @@ import java.util.UUID;
 public class SimNPCFactory {
 
     public enum NPCType {
-        SLOTHIAN("SimTale_Passive", "Slothian"),
-        TRORK("SimTale_Passive", "Trork");
+        SLOTHIAN("SimTale_Slothian"),
+        TRORK("SimTale_Trork");
 
         public final String roleId;
-        public final String appearanceId;
 
-        NPCType(String roleId, String appearanceId) {
+        NPCType(String roleId) {
             this.roleId = roleId;
-            this.appearanceId = appearanceId;
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("null")
     public static Ref<EntityStore> spawnNPC(Store<EntityStore> store, Vector3d position, NPCType type) {
         // 1. Spawn the NPC using the official Hytale NPC system
         Pair<Ref<EntityStore>, ?> result = NPCPlugin.get().spawnNPC(
             store, 
             type.roleId, 
-            type.appearanceId, 
+            (String) null, 
             position, 
             new Vector3f(0f, 0f, 0f)
         );
 
+        if (result == null) {
+            throw new NullPointerException("Spawn result is null");
+        }
+
         Ref<EntityStore> ref = result.left();
+        if (ref == null) {
+            throw new NullPointerException("Spawned NPC entity reference is null");
+        }
+        
         ComponentAccessor<EntityStore> accessor = (ComponentAccessor<EntityStore>) ref.getStore();
         
         // 2. Add SimTale custom components to the spawned entity
         UUIDComponent uuidComp = accessor.getComponent(ref, UUIDComponent.getComponentType());
+        if (uuidComp == null) {
+            throw new NullPointerException("NPC UUID component is null");
+        }
         UUID entityId = uuidComp.getUuid();
         
-        String name = type.name() + "_" + entityId.toString().substring(0, 4);
+        String name = SimNPCNameGenerator.generate();
         SimNPCComponent simComponent = new SimNPCComponent(entityId, name);
 
         // Try to load existing data if available
@@ -60,8 +71,10 @@ public class SimNPCFactory {
 
         accessor.addComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE, simComponent);
         
-        // 3. Add overhead name plate
-        accessor.putComponent(ref, DisplayNameComponent.getComponentType(), new DisplayNameComponent(Message.raw(name)));
+        // 3. Add overhead name plate and make entity interactable
+        accessor.putComponent(ref, DisplayNameComponent.getComponentType(), new DisplayNameComponent(Message.raw(simComponent.name)));
+        accessor.putComponent(ref, Nameplate.getComponentType(), new Nameplate(simComponent.name));
+        accessor.putComponent(ref, Interactable.getComponentType(), Interactable.INSTANCE);
 
         // 4. ACTIVATE AI: Queue for ticking
         // This is mandatory for NPCs spawned via API to start their AI logic.

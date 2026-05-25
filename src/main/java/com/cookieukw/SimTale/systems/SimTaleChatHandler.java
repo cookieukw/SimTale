@@ -72,7 +72,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         boolean wantCome = message.contains("vem") || message.contains("come");
 
         if (npc.currentJob != JobType.NONE && !wantCome) {
-            sender.sendMessage(Message.raw("<" + npc.name + "> Já estou ocupado!"));
+            sendReply(sender, "<" + npc.name + "> Já estou ocupado!");
             return;
         }
 
@@ -92,12 +92,12 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         } else if (wantExplore) {
             assignJob(sender, npc, currentTick, JobType.EXPLORE);
         } else if (wantCome) {
-            sender.sendMessage(Message.raw("<" + npc.name + "> Estou indo!"));
+            sendReply(sender, "<" + npc.name + "> Estou indo!");
             npc.currentJob = JobType.NONE;
         } else if (isGreeting) {
-            sender.sendMessage(Message.raw("<" + npc.name + "> O que você quer que eu faça?"));
+            sendReply(sender, "<" + npc.name + "> O que você quer que eu faça?");
         } else {
-            sender.sendMessage(Message.raw("<" + npc.name + "> Não entendi. Fale 'pescar', 'minerar', 'farmar', 'coletar', 'explorar'."));
+            sendReply(sender, "<" + npc.name + "> Não entendi. Fale 'pescar', 'minerar', 'farmar', 'coletar', 'explorar'.");
         }
     }
 
@@ -105,6 +105,17 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         npc.currentJob = job;
         npc.jobCompletionTick = currentTick + (job.getDurationSeconds() * 20L);
         npc.jobEmployer = sender.getUuid();
-        sender.sendMessage(Message.raw("<" + npc.name + "> Certo, indo " + job.name().toLowerCase() + "!"));
+        sendReply(sender, "<" + npc.name + "> Certo, indo " + job.getPortugueseName() + "!");
+    }
+
+    private void sendReply(PlayerRef sender, String text) {
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(150); // 150ms delay to ensure player's chat message is printed first
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+            sender.sendMessage(Message.raw(text));
+        });
     }
 }
