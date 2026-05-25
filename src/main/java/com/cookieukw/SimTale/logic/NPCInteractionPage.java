@@ -72,7 +72,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             playerRefComp.sendMessage(Message.raw(resp));
             interactionHappened = true;
         } else if (eventData.contains("GiftButton")) {
-            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.FRIENDLY);
+            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.GIFT);
             playerRefComp.sendMessage(Message.raw(resp));
             interactionHappened = true;
         }

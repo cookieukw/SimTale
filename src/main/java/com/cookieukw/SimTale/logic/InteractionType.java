@@ -8,5 +8,6 @@ public enum InteractionType {
     FUNNY,
     ROMANTIC,
     MEAN,
+    GIFT,
     RANDOM
 }

@@ -21,6 +21,7 @@ public class Relationship {
     public final UUID target;
     public int friendship = 0; // -100 to 100
     public int romance = 0; // 0 to 100
+    public int trust = 0; // -100 to 100
     public RelationshipStatus status = RelationshipStatus.STRANGER;
 
     public Relationship(UUID target) {
@@ -35,6 +36,10 @@ public class Relationship {
     public void addRomance(int amount) {
         this.romance = Math.max(0, Math.min(100, this.romance + amount));
         updateStatus();
+    }
+
+    public void addTrust(int amount) {
+        this.trust = Math.max(-100, Math.min(100, this.trust + amount));
     }
 
     private void updateStatus() {
