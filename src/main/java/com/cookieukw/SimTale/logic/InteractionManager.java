@@ -7,7 +7,7 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
  */
 public class InteractionManager {
 
-    public static void performInteraction(SimNPCComponent actor, SimNPCComponent target, InteractionType type) {
+    public static void performInteraction(SimNPCComponent npc, java.util.UUID playerUuid, InteractionType type) {
         // Logic for relationship and stat changes
         int baseChange = switch (type) {
             case FRIENDLY -> 5;
@@ -18,13 +18,25 @@ public class InteractionManager {
             default -> 0;
         };
 
-        // Apply changes to target's relationship with actor
-        // (In a full implementation, we'd find the specific relationship object)
+        com.cookieukw.SimTale.core.MemoryEvent memEvent = switch (type) {
+            case FRIENDLY -> com.cookieukw.SimTale.core.MemoryEvent.CHATTED;
+            case FUNNY -> com.cookieukw.SimTale.core.MemoryEvent.JOKED;
+            case ROMANTIC -> com.cookieukw.SimTale.core.MemoryEvent.FLIRTED;
+            case MEAN -> com.cookieukw.SimTale.core.MemoryEvent.INSULTED;
+            default -> com.cookieukw.SimTale.core.MemoryEvent.CHATTED;
+        };
+
+        // Salvar Memoria Curta e Afinidade
+        npc.memory.addMemory(memEvent, playerUuid);
+        npc.getRelationship(playerUuid).addFriendship(baseChange);
 
         // Simulating XP gain
-        actor.stats.addXP(Math.abs(baseChange) * 10);
+        npc.stats.addXP(Math.abs(baseChange) * 10);
 
         // Update needs
-        actor.needs.social = Math.min(100, actor.needs.social + 10);
+        npc.needs.social = Math.min(100, npc.needs.social + 10);
+
+        // Caskara real-time saving
+        com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
     }
 }

@@ -18,6 +18,7 @@ public class SimNPCComponent implements Component<EntityStore> {
     public Personality personality;
     public Needs needs;
     public SocialStats stats;
+    public MemoryManager memory = new MemoryManager();
     public Map<UUID, Relationship> relationships = new HashMap<>();
 
     // Runtime properties
@@ -61,6 +62,8 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.stats = new SocialStats();
         clone.stats.level = stats.level;
         clone.stats.xp = stats.xp;
+        clone.memory = new MemoryManager();
+        clone.memory.recentMemories.addAll(memory.recentMemories);
         clone.relationships = new HashMap<>(relationships);
         
         // Clone new states
