@@ -121,7 +121,12 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                             TransformComponent playerTransform = accessor.getComponent(playerRef, TransformComponent.getComponentType());
                             TransformComponent npcTransform = accessor.getComponent(ref, TransformComponent.getComponentType());
                             if (playerTransform != null && npcTransform != null) {
-                                npcTransform.setPosition(playerTransform.getPosition());
+                                // Teleport slightly offset from the player to prevent taking accidental damage
+                                npcTransform.setPosition(new Vector3d(
+                                    playerTransform.getPosition().x + 2, 
+                                    playerTransform.getPosition().y, 
+                                    playerTransform.getPosition().z + 2
+                                ));
                             }
                         }
                     }
@@ -151,7 +156,12 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                     for (JobLootTable.LootEntry loot : loots) {
                         int qty = loot.rollQty();
                         if (qty > 0) {
-                            pr.sendMessage(Message.raw(" Recebido: " + qty + "x " + loot.itemId));
+                            pr.sendMessage(Message.raw("<" + npc.name + "> Coletou: " + qty + "x " + loot.itemId));
+                            try {
+                                com.hypixel.hytale.server.core.command.system.CommandManager.get().handleCommand(pr, "give " + pr.getUsername() + " " + loot.itemId + " --quantity=" + qty);
+                            } catch (Exception cmdEx) {
+                                // Ignore failure if item doesn't exist
+                            }
                         }
                     }
                 }

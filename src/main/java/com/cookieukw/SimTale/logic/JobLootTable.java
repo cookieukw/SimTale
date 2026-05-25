@@ -34,32 +34,32 @@ public class JobLootTable {
         // Native Hytale item IDs discovered in the assets repository
         switch(job) {
             case MINE:
-                returnLoot.add(new LootEntry("hytale:ore_iron_stone", 2, 8));
-                returnLoot.add(new LootEntry("hytale:rock_stone_cobble", 10, 32));
-                returnLoot.add(new LootEntry("hytale:ingredient_charcoal", 5, 15));
-                returnLoot.add(new LootEntry("hytale:ore_gold_stone", 1, 3));
+                returnLoot.add(new LootEntry("Ore_Iron_Stone", 2, 8));
+                returnLoot.add(new LootEntry("Rock_Stone_Cobble", 10, 32));
+                returnLoot.add(new LootEntry("Ingredient_Charcoal", 5, 15));
+                returnLoot.add(new LootEntry("Ore_Gold_Stone", 1, 3));
                 break;
             case FISH:
-                returnLoot.add(new LootEntry("hytale:fish_trout_rainbow_item", 2, 6)); // Cod equivalent
-                returnLoot.add(new LootEntry("hytale:fish_salmon_item", 2, 5));
-                returnLoot.add(new LootEntry("hytale:fish_pufferfish_item", 0, 2));
-                returnLoot.add(new LootEntry("hytale:armor_leather_soft_legs", 0, 1)); // Junk
+                returnLoot.add(new LootEntry("Fish_Catfish_Item", 2, 6));
+                returnLoot.add(new LootEntry("Fish_Clownfish_Item", 2, 5));
+                returnLoot.add(new LootEntry("Fish_Pufferfish_Item", 0, 2));
+                returnLoot.add(new LootEntry("Deco_Starfish", 0, 1)); 
                 break;
             case GATHER:
-                returnLoot.add(new LootEntry("hytale:wood_oak_trunk", 8, 24));
-                returnLoot.add(new LootEntry("hytale:soil_sand", 10, 32));
-                returnLoot.add(new LootEntry("hytale:rock_stone_cobble", 10, 20));
-                returnLoot.add(new LootEntry("hytale:plant_reeds_water", 5, 15)); // Sugar cane equivalent
-                returnLoot.add(new LootEntry("hytale:plant_flower_common_yellow", 2, 5)); // Dandelion equivalent
+                returnLoot.add(new LootEntry("Wood_Oak_Trunk", 8, 24));
+                returnLoot.add(new LootEntry("Soil_Sand", 10, 32));
+                returnLoot.add(new LootEntry("Rock_Stone_Cobble", 10, 20));
+                returnLoot.add(new LootEntry("Plant_Reeds_Water", 5, 15)); // Sugar cane equivalent
+                returnLoot.add(new LootEntry("Plant_Flower_Common_Yellow", 2, 5)); // Dandelion equivalent
                 break;
             case FARM:
-                returnLoot.add(new LootEntry("hytale:plant_crop_wheat", 10, 20));
-                returnLoot.add(new LootEntry("hytale:plant_crop_carrot", 5, 15));
-                returnLoot.add(new LootEntry("hytale:plant_crop_potato", 5, 15));
+                returnLoot.add(new LootEntry("Plant_Crop_Wheat_Item", 10, 20));
+                returnLoot.add(new LootEntry("Plant_Crop_Carrot_Item", 5, 15));
+                returnLoot.add(new LootEntry("Plant_Crop_Potato_Item", 5, 15));
                 break;
             case EXPLORE:
-                returnLoot.add(new LootEntry("hytale:objective_treasure_map", 1, 1));
-                returnLoot.add(new LootEntry("hytale:rock_gem_emerald", 2, 5));
+                returnLoot.add(new LootEntry("Objective_Treasure_Map", 1, 1));
+                returnLoot.add(new LootEntry("Rock_Gem_Emerald", 2, 5));
                 break;
             case NONE:
             default:
