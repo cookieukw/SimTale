@@ -23,7 +23,7 @@ public class InteractionManager {
             case FRIENDLY -> {
                 baseChange = 5;
                 memEvent = MemoryEvent.CHATTED;
-                response = "Você bateu papo com " + npc.name + "!";
+                response = getContextualGreeting(npc, playerUuid);
             }
             case FUNNY -> {
                 memEvent = MemoryEvent.JOKED;
@@ -85,5 +85,30 @@ public class InteractionManager {
         SimNPCPersistence.saveNPC(npc);
         
         return response;
+    }
+
+    private static String getContextualGreeting(SimNPCComponent npc, UUID playerUuid) {
+        // 1. Checa as memórias recentes do próprio NPC
+        if (npc.memory.remembers(MemoryEvent.INSULTED, playerUuid, 300000)) {
+            return npc.name + " cruza os braços: O que você quer? Já não me insultou o bastante hoje?";
+        }
+
+        // 2. Checa a fofoca da vila (Busca memórias recentes de outros NPCs)
+        for (SimNPCComponent otherNpc : com.cookieukw.SimTale.SimTale.ACTIVE_NPCS) {
+            if (otherNpc != npc && otherNpc.memory.remembers(MemoryEvent.INSULTED, playerUuid, 600000)) {
+                return npc.name + " te olha torto: Eu soube o que você fez com " + otherNpc.name + ". É bom andar na linha.";
+            }
+        }
+
+        // 3. Fallbacks de Lore baseado nos Traits de Personalidade
+        if (npc.personality.traits.contains(Trait.GREEDY)) {
+            return npc.name + " esfrega as mãos: Tem algum minério ou item sobrando pra mim hoje?";
+        } else if (npc.personality.traits.contains(Trait.PARANOID)) {
+            return npc.name + " olha pros lados suando frio: Shh! Você escutou isso?...";
+        } else if (npc.personality.traits.contains(Trait.LAZY)) {
+            return npc.name + " boceja: Ah, oi... Me acorda quando a janta estiver pronta.";
+        }
+
+        return npc.name + " sorri: Olá! Que bom te ver.";
     }
 }

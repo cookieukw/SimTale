@@ -35,7 +35,7 @@ public class MemoryManager {
 
 ## 2. Dinâmica de Interações
 - [x] **Ações Básicas:** Papo, Piada, Paquera, Insulto, Presente.
-- [ ] **Bate-Papo Contextual:** Sistema de lore, fofoca e observações do bioma ao redor.
+- [x] **Bate-Papo Contextual:** Sistema de lore, fofoca e observações do bioma ao redor.
 - [x] **Piadas com Consequência:** Probabilidade de sucesso dependente do *Humor* atual.
 - [x] **Flerte com Barreira:** Flerte falha miseravelmente e gera penalidade se feito no status `Estranho` ou com humor `Bravo`.
 - [ ] **Presentes Favoritos/Odiados:** Dicionário de itens preferidos para cada NPC ou tipo de Personalidade.
@@ -64,7 +64,7 @@ public void attemptFlirt(SimNPCComponent npc, Player player) {
 
 ## 3. O Mundo Vivo (Sistemas Emergentes)
 - [x] **Traits de Personalidade Exclusivos:** `Tímido`, `Agressivo`, `Ganancioso`. (Ex: Gananciosos cobram mais caro se afinidade for baixa).
-- [ ] **Sistema de Fofoca (Gossip):** Se o Player bater em um NPC, os NPCs próximos salvam essa memória e espalham pro resto da vila.
+- [x] **Sistema de Fofoca (Gossip):** Se o Player bater em um NPC, os NPCs próximos salvam essa memória e espalham pro resto da vila.
 - [ ] **Reações ao Ambiente (Contexto Mágico):**
   - Jogador está com HP baixo? *"Meu deus, você está sangrando!"*
   - Está chovendo? *"Que clima horrível..."*
