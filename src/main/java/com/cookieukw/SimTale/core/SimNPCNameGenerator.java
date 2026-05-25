@@ -52,14 +52,31 @@ public class SimNPCNameGenerator {
      * @return a randomly generated name
      */
     public static String generate() {
-        String firstName = pick(SYLLABLES_START) + pick(SYLLABLES_MIDDLE);
-        if (RANDOM.nextDouble() < 0.4) {
-            firstName += pick(SYLLABLES_END);
-        }
+        String name;
+        int attempts = 0;
+        boolean unique;
+        do {
+            String firstName = pick(SYLLABLES_START) + pick(SYLLABLES_MIDDLE);
+            if (RANDOM.nextDouble() < 0.4) {
+                firstName += pick(SYLLABLES_END);
+            }
 
-        if (RANDOM.nextDouble() < 0.5) {
-            return firstName + " " + pick(SURNAMES);
-        }
-        return firstName;
+            if (RANDOM.nextDouble() < 0.5) {
+                name = firstName + " " + pick(SURNAMES);
+            } else {
+                name = firstName;
+            }
+
+            unique = true;
+            for (SimNPCComponent npc : com.cookieukw.SimTale.SimTale.ACTIVE_NPCS) {
+                if (npc.name != null && npc.name.equalsIgnoreCase(name)) {
+                    unique = false;
+                    break;
+                }
+            }
+            attempts++;
+        } while (!unique && attempts < 50);
+        
+        return name;
     }
 }
