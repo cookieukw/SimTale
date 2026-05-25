@@ -103,9 +103,11 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
     private void assignJob(PlayerRef sender, SimNPCComponent npc, long currentTick, JobType job) {
         npc.currentJob = job;
-        npc.jobCompletionTick = currentTick + (job.getDurationSeconds() * 20L);
+        npc.jobDepartureTick = currentTick + 100L; // 5 seconds preparation phase
+        npc.jobCompletionTick = npc.jobDepartureTick + (job.getDurationSeconds() * 20L);
         npc.jobEmployer = sender.getUuid();
-        sendReply(sender, "<" + npc.name + "> Certo, indo " + job.getPortugueseName() + "!");
+        npc.isAway = false;
+        sendReply(sender, "<" + npc.name + "> Certo, me preparando para ir " + job.getPortugueseName() + "!");
     }
 
     private void sendReply(PlayerRef sender, String text) {

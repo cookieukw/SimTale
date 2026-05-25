@@ -65,20 +65,26 @@ public class SimTaleTickSystem extends TickingSystem<EntityStore> {
                                 world = w;
                                 break;
                             }
-                            if (world != null && currentTick >= npc.jobCompletionTick) {
-                                // Add logic to reveal the NPC by re-adding ModelComponent
-                                // and AIComponent when API guarantees those component types.
-                                // For now, we simulate completion returning.
-                                
-                                // Grant Loot to the employer
-                                if (npc.jobEmployer != null) {
-                                    sendLootToPlayer(npc, world, accessor);
+                            if (world != null) {
+                                if (currentTick >= npc.jobDepartureTick && currentTick < npc.jobCompletionTick && !npc.isAway) {
+                                    // DEPARTURE PHASE (5 seconds have passed)
+                                    npc.isAway = true;
+                                    for (PlayerRef pr : Universe.get().getPlayers()) {
+                                        if (pr.getUuid().equals(npc.jobEmployer)) {
+                                            pr.sendMessage(Message.raw("<" + npc.name + "> Estou saindo agora! Volto assim que terminar."));
+                                        }
+                                    }
+                                    // TODO: Hide the NPC (teleport to waiting box, add invisibility, or detach ModelComponent)
+                                } else if (currentTick >= npc.jobCompletionTick) {
+                                    // RETURN AND COMPLETION PHASE
+                                    if (npc.jobEmployer != null) {
+                                        sendLootToPlayer(npc, world, accessor);
+                                    }
+                                    npc.currentJob = JobType.NONE;
+                                    npc.jobEmployer = null;
+                                    npc.isAway = false;
+                                    // TODO: Show the NPC again (teleport back, remove invisibility, reattach ModelComponent)
                                 }
-                                npc.currentJob = JobType.NONE;
-                                npc.jobEmployer = null;
-                            } else {
-                                // Add logic here to remove/detach ModelComponent and AIComponent
-                                // from this npc entity reference to hide it while working.
                             }
                         } else {
                             // Simple autonomous interaction: 5% chance to socialize with themselves

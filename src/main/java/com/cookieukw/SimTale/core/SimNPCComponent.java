@@ -23,8 +23,10 @@ public class SimNPCComponent implements Component<EntityStore> {
     public UUID currentConversationPartner;
     public long conversationTimeoutTick;
     public JobType currentJob = JobType.NONE;
+    public long jobDepartureTick;
     public long jobCompletionTick;
     public UUID jobEmployer;
+    public boolean isAway = false;
 
     /**
      * Default constructor for registry and codecs.
@@ -60,8 +62,10 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.currentConversationPartner = currentConversationPartner;
         clone.conversationTimeoutTick = conversationTimeoutTick;
         clone.currentJob = currentJob;
+        clone.jobDepartureTick = jobDepartureTick;
         clone.jobCompletionTick = jobCompletionTick;
         clone.jobEmployer = jobEmployer;
+        clone.isAway = isAway;
         return clone;
     }
 
