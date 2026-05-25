@@ -2,8 +2,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.cookieukw.SimTale.logic.InteractionManager;
-import com.cookieukw.SimTale.logic.InteractionType;
+import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.Entity;
 import com.hypixel.hytale.server.core.entity.entities.Player;
@@ -49,10 +48,7 @@ public class SimTaleEventHandler implements Consumer<PlayerInteractEvent> {
         if (npc == null)
             return;
 
-        // Trigger a friendly interaction when player clicks NPC
-        InteractionManager.performInteraction(npc, npc, InteractionType.FRIENDLY);
-
-        // Get PlayerRef component to send message
+        // Get PlayerRef component to open UI
         Player player = event.getPlayer();
         if (player != null) {
             Ref<EntityStore> playerRef = player.getReference();
@@ -61,7 +57,8 @@ public class SimTaleEventHandler implements Consumer<PlayerInteractEvent> {
                     Universe.get().getPlayerRefComponentType());
 
             if (playerRefComp != null) {
-                playerRefComp.sendMessage(Message.raw("Você interagiu com " + npc.name + "!"));
+                // Open the NPC interaction page
+                player.getPageManager().openCustomPage(playerRef, playerRef.getStore(), new NPCInteractionPage(playerRefComp, player, npc));
             }
         }
     }

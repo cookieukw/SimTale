@@ -1,0 +1,10 @@
+@DefaultText = (
+    FontSize: 18,
+    TextColor: #FFFFFF
+);
+
+@DefaultButton = (
+    BorderThickness: 2,
+    BorderColor: #4C3927,
+    BackgroundColor: #24180F
+);

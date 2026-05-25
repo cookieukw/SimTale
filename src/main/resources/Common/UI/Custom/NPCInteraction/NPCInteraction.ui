@@ -1,0 +1,146 @@
+$Common = "Common.ui";
+
+@PanelBackground = PatchStyle(
+    TexturePath: "Textures/zovil_panel.png"
+);
+
+@ButtonBackground = PatchStyle(
+    TexturePath: "Textures/button_idle.png"
+);
+
+@ButtonHover = PatchStyle(
+    TexturePath: "Textures/button_hover.png"
+);
+
+Group {
+    Anchor: (Left: 0, Top: 0, Right: 0, Bottom: 0);
+    Background: (Color: #00000099);
+
+    Group #MainPanel {
+        Anchor: (HorizontalCenter: 0, VerticalCenter: 0, Width: 560, Height: 680);
+        Background: @PanelBackground;
+
+        Label #NpcName {
+            Text: "ZOVIL";
+            Anchor: (Top: 42, HorizontalCenter: 0, Width: 240, Height: 50);
+            Style: (
+                FontSize: 34,
+                FontWeight: Bold,
+                HorizontalAlignment: Center,
+                TextColor: #F5E6C8
+            );
+        }
+
+        Label #NpcMood {
+            Text: "Humor: Feliz";
+            Anchor: (Top: 92, HorizontalCenter: 0, Width: 220, Height: 28);
+            Style: (
+                FontSize: 18,
+                HorizontalAlignment: Center,
+                TextColor: #BFAE87
+            );
+        }
+
+        Image #NpcPortrait {
+            Anchor: (Top: 140, HorizontalCenter: 0, Width: 180, Height: 180);
+            Background: (TexturePath: "Textures/zovil_happy.png");
+        }
+
+        Label #NpcDialogue {
+            Text: "Eae, Cookie.";
+            Anchor: (Top: 340, HorizontalCenter: 0, Width: 420, Height: 70);
+            Style: (
+                FontSize: 22,
+                HorizontalAlignment: Center,
+                VerticalAlignment: Center,
+                TextColor: #E9DFC8,
+                WrapText: true
+            );
+        }
+
+        Button #ChatButton {
+            Anchor: (Top: 440, HorizontalCenter: 0, Width: 360, Height: 54);
+            Background: @ButtonBackground;
+            HoverBackground: @ButtonHover;
+
+            Label {
+                Text: "🙂 Bater Papo";
+                Anchor: (Left: 0, Top: 0, Right: 0, Bottom: 0);
+                Style: (
+                    FontSize: 22,
+                    HorizontalAlignment: Center,
+                    VerticalAlignment: Center,
+                    TextColor: #F4E7C5
+                );
+            }
+        }
+
+        Button #JokeButton {
+            Anchor: (Top: 504, HorizontalCenter: 0, Width: 360, Height: 54);
+            Background: @ButtonBackground;
+            HoverBackground: @ButtonHover;
+
+            Label {
+                Text: "🎭 Contar Piada";
+                Anchor: (Left: 0, Top: 0, Right: 0, Bottom: 0);
+                Style: (
+                    FontSize: 22,
+                    HorizontalAlignment: Center,
+                    VerticalAlignment: Center,
+                    TextColor: #F4E7C5
+                );
+            }
+        }
+
+        Button #FlirtButton {
+            Anchor: (Top: 568, HorizontalCenter: 0, Width: 360, Height: 54);
+            Background: @ButtonBackground;
+            HoverBackground: @ButtonHover;
+
+            Label {
+                Text: "❤️ Paquerar";
+                Anchor: (Left: 0, Top: 0, Right: 0, Bottom: 0);
+                Style: (
+                    FontSize: 22,
+                    HorizontalAlignment: Center,
+                    VerticalAlignment: Center,
+                    TextColor: #F4E7C5
+                );
+            }
+        }
+
+        Button #InsultButton {
+            Anchor: (Top: 632, Left: 100, Width: 170, Height: 50);
+            Background: @ButtonBackground;
+            HoverBackground: @ButtonHover;
+
+            Label {
+                Text: "💀 Insultar";
+                Anchor: (Left: 0, Top: 0, Right: 0, Bottom: 0);
+                Style: (
+                    FontSize: 18,
+                    HorizontalAlignment: Center,
+                    VerticalAlignment: Center,
+                    TextColor: #F4E7C5
+                );
+            }
+        }
+
+        Button #GiftButton {
+            Anchor: (Top: 632, Right: 100, Width: 170, Height: 50);
+            Background: @ButtonBackground;
+            HoverBackground: @ButtonHover;
+
+            Label {
+                Text: "🎁 Presente";
+                Anchor: (Left: 0, Top: 0, Right: 0, Bottom: 0);
+                Style: (
+                    FontSize: 18,
+                    HorizontalAlignment: Center,
+                    VerticalAlignment: Center,
+                    TextColor: #F4E7C5
+                );
+            }
+        }
+    }
+}

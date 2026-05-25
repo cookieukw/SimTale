@@ -48,3 +48,12 @@ bin/
 temp_hytale
 scratch.java
 scratch.class
+scratch2.java
+scratch2.class
+scratch3.java
+scratch3.class
+scratch4.java
+scratch4.class
+scratch5.java
+scratch*.java
+scratch*.class
