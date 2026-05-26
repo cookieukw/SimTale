@@ -1,5 +1,6 @@
 package com.cookieukw.SimTale.logic;
 
+import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -7,13 +8,15 @@ import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 
 import java.util.UUID;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
+import com.cookie.runecore.api.PlayerStats;
 
-/**
- * Manages social logic and stat changes.
- */
 public class InteractionManager {
 
-    public static String performInteraction(SimNPCComponent npc, UUID playerUuid, InteractionType type) {
+    public static String performInteraction(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, InteractionType type) {
         Mood mood = npc.getMood();
         int baseChange = 0;
         int trustChange = 0;
@@ -25,7 +28,7 @@ public class InteractionManager {
                 baseChange = 5;
                 trustChange = 1;
                 memEvent = MemoryEvent.CHATTED;
-                response = getContextualGreeting(npc, playerUuid);
+                response = getContextualGreeting(npc, playerUuid, playerRef);
             }
             case FUNNY -> {
                 memEvent = MemoryEvent.JOKED;
@@ -95,37 +98,55 @@ public class InteractionManager {
             }
         }
 
-        // Salvar Memoria Curta e Afinidade/Confiança
         npc.memory.addMemory(memEvent, playerUuid);
         npc.getRelationship(playerUuid).addFriendship(baseChange);
         npc.getRelationship(playerUuid).addTrust(trustChange);
 
-        // Simulating XP gain
         npc.stats.addXP(Math.abs(baseChange) * 10);
 
-        // Update needs
         npc.needs.social = Math.min(100, npc.needs.social + 10);
 
-        // Caskara real-time saving
         SimNPCPersistence.saveNPC(npc);
         
         return response;
     }
 
-    private static String getContextualGreeting(SimNPCComponent npc, UUID playerUuid) {
-        // 1. Checa as memórias recentes do próprio NPC
+    private static String getContextualGreeting(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef) {
+        if (playerRef != null) {
+            try {
+                PlayerStats stats = new PlayerStats(playerRef);
+                float health = stats.getHealth().getNow(-1f);
+                if (health > 0 && health <= 20f) {
+                    return npc.name + " arregala os olhos: Meu deus, você está sangrando! Precisa de ajuda?!";
+                }
+            } catch (Exception ignored) {}
+
+            World world = null;
+            for (World w : Universe.get().getWorlds().values()) {
+                world = w;
+                break;
+            }
+            if (world != null && world.getEntityStore() != null) {
+                WorldTimeResource timeResource = world.getEntityStore().getStore().getResource(WorldTimeResource.getResourceType());
+                if (timeResource != null) {
+                    float dayProgress = timeResource.getDayProgress();
+                    if (dayProgress < 0.25f || dayProgress > 0.75f) {
+                        return npc.name + " sussurra: É perigoso andar por aqui à noite... Tome cuidado.";
+                    }
+                }
+            }
+        }
+
         if (npc.memory.remembers(MemoryEvent.INSULTED, playerUuid, 300000)) {
             return npc.name + " cruza os braços: O que você quer? Já não me insultou o bastante hoje?";
         }
 
-        // 2. Checa a fofoca da vila (Busca memórias recentes de outros NPCs)
-        for (SimNPCComponent otherNpc : com.cookieukw.SimTale.SimTale.ACTIVE_NPCS) {
+        for (SimNPCComponent otherNpc : SimTale.ACTIVE_NPCS) {
             if (otherNpc != npc && otherNpc.memory.remembers(MemoryEvent.INSULTED, playerUuid, 600000)) {
                 return npc.name + " te olha torto: Eu soube o que você fez com " + otherNpc.name + ". É bom andar na linha.";
             }
         }
 
-        // 3. Fallbacks de Lore baseado nos Traits de Personalidade
         if (npc.personality.traits.contains(Trait.GREEDY)) {
             return npc.name + " esfrega as mãos: Tem algum minério ou item sobrando pra mim hoje?";
         } else if (npc.personality.traits.contains(Trait.PARANOID)) {

@@ -56,23 +56,23 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         boolean interactionHappened = false;
 
         if (eventData.contains("ChatButton")) {
-            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.FRIENDLY);
+            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.FRIENDLY);
             playerRefComp.sendMessage(Message.raw(resp));
             interactionHappened = true;
         } else if (eventData.contains("JokeButton")) {
-            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.FUNNY);
+            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.FUNNY);
             playerRefComp.sendMessage(Message.raw(resp));
             interactionHappened = true;
         } else if (eventData.contains("FlirtButton")) {
-            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.ROMANTIC);
+            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.ROMANTIC);
             playerRefComp.sendMessage(Message.raw(resp));
             interactionHappened = true;
         } else if (eventData.contains("InsultButton")) {
-            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.MEAN);
+            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.MEAN);
             playerRefComp.sendMessage(Message.raw(resp));
             interactionHappened = true;
         } else if (eventData.contains("GiftButton")) {
-            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), InteractionType.GIFT);
+            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.GIFT);
             playerRefComp.sendMessage(Message.raw(resp));
             interactionHappened = true;
         }

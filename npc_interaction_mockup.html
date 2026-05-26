@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPC Interaction Mockup</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            /* Simulating the Minecraft/Hytale game background */
+            background: url('https://images.unsplash.com/photo-1542361345-89e58247f2d5?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Overlay Background (Color: #00000099) */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.6); /* 99 hex is ~60% */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+
+        /* Main Panel */
+        .main-panel {
+            position: relative;
+            width: 560px;
+            height: 680px;
+            background: linear-gradient(145deg, rgba(45, 40, 35, 0.95), rgba(30, 25, 20, 0.95));
+            border: 2px solid rgba(245, 230, 200, 0.15);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: panelFadeIn 0.4s ease-out;
+        }
+
+        @keyframes panelFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Top Bar styling */
+        .panel-header {
+            width: 100%;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 42px;
+            position: absolute;
+            top: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 100%);
+            border-radius: 24px 24px 0 0;
+        }
+
+        /* Labels */
+        .npc-name {
+            font-size: 34px;
+            font-weight: 700;
+            color: #F5E6C8;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            letter-spacing: 2px;
+        }
+
+        .npc-mood {
+            position: absolute;
+            top: 92px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #BFAE87;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(191, 174, 135, 0.2);
+        }
+
+        /* Portrait */
+        .npc-portrait {
+            position: absolute;
+            top: 140px;
+            width: 180px;
+            height: 180px;
+            border-radius: 20px;
+            background: linear-gradient(to bottom right, #4a4238, #2a251e);
+            border: 3px solid #BFAE87;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .npc-portrait:hover {
+            transform: scale(1.05);
+        }
+
+        .npc-portrait img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Placeholder for zovil_happy.png */
+            opacity: 0.8; 
+        }
+
+        .npc-portrait-placeholder {
+            font-size: 64px;
+        }
+
+        /* Dialogue */
+        .npc-dialogue {
+            position: absolute;
+            top: 340px;
+            width: 420px;
+            height: 70px;
+            font-size: 22px;
+            color: #E9DFC8;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-style: italic;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            border-left: 3px solid #BFAE87;
+            border-right: 3px solid #BFAE87;
+        }
+
+        /* Buttons Container */
+        .buttons-container {
+            position: absolute;
+            top: 440px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .button {
+            width: 360px;
+            height: 54px;
+            background: linear-gradient(to bottom, #3E352B, #2C251D);
+            border: 1px solid rgba(244, 231, 197, 0.2);
+            border-radius: 12px;
+            color: #F4E7C5;
+            font-size: 22px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+            gap: 12px;
+        }
+
+        .button:hover {
+            background: linear-gradient(to bottom, #4F4336, #3E352B);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border-color: rgba(244, 231, 197, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Bottom Row Buttons */
+        .bottom-buttons {
+            position: absolute;
+            top: 620px; /* Adjusted slightly to fit better visually */
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 100px;
+        }
+
+        .btn-small {
+            width: 170px;
+            height: 50px;
+            font-size: 18px;
+        }
+
+        /* Icon sizing */
+        .icon {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay">
+        <div class="main-panel">
+            
+            <div class="panel-header">
+                <div class="npc-name">ZOVIL</div>
+                <div class="npc-mood">Humor: Feliz</div>
+            </div>
+
+            <div class="npc-portrait">
+                <!-- Using a cute placeholder emoji to represent Zovil since we don't have the texture -->
+                <div class="npc-portrait-placeholder">🦊</div>
+            </div>
+
+            <div class="npc-dialogue">
+                "Eae, Cookie."
+            </div>
+
+            <div class="buttons-container">
+                <div class="button">
+                    <span class="icon">🙂</span> Bater Papo
+                </div>
+                <div class="button">
+                    <span class="icon">🎭</span> Contar Piada
+                </div>
+                <div class="button">
+                    <span class="icon">❤️</span> Paquerar
+                </div>
+            </div>
+
+            <div class="bottom-buttons">
+                <div class="button btn-small">
+                    <span class="icon">💀</span> Insultar
+                </div>
+                <div class="button btn-small">
+                    <span class="icon">🎁</span> Presente
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
