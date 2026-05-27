@@ -36,7 +36,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
 
     @Override
     public Query<EntityStore> getQuery() {
-        return (Query<EntityStore>) (Object) SimTale.SIM_NPC_COMPONENT_TYPE;
+        return (Query<EntityStore>) (Object) com.hypixel.hytale.server.core.entity.UUIDComponent.getComponentType();
     }
 
     @Override
@@ -45,21 +45,52 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                      Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
 
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
-        if (npc == null) return;
-
+        
         World world = null;
-        for (World w : Universe.get().getWorlds().values()) {
+        for (com.hypixel.hytale.server.core.universe.world.World w : com.hypixel.hytale.server.core.universe.Universe.get().getWorlds().values()) {
             world = w;
             break;
         }
-
         if (world == null) return;
         long absoluteTick = world.getTick();
+        
+        // --- INICIO DO SISTEMA DE REMONTAGEM ---
+        if (npc == null) {
+            // Verifica apenas a cada 40 ticks aproximadamente (2% de chance por tick) para nao pesar a performance
+            if (Math.random() < 0.025) {
+                com.hypixel.hytale.server.core.entity.UUIDComponent uuidComp = chunk.getComponent(index, com.hypixel.hytale.server.core.entity.UUIDComponent.getComponentType());
+                if (uuidComp != null) {
+                    com.cookieukw.SimTale.db.SimNPCData data = com.cookie.caskara.Caskara.load(uuidComp.getUuid().toString(), com.cookieukw.SimTale.db.SimNPCData.class);
+                    if (data != null) {
+                        // Achamos um NPC desmemoriado! Remontar!
+                        com.hypixel.hytale.logger.HytaleLogger.forEnclosingClass().atInfo().log("SimTale: NPC " + data.name + " remontado ao entrar no mundo/carregar chunk!");
+                        npc = new SimNPCComponent(uuidComp.getUuid(), data.name);
+                        
+                        Ref<EntityStore> entityRef = world.getEntityStore().getRefFromUUID(uuidComp.getUuid());
+                        npc.entityRef = entityRef;
+                        
+                        com.cookieukw.SimTale.db.SimNPCPersistence.loadNPC(npc);
+                        
+                        // Use commandBuffer para adicionar componentes com seguranca no meio do tick
+                        if (entityRef != null) {
+                            commandBuffer.addComponent(entityRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
+                        }
+                        
+                        boolean found = false;
+                        for (SimNPCComponent active : SimTale.ACTIVE_NPCS) {
+                            if (active.entityId != null && active.entityId.equals(npc.entityId)) {
+                                found = true; break;
+                            }
+                        }
+                        if (!found) SimTale.ACTIVE_NPCS.add(npc);
+                    }
+                }
+            }
+            return; // Se continua null, nao e um NPC do mod.
+        }
+        // --- FIM DO SISTEMA DE REMONTAGEM ---
 
-        // Run logic only once per second (every 20 ticks) to save performance
-        if (absoluteTick % 20 != 0) return;
-
-        // Auto-register NPCs loaded from world save
+        // Auto-register NPCs loaded from world save (fallback)
         boolean found = false;
         for (SimNPCComponent active : SimTale.ACTIVE_NPCS) {
             if (active.entityId != null && active.entityId.equals(npc.entityId)) {
@@ -69,7 +100,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         }
         if (!found) {
             // Load memory state from Caskara database when spawning/restarting
-            SimNPCPersistence.loadNPC(npc);
+            com.cookieukw.SimTale.db.SimNPCPersistence.loadNPC(npc);
             SimTale.ACTIVE_NPCS.add(npc);
         }
 

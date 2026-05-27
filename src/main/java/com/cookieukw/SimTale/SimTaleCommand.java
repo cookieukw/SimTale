@@ -45,9 +45,52 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         if ("spawn".equalsIgnoreCase(sub)) {
             handleSpawn(ctx, store, ref, typeName);
             return;
+        } else if ("interact".equalsIgnoreCase(sub)) {
+            handleInteract(ctx, store, ref, playerRef);
+            return;
         }
 
         sendUsage(ctx);
+    }
+
+    private void handleInteract(CommandContext ctx, Store<EntityStore> store, Ref<EntityStore> ref, PlayerRef playerRef) {
+        com.hypixel.hytale.server.core.modules.entity.component.TransformComponent playerTransform = 
+            store.getComponent(ref, com.hypixel.hytale.server.core.modules.entity.component.TransformComponent.getComponentType());
+        
+        Ref<EntityStore> nearestRef = null;
+        SimNPCComponent nearestNPC = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc.entityRef != null) {
+                com.hypixel.hytale.server.core.modules.entity.component.TransformComponent npcTransform = 
+                    store.getComponent(npc.entityRef, com.hypixel.hytale.server.core.modules.entity.component.TransformComponent.getComponentType());
+                
+                if (playerTransform != null && npcTransform != null) {
+                    com.hypixel.hytale.math.vector.Vector3d pPos = playerTransform.getPosition();
+                    com.hypixel.hytale.math.vector.Vector3d nPos = npcTransform.getPosition();
+                    
+                    double distSq = Math.pow(pPos.getX() - nPos.getX(), 2) + 
+                                    Math.pow(pPos.getY() - nPos.getY(), 2) + 
+                                    Math.pow(pPos.getZ() - nPos.getZ(), 2);
+                                    
+                    if (distSq < minDistance) {
+                        minDistance = distSq;
+                        nearestRef = npc.entityRef;
+                        nearestNPC = npc;
+                    }
+                }
+            }
+        }
+
+        if (nearestNPC == null) {
+            ctx.sendMessage(Message.raw("Nenhum NPC vivo por perto!"));
+            return;
+        }
+
+        com.hypixel.hytale.server.core.entity.entities.Player player = store.getComponent(ref, com.hypixel.hytale.server.core.entity.entities.Player.getComponentType());
+        player.getPageManager().openCustomPage(ref, store, new com.cookieukw.SimTale.logic.NPCInteractionPage(playerRef, player, nearestNPC));
+        ctx.sendMessage(Message.raw("Forced UI to open for " + nearestNPC.name));
     }
 
     private void handleSpawn(CommandContext ctx, Store<EntityStore> store, Ref<EntityStore> ref, String typeName) {
@@ -72,6 +115,6 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("SimTale v" + pluginVersion + " - Use /simtale spawn <SLOTHIAN|TRORK>"));
+        ctx.sendMessage(Message.raw("SimTale v" + pluginVersion + " - Use /simtale spawn <SLOTHIAN|TRORK> or /simtale interact"));
     }
 }

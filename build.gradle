@@ -40,7 +40,7 @@ dependencies {
 tasks.register('deploy', Copy) {
     dependsOn 'jar'
     from tasks.jar.archiveFile
-    into "${hytaleHome}/UserData/Mods"
+    into "${hytaleHome}/data/v0.4/Mods"
     
     doFirst {
         if (!file(hytaleHome).exists()) {

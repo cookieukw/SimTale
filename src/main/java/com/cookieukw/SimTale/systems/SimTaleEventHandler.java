@@ -25,6 +25,9 @@ public class SimTaleEventHandler implements Consumer<PlayerInteractEvent> {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void accept(PlayerInteractEvent event) {
         Entity target = event.getTargetEntity();
+        
+        com.hypixel.hytale.logger.HytaleLogger.forEnclosingClass().atInfo().log("SimTale [DEBUG]: PlayerInteractEvent DISPARADO. Alvo: " + (target != null ? target.getClass().getSimpleName() : "null"));
+        
         if (target == null)
             return;
 
@@ -45,8 +48,32 @@ public class SimTaleEventHandler implements Consumer<PlayerInteractEvent> {
         SimNPCComponent npc = (SimNPCComponent) accessor.getComponent(target.getReference(),
                 SimTale.SIM_NPC_COMPONENT_TYPE);
 
+        if (npc == null) {
+            com.hypixel.hytale.server.core.entity.UUIDComponent uuidComp = accessor.getComponent(target.getReference(), com.hypixel.hytale.server.core.entity.UUIDComponent.getComponentType());
+            if (uuidComp != null) {
+                com.cookieukw.SimTale.db.SimNPCData data = com.cookie.caskara.Caskara.load(uuidComp.getUuid().toString(), com.cookieukw.SimTale.db.SimNPCData.class);
+                if (data != null) {
+                    com.hypixel.hytale.logger.HytaleLogger.forEnclosingClass().atInfo().log("SimTale: NPC " + data.name + " remontado apos carregamento do mundo!");
+                    npc = new SimNPCComponent(uuidComp.getUuid(), data.name);
+                    npc.entityRef = target.getReference();
+                    com.cookieukw.SimTale.db.SimNPCPersistence.loadNPC(npc);
+                    accessor.addComponent(target.getReference(), SimTale.SIM_NPC_COMPONENT_TYPE, npc);
+                    
+                    boolean found = false;
+                    for (SimNPCComponent active : SimTale.ACTIVE_NPCS) {
+                        if (active.entityId != null && active.entityId.equals(npc.entityId)) {
+                            found = true; break;
+                        }
+                    }
+                    if (!found) SimTale.ACTIVE_NPCS.add(npc);
+                }
+            }
+        }
+
         if (npc == null)
             return;
+
+        com.hypixel.hytale.logger.HytaleLogger.forEnclosingClass().atInfo().log("SimTale: Interacao com NPC detectada: " + npc.name);
 
         // Get PlayerRef component to open UI
         Player player = event.getPlayer();

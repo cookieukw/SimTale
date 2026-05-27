@@ -1,5 +1,6 @@
 package com.cookieukw.SimTale;
 
+import com.cookie.runecore.commands.TestUICommand;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.cookieukw.SimTale.systems.SimTaleTickSystem;
@@ -63,5 +64,8 @@ public class SimTale extends JavaPlugin {
         // Register commands
         this.getCommandRegistry()
                 .registerCommand(new SimTaleCommand(this.getName(), this.getManifest().getVersion().toString()));
+
+                 
+        this.getCommandRegistry().registerCommand(new TestUICommand());
     }
 }
