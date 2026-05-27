@@ -3,6 +3,10 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.logic.JobType;
+import com.cookieukw.SimTale.engine.Animal;
+import com.cookieukw.SimTale.engine.MagicDataLoader;
+import com.cookieukw.SimTale.engine.MagicEngine;
+import com.cookieukw.SimTale.engine.Question;
 import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -13,6 +17,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
@@ -90,6 +95,14 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
     }
 
     private void handleNpcCommand(PlayerRef sender, String message, SimNPCComponent npc, World world) {
+        long currentTick = world.getTick();
+
+        if (npc.activeMagicGame != null) {
+            handleMagicGameCommand(sender, message, npc, world);
+            return;
+        }
+
+        boolean wantPlayMagicGinn = message.contains("jogar magic") || message.contains("play magic") || message.contains("akinator");
         boolean isGreeting = message.contains("olá") || message.contains("ola") || message.contains("hello") || message.contains("hi") || message.contains("oi") || message.contains("eae");
         boolean wantMine = message.contains("mine") || message.contains("minerar");
         boolean wantFish = message.contains("fish") || message.contains("pescar");
@@ -98,13 +111,25 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         boolean wantExplore = message.contains("explore") || message.contains("explorar");
         boolean wantCome = message.contains("vem") || message.contains("come") || message.contains("aqui");
 
+        if (wantPlayMagicGinn) {
+            int affinity = npc.getRelationship(sender.getUuid()).friendship;
+            if (affinity >= 0) {
+                npc.activeMagicGame = new MagicEngine(MagicDataLoader.getAnimals(), MagicDataLoader.getQuestions());
+                npc.currentConversationPartner = sender.getUuid();
+                npc.conversationTimeoutTick = currentTick + CONVERSATION_TIMEOUT_TICKS * 5; // Long timeout for game
+                sendReply(sender, "<" + npc.name + "> Oba! Vamos jogar MagicGinn. Pense em um animal e me responda com Sim (Yes) ou Não (No).");
+                sendNextMagicQuestion(sender, npc);
+            } else {
+                sendReply(sender, "<" + npc.name + "> Nós não somos tão próximos para eu brincar com você. / We are not close enough for me to play with you.");
+            }
+            return;
+        }
+
         if (npc.currentJob != JobType.NONE && !wantCome) {
             sendReply(sender, "<" + npc.name + "> Já estou ocupado com meu trabalho de " + npc.currentJob.getPortugueseName() + "!");
             npc.currentConversationPartner = null; // Free the lock so player can talk to others
             return;
         }
-
-        long currentTick = world.getTick();
 
         if (wantMine) {
             assignJob(sender, npc, currentTick, JobType.MINE);
@@ -128,7 +153,75 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             // Unclear intent: lock conversation so next chat goes to them without name
             npc.currentConversationPartner = sender.getUuid();
             npc.conversationTimeoutTick = currentTick + CONVERSATION_TIMEOUT_TICKS;
-            sendReply(sender, "<" + npc.name + "> Hmm, não entendi o que você quis dizer. (Fale 'pescar', 'minerar', 'farmar', 'coletar', 'explorar')");
+            sendReply(sender, "<" + npc.name + "> Hmm, não entendi o que você quis dizer. (Fale 'pescar', 'minerar', 'farmar', 'coletar', 'explorar', 'jogar magicginn')");
+        }
+    }
+
+    private void handleMagicGameCommand(PlayerRef sender, String message, SimNPCComponent npc, World world) {
+        npc.conversationTimeoutTick = world.getTick() + CONVERSATION_TIMEOUT_TICKS * 5; // Refresh timeout
+
+        if (message.contains("sair") || message.contains("stop") || message.contains("quit") || message.contains("parar") || message.contains("chega")) {
+            npc.activeMagicGame = null;
+            sendReply(sender, "<" + npc.name + "> Ah, que pena! A gente joga depois então.");
+            return;
+        }
+
+        double weight = 0.0;
+        boolean answered = false;
+
+        if (message.equals("sim") || message.equals("s") || message.equals("yes") || message.equals("y")) {
+            weight = 1.0;
+            answered = true;
+        } else if (message.equals("não") || message.equals("nao") || message.equals("n") || message.equals("no")) {
+            weight = -1.0;
+            answered = true;
+        } else if (message.contains("provavelmente sim") || message.contains("acho que sim") || message.contains("probably yes")) {
+            weight = 0.5;
+            answered = true;
+        } else if (message.contains("provavelmente não") || message.contains("provavelmente nao") || message.contains("acho que não") || message.contains("probably no")) {
+            weight = -0.5;
+            answered = true;
+        } else if (message.contains("não sei") || message.contains("nao sei") || message.contains("talvez") || message.contains("idk") || message.contains("don't know")) {
+            weight = 0.0;
+            answered = true;
+        }
+
+        if (!answered) {
+            sendReply(sender, "<" + npc.name + "> Não entendi! Responda: Sim (Yes), Não (No), Não sei (Don't know), ou Sair (Quit).");
+            return;
+        }
+
+        MagicEngine engine = npc.activeMagicGame;
+        engine.answerQuestion(engine.getBestQuestion(), weight);
+
+        Animal victoryAnimal = engine.checkVictory();
+        if (victoryAnimal != null) {
+            sendReply(sender, "<" + npc.name + "> Eu já sei! O animal que você pensou é: " + victoryAnimal.getName().getPt() + " (" + victoryAnimal.getName().getEn() + ")!");
+            npc.activeMagicGame = null;
+            return;
+        }
+
+        sendNextMagicQuestion(sender, npc);
+    }
+
+    private void sendNextMagicQuestion(PlayerRef sender, SimNPCComponent npc) {
+        MagicEngine engine = npc.activeMagicGame;
+        String nextQuestionId = engine.getBestQuestion();
+
+        if (nextQuestionId == null) {
+            sendReply(sender, "<" + npc.name + "> Não consegui adivinhar! Você me venceu!");
+            npc.activeMagicGame = null;
+            return;
+        }
+
+        Question question = engine.getQuestions().stream()
+                .filter(q -> q.getId().equals(nextQuestionId))
+                .findFirst()
+                .orElse(null);
+
+        if (question != null) {
+            int qNum = engine.getAskedQuestions().size() + 1;
+            sendReply(sender, "<" + npc.name + "> Pergunta " + qNum + ": " + question.getText().getPt() + " (" + question.getText().getEn() + ")");
         }
     }
 
@@ -143,7 +236,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
     }
 
     private void sendReply(PlayerRef sender, String text) {
-        java.util.concurrent.CompletableFuture.runAsync(() -> {
+        CompletableFuture.runAsync(() -> {
             try {
                 Thread.sleep(150); // 150ms delay to ensure player's chat message is printed first
             } catch (InterruptedException e) {

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import com.cookieukw.SimTale.logic.JobType;
+import com.cookieukw.SimTale.engine.MagicEngine;
 
 /**
  * Persists SimTale data for an entity.
@@ -33,6 +34,7 @@ public class SimNPCComponent implements Component<EntityStore> {
     public long jobCompletionTick;
     public UUID jobEmployer;
     public boolean isAway = false;
+    public transient MagicEngine activeMagicGame;
 
     /**
      * Default constructor for registry and codecs.
