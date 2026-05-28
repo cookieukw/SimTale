@@ -34,7 +34,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         super("simtale", "SimTale plugin commands");
         this.setPermissionGroups("Adventure");
         this.subCommandArg = this.withRequiredArg("subcommand", "spawn", ArgTypes.STRING);
-        this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK", ArgTypes.STRING);
+        this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE", ArgTypes.STRING);
         this.pluginVersion = pluginVersion;
     }
 
@@ -113,7 +113,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         try {
             type = SimNPCFactory.NPCType.valueOf(typeName.toUpperCase());
         } catch (IllegalArgumentException e) {
-            ctx.sendMessage(Message.translation("simtale.cmd.spawn.error").param("type", "SLOTHIAN/TRORK"));
+            ctx.sendMessage(Message.translation("simtale.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE"));
             return;
         }
 

@@ -26,7 +26,9 @@ public class SimNPCFactory {
 
     public enum NPCType {
         SLOTHIAN("SimTale_Slothian"),
-        TRORK("SimTale_Trork");
+        TRORK("SimTale_Trork"),
+        HUMAN_MALE("SimTale_Human_Male"),
+        HUMAN_FEMALE("SimTale_Human_Female");
 
         public final String roleId;
 
