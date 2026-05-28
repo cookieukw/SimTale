@@ -196,7 +196,12 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
                 "simtale.chat.smalltalk.2",
                 "simtale.chat.smalltalk.3",
                 "simtale.chat.smalltalk.4",
-                "simtale.chat.smalltalk.5"
+                "simtale.chat.smalltalk.5",
+                "simtale.chat.smalltalk.6",
+                "simtale.chat.smalltalk.7",
+                "simtale.chat.smalltalk.8",
+                "simtale.chat.smalltalk.9",
+                "simtale.chat.smalltalk.10"
             };
             String replyKey = smallTalks[(int)(Math.random() * smallTalks.length)];
             sendReply(sender, Message.translation(replyKey).param("name", npc.name));
