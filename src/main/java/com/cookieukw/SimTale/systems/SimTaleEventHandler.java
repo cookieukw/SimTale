@@ -25,15 +25,20 @@ import java.util.function.Consumer;
  * Handles interactions between players and NPCs.
  */
 
+@SuppressWarnings("null")
 public class SimTaleEventHandler implements Consumer<PlayerInteractEvent> {
 
     @Override
     public void accept(PlayerInteractEvent event) {
         Entity target = event.getTargetEntity();
         
-        com.hypixel.hytale.logger.HytaleLogger.forEnclosingClass().atInfo().log("SimTale [DEBUG]: PlayerInteractEvent DISPARADO. Alvo: " + (target != null ? target.getClass().getSimpleName() : "null"));
+        HytaleLogger.forEnclosingClass().atInfo().log("SimTale [DEBUG]: PlayerInteractEvent DISPARADO. Alvo: " + (target != null ? target.getClass().getSimpleName() : "null"));
         
         if (target == null)
+            return;
+
+        Ref<EntityStore> targetRef = target.getReference();
+        if (targetRef == null)
             return;
 
         // getWorlds() returns a Map<String, World>
@@ -50,19 +55,19 @@ public class SimTaleEventHandler implements Consumer<PlayerInteractEvent> {
         // Store<EntityStore>
         Store<EntityStore> store = world.getEntityStore().getStore();
         ComponentAccessor<EntityStore> accessor = (ComponentAccessor<EntityStore>) store;
-        SimNPCComponent npc = (SimNPCComponent) accessor.getComponent(target.getReference(),
+        SimNPCComponent npc = (SimNPCComponent) accessor.getComponent(targetRef,
                 SimTale.SIM_NPC_COMPONENT_TYPE);
 
         if (npc == null) {
-            UUIDComponent uuidComp = accessor.getComponent(target.getReference(), UUIDComponent.getComponentType());
+            UUIDComponent uuidComp = accessor.getComponent(targetRef, UUIDComponent.getComponentType());
             if (uuidComp != null) {
                 SimNPCData data = Caskara.load(uuidComp.getUuid().toString(), SimNPCData.class);
                 if (data != null) {
                     HytaleLogger.forEnclosingClass().atInfo().log("SimTale: NPC " + data.name + " remontado apos carregamento do mundo!");
                     npc = new SimNPCComponent(uuidComp.getUuid(), data.name);
-                    npc.entityRef = target.getReference();
+                    npc.entityRef = targetRef;
                     SimNPCPersistence.loadNPC(npc);
-                    accessor.addComponent(target.getReference(), SimTale.SIM_NPC_COMPONENT_TYPE, npc);
+                    accessor.addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
                     
                     final java.util.UUID targetId = uuidComp.getUuid();
                     SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(targetId));
