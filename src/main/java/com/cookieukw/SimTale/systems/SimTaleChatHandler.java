@@ -116,13 +116,15 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         boolean wantGather = message.contains("gather") || message.contains("catar") || message.contains("coletar");
         boolean wantExplore = message.contains("explore") || message.contains("explorar");
         boolean wantCome = message.contains("vem") || message.contains("come") || message.contains("aqui");
+        
+        boolean justCalledName = message.trim().equalsIgnoreCase(npc.name) || message.trim().equalsIgnoreCase(npc.name + "!");
 
         if (wantPlayMagicGinn) {
             int affinity = npc.getRelationship(sender.getUuid()).friendship;
             if (affinity >= 0) {
                 npc.activeMagicGame = new MagicEngine(MagicDataLoader.getAnimals(), MagicDataLoader.getQuestions());
                 npc.currentConversationPartner = sender.getUuid();
-                npc.conversationTimeoutTick = currentTick + CONVERSATION_TIMEOUT_TICKS * 5; // Long timeout for game
+                npc.conversationTimeoutTick = currentTick + CONVERSATION_TIMEOUT_TICKS * 5;
                 sendReply(sender, "<" + npc.name + "> Oba! Vamos jogar MagicGinn. Pense em um animal e me responda com Sim (Yes) ou Não (No).");
                 sendNextMagicQuestion(sender, npc);
             } else {
@@ -133,7 +135,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         if (npc.currentJob != JobType.NONE && !wantCome) {
             sendReply(sender, "<" + npc.name + "> Já estou ocupado com meu trabalho de " + npc.currentJob.getPortugueseName() + "!");
-            npc.currentConversationPartner = null; // Free the lock so player can talk to others
+            npc.currentConversationPartner = null;
             return;
         }
 
@@ -150,16 +152,33 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         } else if (wantCome) {
             sendReply(sender, "<" + npc.name + "> Estou indo!");
             npc.currentJob = JobType.NONE;
-            npc.currentConversationPartner = null; // Free lock
-        } else if (isGreeting) {
+            npc.currentConversationPartner = null;
+        } else if (isGreeting || justCalledName) {
             npc.currentConversationPartner = sender.getUuid();
             npc.conversationTimeoutTick = currentTick + CONVERSATION_TIMEOUT_TICKS;
-            sendReply(sender, "<" + npc.name + "> Olá! O que você precisa que eu faça? (Diga 'pescar', 'minerar', etc)");
+            
+            String[] greetings = {
+                "Opa, chamou? Precisando de algo?",
+                "Fala tu! Qual a boa de hoje?",
+                "Oi! Tem alguma missão pra mim?",
+                "Estou aqui. O que quer que eu faça?",
+                "Ei! Pronto pro trabalho. Diga o que precisa."
+            };
+            String reply = greetings[(int)(Math.random() * greetings.length)];
+            sendReply(sender, "<" + npc.name + "> " + reply + " (Diga 'pescar', 'minerar', etc)");
         } else {
-            // Unclear intent: lock conversation so next chat goes to them without name
             npc.currentConversationPartner = sender.getUuid();
             npc.conversationTimeoutTick = currentTick + CONVERSATION_TIMEOUT_TICKS;
-            sendReply(sender, "<" + npc.name + "> Hmm, não entendi o que você quis dizer. (Fale 'pescar', 'minerar', 'farmar', 'coletar', 'explorar', 'jogar magicginn')");
+            
+            String[] smallTalks = {
+                "Haha, não saquei o que você disse, mas o dia tá bonito hoje né?",
+                "Hmm... quer que eu faça alguma coisa ou só tá jogando conversa fora?",
+                "Tendi nada... Se quiser que eu trabalhe, fala a ação direto, tipo 'minerar' ou 'farmar'.",
+                "O que? Desculpa, tava pensando na vida. O que era pra fazer?",
+                "Interessante... mas não entendi. Tem alguma tarefa pra mim?"
+            };
+            String reply = smallTalks[(int)(Math.random() * smallTalks.length)];
+            sendReply(sender, "<" + npc.name + "> " + reply);
         }
     }
 
