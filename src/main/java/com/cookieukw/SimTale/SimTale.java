@@ -4,6 +4,7 @@ import com.cookie.runecore.commands.TestUICommand;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.cookieukw.SimTale.systems.SimTaleTickSystem;
+import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
@@ -52,6 +53,7 @@ public class SimTale extends JavaPlugin {
 
         // Register tick systems
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
+        this.getEntityStoreRegistry().registerSystem(new PlumbobSystem());
 
         // Register event handlers
         this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class, null,
