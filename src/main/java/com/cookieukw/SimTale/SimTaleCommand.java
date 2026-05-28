@@ -3,15 +3,17 @@ package com.cookieukw.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.math.vector.Vector3d;
+import org.joml.Vector3d;
 import com.hypixel.hytale.protocol.GameMode;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -29,7 +31,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     public SimTaleCommand(String pluginName, String pluginVersion) {
         super("simtale", "SimTale plugin commands");
-        this.setPermissionGroup(GameMode.Adventure);
+        this.setPermissionGroups("Adventure");
         this.subCommandArg = this.withRequiredArg("subcommand", "spawn", ArgTypes.STRING);
         this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK", ArgTypes.STRING);
         this.pluginVersion = pluginVersion;
@@ -54,8 +56,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private void handleInteract(CommandContext ctx, Store<EntityStore> store, Ref<EntityStore> ref, PlayerRef playerRef) {
-        com.hypixel.hytale.server.core.modules.entity.component.TransformComponent playerTransform = 
-            store.getComponent(ref, com.hypixel.hytale.server.core.modules.entity.component.TransformComponent.getComponentType());
+        TransformComponent playerTransform = 
+            store.getComponent(ref, TransformComponent.getComponentType());
         
         Ref<EntityStore> nearestRef = null;
         SimNPCComponent nearestNPC = null;
@@ -63,16 +65,14 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc.entityRef != null) {
-                com.hypixel.hytale.server.core.modules.entity.component.TransformComponent npcTransform = 
-                    store.getComponent(npc.entityRef, com.hypixel.hytale.server.core.modules.entity.component.TransformComponent.getComponentType());
+                TransformComponent npcTransform = 
+                    store.getComponent(npc.entityRef, TransformComponent.getComponentType());
                 
                 if (playerTransform != null && npcTransform != null) {
-                    com.hypixel.hytale.math.vector.Vector3d pPos = playerTransform.getPosition();
-                    com.hypixel.hytale.math.vector.Vector3d nPos = npcTransform.getPosition();
+                    Vector3d pPos = playerTransform.getPosition();
+                    Vector3d nPos = npcTransform.getPosition();
                     
-                    double distSq = Math.pow(pPos.getX() - nPos.getX(), 2) + 
-                                    Math.pow(pPos.getY() - nPos.getY(), 2) + 
-                                    Math.pow(pPos.getZ() - nPos.getZ(), 2);
+                    double distSq = pPos.distanceSquared(nPos);
                                     
                     if (distSq < minDistance) {
                         minDistance = distSq;
@@ -88,8 +88,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             return;
         }
 
-        com.hypixel.hytale.server.core.entity.entities.Player player = store.getComponent(ref, com.hypixel.hytale.server.core.entity.entities.Player.getComponentType());
-        player.getPageManager().openCustomPage(ref, store, new com.cookieukw.SimTale.logic.NPCInteractionPage(playerRef, player, nearestNPC));
+        Player player = store.getComponent(ref, Player.getComponentType());
+        player.getPageManager().openCustomPage(ref, store, new NPCInteractionPage(playerRef, player, nearestNPC));
         ctx.sendMessage(Message.raw("Forced UI to open for " + nearestNPC.name));
     }
 

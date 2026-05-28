@@ -1,0 +1,30 @@
+
+> Task :compileJava
+/home/cookie/Documents/hy mods/SimTale/src/main/java/com/cookieukw/SimTale/core/SimNPCFactory.java:45: error: incompatible types: Quaternionf cannot be converted to Rotation3fc
+            new Quaternionf()
+            ^
+Note: /home/cookie/Documents/hy mods/SimTale/src/main/java/com/cookieukw/SimTale/SimTale.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+1 error
+
+> Task :compileJava FAILED
+
+[Incubating] Problems report is available at: file:///home/cookie/Documents/hy%20mods/SimTale/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler output below.
+  /home/cookie/Documents/hy mods/SimTale/src/main/java/com/cookieukw/SimTale/core/SimNPCFactory.java:45: error: incompatible types: Quaternionf cannot be converted to Rotation3fc
+              new Quaternionf()
+              ^
+  1 error
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to generate a Build Scan (powered by Develocity).
+
+BUILD FAILED in 4s
+1 actionable task: 1 executed

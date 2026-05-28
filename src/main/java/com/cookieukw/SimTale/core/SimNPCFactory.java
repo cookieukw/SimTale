@@ -2,14 +2,15 @@ package com.cookieukw.SimTale.core;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.component.ComponentAccessor;
-import com.hypixel.hytale.math.vector.Vector3d;
-import com.hypixel.hytale.math.vector.Vector3f;
+import org.joml.Vector3d;
+
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.npc.systems.NewSpawnStartTickingSystem;
-import com.hypixel.hytale.server.core.modules.entity.component.DisplayNameComponent;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
 import com.hypixel.hytale.server.core.modules.entity.component.Interactable;
 import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.Message;
@@ -42,7 +43,7 @@ public class SimNPCFactory {
             type.roleId, 
             (String) null, 
             position, 
-            new Vector3f(0f, 0f, 0f)
+            new Rotation3f()
         );
 
         if (result == null) {
@@ -73,7 +74,7 @@ public class SimNPCFactory {
         accessor.addComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE, simComponent);
         
         // 3. Add overhead name plate and make entity interactable
-        accessor.putComponent(ref, DisplayNameComponent.getComponentType(), new DisplayNameComponent(Message.raw(simComponent.name)));
+        accessor.putComponent(ref, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(simComponent.name)));
         accessor.putComponent(ref, Nameplate.getComponentType(), new Nameplate(simComponent.name));
         accessor.putComponent(ref, Interactable.getComponentType(), Interactable.INSTANCE);
 
