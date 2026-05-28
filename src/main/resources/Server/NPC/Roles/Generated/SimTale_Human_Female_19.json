@@ -1,0 +1,12 @@
+{
+  "Type": "Generic",
+  "Appearance": "Generated/SimTale_Human_Female_19",
+  "MaxHealth": 200,
+  "MotionControllerList": [
+    {
+      "Type": "CharacterMotion",
+      "Speed": 2.2,
+      "RotationSpeed": 8.0
+    }
+  ]
+}

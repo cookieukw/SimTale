@@ -1,0 +1,56 @@
+{
+  "Parent": "Player",
+  "Model": "Characters/Player.blockymodel",
+  "DefaultAttachments": [
+    {
+      "Model": "Characters/Haircuts/EmoBangs.blockymodel",
+      "Texture": "Characters/Haircuts/EmoBangs_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "Lavender"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
+      "Texture": "Characters/Body_Attachments/Faces/Faces_Detached_Textures/MakeUp_Face.png",
+      "GradientSet": "Skin",
+      "GradientId": "38"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Eyes/Eyes.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
+    },
+    {
+      "Model": "Cosmetics/Overpants/Skirt.blockymodel",
+      "Texture": "Cosmetics/Pants/Skirt_Savannah_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
+      "Model": "Cosmetics/Overtops/Overtops_Top.blockymodel",
+      "Texture": "Cosmetics/Overtops/Overtops_Top_Textures/Fancy_Waistcoat_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Brown"
+    },
+    {
+      "Model": "Cosmetics/Shoes/Boots_Thick.blockymodel",
+      "Texture": "Cosmetics/Shoes/Boots_Thick_Textures/Mossy_Boots.png",
+      "GradientSet": "Faded_Leather",
+      "GradientId": "Purple"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
+      "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Makeup_Greyscale.png",
+      "GradientSet": "Skin",
+      "GradientId": "38"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",
+      "Texture": "Characters/Body_Attachments/Ears/Ears1_Textures/2.png"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyebrows/Thin_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "Lavender"
+    }
+  ]
+}

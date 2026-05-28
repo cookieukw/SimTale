@@ -1,0 +1,56 @@
+{
+  "Parent": "Player",
+  "Model": "Characters/Player.blockymodel",
+  "DefaultAttachments": [
+    {
+      "Model": "Characters/Haircuts/DoublePart.blockymodel",
+      "Texture": "Characters/Haircuts/DoublePart_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "PitchBlack"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
+      "Texture": "Characters/Body_Attachments/Faces/Faces_Detached_Textures/Face.png",
+      "GradientSet": "Skin",
+      "GradientId": "49"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Eyes/Eyes.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
+    },
+    {
+      "Model": "Cosmetics/Pants/Pants_Asymetrical.blockymodel",
+      "Texture": "Cosmetics/Pants/Pants_Asymetrical_Textures/Explorer_Greyscale.png",
+      "GradientSet": "Faded_Leather",
+      "GradientId": "Orange_Tan"
+    },
+    {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/VNeck_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Brown"
+    },
+    {
+      "Model": "Cosmetics/Shoes/FlatsStyled.blockymodel",
+      "Texture": "Cosmetics/Shoes/FlatsStyled_Textures/FlatsStyled_GreyScale.png",
+      "GradientSet": "Flashy_Synthetic",
+      "GradientId": "Turquoise"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
+      "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Default_Greyscale.png",
+      "GradientSet": "Skin",
+      "GradientId": "49"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",
+      "Texture": "Characters/Body_Attachments/Ears/Ears1_Textures/2.png"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyebrows/Medium_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "PitchBlack"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "Parent": "Player",
+  "Model": "Characters/Player.blockymodel",
+  "DefaultAttachments": [
+    {
+      "Model": "Characters/Haircuts/WavyLong.blockymodel",
+      "Texture": "Characters/Haircuts/WavyLong_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "BlondPlatinum"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
+      "Texture": "Characters/Body_Attachments/Faces/Faces_Detached_Textures/MakeUp_Face.png",
+      "GradientSet": "Skin",
+      "GradientId": "07"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Eyes/Eyes.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
+    },
+    {
+      "Model": "Cosmetics/Pants/Pants_Slim.blockymodel",
+      "Texture": "Cosmetics/Pants/Pants_Slim_Textures/Tracksuit_Greyscale.png",
+      "GradientSet": "Flashy_Synthetic",
+      "GradientId": "Pink"
+    },
+    {
+      "Model": "Cosmetics/Overtops/OnePiece.blockymodel",
+      "Texture": "Cosmetics/Overtops/OnePiece_Textures/School_Bow_Greyscale.png",
+      "GradientSet": "Fantasy_Cotton_Dark",
+      "GradientId": "Black"
+    },
+    {
+      "Model": "Cosmetics/Shoes/WedgeShoes.blockymodel",
+      "Texture": "Cosmetics/Shoes/WedgeShoes_Textures/WedgeShoes2_Greyscale_Texture.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Brown"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
+      "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Makeup_Greyscale.png",
+      "GradientSet": "Skin",
+      "GradientId": "07"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",
+      "Texture": "Characters/Body_Attachments/Ears/Ears1_Textures/2.png"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyebrows/Thin_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "BlondPlatinum"
+    }
+  ]
+}

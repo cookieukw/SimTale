@@ -39,10 +39,20 @@ public class SimNPCFactory {
 
     @SuppressWarnings("null")
     public static Ref<EntityStore> spawnNPC(Store<EntityStore> store, Vector3d position, NPCType type) {
+        String roleId = type.roleId;
+        
+        if (type == NPCType.HUMAN_MALE) {
+            int variant = 1 + (int)(Math.random() * 50);
+            roleId = "SimTale_Human_Male_" + variant;
+        } else if (type == NPCType.HUMAN_FEMALE) {
+            int variant = 1 + (int)(Math.random() * 50);
+            roleId = "SimTale_Human_Female_" + variant;
+        }
+
         // 1. Spawn the NPC using the official Hytale NPC system
         Pair<Ref<EntityStore>, ?> result = NPCPlugin.get().spawnNPC(
             store, 
-            type.roleId, 
+            roleId, 
             (String) null, 
             position, 
             new Rotation3f()

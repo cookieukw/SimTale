@@ -1,6 +1,6 @@
 {
   "Type": "Generic",
-  "Appearance": "Player",
+  "Appearance": "SimTale_Human_Female",
   "MaxHealth": 200,
   "MotionControllerList": [
     {
