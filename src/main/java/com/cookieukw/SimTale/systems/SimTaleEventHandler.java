@@ -1,10 +1,13 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.db.SimNPCData;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
-import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.Entity;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerInteractEvent;
 import com.hypixel.hytale.server.core.universe.Universe;
@@ -14,15 +17,17 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.logger.HytaleLogger;
+
 import java.util.function.Consumer;
 
 /**
  * Handles interactions between players and NPCs.
  */
+
 public class SimTaleEventHandler implements Consumer<PlayerInteractEvent> {
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void accept(PlayerInteractEvent event) {
         Entity target = event.getTargetEntity();
         
@@ -49,23 +54,19 @@ public class SimTaleEventHandler implements Consumer<PlayerInteractEvent> {
                 SimTale.SIM_NPC_COMPONENT_TYPE);
 
         if (npc == null) {
-            com.hypixel.hytale.server.core.entity.UUIDComponent uuidComp = accessor.getComponent(target.getReference(), com.hypixel.hytale.server.core.entity.UUIDComponent.getComponentType());
+            UUIDComponent uuidComp = accessor.getComponent(target.getReference(), UUIDComponent.getComponentType());
             if (uuidComp != null) {
-                com.cookieukw.SimTale.db.SimNPCData data = com.cookie.caskara.Caskara.load(uuidComp.getUuid().toString(), com.cookieukw.SimTale.db.SimNPCData.class);
+                SimNPCData data = Caskara.load(uuidComp.getUuid().toString(), SimNPCData.class);
                 if (data != null) {
-                    com.hypixel.hytale.logger.HytaleLogger.forEnclosingClass().atInfo().log("SimTale: NPC " + data.name + " remontado apos carregamento do mundo!");
+                    HytaleLogger.forEnclosingClass().atInfo().log("SimTale: NPC " + data.name + " remontado apos carregamento do mundo!");
                     npc = new SimNPCComponent(uuidComp.getUuid(), data.name);
                     npc.entityRef = target.getReference();
-                    com.cookieukw.SimTale.db.SimNPCPersistence.loadNPC(npc);
+                    SimNPCPersistence.loadNPC(npc);
                     accessor.addComponent(target.getReference(), SimTale.SIM_NPC_COMPONENT_TYPE, npc);
                     
-                    boolean found = false;
-                    for (SimNPCComponent active : SimTale.ACTIVE_NPCS) {
-                        if (active.entityId != null && active.entityId.equals(npc.entityId)) {
-                            found = true; break;
-                        }
-                    }
-                    if (!found) SimTale.ACTIVE_NPCS.add(npc);
+                    final java.util.UUID targetId = uuidComp.getUuid();
+                    SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(targetId));
+                    SimTale.ACTIVE_NPCS.add(npc);
                 }
             }
         }
@@ -73,7 +74,7 @@ public class SimTaleEventHandler implements Consumer<PlayerInteractEvent> {
         if (npc == null)
             return;
 
-        com.hypixel.hytale.logger.HytaleLogger.forEnclosingClass().atInfo().log("SimTale: Interacao com NPC detectada: " + npc.name);
+        HytaleLogger.forEnclosingClass().atInfo().log("SimTale: Interacao com NPC detectada: " + npc.name);
 
         // Get PlayerRef component to open UI
         Player player = event.getPlayer();
