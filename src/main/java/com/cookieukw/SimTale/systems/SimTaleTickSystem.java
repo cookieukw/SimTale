@@ -35,9 +35,9 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
 
     @Override
     @Nonnull
-    @SuppressWarnings("unchecked")
+    
     public Query<EntityStore> getQuery() {
-        return (Query<EntityStore>) (Object) com.hypixel.hytale.server.core.entity.UUIDComponent.getComponentType();
+        return (Query<EntityStore>) (Object) UUIDComponent.getComponentType();
     }
 
     @Override

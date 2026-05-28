@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.JobType;
 import com.cookieukw.SimTale.engine.Animal;
 import com.cookieukw.SimTale.engine.MagicDataLoader;
@@ -28,7 +29,6 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
     private static final int CONVERSATION_TIMEOUT_TICKS = 200; // 10 seconds
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void accept(PlayerChatEvent event) {
         PlayerRef sender = event.getSender();
         String message = event.getContent();
@@ -38,6 +38,17 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         }
 
         message = message.toLowerCase();
+
+        World world = null;
+        for (World w : Universe.get().getWorlds().values()) {
+            world = w;
+            break;
+        }
+
+        // Fallback: Se a lista estiver vazia após recarregar o servidor, tenta remontar os NPCs
+        if (world != null && SimTale.ACTIVE_NPCS.isEmpty()) {
+            SimNPCPersistence.reassembleActiveNPCs(world);
+        }
 
         // Use the tracking list to find NPCs instead of broken reflection
         SimNPCComponent targetNpc = null;
@@ -83,11 +94,6 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         }
 
         if (targetNpc != null) {
-            World world = null;
-            for (World w : Universe.get().getWorlds().values()) {
-                world = w;
-                break;
-            }
             if (world != null) {
                 handleNpcCommand(sender, message, targetNpc, world);
             }

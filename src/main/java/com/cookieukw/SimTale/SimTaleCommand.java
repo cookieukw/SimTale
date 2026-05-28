@@ -16,6 +16,7 @@ import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayer
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
@@ -59,7 +60,12 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         // If no NPCs tracked (e.g., after world reload), try to reassemble from database
         if (SimTale.ACTIVE_NPCS.isEmpty()) {
             ctx.sendMessage(Message.raw("Remontando NPCs do banco de dados..."));
-            reassembleNPCsFromDatabase(store);
+            World world = null;
+            for (World w : Universe.get().getWorlds().values()) {
+                world = w;
+                break;
+            }
+            SimNPCPersistence.reassembleActiveNPCs(world);
         }
         
         TransformComponent playerTransform = 
@@ -100,51 +106,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     /**
-     * Reassembles all NPCs from Caskara database after world reload.
-     * Resolves entity references from the current world.
+     * Handles the /simtale interact command.
      */
-    private void reassembleNPCsFromDatabase(Store<EntityStore> store) {
-        com.hypixel.hytale.server.core.universe.world.World world = null;
-        for (com.hypixel.hytale.server.core.universe.world.World w : com.hypixel.hytale.server.core.universe.Universe.get().getWorlds().values()) {
-            world = w;
-            break;
-        }
-        if (world == null) return;
-
-        java.util.List<SimNPCComponent> savedNPCs = SimNPCPersistence.loadAllNPCs();
-        com.hypixel.hytale.component.ComponentAccessor<com.hypixel.hytale.server.core.universe.world.storage.EntityStore> accessor = 
-            (com.hypixel.hytale.component.ComponentAccessor<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>) store;
-
-        for (SimNPCComponent comp : savedNPCs) {
-            if (comp.entityId == null) continue;
-
-            // Check if already tracked
-            boolean alreadyTracked = SimTale.ACTIVE_NPCS.stream()
-                .anyMatch(a -> a.entityId != null && a.entityId.equals(comp.entityId));
-            if (alreadyTracked) continue;
-
-            // Try to find the entity in the world
-            com.hypixel.hytale.component.Ref<com.hypixel.hytale.server.core.universe.world.storage.EntityStore> entityRef = 
-                world.getEntityStore().getRefFromUUID(comp.entityId);
-            
-            if (entityRef != null) {
-                comp.entityRef = entityRef;
-                
-                // Re-attach component to entity
-                try {
-                    accessor.addComponent(entityRef, SimTale.SIM_NPC_COMPONENT_TYPE, comp);
-                } catch (Exception e) {
-                    // Component might already exist, try put instead
-                    try {
-                        accessor.putComponent(entityRef, SimTale.SIM_NPC_COMPONENT_TYPE, comp);
-                    } catch (Exception ignored) {}
-                }
-                
-                SimTale.ACTIVE_NPCS.add(comp);
-            }
-        }
-    }
-
     private void handleSpawn(CommandContext ctx, Store<EntityStore> store, Ref<EntityStore> ref, String typeName) {
         SimNPCFactory.NPCType type;
         try {
