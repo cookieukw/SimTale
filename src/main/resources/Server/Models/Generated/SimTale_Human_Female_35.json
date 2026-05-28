@@ -46,7 +46,9 @@
     },
     {
       "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",
-      "Texture": "Characters/Body_Attachments/Ears/Ears1_Textures/2.png"
+      "Texture": "Characters/Body_Attachments/Ears/Ears.png",
+      "GradientSet": "Skin",
+      "GradientId": "47"
     },
     {
       "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",

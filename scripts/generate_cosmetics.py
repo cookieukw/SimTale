@@ -141,7 +141,9 @@ def generate_model(gender, index):
     # Ears
     attachments.append({
         "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",
-        "Texture": "Characters/Body_Attachments/Ears/Ears1_Textures/2.png"
+        "Texture": "Characters/Body_Attachments/Ears/Ears.png",
+        "GradientSet": "Skin",
+        "GradientId": skin_gradient
     })
     
     # Eyebrows
