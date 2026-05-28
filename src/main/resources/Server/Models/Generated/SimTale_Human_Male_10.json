@@ -1,10 +1,12 @@
 {
   "Parent": "Player",
   "Model": "Characters/Player.blockymodel",
+  "GradientSet": "Skin",
+  "GradientId": "50",
   "DefaultAttachments": [
     {
-      "Model": "Characters/Haircuts/CentrePart.blockymodel",
-      "Texture": "Characters/Haircuts/CentrePart_Greyscale.png",
+      "Model": "Characters/Haircuts/Lazy.blockymodel",
+      "Texture": "Characters/Haircuts/Lazy_Greyscale.png",
       "GradientSet": "Hair",
       "GradientId": "Black"
     },
@@ -12,7 +14,7 @@
       "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
       "Texture": "Characters/Body_Attachments/Faces/Faces_Detached_Textures/Face.png",
       "GradientSet": "Skin",
-      "GradientId": "17"
+      "GradientId": "50"
     },
     {
       "Model": "Characters/Body_Attachments/Eyes/Eyes.blockymodel",
@@ -25,20 +27,20 @@
       "GradientId": "Green"
     },
     {
-      "Model": "Cosmetics/Overtops/Overtops_Rolled_Sleeve.blockymodel",
-      "Texture": "Cosmetics/Overtops/Overtops_Rolled_Sleeves_Textures/Tartan_Greyscale.png",
-      "GradientSet": "Colored_Cotton",
-      "GradientId": "Pink"
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Fantasy_Cotton",
+      "GradientId": "Brown"
     },
     {
-      "Model": "Cosmetics/Shoes/AngledBoots.blockymodel",
-      "Texture": "Cosmetics/Shoes/AngledBoots_Textures/Blazen_Wizard_Boots.png"
+      "Model": "Cosmetics/Shoes/Boots_Leather.blockymodel",
+      "Texture": "Cosmetics/Shoes/Boots_Leather_Textures/Desert_Blue.png"
     },
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
       "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Default_Greyscale.png",
       "GradientSet": "Skin",
-      "GradientId": "17"
+      "GradientId": "50"
     },
     {
       "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",

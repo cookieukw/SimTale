@@ -28,6 +28,15 @@ overtops = load_catalog("Overtops.json")
 undertops = load_catalog("Undertops.json")
 shoes = load_catalog("Shoes.json")
 
+FEMALE_KEYWORDS = ["skirt", "dress", "bikini", "bra", "crop", "heels", "pigtail", "ponytail", "bun", "bobcut", "frilly", "icecream", "daisy", "popstar"]
+
+def is_female_exclusive(item):
+    item_id = item.get("Id", "").lower()
+    for kw in FEMALE_KEYWORDS:
+        if kw in item_id:
+            return True
+    return False
+
 def extract_attachment(item):
     if "Variants" in item:
         variant_key = random.choice(list(item["Variants"].keys()))
@@ -41,7 +50,6 @@ def extract_attachment(item):
             tex_key = random.choice(list(item["Textures"].keys()))
             tex = item["Textures"][tex_key].get("Texture", "")
             
-    # Fallback to empty if not found, but log if no model (shouldn't happen for valid items)
     if not model:
         return None
         
@@ -67,7 +75,10 @@ def generate_model(gender, index):
     
     # Hair
     while True:
-        hair = extract_attachment(random.choice(haircuts))
+        hair_item = random.choice(haircuts)
+        if gender == "Male" and is_female_exclusive(hair_item):
+            continue
+        hair = extract_attachment(hair_item)
         if hair:
             hair["GradientSet"] = "Hair"
             hair["GradientId"] = hair_gradient
@@ -90,7 +101,10 @@ def generate_model(gender, index):
     
     # Pants
     while True:
-        pant = extract_attachment(random.choice(pants))
+        pant_item = random.choice(pants)
+        if gender == "Male" and is_female_exclusive(pant_item):
+            continue
+        pant = extract_attachment(pant_item)
         if pant:
             attachments.append(pant)
             break
@@ -98,14 +112,20 @@ def generate_model(gender, index):
     # Tops
     while True:
         top_catalog = undertops if random.choice([True, False]) else overtops
-        top = extract_attachment(random.choice(top_catalog))
+        top_item = random.choice(top_catalog)
+        if gender == "Male" and is_female_exclusive(top_item):
+            continue
+        top = extract_attachment(top_item)
         if top:
             attachments.append(top)
             break
             
     # Shoes
     while True:
-        shoe = extract_attachment(random.choice(shoes))
+        shoe_item = random.choice(shoes)
+        if gender == "Male" and is_female_exclusive(shoe_item):
+            continue
+        shoe = extract_attachment(shoe_item)
         if shoe:
             attachments.append(shoe)
             break
@@ -142,6 +162,8 @@ def generate_model(gender, index):
     model_json = {
         "Parent": "Player",
         "Model": "Characters/Player.blockymodel",
+        "GradientSet": "Skin",
+        "GradientId": skin_gradient,
         "DefaultAttachments": attachments
     }
     

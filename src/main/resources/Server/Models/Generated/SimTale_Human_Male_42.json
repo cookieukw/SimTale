@@ -1,12 +1,14 @@
 {
   "Parent": "Player",
   "Model": "Characters/Player.blockymodel",
+  "GradientSet": "Skin",
+  "GradientId": "29",
   "DefaultAttachments": [
     {
-      "Model": "Characters/Haircuts/Magical_Ponytail.blockymodel",
-      "Texture": "Characters/Haircuts/Magical_Ponytail_Greyscale.png",
+      "Model": "Characters/Haircuts/Emo.blockymodel",
+      "Texture": "Characters/Haircuts/Emo_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "Red"
+      "GradientId": "BlueDark"
     },
     {
       "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
@@ -19,20 +21,22 @@
       "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
     },
     {
-      "Model": "Cosmetics/Pants/Short_Slim.blockymodel",
-      "Texture": "Cosmetics/Pants/Short_Slim_Textures/Short_Slim_Rolled_Texture.png",
-      "GradientSet": "Jean_Generic",
-      "GradientId": "Maroon"
+      "Model": "Cosmetics/Pants/Pants_Slim.blockymodel",
+      "Texture": "Cosmetics/Pants/Pants_Slim_Textures/Costume_Greyscale.png",
+      "GradientSet": "Pastel_Cotton",
+      "GradientId": "Turquoise"
     },
     {
-      "Model": "Cosmetics/Overtops/Overtops_Top.blockymodel",
-      "Texture": "Cosmetics/Overtops/Overtops_Top_Textures/Jinbaori_Flower_Greyscale.png",
-      "GradientSet": "Fantasy_Cotton_Dark",
-      "GradientId": "Pink"
+      "Model": "Cosmetics/Overtops/TrenchCoat.blockymodel",
+      "Texture": "Cosmetics/Overtops/TrenchCoat_Greyscale.png",
+      "GradientSet": "Faded_Leather",
+      "GradientId": "Lime"
     },
     {
-      "Model": "Cosmetics/Shoes/BootsBasic.blockymodel",
-      "Texture": "Cosmetics/Shoes/BootsBasic_Textures/Rotten_Leather.png"
+      "Model": "Cosmetics/Shoes/Shoes.blockymodel",
+      "Texture": "Cosmetics/Shoes/Shoes_Textures/Shoes_Sandal_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Black"
     },
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
@@ -48,7 +52,7 @@
       "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
       "Texture": "Characters/Body_Attachments/Eyebrows/Medium_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "Red"
+      "GradientId": "BlueDark"
     }
   ]
 }

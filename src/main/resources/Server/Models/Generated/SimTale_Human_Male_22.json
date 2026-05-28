@@ -1,46 +1,48 @@
 {
   "Parent": "Player",
   "Model": "Characters/Player.blockymodel",
+  "GradientSet": "Skin",
+  "GradientId": "09",
   "DefaultAttachments": [
     {
-      "Model": "Characters/Haircuts/WavyShort.blockymodel",
-      "Texture": "Characters/Haircuts/WavyShort_Greyscale.png",
+      "Model": "Characters/Haircuts/Samurai.blockymodel",
+      "Texture": "Characters/Haircuts/Samurai_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "Lavender"
+      "GradientId": "BlueLight"
     },
     {
       "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
       "Texture": "Characters/Body_Attachments/Faces/Faces_Detached_Textures/Face.png",
       "GradientSet": "Skin",
-      "GradientId": "46"
+      "GradientId": "09"
     },
     {
       "Model": "Characters/Body_Attachments/Eyes/Eyes.blockymodel",
       "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
     },
     {
-      "Model": "Cosmetics/Pants/Skirt_MoreFlaps.blockymodel",
-      "Texture": "Cosmetics/Pants/Skirt_MoreFlaps_Textures/Skirt_Daisy_Petals.png",
-      "GradientSet": "Flashy_Synthetic",
-      "GradientId": "White"
-    },
-    {
-      "Model": "Cosmetics/Overtops/Dress.blockymodel",
-      "Texture": "Cosmetics/Overtops/Dress_Textures/Adventurer_Dark_Greyscale.png",
+      "Model": "Cosmetics/Pants/Pants_Straight.blockymodel",
+      "Texture": "Cosmetics/Pants/Pants_Straight_Textures/Wasteland_Marauder_Pants.png",
       "GradientSet": "Fantasy_Cotton_Dark",
-      "GradientId": "Red"
+      "GradientId": "Black"
     },
     {
-      "Model": "Cosmetics/Shoes/HiBoots.blockymodel",
-      "Texture": "Cosmetics/Shoes/HiBoots_Textures/HiBoots_Greyscale.png",
+      "Model": "Cosmetics/Overtops/CollaredJacket_Zipper.blockymodel",
+      "Texture": "Cosmetics/Overtops/CollaredJacket_Texture/Artic_Scout.png",
       "GradientSet": "Colored_Cotton",
-      "GradientId": "Yellow"
+      "GradientId": "Orange"
+    },
+    {
+      "Model": "Cosmetics/Shoes/Boots_Leather.blockymodel",
+      "Texture": "Cosmetics/Shoes/Boots_Leather_Textures/Santa_Greyscale.png",
+      "GradientSet": "Fantasy_Cotton",
+      "GradientId": "Blue"
     },
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
       "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Default_Greyscale.png",
       "GradientSet": "Skin",
-      "GradientId": "46"
+      "GradientId": "09"
     },
     {
       "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",
@@ -50,7 +52,7 @@
       "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
       "Texture": "Characters/Body_Attachments/Eyebrows/Medium_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "Lavender"
+      "GradientId": "BlueLight"
     }
   ]
 }

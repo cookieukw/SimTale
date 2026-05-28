@@ -1,12 +1,14 @@
 {
   "Parent": "Player",
   "Model": "Characters/Player.blockymodel",
+  "GradientSet": "Skin",
+  "GradientId": "27",
   "DefaultAttachments": [
     {
-      "Model": "Characters/Haircuts/Emo.blockymodel",
-      "Texture": "Characters/Haircuts/Emo_Greyscale.png",
+      "Model": "Characters/Haircuts/Afro.blockymodel",
+      "Texture": "Characters/Haircuts/Afro.png",
       "GradientSet": "Hair",
-      "GradientId": "Copper"
+      "GradientId": "BrownLight"
     },
     {
       "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
@@ -19,22 +21,20 @@
       "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
     },
     {
-      "Model": "Cosmetics/Pants/Short_Slim.blockymodel",
-      "Texture": "Cosmetics/Pants/Short_Slim_Textures/Leggins_Greyscale.png",
-      "GradientSet": "Flashy_Synthetic",
-      "GradientId": "Turquoise"
+      "Model": "Cosmetics/Pants/Short_Bermuda_Belted.blockymodel",
+      "Texture": "Cosmetics/Pants/Short_Bermuda_Belted_Textures/Merchant_Belted_Pants_Orange.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
     },
     {
-      "Model": "Cosmetics/Overtops/GaiaPure_Overtop.blockymodel",
-      "Texture": "Cosmetics/Overtops/GaiaPure_Overtop_Texture.png",
-      "GradientSet": "Ornamented_Metal",
-      "GradientId": "Iron_Black"
-    },
-    {
-      "Model": "Cosmetics/Shoes/Boots_Leather.blockymodel",
-      "Texture": "Cosmetics/Shoes/Boots_Leather_Textures/Leather_Greyscale.png",
+      "Model": "Cosmetics/Overtops/Voidbearer_Top.blockymodel",
+      "Texture": "Cosmetics/Overtops/Voidbearer_Top_textures/Voidbearer_Top_Texture.png",
       "GradientSet": "Faded_Leather",
-      "GradientId": "Orange"
+      "GradientId": "Black"
+    },
+    {
+      "Model": "Cosmetics/Shoes/BootsBasic.blockymodel",
+      "Texture": "Cosmetics/Shoes/BootsBasic_Textures/Rotten_Leather.png"
     },
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
@@ -50,7 +50,7 @@
       "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
       "Texture": "Characters/Body_Attachments/Eyebrows/Medium_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "Copper"
+      "GradientId": "BrownLight"
     }
   ]
 }
