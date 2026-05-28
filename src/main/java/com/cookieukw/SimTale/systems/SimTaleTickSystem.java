@@ -95,6 +95,11 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
 
         if (npc.currentConversationPartner != null) {
             if (absoluteTick > npc.conversationTimeoutTick) {
+                for (PlayerRef pr : Universe.get().getPlayers()) {
+                    if (pr.getUuid().equals(npc.currentConversationPartner)) {
+                        pr.sendMessage(Message.raw("<" + npc.name + "> Hmm, acho que você está ocupado. Depois nos falamos!"));
+                    }
+                }
                 npc.currentConversationPartner = null;
             }
         }

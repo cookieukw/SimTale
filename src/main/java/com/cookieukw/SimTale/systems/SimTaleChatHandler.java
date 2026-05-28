@@ -95,6 +95,15 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         if (targetNpc != null) {
             if (world != null) {
+                if (targetNpc.currentConversationPartner != null && world.getTick() >= targetNpc.conversationTimeoutTick) {
+                    targetNpc.currentConversationPartner = null;
+                }
+                
+                if (targetNpc.currentConversationPartner != null && !targetNpc.currentConversationPartner.equals(sender.getUuid())) {
+                    sendReply(sender, "<" + targetNpc.name + "> Desculpe, estou conversando com outra pessoa no momento.");
+                    return;
+                }
+                
                 handleNpcCommand(sender, message, targetNpc, world);
             }
         }
@@ -108,6 +117,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             return;
         }
 
+        boolean wantCancel = message.equals("tchau") || message.equals("adeus") || message.equals("sair") || message.equals("cancelar") || message.contains("deixa pra lá") || message.contains("deixa pra la") || message.contains("esquece");
         boolean wantPlayMagicGinn = message.contains("jogar magic") || message.contains("play magic") || message.contains("akinator");
         boolean isGreeting = message.contains("olá") || message.contains("ola") || message.contains("hello") || message.contains("hi") || message.contains("oi") || message.contains("eae");
         boolean wantMine = message.contains("mine") || message.contains("minerar");
@@ -118,6 +128,12 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         boolean wantCome = message.contains("vem") || message.contains("come") || message.contains("aqui");
         
         boolean justCalledName = message.trim().equalsIgnoreCase(npc.name) || message.trim().equalsIgnoreCase(npc.name + "!");
+
+        if (wantCancel) {
+            sendReply(sender, "<" + npc.name + "> Tudo bem, até mais! Se precisar é só chamar.");
+            npc.currentConversationPartner = null;
+            return;
+        }
 
         if (wantPlayMagicGinn) {
             int affinity = npc.getRelationship(sender.getUuid()).friendship;
