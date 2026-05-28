@@ -59,7 +59,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     private void handleInteract(CommandContext ctx, Store<EntityStore> store, Ref<EntityStore> ref, PlayerRef playerRef) {
         // If no NPCs tracked (e.g., after world reload), try to reassemble from database
         if (SimTale.ACTIVE_NPCS.isEmpty()) {
-            ctx.sendMessage(Message.raw("Remontando NPCs do banco de dados..."));
+            ctx.sendMessage(Message.translation("simtale.cmd.reload.db"));
             World world = null;
             for (World w : Universe.get().getWorlds().values()) {
                 world = w;
@@ -96,13 +96,13 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         }
 
         if (nearestNPC == null) {
-            ctx.sendMessage(Message.raw("Nenhum NPC vivo por perto!"));
+            ctx.sendMessage(Message.translation("simtale.cmd.interact.none"));
             return;
         }
 
         Player player = store.getComponent(ref, Player.getComponentType());
         player.getPageManager().openCustomPage(ref, store, new NPCInteractionPage(playerRef, player, nearestNPC));
-        ctx.sendMessage(Message.raw("Forced UI to open for " + nearestNPC.name));
+        ctx.sendMessage(Message.translation("simtale.cmd.interact.success").param("name", nearestNPC.name));
     }
 
     /**
@@ -113,7 +113,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         try {
             type = SimNPCFactory.NPCType.valueOf(typeName.toUpperCase());
         } catch (IllegalArgumentException e) {
-            ctx.sendMessage(Message.raw("Invalid NPC type. Use SLOTHIAN or TRORK."));
+            ctx.sendMessage(Message.translation("simtale.cmd.spawn.error").param("type", "SLOTHIAN/TRORK"));
             return;
         }
 
@@ -126,10 +126,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         // Save initial state to DB
         SimNPCPersistence.saveNPC(comp);
 
-        ctx.sendMessage(Message.raw("Spawned " + type.name() + " at " + pos.toString()));
+        ctx.sendMessage(Message.translation("simtale.cmd.spawn.success").param("type", type.name()));
     }
 
     private void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("SimTale v" + pluginVersion + " - Use /simtale spawn <SLOTHIAN|TRORK> or /simtale interact"));
+        ctx.sendMessage(Message.translation("simtale.cmd.spawn.usage"));
     }
 }

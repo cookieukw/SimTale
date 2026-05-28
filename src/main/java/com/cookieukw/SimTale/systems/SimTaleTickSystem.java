@@ -97,7 +97,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             if (absoluteTick > npc.conversationTimeoutTick) {
                 for (PlayerRef pr : Universe.get().getPlayers()) {
                     if (pr.getUuid().equals(npc.currentConversationPartner)) {
-                        pr.sendMessage(Message.raw("<" + npc.name + "> Hmm, acho que você está ocupado. Depois nos falamos!"));
+                        pr.sendMessage(Message.translation("simtale.tick.chat.timeout").param("name", npc.name));
                     }
                 }
                 npc.currentConversationPartner = null;
@@ -109,7 +109,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                 npc.isAway = true;
                 for (PlayerRef pr : Universe.get().getPlayers()) {
                     if (pr.getUuid().equals(npc.jobEmployer)) {
-                        pr.sendMessage(Message.raw("<" + npc.name + "> Estou saindo agora! Volto assim que terminar."));
+                        pr.sendMessage(Message.translation("simtale.tick.job.depart").param("name", npc.name));
                     }
                 }
                 Ref<EntityStore> ref = world.getEntityStore().getRefFromUUID(npc.entityId);
@@ -159,7 +159,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         try {
             for (PlayerRef pr : Universe.get().getPlayers()) {
                 if (pr.getUuid().equals(npc.jobEmployer)) {
-                    pr.sendMessage(Message.raw("<" + npc.name + "> Terminei meu trabalho de " + npc.currentJob.getPortugueseName() + "!"));
+                    pr.sendMessage(Message.translation("simtale.tick.job.complete").param("name", npc.name).param("job_name", npc.currentJob.getPortugueseName()));
                     
                     List<JobLootTable.LootEntry> loots = JobLootTable.getLootForJob(npc.currentJob);
                     for (JobLootTable.LootEntry loot : loots) {
