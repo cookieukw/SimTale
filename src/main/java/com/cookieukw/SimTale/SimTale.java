@@ -14,6 +14,7 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.cookieukw.SimTale.systems.SimTaleChatHandler;
 import com.hypixel.hytale.event.EventPriority;
+import com.cookieukw.SimTale.systems.MoodAnimationSystem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,7 @@ public class SimTale extends JavaPlugin {
         // Register tick systems
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
         this.getEntityStoreRegistry().registerSystem(new PlumbobSystem());
+        this.getEntityStoreRegistry().registerSystem(new MoodAnimationSystem());
 
         // Register event handlers
         this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class, null,

@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 
+import com.cookieukw.SimTale.core.Mood;
+
 public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
 
     // Maps Player UUID to Plumbob Entity Ref
@@ -75,8 +77,18 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         if (world == null) return;
 
         Ref<EntityStore> plumbobRef = playerPlumbobs.get(entityUuid);
-        boolean needsNewPlumbob = false;
+        // Get Mood
+        String moodModelName = "Plumbob"; // Default fallback
+        Mood currentMood = Mood.HAPPY;
+        if (isNpc) {
+            com.cookieukw.SimTale.core.SimNPCComponent npc = chunk.getComponent(index, com.cookieukw.SimTale.SimTale.SIM_NPC_COMPONENT_TYPE);
+            if (npc != null && npc.getMood() != null) {
+                currentMood = npc.getMood();
+                moodModelName = "Plumbob_" + currentMood.name();
+            }
+        }
 
+        boolean needsNewPlumbob = false;
         if (plumbobRef == null || !plumbobRef.isValid()) {
             needsNewPlumbob = true;
         } else {
@@ -85,22 +97,36 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
             if (plumbobTransform == null) {
                 needsNewPlumbob = true;
             } else {
-                // Update position using teleportPosition to ensure client sync and spatial grid updates
-                // The head is around Y=1.6 - 1.8.
-                // We set it to Y+2.3 so it hovers cleanly right above the head.
+                // Update position
                 plumbobTransform.teleportPosition(new Vector3d(
                     entityTransform.getPosition().x,
                     entityTransform.getPosition().y + 2.2,
                     entityTransform.getPosition().z
                 ));
                 commandBuffer.replaceComponent(plumbobRef, TransformComponent.getComponentType(), plumbobTransform);
+                
+                // Update Model if mood changed
+                PersistentModel currPm = store.getComponent(plumbobRef, PersistentModel.getComponentType());
+                if (currPm != null && currPm.getModelReference() != null) {
+                    if (!moodModelName.equals(currPm.getModelReference().getModelAssetId())) {
+                        ModelAsset modelAsset = (ModelAsset) ModelAsset.getAssetMap().getAsset(moodModelName);
+                        if (modelAsset != null) {
+                            Model model = Model.createScaledModel(modelAsset, 0.9f);
+                            commandBuffer.replaceComponent(plumbobRef, PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
+                            commandBuffer.replaceComponent(plumbobRef, ModelComponent.getComponentType(), new ModelComponent(model));
+                        }
+                    }
+                }
             }
         }
 
         if (needsNewPlumbob) {
             Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
             
-            ModelAsset modelAsset = (ModelAsset) ModelAsset.getAssetMap().getAsset("Plumbob");
+            ModelAsset modelAsset = (ModelAsset) ModelAsset.getAssetMap().getAsset(moodModelName);
+            if (modelAsset == null) {
+                modelAsset = (ModelAsset) ModelAsset.getAssetMap().getAsset("Plumbob");
+            }
             if (modelAsset != null) {
                 Model model = Model.createScaledModel(modelAsset, 0.9f);
                 holder.addComponent(TransformComponent.getComponentType(), new TransformComponent(new Vector3d(entityTransform.getPosition()), new Rotation3f()));
