@@ -223,8 +223,8 @@ def generate_model(gender, index):
     with open(os.path.join(ROLES_DIR, f"{model_name}.json"), "w") as f:
         json.dump(role_json, f, indent=2)
 
-for i in range(1, 51):
+for i in range(1, 201):
     generate_model("Male", i)
     generate_model("Female", i)
 
-print("Generated 50 male and 50 female variants.")
+print("Generated 200 male and 200 female variants.")

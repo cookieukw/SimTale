@@ -1,0 +1,58 @@
+{
+  "Parent": "Player",
+  "Model": "Characters/Player.blockymodel",
+  "GradientSet": "Skin",
+  "GradientId": "53",
+  "DefaultAttachments": [
+    {
+      "Model": "Characters/Haircuts/Short.blockymodel",
+      "Texture": "Characters/Haircuts/Short_Textures/BuzzCut_Texture.png",
+      "GradientSet": "Hair",
+      "GradientId": "Pink"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
+      "Texture": "Characters/Body_Attachments/Faces/Faces_Detached_Textures/Face.png",
+      "GradientSet": "Skin",
+      "GradientId": "53"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Eyes/Eyes.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
+    },
+    {
+      "Model": "Cosmetics/Pants/Shorty_Slim.blockymodel",
+      "Texture": "Cosmetics/Pants/Shorty_Slim_Textures/Stylish_Greyscale.png",
+      "GradientSet": "Flashy_Synthetic",
+      "GradientId": "OrangePastel"
+    },
+    {
+      "Model": "Cosmetics/Undertops/Voidbearer_CursedArm.blockymodel",
+      "Texture": "Cosmetics/Undertops/Voidbearer_CursedArm_Texture.png"
+    },
+    {
+      "Model": "Cosmetics/Shoes/Shoes.blockymodel",
+      "Texture": "Cosmetics/Shoes/Shoes_Textures/Shoes_Buckle_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Green"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
+      "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Default_Greyscale.png",
+      "GradientSet": "Skin",
+      "GradientId": "53"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",
+      "Texture": "Characters/Body_Attachments/Ears/Ears.png",
+      "GradientSet": "Skin",
+      "GradientId": "53"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyebrows/Medium_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "Pink"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "Parent": "Player",
+  "Model": "Characters/Player.blockymodel",
+  "GradientSet": "Skin",
+  "GradientId": "06",
+  "DefaultAttachments": [
+    {
+      "Model": "Characters/Haircuts/ThickBraid.blockymodel",
+      "Texture": "Characters/Haircuts/ThickBraid_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "BrownSemiDark"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
+      "Texture": "Characters/Body_Attachments/Faces/Faces_Detached_Textures/MakeUp_Face.png",
+      "GradientSet": "Skin",
+      "GradientId": "06"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Eyes/Eyes.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
+    },
+    {
+      "Model": "Cosmetics/Pants/Shorty_Slim.blockymodel",
+      "Texture": "Cosmetics/Pants/Shorty_Slim_Textures/Mossy_Shorts.png"
+    },
+    {
+      "Model": "Cosmetics/Undertops/Top.blockymodel",
+      "Texture": "Cosmetics/Undertops/Top_Textures/Survivor_Boy.png",
+      "GradientSet": "Fantasy_Cotton",
+      "GradientId": "Blue"
+    },
+    {
+      "Model": "Cosmetics/Shoes/FashionableBoots.blockymodel",
+      "Texture": "Cosmetics/Shoes/FashionableBoots_Textures/FashionableBoots_Red.png",
+      "GradientSet": "Faded_Leather",
+      "GradientId": "Pink"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
+      "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Makeup_Greyscale.png",
+      "GradientSet": "Skin",
+      "GradientId": "06"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",
+      "Texture": "Characters/Body_Attachments/Ears/Ears.png",
+      "GradientSet": "Skin",
+      "GradientId": "06"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyebrows/Thin_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "BrownSemiDark"
+    }
+  ]
+}

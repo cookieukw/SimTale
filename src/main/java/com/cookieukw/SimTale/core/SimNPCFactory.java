@@ -42,10 +42,10 @@ public class SimNPCFactory {
         String roleId = type.roleId;
         
         if (type == NPCType.HUMAN_MALE) {
-            int variant = 1 + (int)(Math.random() * 50);
+            int variant = 1 + (int)(Math.random() * 200);
             roleId = "SimTale_Human_Male_" + variant;
         } else if (type == NPCType.HUMAN_FEMALE) {
-            int variant = 1 + (int)(Math.random() * 50);
+            int variant = 1 + (int)(Math.random() * 200);
             roleId = "SimTale_Human_Female_" + variant;
         }
 
