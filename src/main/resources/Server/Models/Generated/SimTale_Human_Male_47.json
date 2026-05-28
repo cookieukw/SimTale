@@ -3,10 +3,10 @@
   "Model": "Characters/Player.blockymodel",
   "DefaultAttachments": [
     {
-      "Model": "Characters/Haircuts/SimpleBobcut.blockymodel",
-      "Texture": "Characters/Haircuts/SimpleBobcut_Greyscale.png",
+      "Model": "Characters/Haircuts/PonyBuns.blockymodel",
+      "Texture": "Characters/Haircuts/PonyBuns_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "White"
+      "GradientId": "PinkBerry"
     },
     {
       "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
@@ -19,18 +19,22 @@
       "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
     },
     {
-      "Model": "Cosmetics/Overpants/Icecream_Skirt.blockymodel",
-      "Texture": "Cosmetics/Overpants/Icecream_Skirt_Texture.png"
+      "Model": "Cosmetics/Pants/HighSkirt_Plaid.blockymodel",
+      "Texture": "Cosmetics/Pants/HighSkirt_Textures/PlaidSkirt_Texture.png",
+      "GradientSet": "Fantasy_Cotton",
+      "GradientId": "Brown"
     },
     {
-      "Model": "Cosmetics/Overtops/Overtops_Short_Sleeve.blockymodel",
-      "Texture": "Cosmetics/Overtops/Overtops_Short_Sleeve_Textures/Khaki_Shirt.png"
+      "Model": "Cosmetics/Overtops/Overtops_Long_Sleeve.blockymodel",
+      "Texture": "Cosmetics/Overtops/Overtops_Long_Sleeve_Textures/Pinstripe_Jacket_Greyscale.png",
+      "GradientSet": "Shiny_Fabric",
+      "GradientId": "Turquoise"
     },
     {
-      "Model": "Cosmetics/Shoes/HiBoots.blockymodel",
-      "Texture": "Cosmetics/Shoes/HiBoots_Textures/HiBoots_Greyscale.png",
+      "Model": "Cosmetics/Shoes/FrostyCoolBoots.blockymodel",
+      "Texture": "Cosmetics/Shoes/FrostyCoolBoots_Textures/FrostyCoolBoots_Texture.png",
       "GradientSet": "Colored_Cotton",
-      "GradientId": "Yellow"
+      "GradientId": "Turquoise"
     },
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
@@ -46,7 +50,7 @@
       "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
       "Texture": "Characters/Body_Attachments/Eyebrows/Medium_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "White"
+      "GradientId": "PinkBerry"
     }
   ]
 }

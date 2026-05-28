@@ -3,10 +3,10 @@
   "Model": "Characters/Player.blockymodel",
   "DefaultAttachments": [
     {
-      "Model": "Characters/Haircuts/LongTied.blockymodel",
-      "Texture": "Characters/Haircuts/LongTied_Greyscale.png",
+      "Model": "Characters/Haircuts/BowlCut.blockymodel",
+      "Texture": "Characters/Haircuts/BowlCut_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "Red"
+      "GradientId": "PitchBlack"
     },
     {
       "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
@@ -19,18 +19,22 @@
       "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
     },
     {
-      "Model": "Cosmetics/Pants/Shorty_Slim.blockymodel",
-      "Texture": "Cosmetics/Pants/Shorty_Slim_Textures/Mossy_Shorts.png"
+      "Model": "Cosmetics/Pants/Short_Bermuda.blockymodel",
+      "Texture": "Cosmetics/Pants/Short_Bermuda_Textures/Villager_Bermuda_Greyscale.png",
+      "GradientSet": "Fantasy_Cotton",
+      "GradientId": "Brown"
     },
     {
-      "Model": "Cosmetics/Overtops/Robe_Wizard.blockymodel",
-      "Texture": "Cosmetics/Overtops/Blazen_Wizard_Coat_Red.png"
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/VNeck_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Green"
     },
     {
       "Model": "Cosmetics/Shoes/Shoes.blockymodel",
-      "Texture": "Cosmetics/Shoes/Shoes_Textures/Shoes_Rubbon_Greyscale.png",
-      "GradientSet": "Faded_Leather",
-      "GradientId": "Red"
+      "Texture": "Cosmetics/Shoes/Shoes_Textures/ShoesGem_Greyscale_Texture.png",
+      "GradientSet": "Flashy_Synthetic",
+      "GradientId": "Black"
     },
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
@@ -46,7 +50,7 @@
       "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
       "Texture": "Characters/Body_Attachments/Eyebrows/Thin_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "Red"
+      "GradientId": "PitchBlack"
     }
   ]
 }

@@ -3,10 +3,10 @@
   "Model": "Characters/Player.blockymodel",
   "DefaultAttachments": [
     {
-      "Model": "Characters/Haircuts/Emo.blockymodel",
-      "Texture": "Characters/Haircuts/Emo_Greyscale.png",
+      "Model": "Characters/Haircuts/Magical_Pigtails.blockymodel",
+      "Texture": "Characters/Haircuts/Magical_Pigtails_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "PitchBlack"
+      "GradientId": "BrownLight"
     },
     {
       "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
@@ -19,22 +19,20 @@
       "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
     },
     {
-      "Model": "Cosmetics/Pants/Short_Bermuda.blockymodel",
-      "Texture": "Cosmetics/Pants/Short_Bermuda_Textures/Forest_Greyscale.png",
-      "GradientSet": "Fantasy_Cotton_Dark",
-      "GradientId": "Brown"
-    },
-    {
-      "Model": "Cosmetics/Overtops/QuiltedTop.blockymodel",
-      "Texture": "Cosmetics/Overtops/QuiltedTop_Texture.png",
-      "GradientSet": "Faded_Leather",
-      "GradientId": "Turquoise"
-    },
-    {
-      "Model": "Cosmetics/Shoes/ElfBoots.blockymodel",
-      "Texture": "Cosmetics/Shoes/ElfBoots_Textures/ElfBoots_Greyscale.png",
+      "Model": "Cosmetics/Pants/Skirt_MoreFlaps.blockymodel",
+      "Texture": "Cosmetics/Pants/Skirt_MoreFlaps_Textures/Skirt_Daisy_Petals.png",
       "GradientSet": "Flashy_Synthetic",
-      "GradientId": "PinkPastel"
+      "GradientId": "Orange"
+    },
+    {
+      "Model": "Cosmetics/Overtops/Overtops_Short_Sleeve.blockymodel",
+      "Texture": "Cosmetics/Overtops/Overtops_Short_Sleeve_Textures/Khaki_Shirt.png"
+    },
+    {
+      "Model": "Cosmetics/Shoes/QuiltedBoots.blockymodel",
+      "Texture": "Cosmetics/Shoes/QuiltedBoots_Textures/QuiltedBoots_Texture.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Charcoal"
     },
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
@@ -50,7 +48,7 @@
       "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
       "Texture": "Characters/Body_Attachments/Eyebrows/Thin_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "PitchBlack"
+      "GradientId": "BrownLight"
     }
   ]
 }

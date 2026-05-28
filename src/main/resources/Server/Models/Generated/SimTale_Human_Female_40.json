@@ -3,16 +3,16 @@
   "Model": "Characters/Player.blockymodel",
   "DefaultAttachments": [
     {
-      "Model": "Characters/Haircuts/Bangs.blockymodel",
-      "Texture": "Characters/Haircuts/Bangs_Greyscale.png",
+      "Model": "Characters/Haircuts/Magical_Pigtails.blockymodel",
+      "Texture": "Characters/Haircuts/Magical_Pigtails_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "Black"
+      "GradientId": "Bubblegum"
     },
     {
       "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
       "Texture": "Characters/Body_Attachments/Faces/Faces_Detached_Textures/MakeUp_Face.png",
       "GradientSet": "Skin",
-      "GradientId": "07"
+      "GradientId": "12"
     },
     {
       "Model": "Characters/Body_Attachments/Eyes/Eyes.blockymodel",
@@ -20,27 +20,27 @@
     },
     {
       "Model": "Cosmetics/Pants/Pants_Straight.blockymodel",
-      "Texture": "Cosmetics/Pants/Pants_Straight_Textures/Wrecked_Greyscale.png",
-      "GradientSet": "Jean_Generic",
-      "GradientId": "Black"
+      "Texture": "Cosmetics/Pants/Pants_Straight_Textures/Khaki_Greyscale.png",
+      "GradientSet": "Flashy_Synthetic",
+      "GradientId": "Turquoise"
     },
     {
-      "Model": "Cosmetics/Overtops/Overtops_Long_Sleeve_Asymetrical.blockymodel",
-      "Texture": "Cosmetics/Overtops/Overtops_Long_Sleeve_Textures/Loose_Sweater_Greyscale.png",
-      "GradientSet": "Colored_Cotton",
-      "GradientId": "Black"
+      "Model": "Cosmetics/Overtops/Overtops_Top.blockymodel",
+      "Texture": "Cosmetics/Overtops/Overtops_Top_Textures/Mini_Leather_Jacket_Greyscale.png",
+      "GradientSet": "Faded_Leather",
+      "GradientId": "BlueDark"
     },
     {
-      "Model": "Cosmetics/Shoes/Scavenger_HeeledBoot.blockymodel",
-      "Texture": "Cosmetics/Shoes/Scavenger_HeeledBoot_Textures/Scavenger_HeeledBoot_Texture.png",
-      "GradientSet": "Colored_Cotton",
-      "GradientId": "Red"
+      "Model": "Cosmetics/Shoes/FlatsStyled.blockymodel",
+      "Texture": "Cosmetics/Shoes/FlatsStyled_Textures/FlatsStyled_GreyScale.png",
+      "GradientSet": "Flashy_Synthetic",
+      "GradientId": "Purple"
     },
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
       "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Makeup_Greyscale.png",
       "GradientSet": "Skin",
-      "GradientId": "07"
+      "GradientId": "12"
     },
     {
       "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",
@@ -50,7 +50,7 @@
       "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
       "Texture": "Characters/Body_Attachments/Eyebrows/Thin_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "Black"
+      "GradientId": "Bubblegum"
     }
   ]
 }

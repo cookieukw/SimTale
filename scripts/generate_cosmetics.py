@@ -150,15 +150,50 @@ def generate_model(gender, index):
         
     role_json = {
         "Type": "Generic",
-        "Appearance": f"Generated/{model_name}",
+        "Appearance": model_name,
         "MaxHealth": 200,
         "MotionControllerList": [
             {
-                "Type": "CharacterMotion",
-                "Speed": 2.2,
-                "RotationSpeed": 8.0
+                "Type": "Walk",
+                "MaxWalkSpeed": 3,
+                "Gravity": 10,
+                "MaxFallSpeed": 8,
+                "Acceleration": 10
             }
-        ]
+        ],
+        "StartState": "Idle",
+        "Instructions": [
+            {
+                "Sensor": { "Type": "Any" },
+                "Instructions": [
+                    {
+                        "Sensor": { "Type": "State", "State": "Idle" },
+                        "BodyMotion": {
+                            "Type": "Sequence",
+                            "Looped": True,
+                            "Motions": [
+                                {
+                                    "Type": "Timer",
+                                    "Time": [4, 8],
+                                    "Motion": {
+                                        "Type": "WanderInCircle",
+                                        "Radius": 10,
+                                        "MaxHeadingChange": 60,
+                                        "RelativeSpeed": 0.5
+                                    }
+                                },
+                                {
+                                    "Type": "Timer",
+                                    "Time": [3, 7],
+                                    "Motion": { "Type": "Nothing" }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ],
+        "NameTranslationKey": "npc.simtale.name"
     }
     
     with open(os.path.join(ROLES_DIR, f"{model_name}.json"), "w") as f:

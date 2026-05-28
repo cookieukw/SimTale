@@ -3,10 +3,10 @@
   "Model": "Characters/Player.blockymodel",
   "DefaultAttachments": [
     {
-      "Model": "Characters/Haircuts/Undercut.blockymodel",
-      "Texture": "Characters/Haircuts/Undercut_Greyscale.png",
+      "Model": "Characters/Haircuts/ShortDreads.blockymodel",
+      "Texture": "Characters/Haircuts/ShortDreads_Texture.png",
       "GradientSet": "Hair",
-      "GradientId": "Blue"
+      "GradientId": "BrownSemiDark"
     },
     {
       "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
@@ -19,20 +19,20 @@
       "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
     },
     {
-      "Model": "Cosmetics/Overpants/Icecream_Skirt.blockymodel",
-      "Texture": "Cosmetics/Overpants/Icecream_Skirt_Texture.png"
-    },
-    {
-      "Model": "Cosmetics/Overtops/OnePiece.blockymodel",
-      "Texture": "Cosmetics/Overtops/OnePiece_Textures/ApronDress_Greyscale.png",
+      "Model": "Cosmetics/Pants/Pants_Slim.blockymodel",
+      "Texture": "Cosmetics/Pants/Pants_Slim_Textures/Costume_Greyscale.png",
       "GradientSet": "Pastel_Cotton",
       "GradientId": "Turquoise"
     },
     {
-      "Model": "Cosmetics/Shoes/Boots_Long.blockymodel",
-      "Texture": "Cosmetics/Shoes/Boots_Long_Textures/Leather_Greyscale.png",
-      "GradientSet": "Faded_Leather",
-      "GradientId": "Violet"
+      "Model": "Cosmetics/Overtops/Overtops_Long_Sleeve.blockymodel",
+      "Texture": "Cosmetics/Overtops/Overtops_Long_Sleeve_Textures/Elf_Jacket_Texture_Greyscale.png",
+      "GradientSet": "Flashy_Synthetic",
+      "GradientId": "Red"
+    },
+    {
+      "Model": "Cosmetics/Shoes/Sandals.blockymodel",
+      "Texture": "Cosmetics/Shoes/Sandals_basic.png"
     },
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
@@ -48,7 +48,7 @@
       "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
       "Texture": "Characters/Body_Attachments/Eyebrows/Thin_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "Blue"
+      "GradientId": "BrownSemiDark"
     }
   ]
 }
