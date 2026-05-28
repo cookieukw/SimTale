@@ -15,7 +15,6 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 
 import com.cookieukw.SimTale.core.Profession;
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -23,8 +22,12 @@ import java.util.function.Consumer;
  * Handles chat interactions for controlling SimTale NPCs.
  */
 public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
+    @javax.annotation.Nonnull
+    public static String getRandomVariant(String baseKey, int variants) {
+        return baseKey + "." + (1 + (int)(Math.random() * variants));
+    }
 
-    private static final int CONVERSATION_TIMEOUT_TICKS = 200; // 10 seconds
+    private static final int CONVERSATION_TIMEOUT_TICKS = 600; // 10 seconds
 
     @Override
     public void accept(PlayerChatEvent event) {
@@ -98,7 +101,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
                 }
                 
                 if (targetNpc.currentConversationPartner != null && !targetNpc.currentConversationPartner.equals(sender.getUuid())) {
-                    sendReply(sender, Message.translation("simtale.chat.busy_multiplayer").param("name", targetNpc.name));
+                    sendReply(sender, Message.translation(getRandomVariant("simtale.chat.busy_multiplayer", 3)).param("name", targetNpc.name));
                     return;
                 }
                 
@@ -130,7 +133,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         boolean justCalledName = message.trim().equalsIgnoreCase(npc.name) || message.trim().equalsIgnoreCase(npc.name + "!");
 
         if (wantCancel) {
-            sendReply(sender, Message.translation("simtale.chat.cancel").param("name", npc.name));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.cancel", 3)).param("name", npc.name));
             npc.currentConversationPartner = null;
             return;
         }
@@ -146,16 +149,16 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
                 npc.activeMagicGame = new MagicEngine(MagicDataLoader.getAnimals(), MagicDataLoader.getQuestions());
                 npc.currentConversationPartner = sender.getUuid();
                 npc.conversationTimeoutTick = currentTick + CONVERSATION_TIMEOUT_TICKS * 5;
-                sendReply(sender, Message.translation("simtale.chat.magic.start").param("name", npc.name));
+                sendReply(sender, Message.translation(getRandomVariant("simtale.chat.magic.start", 3)).param("name", npc.name));
                 sendNextMagicQuestion(sender, npc);
             } else {
-                sendReply(sender, Message.translation("simtale.chat.magic.reject").param("name", npc.name));
+                sendReply(sender, Message.translation(getRandomVariant("simtale.chat.magic.reject", 3)).param("name", npc.name));
             }
             return;
         }
 
         if (npc.currentJob != JobType.NONE && !wantCome) {
-            sendReply(sender, Message.translation("simtale.chat.busy_job").param("name", npc.name).param("job", npc.currentJob.getPortugueseName()));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.busy_job", 3)).param("name", npc.name).param("job", npc.currentJob.getPortugueseName()));
             npc.currentConversationPartner = null;
             return;
         }
@@ -171,7 +174,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         } else if (wantExplore) {
             assignJob(sender, npc, currentTick, JobType.EXPLORE);
         } else if (wantCome) {
-            sendReply(sender, Message.translation("simtale.chat.come").param("name", npc.name));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.come", 3)).param("name", npc.name));
             npc.currentJob = JobType.NONE;
             npc.currentConversationPartner = null;
         } else if (isGreeting || justCalledName) {
@@ -213,7 +216,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         if (message.contains("sair") || message.contains("stop") || message.contains("quit") || message.contains("parar") || message.contains("chega")) {
             npc.activeMagicGame = null;
-            sendReply(sender, Message.translation("simtale.chat.magic.cancel").param("name", npc.name));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.magic.cancel", 3)).param("name", npc.name));
             return;
         }
 
@@ -238,7 +241,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         }
 
         if (!answered) {
-            sendReply(sender, Message.translation("simtale.chat.magic.invalid").param("name", npc.name));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.magic.invalid", 3)).param("name", npc.name));
             return;
         }
 
@@ -247,7 +250,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         Animal victoryAnimal = engine.checkVictory();
         if (victoryAnimal != null) {
-            sendReply(sender, Message.translation("simtale.chat.magic.win").param("name", npc.name).param("animal_name", victoryAnimal.getName().getPt()));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.magic.win", 3)).param("name", npc.name).param("animal_name", victoryAnimal.getName().getPt()));
             npc.activeMagicGame = null;
             return;
         }
@@ -260,7 +263,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         String nextQuestionId = engine.getBestQuestion();
 
         if (nextQuestionId == null) {
-            sendReply(sender, Message.translation("simtale.chat.magic.lose").param("name", npc.name));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.magic.lose", 3)).param("name", npc.name));
             npc.activeMagicGame = null;
             return;
         }
@@ -272,14 +275,14 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         if (question != null) {
             int qNum = engine.getAskedQuestions().size() + 1;
-            sendReply(sender, Message.translation("simtale.chat.magic.question").param("name", npc.name).param("num", qNum).param("question", question.getText().getPt()));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.magic.question", 3)).param("name", npc.name).param("num", qNum).param("question", question.getText().getPt()));
         }
     }
 
     private void handleProfessionChange(PlayerRef sender, String message, SimNPCComponent npc) {
         int affinity = npc.getRelationship(sender.getUuid()).friendship;
         if (affinity <= 20) {
-            sendReply(sender, Message.translation("simtale.chat.prof.reject").param("name", npc.name));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.prof.reject", 3)).param("name", npc.name));
             return;
         }
 
@@ -293,22 +296,22 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         if (newProf != null) {
             npc.profession = newProf;
-            sendReply(sender, Message.translation("simtale.chat.prof.accept").param("name", npc.name).param("prof_name", newProf.ptName));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.prof.accept", 3)).param("name", npc.name).param("prof_name", newProf.ptName));
             npc.currentConversationPartner = null;
         } else {
-            sendReply(sender, Message.translation("simtale.chat.prof.invalid").param("name", npc.name));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.prof.invalid", 3)).param("name", npc.name));
         }
     }
 
     private void assignJob(PlayerRef sender, SimNPCComponent npc, long currentTick, JobType job) {
         if (!npc.profession.canDoJob(job)) {
-            sendReply(sender, Message.translation("simtale.chat.job.wrong_prof").param("name", npc.name).param("prof_name", npc.profession.ptName).param("job_name", job.getPortugueseName()));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.job.wrong_prof", 3)).param("name", npc.name).param("prof_name", npc.profession.ptName).param("job_name", job.getPortugueseName()));
             return;
         }
 
         int affinity = npc.getRelationship(sender.getUuid()).friendship;
         if (affinity <= 10) {
-            sendReply(sender, Message.translation("simtale.chat.job.reject").param("name", npc.name));
+            sendReply(sender, Message.translation(getRandomVariant("simtale.chat.job.reject", 3)).param("name", npc.name));
             return;
         }
 
@@ -318,7 +321,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         npc.jobEmployer = sender.getUuid();
         npc.isAway = false;
         npc.currentConversationPartner = null; // Unlock conversation now that intent is clear
-        sendReply(sender, Message.translation("simtale.chat.job.accept").param("name", npc.name).param("job_name", job.getPortugueseName()));
+        sendReply(sender, Message.translation(getRandomVariant("simtale.chat.job.accept", 3)).param("name", npc.name).param("job_name", job.getPortugueseName()));
     }
 
     private void sendReply(PlayerRef sender, Message text) {
