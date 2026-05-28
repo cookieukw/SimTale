@@ -9,7 +9,9 @@ import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.hypixel.hytale.server.core.entity.Entity;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
-import com.hypixel.hytale.server.core.event.events.player.PlayerInteractEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
+import com.hypixel.hytale.protocol.MouseButtonType;
+import com.hypixel.hytale.protocol.MouseButtonState;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -26,18 +28,20 @@ import java.util.function.Consumer;
  */
 
 @SuppressWarnings("null")
-public class SimTaleEventHandler implements Consumer<PlayerInteractEvent> {
+public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
     @Override
-    public void accept(PlayerInteractEvent event) {
-        Entity target = event.getTargetEntity();
-        
-        HytaleLogger.forEnclosingClass().atInfo().log("SimTale [DEBUG]: PlayerInteractEvent DISPARADO. Alvo: " + (target != null ? target.getClass().getSimpleName() : "null"));
-        
-        if (target == null)
+    public void accept(PlayerMouseButtonEvent event) {
+        if (event.getMouseButton() == null ||
+            event.getMouseButton().mouseButtonType != MouseButtonType.Right ||
+            event.getMouseButton().state != MouseButtonState.Pressed) {
             return;
+        }
 
-        Ref<EntityStore> targetRef = target.getReference();
+        Ref<EntityStore> targetRef = event.getTargetEntityRef();
+        
+        HytaleLogger.forEnclosingClass().atInfo().log("SimTale [DEBUG]: PlayerMouseButtonEvent (Right Click) DISPARADO. Alvo Ref: " + (targetRef != null ? targetRef.toString() : "null"));
+        
         if (targetRef == null)
             return;
 

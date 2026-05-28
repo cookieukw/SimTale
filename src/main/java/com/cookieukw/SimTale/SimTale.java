@@ -9,7 +9,7 @@ import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.server.core.event.events.player.PlayerInteractEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.cookieukw.SimTale.systems.SimTaleChatHandler;
 import com.hypixel.hytale.event.EventPriority;
@@ -54,7 +54,7 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
 
         // Register event handlers
-        this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerInteractEvent.class, null,
+        this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class, null,
                 new SimTaleEventHandler());
         
         // MobsAndMates: Register chat handler
