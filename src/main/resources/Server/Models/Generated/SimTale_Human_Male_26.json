@@ -5,10 +5,10 @@
   "GradientId": "07",
   "DefaultAttachments": [
     {
-      "Model": "Characters/Haircuts/PuffyQuiff.blockymodel",
-      "Texture": "Characters/Haircuts/PuffyQuiff_Greyscale.png",
+      "Model": "Characters/Haircuts/Frizzy_Volume.blockymodel",
+      "Texture": "Characters/Haircuts/Frizzy_Volume_Texture.png",
       "GradientSet": "Hair",
-      "GradientId": "BrownLight"
+      "GradientId": "Red"
     },
     {
       "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
@@ -21,20 +21,18 @@
       "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
     },
     {
-      "Model": "Cosmetics/Pants/Pants_Straight.blockymodel",
-      "Texture": "Cosmetics/Pants/Void_Hero_Pants.png"
+      "Model": "Cosmetics/Pants/Pants_Asymetrical.blockymodel",
+      "Texture": "Cosmetics/Pants/Pants_Asymetrical_Textures/Survivor_Brown.png"
     },
     {
-      "Model": "Cosmetics/Overtops/NeckHighJumper_Ribbon.blockymodel",
-      "Texture": "Cosmetics/Overtops/NeckHighJumper_Textures/SavanaShirt.png",
+      "Model": "Cosmetics/Undertops/Top.blockymodel",
+      "Texture": "Cosmetics/Undertops/Top_Textures/Tubetop_Greyscale.png",
       "GradientSet": "Colored_Cotton",
-      "GradientId": "Green"
+      "GradientId": "Turquoise"
     },
     {
-      "Model": "Cosmetics/Shoes/Shoes.blockymodel",
-      "Texture": "Cosmetics/Shoes/Shoes_Textures/ShoesGem_Greyscale_Texture.png",
-      "GradientSet": "Flashy_Synthetic",
-      "GradientId": "Green"
+      "Model": "Cosmetics/Shoes/Boots_Leather.blockymodel",
+      "Texture": "Cosmetics/Shoes/Boots_Leather_Textures/Desert_Blue.png"
     },
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
@@ -52,7 +50,7 @@
       "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
       "Texture": "Characters/Body_Attachments/Eyebrows/Medium_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "BrownLight"
+      "GradientId": "Red"
     }
   ]
 }

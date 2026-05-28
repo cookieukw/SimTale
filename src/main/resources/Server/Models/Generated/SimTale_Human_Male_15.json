@@ -5,10 +5,10 @@
   "GradientId": "08",
   "DefaultAttachments": [
     {
-      "Model": "Characters/Haircuts/Afro.blockymodel",
-      "Texture": "Characters/Haircuts/Afro.png",
+      "Model": "Characters/Haircuts/MidSinglePart.blockymodel",
+      "Texture": "Characters/Haircuts/MidSinglePart_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "BrownLight"
+      "GradientId": "Green"
     },
     {
       "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
@@ -21,22 +21,20 @@
       "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
     },
     {
-      "Model": "Cosmetics/Pants/Shorty_Slim.blockymodel",
-      "Texture": "Cosmetics/Pants/Shorty_Slim_Textures/Jean_Fantasy_Geyscale_Texture.png",
-      "GradientSet": "Jean_Generic",
-      "GradientId": "Maroon"
+      "Model": "Cosmetics/Pants/Pants_Straight.blockymodel",
+      "Texture": "Cosmetics/Pants/Void_Hero_Pants.png"
     },
     {
-      "Model": "Cosmetics/Overtops/Cheststrap.blockymodel",
-      "Texture": "Cosmetics/Overtops/Cheststrap_Greyscale.png",
+      "Model": "Cosmetics/Undertops/Top.blockymodel",
+      "Texture": "Cosmetics/Undertops/Top_Textures/Mercenary_Top.png",
       "GradientSet": "Faded_Leather",
-      "GradientId": "Green"
+      "GradientId": "Turquoise"
     },
     {
-      "Model": "Cosmetics/Shoes/Sneakers_Shaped.blockymodel",
-      "Texture": "Cosmetics/Shoes/Shaped_Sneakers_Textures/Shaped_Sneakers.png",
+      "Model": "Cosmetics/Shoes/Trainers.blockymodel",
+      "Texture": "Cosmetics/Shoes/Trainers_Textures/Trainers_Greyscale.png",
       "GradientSet": "Colored_Cotton",
-      "GradientId": "Yellow"
+      "GradientId": "Black"
     },
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
@@ -54,7 +52,7 @@
       "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
       "Texture": "Characters/Body_Attachments/Eyebrows/Medium_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "BrownLight"
+      "GradientId": "Green"
     }
   ]
 }

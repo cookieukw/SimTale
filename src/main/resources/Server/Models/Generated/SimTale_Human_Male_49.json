@@ -2,19 +2,19 @@
   "Parent": "Player",
   "Model": "Characters/Player.blockymodel",
   "GradientSet": "Skin",
-  "GradientId": "14",
+  "GradientId": "19",
   "DefaultAttachments": [
     {
-      "Model": "Characters/Haircuts/Short.blockymodel",
-      "Texture": "Characters/Haircuts/Short_Textures/BuzzCut_Texture.png",
+      "Model": "Characters/Haircuts/BowHair.blockymodel",
+      "Texture": "Characters/Haircuts/BowHair_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "BlueDark"
+      "GradientId": "BlueLight"
     },
     {
       "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
       "Texture": "Characters/Body_Attachments/Faces/Faces_Detached_Textures/Face.png",
       "GradientSet": "Skin",
-      "GradientId": "14"
+      "GradientId": "19"
     },
     {
       "Model": "Characters/Body_Attachments/Eyes/Eyes.blockymodel",
@@ -22,39 +22,39 @@
     },
     {
       "Model": "Cosmetics/Pants/Pants_Slim.blockymodel",
-      "Texture": "Cosmetics/Pants/Pants_Slim_Textures/Costume_Greyscale.png",
-      "GradientSet": "Pastel_Cotton",
-      "GradientId": "Grey"
+      "Texture": "Cosmetics/Pants/Pants_Slim_Textures/Tracksuit_Greyscale.png",
+      "GradientSet": "Flashy_Synthetic",
+      "GradientId": "Blue"
     },
     {
-      "Model": "Cosmetics/Overtops/CollaredJacket.blockymodel",
-      "Texture": "Cosmetics/Overtops/CollaredJacket_Texture/Puffy_Bomber_Texture.png",
+      "Model": "Cosmetics/Overtops/Overtops_Long_Waist_NoSleeve.blockymodel",
+      "Texture": "Cosmetics/Overtops/Overtops_Long_Sleeve_Waist_Sleeve/Raggedy_Vest_Texture.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Lime"
+    },
+    {
+      "Model": "Cosmetics/Shoes/Sneakers.blockymodel",
+      "Texture": "Cosmetics/Shoes/Sneakers_Textures/Wasteland_Marauders_Snearkers_Texture.png",
       "GradientSet": "Fantasy_Cotton_Dark",
-      "GradientId": "Turquoise"
-    },
-    {
-      "Model": "Cosmetics/Shoes/GaiaPureBoots.blockymodel",
-      "Texture": "Cosmetics/Shoes/GaiaPureBoots_Texture.png",
-      "GradientSet": "Ornamented_Metal",
-      "GradientId": "Brass_Purple"
+      "GradientId": "Black"
     },
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
       "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Default_Greyscale.png",
       "GradientSet": "Skin",
-      "GradientId": "14"
+      "GradientId": "19"
     },
     {
       "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",
       "Texture": "Characters/Body_Attachments/Ears/Ears.png",
       "GradientSet": "Skin",
-      "GradientId": "14"
+      "GradientId": "19"
     },
     {
       "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
       "Texture": "Characters/Body_Attachments/Eyebrows/Medium_Greyscale.png",
       "GradientSet": "Hair",
-      "GradientId": "BlueDark"
+      "GradientId": "BlueLight"
     }
   ]
 }
