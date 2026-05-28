@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.db;
 import com.cookieukw.SimTale.core.MemoryManager;
 import com.cookieukw.SimTale.core.Needs;
 import com.cookieukw.SimTale.core.Personality;
+import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.logic.SocialStats;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ public class SimNPCData {
     public SocialStats stats;
     public MemoryManager memory;
     public Map<String, Relationship> relationships = new HashMap<>();
+    public Profession profession;
 
     /**
      * Required for Caskara POJO persistence.
@@ -27,12 +29,13 @@ public class SimNPCData {
     public SimNPCData() {
     }
 
-    public SimNPCData(UUID entityId, String name, Personality personality, Needs needs, SocialStats stats, com.cookieukw.SimTale.core.MemoryManager memory) {
+    public SimNPCData(UUID entityId, String name, Personality personality, Needs needs, SocialStats stats, com.cookieukw.SimTale.core.MemoryManager memory, com.cookieukw.SimTale.core.Profession profession) {
         this.id = entityId.toString();
         this.name = name;
         this.personality = personality;
         this.needs = needs;
         this.stats = stats;
         this.memory = memory;
+        this.profession = profession;
     }
 }

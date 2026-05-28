@@ -8,16 +8,12 @@ import com.cookieukw.SimTale.engine.Animal;
 import com.cookieukw.SimTale.engine.MagicDataLoader;
 import com.cookieukw.SimTale.engine.MagicEngine;
 import com.cookieukw.SimTale.engine.Question;
-import com.hypixel.hytale.component.ComponentAccessor;
-import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -118,6 +114,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         }
 
         boolean wantCancel = message.equals("tchau") || message.equals("adeus") || message.equals("sair") || message.equals("cancelar") || message.contains("deixa pra lá") || message.contains("deixa pra la") || message.contains("esquece");
+        boolean wantChangeProfession = message.contains("vire ") || message.contains("seja ") || message.contains("trabalhe como ");
         boolean wantPlayMagicGinn = message.contains("jogar magic") || message.contains("play magic") || message.contains("akinator");
         boolean isGreeting = message.contains("olá") || message.contains("ola") || message.contains("hello") || message.contains("hi") || message.contains("oi") || message.contains("eae");
         boolean wantMine = message.contains("mine") || message.contains("minerar");
@@ -127,11 +124,17 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         boolean wantExplore = message.contains("explore") || message.contains("explorar");
         boolean wantCome = message.contains("vem") || message.contains("come") || message.contains("aqui");
         
+        // Verifica se a mensagem é só o nome do NPC (ex: "Fizan")
         boolean justCalledName = message.trim().equalsIgnoreCase(npc.name) || message.trim().equalsIgnoreCase(npc.name + "!");
 
         if (wantCancel) {
             sendReply(sender, "<" + npc.name + "> Tudo bem, até mais! Se precisar é só chamar.");
             npc.currentConversationPartner = null;
+            return;
+        }
+
+        if (wantChangeProfession) {
+            handleProfessionChange(sender, message, npc);
             return;
         }
 
@@ -266,14 +269,49 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         }
     }
 
+    private void handleProfessionChange(PlayerRef sender, String message, SimNPCComponent npc) {
+        int affinity = npc.getRelationship(sender.getUuid()).friendship;
+        if (affinity <= 20) {
+            sendReply(sender, "<" + npc.name + "> Você não é meu chefe! Não vou mudar de profissão só porque você mandou. (Requer 20 de amizade)");
+            return;
+        }
+
+        com.cookieukw.SimTale.core.Profession newProf = null;
+        if (message.contains("minerador") || message.contains("mineiro")) newProf = com.cookieukw.SimTale.core.Profession.MINER;
+        else if (message.contains("fazendeiro") || message.contains("agricultor")) newProf = com.cookieukw.SimTale.core.Profession.FARMER;
+        else if (message.contains("pescador")) newProf = com.cookieukw.SimTale.core.Profession.FISHERMAN;
+        else if (message.contains("lenhador")) newProf = com.cookieukw.SimTale.core.Profession.LUMBERJACK;
+        else if (message.contains("guarda") || message.contains("soldado")) newProf = com.cookieukw.SimTale.core.Profession.GUARD;
+        else if (message.contains("explorador") || message.contains("aventureiro")) newProf = com.cookieukw.SimTale.core.Profession.EXPLORER;
+
+        if (newProf != null) {
+            npc.profession = newProf;
+            sendReply(sender, "<" + npc.name + "> Muito bem, a partir de hoje eu serei um " + newProf.ptName + "!");
+            npc.currentConversationPartner = null;
+        } else {
+            sendReply(sender, "<" + npc.name + "> Não entendi qual profissão você quer que eu tenha. Tente 'vire minerador', 'vire fazendeiro', etc.");
+        }
+    }
+
     private void assignJob(PlayerRef sender, SimNPCComponent npc, long currentTick, JobType job) {
+        if (!npc.profession.canDoJob(job)) {
+            sendReply(sender, "<" + npc.name + "> Desculpe, eu sou um " + npc.profession.ptName + " e não sei " + job.getPortugueseName() + "!");
+            return;
+        }
+
+        int affinity = npc.getRelationship(sender.getUuid()).friendship;
+        if (affinity <= 10) {
+            sendReply(sender, "<" + npc.name + "> Nós mal nos conhecemos! Eu não vou trabalhar para você de graça. (Requer 10 de amizade)");
+            return;
+        }
+
         npc.currentJob = job;
         npc.jobDepartureTick = currentTick + 100L; // 5 seconds preparation phase
         npc.jobCompletionTick = npc.jobDepartureTick + (job.getDurationSeconds() * 20L);
         npc.jobEmployer = sender.getUuid();
         npc.isAway = false;
         npc.currentConversationPartner = null; // Unlock conversation now that intent is clear
-        sendReply(sender, "<" + npc.name + "> Certo, me preparando para ir " + job.getPortugueseName() + "!");
+        sendReply(sender, "<" + npc.name + "> Certo, me preparando para ir fazer trabalho de " + job.getPortugueseName() + "!");
     }
 
     private void sendReply(PlayerRef sender, String text) {

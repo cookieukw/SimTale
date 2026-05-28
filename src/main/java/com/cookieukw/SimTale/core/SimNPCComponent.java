@@ -21,6 +21,7 @@ public class SimNPCComponent implements Component<EntityStore> {
     public SocialStats stats;
     public MemoryManager memory = new MemoryManager();
     public Map<UUID, Relationship> relationships = new HashMap<>();
+    public Profession profession;
 
     // Runtime properties
     public transient Ref<EntityStore> entityRef;
@@ -43,12 +44,18 @@ public class SimNPCComponent implements Component<EntityStore> {
         this.personality = Personality.createDefault();
         this.needs = new Needs();
         this.stats = new SocialStats();
+        assignRandomProfession();
     }
 
     public SimNPCComponent(UUID entityId, String name) {
         this();
         this.entityId = entityId;
         this.name = name;
+    }
+
+    private void assignRandomProfession() {
+        Profession[] profs = Profession.values();
+        this.profession = profs[(int)(Math.random() * profs.length)];
     }
 
     @Override
