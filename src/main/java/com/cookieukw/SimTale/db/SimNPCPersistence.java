@@ -31,7 +31,7 @@ public class SimNPCPersistence {
             data.relationships.put(entry.getKey().toString(), entry.getValue());
         }
 
-        Caskara.save(data);
+        Caskara.save(component.entityId.toString(), data);
     }
 
     public static void loadNPC(SimNPCComponent component) {

@@ -48,6 +48,16 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         UUIDComponent uuidComp = chunk.getComponent(index, UUIDComponent.getComponentType());
         if (uuidComp == null) return;
         
+        PersistentModel pm = chunk.getComponent(index, PersistentModel.getComponentType());
+        if (pm != null && pm.getModelReference() != null && "Plumbob".equals(pm.getModelReference().getModelAssetId())) {
+            Ref<EntityStore> thisRef = chunk.getReferenceTo(index);
+            if (thisRef != null && !playerPlumbobs.containsValue(thisRef)) {
+                commandBuffer.removeEntity(thisRef, com.hypixel.hytale.component.RemoveReason.REMOVE);
+                System.out.println("[SimTale] Limpando Plumbob orfão do mundo: " + uuidComp.getUuid());
+            }
+            return;
+        }
+        
         boolean isPlayer = chunk.getComponent(index, Player.getComponentType()) != null;
         boolean isNpc = chunk.getComponent(index, com.cookieukw.SimTale.SimTale.SIM_NPC_COMPONENT_TYPE) != null;
         
@@ -75,10 +85,10 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
             if (plumbobTransform == null) {
                 needsNewPlumbob = true;
             } else {
-                // Update position
+                // Update position using teleportPosition to ensure client sync and spatial grid updates
                 // The head is around Y=1.6 - 1.8.
-                // We set it to Y+2.5 so it hovers cleanly right above the head.
-                plumbobTransform.setPosition(new Vector3d(
+                // We set it to Y+2.3 so it hovers cleanly right above the head.
+                plumbobTransform.teleportPosition(new Vector3d(
                     entityTransform.getPosition().x,
                     entityTransform.getPosition().y + 2.2,
                     entityTransform.getPosition().z
