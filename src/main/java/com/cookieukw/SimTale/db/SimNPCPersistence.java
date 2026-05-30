@@ -1,4 +1,13 @@
 package com.cookieukw.SimTale.db;
+import com.cookieukw.SimTale.core.MemoryManager;
+import com.cookieukw.SimTale.SimTale;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.component.ComponentAccessor;
+import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.server.core.universe.world.World;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.core.Relationship;
@@ -44,7 +53,7 @@ public class SimNPCPersistence {
             component.personality = data.personality;
             component.needs = data.needs;
             component.stats = data.stats;
-            component.memory = data.memory != null ? data.memory : new com.cookieukw.SimTale.core.MemoryManager();
+            component.memory = data.memory != null ? data.memory : new MemoryManager();
             if (data.profession != null) {
                 component.profession = data.profession;
             }
@@ -73,7 +82,7 @@ public class SimNPCPersistence {
                     comp.personality = data.personality;
                     comp.needs = data.needs;
                     comp.stats = data.stats;
-                    comp.memory = data.memory != null ? data.memory : new com.cookieukw.SimTale.core.MemoryManager();
+                    comp.memory = data.memory != null ? data.memory : new MemoryManager();
                     
                     if (data.relationships != null) {
                         for (Map.Entry<String, Relationship> entry : data.relationships.entrySet()) {
@@ -84,7 +93,7 @@ public class SimNPCPersistence {
                 }
             }
         } catch (Exception e) {
-            com.hypixel.hytale.logger.HytaleLogger.forEnclosingClass().atWarning()
+            HytaleLogger.forEnclosingClass().atWarning()
                 .log("SimTale: Falha ao carregar NPCs do banco: " + e.getMessage());
         }
         return result;
@@ -94,12 +103,12 @@ public class SimNPCPersistence {
      * Reassembles all NPCs from Caskara database and resolves their entity references.
      * This is useful as a fallback when the server reloads and ACTIVE_NPCS is empty.
      */
-    public static void reassembleActiveNPCs(com.hypixel.hytale.server.core.universe.world.World world) {
+    public static void reassembleActiveNPCs(World world) {
         if (world == null) return;
         
-        com.hypixel.hytale.component.Store<com.hypixel.hytale.server.core.universe.world.storage.EntityStore> store = world.getEntityStore().getStore();
-        com.hypixel.hytale.component.ComponentAccessor<com.hypixel.hytale.server.core.universe.world.storage.EntityStore> accessor = 
-            (com.hypixel.hytale.component.ComponentAccessor<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>) store;
+        Store<EntityStore> store = world.getEntityStore().getStore();
+        ComponentAccessor<EntityStore> accessor = 
+            (ComponentAccessor<EntityStore>) store;
 
         List<SimNPCComponent> savedNPCs = loadAllNPCs();
         
@@ -107,12 +116,12 @@ public class SimNPCPersistence {
             if (comp.entityId == null) continue;
 
             // Check if already tracked
-            boolean alreadyTracked = com.cookieukw.SimTale.SimTale.ACTIVE_NPCS.stream()
+            boolean alreadyTracked = SimTale.ACTIVE_NPCS.stream()
                 .anyMatch(a -> a.entityId != null && a.entityId.equals(comp.entityId));
             if (alreadyTracked) continue;
 
             // Try to find the entity in the world
-            com.hypixel.hytale.component.Ref<com.hypixel.hytale.server.core.universe.world.storage.EntityStore> entityRef = 
+            Ref<EntityStore> entityRef = 
                 world.getEntityStore().getRefFromUUID(comp.entityId);
             
             if (entityRef != null) {
@@ -120,14 +129,14 @@ public class SimNPCPersistence {
                 
                 // Re-attach component to entity
                 try {
-                    accessor.addComponent(entityRef, com.cookieukw.SimTale.SimTale.SIM_NPC_COMPONENT_TYPE, comp);
+                    accessor.addComponent(entityRef, SimTale.SIM_NPC_COMPONENT_TYPE, comp);
                 } catch (Exception e) {
                     try {
-                        accessor.putComponent(entityRef, com.cookieukw.SimTale.SimTale.SIM_NPC_COMPONENT_TYPE, comp);
+                        accessor.putComponent(entityRef, SimTale.SIM_NPC_COMPONENT_TYPE, comp);
                     } catch (Exception ignored) {}
                 }
                 
-                com.cookieukw.SimTale.SimTale.ACTIVE_NPCS.add(comp);
+                SimTale.ACTIVE_NPCS.add(comp);
             }
         }
     }

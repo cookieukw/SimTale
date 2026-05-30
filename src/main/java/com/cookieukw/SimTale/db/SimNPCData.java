@@ -1,4 +1,6 @@
 package com.cookieukw.SimTale.db;
+import com.cookieukw.SimTale.core.MemoryManager;
+import com.cookieukw.SimTale.core.Profession;
 
 import com.cookieukw.SimTale.core.MemoryManager;
 import com.cookieukw.SimTale.core.Needs;
@@ -29,7 +31,7 @@ public class SimNPCData {
     public SimNPCData() {
     }
 
-    public SimNPCData(UUID entityId, String name, Personality personality, Needs needs, SocialStats stats, com.cookieukw.SimTale.core.MemoryManager memory, com.cookieukw.SimTale.core.Profession profession) {
+    public SimNPCData(UUID entityId, String name, Personality personality, Needs needs, SocialStats stats, MemoryManager memory, Profession profession) {
         this.id = entityId.toString();
         this.name = name;
         this.personality = personality;

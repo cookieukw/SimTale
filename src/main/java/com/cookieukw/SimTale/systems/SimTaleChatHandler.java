@@ -1,4 +1,8 @@
 package com.cookieukw.SimTale.systems;
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.SimTale;
+import com.hypixel.hytale.server.core.universe.world.World;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -287,12 +291,12 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         }
 
         Profession newProf = null;
-        if (message.contains("minerador") || message.contains("mineiro")) newProf = com.cookieukw.SimTale.core.Profession.MINER;
-        else if (message.contains("fazendeiro") || message.contains("agricultor")) newProf = com.cookieukw.SimTale.core.Profession.FARMER;
-        else if (message.contains("pescador")) newProf = com.cookieukw.SimTale.core.Profession.FISHERMAN;
-        else if (message.contains("lenhador")) newProf = com.cookieukw.SimTale.core.Profession.LUMBERJACK;
-        else if (message.contains("guarda") || message.contains("soldado")) newProf = com.cookieukw.SimTale.core.Profession.GUARD;
-        else if (message.contains("explorador") || message.contains("aventureiro")) newProf = com.cookieukw.SimTale.core.Profession.EXPLORER;
+        if (message.contains("minerador") || message.contains("mineiro")) newProf = Profession.MINER;
+        else if (message.contains("fazendeiro") || message.contains("agricultor")) newProf = Profession.FARMER;
+        else if (message.contains("pescador")) newProf = Profession.FISHERMAN;
+        else if (message.contains("lenhador")) newProf = Profession.LUMBERJACK;
+        else if (message.contains("guarda") || message.contains("soldado")) newProf = Profession.GUARD;
+        else if (message.contains("explorador") || message.contains("aventureiro")) newProf = Profession.EXPLORER;
 
         if (newProf != null) {
             npc.profession = newProf;

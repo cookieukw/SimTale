@@ -1,4 +1,7 @@
 package com.cookieukw.SimTale;
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import com.cookie.runecore.commands.TestUICommand;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
@@ -54,7 +57,7 @@ public class SimTale extends JavaPlugin {
         // ComponentRegistryProxy
         SIM_NPC_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(SimNPCComponent.class,
                 SimNPCComponent::new);
-        ROUTINE_AI_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(com.cookieukw.SimTale.ai.RoutineAIComponent.class, 
+        ROUTINE_AI_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(RoutineAIComponent.class, 
                 RoutineAIComponent::new);
 
         // Register tick systems

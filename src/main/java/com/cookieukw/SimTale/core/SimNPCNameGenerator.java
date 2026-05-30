@@ -1,4 +1,5 @@
 package com.cookieukw.SimTale.core;
+import com.cookieukw.SimTale.SimTale;
 
 import java.util.Random;
 
@@ -68,7 +69,7 @@ public class SimNPCNameGenerator {
             }
 
             unique = true;
-            for (SimNPCComponent npc : com.cookieukw.SimTale.SimTale.ACTIVE_NPCS) {
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.name != null && npc.name.equalsIgnoreCase(name)) {
                     unique = false;
                     break;

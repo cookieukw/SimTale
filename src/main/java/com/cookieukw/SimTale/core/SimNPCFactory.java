@@ -18,6 +18,9 @@ import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.SimTale;
 import it.unimi.dsi.fastutil.Pair;
 import java.util.UUID;
+import java.util.HashMap;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 
 /**
  * Factory for creating SimTale NPCs with proper models and components.
@@ -28,7 +31,8 @@ public class SimNPCFactory {
         SLOTHIAN("SimTale_Slothian"),
         TRORK("SimTale_Trork"),
         HUMAN_MALE("SimTale_Human_Male"),
-        HUMAN_FEMALE("SimTale_Human_Female");
+        HUMAN_FEMALE("SimTale_Human_Female"),
+        REAPER("SimTale_Human_Male");
 
         public final String roleId;
 
@@ -76,12 +80,24 @@ public class SimNPCFactory {
         }
         UUID entityId = uuidComp.getUuid();
         
-        String name = SimNPCNameGenerator.generate();
+        String name = "NPC";
+        if (type == NPCType.REAPER) {
+            name = "Dona Morte";
+            PersistentModel pm = new PersistentModel(
+                new ModelReference("Common/NPC/Void/Necromancer_Void/Models/Model.blockymodel", 1.0f, new HashMap<>())
+            );
+            accessor.putComponent(ref, PersistentModel.getComponentType(), pm);
+        } else {
+            name = SimNPCNameGenerator.generate();
+        }
+
         SimNPCComponent simComponent = new SimNPCComponent(entityId, name);
         simComponent.entityRef = ref;
 
         // Try to load existing data if available
-        SimNPCPersistence.loadNPC(simComponent);
+        if (type != NPCType.REAPER) {
+            SimNPCPersistence.loadNPC(simComponent);
+        }
 
         accessor.addComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE, simComponent);
         

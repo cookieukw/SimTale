@@ -1,4 +1,11 @@
 package com.cookieukw.SimTale.systems;
+import com.cookieukw.SimTale.SimTale;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.component.RemoveReason;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.server.core.universe.world.World;
 
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -54,14 +61,14 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         if (pm != null && pm.getModelReference() != null && "Plumbob".equals(pm.getModelReference().getModelAssetId())) {
             Ref<EntityStore> thisRef = chunk.getReferenceTo(index);
             if (thisRef != null && !playerPlumbobs.containsValue(thisRef)) {
-                commandBuffer.removeEntity(thisRef, com.hypixel.hytale.component.RemoveReason.REMOVE);
+                commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
                 System.out.println("[SimTale] Limpando Plumbob orfão do mundo: " + uuidComp.getUuid());
             }
             return;
         }
         
         boolean isPlayer = chunk.getComponent(index, Player.getComponentType()) != null;
-        boolean isNpc = chunk.getComponent(index, com.cookieukw.SimTale.SimTale.SIM_NPC_COMPONENT_TYPE) != null;
+        boolean isNpc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE) != null;
         
         if (!isPlayer && !isNpc) return;
         
@@ -81,7 +88,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         String moodModelName = "Plumbob"; // Default fallback
         Mood currentMood = Mood.HAPPY;
         if (isNpc) {
-            com.cookieukw.SimTale.core.SimNPCComponent npc = chunk.getComponent(index, com.cookieukw.SimTale.SimTale.SIM_NPC_COMPONENT_TYPE);
+            SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
             if (npc != null && npc.getMood() != null) {
                 currentMood = npc.getMood();
                 moodModelName = "Plumbob_" + currentMood.name();

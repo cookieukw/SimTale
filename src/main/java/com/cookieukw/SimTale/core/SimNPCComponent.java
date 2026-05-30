@@ -1,5 +1,5 @@
 package com.cookieukw.SimTale.core;
-
+import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
 import com.cookieukw.SimTale.logic.SocialStats;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.Ref;
@@ -23,9 +23,11 @@ public class SimNPCComponent implements Component<EntityStore> {
     public Map<UUID, Relationship> relationships = new HashMap<>();
     public Profession profession;
 
+
+
     // Runtime properties
     public transient Ref<EntityStore> entityRef;
-    public transient com.hypixel.hytale.server.core.modules.entity.component.ModelComponent originalModel;
+    public transient ModelComponent originalModel;
     
     // MobsAndMates job and conversation state
     public UUID currentConversationPartner;

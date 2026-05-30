@@ -19,8 +19,16 @@ import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
+import com.cookieukw.SimTale.core.Trait;
+import com.cookieukw.SimTale.core.SimNPCFactory.NPCType;
+
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.Message;
+import java.util.UUID;
 
 import org.joml.Vector3d;
 import org.joml.Vector3i;
@@ -64,14 +72,37 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         if (world == null) return;
 
         // --- 1. Evaluation Phase ---
+        if (ai.currentTask != TaskType.DYING && ai.currentTask != TaskType.DEAD && ai.currentTask != TaskType.REAPING) {
+            if (npc.needs.hunger == 0) {
+                ai.currentTask = TaskType.DYING;
+                ai.taskStartTime = world.getTick();
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
+                
+                Ref<EntityStore> reaperRef = SimNPCFactory.spawnNPC(store, new Vector3d(transform.getPosition().x + 5, transform.getPosition().y, transform.getPosition().z + 5), NPCType.REAPER);
+                if (reaperRef != null) {
+                    UUID reaperId = store.getComponent(reaperRef, UUIDComponent.getComponentType()).getUuid();
+                    ai.reaperEntityId = reaperId;
+                    RoutineAIComponent reaperAi = store.getComponent(reaperRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (reaperAi != null) {
+                        reaperAi.currentTask = TaskType.REAPING;
+                        reaperAi.dyingEntityId = npc.entityId;
+                        reaperAi.reapTimer = 300; // 15 seconds
+                        store.putComponent(reaperRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, reaperAi);
+                    }
+                }
+            }
+        }
+        
         if (ai.currentTask == TaskType.IDLE) {
-            float sleepThreshold = npc.personality.traits.contains(com.cookieukw.SimTale.core.Trait.LAZY) ? 60f : 30f;
+            float sleepThreshold = npc.personality.traits.contains(Trait.LAZY) ? 60f : 30f;
             if (npc.needs.energy < sleepThreshold) {
                 ai.currentTask = TaskType.FINDING_BED;
                 ai.targetBlockPosition = null;
             } else if (npc.needs.hunger < 30) {
                 // Future expansion
-            } else if (npc.personality.traits.contains(com.cookieukw.SimTale.core.Trait.FUNNY) && java.lang.Math.random() < 0.005) {
+            } else if (npc.personality.traits.contains(Trait.FUNNY) && Math.random() < 0.005) {
                 AnimationSlot slotToUse = AnimationSlot.Action;
                 try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Cheer.blockyanim", "Cheer", store);
@@ -172,6 +203,47 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 } catch (IllegalArgumentException e) {
                 }
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+            }
+        }
+        if (ai.currentTask == TaskType.REAPING && ai.dyingEntityId != null) {
+            Ref<EntityStore> dyingRef = world.getEntityStore().getRefFromUUID(ai.dyingEntityId);
+            if (dyingRef == null) {
+                transform.setPosition(new Vector3d(0, -1000, 0));
+                commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                return;
+            }
+            TransformComponent dyingTransform = store.getComponent(dyingRef, TransformComponent.getComponentType());
+            if (dyingTransform == null) return;
+            
+            double dx = dyingTransform.getPosition().x - transform.getPosition().x;
+            double dz = dyingTransform.getPosition().z - transform.getPosition().z;
+            double distSq = dx*dx + dz*dz;
+            
+            if (distSq > 2.0 * 2.0) {
+                double dist = Math.sqrt(distSq);
+                double speed = 2.0 * dt; 
+                if (speed > dist) speed = dist;
+                double nx = transform.getPosition().x + (dx/dist)*speed;
+                double nz = transform.getPosition().z + (dz/dist)*speed;
+                transform.teleportPosition(new Vector3d(nx, transform.getPosition().y, nz));
+                transform.getRotation().y = (float) Math.atan2(dz, dx);
+                commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+            } else {
+                ai.reapTimer--;
+                if (ai.reapTimer <= 0) {
+                    SimNPCComponent dyingNpc = store.getComponent(dyingRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+                    String deceasedName = dyingNpc != null ? dyingNpc.name : "Alguém";
+                    
+                    for (PlayerRef p : Universe.get().getPlayers()) {
+                        p.sendMessage(Message.raw("§cO tempo de " + deceasedName + " acabou. A Dona Morte levou sua alma."));
+                    }
+                    
+                    dyingTransform.setPosition(new Vector3d(0, -1000, 0));
+                    commandBuffer.replaceComponent(dyingRef, TransformComponent.getComponentType(), dyingTransform);
+                    
+                    transform.setPosition(new Vector3d(0, -1000, 0));
+                    commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                }
             }
         }
         commandBuffer.replaceComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
