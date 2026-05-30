@@ -21,6 +21,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -73,7 +74,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                     SimNPCPersistence.loadNPC(npc);
                     accessor.addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
                     
-                    final java.util.UUID targetId = uuidComp.getUuid();
+                    final UUID targetId = uuidComp.getUuid();
                     SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(targetId));
                     SimTale.ACTIVE_NPCS.add(npc);
                 }

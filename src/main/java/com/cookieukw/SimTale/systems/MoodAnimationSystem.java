@@ -34,7 +34,6 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
         if (npc == null || npc.getMood() == null) return;
         
         Ref<EntityStore> ref = chunk.getReferenceTo(index);
-        if (ref == null) return;
         
         ActiveAnimationComponent animComp = chunk.getComponent(index, ActiveAnimationComponent.getComponentType());
         if (animComp == null) return;
