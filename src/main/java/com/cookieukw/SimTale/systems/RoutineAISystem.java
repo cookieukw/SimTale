@@ -65,11 +65,17 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // --- 1. Evaluation Phase ---
         if (ai.currentTask == TaskType.IDLE) {
-            if (npc.needs.energy < 30) {
+            float sleepThreshold = npc.personality.traits.contains(com.cookieukw.SimTale.core.Trait.LAZY) ? 60f : 30f;
+            if (npc.needs.energy < sleepThreshold) {
                 ai.currentTask = TaskType.FINDING_BED;
                 ai.targetBlockPosition = null;
             } else if (npc.needs.hunger < 30) {
                 // Future expansion
+            } else if (npc.personality.traits.contains(com.cookieukw.SimTale.core.Trait.FUNNY) && java.lang.Math.random() < 0.005) {
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Cheer.blockyanim", "Cheer", store);
+                npc.needs.fun = Math.min(100f, npc.needs.fun + 10f);
             }
         }
 

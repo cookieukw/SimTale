@@ -95,6 +95,7 @@ public class SimNPCComponent implements Component<EntityStore> {
         if (memory.remembers(MemoryEvent.INSULTED, null, 120000)) return Mood.ANGRY;
         
         if (needs != null) {
+            if (personality.traits.contains(Trait.AGGRESSIVE) && (needs.hunger < 50 || needs.energy < 50)) return Mood.ANGRY;
             if (needs.energy < 20) return Mood.SLEEPY;
             if (needs.isMiserable()) return Mood.SAD;
             return Mood.HAPPY;

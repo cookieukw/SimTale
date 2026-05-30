@@ -1,6 +1,8 @@
 package com.cookieukw.SimTale.core;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,9 +33,12 @@ public class Personality {
      */
     public static Personality createDefault() {
         Personality p = new Personality(50, 50, 20, 50);
-        // Dá um trait aleatório no nascimento (Pode ser alterado depois no banco)
         Trait[] allTraits = Trait.values();
-        p.traits.add(allTraits[(int)(Math.random() * allTraits.length)]);
+        List<Trait> traitList = new java.util.ArrayList<>(java.util.Arrays.asList(allTraits));
+        Collections.shuffle(traitList);
+        p.traits.add(traitList.get(0));
+        p.traits.add(traitList.get(1));
+        p.traits.add(traitList.get(2));
         return p;
     }
 }

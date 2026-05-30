@@ -91,7 +91,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             SimNPCPersistence.saveNPC(npc);
         }
 
-        npc.needs.tickDecay();
+        npc.needs.tickDecay(npc.personality.traits);
 
         if (npc.currentConversationPartner != null) {
             if (absoluteTick > npc.conversationTimeoutTick) {
