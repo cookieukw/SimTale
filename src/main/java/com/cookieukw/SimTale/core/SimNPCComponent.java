@@ -97,8 +97,7 @@ public class SimNPCComponent implements Component<EntityStore> {
         if (needs != null) {
             if (needs.energy < 20) return Mood.SLEEPY;
             if (needs.isMiserable()) return Mood.SAD;
-            if (needs.fun > 80 && needs.social > 80) return Mood.EXCITED;
-            if (needs.social > 50 && needs.fun > 50) return Mood.HAPPY;
+            return Mood.HAPPY;
         }
         return Mood.NEUTRAL;
     }

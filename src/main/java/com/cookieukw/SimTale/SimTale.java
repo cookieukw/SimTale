@@ -1,10 +1,12 @@
 package com.cookieukw.SimTale;
 
 import com.cookie.runecore.commands.TestUICommand;
+import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.cookieukw.SimTale.systems.SimTaleTickSystem;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
+import com.cookieukw.SimTale.systems.RoutineAISystem;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
@@ -30,6 +32,7 @@ public class SimTale extends JavaPlugin {
     private static SimTale instance;
 
     public static ComponentType<EntityStore, SimNPCComponent> SIM_NPC_COMPONENT_TYPE;
+    public static ComponentType<EntityStore, RoutineAIComponent> ROUTINE_AI_COMPONENT_TYPE;
     public static final List<SimNPCComponent> ACTIVE_NPCS = new ArrayList<>();
 
     public SimTale(@Nonnull JavaPluginInit init) {
@@ -51,11 +54,14 @@ public class SimTale extends JavaPlugin {
         // ComponentRegistryProxy
         SIM_NPC_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(SimNPCComponent.class,
                 SimNPCComponent::new);
+        ROUTINE_AI_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(com.cookieukw.SimTale.ai.RoutineAIComponent.class, 
+                RoutineAIComponent::new);
 
         // Register tick systems
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
         this.getEntityStoreRegistry().registerSystem(new PlumbobSystem());
         this.getEntityStoreRegistry().registerSystem(new MoodAnimationSystem());
+        this.getEntityStoreRegistry().registerSystem(new RoutineAISystem());
 
         // Register event handlers
         this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class, null,
