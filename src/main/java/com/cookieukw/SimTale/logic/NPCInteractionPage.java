@@ -26,6 +26,7 @@ import com.hypixel.hytale.protocol.AnimationSlot;
 import org.joml.Vector3d;
 import javax.annotation.Nonnull;
 
+@SuppressWarnings("null")
 public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
 
     private final SimNPCComponent npc;
