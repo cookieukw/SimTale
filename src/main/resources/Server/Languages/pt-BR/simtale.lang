@@ -80,3 +80,5 @@ chat.magic.invalid.2 = {name}: Resposta inválida. Tem que ser Sim, Não, Não s
 chat.magic.invalid.3 = {name}: Hã? Tenta de novo usando Sim, Não, Não sei, ou Sair.
 cmd.interact.none = Nenhum NPC vivo por perto!
 cmd.interact.success = Forced UI to open for {name}
+reaper.soul_taken = §cO tempo de {name} acabou. A Dona Morte levou sua alma.
+reaper.tombstone_given = §eVocê guardou um Rock_Stone_Cobble como 'Lápide' de {name}

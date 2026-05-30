@@ -28,6 +28,7 @@ import com.cookieukw.SimTale.core.SimNPCFactory.NPCType;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.command.system.CommandManager;
 import java.util.UUID;
 
 import org.joml.Vector3d;
@@ -235,7 +236,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     String deceasedName = dyingNpc != null ? dyingNpc.name : "Alguém";
                     
                     for (PlayerRef p : Universe.get().getPlayers()) {
-                        p.sendMessage(Message.raw("§cO tempo de " + deceasedName + " acabou. A Dona Morte levou sua alma."));
+                        p.sendMessage(Message.translation("simtale.reaper.soul_taken").param("name", deceasedName));
+                        try {
+                            CommandManager.get().handleCommand(p, "give " + p.getUsername() + " Rock_Stone_Cobble --quantity=1");
+                            p.sendMessage(Message.translation("simtale.reaper.tombstone_given").param("name", deceasedName));
+                        } catch (Exception cmdEx) {
+                            // ignore command failure
+                        }
                     }
                     
                     dyingTransform.setPosition(new Vector3d(0, -1000, 0));
