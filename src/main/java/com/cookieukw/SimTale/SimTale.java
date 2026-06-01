@@ -9,6 +9,8 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.cookieukw.SimTale.systems.SimTaleTickSystem;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
+import com.cookieukw.SimTale.systems.ConstructionSystem;
+import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.systems.RoutineAISystem;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.logger.HytaleLogger;
@@ -36,6 +38,7 @@ public class SimTale extends JavaPlugin {
 
     public static ComponentType<EntityStore, SimNPCComponent> SIM_NPC_COMPONENT_TYPE;
     public static ComponentType<EntityStore, RoutineAIComponent> ROUTINE_AI_COMPONENT_TYPE;
+    public static ComponentType<EntityStore, ConstructionSiteComponent> CONSTRUCTION_COMPONENT_TYPE;
     public static final List<SimNPCComponent> ACTIVE_NPCS = new ArrayList<>();
 
     public SimTale(@Nonnull JavaPluginInit init) {
@@ -59,12 +62,15 @@ public class SimTale extends JavaPlugin {
                 SimNPCComponent::new);
         ROUTINE_AI_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(RoutineAIComponent.class, 
                 RoutineAIComponent::new);
+        CONSTRUCTION_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(ConstructionSiteComponent.class, 
+                ConstructionSiteComponent::new);
 
         // Register tick systems
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
         this.getEntityStoreRegistry().registerSystem(new PlumbobSystem());
         this.getEntityStoreRegistry().registerSystem(new MoodAnimationSystem());
         this.getEntityStoreRegistry().registerSystem(new RoutineAISystem());
+        this.getEntityStoreRegistry().registerSystem(new ConstructionSystem());
 
         // Register event handlers
         this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class, null,
@@ -77,7 +83,7 @@ public class SimTale extends JavaPlugin {
         // Register commands
         this.getCommandRegistry()
                 .registerCommand(new SimTaleCommand(this.getName(), this.getManifest().getVersion().toString()));
-
+        this.getCommandRegistry().registerCommand(new BuildCommand());
                  
         this.getCommandRegistry().registerCommand(new TestUICommand());
     }
