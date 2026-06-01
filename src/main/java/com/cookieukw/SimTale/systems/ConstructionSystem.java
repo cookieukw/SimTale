@@ -102,7 +102,7 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
 
                 String type = blockInfo.getName();
                 if (type == null) {
-                    type = "air"; // Fallback to air if null
+                    type = "Air"; // Fallback to air if null
                 }
 
                 if (blockInfo.getRotation() != null) {
