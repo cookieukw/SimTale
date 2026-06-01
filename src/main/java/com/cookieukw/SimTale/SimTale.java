@@ -40,6 +40,7 @@ public class SimTale extends JavaPlugin {
     public static ComponentType<EntityStore, RoutineAIComponent> ROUTINE_AI_COMPONENT_TYPE;
     public static ComponentType<EntityStore, ConstructionSiteComponent> CONSTRUCTION_COMPONENT_TYPE;
     public static final List<SimNPCComponent> ACTIVE_NPCS = new ArrayList<>();
+    public static final List<ConstructionSiteComponent> ACTIVE_SITES = new ArrayList<>();
 
     public SimTale(@Nonnull JavaPluginInit init) {
         super(init);
@@ -63,7 +64,7 @@ public class SimTale extends JavaPlugin {
         ROUTINE_AI_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(RoutineAIComponent.class, 
                 RoutineAIComponent::new);
         CONSTRUCTION_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(ConstructionSiteComponent.class, 
-                ConstructionSiteComponent::new);
+                "simtale:construction_site", ConstructionSiteComponent.CODEC);
 
         // Register tick systems
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());

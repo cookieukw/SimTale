@@ -16,7 +16,10 @@ public class RoutineAIComponent implements Component<EntityStore> {
         EATING,
         DYING,
         DEAD,
-        REAPING
+        REAPING,
+        FINDING_CONSTRUCTION,
+        MOVING_TO_CONSTRUCTION,
+        BUILDING
     }
 
     public TaskType currentTask = TaskType.IDLE;

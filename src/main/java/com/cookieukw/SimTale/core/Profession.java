@@ -10,7 +10,8 @@ public enum Profession {
     FISHERMAN("Pescador", EnumSet.of(JobType.FISH)),
     LUMBERJACK("Lenhador", EnumSet.of(JobType.GATHER)),
     GUARD("Guarda", EnumSet.noneOf(JobType.class)),
-    EXPLORER("Explorador", EnumSet.of(JobType.EXPLORE));
+    EXPLORER("Explorador", EnumSet.of(JobType.EXPLORE)),
+    BUILDER("Construtor", EnumSet.of(JobType.BUILD));
 
     public final String ptName;
     private final EnumSet<JobType> allowedJobs;

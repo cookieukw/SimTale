@@ -9,7 +9,8 @@ public enum JobType {
     FARM(15, "farmar"),
     GATHER(15, "coletar"),
     FISH(15, "pescar"),
-    EXPLORE(15, "explorar");
+    EXPLORE(15, "explorar"),
+    BUILD(15, "construir");
 
     private final int durationSeconds;
     private final String portugueseName;

@@ -2,6 +2,9 @@ package com.cookieukw.SimTale.core;
 
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.hypixel.hytale.codec.Codec;
+import com.hypixel.hytale.codec.KeyedCodec;
 import org.joml.Vector3i;
 
 public class ConstructionSiteComponent implements Component<EntityStore> {
@@ -10,7 +13,8 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
     public int currentIndex;
     public int ticksSinceLastBlock;
     
-    public boolean previewSpawned;
+    public boolean isBuilding;
+    public transient int activeBuilders;
     
     public ConstructionSiteComponent() {
     }
@@ -20,8 +24,19 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         this.anchor = anchor;
         this.currentIndex = 0;
         this.ticksSinceLastBlock = 0;
-        this.previewSpawned = false;
+        this.isBuilding = false;
+        this.activeBuilders = 0;
     }
+
+    public static final BuilderCodec<ConstructionSiteComponent> CODEC = BuilderCodec
+        .builder(ConstructionSiteComponent.class, ConstructionSiteComponent::new)
+        .append(new KeyedCodec<>("PrefabName", Codec.STRING), (c, v) -> c.prefabName = v, c -> c.prefabName).add()
+        .append(new KeyedCodec<>("AnchorX", Codec.INTEGER), (c, v) -> { if (c.anchor == null) c.anchor = new Vector3i(); c.anchor.x = v; }, c -> c.anchor != null ? c.anchor.x : 0).add()
+        .append(new KeyedCodec<>("AnchorY", Codec.INTEGER), (c, v) -> { if (c.anchor == null) c.anchor = new Vector3i(); c.anchor.y = v; }, c -> c.anchor != null ? c.anchor.y : 0).add()
+        .append(new KeyedCodec<>("AnchorZ", Codec.INTEGER), (c, v) -> { if (c.anchor == null) c.anchor = new Vector3i(); c.anchor.z = v; }, c -> c.anchor != null ? c.anchor.z : 0).add()
+        .append(new KeyedCodec<>("CurrentIndex", Codec.INTEGER), (c, v) -> c.currentIndex = v, c -> c.currentIndex).add()
+        .append(new KeyedCodec<>("IsBuilding", Codec.BOOLEAN), (c, v) -> c.isBuilding = v, c -> c.isBuilding).add()
+        .build();
 
     @Override
     public ConstructionSiteComponent clone() {
@@ -32,7 +47,8 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         }
         clone.currentIndex = this.currentIndex;
         clone.ticksSinceLastBlock = this.ticksSinceLastBlock;
-        clone.previewSpawned = this.previewSpawned;
+        clone.isBuilding = this.isBuilding;
+        clone.activeBuilders = this.activeBuilders;
         return clone;
     }
 }

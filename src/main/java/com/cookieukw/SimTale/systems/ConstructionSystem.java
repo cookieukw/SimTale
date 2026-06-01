@@ -14,7 +14,11 @@ import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3i;
+import org.joml.Vector3d;
 import javax.annotation.Nonnull;
+import com.cookieukw.SimTale.ai.RoutineAIComponent;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.cookieukw.SimTale.core.SimNPCComponent;
 
 public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
 
@@ -40,19 +44,48 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
         }
         if (world == null) return;
 
+        if (!site.isBuilding) return;
+
         Prefab prefab = PrefabManager.getPrefab(site.prefabName);
         if (prefab == null || prefab.getBlocks() == null) {
             commandBuffer.removeComponent(chunk.getReferenceTo(index), SimTale.CONSTRUCTION_COMPONENT_TYPE);
+            SimTale.ACTIVE_SITES.remove(site);
             return;
         }
 
+        // Count nearby active builders
+        int builderCount = 0;
+        for (SimNPCComponent builderNpc : SimTale.ACTIVE_NPCS) {
+            if (builderNpc.entityRef != null && builderNpc.entityRef.isValid()) {
+                RoutineAIComponent ai = store.getComponent(builderNpc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                TransformComponent tComp = store.getComponent(builderNpc.entityRef, TransformComponent.getComponentType());
+                if (ai != null && ai.currentTask == RoutineAIComponent.TaskType.BUILDING && tComp != null) {
+                    Vector3d pos = tComp.getPosition();
+                    double dx = site.anchor.x - pos.x;
+                    double dz = site.anchor.z - pos.z;
+                    if ((dx*dx + dz*dz) < 16.0 * 16.0) {
+                        builderCount++;
+                    }
+                }
+            }
+        }
+
+        site.activeBuilders = builderCount;
+
+        if (builderCount == 0) {
+            return; // Paused, no builders
+        }
+
+        int ticksPerBlock = Math.max(2, 40 - (builderCount * 10)); // Base 40 ticks, -10 per builder, min 2
+
         site.ticksSinceLastBlock++;
-        if (site.ticksSinceLastBlock >= TICKS_PER_BLOCK) {
+        if (site.ticksSinceLastBlock >= ticksPerBlock) {
             site.ticksSinceLastBlock = 0;
 
             if (site.currentIndex >= prefab.getBlocks().size()) {
                 // Finished construction
                 commandBuffer.removeComponent(chunk.getReferenceTo(index), SimTale.CONSTRUCTION_COMPONENT_TYPE);
+                SimTale.ACTIVE_SITES.remove(site);
                 return;
             }
 
@@ -72,7 +105,11 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
                     type = "air"; // Fallback to air if null
                 }
 
-                world.setBlock(worldX, worldY, worldZ, type);
+                if (blockInfo.getRotation() != null) {
+                    world.setBlock(worldX, worldY, worldZ, type, blockInfo.getRotation());
+                } else {
+                    world.setBlock(worldX, worldY, worldZ, type);
+                }
                 site.currentIndex++;
             }
         }

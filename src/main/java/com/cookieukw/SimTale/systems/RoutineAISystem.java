@@ -23,6 +23,8 @@ import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Trait;
+import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory.NPCType;
 
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
@@ -101,7 +103,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             if (npc.needs.energy < sleepThreshold) {
                 ai.currentTask = TaskType.FINDING_BED;
                 ai.targetBlockPosition = null;
-            } else if (npc.needs.hunger < 30) {
+            } else if (npc.profession == Profession.BUILDER || npc.profession == Profession.UNEMPLOYED) {
+                for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
+                    if (site.isBuilding) {
+                        ai.currentTask = TaskType.MOVING_TO_CONSTRUCTION;
+                        ai.targetBlockPosition = new Vector3i(site.anchor);
+                        break;
+                    }
+                }
+            }
+            if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 30) {
                 // Future expansion
             } else if (npc.personality.traits.contains(Trait.FUNNY) && Math.random() < 0.005) {
                 AnimationSlot slotToUse = AnimationSlot.Action;
@@ -206,6 +217,59 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             }
         }
+
+        if (ai.currentTask == TaskType.MOVING_TO_CONSTRUCTION) {
+            if (ai.targetBlockPosition == null) {
+                ai.currentTask = TaskType.IDLE;
+                return;
+            }
+            Vector3d pos = transform.getPosition();
+            double dx = ai.targetBlockPosition.x - pos.x;
+            double dz = ai.targetBlockPosition.z - pos.z;
+            double distanceSq = dx*dx + dz*dz;
+
+            if (distanceSq < 15.0 * 15.0) {
+                ai.currentTask = TaskType.BUILDING;
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Mining.blockyanim", "Mining", store);
+            } else {
+                double distance = Math.sqrt(distanceSq);
+                double speed = 3.0 * dt; 
+                if (speed > distance) speed = distance;
+                
+                double nx = pos.x + (dx / distance) * speed;
+                double nz = pos.z + (dz / distance) * speed;
+                
+                transform.teleportPosition(new Vector3d(nx, pos.y, nz));
+                transform.getRotation().y = (float) Math.atan2(dz, dx);
+                commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+            }
+        }
+
+        if (ai.currentTask == TaskType.BUILDING) {
+            boolean siteActive = false;
+            for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
+                if (site.isBuilding && site.anchor.distance(ai.targetBlockPosition) < 2) {
+                    siteActive = true;
+                    break;
+                }
+            }
+
+            if (!siteActive) {
+                ai.currentTask = TaskType.IDLE;
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+            } else {
+                if (Math.random() < 0.05) {
+                    AnimationSlot slotToUse = AnimationSlot.Action;
+                    try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                    AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Mining.blockyanim", "Mining", store);
+                }
+            }
+        }
+
         if (ai.currentTask == TaskType.REAPING && ai.dyingEntityId != null) {
             Ref<EntityStore> dyingRef = world.getEntityStore().getRefFromUUID(ai.dyingEntityId);
             if (dyingRef == null) {
