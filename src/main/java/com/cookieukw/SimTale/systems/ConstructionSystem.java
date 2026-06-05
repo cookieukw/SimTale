@@ -23,6 +23,7 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
 
     private static final int TICKS_PER_BLOCK = 2; // Speed of construction
+    public static int GLOBAL_SPEED = 1;
 
     @Override
     @Nonnull
@@ -71,12 +72,16 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
         }
 
         site.activeBuilders = builderCount;
+        int effectiveBuilders = builderCount + site.simulatedBuilders;
 
-        if (builderCount == 0) {
-            return; // Paused, no builders
+        if (effectiveBuilders == 0 && !site.forceBuild) {
+            return; // Paused, no builders and not forced
         }
 
-        int ticksPerBlock = Math.max(2, 40 - (builderCount * 10)); // Base 40 ticks, -10 per builder, min 2
+        int ticksPerBlock = 1;
+        if (!site.forceBuild) {
+            ticksPerBlock = Math.max(2, 40 - (effectiveBuilders * 10)); // Base 40 ticks, -10 per builder, min 2
+        }
 
         site.ticksSinceLastBlock++;
         if (site.ticksSinceLastBlock >= ticksPerBlock) {
@@ -90,7 +95,7 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
             }
 
             // Build multiple blocks per tick if we want to speed it up, or just 1
-            int blocksToBuild = 1;
+            int blocksToBuild = site.forceBuild ? (10 * GLOBAL_SPEED) : (1 * GLOBAL_SPEED);
             for (int i = 0; i < blocksToBuild; i++) {
                 if (site.currentIndex >= prefab.getBlocks().size()) break;
 

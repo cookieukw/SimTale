@@ -2,11 +2,11 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
-import com.hypixel.hytale.server.core.entity.Entity;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
@@ -39,14 +39,6 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             return;
         }
 
-        Ref<EntityStore> targetRef = event.getTargetEntityRef();
-        
-        HytaleLogger.forEnclosingClass().atInfo().log("SimTale [DEBUG]: PlayerMouseButtonEvent (Right Click) DISPARADO. Alvo Ref: " + (targetRef != null ? targetRef.toString() : "null"));
-        
-        if (targetRef == null)
-            return;
-
-        // getWorlds() returns a Map<String, World>
         World world = null;
         for (World w : Universe.get().getWorlds().values()) {
             world = w;
@@ -54,6 +46,59 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         }
 
         if (world == null)
+            return;
+
+        // Blueprint item handling
+        if (event.getItemInHand() != null && event.getItemInHand().getId() != null &&
+            event.getItemInHand().getId().toString().toLowerCase().contains("blueprint")) {
+            
+            // Extract prefab name (e.g. from simtale:blueprint_tavernhouse -> TavernHouse)
+            // For now, hardcode "TavernHouse" or map it if needed. 
+            // Better: use the item's custom data or fallback to TavernHouse for the prototype
+            String prefabName = "TavernHouse";
+            
+            org.joml.Vector3i targetBlock = event.getTargetBlock();
+            if (targetBlock != null) {
+                ConstructionSiteComponent closestSite = null;
+                double minDistance = Double.MAX_VALUE;
+
+                for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
+                    double dist = site.anchor.distance(targetBlock);
+                    if (dist < 20.0 && dist < minDistance) {
+                        minDistance = dist;
+                        closestSite = site;
+                    }
+                }
+
+                PlayerRef pRef = event.getPlayerRefComponent();
+                
+                if (closestSite != null && !closestSite.isBuilding) {
+                    closestSite.isBuilding = true;
+                    if (pRef != null) {
+                        pRef.sendMessage(com.hypixel.hytale.server.core.Message.raw("Construction started! NPCs will now come to build."));
+                    }
+                    ConstructionHelper.clearPreview(world, closestSite);
+                } else {
+                    // Place new preview 1 block above the clicked block
+                    org.joml.Vector3i spawnPos = new org.joml.Vector3i(targetBlock.x, targetBlock.y + 1, targetBlock.z);
+                    Store<EntityStore> eStore = world.getEntityStore().getStore();
+                    ConstructionHelper.placePreview(world, eStore, spawnPos, prefabName);
+                    if (pRef != null) {
+                        pRef.sendMessage(com.hypixel.hytale.server.core.Message.raw("Preview placed for " + prefabName + ". Right click again nearby to confirm."));
+                    }
+                }
+            }
+            return;
+        }
+
+        Ref<EntityStore> targetRef = event.getTargetEntityRef();
+        
+        HytaleLogger.forEnclosingClass().atInfo().log("SimTale [DEBUG]: PlayerMouseButtonEvent (Right Click) DISPARADO. Alvo Ref: " + (targetRef != null ? targetRef.toString() : "null"));
+        
+        if (targetRef == null)
+            return;
+
+        if (targetRef == null)
             return;
 
         // world.getEntityStore() returns EntityStore, which has getStore() ->

@@ -14,6 +14,8 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
     public int ticksSinceLastBlock;
     
     public boolean isBuilding;
+    public boolean forceBuild;
+    public int simulatedBuilders;
     public transient int activeBuilders;
     
     public ConstructionSiteComponent() {
@@ -25,6 +27,8 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         this.currentIndex = 0;
         this.ticksSinceLastBlock = 0;
         this.isBuilding = false;
+        this.forceBuild = false;
+        this.simulatedBuilders = 0;
         this.activeBuilders = 0;
     }
 
@@ -36,6 +40,8 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         .append(new KeyedCodec<>("AnchorZ", Codec.INTEGER), (c, v) -> { if (c.anchor == null) c.anchor = new Vector3i(); c.anchor.z = v; }, c -> c.anchor != null ? c.anchor.z : 0).add()
         .append(new KeyedCodec<>("CurrentIndex", Codec.INTEGER), (c, v) -> c.currentIndex = v, c -> c.currentIndex).add()
         .append(new KeyedCodec<>("IsBuilding", Codec.BOOLEAN), (c, v) -> c.isBuilding = v, c -> c.isBuilding).add()
+        .append(new KeyedCodec<>("ForceBuild", Codec.BOOLEAN), (c, v) -> c.forceBuild = v, c -> c.forceBuild).add()
+        .append(new KeyedCodec<>("SimulatedBuilders", Codec.INTEGER), (c, v) -> c.simulatedBuilders = v, c -> c.simulatedBuilders).add()
         .build();
 
     @Override
@@ -48,6 +54,8 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         clone.currentIndex = this.currentIndex;
         clone.ticksSinceLastBlock = this.ticksSinceLastBlock;
         clone.isBuilding = this.isBuilding;
+        clone.forceBuild = this.forceBuild;
+        clone.simulatedBuilders = this.simulatedBuilders;
         clone.activeBuilders = this.activeBuilders;
         return clone;
     }

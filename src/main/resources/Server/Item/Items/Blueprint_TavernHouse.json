@@ -1,0 +1,27 @@
+{
+  "TranslationProperties": {
+    "Name": "TavernHouse Blueprint"
+  },
+  "ItemLevel": 1,
+  "Categories": [
+    "Items.Utilities"
+  ],
+  "Icon": "Icons/ItemsGenerated/Ingredient_Stick.png",
+  "BlockType": {
+    "CustomModel": "Items/Ingredients/Stick.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Items/Ingredients/Stick_Texture.png",
+        "Weight": 1
+      }
+    ],
+    "CustomModelScale": 1,
+    "DrawType": "Model"
+  },
+  "Tags": {
+    "Type": [
+      "Utility"
+    ]
+  },
+  "MaxStack": 1
+}

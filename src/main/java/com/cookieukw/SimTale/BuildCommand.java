@@ -23,11 +23,13 @@ import javax.annotation.Nonnull;
 public class BuildCommand extends AbstractPlayerCommand {
 
     private final RequiredArg<String> prefabArg;
+    private final com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg<Integer> speedArg;
 
     public BuildCommand() {
         super("build", "Start a progressive building construction");
         this.setPermissionGroups("Admin", "Adventure");
-        this.prefabArg = this.withRequiredArg("prefab", "TavernHouse", ArgTypes.STRING);
+        this.prefabArg = this.withRequiredArg("prefab", "TavernHouse (or start/force/speed/simulate)", ArgTypes.STRING);
+        this.speedArg = this.withOptionalArg("speed", "Multiplier or Simulated Builders", ArgTypes.INTEGER);
     }
 
     @Override
@@ -60,45 +62,69 @@ public class BuildCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("Construction started! NPCs will now come to build."));
                 
                 // Clear wireframe
-                Prefab prefab = PrefabManager.getPrefab(closestSite.prefabName);
-                if (prefab != null && !prefab.getBlocks().isEmpty()) {
-                    int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
-                    int minY = Integer.MAX_VALUE, maxY = Integer.MIN_VALUE;
-                    int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
-                    for (com.cookieukw.SimTale.core.PrefabBlock b : prefab.getBlocks()) {
-                        if (b.getX() < minX) minX = b.getX();
-                        if (b.getX() > maxX) maxX = b.getX();
-                        if (b.getY() < minY) minY = b.getY();
-                        if (b.getY() > maxY) maxY = b.getY();
-                        if (b.getZ() < minZ) minZ = b.getZ();
-                        if (b.getZ() > maxZ) maxZ = b.getZ();
-                    }
-                    int px = closestSite.anchor.x;
-                    int py = closestSite.anchor.y;
-                    int pz = closestSite.anchor.z;
-                    // Clear Bottom and Top edges
-                    for (int x = minX; x <= maxX; x++) {
-                        world.setBlock(px + x, py + minY, pz + minZ, "Air");
-                        world.setBlock(px + x, py + minY, pz + maxZ, "Air");
-                        world.setBlock(px + x, py + maxY, pz + minZ, "Air");
-                        world.setBlock(px + x, py + maxY, pz + maxZ, "Air");
-                    }
-                    for (int z = minZ; z <= maxZ; z++) {
-                        world.setBlock(px + minX, py + minY, pz + z, "Air");
-                        world.setBlock(px + maxX, py + minY, pz + z, "Air");
-                        world.setBlock(px + minX, py + maxY, pz + z, "Air");
-                        world.setBlock(px + maxX, py + maxY, pz + z, "Air");
-                    }
-                    // Clear Vertical pillars
-                    for (int y = minY; y <= maxY; y++) {
-                        world.setBlock(px + minX, py + y, pz + minZ, "Air");
-                        world.setBlock(px + maxX, py + y, pz + minZ, "Air");
-                        world.setBlock(px + minX, py + y, pz + maxZ, "Air");
-                        world.setBlock(px + maxX, py + y, pz + maxZ, "Air");
-                    }
-                }
+                com.cookieukw.SimTale.systems.ConstructionHelper.clearPreview(world, closestSite);
             } else {
                 ctx.sendMessage(Message.raw("No pending construction site found nearby."));
+            }
+            return;
+        }
+
+        if (prefabName.equalsIgnoreCase("force")) {
+            ConstructionSiteComponent closestSite = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
+                double dist = site.anchor.distance(playerAnchor);
+                if (dist < 20.0 && dist < minDistance) {
+                    minDistance = dist;
+                    closestSite = site;
+                }
+            }
+
+            if (closestSite != null) {
+                closestSite.isBuilding = true;
+                closestSite.forceBuild = true;
+                ctx.sendMessage(Message.raw("Forced construction started! It will build rapidly."));
+                com.cookieukw.SimTale.systems.ConstructionHelper.clearPreview(world, closestSite);
+            } else {
+                ctx.sendMessage(Message.raw("No pending construction site found nearby to force."));
+            }
+            return;
+        }
+
+        if (prefabName.equalsIgnoreCase("speed")) {
+            Integer speed = ctx.get(this.speedArg);
+            if (speed != null) {
+                com.cookieukw.SimTale.systems.ConstructionSystem.GLOBAL_SPEED = speed;
+                ctx.sendMessage(Message.raw("Construction global speed set to " + speed));
+            } else {
+                ctx.sendMessage(Message.raw("Current construction global speed is " + com.cookieukw.SimTale.systems.ConstructionSystem.GLOBAL_SPEED));
+            }
+            return;
+        }
+
+        if (prefabName.equalsIgnoreCase("simulate")) {
+            Integer builders = ctx.get(this.speedArg);
+            if (builders == null) builders = 1;
+
+            ConstructionSiteComponent closestSite = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
+                double dist = site.anchor.distance(playerAnchor);
+                if (dist < 20.0 && dist < minDistance) {
+                    minDistance = dist;
+                    closestSite = site;
+                }
+            }
+
+            if (closestSite != null) {
+                closestSite.isBuilding = true;
+                closestSite.simulatedBuilders = builders;
+                ctx.sendMessage(Message.raw("Simulated construction started with " + builders + " ghost builders."));
+                com.cookieukw.SimTale.systems.ConstructionHelper.clearPreview(world, closestSite);
+            } else {
+                ctx.sendMessage(Message.raw("No pending construction site found nearby to simulate."));
             }
             return;
         }
@@ -117,46 +143,7 @@ public class BuildCommand extends AbstractPlayerCommand {
         SimTale.ACTIVE_SITES.add(site);
         eStore.addEntity(holder, AddReason.SPAWN);
 
-        // Place wireframe blocks for preview
-        if (!prefab.getBlocks().isEmpty()) {
-            int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
-            int minY = Integer.MAX_VALUE, maxY = Integer.MIN_VALUE;
-            int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
-            for (com.cookieukw.SimTale.core.PrefabBlock b : prefab.getBlocks()) {
-                if (b.getX() < minX) minX = b.getX();
-                if (b.getX() > maxX) maxX = b.getX();
-                if (b.getY() < minY) minY = b.getY();
-                if (b.getY() > maxY) maxY = b.getY();
-                if (b.getZ() < minZ) minZ = b.getZ();
-                if (b.getZ() > maxZ) maxZ = b.getZ();
-            }
-            // Use a highly visible block for the wireframe (e.g., lime clay or similar)
-            String markerBlock = "Soil_Clay_Smooth_Lime"; 
-            int px = playerAnchor.x;
-            int py = playerAnchor.y;
-            int pz = playerAnchor.z;
-            
-            // Bottom and Top edges
-            for (int x = minX; x <= maxX; x++) {
-                world.setBlock(px + x, py + minY, pz + minZ, markerBlock);
-                world.setBlock(px + x, py + minY, pz + maxZ, markerBlock);
-                world.setBlock(px + x, py + maxY, pz + minZ, markerBlock);
-                world.setBlock(px + x, py + maxY, pz + maxZ, markerBlock);
-            }
-            for (int z = minZ; z <= maxZ; z++) {
-                world.setBlock(px + minX, py + minY, pz + z, markerBlock);
-                world.setBlock(px + maxX, py + minY, pz + z, markerBlock);
-                world.setBlock(px + minX, py + maxY, pz + z, markerBlock);
-                world.setBlock(px + maxX, py + maxY, pz + z, markerBlock);
-            }
-            // Vertical pillars
-            for (int y = minY; y <= maxY; y++) {
-                world.setBlock(px + minX, py + y, pz + minZ, markerBlock);
-                world.setBlock(px + maxX, py + y, pz + minZ, markerBlock);
-                world.setBlock(px + minX, py + y, pz + maxZ, markerBlock);
-                world.setBlock(px + maxX, py + y, pz + maxZ, markerBlock);
-            }
-        }
+        com.cookieukw.SimTale.systems.ConstructionHelper.placePreview(world, eStore, playerAnchor, prefabName);
 
         ctx.sendMessage(Message.raw("Preview placed for " + prefabName + " at " + playerAnchor.x + ", " + playerAnchor.y + ", " + playerAnchor.z));
         ctx.sendMessage(Message.raw("Type '/build start' to confirm and let NPCs begin building."));
