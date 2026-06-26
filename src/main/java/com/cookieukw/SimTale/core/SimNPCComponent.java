@@ -22,6 +22,7 @@ public class SimNPCComponent implements Component<EntityStore> {
     public MemoryManager memory = new MemoryManager();
     public Map<UUID, Relationship> relationships = new HashMap<>();
     public Profession profession;
+    public NPCPreferences preferences;
 
 
 
@@ -46,6 +47,7 @@ public class SimNPCComponent implements Component<EntityStore> {
         this.personality = Personality.createDefault();
         this.needs = new Needs();
         this.stats = new SocialStats();
+        this.preferences = NPCPreferences.createRandom();
         assignRandomProfession();
     }
 
@@ -76,6 +78,12 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.memory = new MemoryManager();
         clone.memory.recentMemories.addAll(memory.recentMemories);
         clone.relationships = new HashMap<>(relationships);
+        clone.preferences = new NPCPreferences();
+        clone.preferences.favoriteFoods.addAll(preferences.favoriteFoods);
+        clone.preferences.hatedFoods.addAll(preferences.hatedFoods);
+        clone.preferences.favoriteSeason = preferences.favoriteSeason;
+        clone.preferences.favoriteWeather = preferences.favoriteWeather;
+        clone.preferences.hobby = preferences.hobby;
         
         // Clone new states
         clone.currentConversationPartner = currentConversationPartner;

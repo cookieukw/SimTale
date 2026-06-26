@@ -18,14 +18,17 @@ public class InteractionManager {
 
     public static String performInteraction(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, InteractionType type) {
         Mood mood = npc.getMood();
-        int baseChange = 0;
+        int friendshipChange = 0;
+        int romanceChange = 0;
         int trustChange = 0;
+        int affinityChange = 0;
         String response = "";
         MemoryEvent memEvent = MemoryEvent.CHATTED;
 
         switch (type) {
             case FRIENDLY -> {
-                baseChange = 5;
+                friendshipChange = 5;
+                affinityChange = 5;
                 trustChange = 1;
                 memEvent = MemoryEvent.CHATTED;
                 response = getContextualGreeting(npc, playerUuid, playerRef);
@@ -33,31 +36,37 @@ public class InteractionManager {
             case FUNNY -> {
                 memEvent = MemoryEvent.JOKED;
                 if (mood == Mood.ANGRY || mood == Mood.SAD) {
-                    baseChange = -5;
+                    friendshipChange = -2;
+                    affinityChange = -5;
                     response = npc.name + ": ...isso era pra ser engraçado?";
                 } else if (npc.personality.traits.contains(Trait.FUNNY)) {
-                    baseChange = 10;
+                    friendshipChange = 5;
+                    affinityChange = 15;
                     trustChange = 2;
                     response = npc.name + ": HAHAHA! Boa! Você leva jeito pra comédia.";
                 } else {
-                    baseChange = 5;
+                    friendshipChange = 3;
+                    affinityChange = 5;
                     trustChange = 1;
                     response = "Você contou uma piada! " + npc.name + " riu bastante.";
                 }
             }
             case ROMANTIC -> {
                 memEvent = MemoryEvent.FLIRTED;
-                int affinity = npc.getRelationship(playerUuid).friendship;
+                int affinity = npc.getRelationship(playerUuid).affinity;
                 if (affinity < 20 || mood == Mood.ANGRY) {
-                    baseChange = -10;
+                    romanceChange = -10;
+                    affinityChange = -15;
                     trustChange = -2;
                     response = npc.name + ": Cara... que? Sai pra lá.";
                 } else if (npc.personality.traits.contains(Trait.SHY)) {
-                    baseChange = 5;
+                    romanceChange = 15;
+                    affinityChange = 10;
                     trustChange = 2;
                     response = npc.name + " cora e desvia o olhar: O-obrigado...";
                 } else {
-                    baseChange = 10;
+                    romanceChange = 10;
+                    affinityChange = 5;
                     trustChange = 1;
                     response = npc.name + ": Heh... continua falando.";
                 }
@@ -66,32 +75,38 @@ public class InteractionManager {
                 memEvent = MemoryEvent.INSULTED;
                 trustChange = -15;
                 if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
-                    baseChange = -20;
+                    friendshipChange = -10;
+                    affinityChange = -20;
                     response = npc.name + " saca a arma: Você quer resolver isso agora?!";
                 } else if (npc.personality.traits.contains(Trait.NEEDY)) {
-                    baseChange = -10;
+                    friendshipChange = -5;
+                    affinityChange = -15;
                     response = npc.name + " quase chora: Por que você é tão mau comigo?";
                 } else {
-                    baseChange = -15;
+                    friendshipChange = -5;
+                    affinityChange = -15;
                     response = "Você insultou o " + npc.name + "!";
                 }
             }
             case RANDOM -> {
-                baseChange = 1;
+                affinityChange = 1;
                 response = "Interação Autônoma";
             }
             case GIFT -> {
                 memEvent = MemoryEvent.GIFTED;
                 if (npc.personality.traits.contains(Trait.GREEDY)) {
-                    baseChange = 15;
+                    friendshipChange = 10;
+                    affinityChange = 20;
                     trustChange = 5;
                     response = npc.name + " arregala os olhos: Pra mim?! Haha, FINALMENTE alguém que me valoriza!";
                 } else if (npc.personality.traits.contains(Trait.PARANOID)) {
-                    baseChange = -5;
+                    friendshipChange = -5;
+                    affinityChange = -10;
                     trustChange = -10;
                     response = npc.name + " olha o presente com suspeita: Isso não tem veneno, tem?";
                 } else {
-                    baseChange = 10;
+                    friendshipChange = 5;
+                    affinityChange = 10;
                     trustChange = 3;
                     response = npc.name + " sorri: Uau! Muito obrigado pelo presente.";
                 }
@@ -99,10 +114,12 @@ public class InteractionManager {
         }
 
         npc.memory.addMemory(memEvent, playerUuid);
-        npc.getRelationship(playerUuid).addFriendship(baseChange);
+        npc.getRelationship(playerUuid).addAffinity(affinityChange);
+        npc.getRelationship(playerUuid).addFriendship(friendshipChange);
+        npc.getRelationship(playerUuid).addRomance(romanceChange);
         npc.getRelationship(playerUuid).addTrust(trustChange);
 
-        npc.stats.addXP(Math.abs(baseChange) * 10);
+        npc.stats.addXP(Math.abs(affinityChange) * 10);
 
         npc.needs.social = Math.min(100, npc.needs.social + 10);
 

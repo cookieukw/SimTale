@@ -11,6 +11,7 @@ import com.cookieukw.SimTale.logic.SocialStats;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import com.cookieukw.SimTale.core.NPCPreferences;
 
 /**
  * Data Transfer Object for persisting SimTale NPC state via Caskara.
@@ -24,6 +25,7 @@ public class SimNPCData {
     public MemoryManager memory;
     public Map<String, Relationship> relationships = new HashMap<>();
     public Profession profession;
+    public NPCPreferences preferences;
 
     /**
      * Required for Caskara POJO persistence.
@@ -31,7 +33,7 @@ public class SimNPCData {
     public SimNPCData() {
     }
 
-    public SimNPCData(UUID entityId, String name, Personality personality, Needs needs, SocialStats stats, MemoryManager memory, Profession profession) {
+    public SimNPCData(UUID entityId, String name, Personality personality, Needs needs, SocialStats stats, MemoryManager memory, Profession profession, NPCPreferences preferences) {
         this.id = entityId.toString();
         this.name = name;
         this.personality = personality;
@@ -39,5 +41,6 @@ public class SimNPCData {
         this.stats = stats;
         this.memory = memory;
         this.profession = profession;
+        this.preferences = preferences;
     }
 }
