@@ -11,7 +11,6 @@ import com.cookieukw.SimTale.systems.SimTaleTickSystem;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookieukw.SimTale.systems.ConstructionSystem;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
-import com.cookieukw.SimTale.cinema.commands.CinemaCommand;
 import com.cookieukw.SimTale.systems.RoutineAISystem;
 import com.cookieukw.SimTale.systems.SimNPCSpawnSystem;
 import com.hypixel.hytale.component.ComponentType;
@@ -88,7 +87,6 @@ public class SimTale extends JavaPlugin {
         this.getCommandRegistry()
                 .registerCommand(new SimTaleCommand(this.getName(), this.getManifest().getVersion().toString()));
         this.getCommandRegistry().registerCommand(new BuildCommand());
-        this.getCommandRegistry().registerCommand(new CinemaCommand());
                  
         this.getCommandRegistry().registerCommand(new TestUICommand());
     }
