@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 
@@ -24,6 +25,24 @@ public class InteractionManager {
         int affinityChange = 0;
         String response = "";
         MemoryEvent memEvent = MemoryEvent.CHATTED;
+
+        Relationship rel = npc.getRelationship(playerUuid);
+        long currentDayIndex = System.currentTimeMillis() / 1200000L;
+        
+        boolean missedLongTime = false;
+        if (rel.lastInteractionDayIndex > 0 && rel.lastInteractionDayIndex < currentDayIndex) {
+            long daysMissed = currentDayIndex - rel.lastInteractionDayIndex;
+            if (daysMissed >= 3) {
+                missedLongTime = true;
+            }
+            rel.interactionsToday = 0;
+        } else if (rel.lastInteractionDayIndex == 0) {
+            rel.interactionsToday = 0;
+        }
+        rel.lastInteractionDayIndex = currentDayIndex;
+
+        boolean cooldownActive = rel.interactionsToday >= 3;
+        rel.interactionsToday++;
 
         switch (type) {
             case FRIENDLY -> {
@@ -111,6 +130,22 @@ public class InteractionManager {
                     response = npc.name + " sorri: Uau! Muito obrigado pelo presente.";
                 }
             }
+        }
+        
+        if (cooldownActive) {
+            affinityChange = 0;
+            friendshipChange = 0;
+            romanceChange = 0;
+            trustChange = 0;
+            if (type == InteractionType.FRIENDLY) {
+                response = npc.name + " acena rapidamente: Oi, já conversamos bastante hoje, né?";
+            } else if (type == InteractionType.GIFT) {
+                response = npc.name + ": Mais presentes? Ah, ok... obrigado.";
+            } else {
+                response = npc.name + " parece ocupado(a) e apenas murmura algo.";
+            }
+        } else if (missedLongTime && type == InteractionType.FRIENDLY) {
+            response = npc.name + " arregala os olhos: Nossa, faz dias que não te vejo! Onde você estava?! " + response;
         }
 
         npc.memory.addMemory(memEvent, playerUuid);

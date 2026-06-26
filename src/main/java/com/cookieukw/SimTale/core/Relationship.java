@@ -33,6 +33,10 @@ public class Relationship {
     public int romance = 0; // 0 to 100
     public int trust = 0; // -100 to 100
     
+    // Cooldown and memory
+    public int interactionsToday = 0;
+    public long lastInteractionDayIndex = 0;
+    
     public RelationshipStatus status = RelationshipStatus.UNKNOWN;
 
     public Relationship(UUID target) {
