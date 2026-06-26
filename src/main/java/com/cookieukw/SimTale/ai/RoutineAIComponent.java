@@ -14,6 +14,9 @@ public class RoutineAIComponent implements Component<EntityStore> {
         FINDING_FOOD,
         MOVING_TO_FOOD,
         EATING,
+        FINDING_BATH,
+        MOVING_TO_BATH,
+        BATHING,
         DYING,
         DEAD,
         REAPING,
@@ -38,6 +41,9 @@ public class RoutineAIComponent implements Component<EntityStore> {
     // Autonomy fields
     public UUID socializeTargetId = null;
     public long wanderTimer = 0;
+    
+    // Debug
+    public boolean forcedByDebug = false;
     
     public RoutineAIComponent() {
     }

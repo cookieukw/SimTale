@@ -113,8 +113,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
             }
             if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
-                ai.currentTask = TaskType.EATING;
-                ai.taskStartTime = world.getTick();
+                ai.currentTask = TaskType.FINDING_FOOD;
+                ai.targetBlockPosition = null;
+            } else if (ai.currentTask == TaskType.IDLE && npc.needs.hygiene < 40) {
+                ai.currentTask = TaskType.FINDING_BATH;
+                ai.targetBlockPosition = null;
             } else if (ai.currentTask == TaskType.IDLE && npc.needs.social < 50 && java.lang.Math.random() < 0.05) {
                 SimNPCComponent bestTarget = null;
                 double bestDist = 400.0;
@@ -378,6 +381,74 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
         
+        // --- FINDING_FOOD: Scan for food blocks ---
+        if (ai.currentTask == TaskType.FINDING_FOOD) {
+            Vector3d pos = transform.getPosition();
+            int sx = (int) pos.x;
+            int sy = (int) pos.y;
+            int sz = (int) pos.z;
+            boolean found = false;
+
+            for (int x = sx - 10; x <= sx + 10 && !found; x++) {
+                for (int y = sy - 5; y <= sy + 5 && !found; y++) {
+                    for (int z = sz - 10; z <= sz + 10 && !found; z++) {
+                        WorldChunk chunkAt = world.getChunk(ChunkUtil.indexChunkFromBlock(x, z));
+                        if (chunkAt != null) {
+                            BlockType bType = chunkAt.getBlockType(new Vector3i(x, y, z));
+                            if (bType != null && bType.getId() != null) {
+                                String name = bType.getId().toLowerCase();
+                                if (name.contains("barrel") || name.contains("chest") || name.contains("crop") 
+                                    || name.contains("mushroom") || name.contains("berry") || name.contains("table")
+                                    || name.contains("furnace") || name.contains("tavern")) {
+                                    ai.targetBlockPosition = new Vector3i(x, y, z);
+                                    ai.currentTask = TaskType.MOVING_TO_FOOD;
+                                    found = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (!found) {
+                // Fallback: eat in place
+                ai.currentTask = TaskType.EATING;
+                ai.taskStartTime = world.getTick();
+            }
+        }
+
+        // --- MOVING_TO_FOOD ---
+        if (ai.currentTask == TaskType.MOVING_TO_FOOD) {
+            if (ai.targetBlockPosition == null) {
+                ai.currentTask = TaskType.IDLE;
+                return;
+            }
+            Vector3d pos = transform.getPosition();
+            double targetX = ai.targetBlockPosition.x + 0.5;
+            double targetZ = ai.targetBlockPosition.z + 0.5;
+            double dx = targetX - pos.x;
+            double dz = targetZ - pos.z;
+            double distanceSq = dx*dx + dz*dz;
+
+            if (distanceSq < 2.0 * 2.0) {
+                ai.currentTask = TaskType.EATING;
+                ai.taskStartTime = world.getTick();
+            } else {
+                double distance = java.lang.Math.sqrt(distanceSq);
+                double speed = 3.0 * dt;
+                if (speed > distance) speed = distance;
+                double nx = pos.x + (dx / distance) * speed;
+                double nz = pos.z + (dz / distance) * speed;
+                transform.teleportPosition(new Vector3d(nx, pos.y, nz));
+                transform.getRotation().y = (float) java.lang.Math.atan2(dz, dx);
+                commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+            }
+        }
+
+        // --- EATING ---
         if (ai.currentTask == TaskType.EATING) {
             if (world.getTick() - ai.taskStartTime == 0) {
                 AnimationSlot slotToUse = AnimationSlot.Action;
@@ -387,6 +458,85 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             if (world.getTick() - ai.taskStartTime > 60) {
                 npc.needs.hunger = java.lang.Math.min(100f, npc.needs.hunger + 40f);
                 ai.currentTask = TaskType.IDLE;
+                ai.forcedByDebug = false;
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+            }
+        }
+
+        // --- FINDING_BATH: Scan for water blocks ---
+        if (ai.currentTask == TaskType.FINDING_BATH) {
+            Vector3d pos = transform.getPosition();
+            int sx = (int) pos.x;
+            int sy = (int) pos.y;
+            int sz = (int) pos.z;
+            boolean found = false;
+
+            for (int x = sx - 15; x <= sx + 15 && !found; x++) {
+                for (int y = sy - 5; y <= sy + 5 && !found; y++) {
+                    for (int z = sz - 15; z <= sz + 15 && !found; z++) {
+                        WorldChunk chunkAt = world.getChunk(ChunkUtil.indexChunkFromBlock(x, z));
+                        if (chunkAt != null) {
+                            BlockType bType = chunkAt.getBlockType(new Vector3i(x, y, z));
+                            if (bType != null && bType.getId() != null) {
+                                String name = bType.getId().toLowerCase();
+                                if (name.contains("water")) {
+                                    ai.targetBlockPosition = new Vector3i(x, y, z);
+                                    ai.currentTask = TaskType.MOVING_TO_BATH;
+                                    found = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (!found) {
+                ai.currentTask = TaskType.IDLE;
+            }
+        }
+
+        // --- MOVING_TO_BATH ---
+        if (ai.currentTask == TaskType.MOVING_TO_BATH) {
+            if (ai.targetBlockPosition == null) {
+                ai.currentTask = TaskType.IDLE;
+                return;
+            }
+            Vector3d pos = transform.getPosition();
+            double targetX = ai.targetBlockPosition.x + 0.5;
+            double targetZ = ai.targetBlockPosition.z + 0.5;
+            double dx = targetX - pos.x;
+            double dz = targetZ - pos.z;
+            double distanceSq = dx*dx + dz*dz;
+
+            if (distanceSq < 1.5 * 1.5) {
+                ai.currentTask = TaskType.BATHING;
+                ai.taskStartTime = world.getTick();
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Swim.blockyanim", "Swim", store);
+            } else {
+                double distance = java.lang.Math.sqrt(distanceSq);
+                double speed = 3.0 * dt;
+                if (speed > distance) speed = distance;
+                double nx = pos.x + (dx / distance) * speed;
+                double nz = pos.z + (dz / distance) * speed;
+                transform.teleportPosition(new Vector3d(nx, pos.y, nz));
+                transform.getRotation().y = (float) java.lang.Math.atan2(dz, dx);
+                commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+            }
+        }
+
+        // --- BATHING ---
+        if (ai.currentTask == TaskType.BATHING) {
+            npc.needs.hygiene = java.lang.Math.min(100f, npc.needs.hygiene + 1.0f);
+            if (npc.needs.hygiene >= 100f) {
+                ai.currentTask = TaskType.IDLE;
+                ai.forcedByDebug = false;
                 AnimationSlot slotToUse = AnimationSlot.Action;
                 try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);

@@ -36,7 +36,7 @@ Relationship
 | **Personality / Traits** | 🟡 Precisa Melhorar | Sistema de Traits existe (ex: GREEDY, SHY), mas as ramificações são limitadas. |
 | **Preferences (Gostos)** | 🟢 Já Adicionado | Sistema de Gostos aleatórios criado com comidas, clima e hobbies (`NPCPreferences`). |
 | **Memories (Memórias)**| 🟢 Já Adicionado | NPCs reagem quando o jogador some por mais de 3 dias no jogo. |
-| **Needs (Necessidades)**| 🟡 Precisa Melhorar | Sistema em construção (Fome, Social, etc existem no código, mas sem IA autônoma para resolver). |
+| **Needs (Necessidades)**| 🟢 Já Adicionado | IA autônoma implementada: NPCs andam até comida, camas e água para resolver suas necessidades. |
 | **Family (Casamento/Filhos)**| 🔴 Não Adicionado | Nada implementado além do status text. |
 | **DailyInteractions** | 🟢 Já Adicionado | Cooldown implementado que zera ganhos após 3 interações no mesmo dia. |
 | **RelationshipStage** | 🟢 Já Adicionado | Novos status adicionados (`DATING`, `ACQUAINTANCE`, `ENEMIES`, etc). |
