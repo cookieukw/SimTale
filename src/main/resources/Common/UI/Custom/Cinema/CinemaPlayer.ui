@@ -1,0 +1,52 @@
+Group {
+  LayoutMode: MiddleCenter;
+  Background: #000000DD;
+
+  Group #CinemaPanel {
+    Anchor: (Width: 1000, Height: 600);
+    LayoutMode: Full;
+    Background: #111111FF;
+
+    Label #Title {
+      Text: "SimTale Cinema";
+      Anchor: (Width: 200, Height: 30, Top: 10);
+      Style: (FontSize: 24, TextColor: #BFAE87FF, HorizontalAlignment: Center, VerticalAlignment: Center);
+    }
+
+    // Video area - where RLE elements will be injected
+    Group #VideoCanvas {
+      Anchor: (Width: 960, Height: 480, Top: 50, Left: 20);
+      Background: #000000FF;
+    }
+
+    // Controls wrapper
+    Group #Controls {
+      Anchor: (Width: 960, Height: 50, Bottom: 10, Left: 20);
+      LayoutMode: Full;
+
+      TextField #UrlInput {
+        Anchor: (Width: 500, Height: 40, Left: 0, Top: 5);
+        PlaceholderText: "Insira a URL do MP4 aqui...";
+        Text: "";
+      }
+
+      Button #PlayButton {
+        Anchor: (Width: 100, Height: 40, Left: 510, Top: 5);
+        Background: #2A5C2AFF;
+        Label { Text: "PLAY"; Anchor: (Full: 0); Style: (HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #FFFFFFFF); }
+      }
+
+      Button #StopButton {
+        Anchor: (Width: 100, Height: 40, Left: 620, Top: 5);
+        Background: #5C2A2AFF;
+        Label { Text: "STOP"; Anchor: (Full: 0); Style: (HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #FFFFFFFF); }
+      }
+
+      Button #CloseButton {
+        Anchor: (Width: 100, Height: 40, Right: 0, Top: 5);
+        Background: #333333FF;
+        Label { Text: "FECHAR"; Anchor: (Full: 0); Style: (HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #FFFFFFFF); }
+      }
+    }
+  }
+}

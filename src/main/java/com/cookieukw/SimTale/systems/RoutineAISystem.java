@@ -112,13 +112,40 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     }
                 }
             }
-            if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 30) {
-                // Future expansion
-            } else if (npc.personality.traits.contains(Trait.FUNNY) && Math.random() < 0.005) {
+            if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
+                ai.currentTask = TaskType.EATING;
+                ai.taskStartTime = world.getTick();
+            } else if (ai.currentTask == TaskType.IDLE && npc.needs.social < 50 && java.lang.Math.random() < 0.05) {
+                SimNPCComponent bestTarget = null;
+                double bestDist = 400.0;
+                for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
+                    if (other != npc && other.entityRef != null) {
+                        TransformComponent otherTransform = store.getComponent(other.entityRef, TransformComponent.getComponentType());
+                        if (otherTransform != null) {
+                            double distSq = transform.getPosition().distanceSquared(otherTransform.getPosition());
+                            if (distSq < bestDist) {
+                                bestDist = distSq;
+                                bestTarget = other;
+                            }
+                        }
+                    }
+                }
+                if (bestTarget != null) {
+                    ai.currentTask = TaskType.MOVING_TO_SOCIALIZE;
+                    ai.socializeTargetId = bestTarget.entityId;
+                }
+            } else if (ai.currentTask == TaskType.IDLE && java.lang.Math.random() < 0.02) {
+                ai.currentTask = TaskType.WANDERING;
+                ai.targetBlockPosition = new Vector3i(
+                    (int)(transform.getPosition().x + (java.lang.Math.random() - 0.5) * 20),
+                    (int)transform.getPosition().y,
+                    (int)(transform.getPosition().z + (java.lang.Math.random() - 0.5) * 20)
+                );
+            } else if (npc.personality.traits.contains(Trait.FUNNY) && java.lang.Math.random() < 0.005) {
                 AnimationSlot slotToUse = AnimationSlot.Action;
                 try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Cheer.blockyanim", "Cheer", store);
-                npc.needs.fun = Math.min(100f, npc.needs.fun + 10f);
+                npc.needs.fun = java.lang.Math.min(100f, npc.needs.fun + 10f);
             }
         }
 
@@ -267,6 +294,102 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                     AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Mining.blockyanim", "Mining", store);
                 }
+            }
+        }
+
+        if (ai.currentTask == TaskType.WANDERING) {
+            Vector3d pos = transform.getPosition();
+            double targetX = ai.targetBlockPosition.x + 0.5;
+            double targetZ = ai.targetBlockPosition.z + 0.5;
+            double dx = targetX - pos.x;
+            double dz = targetZ - pos.z;
+            double distanceSq = dx*dx + dz*dz;
+
+            if (distanceSq < 1.0) {
+                ai.currentTask = TaskType.IDLE;
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+            } else {
+                double distance = java.lang.Math.sqrt(distanceSq);
+                double speed = 2.0 * dt; 
+                if (speed > distance) speed = distance;
+                
+                double nx = pos.x + (dx / distance) * speed;
+                double nz = pos.z + (dz / distance) * speed;
+                
+                transform.teleportPosition(new Vector3d(nx, pos.y, nz));
+                transform.getRotation().y = (float) java.lang.Math.atan2(dz, dx);
+                commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+            }
+        }
+        
+        if (ai.currentTask == TaskType.MOVING_TO_SOCIALIZE) {
+            if (ai.socializeTargetId == null) {
+                ai.currentTask = TaskType.IDLE;
+            } else {
+                Ref<EntityStore> otherRef = world.getEntityStore().getRefFromUUID(ai.socializeTargetId);
+                if (otherRef == null) {
+                    ai.currentTask = TaskType.IDLE;
+                } else {
+                    TransformComponent otherTransform = store.getComponent(otherRef, TransformComponent.getComponentType());
+                    if (otherTransform != null) {
+                        Vector3d pos = transform.getPosition();
+                        double dx = otherTransform.getPosition().x - pos.x;
+                        double dz = otherTransform.getPosition().z - pos.z;
+                        double distanceSq = dx*dx + dz*dz;
+                        
+                        if (distanceSq < 4.0) {
+                            ai.currentTask = TaskType.SOCIALIZING;
+                            ai.taskStartTime = world.getTick();
+                            AnimationSlot slotToUse = AnimationSlot.Action;
+                            try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                            AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Talk.blockyanim", "Talk", store);
+                        } else {
+                            double distance = java.lang.Math.sqrt(distanceSq);
+                            double speed = 2.0 * dt; 
+                            if (speed > distance) speed = distance;
+                            double nx = pos.x + (dx / distance) * speed;
+                            double nz = pos.z + (dz / distance) * speed;
+                            transform.teleportPosition(new Vector3d(nx, pos.y, nz));
+                            transform.getRotation().y = (float) java.lang.Math.atan2(dz, dx);
+                            commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                            
+                            AnimationSlot slotToUse = AnimationSlot.Action;
+                            try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                            AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (ai.currentTask == TaskType.SOCIALIZING) {
+            if (world.getTick() - ai.taskStartTime > 100) {
+                npc.needs.social = java.lang.Math.min(100f, npc.needs.social + 30f);
+                ai.currentTask = TaskType.IDLE;
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+            }
+        }
+        
+        if (ai.currentTask == TaskType.EATING) {
+            if (world.getTick() - ai.taskStartTime == 0) {
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Eat.blockyanim", "Eat", store);
+            }
+            if (world.getTick() - ai.taskStartTime > 60) {
+                npc.needs.hunger = java.lang.Math.min(100f, npc.needs.hunger + 40f);
+                ai.currentTask = TaskType.IDLE;
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             }
         }
 

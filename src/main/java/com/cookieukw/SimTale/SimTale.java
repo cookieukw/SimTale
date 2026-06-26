@@ -11,7 +11,9 @@ import com.cookieukw.SimTale.systems.SimTaleTickSystem;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookieukw.SimTale.systems.ConstructionSystem;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
+import com.cookieukw.SimTale.cinema.commands.CinemaCommand;
 import com.cookieukw.SimTale.systems.RoutineAISystem;
+import com.cookieukw.SimTale.systems.SimNPCSpawnSystem;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
@@ -72,6 +74,7 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new MoodAnimationSystem());
         this.getEntityStoreRegistry().registerSystem(new RoutineAISystem());
         this.getEntityStoreRegistry().registerSystem(new ConstructionSystem());
+        this.getEntityStoreRegistry().registerSystem(new SimNPCSpawnSystem());
 
         // Register event handlers
         this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class, null,
@@ -85,6 +88,7 @@ public class SimTale extends JavaPlugin {
         this.getCommandRegistry()
                 .registerCommand(new SimTaleCommand(this.getName(), this.getManifest().getVersion().toString()));
         this.getCommandRegistry().registerCommand(new BuildCommand());
+        this.getCommandRegistry().registerCommand(new CinemaCommand());
                  
         this.getCommandRegistry().registerCommand(new TestUICommand());
     }

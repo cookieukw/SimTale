@@ -7,6 +7,7 @@ build/
 node_modules
 ### Hytale ###
 run/
+.agents/
 libs/
 src/main/assets
 ### IntelliJ IDEA ###
