@@ -33,11 +33,17 @@ public class FamilySystem {
         }
     }
     
-    public void attemptPregnancy() {
+    public void attemptPregnancy(Gender thisGender, Gender spouseGender) {
         if (isMarried && !isPregnant) {
-            // Chance calculation here based on mood/relationship
-            this.isPregnant = true;
-            this.pregnancyDays = 0;
+            boolean canHaveBiologicalChild = 
+                (thisGender == Gender.FEMALE && spouseGender == Gender.MALE) ||
+                (thisGender == Gender.MALE && spouseGender == Gender.FEMALE);
+                
+            if (canHaveBiologicalChild) {
+                // Chance calculation here based on mood/relationship
+                this.isPregnant = true;
+                this.pregnancyDays = 0;
+            }
         }
     }
     
@@ -53,7 +59,7 @@ public class FamilySystem {
     }
     
     private void onChildBirth() {
-        // Gera um nome pro filho
+        
         children.add(new Child("Bebê"));
     }
     

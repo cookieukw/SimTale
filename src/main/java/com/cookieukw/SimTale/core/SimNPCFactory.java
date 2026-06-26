@@ -19,6 +19,7 @@ import com.cookieukw.SimTale.SimTale;
 import it.unimi.dsi.fastutil.Pair;
 import java.util.UUID;
 import java.util.HashMap;
+import com.cookieukw.SimTale.core.Gender;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 
@@ -93,6 +94,14 @@ public class SimNPCFactory {
 
         SimNPCComponent simComponent = new SimNPCComponent(entityId, name);
         simComponent.entityRef = ref;
+        
+        if (type == NPCType.HUMAN_MALE) {
+            simComponent.gender = Gender.MALE;
+        } else if (type == NPCType.HUMAN_FEMALE) {
+            simComponent.gender = Gender.FEMALE;
+        } else {
+            simComponent.gender = Math.random() > 0.5 ? Gender.MALE : Gender.FEMALE;
+        }
 
         // Try to load existing data if available
         if (type != NPCType.REAPER) {

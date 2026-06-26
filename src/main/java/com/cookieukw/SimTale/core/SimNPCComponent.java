@@ -24,8 +24,7 @@ public class SimNPCComponent implements Component<EntityStore> {
     public Profession profession;
     public NPCPreferences preferences = new NPCPreferences();
     public FamilySystem family = new FamilySystem();
-
-
+    public Gender gender;
 
     // Runtime properties
     public transient Ref<EntityStore> entityRef;
