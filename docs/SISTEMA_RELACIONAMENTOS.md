@@ -28,18 +28,18 @@ Relationship
 
 | Componente | Status | Descrição |
 | :--- | :--- | :--- |
-| **Relationship (Base)** | 🟡 Precisa Melhorar | Classe base existe, mas mistura conceitos e não possui todas as subdivisões. |
-| **Friendship** | 🟡 Precisa Melhorar | Implementado de forma simples (-100 a 100), precisa parear com afinidade. |
-| **Trust** | 🟡 Precisa Melhorar | Existe no código base, mas com baixo impacto nas interações atuais. |
-| **Romance** | 🟡 Precisa Melhorar | Existe, mas precisa ser totalmente desacoplado da amizade padrão. |
+| **Relationship (Base)** | 🟢 Já Adicionado | A classe base foi refatorada e suporta as novas divisões de afinidade. |
+| **Friendship** | 🟢 Já Adicionado | Totalmente desvinculado de Romance e pareado com afinidade. |
+| **Trust** | 🟢 Já Adicionado | Variável independente que pode cair bruscamente com insultos. |
+| **Romance** | 🟢 Já Adicionado | Totalmente desacoplado, exigindo flertes explícitos. |
 | **Mood** | 🟡 Precisa Melhorar | Temos um enum básico de `Mood`, mas não afeta dinamicamente 100% das respostas ainda. |
 | **Personality / Traits** | 🟡 Precisa Melhorar | Sistema de Traits existe (ex: GREEDY, SHY), mas as ramificações são limitadas. |
-| **Preferences (Gostos)** | 🔴 Não Adicionado | Faltam comidas favoritas, horários, climas e hobbies. |
-| **Memories (Memórias)**| 🟡 Precisa Melhorar | Memória de curto prazo existe (ex: lembra de insulto), mas falta decaimento por tempo longo e eventos de vida. |
+| **Preferences (Gostos)** | 🟢 Já Adicionado | Sistema de Gostos aleatórios criado com comidas, clima e hobbies (`NPCPreferences`). |
+| **Memories (Memórias)**| 🟢 Já Adicionado | NPCs reagem quando o jogador some por mais de 3 dias no jogo. |
 | **Needs (Necessidades)**| 🟡 Precisa Melhorar | Sistema em construção (Fome, Social, etc existem no código, mas sem IA autônoma para resolver). |
 | **Family (Casamento/Filhos)**| 🔴 Não Adicionado | Nada implementado além do status text. |
-| **DailyInteractions** | 🔴 Não Adicionado | Sem cooldown robusto (é possível farmar interações). |
-| **RelationshipStage** | 🟢 Já Adicionado | `RelationshipStatus` (Stranger, Friend, Best Friend, Partner, etc) já controla a progressão. |
+| **DailyInteractions** | 🟢 Já Adicionado | Cooldown implementado que zera ganhos após 3 interações no mesmo dia. |
+| **RelationshipStage** | 🟢 Já Adicionado | Novos status adicionados (`DATING`, `ACQUAINTANCE`, `ENEMIES`, etc). |
 
 ---
 

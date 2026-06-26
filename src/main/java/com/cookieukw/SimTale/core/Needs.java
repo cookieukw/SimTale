@@ -10,6 +10,7 @@ public class Needs {
     public float energy = 100f;
     public float social = 100f;
     public float fun = 100f;
+    public float hygiene = 100f;
 
     public void tickDecay(Set<Trait> traits) {
         float energyDecay = traits.contains(Trait.LAZY) ? 0.0004f : 0.0002f;
@@ -19,6 +20,7 @@ public class Needs {
         this.energy = Math.max(0, this.energy - energyDecay);
         this.social = Math.max(0, this.social - 0.00015f);
         this.fun = Math.max(0, this.fun - funDecay);
+        this.hygiene = Math.max(0, this.hygiene - 0.0002f);
     }
 
     public void healEnergy(float amount) {
@@ -26,6 +28,6 @@ public class Needs {
     }
 
     public boolean isMiserable() {
-        return hunger < 10 || energy < 10 || social < 10 || fun < 10;
+        return hunger < 10 || energy < 10 || social < 10 || fun < 10 || hygiene < 10;
     }
 }

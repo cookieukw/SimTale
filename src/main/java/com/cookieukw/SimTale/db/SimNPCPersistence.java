@@ -34,7 +34,8 @@ public class SimNPCPersistence {
                 component.stats,
                 component.memory,
                 component.profession,
-                component.preferences);
+                component.preferences,
+                component.family);
 
         // Convert Map<UUID, Relationship> to Map<String, Relationship> for Caskara
         for (Map.Entry<UUID, Relationship> entry : component.relationships.entrySet()) {
@@ -60,6 +61,9 @@ public class SimNPCPersistence {
             }
             if (data.preferences != null) {
                 component.preferences = data.preferences;
+            }
+            if (data.family != null) {
+                component.family = data.family;
             }
 
             // Reconstruct relationships
@@ -89,6 +93,9 @@ public class SimNPCPersistence {
                     comp.memory = data.memory != null ? data.memory : new MemoryManager();
                     if (data.preferences != null) {
                         comp.preferences = data.preferences;
+                    }
+                    if (data.family != null) {
+                        comp.family = data.family;
                     }
                     
                     if (data.relationships != null) {
