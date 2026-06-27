@@ -94,7 +94,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
                 
                 // REAPER SPAWN MOVED
-                }
             }
         }
         
@@ -218,7 +217,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
             if (distanceSq < 1.5 * 1.5) {
                 // Arrived
-                clearMoveTarget(ai, world);
+                clearMoveTarget(ai, world, commandBuffer);
                 ai.currentTask = TaskType.SLEEPING;
                 
                 // Play sleep animation
@@ -230,7 +229,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
             } else {
-                ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ));
+                ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ), commandBuffer);
             }
         }
 
@@ -262,13 +261,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double distanceSq = dx*dx + dz*dz;
 
             if (distanceSq < 15.0 * 15.0) {
-                clearMoveTarget(ai, world);
+                clearMoveTarget(ai, world, commandBuffer);
                 ai.currentTask = TaskType.BUILDING;
                 AnimationSlot slotToUse = AnimationSlot.Action;
                 try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Mining.blockyanim", "Mining", store);
             } else {
-                ensureMoveTarget(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
+                ensureMoveTarget(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5), commandBuffer);
             }
         }
 
@@ -304,13 +303,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double distanceSq = dx*dx + dz*dz;
 
             if (distanceSq < 1.0) {
-                clearMoveTarget(ai, world);
+                clearMoveTarget(ai, world, commandBuffer);
                 ai.currentTask = TaskType.IDLE;
                 AnimationSlot slotToUse = AnimationSlot.Action;
                 try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             } else {
-                ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ));
+                ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ), commandBuffer);
             }
         }
         
@@ -330,14 +329,14 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                         double distanceSq = dx*dx + dz*dz;
                         
                         if (distanceSq < 4.0) {
-                            clearMoveTarget(ai, world);
+                            clearMoveTarget(ai, world, commandBuffer);
                 ai.currentTask = TaskType.SOCIALIZING;
                             ai.taskStartTime = world.getTick();
                             AnimationSlot slotToUse = AnimationSlot.Action;
                             try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                             AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Talk.blockyanim", "Talk", store);
                         } else {
-                ensureMoveTarget(ref, ai, world, new Vector3d(otherTransform.getPosition().x, pos.y, otherTransform.getPosition().z));
+                ensureMoveTarget(ref, ai, world, new Vector3d(otherTransform.getPosition().x, pos.y, otherTransform.getPosition().z), commandBuffer);
             }
                     }
                 }
@@ -407,11 +406,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double distanceSq = dx*dx + dz*dz;
 
             if (distanceSq < 2.0 * 2.0) {
-                clearMoveTarget(ai, world);
+                clearMoveTarget(ai, world, commandBuffer);
                 ai.currentTask = TaskType.EATING;
                 ai.taskStartTime = world.getTick();
             } else {
-                ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ));
+                ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ), commandBuffer);
             }
         }
 
@@ -481,14 +480,14 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double distanceSq = dx*dx + dz*dz;
 
             if (distanceSq < 1.5 * 1.5) {
-                clearMoveTarget(ai, world);
+                clearMoveTarget(ai, world, commandBuffer);
                 ai.currentTask = TaskType.BATHING;
                 ai.taskStartTime = world.getTick();
                 AnimationSlot slotToUse = AnimationSlot.Action;
                 try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Swim.blockyanim", "Swim", store);
             } else {
-                ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ));
+                ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ), commandBuffer);
             }
         }
 
@@ -554,7 +553,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         commandBuffer.replaceComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
     }
 
-    private void ensureMoveTarget(Ref<EntityStore> npcRef, RoutineAIComponent ai, World world, Vector3d position) {
+    private void ensureMoveTarget(Ref<EntityStore> npcRef, RoutineAIComponent ai, World world, Vector3d position, CommandBuffer<EntityStore> commandBuffer) {
         try {
             if (ai.currentMoveTarget != null && ai.currentMoveTarget.isValid()) {
                 TransformComponent targetTransform = ai.currentMoveTarget.getStore().getComponent(ai.currentMoveTarget, TransformComponent.getComponentType());
@@ -593,7 +592,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         } catch (Exception e) {}
     }
 
-    private void clearMoveTarget(RoutineAIComponent ai, World world) {
+    private void clearMoveTarget(RoutineAIComponent ai, World world, CommandBuffer<EntityStore> commandBuffer) {
         if (ai.currentMoveTarget != null) {
             try {
                 if (ai.currentMoveTarget.isValid()) {
