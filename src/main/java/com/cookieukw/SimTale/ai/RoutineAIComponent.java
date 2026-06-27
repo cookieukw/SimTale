@@ -3,7 +3,9 @@ package com.cookieukw.SimTale.ai;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3i;
+import com.hypixel.hytale.component.Ref;
 import java.util.UUID;
+
 public class RoutineAIComponent implements Component<EntityStore> {
     
     public enum TaskType {
@@ -31,6 +33,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
 
     public TaskType currentTask = TaskType.IDLE;
     public Vector3i targetBlockPosition = null;
+    public Ref<EntityStore> currentMoveTarget = null;
     public long taskStartTime = 0;
     
     // Death & Reaper fields

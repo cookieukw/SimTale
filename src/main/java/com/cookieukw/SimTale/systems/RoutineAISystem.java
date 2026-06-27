@@ -25,6 +25,16 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
+import com.hypixel.hytale.server.core.entity.entities.ProjectileComponent;
+import com.hypixel.hytale.server.core.modules.entity.component.Intangible;
+import com.hypixel.hytale.server.core.modules.entity.tracker.NetworkId;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
+import com.hypixel.hytale.server.npc.role.Role;
+import com.hypixel.hytale.component.AddReason;
+import com.hypixel.hytale.component.RemoveReason;
+import com.hypixel.hytale.component.Holder;
+import com.hypixel.hytale.math.vector.Rotation3f;
+
 import com.cookieukw.SimTale.core.SimNPCFactory.NPCType;
 
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
@@ -218,6 +228,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
             if (distanceSq < 1.5 * 1.5) {
                 // Arrived
+                clearMoveTarget(ai, world);
                 ai.currentTask = TaskType.SLEEPING;
                 
                 // Play sleep animation
@@ -229,21 +240,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
             } else {
-                // Move towards
-                double distance = Math.sqrt(distanceSq);
-                double speed = 3.0 * dt; // 3 blocks per second
-                if (speed > distance) speed = distance;
-                
-                double nx = pos.x + (dx / distance) * speed;
-                double nz = pos.z + (dz / distance) * speed;
-                
-                transform.teleportPosition(new Vector3d(nx, pos.y, nz));
-                
-                // Rotation
-                float yaw = (float) Math.atan2(-dx, -dz);
-                transform.getRotation().y = yaw;
-                
-                commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ));
             }
         }
 
@@ -275,21 +272,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double distanceSq = dx*dx + dz*dz;
 
             if (distanceSq < 15.0 * 15.0) {
+                clearMoveTarget(ai, world);
                 ai.currentTask = TaskType.BUILDING;
                 AnimationSlot slotToUse = AnimationSlot.Action;
                 try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Mining.blockyanim", "Mining", store);
             } else {
-                double distance = Math.sqrt(distanceSq);
-                double speed = 3.0 * dt; 
-                if (speed > distance) speed = distance;
-                
-                double nx = pos.x + (dx / distance) * speed;
-                double nz = pos.z + (dz / distance) * speed;
-                
-                transform.teleportPosition(new Vector3d(nx, pos.y, nz));
-                transform.getRotation().y = (float) Math.atan2(-dx, -dz);
-                commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                ensureMoveTarget(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
             }
         }
 
@@ -325,21 +314,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double distanceSq = dx*dx + dz*dz;
 
             if (distanceSq < 1.0) {
+                clearMoveTarget(ai, world);
                 ai.currentTask = TaskType.IDLE;
                 AnimationSlot slotToUse = AnimationSlot.Action;
                 try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             } else {
-                double distance = java.lang.Math.sqrt(distanceSq);
-                double speed = 2.0 * dt; 
-                if (speed > distance) speed = distance;
-                
-                double nx = pos.x + (dx / distance) * speed;
-                double nz = pos.z + (dz / distance) * speed;
-                
-                transform.teleportPosition(new Vector3d(nx, pos.y, nz));
-                transform.getRotation().y = (float) java.lang.Math.atan2(-dx, -dz);
-                commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ));
             }
         }
         
@@ -359,21 +340,15 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                         double distanceSq = dx*dx + dz*dz;
                         
                         if (distanceSq < 4.0) {
-                            ai.currentTask = TaskType.SOCIALIZING;
+                            clearMoveTarget(ai, world);
+                ai.currentTask = TaskType.SOCIALIZING;
                             ai.taskStartTime = world.getTick();
                             AnimationSlot slotToUse = AnimationSlot.Action;
                             try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                             AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Talk.blockyanim", "Talk", store);
                         } else {
-                            double distance = java.lang.Math.sqrt(distanceSq);
-                            double speed = 2.0 * dt; 
-                            if (speed > distance) speed = distance;
-                            double nx = pos.x + (dx / distance) * speed;
-                            double nz = pos.z + (dz / distance) * speed;
-                            transform.teleportPosition(new Vector3d(nx, pos.y, nz));
-                            transform.getRotation().y = (float) java.lang.Math.atan2(-dx, -dz);
-                            commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
-                        }
+                ensureMoveTarget(ref, ai, world, new Vector3d(otherTransform.getPosition().x, pos.y, otherTransform.getPosition().z));
+            }
                     }
                 }
             }
@@ -442,17 +417,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double distanceSq = dx*dx + dz*dz;
 
             if (distanceSq < 2.0 * 2.0) {
+                clearMoveTarget(ai, world);
                 ai.currentTask = TaskType.EATING;
                 ai.taskStartTime = world.getTick();
             } else {
-                double distance = java.lang.Math.sqrt(distanceSq);
-                double speed = 3.0 * dt;
-                if (speed > distance) speed = distance;
-                double nx = pos.x + (dx / distance) * speed;
-                double nz = pos.z + (dz / distance) * speed;
-                transform.teleportPosition(new Vector3d(nx, pos.y, nz));
-                transform.getRotation().y = (float) java.lang.Math.atan2(-dx, -dz);
-                commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ));
             }
         }
 
@@ -522,20 +491,14 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double distanceSq = dx*dx + dz*dz;
 
             if (distanceSq < 1.5 * 1.5) {
+                clearMoveTarget(ai, world);
                 ai.currentTask = TaskType.BATHING;
                 ai.taskStartTime = world.getTick();
                 AnimationSlot slotToUse = AnimationSlot.Action;
                 try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Swim.blockyanim", "Swim", store);
             } else {
-                double distance = java.lang.Math.sqrt(distanceSq);
-                double speed = 3.0 * dt;
-                if (speed > distance) speed = distance;
-                double nx = pos.x + (dx / distance) * speed;
-                double nz = pos.z + (dz / distance) * speed;
-                transform.teleportPosition(new Vector3d(nx, pos.y, nz));
-                transform.getRotation().y = (float) java.lang.Math.atan2(-dx, -dz);
-                commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ));
             }
         }
 
@@ -571,7 +534,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 if (speed > dist) speed = dist;
                 double nx = transform.getPosition().x + (dx/dist)*speed;
                 double nz = transform.getPosition().z + (dz/dist)*speed;
-                transform.teleportPosition(new Vector3d(nx, transform.getPosition().y, nz));
+                transform.setPosition(new Vector3d(nx, transform.getPosition().y, nz));
                 transform.getRotation().y = (float) Math.atan2(-dx, -dz);
                 commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
             } else {
@@ -600,4 +563,55 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         }
         commandBuffer.replaceComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
     }
+
+    private void ensureMoveTarget(Ref<EntityStore> npcRef, RoutineAIComponent ai, World world, Vector3d position) {
+        try {
+            if (ai.currentMoveTarget != null && ai.currentMoveTarget.isValid()) {
+                TransformComponent targetTransform = ai.currentMoveTarget.getStore().getComponent(ai.currentMoveTarget, TransformComponent.getComponentType());
+                if (targetTransform != null) {
+                    targetTransform.setPosition(new Vector3d(position.x, position.y, position.z));
+                    NPCEntity npcEntity = npcRef.getStore().getComponent(npcRef, NPCEntity.getComponentType());
+                    if (npcEntity != null && npcEntity.getRole() != null) {
+                        Role role = npcEntity.getRole();
+                        String slot = role.getStateSupport() != null ? "MoveTarget" : "LockedTarget";
+                        role.getMarkedEntitySupport().setMarkedEntity(slot, ai.currentMoveTarget);
+                        npcEntity.setLeashPoint(new Vector3d(position.x, position.y, position.z));
+                    }
+                    return;
+                }
+            }
+            Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
+            ProjectileComponent projectile = new ProjectileComponent("Projectile");
+            holder.putComponent(ProjectileComponent.getComponentType(), projectile);
+            holder.putComponent(TransformComponent.getComponentType(), new TransformComponent(new Vector3d(position.x, position.y, position.z), new Rotation3f()));
+            holder.ensureComponent(UUIDComponent.getComponentType());
+            holder.ensureComponent(Intangible.getComponentType());
+            holder.addComponent(NetworkId.getComponentType(), new NetworkId(((EntityStore) world.getEntityStore().getStore().getExternalData()).takeNextNetworkId()));
+            projectile.initialize();
+            
+            Ref<EntityStore> targetRef = world.getEntityStore().getStore().addEntity(holder, AddReason.SPAWN);
+            if (targetRef == null || !targetRef.isValid()) return;
+            ai.currentMoveTarget = targetRef;
+            
+            NPCEntity npcEntity = npcRef.getStore().getComponent(npcRef, NPCEntity.getComponentType());
+            if (npcEntity != null && npcEntity.getRole() != null) {
+                Role role = npcEntity.getRole();
+                String slot = role.getStateSupport() != null ? "MoveTarget" : "LockedTarget";
+                role.getMarkedEntitySupport().setMarkedEntity(slot, targetRef);
+                npcEntity.setLeashPoint(new Vector3d(position.x, position.y, position.z));
+            }
+        } catch (Exception e) {}
+    }
+
+    private void clearMoveTarget(RoutineAIComponent ai, World world) {
+        if (ai.currentMoveTarget != null) {
+            try {
+                if (ai.currentMoveTarget.isValid()) {
+                    world.getEntityStore().getStore().removeEntity(ai.currentMoveTarget, RemoveReason.REMOVE);
+                }
+            } catch (Exception e) {}
+            ai.currentMoveTarget = null;
+        }
+    }
+
 }
