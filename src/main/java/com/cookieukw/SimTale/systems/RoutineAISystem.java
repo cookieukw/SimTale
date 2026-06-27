@@ -93,17 +93,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
                 
-                Ref<EntityStore> reaperRef = SimNPCFactory.spawnNPC(store, new Vector3d(transform.getPosition().x + 5, transform.getPosition().y, transform.getPosition().z + 5), NPCType.REAPER);
-                if (reaperRef != null) {
-                    UUID reaperId = store.getComponent(reaperRef, UUIDComponent.getComponentType()).getUuid();
-                    ai.reaperEntityId = reaperId;
-                    RoutineAIComponent reaperAi = store.getComponent(reaperRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
-                    if (reaperAi != null) {
-                        reaperAi.currentTask = TaskType.REAPING;
-                        reaperAi.dyingEntityId = npc.entityId;
-                        reaperAi.reapTimer = 300; // 15 seconds
-                        store.putComponent(reaperRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, reaperAi);
-                    }
+                // REAPER SPAWN MOVED
                 }
             }
         }
@@ -191,7 +181,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                             BlockType bType = chunkAt.getBlockType(new Vector3i(x, y, z));
                             if (bType != null && bType.getId() != null) {
                                 String name = bType.getId().toLowerCase();
-                                if (name.contains("bed")) {
+                                if (name.contains("bed") || name.contains("sleeping") || name.contains("cama")) {
                                     ai.targetBlockPosition = new Vector3i(x, y, z);
                                     ai.currentTask = TaskType.MOVING_TO_BED;
                                     AnimationSlot slotToUse = AnimationSlot.Action;
@@ -589,7 +579,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             holder.addComponent(NetworkId.getComponentType(), new NetworkId(((EntityStore) world.getEntityStore().getStore().getExternalData()).takeNextNetworkId()));
             projectile.initialize();
             
-            Ref<EntityStore> targetRef = world.getEntityStore().getStore().addEntity(holder, AddReason.SPAWN);
+            Ref<EntityStore> targetRef = commandBuffer.addEntity(holder, AddReason.SPAWN);
             if (targetRef == null || !targetRef.isValid()) return;
             ai.currentMoveTarget = targetRef;
             
@@ -607,7 +597,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         if (ai.currentMoveTarget != null) {
             try {
                 if (ai.currentMoveTarget.isValid()) {
-                    world.getEntityStore().getStore().removeEntity(ai.currentMoveTarget, RemoveReason.REMOVE);
+                    commandBuffer.removeEntity(ai.currentMoveTarget, RemoveReason.REMOVE);
                 }
             } catch (Exception e) {}
             ai.currentMoveTarget = null;
