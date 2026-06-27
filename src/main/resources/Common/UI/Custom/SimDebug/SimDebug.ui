@@ -1,137 +1,140 @@
 Group {
   LayoutMode: MiddleCenter;
   Background: #000000(0.7);
+
   Group #MainPanel {
-    Anchor: (Width: 700, Height: 600);
+    Anchor: (Width: 600, Height: 650);
     LayoutMode: Top;
-    Background: #1a1a2eFF;
+    Background: #1e1e24;
+    Padding: (Horizontal: 20, Vertical: 20);
+
     Label #Title {
       Text: "SIMDEBUG - Painel de Controle";
-      Anchor: (Height: 40, Top: 10);
+      Anchor: (Width: 560, Height: 40, Bottom: 20);
       Style: (FontSize: 24, TextColor: #00d4ffFF, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center);
     }
-    Label #NpcName {
-      Text: "Selecione um NPC";
-      Anchor: (Height: 30, Top: 55);
-      Style: (FontSize: 20, TextColor: #ffffffFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+    
+    Group {
+      Anchor: (Width: 560, Height: 80, Bottom: 30);
+      LayoutMode: Top;
+      
+      Label #NpcName {
+        Text: "Selecione um NPC";
+        Anchor: (Width: 560, Height: 30, Bottom: 5);
+        Style: (FontSize: 22, TextColor: #ffffffFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      }
+      Label #NpcGender {
+        Text: "Genero";
+        Anchor: (Width: 560, Height: 20, Bottom: 5);
+        Style: (FontSize: 16, TextColor: #aaaaaaFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+      }
+      Label #NpcTask {
+        Text: "Task: IDLE";
+        Anchor: (Width: 560, Height: 20);
+        Style: (FontSize: 16, TextColor: #ffaa00FF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      }
     }
-    Label #NpcGender {
-      Text: "";
-      Anchor: (Height: 22, Top: 85);
-      Style: (FontSize: 16, TextColor: #aaaaaaFF, HorizontalAlignment: Center, VerticalAlignment: Center);
-    }
-    Label #NpcTask {
-      Text: "Task: IDLE";
-      Anchor: (Height: 22, Top: 107);
-      Style: (FontSize: 16, TextColor: #ffaa00FF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
-    }
+
     Group #StatsPanel {
-      Anchor: (Width: 600, Height: 100, Top: 135);
-      LayoutMode: MiddleCenter;
-      Label #StatsHunger {
-        Text: "Fome: 100";
-        Anchor: (Width: 140, Height: 24);
-        Style: (FontSize: 16, TextColor: #ff6644FF, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Anchor: (Width: 560, Height: 60, Bottom: 30);
+      LayoutMode: Top;
+      
+      Group {
+        Anchor: (Width: 560, Height: 25, Bottom: 10);
+        LayoutMode: Left;
+        Label #StatsHunger {
+          Text: "Fome: 100";
+          Anchor: (Width: 275, Height: 25, Right: 10);
+          Style: (FontSize: 18, TextColor: #ff6644FF, HorizontalAlignment: Center, VerticalAlignment: Center);
+        }
+        Label #StatsEnergy {
+          Text: "Energia: 100";
+          Anchor: (Width: 275, Height: 25);
+          Style: (FontSize: 18, TextColor: #44bbffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+        }
       }
-      Label #StatsEnergy {
-        Text: "Energia: 100";
-        Anchor: (Width: 140, Height: 24);
-        Style: (FontSize: 16, TextColor: #44bbffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
-      }
-      Label #StatsSocial {
-        Text: "Social: 100";
-        Anchor: (Width: 140, Height: 24);
-        Style: (FontSize: 16, TextColor: #44ff88FF, HorizontalAlignment: Center, VerticalAlignment: Center);
-      }
-      Label #StatsHygiene {
-        Text: "Higiene: 100";
-        Anchor: (Width: 140, Height: 24);
-        Style: (FontSize: 16, TextColor: #aa88ffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Group {
+        Anchor: (Width: 560, Height: 25);
+        LayoutMode: Left;
+        Label #StatsSocial {
+          Text: "Social: 100";
+          Anchor: (Width: 275, Height: 25, Right: 10);
+          Style: (FontSize: 18, TextColor: #44ff88FF, HorizontalAlignment: Center, VerticalAlignment: Center);
+        }
+        Label #StatsHygiene {
+          Text: "Higiene: 100";
+          Anchor: (Width: 275, Height: 25);
+          Style: (FontSize: 18, TextColor: #aa88ffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+        }
       }
     }
+
     Group #ActionPanel {
-      Anchor: (Width: 620, Height: 180, Top: 245);
-      LayoutMode: MiddleCenter;
-      Button #BtnForceEat {
-        Anchor: (Width: 180, Height: 44, Right: 10);
-        Background: #cc5500FF;
-        Label {
-          Text: "Forcar Comer";
-          Anchor: (Full: 0);
-          Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Anchor: (Width: 560, Height: 152, Bottom: 30);
+      LayoutMode: Top;
+      
+      Group {
+        Anchor: (Width: 560, Height: 44, Bottom: 10);
+        LayoutMode: Left;
+        Button #BtnForceEat {
+          Anchor: (Width: 275, Height: 44, Right: 10);
+          Background: #cc5500FF;
+          Label { Text: "Forcar Comer"; Anchor: (Full: 0); Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center); }
+        }
+        Button #BtnForceSleep {
+          Anchor: (Width: 275, Height: 44);
+          Background: #3355aaFF;
+          Label { Text: "Forcar Dormir"; Anchor: (Full: 0); Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center); }
         }
       }
-      Button #BtnForceSleep {
-        Anchor: (Width: 180, Height: 44, Right: 10);
-        Background: #3355aaFF;
-        Label {
-          Text: "Forcar Dormir";
-          Anchor: (Full: 0);
-          Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Group {
+        Anchor: (Width: 560, Height: 44, Bottom: 10);
+        LayoutMode: Left;
+        Button #BtnForceBath {
+          Anchor: (Width: 275, Height: 44, Right: 10);
+          Background: #6644aaFF;
+          Label { Text: "Forcar Banho"; Anchor: (Full: 0); Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center); }
+        }
+        Button #BtnForceSocial {
+          Anchor: (Width: 275, Height: 44);
+          Background: #22aa44FF;
+          Label { Text: "Forcar Social"; Anchor: (Full: 0); Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center); }
         }
       }
-      Button #BtnForceBath {
-        Anchor: (Width: 180, Height: 44);
-        Background: #6644aaFF;
-        Label {
-          Text: "Forcar Banho";
-          Anchor: (Full: 0);
-          Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Group {
+        Anchor: (Width: 560, Height: 44);
+        LayoutMode: Left;
+        Button #BtnSetHungerZero {
+          Anchor: (Width: 275, Height: 44, Right: 10);
+          Background: #aa2222FF;
+          Label { Text: "Fome = 0 (Morte)"; Anchor: (Full: 0); Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center); }
         }
-      }
-      Button #BtnForceSocial {
-        Anchor: (Width: 180, Height: 44, Right: 10);
-        Background: #22aa44FF;
-        Label {
-          Text: "Forcar Socializar";
-          Anchor: (Full: 0);
-          Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
-        }
-      }
-      Button #BtnSetHungerZero {
-        Anchor: (Width: 180, Height: 44, Right: 10);
-        Background: #aa2222FF;
-        Label {
-          Text: "Fome = 0 (Testar Morte)";
-          Anchor: (Full: 0);
-          Style: (FontSize: 14, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
-        }
-      }
-      Button #BtnResetNeeds {
-        Anchor: (Width: 180, Height: 44);
-        Background: #228822FF;
-        Label {
-          Text: "Resetar Needs (100)";
-          Anchor: (Full: 0);
-          Style: (FontSize: 14, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+        Button #BtnResetNeeds {
+          Anchor: (Width: 275, Height: 44);
+          Background: #228822FF;
+          Label { Text: "Resetar (100)"; Anchor: (Full: 0); Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center); }
         }
       }
     }
+
     Group #NpcListPanel {
-      Anchor: (Width: 620, Height: 140, Top: 435);
-      LayoutMode: MiddleCenter;
+      Anchor: (Width: 560, Height: 44);
+      LayoutMode: Left;
+      
       Button #BtnPrevNpc {
-        Anchor: (Width: 120, Height: 40, Right: 10);
-        Background: #444444FF;
-        Label {
-          Text: "< Anterior";
-          Anchor: (Full: 0);
-          Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
-        }
+        Anchor: (Width: 150, Height: 44, Right: 10);
+        Background: #444455FF;
+        Label { Text: "< Anterior"; Anchor: (Full: 0); Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center); }
       }
       Label #NpcIndex {
-        Text: "0 / 0";
-        Anchor: (Width: 120, Height: 40);
+        Text: "1 / 1";
+        Anchor: (Width: 240, Height: 44, Right: 10);
         Style: (FontSize: 18, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
       }
       Button #BtnNextNpc {
-        Anchor: (Width: 120, Height: 40);
-        Background: #444444FF;
-        Label {
-          Text: "Proximo >";
-          Anchor: (Full: 0);
-          Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center);
-        }
+        Anchor: (Width: 150, Height: 44);
+        Background: #444455FF;
+        Label { Text: "Proximo >"; Anchor: (Full: 0); Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center); }
       }
     }
   }
