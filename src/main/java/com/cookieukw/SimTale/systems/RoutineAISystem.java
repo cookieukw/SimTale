@@ -107,6 +107,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
                     if (site.isBuilding) {
                         ai.currentTask = TaskType.MOVING_TO_CONSTRUCTION;
+                        AnimationSlot slotToUse = AnimationSlot.Action;
+                        try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                        AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+
                         ai.targetBlockPosition = new Vector3i(site.anchor);
                         break;
                     }
@@ -135,10 +139,18 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
                 if (bestTarget != null) {
                     ai.currentTask = TaskType.MOVING_TO_SOCIALIZE;
+                    AnimationSlot slotToUse = AnimationSlot.Action;
+                    try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                    AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+
                     ai.socializeTargetId = bestTarget.entityId;
                 }
             } else if (ai.currentTask == TaskType.IDLE && java.lang.Math.random() < 0.02) {
                 ai.currentTask = TaskType.WANDERING;
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+
                 ai.targetBlockPosition = new Vector3i(
                     (int)(transform.getPosition().x + (java.lang.Math.random() - 0.5) * 20),
                     (int)transform.getPosition().y,
@@ -172,6 +184,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                                 if (name.contains("bed")) {
                                     ai.targetBlockPosition = new Vector3i(x, y, z);
                                     ai.currentTask = TaskType.MOVING_TO_BED;
+                                    AnimationSlot slotToUse = AnimationSlot.Action;
+                                    try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                                    AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+
                                     found = true;
                                 }
                             }
@@ -224,7 +240,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 transform.teleportPosition(new Vector3d(nx, pos.y, nz));
                 
                 // Rotation
-                float yaw = (float) Math.atan2(dz, dx);
+                float yaw = (float) Math.atan2(-dx, -dz);
                 transform.getRotation().y = yaw;
                 
                 commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
@@ -272,7 +288,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 double nz = pos.z + (dz / distance) * speed;
                 
                 transform.teleportPosition(new Vector3d(nx, pos.y, nz));
-                transform.getRotation().y = (float) Math.atan2(dz, dx);
+                transform.getRotation().y = (float) Math.atan2(-dx, -dz);
                 commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
             }
         }
@@ -322,12 +338,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 double nz = pos.z + (dz / distance) * speed;
                 
                 transform.teleportPosition(new Vector3d(nx, pos.y, nz));
-                transform.getRotation().y = (float) java.lang.Math.atan2(dz, dx);
+                transform.getRotation().y = (float) java.lang.Math.atan2(-dx, -dz);
                 commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
-                
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
             }
         }
         
@@ -359,12 +371,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                             double nx = pos.x + (dx / distance) * speed;
                             double nz = pos.z + (dz / distance) * speed;
                             transform.teleportPosition(new Vector3d(nx, pos.y, nz));
-                            transform.getRotation().y = (float) java.lang.Math.atan2(dz, dx);
+                            transform.getRotation().y = (float) java.lang.Math.atan2(-dx, -dz);
                             commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
-                            
-                            AnimationSlot slotToUse = AnimationSlot.Action;
-                            try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                            AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
                         }
                     }
                 }
@@ -402,6 +410,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                                     || name.contains("furnace") || name.contains("tavern")) {
                                     ai.targetBlockPosition = new Vector3i(x, y, z);
                                     ai.currentTask = TaskType.MOVING_TO_FOOD;
+                                    AnimationSlot slotToUse = AnimationSlot.Action;
+                                    try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                                    AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+
                                     found = true;
                                 }
                             }
@@ -439,12 +451,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 double nx = pos.x + (dx / distance) * speed;
                 double nz = pos.z + (dz / distance) * speed;
                 transform.teleportPosition(new Vector3d(nx, pos.y, nz));
-                transform.getRotation().y = (float) java.lang.Math.atan2(dz, dx);
+                transform.getRotation().y = (float) java.lang.Math.atan2(-dx, -dz);
                 commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
-                
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
             }
         }
 
@@ -484,6 +492,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                                 if (name.contains("water")) {
                                     ai.targetBlockPosition = new Vector3i(x, y, z);
                                     ai.currentTask = TaskType.MOVING_TO_BATH;
+                                    AnimationSlot slotToUse = AnimationSlot.Action;
+                                    try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                                    AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+
                                     found = true;
                                 }
                             }
@@ -522,12 +534,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 double nx = pos.x + (dx / distance) * speed;
                 double nz = pos.z + (dz / distance) * speed;
                 transform.teleportPosition(new Vector3d(nx, pos.y, nz));
-                transform.getRotation().y = (float) java.lang.Math.atan2(dz, dx);
+                transform.getRotation().y = (float) java.lang.Math.atan2(-dx, -dz);
                 commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
-                
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
             }
         }
 
@@ -564,7 +572,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 double nx = transform.getPosition().x + (dx/dist)*speed;
                 double nz = transform.getPosition().z + (dz/dist)*speed;
                 transform.teleportPosition(new Vector3d(nx, transform.getPosition().y, nz));
-                transform.getRotation().y = (float) Math.atan2(dz, dx);
+                transform.getRotation().y = (float) Math.atan2(-dx, -dz);
                 commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
             } else {
                 ai.reapTimer--;
