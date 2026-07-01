@@ -99,11 +99,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             if (npc.needs.hunger == 0) {
                 ai.currentTask = TaskType.DYING;
                 ai.taskStartTime = world.getTick();
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
-                
-                // REAPER SPAWN MOVED
+                playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
             }
         }
         
@@ -116,9 +112,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
                     if (site.isBuilding) {
                         ai.currentTask = TaskType.MOVING_TO_CONSTRUCTION;
-                        AnimationSlot slotToUse = AnimationSlot.Action;
-                        try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                        AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                        playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
 
                         ai.targetBlockPosition = new Vector3i(site.anchor);
                         break;
@@ -151,17 +145,13 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                 }
                 if (bestTarget != null) {
                     ai.currentTask = TaskType.MOVING_TO_SOCIALIZE;
-                    AnimationSlot slotToUse = AnimationSlot.Action;
-                    try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                    AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                    playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
 
                     ai.socializeTargetId = bestTarget.entityId;
                 }
             } else if (ai.currentTask == TaskType.IDLE && java.lang.Math.random() < 0.02) {
                 ai.currentTask = TaskType.WANDERING;
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
 
                 ai.targetBlockPosition = new Vector3i(
                     (int)(transform.getPosition().x + (java.lang.Math.random() - 0.5) * 20),
@@ -169,9 +159,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                     (int)(transform.getPosition().z + (java.lang.Math.random() - 0.5) * 20)
                 );
             } else if (npc.personality.traits.contains(Trait.FUNNY) && java.lang.Math.random() < 0.005) {
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Cheer.blockyanim", "Cheer", store);
+                playAnim(ref, "Characters/Animations/Actions/Cheer.blockyanim", "Cheer", store);
                 npc.needs.fun = java.lang.Math.min(100f, npc.needs.fun + 10f);
             }
         }
@@ -184,9 +172,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                 System.out.println("[DEBUG SIMTALE] NPC already owns a bed at: " + npc.bedLocation.x + ", " + npc.bedLocation.y + ", " + npc.bedLocation.z);
                 ai.targetBlockPosition = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
                 ai.currentTask = TaskType.MOVING_TO_BED;
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
             } else {
                 // Procurar cama (Prefab/Entidade) nas proximidades
                 BedPos bestBed = null;
@@ -257,9 +243,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                     npc.bedLocation = bestBed;
                     ai.targetBlockPosition = new Vector3i(bestBed.x, bestBed.y, bestBed.z);
                     ai.currentTask = TaskType.MOVING_TO_BED;
-                    AnimationSlot slotToUse = AnimationSlot.Action;
-                    try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                    AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                    playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
                 } else {
                     System.out.println("[DEBUG SIMTALE] No bed found nearby in Entities");
                     ai.currentTask = TaskType.IDLE;
@@ -288,12 +272,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                 ai.currentTask = TaskType.SLEEPING;
                 
                 // Play sleep animation
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try {
-                    slotToUse = AnimationSlot.valueOf("Base");
-                } catch (IllegalArgumentException e) {
-                    // Ignore
-                }
+                playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
                 AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
             } else {
                 ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ), commandBuffer);
@@ -308,12 +287,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                 ai.currentTask = TaskType.IDLE;
                 
                 // Wake up (play Idle)
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try {
-                    slotToUse = AnimationSlot.valueOf("Base");
-                } catch (IllegalArgumentException e) {
-                }
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             }
         }
 
@@ -330,9 +304,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
             if (distanceSq < 15.0 * 15.0) {
                 clearMoveTarget(ai, world, commandBuffer);
                 ai.currentTask = TaskType.BUILDING;
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Mining.blockyanim", "Mining", store);
+                playAnim(ref, "Characters/Animations/Actions/Mining.blockyanim", "Mining", store);
             } else {
                 ensureMoveTarget(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5), commandBuffer);
             }
@@ -349,14 +321,10 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
 
             if (!siteActive) {
                 ai.currentTask = TaskType.IDLE;
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             } else {
                 if (Math.random() < 0.05) {
-                    AnimationSlot slotToUse = AnimationSlot.Action;
-                    try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                    AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Mining.blockyanim", "Mining", store);
+                    playAnim(ref, "Characters/Animations/Actions/Mining.blockyanim", "Mining", store);
                 }
             }
         }
@@ -372,9 +340,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
             if (distanceSq < 1.0) {
                 clearMoveTarget(ai, world, commandBuffer);
                 ai.currentTask = TaskType.IDLE;
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             } else {
                 ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ), commandBuffer);
             }
@@ -399,9 +365,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                             clearMoveTarget(ai, world, commandBuffer);
                 ai.currentTask = TaskType.SOCIALIZING;
                             ai.taskStartTime = world.getTick();
-                            AnimationSlot slotToUse = AnimationSlot.Action;
-                            try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                            AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Talk.blockyanim", "Talk", store);
+                            playAnim(ref, "Characters/Animations/Actions/Talk.blockyanim", "Talk", store);
                         } else {
                 ensureMoveTarget(ref, ai, world, new Vector3d(otherTransform.getPosition().x, pos.y, otherTransform.getPosition().z), commandBuffer);
             }
@@ -414,9 +378,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
             if (world.getTick() - ai.taskStartTime > 100) {
                 npc.needs.social = java.lang.Math.min(100f, npc.needs.social + 30f);
                 ai.currentTask = TaskType.IDLE;
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             }
         }
         
@@ -458,17 +420,13 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
         // --- EATING ---
         if (ai.currentTask == TaskType.EATING) {
             if (world.getTick() - ai.taskStartTime == 0) {
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Eat.blockyanim", "Eat", store);
+                playAnim(ref, "Characters/Animations/Actions/Eat.blockyanim", "Eat", store);
             }
             if (world.getTick() - ai.taskStartTime > 60) {
                 npc.needs.hunger = java.lang.Math.min(100f, npc.needs.hunger + 40f);
                 ai.currentTask = TaskType.IDLE;
                 ai.forcedByDebug = false;
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             }
         }
 
@@ -496,10 +454,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                             if (name.contains("water")) {
                                 ai.targetBlockPosition = new Vector3i(x, y, z);
                                 ai.currentTask = TaskType.MOVING_TO_BATH;
-                                AnimationSlot slotToUse = AnimationSlot.Action;
-                                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
-
+                                playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
                                 found = true;
                                 break bathSearch;
                             }
@@ -529,9 +484,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                 clearMoveTarget(ai, world, commandBuffer);
                 ai.currentTask = TaskType.BATHING;
                 ai.taskStartTime = world.getTick();
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Swim.blockyanim", "Swim", store);
+                playAnim(ref, "Characters/Animations/Actions/Swim.blockyanim", "Swim", store);
             } else {
                 ensureMoveTarget(ref, ai, world, new Vector3d(targetX, pos.y, targetZ), commandBuffer);
             }
@@ -543,9 +496,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
             if (npc.needs.hygiene >= 100f) {
                 ai.currentTask = TaskType.IDLE;
                 ai.forcedByDebug = false;
-                AnimationSlot slotToUse = AnimationSlot.Action;
-                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             }
         }
 
@@ -649,4 +600,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
         }
     }
 
+    private void playAnim(Ref<EntityStore> ref, String anim, String name, Store<EntityStore> store) {
+        AnimationUtils.playAnimation(ref, AnimationSlot.Base, anim, name, store);
+    }
 }
