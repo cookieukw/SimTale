@@ -22,7 +22,7 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
-        return (Query<EntityStore>) (Object) SimTale.SIM_NPC_COMPONENT_TYPE;
+        return (Query<EntityStore>) SimTale.SIM_NPC_COMPONENT_TYPE;
     }
 
     @Override
