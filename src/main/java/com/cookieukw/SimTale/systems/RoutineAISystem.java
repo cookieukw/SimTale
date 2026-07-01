@@ -586,7 +586,9 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                 role.getMarkedEntitySupport().setMarkedEntity(slot, targetRef);
                 npcEntity.setLeashPoint(new Vector3d(position.x, position.y, position.z));
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void clearMoveTarget(RoutineAIComponent ai, World world, CommandBuffer<EntityStore> commandBuffer) {
