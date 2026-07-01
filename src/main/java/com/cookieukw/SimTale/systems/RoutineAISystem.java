@@ -494,7 +494,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-       // --- FINDING_BATH: Scan for water blocks ---
+      // --- FINDING_BATH: Scan for water blocks ---
         if (ai.currentTask == TaskType.FINDING_BATH) {
             Vector3d pos = transform.getPosition();
             int sx = (int) pos.x;
@@ -502,23 +502,26 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             int sz = (int) pos.z;
             boolean found = false;
 
-            for (int x = sx - 15; x <= sx + 15 && !found; x++) {
-                for (int y = sy - 5; y <= sy + 5 && !found; y++) {
-                    for (int z = sz - 15; z <= sz + 15 && !found; z++) {
-                        WorldChunk chunkAt = world.getChunk(ChunkUtil.indexChunkFromBlock(x, z));
-                        if (chunkAt != null) {
-                            BlockType bType = chunkAt.getBlockType(new Vector3i(x, y, z));
-                            if (bType != null && bType.getId() != null) {
-                                String name = bType.getId().toLowerCase();
-                                if (name.contains("water")) {
-                                    ai.targetBlockPosition = new Vector3i(x, y, z);
-                                    ai.currentTask = TaskType.MOVING_TO_BATH;
-                                    AnimationSlot slotToUse = AnimationSlot.Action;
-                                    try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                                    AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+            bathSearch:
+            for (int x = sx - 15; x <= sx + 15; x++) {
+                for (int z = sz - 15; z <= sz + 15; z++) {
+                    // Busca o chunk UMA VEZ por coluna (x,z), reaproveitado para todo o range de Y
+                    WorldChunk chunkAt = world.getChunk(ChunkUtil.indexChunkFromBlock(x, z));
+                    if (chunkAt == null) continue;
 
-                                    found = true;
-                                }
+                    for (int y = sy - 5; y <= sy + 5; y++) {
+                        BlockType bType = chunkAt.getBlockType(new Vector3i(x, y, z));
+                        if (bType != null && bType.getId() != null) {
+                            String name = bType.getId().toLowerCase();
+                            if (name.contains("water")) {
+                                ai.targetBlockPosition = new Vector3i(x, y, z);
+                                ai.currentTask = TaskType.MOVING_TO_BATH;
+                                AnimationSlot slotToUse = AnimationSlot.Action;
+                                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+
+                                found = true;
+                                break bathSearch;
                             }
                         }
                     }
