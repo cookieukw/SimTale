@@ -494,7 +494,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // --- FINDING_BATH: Scan for water blocks ---
+       // --- FINDING_BATH: Scan for water blocks ---
         if (ai.currentTask == TaskType.FINDING_BATH) {
             Vector3d pos = transform.getPosition();
             int sx = (int) pos.x;
