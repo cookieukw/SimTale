@@ -30,6 +30,7 @@ public class SimNPCData {
     public NPCPreferences preferences;
     public FamilySystem family;
     public Gender gender;
+    public SimBedData.BedPos bedLocation;
 
     /**
      * Required for Caskara POJO persistence.
@@ -37,7 +38,7 @@ public class SimNPCData {
     public SimNPCData() {
     }
 
-    public SimNPCData(UUID entityId, String name, Personality personality, Needs needs, SocialStats stats, MemoryManager memory, Profession profession, NPCPreferences preferences, FamilySystem family, Gender gender) {
+    public SimNPCData(UUID entityId, String name, Personality personality, Needs needs, SocialStats stats, MemoryManager memory, Profession profession, NPCPreferences preferences, FamilySystem family, Gender gender, SimBedData.BedPos bedLocation) {
         this.id = entityId.toString();
         this.name = name;
         this.personality = personality;
@@ -48,5 +49,6 @@ public class SimNPCData {
         this.preferences = preferences;
         this.family = family;
         this.gender = gender;
+        this.bedLocation = bedLocation;
     }
 }

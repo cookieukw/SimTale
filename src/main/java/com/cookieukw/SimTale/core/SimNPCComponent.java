@@ -25,6 +25,7 @@ public class SimNPCComponent implements Component<EntityStore> {
     public NPCPreferences preferences = new NPCPreferences();
     public FamilySystem family = new FamilySystem();
     public Gender gender;
+    public com.cookieukw.SimTale.db.SimBedData.BedPos bedLocation;
 
     // Runtime properties
     public transient Ref<EntityStore> entityRef;
@@ -84,6 +85,10 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.preferences.favoriteSeason = preferences.favoriteSeason;
         clone.preferences.favoriteWeather = preferences.favoriteWeather;
         clone.preferences.hobby = preferences.hobby;
+
+        if (bedLocation != null) {
+            clone.bedLocation = new com.cookieukw.SimTale.db.SimBedData.BedPos(bedLocation.x, bedLocation.y, bedLocation.z);
+        }
         
         // Clone new states
         clone.currentConversationPartner = currentConversationPartner;

@@ -36,7 +36,8 @@ public class SimNPCPersistence {
                 component.profession,
                 component.preferences,
                 component.family,
-                component.gender);
+                component.gender,
+                component.bedLocation);
 
         // Convert Map<UUID, Relationship> to Map<String, Relationship> for Caskara
         for (Map.Entry<UUID, Relationship> entry : component.relationships.entrySet()) {
@@ -68,6 +69,9 @@ public class SimNPCPersistence {
             }
             if (data.gender != null) {
                 component.gender = data.gender;
+            }
+            if (data.bedLocation != null) {
+                component.bedLocation = new com.cookieukw.SimTale.db.SimBedData.BedPos(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z);
             }
 
             // Reconstruct relationships
@@ -103,6 +107,9 @@ public class SimNPCPersistence {
                     }
                     if (data.gender != null) {
                         comp.gender = data.gender;
+                    }
+                    if (data.bedLocation != null) {
+                        comp.bedLocation = new com.cookieukw.SimTale.db.SimBedData.BedPos(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z);
                     }
                     
                     if (data.relationships != null) {

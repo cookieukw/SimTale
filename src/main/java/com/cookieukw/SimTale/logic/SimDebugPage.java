@@ -128,6 +128,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             forceTask(npc, TaskType.FINDING_FOOD, store);
             playerRefComp.sendMessage(Message.raw("[SimDebug] " + npc.name + " forcado a comer!"));
         } else if (eventData.contains("force_sleep")) {
+            npc.bedLocation = null; // Clear cached bed to test BlockTypeView!
             forceTask(npc, TaskType.FINDING_BED, store);
             playerRefComp.sendMessage(Message.raw("[SimDebug] " + npc.name + " forcado a dormir!"));
         } else if (eventData.contains("force_bath")) {

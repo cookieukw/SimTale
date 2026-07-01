@@ -11,10 +11,17 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
+import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import com.cookieukw.SimTale.db.SimBedData.BedPos;
 
 
 import com.cookieukw.SimTale.SimTale;
@@ -165,38 +172,92 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // --- 2. Action Execution ---
         if (ai.currentTask == TaskType.FINDING_BED) {
-            Vector3d pos = transform.getPosition();
-            int sx = (int) pos.x;
-            int sy = (int) pos.y;
-            int sz = (int) pos.z;
-            boolean found = false;
+            System.out.println("[DEBUG SIMTALE] FINDING_BED task started for NPC");
+            if (npc.bedLocation != null) {
+                // NPC already owns a bed
+                System.out.println("[DEBUG SIMTALE] NPC already owns a bed at: " + npc.bedLocation.x + ", " + npc.bedLocation.y + ", " + npc.bedLocation.z);
+                ai.targetBlockPosition = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
+                ai.currentTask = TaskType.MOVING_TO_BED;
+                AnimationSlot slotToUse = AnimationSlot.Action;
+                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+            } else {
+                // Procurar cama (Prefab/Entidade) nas proximidades
+                BedPos bestBed = null;
+                double closestDistSq = Double.MAX_VALUE;
+                org.joml.Vector3d myPos = transform.getPosition();
 
-            // Scan 10 blocks around
-            for (int x = sx - 10; x <= sx + 10 && !found; x++) {
-                for (int y = sy - 5; y <= sy + 5 && !found; y++) {
-                    for (int z = sz - 10; z <= sz + 10 && !found; z++) {
-                        WorldChunk chunkAt = world.getChunk(ChunkUtil.indexChunkFromBlock(x, z));
-                        if (chunkAt != null) {
-                            BlockType bType = chunkAt.getBlockType(new Vector3i(x, y, z));
-                            if (bType != null && bType.getId() != null) {
-                                String name = bType.getId().toLowerCase();
-                                if (name.contains("bed") || name.contains("sleeping") || name.contains("cama")) {
-                                    ai.targetBlockPosition = new Vector3i(x, y, z);
-                                    ai.currentTask = TaskType.MOVING_TO_BED;
-                                    AnimationSlot slotToUse = AnimationSlot.Action;
-                                    try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                                    AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                List<BedPos> claimedBeds = new ArrayList<>();
+                for (SimNPCComponent otherNpc : SimTale.ACTIVE_NPCS) {
+                    if (otherNpc.bedLocation != null) {
+                        claimedBeds.add(otherNpc.bedLocation);
+                    }
+                }
 
-                                    found = true;
+                if (world != null) {
+                    int sx = (int) myPos.x;
+                    int sz = (int) myPos.z;
+                    Set<Long> visitedChunks = new HashSet<>();
+
+                    for (int x = sx - 16; x <= sx + 16; x += 16) {
+                        for (int z = sz - 16; z <= sz + 16; z += 16) {
+                            long chunkIdx = ChunkUtil.indexChunkFromBlock(x, z);
+                            if (visitedChunks.contains(chunkIdx)) continue;
+                            visitedChunks.add(chunkIdx);
+                            
+                            WorldChunk chunkAt = world.getChunk(chunkIdx);
+                            if (chunkAt != null && chunkAt.getEntityChunk() != null) {
+                                for (Ref<EntityStore> er : chunkAt.getEntityChunk().getEntityReferences()) {
+                                    PersistentModel pm = store.getComponent(er, PersistentModel.getComponentType());
+                                    if (pm != null && pm.getModelReference() != null && pm.getModelReference().getModelAssetId() != null) {
+                                        String mName = pm.getModelReference().getModelAssetId().toLowerCase();
+                                        if (mName.contains("bed") || mName.contains("cama") || mName.contains("furniture_village_bed")) {
+                                            TransformComponent tc = store.getComponent(er, TransformComponent.getComponentType());
+                                            if (tc != null) {
+                                                org.joml.Vector3d bedPos = tc.getPosition();
+                                                double dx = bedPos.x - myPos.x;
+                                                double dy = bedPos.y - myPos.y;
+                                                double dz = bedPos.z - myPos.z;
+                                                double distSq = dx*dx + dy*dy + dz*dz;
+                                                
+                                                if (distSq < 16.0 * 16.0) { // Raio de 16 blocos
+                                                    BedPos bp = new BedPos((int)Math.floor(bedPos.x), (int)Math.floor(bedPos.y), (int)Math.floor(bedPos.z));
+                                                    
+                                                    // Checar se está ocupada
+                                                    boolean isClaimed = false;
+                                                    for (BedPos cb : claimedBeds) {
+                                                        if (cb.x == bp.x && cb.y == bp.y && cb.z == bp.z) {
+                                                            isClaimed = true;
+                                                            break;
+                                                        }
+                                                    }
+                                                    
+                                                    if (!isClaimed && distSq < closestDistSq) {
+                                                        closestDistSq = distSq;
+                                                        bestBed = bp;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-            if (!found) {
-                // No bed found, idle for a bit so we don't spam scan
-                ai.currentTask = TaskType.IDLE;
+
+                if (bestBed != null) {
+                    System.out.println("[DEBUG SIMTALE] Bed found at: " + bestBed.x + ", " + bestBed.y + ", " + bestBed.z);
+                    npc.bedLocation = bestBed;
+                    ai.targetBlockPosition = new Vector3i(bestBed.x, bestBed.y, bestBed.z);
+                    ai.currentTask = TaskType.MOVING_TO_BED;
+                    AnimationSlot slotToUse = AnimationSlot.Action;
+                    try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
+                    AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                } else {
+                    System.out.println("[DEBUG SIMTALE] No bed found nearby in Entities");
+                    ai.currentTask = TaskType.IDLE;
+                }
             }
         }
 
