@@ -369,7 +369,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                         } else {
                 ensureMoveTarget(ref, ai, world, new Vector3d(otherTransform.getPosition().x, pos.y, otherTransform.getPosition().z), commandBuffer);
             }
-                    }
+                    } else { ai.currentTask = TaskType.IDLE; }
                 }
             }
         }
