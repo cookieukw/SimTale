@@ -331,6 +331,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
 
         if (ai.currentTask == TaskType.WANDERING) {
             Vector3d pos = transform.getPosition();
+            if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
             double targetX = ai.targetBlockPosition.x + 0.5;
             double targetZ = ai.targetBlockPosition.z + 0.5;
             double dx = targetX - pos.x;
