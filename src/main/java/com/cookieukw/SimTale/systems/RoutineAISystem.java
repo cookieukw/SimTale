@@ -58,8 +58,13 @@ import javax.annotation.Nonnull;
 
 public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
-    private static final int FOOD_SEARCH_COOLDOWN_TICKS = 60;
-    private static final int BATH_SEARCH_COOLDOWN_TICKS = 60; 
+    private static final int FOOD_SEARCH_COOLDOWN_TICKS = 20;
+    private static final int BATH_SEARCH_COOLDOWN_TICKS = 20;
+    private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 60;
+    private static final long BED_CHUNK_CACHE_TTL_TICKS = 400;
+
+    private static final Map<Long, List<BedPos>> bedChunkCache = new HashMap<>();
+    private static final Map<Long, Long> bedChunkCacheTick = new HashMap<>();
     
     @Override
     @Nonnull
@@ -177,7 +182,7 @@ if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                 // Procurar cama (Prefab/Entidade) nas proximidades
                 BedPos bestBed = null;
                 double closestDistSq = Double.MAX_VALUE;
-                org.joml.Vector3d myPos = transform.getPosition();
+                Vector3d myPos = transform.getPosition();
 
                 List<BedPos> claimedBeds = new ArrayList<>();
                 for (SimNPCComponent otherNpc : SimTale.ACTIVE_NPCS) {
