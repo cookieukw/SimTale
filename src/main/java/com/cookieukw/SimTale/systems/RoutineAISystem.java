@@ -58,6 +58,9 @@ import javax.annotation.Nonnull;
 
 public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
+    private static final int FOOD_SEARCH_COOLDOWN_TICKS = 60;
+    private static final int BATH_SEARCH_COOLDOWN_TICKS = 60; 
+    
     @Override
     @Nonnull
     @SuppressWarnings("unchecked")
@@ -122,12 +125,15 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     }
                 }
             }
-            if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
+if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                 ai.currentTask = TaskType.FINDING_FOOD;
                 ai.targetBlockPosition = null;
+                // Garante que o primeiro scan rode já no próximo tick, sem esperar o cooldown
+                ai.taskStartTime = world.getTick() - FOOD_SEARCH_COOLDOWN_TICKS;
             } else if (ai.currentTask == TaskType.IDLE && npc.needs.hygiene < 40) {
                 ai.currentTask = TaskType.FINDING_BATH;
                 ai.targetBlockPosition = null;
+                ai.taskStartTime = world.getTick() - BATH_SEARCH_COOLDOWN_TICKS;
             } else if (ai.currentTask == TaskType.IDLE && npc.needs.social < 50 && java.lang.Math.random() < 0.05) {
                 SimNPCComponent bestTarget = null;
                 double bestDist = 400.0;
@@ -414,7 +420,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
         
-        if (ai.currentTask == TaskType.FINDING_FOOD) {
+      
+        if (ai.currentTask == TaskType.FINDING_FOOD
+                && world.getTick() - ai.taskStartTime >= FOOD_SEARCH_COOLDOWN_TICKS) {
+            ai.taskStartTime = world.getTick(); 
             Vector3d pos = transform.getPosition();
             int sx = (int) pos.x;
             int sy = (int) pos.y;
@@ -423,37 +432,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
             foodSearch:
             for (int x = sx - 10; x <= sx + 10; x++) {
-                for (int z = sz - 10; z <= sz + 10; z++) {
-                    // Busca o chunk UMA VEZ por coluna (x,z), reaproveitado para todo o range de Y
-                    WorldChunk chunkAt = world.getChunk(ChunkUtil.indexChunkFromBlock(x, z));
-                    if (chunkAt == null) continue;
-
-                    for (int y = sy - 5; y <= sy + 5; y++) {
-                        BlockType bType = chunkAt.getBlockType(new Vector3i(x, y, z));
-                        if (bType != null && bType.getId() != null) {
-                            String name = bType.getId().toLowerCase();
-                            if (name.contains("barrel") || name.contains("chest") || name.contains("crop")
-                                || name.contains("mushroom") || name.contains("berry") || name.contains("table")
-                                || name.contains("furnace") || name.contains("tavern")) {
-                                ai.targetBlockPosition = new Vector3i(x, y, z);
-                                ai.currentTask = TaskType.MOVING_TO_FOOD;
-                                AnimationSlot slotToUse = AnimationSlot.Action;
-                                try { slotToUse = AnimationSlot.valueOf("Base"); } catch (Exception e) {}
-                                AnimationUtils.playAnimation(ref, slotToUse, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
-
-                                found = true;
-                                break foodSearch;
-                            }
-                        }
-                    }
-                }
-            }
-            if (!found) {
-                // Fallback: eat in place
-                ai.currentTask = TaskType.EATING;
-                ai.taskStartTime = world.getTick();
-            }
-        }
 
         // --- MOVING_TO_FOOD ---
         if (ai.currentTask == TaskType.MOVING_TO_FOOD) {
@@ -495,7 +473,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         }
 
       // --- FINDING_BATH: Scan for water blocks ---
-        if (ai.currentTask == TaskType.FINDING_BATH) {
+            if (ai.currentTask == TaskType.FINDING_BATH
+                && world.getTick() - ai.taskStartTime >= BATH_SEARCH_COOLDOWN_TICKS) {
+            ai.taskStartTime = world.getTick(); 
+
             Vector3d pos = transform.getPosition();
             int sx = (int) pos.x;
             int sy = (int) pos.y;
@@ -505,7 +486,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             bathSearch:
             for (int x = sx - 15; x <= sx + 15; x++) {
                 for (int z = sz - 15; z <= sz + 15; z++) {
-                    // Busca o chunk UMA VEZ por coluna (x,z), reaproveitado para todo o range de Y
                     WorldChunk chunkAt = world.getChunk(ChunkUtil.indexChunkFromBlock(x, z));
                     if (chunkAt == null) continue;
 
