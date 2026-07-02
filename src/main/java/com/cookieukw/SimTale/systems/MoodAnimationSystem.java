@@ -13,7 +13,6 @@ import com.hypixel.hytale.server.core.modules.entity.component.ActiveAnimationCo
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.cookieukw.SimTale.core.Mood;
 
 import javax.annotation.Nonnull;
 
@@ -22,7 +21,7 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
-        return (Query<EntityStore>) SimTale.SIM_NPC_COMPONENT_TYPE;
+        return SimTale.SIM_NPC_COMPONENT_TYPE;
     }
 
     @Override
@@ -56,7 +55,7 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
                 animName = "Frown";
                 break;
             case SCARED:
-                animPath = "Characters/Animations/Expressions/Surprised.blockyanim"; // Typo in CharacterCreator: Suprised.blockyanim
+                // Typo in CharacterCreator: Suprised.blockyanim
                 animPath = "Characters/Animations/Expressions/Suprised.blockyanim";
                 animName = "Surprised";
                 break;
