@@ -4,8 +4,6 @@ import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.SimTale;
 import com.hypixel.hytale.server.core.universe.world.World;
 
-import com.cookieukw.SimTale.SimTale;
-import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.JobType;
 import com.cookieukw.SimTale.engine.Animal;
@@ -16,9 +14,7 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.world.World;
 
-import com.cookieukw.SimTale.core.Profession;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -38,7 +34,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         PlayerRef sender = event.getSender();
         String message = event.getContent();
 
-        if (sender == null || message == null || message.trim().isEmpty()) {
+        if (message.trim().isEmpty()) {
             return;
         }
 

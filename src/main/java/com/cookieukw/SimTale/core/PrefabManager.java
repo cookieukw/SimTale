@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import com.hypixel.hytale.logger.HytaleLogger;
@@ -29,7 +30,7 @@ public class PrefabManager {
             Prefab prefab = gson.fromJson(reader, Prefab.class);
             // Sort blocks by Y coordinate so they build from bottom to top
             if (prefab != null && prefab.getBlocks() != null) {
-                prefab.getBlocks().sort((b1, b2) -> Integer.compare(b1.getY(), b2.getY()));
+                prefab.getBlocks().sort(Comparator.comparingInt(PrefabBlock::getY));
             }
             cache.put(name, prefab);
             return prefab;

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 public class MagicDataLoader {
     
@@ -29,7 +30,7 @@ public class MagicDataLoader {
 
     private static List<Animal> loadAnimals() {
         try (Reader reader = new InputStreamReader(
-                MagicDataLoader.class.getResourceAsStream("/Common/UI/Custom/MagicGame/animals.json"), 
+                Objects.requireNonNull(MagicDataLoader.class.getResourceAsStream("/Common/UI/Custom/MagicGame/animals.json")),
                 StandardCharsets.UTF_8)) {
             Gson gson = new Gson();
             return gson.fromJson(reader, new TypeToken<List<Animal>>(){}.getType());
@@ -41,7 +42,7 @@ public class MagicDataLoader {
 
     private static List<Question> loadQuestions() {
         try (Reader reader = new InputStreamReader(
-                MagicDataLoader.class.getResourceAsStream("/Common/UI/Custom/MagicGame/questions.json"), 
+                Objects.requireNonNull(MagicDataLoader.class.getResourceAsStream("/Common/UI/Custom/MagicGame/questions.json")),
                 StandardCharsets.UTF_8)) {
             Gson gson = new Gson();
             return gson.fromJson(reader, new TypeToken<List<Question>>(){}.getType());

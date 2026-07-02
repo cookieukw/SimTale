@@ -53,6 +53,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
 
     @Override
     public RoutineAIComponent clone() {
+
         RoutineAIComponent comp = new RoutineAIComponent();
         comp.currentTask = this.currentTask;
         if (this.targetBlockPosition != null) {

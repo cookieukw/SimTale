@@ -5,7 +5,6 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookieukw.SimTale.logic.InteractionType;
-import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.cookieukw.SimTale.logic.JobType;
@@ -37,7 +36,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
     @Nonnull
     
     public Query<EntityStore> getQuery() {
-        return (Query<EntityStore>) (Object) UUIDComponent.getComponentType();
+        return UUIDComponent.getComponentType();
     }
 
     @Override
@@ -114,16 +113,14 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                 }
                 Ref<EntityStore> ref = world.getEntityStore().getRefFromUUID(npc.entityId);
                 if (ref != null) {
-                    ComponentAccessor<EntityStore> accessor = (ComponentAccessor<EntityStore>) store;
-                    TransformComponent npcTransform = accessor.getComponent(ref, TransformComponent.getComponentType());
+                    TransformComponent npcTransform = store.getComponent(ref, TransformComponent.getComponentType());
                     if (npcTransform != null) {
                         npcTransform.setPosition(new Vector3d(0, 1000, 0));
                     }
                 }
             } else if (absoluteTick >= npc.jobCompletionTick) {
-                ComponentAccessor<EntityStore> accessor = (ComponentAccessor<EntityStore>) store;
                 if (npc.jobEmployer != null) {
-                    sendLootToPlayer(npc, world, accessor);
+                    sendLootToPlayer(npc);
                 }
                 
                 Ref<EntityStore> ref = world.getEntityStore().getRefFromUUID(npc.entityId);
@@ -131,8 +128,8 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                     if (npc.jobEmployer != null) {
                         Ref<EntityStore> playerRef = world.getEntityStore().getRefFromUUID(npc.jobEmployer);
                         if (playerRef != null) {
-                            TransformComponent playerTransform = accessor.getComponent(playerRef, TransformComponent.getComponentType());
-                            TransformComponent npcTransform = accessor.getComponent(ref, TransformComponent.getComponentType());
+                            TransformComponent playerTransform = store.getComponent(playerRef, TransformComponent.getComponentType());
+                            TransformComponent npcTransform = store.getComponent(ref, TransformComponent.getComponentType());
                             if (playerTransform != null && npcTransform != null) {
                                 npcTransform.setPosition(new Vector3d(
                                     playerTransform.getPosition().x + 2, 
@@ -155,7 +152,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         }
     }
 
-    private void sendLootToPlayer(SimNPCComponent npc, World world, ComponentAccessor<EntityStore> accessor) {
+    private void sendLootToPlayer(SimNPCComponent npc) {
         try {
             for (PlayerRef pr : Universe.get().getPlayers()) {
                 if (pr.getUuid().equals(npc.jobEmployer)) {
@@ -165,16 +162,18 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                     for (JobLootTable.LootEntry loot : loots) {
                         int qty = loot.rollQty();
                         if (qty > 0) {
-                            pr.sendMessage(Message.raw("<" + npc.name + "> Coletou: " + qty + "x " + loot.itemId));
+                            pr.sendMessage(Message.raw("<" + npc.name + "> Coletou: " + qty + "x " + loot.itemId()));
                             try {
-                                CommandManager.get().handleCommand(pr, "give " + pr.getUsername() + " " + loot.itemId + " --quantity=" + qty);
+                                CommandManager.get().handleCommand(pr, "give " + pr.getUsername() + " " + loot.itemId() + " --quantity=" + qty);
                             } catch (Exception cmdEx) {
+                                cmdEx.printStackTrace();
                             }
                         }
                     }
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

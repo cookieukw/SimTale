@@ -22,7 +22,12 @@ public class SimNPCComponent implements Component<EntityStore> {
     public MemoryManager memory = new MemoryManager();
     public Map<UUID, Relationship> relationships = new HashMap<>();
     public Profession profession;
-    public NPCPreferences preferences = new NPCPreferences();
+    public NPCPreferences preferences;
+
+    {
+        new NPCPreferences();
+    }
+
     public FamilySystem family = new FamilySystem();
     public Gender gender;
     public com.cookieukw.SimTale.db.SimBedData.BedPos bedLocation;

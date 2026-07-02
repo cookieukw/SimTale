@@ -19,7 +19,7 @@ import com.cookieukw.SimTale.SimTale;
 import it.unimi.dsi.fastutil.Pair;
 import java.util.UUID;
 import java.util.HashMap;
-import com.cookieukw.SimTale.core.Gender;
+
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 
@@ -57,8 +57,8 @@ public class SimNPCFactory {
         // 1. Spawn the NPC using the official Hytale NPC system
         Pair<Ref<EntityStore>, ?> result = NPCPlugin.get().spawnNPC(
             store, 
-            roleId, 
-            (String) null, 
+            roleId,
+                null,
             position, 
             new Rotation3f()
         );
@@ -72,7 +72,7 @@ public class SimNPCFactory {
             throw new NullPointerException("Spawned NPC entity reference is null");
         }
         
-        ComponentAccessor<EntityStore> accessor = (ComponentAccessor<EntityStore>) ref.getStore();
+        ComponentAccessor<EntityStore> accessor = ref.getStore();
         
         // 2. Add SimTale custom components to the spawned entity
         UUIDComponent uuidComp = accessor.getComponent(ref, UUIDComponent.getComponentType());
@@ -81,7 +81,7 @@ public class SimNPCFactory {
         }
         UUID entityId = uuidComp.getUuid();
         
-        String name = "NPC";
+        String name;
         if (type == NPCType.REAPER) {
             name = "Dona Morte";
             PersistentModel pm = new PersistentModel(

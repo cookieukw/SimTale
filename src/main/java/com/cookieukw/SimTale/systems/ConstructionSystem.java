@@ -13,7 +13,7 @@ import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import org.joml.Vector3i;
+
 import org.joml.Vector3d;
 import javax.annotation.Nonnull;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
@@ -28,7 +28,7 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
-        return (Query<EntityStore>) (Object) SimTale.CONSTRUCTION_COMPONENT_TYPE;
+        return SimTale.CONSTRUCTION_COMPONENT_TYPE;
     }
 
     @Override
@@ -95,7 +95,7 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
             }
 
             // Build multiple blocks per tick if we want to speed it up, or just 1
-            int blocksToBuild = site.forceBuild ? (10 * GLOBAL_SPEED) : (1 * GLOBAL_SPEED);
+            int blocksToBuild = site.forceBuild ? (10 * GLOBAL_SPEED) : (GLOBAL_SPEED);
             for (int i = 0; i < blocksToBuild; i++) {
                 if (site.currentIndex >= prefab.getBlocks().size()) break;
 

@@ -50,7 +50,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
         // Blueprint item handling
         if (event.getItemInHand() != null && event.getItemInHand().getId() != null &&
-            event.getItemInHand().getId().toString().toLowerCase().contains("blueprint")) {
+            event.getItemInHand().getId().toLowerCase().contains("blueprint")) {
             
             // Extract prefab name (e.g. from simtale:blueprint_tavernhouse -> TavernHouse)
             // For now, hardcode "TavernHouse" or map it if needed. 
@@ -74,18 +74,14 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                 
                 if (closestSite != null && !closestSite.isBuilding) {
                     closestSite.isBuilding = true;
-                    if (pRef != null) {
-                        pRef.sendMessage(com.hypixel.hytale.server.core.Message.raw("Construction started! NPCs will now come to build."));
-                    }
+                    pRef.sendMessage(com.hypixel.hytale.server.core.Message.raw("Construction started! NPCs will now come to build."));
                     ConstructionHelper.clearPreview(world, closestSite);
                 } else {
                     // Place new preview 1 block above the clicked block
                     org.joml.Vector3i spawnPos = new org.joml.Vector3i(targetBlock.x, targetBlock.y + 1, targetBlock.z);
                     Store<EntityStore> eStore = world.getEntityStore().getStore();
                     ConstructionHelper.placePreview(world, eStore, spawnPos, prefabName);
-                    if (pRef != null) {
-                        pRef.sendMessage(com.hypixel.hytale.server.core.Message.raw("Preview placed for " + prefabName + ". Right click again nearby to confirm."));
-                    }
+                    pRef.sendMessage(com.hypixel.hytale.server.core.Message.raw("Preview placed for " + prefabName + ". Right click again nearby to confirm."));
                 }
             }
             return;
@@ -98,18 +94,14 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         if (targetRef == null)
             return;
 
-        if (targetRef == null)
-            return;
-
         // world.getEntityStore() returns EntityStore, which has getStore() ->
         // Store<EntityStore>
         Store<EntityStore> store = world.getEntityStore().getStore();
-        ComponentAccessor<EntityStore> accessor = (ComponentAccessor<EntityStore>) store;
-        SimNPCComponent npc = (SimNPCComponent) accessor.getComponent(targetRef,
+        SimNPCComponent npc = store.getComponent(targetRef,
                 SimTale.SIM_NPC_COMPONENT_TYPE);
 
         if (npc == null) {
-            UUIDComponent uuidComp = accessor.getComponent(targetRef, UUIDComponent.getComponentType());
+            UUIDComponent uuidComp = store.getComponent(targetRef, UUIDComponent.getComponentType());
             if (uuidComp != null) {
                 SimNPCData data = Caskara.load(uuidComp.getUuid().toString(), SimNPCData.class);
                 if (data != null) {
@@ -117,7 +109,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                     npc = new SimNPCComponent(uuidComp.getUuid(), data.name);
                     npc.entityRef = targetRef;
                     SimNPCPersistence.loadNPC(npc);
-                    accessor.addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
+                    store.addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
                     
                     final UUID targetId = uuidComp.getUuid();
                     SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(targetId));
@@ -133,16 +125,15 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
         // Get PlayerRef component to open UI
         Player player = event.getPlayer();
-        if (player != null) {
-            Ref<EntityStore> playerRef = player.getReference();
-            ComponentAccessor<EntityStore> playerAccessor = (ComponentAccessor<EntityStore>) playerRef.getStore();
-            PlayerRef playerRefComp = (PlayerRef) playerAccessor.getComponent(playerRef,
-                    Universe.get().getPlayerRefComponentType());
+        Ref<EntityStore> playerRef = player.getReference();
+        assert playerRef != null;
+        ComponentAccessor<EntityStore> playerAccessor = playerRef.getStore();
+        PlayerRef playerRefComp = playerAccessor.getComponent(playerRef,
+                Universe.get().getPlayerRefComponentType());
 
-            if (playerRefComp != null) {
-                // Open the NPC interaction page
-                player.getPageManager().openCustomPage(playerRef, playerRef.getStore(), new NPCInteractionPage(playerRefComp, player, npc));
-            }
+        if (playerRefComp != null) {
+            // Open the NPC interaction page
+            player.getPageManager().openCustomPage(playerRef, playerRef.getStore(), new NPCInteractionPage(playerRefComp, player, npc));
         }
     }
 }

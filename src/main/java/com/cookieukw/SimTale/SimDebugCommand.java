@@ -9,7 +9,6 @@ import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
@@ -42,6 +41,7 @@ public class SimDebugCommand extends AbstractPlayerCommand {
         }
 
         Player player = store.getComponent(ref, Player.getComponentType());
+        assert player != null;
         player.getPageManager().openCustomPage(ref, store, new SimDebugPage(playerRef, player));
         ctx.sendMessage(Message.raw("[SimDebug] Painel aberto! (" + SimTale.ACTIVE_NPCS.size() + " NPCs ativos)"));
     }

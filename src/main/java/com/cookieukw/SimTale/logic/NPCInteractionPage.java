@@ -1,4 +1,5 @@
 package com.cookieukw.SimTale.logic;
+import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.cookieukw.SimTale.SimTale;
@@ -23,6 +24,8 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
+
+import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.joml.Vector3d;
 import javax.annotation.Nonnull;
 
@@ -34,14 +37,15 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     private final PlayerRef playerRefComp;
 
     public NPCInteractionPage(@Nonnull PlayerRef playerRefComp, Player player, SimNPCComponent npc) {
-        super(playerRefComp, CustomPageLifetime.CanDismiss, null);
+        BuilderCodec<String> codec = BuilderCodec.builder(String.class, String::new).build();
+        super(playerRefComp, CustomPageLifetime.CanDismiss, codec);
         this.npc = npc;
         this.player = player;
         this.playerRefComp = playerRefComp;
     }
 
     @Override
-    public void build(Ref<EntityStore> playerRef, UICommandBuilder commandBuilder, UIEventBuilder eventBuilder, Store<EntityStore> store) {
+    public void build(@NonNullDecl Ref<EntityStore> playerRef, UICommandBuilder commandBuilder, @NonNullDecl UIEventBuilder eventBuilder, @NonNullDecl Store<EntityStore> store) {
         commandBuilder.append("NPCInteraction/NPCInteraction.ui");
         
         commandBuilder.set("#NpcName.Text", npc.name);
@@ -61,13 +65,11 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     }
 
     @Override
-    public void handleDataEvent(Ref<EntityStore> storeRef, Store<EntityStore> store, String eventData) {
+    public void handleDataEvent(@NonNullDecl Ref<EntityStore> storeRef, @NonNullDecl Store<EntityStore> store, @NonNullDecl String eventData) {
         HytaleLogger.forEnclosingClass().atInfo().log("SimTale [DEBUG UI EVENT]: payload = " + eventData);
         
         // Fechar a pagina imediatamente para parar o "loading" no cliente
         player.getPageManager().setPage(storeRef, store, Page.None);
-
-        if (eventData == null) return;
 
         if (npc.name.equals("Dona Morte")) {
             RoutineAIComponent reaperAi = store.getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);

@@ -49,7 +49,6 @@ public class InteractionManager {
                 friendshipChange = 5;
                 affinityChange = 5;
                 trustChange = 1;
-                memEvent = MemoryEvent.CHATTED;
                 response = getContextualGreeting(npc, playerUuid, playerRef);
             }
             case FUNNY -> {
@@ -178,13 +177,11 @@ public class InteractionManager {
                 world = w;
                 break;
             }
-            if (world != null && world.getEntityStore() != null) {
+            if (world != null) {
                 WorldTimeResource timeResource = world.getEntityStore().getStore().getResource(WorldTimeResource.getResourceType());
-                if (timeResource != null) {
-                    float dayProgress = timeResource.getDayProgress();
-                    if (dayProgress < 0.25f || dayProgress > 0.75f) {
-                        return npc.name + " sussurra: É perigoso andar por aqui à noite... Tome cuidado.";
-                    }
+                float dayProgress = timeResource.getDayProgress();
+                if (dayProgress < 0.25f || dayProgress > 0.75f) {
+                    return npc.name + " sussurra: É perigoso andar por aqui à noite... Tome cuidado.";
                 }
             }
         }

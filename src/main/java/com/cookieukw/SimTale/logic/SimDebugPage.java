@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
@@ -21,6 +22,8 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.Message;
 
+import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
+
 import javax.annotation.Nonnull;
 
 @SuppressWarnings("null")
@@ -28,17 +31,19 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
 
     private final Player player;
     private final PlayerRef playerRefComp;
-    private int selectedIndex = 0;
+    private int selectedIndex;
 
     public SimDebugPage(@Nonnull PlayerRef playerRefComp, Player player) {
-        super(playerRefComp, CustomPageLifetime.CanDismiss, null);
+        BuilderCodec<String> codec = BuilderCodec.builder(String.class, String::new).build();
+        super(playerRefComp, CustomPageLifetime.CanDismiss, codec);
         this.player = player;
         this.playerRefComp = playerRefComp;
         this.selectedIndex = 0;
     }
 
     public SimDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex) {
-        super(playerRefComp, CustomPageLifetime.CanDismiss, null);
+        BuilderCodec<String> codec = BuilderCodec.builder(String.class, String::new).build();
+        super(playerRefComp, CustomPageLifetime.CanDismiss, codec);
         this.player = player;
         this.playerRefComp = playerRefComp;
         this.selectedIndex = initialIndex;
@@ -52,7 +57,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     @Override
-    public void build(Ref<EntityStore> playerRef, UICommandBuilder cmd, UIEventBuilder eventBuilder, Store<EntityStore> store) {
+    public void build(@NonNullDecl Ref<EntityStore> playerRef, UICommandBuilder cmd, @NonNullDecl UIEventBuilder eventBuilder, @NonNullDecl Store<EntityStore> store) {
         cmd.append("SimDebug/SimDebug.ui");
 
         SimNPCComponent npc = getSelectedNPC();
@@ -99,10 +104,8 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     @Override
-    public void handleDataEvent(Ref<EntityStore> storeRef, Store<EntityStore> store, String eventData) {
+    public void handleDataEvent(@NonNullDecl Ref<EntityStore> storeRef, @NonNullDecl Store<EntityStore> store, @NonNullDecl String eventData) {
         HytaleLogger.forEnclosingClass().atInfo().log("SimDebug [EVENT]: " + eventData);
-
-        if (eventData == null) return;
 
         // Navigation
         if (eventData.contains("prev_npc")) {

@@ -26,7 +26,7 @@ public class NPCPreferences {
         prefs.hatedFoods.add(foods[rand.nextInt(foods.length)]);
         
         // Ensure they don't love and hate the same food
-        while (prefs.hatedFoods.get(0).equals(prefs.favoriteFoods.get(0))) {
+        while (prefs.hatedFoods.getFirst().equals(prefs.favoriteFoods.getFirst())) {
             prefs.hatedFoods.set(0, foods[rand.nextInt(foods.length)]);
         }
 

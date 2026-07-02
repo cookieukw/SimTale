@@ -7,7 +7,7 @@ import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import org.joml.Vector3d;
-import com.hypixel.hytale.protocol.GameMode;
+
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
@@ -26,16 +26,14 @@ import javax.annotation.Nonnull;
  */
 public class SimTaleCommand extends AbstractPlayerCommand {
 
-    private final String pluginVersion;
     private final RequiredArg<String> subCommandArg;
     private final RequiredArg<String> npcTypeArg;
 
-    public SimTaleCommand(String pluginName, String pluginVersion) {
+    public SimTaleCommand() {
         super("simtale", "SimTale plugin commands");
         this.setPermissionGroups("Adventure");
         this.subCommandArg = this.withRequiredArg("subcommand", "spawn", ArgTypes.STRING);
         this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE", ArgTypes.STRING);
-        this.pluginVersion = pluginVersion;
     }
 
     @Override
@@ -70,8 +68,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         
         TransformComponent playerTransform = 
             store.getComponent(ref, TransformComponent.getComponentType());
-        
-        Ref<EntityStore> nearestRef = null;
+
         SimNPCComponent nearestNPC = null;
         double minDistance = Double.MAX_VALUE;
 
@@ -88,7 +85,6 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                                     
                     if (distSq < minDistance) {
                         minDistance = distSq;
-                        nearestRef = npc.entityRef;
                         nearestNPC = npc;
                     }
                 }
@@ -101,6 +97,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         }
 
         Player player = store.getComponent(ref, Player.getComponentType());
+        assert player != null;
         player.getPageManager().openCustomPage(ref, store, new NPCInteractionPage(playerRef, player, nearestNPC));
         ctx.sendMessage(Message.translation("simtale.cmd.interact.success").param("name", nearestNPC.name));
     }
@@ -118,12 +115,14 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         }
 
         TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+        assert transform != null;
         Vector3d pos = transform.getPosition().add(2, 0, 2);
 
         Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
         SimNPCComponent comp = store.getComponent(npcRef, SimTale.SIM_NPC_COMPONENT_TYPE);
 
         // Save initial state to DB
+        assert comp != null;
         SimNPCPersistence.saveNPC(comp);
 
         ctx.sendMessage(Message.translation("simtale.cmd.spawn.success").param("type", type.name()));

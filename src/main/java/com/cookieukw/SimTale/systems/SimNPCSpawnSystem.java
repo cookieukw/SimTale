@@ -21,9 +21,8 @@ public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
 
     @Override
     @Nonnull
-    @SuppressWarnings("unchecked")
     public Query<EntityStore> getQuery() {
-        return (Query<EntityStore>) (Object) Player.getComponentType();
+        return Player.getComponentType();
     }
 
     @Override
