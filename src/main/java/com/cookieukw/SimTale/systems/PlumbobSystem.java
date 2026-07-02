@@ -41,7 +41,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
-        return (Query<EntityStore>) (Object) UUIDComponent.getComponentType();
+        return UUIDComponent.getComponentType();
     }
 
     @Override
@@ -53,9 +53,9 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         if (uuidComp == null) return;
         
         PersistentModel pm = chunk.getComponent(index, PersistentModel.getComponentType());
-        if (pm != null && pm.getModelReference() != null && "Plumbob".equals(pm.getModelReference().getModelAssetId())) {
+        if (pm != null && "Plumbob".equals(pm.getModelReference().getModelAssetId())) {
             Ref<EntityStore> thisRef = chunk.getReferenceTo(index);
-            if (thisRef != null && !playerPlumbobs.containsValue(thisRef)) {
+            if (!playerPlumbobs.containsValue(thisRef)) {
                 commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
                 System.out.println("[SimTale] Limpando Plumbob orfão do mundo: " + uuidComp.getUuid());
             }
@@ -81,7 +81,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         Ref<EntityStore> plumbobRef = playerPlumbobs.get(entityUuid);
         // Get Mood
         String moodModelName = "Plumbob"; // Default fallback
-        Mood currentMood = Mood.HAPPY;
+        Mood currentMood;
         if (isNpc) {
             SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
             if (npc != null && npc.getMood() != null) {
@@ -109,9 +109,9 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
                 
                 // Update Model if mood changed
                 PersistentModel currPm = store.getComponent(plumbobRef, PersistentModel.getComponentType());
-                if (currPm != null && currPm.getModelReference() != null) {
+                if (currPm != null) {
                     if (!moodModelName.equals(currPm.getModelReference().getModelAssetId())) {
-                        ModelAsset modelAsset = (ModelAsset) ModelAsset.getAssetMap().getAsset(moodModelName);
+                        ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(moodModelName);
                         if (modelAsset != null) {
                             Model model = Model.createScaledModel(modelAsset, 0.9f);
                             commandBuffer.replaceComponent(plumbobRef, PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
@@ -125,24 +125,23 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         if (needsNewPlumbob) {
             Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
             
-            ModelAsset modelAsset = (ModelAsset) ModelAsset.getAssetMap().getAsset(moodModelName);
+            ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(moodModelName);
             if (modelAsset == null) {
-                modelAsset = (ModelAsset) ModelAsset.getAssetMap().getAsset("Plumbob");
+                modelAsset = ModelAsset.getAssetMap().getAsset("Plumbob");
             }
             if (modelAsset != null) {
                 Model model = Model.createScaledModel(modelAsset, 0.9f);
                 holder.addComponent(TransformComponent.getComponentType(), new TransformComponent(new Vector3d(entityTransform.getPosition()), new Rotation3f()));
                 holder.addComponent(PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
                 holder.addComponent(ModelComponent.getComponentType(), new ModelComponent(model));
+                assert model.getBoundingBox() != null;
                 holder.addComponent(BoundingBox.getComponentType(), new BoundingBox(model.getBoundingBox()));
                 holder.addComponent(NetworkId.getComponentType(), new NetworkId(store.getExternalData().takeNextNetworkId()));
                 holder.ensureComponent(UUIDComponent.getComponentType());
                 
                 Ref<EntityStore> newPlumbob = commandBuffer.addEntity(holder, AddReason.SPAWN);
-                if (newPlumbob != null) {
-                    playerPlumbobs.put(entityUuid, newPlumbob);
-                    System.out.println("[SimTale] Spawned Plumbob for entity " + entityUuid);
-                }
+                playerPlumbobs.put(entityUuid, newPlumbob);
+                System.out.println("[SimTale] Spawned Plumbob for entity " + entityUuid);
             } else {
                 System.out.println("[SimTale-ERROR] Plumbob ModelAsset not found!");
             }
