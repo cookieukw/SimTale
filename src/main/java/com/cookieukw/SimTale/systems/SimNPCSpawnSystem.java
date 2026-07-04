@@ -36,6 +36,16 @@ public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
             return;
         }
 
+        // If there are already saved NPCs in Caskara, don't spawn any more automatically!
+        if (!SimTale.debugForceSpawning) {
+            try {
+                java.util.List<com.cookieukw.SimTale.db.SimNPCData> saved = com.cookie.caskara.Caskara.list(com.cookieukw.SimTale.db.SimNPCData.class);
+                if (saved != null && !saved.isEmpty()) {
+                    return; // Skip spawning
+                }
+            } catch (Exception ignored) {}
+        }
+
         // Check every 10 seconds to avoid spamming
         if (currentTick - lastSpawnTick < 10000) {
             return;

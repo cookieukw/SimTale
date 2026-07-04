@@ -59,6 +59,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         } else if ("clearall".equalsIgnoreCase(sub)) {
             handleClearAll(ctx, store);
             return;
+        } else if ("forcespawn".equalsIgnoreCase(sub)) {
+            handleForceSpawn(ctx, store, ref, typeName);
+            return;
         }
 
         sendUsage(ctx);
@@ -172,6 +175,32 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         }
         SimTale.ACTIVE_NPCS.clear();
         ctx.sendMessage(Message.raw("Removidos permanentemente " + count + " NPCs do Hytale e banco de dados."));
+    }
+
+    private void handleForceSpawn(CommandContext ctx, Store<EntityStore> store, Ref<EntityStore> ref, String typeName) {
+        SimNPCFactory.NPCType type;
+        if (typeName != null) {
+            try {
+                type = SimNPCFactory.NPCType.valueOf(typeName.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                ctx.sendMessage(Message.translation("simtale.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE"));
+                return;
+            }
+        } else {
+            type = Math.random() > 0.5 ? SimNPCFactory.NPCType.HUMAN_MALE : SimNPCFactory.NPCType.HUMAN_FEMALE;
+        }
+
+        TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+        assert transform != null;
+        Vector3d pos = transform.getPosition().add(2, 0, 2);
+
+        Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
+        SimNPCComponent comp = store.getComponent(npcRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+
+        assert comp != null;
+        SimNPCPersistence.saveNPC(comp);
+
+        ctx.sendMessage(Message.raw("Forcado spawn de NPC de debug do tipo: " + type.name()));
     }
 
     private void sendUsage(CommandContext ctx) {

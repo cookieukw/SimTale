@@ -41,6 +41,7 @@ public class SimTale extends JavaPlugin {
     public static ComponentType<EntityStore, ConstructionSiteComponent> CONSTRUCTION_COMPONENT_TYPE;
     public static final List<SimNPCComponent> ACTIVE_NPCS = new ArrayList<>();
     public static final List<ConstructionSiteComponent> ACTIVE_SITES = new ArrayList<>();
+    public static boolean debugForceSpawning = false;
 
     public SimTale(@Nonnull JavaPluginInit init) {
         super(init);
