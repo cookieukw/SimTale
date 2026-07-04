@@ -4,24 +4,43 @@ import com.cookieukw.SimTale.logic.JobType;
 import java.util.EnumSet;
 
 public enum Profession {
-    UNEMPLOYED("Desempregado", EnumSet.noneOf(JobType.class)),
-    MINER("Minerador", EnumSet.of(JobType.MINE)),
-    FARMER("Fazendeiro", EnumSet.of(JobType.FARM, JobType.GATHER)),
-    FISHERMAN("Pescador", EnumSet.of(JobType.FISH)),
-    LUMBERJACK("Lenhador", EnumSet.of(JobType.GATHER)),
-    GUARD("Guarda", EnumSet.noneOf(JobType.class)),
-    EXPLORER("Explorador", EnumSet.of(JobType.EXPLORE)),
-    BUILDER("Construtor", EnumSet.of(JobType.BUILD));
+    UNEMPLOYED("Desempregado", EnumSet.noneOf(JobType.class), ""),
+    MINER("Minerador", EnumSet.of(JobType.MINE), "pickaxe"),
+    FARMER("Fazendeiro", EnumSet.of(JobType.FARM, JobType.GATHER), "hoe"),
+    FISHERMAN("Pescador", EnumSet.of(JobType.FISH), "fishing_rod"),
+    LUMBERJACK("Lenhador", EnumSet.of(JobType.GATHER), "axe"),
+    GUARD("Guarda", EnumSet.noneOf(JobType.class), "sword"),
+    EXPLORER("Explorador", EnumSet.of(JobType.EXPLORE), "compass"),
+    BUILDER("Construtor", EnumSet.of(JobType.BUILD), "hammer");
 
     public final String ptName;
     private final EnumSet<JobType> allowedJobs;
+    public final String triggerItemKeyword;
 
-    Profession(String ptName, EnumSet<JobType> allowedJobs) {
+    Profession(String ptName, EnumSet<JobType> allowedJobs, String triggerItemKeyword) {
         this.ptName = ptName;
         this.allowedJobs = allowedJobs;
+        this.triggerItemKeyword = triggerItemKeyword;
     }
 
     public boolean canDoJob(JobType job) {
         return allowedJobs.contains(job);
+    }
+
+    /**
+     * Finds a profession based on the item ID the player is holding.
+     * Matches by checking if the item ID contains the trigger keyword.
+     * Returns null if no profession matches.
+     */
+    public static Profession fromItemId(String itemId) {
+        if (itemId == null || itemId.isEmpty()) return null;
+        String lower = itemId.toLowerCase();
+        for (Profession p : values()) {
+            if (p == UNEMPLOYED || p.triggerItemKeyword.isEmpty()) continue;
+            if (lower.contains(p.triggerItemKeyword)) {
+                return p;
+            }
+        }
+        return null;
     }
 }

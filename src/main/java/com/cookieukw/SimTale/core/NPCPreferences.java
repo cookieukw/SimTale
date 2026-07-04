@@ -10,6 +10,8 @@ public class NPCPreferences {
     public String favoriteSeason = "SPRING";
     public String favoriteWeather = "CLEAR";
     public String hobby = "NONE";
+    public List<Profession> likedProfessions = new ArrayList<>();
+    public List<Profession> dislikedProfessions = new ArrayList<>();
 
     public NPCPreferences() {}
 
@@ -34,6 +36,42 @@ public class NPCPreferences {
         prefs.favoriteWeather = weathers[rand.nextInt(weathers.length)];
         prefs.hobby = hobbies[rand.nextInt(hobbies.length)];
         
+        // Generate profession preferences (1-2 liked, 1-2 disliked)
+        Profession[] workProfs = {Profession.MINER, Profession.FARMER, Profession.FISHERMAN, 
+                                   Profession.LUMBERJACK, Profession.GUARD, Profession.EXPLORER, Profession.BUILDER};
+        List<Profession> shuffled = new ArrayList<>(java.util.Arrays.asList(workProfs));
+        java.util.Collections.shuffle(shuffled, rand);
+        
+        int likedCount = 1 + rand.nextInt(2); // 1-2 liked
+        int dislikedCount = 1 + rand.nextInt(2); // 1-2 disliked
+        
+        for (int i = 0; i < likedCount && i < shuffled.size(); i++) {
+            prefs.likedProfessions.add(shuffled.get(i));
+        }
+        for (int i = likedCount; i < likedCount + dislikedCount && i < shuffled.size(); i++) {
+            prefs.dislikedProfessions.add(shuffled.get(i));
+        }
+
         return prefs;
+    }
+    
+    public String getSeasonPtName() {
+        return switch (favoriteSeason) {
+            case "SPRING" -> "Primavera";
+            case "SUMMER" -> "Verão";
+            case "AUTUMN" -> "Outono";
+            case "WINTER" -> "Inverno";
+            default -> favoriteSeason;
+        };
+    }
+    
+    public String getWeatherPtName() {
+        return switch (favoriteWeather) {
+            case "CLEAR" -> "Ensolarado";
+            case "RAIN" -> "Chuvoso";
+            case "STORM" -> "Tempestade";
+            case "SNOW" -> "Neve";
+            default -> favoriteWeather;
+        };
     }
 }

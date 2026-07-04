@@ -6,6 +6,7 @@ import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.Trait;
+import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 
 import java.util.UUID;
@@ -259,6 +260,134 @@ public class InteractionManager {
                         affinityChange = 10;
                         trustChange = 3;
                         response = npc.name + " sorri: Uau, " + itemName + "! Muito obrigado pelo presente.";
+                    }
+                }
+            }
+            case ASSIGN_PROFESSION -> {
+                Ref<EntityStore> pRef = playerRef != null ? playerRef.getReference() : null;
+                if (pRef == null || !pRef.isValid()) {
+                    rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
+                    return "Erro: Jogador inválido.";
+                }
+                
+                InventoryComponent.Hotbar hotbar = 
+                    pRef.getStore().getComponent(pRef, InventoryComponent.Hotbar.getComponentType());
+                if (hotbar == null) {
+                    rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
+                    return "Erro: Inventário indisponível.";
+                }
+                
+                byte activeSlot = hotbar.getActiveSlot();
+                ItemStack heldItem = hotbar.getActiveItem();
+                if (heldItem == null || heldItem.isEmpty()) {
+                    rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
+                    return "Segure um item representativo da profissão (picareta, espada, enxada, etc.) para atribuir um emprego!";
+                }
+                
+                String itemId = heldItem.getItemId();
+                String itemName = heldItem.getDisplayName().getAnsiMessage();
+                Profession targetProf = Profession.fromItemId(itemId);
+                
+                if (targetProf == null) {
+                    rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
+                    return npc.name + " olha confuso para o " + itemName + ": ...e o que eu faço com isso? Isso não é uma ferramenta de trabalho!";
+                }
+                
+                // Already has that profession
+                if (npc.profession == targetProf) {
+                    rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
+                    return npc.name + ": Eu já sou " + targetProf.ptName + ", esqueceu? Estou trabalhando nisso todo dia!";
+                }
+                
+                // Check if NPC will refuse based on preferences and traits
+                boolean refuses = false;
+                String refuseReason = "";
+                
+                // Check disliked professions from preferences
+                if (npc.preferences != null && npc.preferences.dislikedProfessions.contains(targetProf)) {
+                    refuses = true;
+                    refuseReason = getRandomOption(
+                        npc.name + " faz cara de nojo: " + targetProf.ptName + "?! Nem morto! Eu odeio esse tipo de trabalho!",
+                        npc.name + " cruza os braços: Não, obrigado. " + targetProf.ptName + " não é pra mim. Detesto isso.",
+                        npc.name + " empurra o " + itemName + " de volta: Tá de brincadeira? Eu desprezaria ser " + targetProf.ptName + "!",
+                        npc.name + " balança a cabeça: Nem pensar. " + targetProf.ptName + " é a última coisa que eu quero ser."
+                    );
+                }
+                
+                // Trait-based refusal chances (if not already refusing)
+                if (!refuses) {
+                    boolean isHeavyWork = (targetProf == Profession.MINER || targetProf == Profession.LUMBERJACK);
+                    boolean isPeacefulWork = (targetProf == Profession.FARMER || targetProf == Profession.FISHERMAN);
+                    
+                    if (npc.personality.traits.contains(Trait.LAZY) && isHeavyWork && Math.random() < 0.6) {
+                        refuses = true;
+                        refuseReason = getRandomOption(
+                            npc.name + " boceja: " + targetProf.ptName + "? Isso dá muito trabalho... Não tenho energia pra isso.",
+                            npc.name + " se espreguiça: Trabalho pesado? Eu? Hahaha, boa piada.",
+                            npc.name + " suspira: Olha, agradeço a oferta, mas... não rola. Muito suor envolvido."
+                        );
+                    } else if (npc.personality.traits.contains(Trait.AGGRESSIVE) && isPeacefulWork && Math.random() < 0.7) {
+                        refuses = true;
+                        refuseReason = getRandomOption(
+                            npc.name + " rosna: " + targetProf.ptName + "?! Eu pareço alguém que fica plantando florzinha?!",
+                            npc.name + " bate no peito: Eu sou um guerreiro, não um camponês! Me respeita!",
+                            npc.name + " cospe no chão: Trabalho manso demais pra mim. Me dá algo com ação!"
+                        );
+                    } else if (mood == Mood.ANGRY && Math.random() < 0.5) {
+                        refuses = true;
+                        refuseReason = getRandomOption(
+                            npc.name + " grita: NÃO ESTOU NO HUMOR PRA ISSO! Volta depois!",
+                            npc.name + " te olha com raiva: Agora não! Estou puto demais pra pensar em emprego!",
+                            npc.name + " empurra o item: Sai! Não me venha com propostas agora!"
+                        );
+                    }
+                }
+                
+                if (refuses) {
+                    // Don't consume item on refusal
+                    rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
+                    affinityChange = -5;
+                    friendshipChange = -3;
+                    response = refuseReason;
+                } else {
+                    // Accept the profession!
+                    // If NPC already had a profession, give old trigger item back to player
+                    if (npc.profession != null && npc.profession != Profession.UNEMPLOYED 
+                        && !npc.profession.triggerItemKeyword.isEmpty()) {
+                        // Return old profession item to player's chat as message
+                        response = npc.name + " te devolve suas ferramentas de " + npc.profession.ptName + ". ";
+                    } else {
+                        response = "";
+                    }
+                    
+                    Profession oldProf = npc.profession;
+                    npc.profession = targetProf;
+                    
+                    // Consume 1 item from the active slot
+                    hotbar.getInventory().removeItemStackFromSlot(activeSlot, 1);
+                    
+                    friendshipChange = 8;
+                    affinityChange = 15;
+                    trustChange = 5;
+                    
+                    // Check if it's a liked profession for bonus
+                    if (npc.preferences != null && npc.preferences.likedProfessions.contains(targetProf)) {
+                        friendshipChange = 15;
+                        affinityChange = 25;
+                        trustChange = 10;
+                        response += getRandomOption(
+                            npc.name + " pega o " + itemName + " com brilho nos olhos: " + targetProf.ptName + "?! Eu SEMPRE quis fazer isso! Obrigado!",
+                            npc.name + " quase pula de alegria: Sério que vou ser " + targetProf.ptName + "?! Esse é o meu sonho!",
+                            npc.name + " segura o " + itemName + " com carinho: Finalmente alguém reconhece meu talento! Vou ser o melhor " + targetProf.ptName + " de todos!"
+                        );
+                    } else {
+                        response += getRandomOption(
+                            npc.name + " pega o " + itemName + " e acena: Ok, " + targetProf.ptName + " parece bom. Vou dar o meu melhor!",
+                            npc.name + " examina o " + itemName + ": Hmm, " + targetProf.ptName + "... Posso tentar. Valeu pela oportunidade!",
+                            npc.name + " sorri: " + targetProf.ptName + "? Pode ser! Vou começar agora mesmo.",
+                            npc.name + " guarda o " + itemName + ": Beleza, aceito ser " + targetProf.ptName + ". Conta comigo!",
+                            npc.name + " testa o " + itemName + ": Nunca trabalhei com isso, mas estou animado pra aprender!"
+                        );
                     }
                 }
             }

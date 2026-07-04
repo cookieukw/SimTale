@@ -9,5 +9,6 @@ public enum InteractionType {
     ROMANTIC,
     MEAN,
     GIFT,
+    ASSIGN_PROFESSION,
     RANDOM
 }

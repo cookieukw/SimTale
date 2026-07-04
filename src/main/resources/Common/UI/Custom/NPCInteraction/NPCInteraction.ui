@@ -2,72 +2,146 @@ Group {
   LayoutMode: MiddleCenter;
   Background: #00000099;
   Group #MainPanel {
-    Anchor: (Width: 560, Height: 720);
-    LayoutMode: Full;
-    Background: #222222FF;
+    Anchor: (Width: 580, Height: 820);
+    LayoutMode: Top;
+    Background: #1A1A2EFF;
+    Padding: (Top: 24, Bottom: 20, Horizontal: 24);
+
     Label #NpcName {
-      Text: "cookie";
-      Anchor: (Width: 240, Height: 50, Top: 42);
-      Style: (FontSize: 34, TextColor: #FFFFFFFF, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Text: "NPC";
+      Anchor: (Width: 520, Height: 48, Bottom: 4);
+      Style: (FontSize: 32, TextColor: #E0E0FFFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+    }
+    Label #NpcProfession {
+      Text: "Profissão: Desempregado";
+      Anchor: (Width: 520, Height: 26, Bottom: 2);
+      Style: (FontSize: 17, TextColor: #FFD700FF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
     }
     Label #NpcMood {
       Text: "Humor: Feliz";
-      Anchor: (Width: 220, Height: 28, Top: 92);
-      Style: (FontSize: 18, TextColor: #AAAAAAFF, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Anchor: (Width: 520, Height: 24, Bottom: 12);
+      Style: (FontSize: 16, TextColor: #AAAACCFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
     }
+
     Group #NpcPortrait {
-      Anchor: (Width: 180, Height: 180, Top: 140);
-      Background: #6f0101;
+      Anchor: (Width: 140, Height: 140, Bottom: 12);
+      Background: #2A2A4AFF;
     }
-    Label #NpcDialogue {
-      Text: "Eae, Cookie.";
-      Anchor: (Width: 420, Height: 70, Top: 340);
-      Background: #1f1fd6;
-      Style: (FontSize: 22, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
-    }
-    Button #ChatButton {
-      Anchor: (Width: 360, Height: 54, Top: 440);
-      Background: #444444FF;
-      Label {
-        Text: "Bater Papo";
-        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-        Style: (FontSize: 22, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+
+    Group #InfoPanel {
+      Anchor: (Width: 520, Height: 168, Bottom: 12);
+      LayoutMode: Top;
+      Background: #16213EFF;
+      Padding: (Top: 8, Bottom: 8, Horizontal: 12);
+
+      Label #InfoHeader {
+        Text: "INFORMAÇÕES";
+        Anchor: (Width: 496, Height: 22, Bottom: 4);
+        Style: (FontSize: 14, TextColor: #8888AAFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      }
+      Label #NpcTraits {
+        Text: "Traços: —";
+        Anchor: (Width: 496, Height: 20, Bottom: 2);
+        Style: (FontSize: 14, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+      }
+      Label #NpcLikes {
+        Text: "Gosta de: —";
+        Anchor: (Width: 496, Height: 20, Bottom: 2);
+        Style: (FontSize: 14, TextColor: #88DD88FF, HorizontalAlignment: Start, VerticalAlignment: Center);
+      }
+      Label #NpcHates {
+        Text: "Odeia: —";
+        Anchor: (Width: 496, Height: 20, Bottom: 2);
+        Style: (FontSize: 14, TextColor: #DD8888FF, HorizontalAlignment: Start, VerticalAlignment: Center);
+      }
+      Label #NpcHobby {
+        Text: "Hobby: —";
+        Anchor: (Width: 496, Height: 20, Bottom: 2);
+        Style: (FontSize: 14, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+      }
+      Label #NpcSeason {
+        Text: "Estação Fav.: —";
+        Anchor: (Width: 240, Height: 20, Bottom: 2);
+        Style: (FontSize: 14, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+      }
+      Label #NpcRelationship {
+        Text: "Relacionamento: Desconhecido";
+        Anchor: (Width: 496, Height: 20);
+        Style: (FontSize: 14, TextColor: #AACCFFFF, RenderBold: true, HorizontalAlignment: Start, VerticalAlignment: Center);
       }
     }
-    Button #JokeButton {
-      Anchor: (Width: 360, Height: 54, Top: 504);
-      Background: #444444FF;
-      Label {
-        Text: "Contar Piada";
-        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-        Style: (FontSize: 22, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+
+    Group #ButtonGrid {
+      Anchor: (Width: 520, Height: 180);
+      LayoutMode: Top;
+
+      Group #ButtonRow1 {
+        Anchor: (Width: 520, Height: 52, Bottom: 8);
+        LayoutMode: CenterMiddle;
+        Button #ChatButton {
+          Anchor: (Width: 248, Height: 52, Right: 12);
+          Background: #334466FF;
+          Label {
+            Text: "Bater Papo";
+            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
+            Style: (FontSize: 20, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+          }
+        }
+        Button #JokeButton {
+          Anchor: (Width: 248, Height: 52);
+          Background: #334466FF;
+          Label {
+            Text: "Contar Piada";
+            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
+            Style: (FontSize: 20, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+          }
+        }
       }
-    }
-    Button #FlirtButton {
-      Anchor: (Width: 360, Height: 54, Top: 568);
-      Background: #444444FF;
-      Label {
-        Text: "Paquerar";
-        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-        Style: (FontSize: 22, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+
+      Group #ButtonRow2 {
+        Anchor: (Width: 520, Height: 52, Bottom: 8);
+        LayoutMode: CenterMiddle;
+        Button #FlirtButton {
+          Anchor: (Width: 248, Height: 52, Right: 12);
+          Background: #553355FF;
+          Label {
+            Text: "Paquerar";
+            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
+            Style: (FontSize: 20, TextColor: #FFCCFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+          }
+        }
+        Button #GiftButton {
+          Anchor: (Width: 248, Height: 52);
+          Background: #335533FF;
+          Label {
+            Text: "Presentear";
+            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
+            Style: (FontSize: 20, TextColor: #CCFFCCFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+          }
+        }
       }
-    }
-    Button #InsultButton {
-      Anchor: (Width: 170, Height: 50, Top: 632, Left: 100);
-      Background: #662222FF;
-      Label {
-        Text: "Insultar";
-        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-        Style: (FontSize: 18, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
-      }
-    }
-    Button #GiftButton {
-      Anchor: (Width: 170, Height: 50, Top: 632, Right: 100);
-      Background: #226622FF;
-      Label {
-        Text: "Presentear";
-        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-        Style: (FontSize: 18, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+
+      Group #ButtonRow3 {
+        Anchor: (Width: 520, Height: 52);
+        LayoutMode: CenterMiddle;
+        Button #InsultButton {
+          Anchor: (Width: 248, Height: 52, Right: 12);
+          Background: #553333FF;
+          Label {
+            Text: "Insultar";
+            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
+            Style: (FontSize: 20, TextColor: #FFAAAAFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+          }
+        }
+        Button #AssignProfessionButton {
+          Anchor: (Width: 248, Height: 52);
+          Background: #445533FF;
+          Label {
+            Text: "Dar Emprego";
+            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
+            Style: (FontSize: 20, TextColor: #FFEECCFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+          }
+        }
       }
     }
   }

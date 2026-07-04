@@ -4,7 +4,9 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.Trait;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
@@ -29,6 +31,7 @@ import com.hypixel.hytale.server.core.entity.Frozen;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.joml.Vector3d;
 import javax.annotation.Nonnull;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("null")
 public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
@@ -52,20 +55,65 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         }
         commandBuilder.append("NPCInteraction/NPCInteraction.ui");
         
+        // --- NPC Header Info ---
         commandBuilder.set("#NpcName.Text", npc.name);
         
+        // Profession
+        String profName = npc.profession != null ? npc.profession.ptName : "Desempregado";
+        commandBuilder.set("#NpcProfession.Text", "Profissão: " + profName);
+        
+        // Mood
         Mood currentMood = npc.getMood();
-        commandBuilder.set("#NpcMood.Text", "Humor: " + currentMood.ptName);
+        String moodEmoji = switch (currentMood) {
+            case HAPPY -> " :)";
+            case ANGRY -> " >:(";
+            case SAD -> " :(";
+            case SCARED -> " D:";
+            case SLEEPY -> " -.-";
+            case EXCITED -> " :D";
+            default -> "";
+        };
+        commandBuilder.set("#NpcMood.Text", "Humor: " + currentMood.ptName + moodEmoji);
 
         if (currentMood == Mood.ANGRY) {
-            commandBuilder.set("#NpcName.Style.TextColor", "#FF0000"); 
+            commandBuilder.set("#NpcName.Style.TextColor", "#FF6666");
+        } else if (currentMood == Mood.SAD) {
+            commandBuilder.set("#NpcName.Style.TextColor", "#6688CC");
         }
 
+        // --- Info Panel ---
+        // Traits
+        if (npc.personality != null && npc.personality.traits != null && !npc.personality.traits.isEmpty()) {
+            String traitsStr = npc.personality.traits.stream()
+                .map(t -> getTraitPtName(t))
+                .collect(Collectors.joining(", "));
+            commandBuilder.set("#NpcTraits.Text", "Traços: " + traitsStr);
+        }
+        
+        // Preferences
+        if (npc.preferences != null) {
+            if (npc.preferences.favoriteFoods != null && !npc.preferences.favoriteFoods.isEmpty()) {
+                commandBuilder.set("#NpcLikes.Text", "Gosta de: " + String.join(", ", npc.preferences.favoriteFoods));
+            }
+            if (npc.preferences.hatedFoods != null && !npc.preferences.hatedFoods.isEmpty()) {
+                commandBuilder.set("#NpcHates.Text", "Odeia: " + String.join(", ", npc.preferences.hatedFoods));
+            }
+            commandBuilder.set("#NpcHobby.Text", "Hobby: " + npc.preferences.hobby);
+            commandBuilder.set("#NpcSeason.Text", "Estação Fav.: " + npc.preferences.getSeasonPtName());
+        }
+        
+        // Relationship
+        Relationship rel = npc.getRelationship(playerRefComp.getUuid());
+        commandBuilder.set("#NpcRelationship.Text", 
+            rel.getStatusPtName() + " (Amizade: " + rel.friendship + " | Afinidade: " + rel.affinity + ")");
+
+        // --- Button Event Bindings ---
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ChatButton", new EventData().append("button", "ChatButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#JokeButton", new EventData().append("button", "JokeButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#FlirtButton", new EventData().append("button", "FlirtButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#InsultButton", new EventData().append("button", "InsultButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GiftButton", new EventData().append("button", "GiftButton"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#AssignProfessionButton", new EventData().append("button", "AssignProfessionButton"), false);
     }
 
     @Override
@@ -131,6 +179,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         } else if (eventData.contains("GiftButton")) {
             String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.GIFT);
             playerRefComp.sendMessage(Message.raw(resp));
+        } else if (eventData.contains("AssignProfessionButton")) {
+            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.ASSIGN_PROFESSION);
+            playerRefComp.sendMessage(Message.raw(resp));
         }
     }
 
@@ -140,5 +191,18 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         if (npc != null && npc.entityRef != null && npc.entityRef.isValid()) {
             store.tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
         }
+    }
+    
+    private static String getTraitPtName(Trait t) {
+        return switch (t) {
+            case SHY -> "Tímido";
+            case AGGRESSIVE -> "Agressivo";
+            case NEEDY -> "Carente";
+            case GREEDY -> "Ganancioso";
+            case LAZY -> "Preguiçoso";
+            case LOYAL -> "Leal";
+            case PARANOID -> "Paranoico";
+            case FUNNY -> "Engraçado";
+        };
     }
 }

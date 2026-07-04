@@ -99,4 +99,20 @@ public class Relationship {
             status = RelationshipStatus.STRANGER;
         }
     }
+    
+    public String getStatusPtName() {
+        return switch (status) {
+            case UNKNOWN -> "Desconhecido";
+            case STRANGER -> "Estranho";
+            case ACQUAINTANCE -> "Conhecido";
+            case FRIEND -> "Amigo";
+            case GOOD_FRIEND -> "Bom Amigo";
+            case BEST_FRIEND -> "Melhor Amigo";
+            case CRUSH -> "Paixonite";
+            case DATING -> "Namorando";
+            case PARTNER -> "Parceiro(a)";
+            case MARRIED -> "Casado(a)";
+            case ENEMIES -> "Inimigo";
+        };
+    }
 }
