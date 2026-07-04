@@ -89,6 +89,12 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
+        double height = 2.2;
+        BoundingBox box = chunk.getComponent(index, BoundingBox.getComponentType());
+        if (box != null && box.getBoundingBox() != null) {
+            height = box.getBoundingBox().height() + 0.35;
+        }
+
         boolean needsNewPlumbob = false;
         if (plumbobRef == null || !plumbobRef.isValid()) {
             needsNewPlumbob = true;
@@ -101,9 +107,11 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
                 // Update position
                 plumbobTransform.teleportPosition(new Vector3d(
                     entityTransform.getPosition().x,
-                    entityTransform.getPosition().y + 2.2,
+                    entityTransform.getPosition().y + height,
                     entityTransform.getPosition().z
                 ));
+                float yaw = (float) ((world.getTick() * 0.04f) % (2.0f * Math.PI));
+                plumbobTransform.setRotation(new Rotation3f(0f, yaw, 0f));
                 commandBuffer.replaceComponent(plumbobRef, TransformComponent.getComponentType(), plumbobTransform);
                 
                 // Update Model if mood changed
@@ -130,7 +138,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
             }
             if (modelAsset != null) {
                 Model model = Model.createScaledModel(modelAsset, 0.9f);
-                holder.addComponent(TransformComponent.getComponentType(), new TransformComponent(new Vector3d(entityTransform.getPosition()), new Rotation3f()));
+                holder.addComponent(TransformComponent.getComponentType(), new TransformComponent(new Vector3d(entityTransform.getPosition().x, entityTransform.getPosition().y + height, entityTransform.getPosition().z), new Rotation3f()));
                 holder.addComponent(PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
                 holder.addComponent(ModelComponent.getComponentType(), new ModelComponent(model));
                 assert model.getBoundingBox() != null;
