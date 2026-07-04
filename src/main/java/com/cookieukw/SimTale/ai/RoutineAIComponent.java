@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.ai;
 
 import com.hypixel.hytale.component.Component;
+import org.joml.Vector3d;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3i;
 import com.hypixel.hytale.component.Ref;
@@ -33,9 +34,9 @@ public class RoutineAIComponent implements Component<EntityStore> {
 
     public TaskType currentTask = TaskType.IDLE;
     public Vector3i targetBlockPosition = null;
-    public Ref<EntityStore> currentMoveTarget = null;
     public long taskStartTime = 0;
-    
+    public Vector3d lastLeashPos = null;
+    public long lastLeashTick = 0;
     // Death & Reaper fields
     public UUID dyingEntityId = null;
     public UUID reaperEntityId = null;
@@ -53,7 +54,6 @@ public class RoutineAIComponent implements Component<EntityStore> {
 
     @Override
     public RoutineAIComponent clone() {
-
         RoutineAIComponent comp = new RoutineAIComponent();
         comp.currentTask = this.currentTask;
         if (this.targetBlockPosition != null) {
@@ -65,6 +65,9 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.reapTimer = this.reapTimer;
         comp.socializeTargetId = this.socializeTargetId;
         comp.wanderTimer = this.wanderTimer;
+        comp.lastLeashPos = this.lastLeashPos;
+        comp.lastLeashTick = this.lastLeashTick;
+        comp.forcedByDebug = this.forcedByDebug;
         return comp;
     }
 }

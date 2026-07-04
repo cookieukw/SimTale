@@ -53,6 +53,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     private static final int BATH_SEARCH_COOLDOWN_TICKS = 40;
     private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 60;
     private static final long BED_CHUNK_CACHE_TTL_TICKS = 400;
+    private static final double LEASH_UPDATE_THRESHOLD_SQ = 0.25; 
+    private static final int LEASH_FORCE_UPDATE_TICKS = 20; 
 
     private static final Map<Long, List<BedPos>> bedChunkCache = new HashMap<>();
     private static final Map<Long, Long> bedChunkCacheTick = new HashMap<>();
@@ -67,7 +69,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     @Override
     public void tick(float dt, int index, @Nonnull ArchetypeChunk<EntityStore> chunk,
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
-        
+
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
         if (npc == null || npc.needs == null) return;
 
@@ -90,13 +92,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 ai.currentTask = TaskType.DYING;
                 ai.taskStartTime = world.getTick();
                 playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
-                
+
                 Universe.get().getPlayers().forEach(p ->
-                    p.sendMessage(Message.translation("simtale.npc.dying").param("name", npc.name))
+                        p.sendMessage(Message.translation("simtale.npc.dying").param("name", npc.name))
                 );
             }
         }
-        
+
         if (ai.currentTask == TaskType.DYING) {
             if (world.getTick() - ai.taskStartTime > 200) {
                 ai.currentTask = TaskType.DEAD;
@@ -162,9 +164,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 ai.currentTask = TaskType.WANDERING;
                 playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
                 ai.targetBlockPosition = new Vector3i(
-                    (int)(transform.getPosition().x + (java.lang.Math.random() - 0.5) * 20),
-                    (int)transform.getPosition().y,
-                    (int)(transform.getPosition().z + (java.lang.Math.random() - 0.5) * 20)
+                        (int)(transform.getPosition().x + (java.lang.Math.random() - 0.5) * 20),
+                        (int)transform.getPosition().y,
+                        (int)(transform.getPosition().z + (java.lang.Math.random() - 0.5) * 20)
                 );
             }
         }
@@ -229,7 +231,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                             double dy = bp.y - myPos.y;
                             double dz = bp.z - myPos.z;
                             double d2 = dx*dx + dy*dy + dz*dz;
-                            if (d2 < 16.0 * 16.0) { 
+                            if (d2 < 16.0 * 16.0) {
                                 String key = bp.x + "," + bp.y + "," + bp.z;
                                 if (!claimedBedKeys.contains(key) && d2 < closestDistSq) {
                                     closestDistSq = d2;
@@ -257,11 +259,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double dx = (ai.targetBlockPosition.x + 0.5) - pos.x;
             double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
             if (dx*dx + dz*dz < 1.5 * 1.5) {
-                clearMoveTarget(ai, commandBuffer);
+                clearMoveTarget(ref, ai);
                 ai.currentTask = TaskType.SLEEPING;
                 playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
             } else {
-                ensureMoveTarget(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5), commandBuffer);
+                moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
             }
         }
 
@@ -276,7 +278,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // --- FINDING_FOOD (OTIMIZADO) ---
         if (ai.currentTask == TaskType.FINDING_FOOD && world.getTick() - ai.taskStartTime >= FOOD_SEARCH_COOLDOWN_TICKS) {
-            ai.taskStartTime = world.getTick(); 
+            ai.taskStartTime = world.getTick();
             Vector3d pos = transform.getPosition();
             int sx = (int) pos.x; int sy = (int) pos.y; int sz = (int) pos.z;
             boolean found = false;
@@ -286,7 +288,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 for (int cz = (sz - 10) >> 4; cz <= (sz + 10) >> 4; cz++) {
                     WorldChunk chunkAt = world.getChunk(ChunkUtil.indexChunk(cx, cz));
                     if (chunkAt == null) continue;
-                    
+
                     int minX = java.lang.Math.max(sx - 10, cx << 4);
                     int maxX = java.lang.Math.min(sx + 10, (cx << 4) + 15);
                     int minZ = java.lang.Math.max(sz - 10, cz << 4);
@@ -319,11 +321,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double dx = (ai.targetBlockPosition.x + 0.5) - pos.x;
             double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
             if (dx*dx + dz*dz < 2.0 * 2.0) {
-                clearMoveTarget(ai, commandBuffer);
+                clearMoveTarget(ref, ai);
                 ai.currentTask = TaskType.EATING;
                 ai.taskStartTime = world.getTick();
             } else {
-                ensureMoveTarget(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5), commandBuffer);
+                moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
             }
         }
 
@@ -338,7 +340,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // --- FINDING_BATH (OTIMIZADO) ---
         if (ai.currentTask == TaskType.FINDING_BATH && world.getTick() - ai.taskStartTime >= BATH_SEARCH_COOLDOWN_TICKS) {
-            ai.taskStartTime = world.getTick(); 
+            ai.taskStartTime = world.getTick();
             Vector3d pos = transform.getPosition();
             int sx = (int) pos.x; int sy = (int) pos.y; int sz = (int) pos.z;
             boolean found = false;
@@ -378,12 +380,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double dx = (ai.targetBlockPosition.x + 0.5) - pos.x;
             double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
             if (dx*dx + dz*dz < 1.5 * 1.5) {
-                clearMoveTarget(ai, commandBuffer);
+                clearMoveTarget(ref, ai);
                 ai.currentTask = TaskType.BATHING;
                 ai.taskStartTime = world.getTick();
                 playAnim(ref, "Characters/Animations/Actions/Swim.blockyanim", "Swim", store);
             } else {
-                ensureMoveTarget(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5), commandBuffer);
+                moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
             }
         }
 
@@ -403,15 +405,18 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 ai.currentTask = TaskType.IDLE;
                 return;
             }
-            
+
             double dx = dyingTransform.getPosition().x - transform.getPosition().x;
             double dz = dyingTransform.getPosition().z - transform.getPosition().z;
             double d2 = dx*dx + dz*dz;
-            
+
             if (d2 > 2.0 * 2.0) {
-                ensureMoveTarget(ref, ai, world, new Vector3d(dyingTransform.getPosition().x, dyingTransform.getPosition().y, dyingTransform.getPosition().z), commandBuffer);
+                // Alvo é uma entidade viva (se movendo) — usa o mesmo throttle,
+                // que já tem um failsafe de resync a cada LEASH_FORCE_UPDATE_TICKS
+                // pra continuar perseguindo mesmo com update raro.
+                moveTo(ref, ai, world, new Vector3d(dyingTransform.getPosition().x, dyingTransform.getPosition().y, dyingTransform.getPosition().z));
             } else {
-                clearMoveTarget(ai, commandBuffer);
+                clearMoveTarget(ref, ai);
                 ai.reapTimer--;
                 if (ai.reapTimer <= 0) {
                     SimNPCComponent dyingNpc = store.getComponent(dyingRef, SimTale.SIM_NPC_COMPONENT_TYPE);
@@ -429,57 +434,48 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
             }
         }
-        
+
         commandBuffer.replaceComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
     }
 
-    private void ensureMoveTarget(Ref<EntityStore> npcRef, RoutineAIComponent ai, World world, Vector3d position, CommandBuffer<EntityStore> commandBuffer) {
-        try {
-            if (ai.currentMoveTarget != null && ai.currentMoveTarget.isValid()) {
-                TransformComponent targetTransform = ai.currentMoveTarget.getStore().getComponent(ai.currentMoveTarget, TransformComponent.getComponentType());
-                if (targetTransform != null) {
-                    targetTransform.setPosition(new Vector3d(position.x, position.y, position.z));
-                    NPCEntity npcEntity = npcRef.getStore().getComponent(npcRef, Objects.requireNonNull(NPCEntity.getComponentType()));
-                    if (npcEntity != null && npcEntity.getRole() != null) {
-                        Role role = npcEntity.getRole();
-                        String slot = "MoveTarget";
-                        role.getMarkedEntitySupport().setMarkedEntity(slot, ai.currentMoveTarget);
-                        npcEntity.setLeashPoint(new Vector3d(position.x, position.y, position.z));
-                    }
-                    return;
+ 
+    private void moveTo(Ref<EntityStore> ref, RoutineAIComponent ai, World world, Vector3d targetPos) {
+        boolean needsUpdate;
+
+        if (ai.lastLeashPos == null) {
+            needsUpdate = true;
+        } else {
+            double d2 = ai.lastLeashPos.distanceSquared(targetPos);
+            needsUpdate = d2 > LEASH_UPDATE_THRESHOLD_SQ
+                    || (world.getTick() - ai.lastLeashTick) >= LEASH_FORCE_UPDATE_TICKS;
+        }
+
+        if (needsUpdate) {
+            NPCEntity npcEntity = ref.getStore().getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
+            if (npcEntity != null) {
+                npcEntity.setLeashPoint(new Vector3d(targetPos.x, targetPos.y, targetPos.z));
+                if (npcEntity.getRole() != null) {
+                    npcEntity.getRole().getStateSupport().setState(ref, "Moving", null, ref.getStore());
                 }
             }
-            Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
-            holder.putComponent(ProjectileComponent.getComponentType(), new ProjectileComponent("Projectile"));
-            holder.putComponent(TransformComponent.getComponentType(), new TransformComponent(new Vector3d(position.x, position.y, position.z), new Rotation3f()));
-            holder.ensureComponent(UUIDComponent.getComponentType());
-            holder.ensureComponent(Intangible.getComponentType());
-            holder.addComponent(NetworkId.getComponentType(), new NetworkId(world.getEntityStore().getStore().getExternalData().takeNextNetworkId()));
-            
-            Ref<EntityStore> targetRef = commandBuffer.addEntity(holder, AddReason.SPAWN);
-            if (!targetRef.isValid()) return;
-            ai.currentMoveTarget = targetRef;
-            
-            NPCEntity npcEntity = npcRef.getStore().getComponent(npcRef, Objects.requireNonNull(NPCEntity.getComponentType()));
-            if (npcEntity != null && npcEntity.getRole() != null) {
-                Role role = npcEntity.getRole();
-                String slot = "MoveTarget";
-                role.getMarkedEntitySupport().setMarkedEntity(slot, targetRef);
-                npcEntity.setLeashPoint(new Vector3d(position.x, position.y, position.z));
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error creating move target", e);
+            ai.lastLeashPos = new Vector3d(targetPos);
+            ai.lastLeashTick = world.getTick();
         }
     }
 
-    private void clearMoveTarget(RoutineAIComponent ai, CommandBuffer<EntityStore> commandBuffer) {
-        if (ai.currentMoveTarget != null) {
-            try {
-                if (ai.currentMoveTarget.isValid()) commandBuffer.removeEntity(ai.currentMoveTarget, RemoveReason.REMOVE);
-            } catch (Exception e) {
-                LOGGER.error("Error removing move target", e);
+    private void clearMoveTarget(Ref<EntityStore> npcRef, RoutineAIComponent ai) {
+        ai.lastLeashPos = null;
+        ai.lastLeashTick = 0;
+
+        NPCEntity npcEntity = npcRef.getStore().getComponent(npcRef, Objects.requireNonNull(NPCEntity.getComponentType()));
+        if (npcEntity != null) {
+            TransformComponent transform = npcRef.getStore().getComponent(npcRef, TransformComponent.getComponentType());
+            if (transform != null) {
+                npcEntity.setLeashPoint(new Vector3d(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z));
             }
-            ai.currentMoveTarget = null;
+            if (npcEntity.getRole() != null) {
+                npcEntity.getRole().getStateSupport().setState(npcRef, "Idle", null, npcRef.getStore());
+            }
         }
     }
 

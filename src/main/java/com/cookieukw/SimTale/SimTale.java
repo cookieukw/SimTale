@@ -3,7 +3,6 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
-import com.cookie.runecore.commands.TestUICommand;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.cookieukw.SimTale.systems.SimTaleTickSystem;
@@ -60,9 +59,9 @@ public class SimTale extends JavaPlugin {
 
         // Register tick systems
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
+        this.getEntityStoreRegistry().registerSystem(new RoutineAISystem());
         this.getEntityStoreRegistry().registerSystem(new PlumbobSystem());
         this.getEntityStoreRegistry().registerSystem(new MoodAnimationSystem());
-        this.getEntityStoreRegistry().registerSystem(new RoutineAISystem());
         this.getEntityStoreRegistry().registerSystem(new ConstructionSystem());
         this.getEntityStoreRegistry().registerSystem(new SimNPCSpawnSystem());
 
@@ -79,6 +78,5 @@ public class SimTale extends JavaPlugin {
                 .registerCommand(new SimTaleCommand());
         this.getCommandRegistry().registerCommand(new BuildCommand());
         this.getCommandRegistry().registerCommand(new SimDebugCommand());
-        this.getCommandRegistry().registerCommand(new TestUICommand());
     }
 }

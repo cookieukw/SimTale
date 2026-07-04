@@ -45,7 +45,6 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
     }
 
     @Override
-    @SuppressWarnings({ "null" })
     public void tick(float dt, int index, @Nonnull ArchetypeChunk<EntityStore> chunk,
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
         

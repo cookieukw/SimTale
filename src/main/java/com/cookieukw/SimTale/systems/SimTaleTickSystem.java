@@ -25,9 +25,9 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import org.joml.Vector3d;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import java.util.List;
 import java.util.UUID;
-
 import javax.annotation.Nonnull;
 
 public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
@@ -36,15 +36,18 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
     @Nonnull
     
     public Query<EntityStore> getQuery() {
-        return UUIDComponent.getComponentType();
+        return NPCEntity.getComponentType();
     }
 
     @Override
-    @SuppressWarnings({ "null" })
     public void tick(float dt, int index, @Nonnull ArchetypeChunk<EntityStore> chunk,
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
 
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
+        NPCEntity npcEntity = chunk.getComponent(index, NPCEntity.getComponentType());
+        if (npcEntity == null || npcEntity.getRoleName() == null || !npcEntity.getRoleName().startsWith("SimTale_")) {
+            return;
+        }
         
         World world = null;
         for (World w : Universe.get().getWorlds().values()) {
@@ -57,12 +60,13 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         if (npc == null) {
             UUIDComponent uuidComp = chunk.getComponent(index, UUIDComponent.getComponentType());
             if (uuidComp != null) {
-                SimNPCData data = Caskara.load(uuidComp.getUuid().toString(), SimNPCData.class);
+                UUID uuid = uuidComp.getUuid();
+                SimNPCData data = Caskara.load(uuid.toString(), SimNPCData.class);
                 if (data != null) {
                     HytaleLogger.forEnclosingClass().atInfo().log("SimTale: NPC " + data.name + " remontado ao entrar no mundo/carregar chunk!");
-                    npc = new SimNPCComponent(uuidComp.getUuid(), data.name);
+                    npc = new SimNPCComponent(uuid, data.name);
                     
-                    Ref<EntityStore> entityRef = world.getEntityStore().getRefFromUUID(uuidComp.getUuid());
+                    Ref<EntityStore> entityRef = world.getEntityStore().getRefFromUUID(uuid);
                     npc.entityRef = entityRef;
                     
                     SimNPCPersistence.loadNPC(npc);
@@ -71,7 +75,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                         commandBuffer.addComponent(entityRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
                     }
                     
-                    final UUID targetId = uuidComp.getUuid();
+                    final UUID targetId = uuid;
                     SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(targetId));
                     SimTale.ACTIVE_NPCS.add(npc);
                 }
