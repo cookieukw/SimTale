@@ -82,3 +82,185 @@ cmd.interact.none = No living NPCs nearby!
 cmd.interact.success = Forced UI to open for {name}
 reaper.soul_taken = §c{name}'s time is up. The Grim Reaper has taken their soul.
 reaper.tombstone_given = §eYou kept a Rock_Stone_Cobble as a 'Tombstone' for {name}
+
+# FRIENDLY GREETINGS
+chat.friendly.greeting.1 = {name} smiles: Hello! Good to see you around today.
+chat.friendly.greeting.2 = {name} waves: Hey! How are things?
+chat.friendly.greeting.3 = {name}: Hey there! Any news in Orbis?
+chat.friendly.greeting.4 = {name} smiles friendly: Hi! I'm glad you came to talk.
+chat.friendly.greeting.5 = {name}: Hello! I was just wondering when we'd see each other again.
+
+# TRAIT GREETINGS
+chat.greedy.greeting.1 = {name} rubs their hands: Do you have any extra ore or items for me today?
+chat.greedy.greeting.2 = {name} looks at your backpack: Hmm, so many shiny things in there... don't want to share?
+chat.greedy.greeting.3 = {name} winks: Hello! Did you come to bring me gifts or just to chit-chat?
+chat.paranoid.greeting.1 = {name} looks around sweating cold: Shh! Did you hear that?...
+chat.paranoid.greeting.2 = {name} whispers nervously: They are watching us... act naturally!
+chat.paranoid.greeting.3 = {name} pulls you aside: Did you see that bush move? I'm sure it was a Trork spy.
+chat.lazy.greeting.1 = {name} yawns: Oh, hi... Wake me up when dinner is ready.
+chat.lazy.greeting.2 = {name} stretches: Hi... So sleepy. Did you say something important?
+chat.lazy.greeting.3 = {name} sighs lazily: Hi. If it's about work, tell them I'm not here.
+
+# CONTEXTUAL GREETINGS
+chat.context.bleeding = {name} widens their eyes: Oh my god, you're bleeding! Do you need help?!
+chat.context.night = {name} whispers: It's dangerous to walk around here at night... Be careful.
+chat.context.insulted.recent = {name} crosses their arms: What do you want? Haven't you insulted me enough today?
+chat.context.insulted.other = {name} glares at you: I heard what you did to {otherName}. You better walk the line.
+chat.context.missed = {name} widens their eyes: Wow, I haven't seen you in days! Where were you?!
+
+# FUNNY
+chat.funny.angry.1 = {name}: ...was that supposed to be funny?
+chat.funny.angry.2 = {name} sighs: I'm not in the mood for jokes today.
+chat.funny.angry.3 = {name} stares at you seriously: Please spare me from your jokes right now.
+chat.funny.angry.4 = {name} shakes their head: Unfunny. Very unfunny.
+chat.funny.angry.5 = {name} crosses their arms: I have real problems here and you come to me with jokes?
+chat.funny.trait.1 = {name}: HAHAHA! Good one! You have a knack for comedy.
+chat.funny.trait.2 = {name} laughs loudly: Oh my god, that was genius! I'll have to tell the others.
+chat.funny.trait.3 = {name} cries laughing: Oh no, stop! My stomach hurts from laughing so much! Hahaha!
+chat.funny.trait.4 = {name} gives you a friendly pat on the shoulder: Hahaha, you're quite a character! Loved it!
+chat.funny.trait.5 = {name} laughs out loud: Very good! I knew you were funny, but that topped it.
+chat.funny.normal.1 = You told a joke! {name} laughed a lot.
+chat.funny.normal.2 = {name} gives a light chuckle: Heh, that was a good one. Thanks for the smile.
+chat.funny.normal.3 = {name} smiles with humor: Nice try! I hadn't heard that one.
+chat.funny.normal.4 = You shared a funny joke and {name} gave a beautiful smile.
+chat.funny.normal.5 = {name} lets out a muffled laugh: Hahaha, ok, that was kinda cute.
+
+# ROMANTIC
+chat.romantic.reject.1 = {name}: Dude... what? Go away.
+chat.romantic.reject.2 = {name} looks at you with disdain: Less, way less. We don't have that intimacy.
+chat.romantic.reject.3 = {name} takes a step back: Please keep those comments to yourself.
+chat.romantic.reject.4 = {name} crosses their arms rolling their eyes: I think you got the wrong person. Leave me alone.
+chat.romantic.reject.5 = {name} says coldly: What a cheap pickup line. I don't fall for that.
+chat.romantic.shy.1 = {name} blushes and looks away: T-thank you... you're not bad yourself.
+chat.romantic.shy.2 = {name} stammers red: Ah... I-I... thank you. You take me by surprise like that.
+chat.romantic.shy.3 = {name} covers their shy face: P-stop looking at me like that, it's making me awkward!
+chat.romantic.shy.4 = {name} gives an embarrassed smile: You always say these things so suddenly... silly.
+chat.romantic.shy.5 = {name} bites their lip in shame: Ah... thank you for the compliment. I'm happy.
+chat.romantic.normal.1 = {name}: Heh... keep talking. I'm enjoying listening.
+chat.romantic.normal.2 = {name} winks: Really? Who knows, if you insist a little more...
+chat.romantic.normal.3 = {name} smirks: Well look at that, a charmer around here. Interesting.
+chat.romantic.normal.4 = {name} smiles confidently: I know I'm amazing, but it's always good to hear it from you.
+chat.romantic.normal.5 = {name} gives a charming smile: You really know how to charm someone, don't you?
+
+# MEAN
+chat.mean.aggressive.1 = {name} draws their weapon: You want to settle this right now?!
+chat.mean.aggressive.2 = {name} clenches their fists: Repeat that to my face if you have the guts!
+chat.mean.aggressive.3 = {name} pushes you: Who do you think you are to talk to me like that?!
+chat.mean.aggressive.4 = {name} yells furiously: Shut up before I make you shut up!
+chat.mean.aggressive.5 = {name} spits on the ground: You'll regret opening that mouth.
+chat.mean.needy.1 = {name} almost cries: Why are you so mean to me? What did I do to you?
+chat.mean.needy.2 = {name} gets teary-eyed: I thought we were friends...
+chat.mean.needy.3 = {name} sniffs hurt: Your words really hurt, you know?
+chat.mean.needy.4 = {name} lowers their head sadly: You didn't have to be so rude... I was just here.
+chat.mean.needy.5 = {name} says with a trembling voice: I... I thought you were a better person.
+chat.mean.normal.1 = You insulted {name}! The conversation became extremely tense.
+chat.mean.normal.2 = {name} ignores you coldly, turning their back.
+chat.mean.normal.3 = {name} looks at you with disgust: You must have a very sad life to talk like that about others.
+chat.mean.normal.4 = {name} retorts with disdain: Said the role model. Look in the mirror.
+chat.mean.normal.5 = {name} answers dryly: I don't waste my time talking to your kind.
+
+# GIFT
+chat.gift.loves = {name} beams: Oh my god, {itemName}?! This is my favorite! You know me so well!
+chat.gift.hates = {name} grimaces in disgust: Eww... {itemName}? I hate this! Are you trying to insult me?
+chat.gift.trash = {name} frowns angrily: {itemName}? Why are you giving me trash?!
+chat.gift.greedy = {name} widens their eyes: For me?! Haha, {itemName}! Finally someone who values me!
+chat.gift.paranoid = {name} looks at the gift ({itemName}) suspiciously: This isn't poisoned, is it?
+chat.gift.normal = {name} smiles: Wow, {itemName}! Thank you so much for the gift.
+
+# ASSIGN PROFESSION
+chat.prof.assign.unknown = {name} looks confused at the {itemName}: ...and what do I do with this? This isn't a work tool!
+chat.prof.assign.already = {name}: I'm already a {profName}, forgot? I'm working on it every day!
+chat.prof.assign.dislike.1 = {name} makes a disgusted face: {profName}?! Not even dead! I hate that kind of work!
+chat.prof.assign.dislike.2 = {name} crosses their arms: No, thanks. {profName} is not for me. I hate it.
+chat.prof.assign.dislike.3 = {name} pushes the {itemName} back: Are you kidding? I would despise being a {profName}!
+chat.prof.assign.dislike.4 = {name} shakes their head: No way. {profName} is the last thing I want to be.
+chat.prof.assign.lazy.1 = {name} yawns: {profName}? That's too much work... I don't have the energy for that.
+chat.prof.assign.lazy.2 = {name} stretches: Heavy work? Me? Hahaha, good joke.
+chat.prof.assign.lazy.3 = {name} sighs: Look, thanks for the offer, but... no can do. Too much sweat involved.
+chat.prof.assign.aggressive.1 = {name} growls: {profName}?! Do I look like someone who plants little flowers?!
+chat.prof.assign.aggressive.2 = {name} beats their chest: I am a warrior, not a peasant! Respect me!
+chat.prof.assign.aggressive.3 = {name} spits on the ground: Too tame work for me. Give me something with action!
+chat.prof.assign.angry.1 = {name} yells: I'M NOT IN THE MOOD FOR THIS! Come back later!
+chat.prof.assign.angry.2 = {name} looks at you angrily: Not now! I'm too pissed off to think about a job!
+chat.prof.assign.angry.3 = {name} pushes the item away: Go away! Don't come with proposals now!
+chat.prof.assign.return = {name} gives you back your {profName} tools. 
+chat.prof.assign.liked.1 = {name} takes the {itemName} with sparkling eyes: {profName}?! I ALWAYS wanted to do this! Thank you!
+chat.prof.assign.liked.2 = {name} almost jumps with joy: Seriously, I'm going to be a {profName}?! This is my dream!
+chat.prof.assign.liked.3 = {name} holds the {itemName} dearly: Finally someone recognizes my talent! I'll be the best {profName} ever!
+chat.prof.assign.accept.1 = {name} takes the {itemName} and nods: Ok, {profName} sounds good. I'll do my best!
+chat.prof.assign.accept.2 = {name} examines the {itemName}: Hmm, {profName}... I can try. Thanks for the opportunity!
+chat.prof.assign.accept.3 = {name} smiles: {profName}? Sure! I'll start right now.
+chat.prof.assign.accept.4 = {name} puts away the {itemName}: Alright, I accept being a {profName}. Count on me!
+chat.prof.assign.accept.5 = {name} tests the {itemName}: I've never worked with this, but I'm excited to learn!
+
+# COOLDOWN
+chat.cooldown.friendly = {name} waves quickly: Hi, we already talked a lot today, right?
+chat.cooldown.gift = {name}: More gifts? Oh, ok... thank you.
+chat.cooldown.general = {name} looks busy and just mutters something.
+chat.random = Autonomous Interaction
+
+# UI Translations
+ui.traits = Traits: 
+ui.likes = Likes: 
+ui.hates = Hates: 
+ui.hobby = Hobby: 
+ui.season = Fav. Season: 
+ui.relationship = Status: 
+ui.job = Job: 
+ui.button.chat = Chat
+ui.button.joke = Tell Joke
+ui.button.flirt = Flirt
+ui.button.insult = Insult
+ui.button.gift = Give Gift
+ui.button.prof = Assign Job
+ui.info = INFORMATION
+
+# FOOD (English defaults for the actual item names - the Portuguese translation will be the one localized if playing in PT)
+Food_Pie_Apple = Apple Pie
+Food_Bread = Bread
+Food_Pie_Meat = Meat Pie
+Food_Fish_Raw = Raw Fish
+Food_Beef_Raw = Raw Beef
+Food_Salad_Mushroom = Mushroom Salad
+
+# TRAITS
+trait.aggressive = Aggressive
+trait.needy = Needy
+trait.shy = Shy
+trait.lazy = Lazy
+trait.greedy = Greedy
+trait.paranoid = Paranoid
+trait.funny = Funny
+
+# PROFESSIONS
+prof.unemployed = Unemployed
+prof.miner = Miner
+prof.farmer = Farmer
+prof.fisherman = Fisherman
+prof.lumberjack = Lumberjack
+prof.guard = Guard
+prof.explorer = Explorer
+prof.builder = Builder
+
+# SEASONS & WEATHER
+season.spring = Spring
+season.summer = Summer
+season.autumn = Autumn
+season.winter = Winter
+weather.clear = Clear
+weather.rain = Rain
+weather.storm = Storm
+weather.snow = Snow
+
+# RELATIONSHIP
+rel.unknown = Unknown
+rel.stranger = Stranger
+rel.acquaintance = Acquaintance
+rel.friend = Friend
+rel.good_friend = Good Friend
+rel.best_friend = Best Friend
+rel.dating = Dating
+rel.engaged = Engaged
+rel.married = Married
+rel.enemy = Enemy
+rel.rival = Rival

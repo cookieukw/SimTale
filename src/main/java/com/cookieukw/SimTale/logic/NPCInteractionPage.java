@@ -7,6 +7,7 @@ import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Trait;
+import com.cookieukw.SimTale.core.Profession;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
@@ -55,14 +56,13 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         }
         commandBuilder.append("NPCInteraction/NPCInteraction.ui");
         
-        // --- NPC Header Info ---
         commandBuilder.set("#NpcName.Text", npc.name);
         
-        // Profession
-        String profName = npc.profession != null ? npc.profession.ptName : "Desempregado";
-        commandBuilder.set("#NpcProfession.Text", "Profissão: " + profName);
+        Message profMsg = npc.profession != null && npc.profession != Profession.UNEMPLOYED 
+            ? Message.translation("prof." + npc.profession.name().toLowerCase()) 
+            : Message.translation("prof.unemployed");
+        commandBuilder.set("#NpcProfession.TextSpans", Message.translation("ui.job").insert(Message.raw(" ")).insert(profMsg));
         
-        // Mood
         Mood currentMood = npc.getMood();
         String moodEmoji = switch (currentMood) {
             case HAPPY -> " :)";
@@ -73,6 +73,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             case EXCITED -> " :D";
             default -> "";
         };
+        // Mood isn't fully translated yet, fallback to raw text but we can add it later
         commandBuilder.set("#NpcMood.Text", "Humor: " + currentMood.ptName + moodEmoji);
 
         if (currentMood == Mood.ANGRY) {
@@ -81,37 +82,64 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             commandBuilder.set("#NpcName.Style.TextColor", "#6688CC");
         }
 
-        // --- Info Panel ---
+        // --- Info Panel Static UI Overrides ---
+        commandBuilder.set("#InfoHeader.TextSpans", Message.translation("ui.info"));
+        commandBuilder.set("#ChatButtonText.TextSpans", Message.translation("ui.button.chat"));
+        commandBuilder.set("#JokeButtonText.TextSpans", Message.translation("ui.button.joke"));
+        commandBuilder.set("#FlirtButtonText.TextSpans", Message.translation("ui.button.flirt"));
+        commandBuilder.set("#GiftButtonText.TextSpans", Message.translation("ui.button.gift"));
+        commandBuilder.set("#InsultButtonText.TextSpans", Message.translation("ui.button.insult"));
+        commandBuilder.set("#AssignProfessionButtonText.TextSpans", Message.translation("ui.button.prof"));
+
         // Traits
         if (npc.personality != null && npc.personality.traits != null && !npc.personality.traits.isEmpty()) {
-            String traitsStr = npc.personality.traits.stream()
-                .map(t -> getTraitPtName(t))
-                .collect(Collectors.joining(", "));
-            commandBuilder.set("#NpcTraits.Text", "Traços: " + traitsStr);
+            Message traitsMsg = Message.raw("");
+            boolean first = true;
+            for (Trait t : npc.personality.traits) {
+                if (!first) {
+                    traitsMsg = traitsMsg.insert(Message.raw(", "));
+                }
+                traitsMsg = traitsMsg.insert(Message.translation("trait." + t.name().toLowerCase()));
+                first = false;
+            }
+            commandBuilder.set("#NpcTraits.TextSpans", Message.translation("ui.traits").insert(Message.raw(" ")).insert(traitsMsg));
         }
         
         // Preferences
         if (npc.preferences != null) {
             if (npc.preferences.favoriteFoods != null && !npc.preferences.favoriteFoods.isEmpty()) {
-                String likesStr = npc.preferences.favoriteFoods.stream()
-                    .map(com.cookieukw.SimTale.core.NPCPreferences::getFoodPtName)
-                    .collect(Collectors.joining(", "));
-                commandBuilder.set("#NpcLikes.Text", "Gosta de: " + likesStr);
+                Message likesMsg = Message.raw("");
+                boolean first = true;
+                for (String foodId : npc.preferences.favoriteFoods) {
+                    if (!first) likesMsg = likesMsg.insert(Message.raw(", "));
+                    likesMsg = likesMsg.insert(Message.translation(foodId));
+                    first = false;
+                }
+                commandBuilder.set("#NpcLikes.TextSpans", Message.translation("ui.likes").insert(Message.raw(" ")).insert(likesMsg));
             }
             if (npc.preferences.hatedFoods != null && !npc.preferences.hatedFoods.isEmpty()) {
-                String hatesStr = npc.preferences.hatedFoods.stream()
-                    .map(com.cookieukw.SimTale.core.NPCPreferences::getFoodPtName)
-                    .collect(Collectors.joining(", "));
-                commandBuilder.set("#NpcHates.Text", "Odeia: " + hatesStr);
+                Message hatesMsg = Message.raw("");
+                boolean first = true;
+                for (String foodId : npc.preferences.hatedFoods) {
+                    if (!first) hatesMsg = hatesMsg.insert(Message.raw(", "));
+                    hatesMsg = hatesMsg.insert(Message.translation(foodId));
+                    first = false;
+                }
+                commandBuilder.set("#NpcHates.TextSpans", Message.translation("ui.hates").insert(Message.raw(" ")).insert(hatesMsg));
             }
-            commandBuilder.set("#NpcHobby.Text", "Hobby: " + npc.preferences.hobby);
-            commandBuilder.set("#NpcSeason.Text", "Estação Fav.: " + npc.preferences.getSeasonPtName());
+            commandBuilder.set("#NpcHobby.TextSpans", Message.translation("ui.hobby").insert(Message.raw(" " + npc.preferences.hobby)));
+            
+            String seasonKey = "season." + (npc.preferences.favoriteSeason != null ? npc.preferences.favoriteSeason.toLowerCase() : "spring");
+            commandBuilder.set("#NpcSeason.TextSpans", Message.translation("ui.season").insert(Message.raw(" ")).insert(Message.translation(seasonKey)));
         }
         
         // Relationship
         Relationship rel = npc.getRelationship(playerRefComp.getUuid());
-        commandBuilder.set("#NpcRelationship.Text", 
-            rel.getStatusPtName() + " (Amizade: " + rel.friendship + " | Afinidade: " + rel.affinity + ")");
+        Message statusMsg = Message.translation("rel." + rel.getStatusName().toLowerCase());
+        commandBuilder.set("#NpcRelationship.TextSpans", 
+            Message.translation("ui.relationship").insert(Message.raw(" "))
+            .insert(statusMsg)
+            .insert(Message.raw(" (" + rel.friendship + " | " + rel.affinity + ")")));
 
         // --- Button Event Bindings ---
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ChatButton", new EventData().append("button", "ChatButton"), false);
@@ -126,7 +154,6 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     public void handleDataEvent(@NonNullDecl Ref<EntityStore> storeRef, @NonNullDecl Store<EntityStore> store, @NonNullDecl String eventData) {
         HytaleLogger.forEnclosingClass().atInfo().log("SimTale [DEBUG UI EVENT]: payload = " + eventData);
         
-        // Fechar a pagina imediatamente para parar o "loading" no cliente
         player.getPageManager().setPage(storeRef, store, Page.None);
 
         if (npc.name.equals("Dona Morte")) {
@@ -134,7 +161,6 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             if (reaperAi != null && reaperAi.currentTask == TaskType.REAPING && reaperAi.dyingEntityId != null) {
                 if (Math.random() < 0.5) {
                     playerRefComp.sendMessage(Message.raw("Dona Morte acenou a cabeca. A vida foi poupada... desta vez."));
-                    // Heal the dying NPC
                     World w = null;
                     for (World world : Universe.get().getWorlds().values()) { w = world; break; }
                     if (w != null) {
@@ -149,7 +175,6 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                             if (dyingAi != null) {
                                 dyingAi.currentTask = TaskType.IDLE;
                                 store.putComponent(dyingRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, dyingAi);
-                                // Play idle animation
                                 AnimationUtils.playAnimation(dyingRef, AnimationSlot.Action, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
                             }
                         }
@@ -163,7 +188,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                     }
                 } else {
                     playerRefComp.sendMessage(Message.raw("Dona Morte te ignorou friamente..."));
-                    reaperAi.reapTimer = 0; // Force immediate reaping
+                    reaperAi.reapTimer = 0;
                     store.putComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, reaperAi);
                 }
             }
@@ -171,23 +196,23 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         }
 
         if (eventData.contains("ChatButton")) {
-            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.FRIENDLY);
-            playerRefComp.sendMessage(Message.raw(resp));
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.FRIENDLY);
+            playerRefComp.sendMessage(resp);
         } else if (eventData.contains("JokeButton")) {
-            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.FUNNY);
-            playerRefComp.sendMessage(Message.raw(resp));
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.FUNNY);
+            playerRefComp.sendMessage(resp);
         } else if (eventData.contains("FlirtButton")) {
-            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.ROMANTIC);
-            playerRefComp.sendMessage(Message.raw(resp));
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.ROMANTIC);
+            playerRefComp.sendMessage(resp);
         } else if (eventData.contains("InsultButton")) {
-            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.MEAN);
-            playerRefComp.sendMessage(Message.raw(resp));
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.MEAN);
+            playerRefComp.sendMessage(resp);
         } else if (eventData.contains("GiftButton")) {
-            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.GIFT);
-            playerRefComp.sendMessage(Message.raw(resp));
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.GIFT);
+            playerRefComp.sendMessage(resp);
         } else if (eventData.contains("AssignProfessionButton")) {
-            String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.ASSIGN_PROFESSION);
-            playerRefComp.sendMessage(Message.raw(resp));
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.ASSIGN_PROFESSION);
+            playerRefComp.sendMessage(resp);
         }
     }
 
@@ -197,18 +222,5 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         if (npc != null && npc.entityRef != null && npc.entityRef.isValid()) {
             store.tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
         }
-    }
-    
-    private static String getTraitPtName(Trait t) {
-        return switch (t) {
-            case SHY -> "Tímido";
-            case AGGRESSIVE -> "Agressivo";
-            case NEEDY -> "Carente";
-            case GREEDY -> "Ganancioso";
-            case LAZY -> "Preguiçoso";
-            case LOYAL -> "Leal";
-            case PARANOID -> "Paranoico";
-            case FUNNY -> "Engraçado";
-        };
     }
 }

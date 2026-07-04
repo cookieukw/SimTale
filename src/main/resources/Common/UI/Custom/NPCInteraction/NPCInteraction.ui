@@ -81,7 +81,7 @@ Group {
         Button #ChatButton {
           Anchor: (Width: 248, Height: 52, Right: 12);
           Background: #334466FF;
-          Label {
+          Label #ChatButtonText {
             Text: "Bater Papo";
             Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
             Style: (FontSize: 20, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
@@ -90,7 +90,7 @@ Group {
         Button #JokeButton {
           Anchor: (Width: 248, Height: 52);
           Background: #334466FF;
-          Label {
+          Label #JokeButtonText {
             Text: "Contar Piada";
             Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
             Style: (FontSize: 20, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
@@ -104,7 +104,7 @@ Group {
         Button #FlirtButton {
           Anchor: (Width: 248, Height: 52, Right: 12);
           Background: #553355FF;
-          Label {
+          Label #FlirtButtonText {
             Text: "Paquerar";
             Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
             Style: (FontSize: 20, TextColor: #FFCCFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
@@ -113,7 +113,7 @@ Group {
         Button #GiftButton {
           Anchor: (Width: 248, Height: 52);
           Background: #335533FF;
-          Label {
+          Label #GiftButtonText {
             Text: "Presentear";
             Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
             Style: (FontSize: 20, TextColor: #CCFFCCFF, HorizontalAlignment: Center, VerticalAlignment: Center);
@@ -127,7 +127,7 @@ Group {
         Button #InsultButton {
           Anchor: (Width: 248, Height: 52, Right: 12);
           Background: #553333FF;
-          Label {
+          Label #InsultButtonText {
             Text: "Insultar";
             Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
             Style: (FontSize: 20, TextColor: #FFAAAAFF, HorizontalAlignment: Center, VerticalAlignment: Center);
@@ -136,7 +136,7 @@ Group {
         Button #AssignProfessionButton {
           Anchor: (Width: 248, Height: 52);
           Background: #445533FF;
-          Label {
+          Label #AssignProfessionButtonText {
             Text: "Dar Emprego";
             Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
             Style: (FontSize: 20, TextColor: #FFEECCFF, HorizontalAlignment: Center, VerticalAlignment: Center);
