@@ -20,6 +20,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import java.util.Random;
 
 public class InteractionManager {
 
@@ -62,17 +63,35 @@ public class InteractionManager {
                 if (mood == Mood.ANGRY || mood == Mood.SAD) {
                     friendshipChange = -2;
                     affinityChange = -5;
-                    response = npc.name + ": ...isso era pra ser engraçado?";
+                    response = getRandomOption(
+                        npc.name + ": ...isso era pra ser engraçado?",
+                        npc.name + " suspira: Não estou no clima para gracinhas hoje.",
+                        npc.name + " te encara sério: Por favor, me poupe das suas piadas agora.",
+                        npc.name + " balança a cabeça: Sem graça. Muito sem graça.",
+                        npc.name + " cruza os braços: Estou com problemas reais aqui e você me vem com piadinhas?"
+                    );
                 } else if (npc.personality.traits.contains(Trait.FUNNY)) {
                     friendshipChange = 5;
                     affinityChange = 15;
                     trustChange = 2;
-                    response = npc.name + ": HAHAHA! Boa! Você leva jeito pra comédia.";
+                    response = getRandomOption(
+                        npc.name + ": HAHAHA! Boa! Você leva jeito pra comédia.",
+                        npc.name + " gargalha: Meu Deus, essa foi genial! Vou ter que contar pro pessoal.",
+                        npc.name + " chora de rir: Ah não, pare! Minha barriga está doendo de tanto rir! Hahaha!",
+                        npc.name + " te dá um tapa amigável no ombro: Hahaha, você é uma figura! Adorei!",
+                        npc.name + " ri alto: Muito boa! Sabia que você era engraçado, mas essa superou."
+                    );
                 } else {
                     friendshipChange = 3;
                     affinityChange = 5;
                     trustChange = 1;
-                    response = "Você contou uma piada! " + npc.name + " riu bastante.";
+                    response = getRandomOption(
+                        "Você contou uma piada! " + npc.name + " riu bastante.",
+                        npc.name + " dá uma risada leve: Heh, essa foi boa. Valeu pelo sorriso.",
+                        npc.name + " sorri com humor: Boa tentativa! Essa eu não conhecia.",
+                        "Você compartilhou uma piada engraçada e " + npc.name + " esboçou um belo sorriso.",
+                        npc.name + " solta um riso abafado: Hahaha, ok, essa foi engraçadinha."
+                    );
                 }
             }
             case ROMANTIC -> {
@@ -82,17 +101,35 @@ public class InteractionManager {
                     romanceChange = -10;
                     affinityChange = -15;
                     trustChange = -2;
-                    response = npc.name + ": Cara... que? Sai pra lá.";
+                    response = getRandomOption(
+                        npc.name + ": Cara... que? Sai pra lá.",
+                        npc.name + " te olha com desdém: Menos, bem menos. Não temos essa intimidade.",
+                        npc.name + " dá um passo para trás: Por favor, guarde esses comentários para você.",
+                        npc.name + " cruza os braços revirando os olhos: Acho que você errou de pessoa. Me erra.",
+                        npc.name + " diz friamente: Que cantada barata. Não caio nessa."
+                    );
                 } else if (npc.personality.traits.contains(Trait.SHY)) {
                     romanceChange = 15;
                     affinityChange = 10;
                     trustChange = 2;
-                    response = npc.name + " cora e desvia o olhar: O-obrigado...";
+                    response = getRandomOption(
+                        npc.name + " cora e desvia o olhar: O-obrigado... você também não é nada mal.",
+                        npc.name + " gagueja vermelho: Ah... e-eu... obrigado. Você me pega de surpresa assim.",
+                        npc.name + " cobre o rosto tímido: P-pare de me olhar assim, está me deixando sem jeito!",
+                        npc.name + " dá um sorriso envergonhado: Você sempre diz essas coisas tão de repente... bobo.",
+                        npc.name + " morde o lábio de vergonha: Ah... obrigado pelo elogio. Fico feliz."
+                    );
                 } else {
                     romanceChange = 10;
                     affinityChange = 5;
                     trustChange = 1;
-                    response = npc.name + ": Heh... continua falando.";
+                    response = getRandomOption(
+                        npc.name + ": Heh... continua falando. Estou gostando de ouvir.",
+                        npc.name + " dá uma piscadela: É mesmo? Quem sabe se você insistir mais um pouco...",
+                        npc.name + " sorri de canto: Olha só, um conquistador por aqui. Interessante.",
+                        npc.name + " sorri convencido: Eu sei que sou incrível, mas é sempre bom ouvir de você.",
+                        npc.name + " dá um sorriso charmoso: Você sabe mesmo como encantar alguém, não é?"
+                    );
                 }
             }
             case MEAN -> {
@@ -101,15 +138,33 @@ public class InteractionManager {
                 if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
                     friendshipChange = -10;
                     affinityChange = -20;
-                    response = npc.name + " saca a arma: Você quer resolver isso agora?!";
+                    response = getRandomOption(
+                        npc.name + " saca a arma: Você quer resolver isso agora?!",
+                        npc.name + " cerra os punhos: Repete isso na minha cara se tiver coragem!",
+                        npc.name + " te empurra: Quem você pensa que é pra falar assim comigo?!",
+                        npc.name + " grita furioso: Cala a boca antes que eu te faça calar!",
+                        npc.name + " cospe no chão: Você vai se arrepender de ter aberto essa boca."
+                    );
                 } else if (npc.personality.traits.contains(Trait.NEEDY)) {
                     friendshipChange = -5;
                     affinityChange = -15;
-                    response = npc.name + " quase chora: Por que você é tão mau comigo?";
+                    response = getRandomOption(
+                        npc.name + " quase chora: Por que você é tão mau comigo? O que eu te fiz?",
+                        npc.name + " fica com os olhos cheios de lágrimas: Pensei que fôssemos amigos...",
+                        npc.name + " funga magoado: Suas palavras realmente machucam, sabia?",
+                        npc.name + " abaixa a cabeça triste: Não precisava ser tão rude... eu só estava aqui.",
+                        npc.name + " diz com a voz trêmula: Eu... eu achei que você era uma pessoa melhor."
+                    );
                 } else {
                     friendshipChange = -5;
                     affinityChange = -15;
-                    response = "Você insultou o " + npc.name + "!";
+                    response = getRandomOption(
+                        "Você insultou " + npc.name + "! A conversa ficou extremamente tensa.",
+                        npc.name + " te ignora friamente, virando as costas.",
+                        npc.name + " te olha com nojo: Você deve ter uma vida bem triste para falar assim dos outros.",
+                        npc.name + " rebate com desdém: Falou o exemplo de pessoa. Olha pro espelho.",
+                        npc.name + " responde de forma seca: Não perco meu tempo conversando com gente do seu tipo."
+                    );
                 }
             }
             case RANDOM -> {
@@ -285,13 +340,36 @@ public class InteractionManager {
         }
 
         if (npc.personality.traits.contains(Trait.GREEDY)) {
-            return npc.name + " esfrega as mãos: Tem algum minério ou item sobrando pra mim hoje?";
+            return getRandomOption(
+                npc.name + " esfrega as mãos: Tem algum minério ou item sobrando pra mim hoje?",
+                npc.name + " olha pra sua mochila: Hmmm, quanta coisa brilhante aí dentro... não quer dividir?",
+                npc.name + " pisca: Olá! Veio me trazer presentes ou só jogar conversa fora?"
+            );
         } else if (npc.personality.traits.contains(Trait.PARANOID)) {
-            return npc.name + " olha pros lados suando frio: Shh! Você escutou isso?...";
+            return getRandomOption(
+                npc.name + " olha pros lados suando frio: Shh! Você escutou isso?...",
+                npc.name + " sussurra nervoso: Eles estão nos observando... aja naturalmente!",
+                npc.name + " te puxa de canto: Você viu aquele arbusto se mexendo? Tenho certeza que era um Trork espião."
+            );
         } else if (npc.personality.traits.contains(Trait.LAZY)) {
-            return npc.name + " boceja: Ah, oi... Me acorda quando a janta estiver pronta.";
+            return getRandomOption(
+                npc.name + " boceja: Ah, oi... Me acorda quando a janta estiver pronta.",
+                npc.name + " se espreguiça: Oi... Que sono. Falou algo importante?",
+                npc.name + " suspira preguiçosamente: Oi. Se for pra trabalhar, diz que eu não estou."
+            );
         }
 
-        return npc.name + " sorri: Olá! Que bom te ver.";
+        return getRandomOption(
+            npc.name + " sorri: Olá! Que bom te ver por aqui hoje.",
+            npc.name + " acena: Opa! Como estão as coisas?",
+            npc.name + ": E aí! Novidades por Orbis?",
+            npc.name + " sorri amigavelmente: Oi! Fico feliz que tenha vindo conversar.",
+            npc.name + ": Olá! Estava mesmo pensando em quando nos veríamos de novo."
+        );
+    }
+
+    private static final Random rand = new Random();
+    private static String getRandomOption(String... options) {
+        return options[rand.nextInt(options.length)];
     }
 }
