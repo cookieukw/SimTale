@@ -19,7 +19,7 @@ public class NPCPreferences {
         NPCPreferences prefs = new NPCPreferences();
         Random rand = new Random();
         
-        String[] foods = {"Torta de Maçã", "Pão Doce", "Sopa de Pedra", "Peixe Cru", "Carne Assada", "Sopa de Legumes"};
+        String[] foods = {"Food_Pie_Apple", "Food_Bread", "Food_Pie_Meat", "Food_Fish_Raw", "Food_Beef_Raw", "Food_Salad_Mushroom"};
         String[] seasons = {"SPRING", "SUMMER", "AUTUMN", "WINTER"};
         String[] weathers = {"CLEAR", "RAIN", "STORM", "SNOW"};
         String[] hobbies = {"PESCARIA", "MINERAÇÃO", "JARDINAGEM", "LEITURA", "DORMIR"};
@@ -72,6 +72,18 @@ public class NPCPreferences {
             case "STORM" -> "Tempestade";
             case "SNOW" -> "Neve";
             default -> favoriteWeather;
+        };
+    }
+
+    public static String getFoodPtName(String foodId) {
+        return switch (foodId) {
+            case "Food_Pie_Apple" -> "Torta de Maçã";
+            case "Food_Bread" -> "Pão";
+            case "Food_Pie_Meat" -> "Torta de Carne";
+            case "Food_Fish_Raw" -> "Peixe Cru";
+            case "Food_Beef_Raw" -> "Carne Crua";
+            case "Food_Salad_Mushroom" -> "Salada de Cogumelo";
+            default -> foodId;
         };
     }
 }

@@ -226,8 +226,8 @@ public class InteractionManager {
                     }
                 }
                 
-                boolean isTrash = itemId.contains("dirt") || itemId.contains("soil") || itemId.contains("stone") || itemId.contains("cobweb") || itemId.contains("gravel") || itemId.contains("sand") ||
-                                  itemName.toLowerCase().contains("terra") || itemName.toLowerCase().contains("pedra") || itemName.toLowerCase().contains("teia") || itemName.toLowerCase().contains("cascalho") || itemName.toLowerCase().contains("areia");
+                boolean isTrash = itemId.contains("dirt") || itemId.contains("soil_sand") || itemId.contains("rock_stone") || itemId.contains("spiderweb") || itemId.contains("gravel") || itemId.contains("deco_trash") ||
+                                  itemName.toLowerCase().contains("terra") || itemName.toLowerCase().contains("pedra") || itemName.toLowerCase().contains("teia") || itemName.toLowerCase().contains("cascalho") || itemName.toLowerCase().contains("areia") || itemName.toLowerCase().contains("lixo");
                 
                 if (loves) {
                     friendshipChange = 15;

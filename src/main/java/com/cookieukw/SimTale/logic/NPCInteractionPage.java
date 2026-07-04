@@ -93,10 +93,16 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         // Preferences
         if (npc.preferences != null) {
             if (npc.preferences.favoriteFoods != null && !npc.preferences.favoriteFoods.isEmpty()) {
-                commandBuilder.set("#NpcLikes.Text", "Gosta de: " + String.join(", ", npc.preferences.favoriteFoods));
+                String likesStr = npc.preferences.favoriteFoods.stream()
+                    .map(com.cookieukw.SimTale.core.NPCPreferences::getFoodPtName)
+                    .collect(Collectors.joining(", "));
+                commandBuilder.set("#NpcLikes.Text", "Gosta de: " + likesStr);
             }
             if (npc.preferences.hatedFoods != null && !npc.preferences.hatedFoods.isEmpty()) {
-                commandBuilder.set("#NpcHates.Text", "Odeia: " + String.join(", ", npc.preferences.hatedFoods));
+                String hatesStr = npc.preferences.hatedFoods.stream()
+                    .map(com.cookieukw.SimTale.core.NPCPreferences::getFoodPtName)
+                    .collect(Collectors.joining(", "));
+                commandBuilder.set("#NpcHates.Text", "Odeia: " + hatesStr);
             }
             commandBuilder.set("#NpcHobby.Text", "Hobby: " + npc.preferences.hobby);
             commandBuilder.set("#NpcSeason.Text", "Estação Fav.: " + npc.preferences.getSeasonPtName());

@@ -7,10 +7,10 @@ public enum Profession {
     UNEMPLOYED("Desempregado", EnumSet.noneOf(JobType.class), ""),
     MINER("Minerador", EnumSet.of(JobType.MINE), "pickaxe"),
     FARMER("Fazendeiro", EnumSet.of(JobType.FARM, JobType.GATHER), "hoe"),
-    FISHERMAN("Pescador", EnumSet.of(JobType.FISH), "fishing_rod"),
-    LUMBERJACK("Lenhador", EnumSet.of(JobType.GATHER), "axe"),
+    FISHERMAN("Pescador", EnumSet.of(JobType.FISH), "fishing_trap"),
+    LUMBERJACK("Lenhador", EnumSet.of(JobType.GATHER), "hatchet"),
     GUARD("Guarda", EnumSet.noneOf(JobType.class), "sword"),
-    EXPLORER("Explorador", EnumSet.of(JobType.EXPLORE), "compass"),
+    EXPLORER("Explorador", EnumSet.of(JobType.EXPLORE), "map"),
     BUILDER("Construtor", EnumSet.of(JobType.BUILD), "hammer");
 
     public final String ptName;
