@@ -23,6 +23,7 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import java.util.UUID;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 
 public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
@@ -69,7 +70,7 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
                         SimNPCPersistence.loadNPC(npc);
                         targetRef.getStore().addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
                         
-                        final java.util.UUID targetId = uuidComp.getUuid();
+                        final UUID targetId = uuidComp.getUuid();
                         SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(targetId));
                         SimTale.ACTIVE_NPCS.add(npc);
                     }

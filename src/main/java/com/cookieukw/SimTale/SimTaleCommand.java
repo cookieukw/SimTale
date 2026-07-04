@@ -19,7 +19,11 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
+import com.hypixel.hytale.component.RemoveReason;
 import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Commands for the SimTale plugin.
@@ -27,13 +31,13 @@ import javax.annotation.Nonnull;
 public class SimTaleCommand extends AbstractPlayerCommand {
 
     private final RequiredArg<String> subCommandArg;
-    private final RequiredArg<String> npcTypeArg;
+    private final OptionalArg<String> npcTypeArg;
 
     public SimTaleCommand() {
         super("simtale", "SimTale plugin commands");
         this.setPermissionGroups("Adventure");
         this.subCommandArg = this.withRequiredArg("subcommand", "spawn", ArgTypes.STRING);
-        this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE", ArgTypes.STRING);
+        this.npcTypeArg = this.withOptionalArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE", ArgTypes.STRING);
     }
 
     @Override
@@ -48,6 +52,12 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             return;
         } else if ("interact".equalsIgnoreCase(sub)) {
             handleInteract(ctx, store, ref, playerRef);
+            return;
+        } else if ("tpall".equalsIgnoreCase(sub)) {
+            handleTpAll(ctx, store, ref);
+            return;
+        } else if ("clearall".equalsIgnoreCase(sub)) {
+            handleClearAll(ctx, store);
             return;
         }
 
@@ -106,6 +116,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
      * Handles the /simtale interact command.
      */
     private void handleSpawn(CommandContext ctx, Store<EntityStore> store, Ref<EntityStore> ref, String typeName) {
+        if (typeName == null) {
+            ctx.sendMessage(Message.raw("Por favor, especifique o tipo do NPC (spawn <tipo>). Ex: /simtale spawn human_male"));
+            return;
+        }
         SimNPCFactory.NPCType type;
         try {
             type = SimNPCFactory.NPCType.valueOf(typeName.toUpperCase());
@@ -126,6 +140,38 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         SimNPCPersistence.saveNPC(comp);
 
         ctx.sendMessage(Message.translation("simtale.cmd.spawn.success").param("type", type.name()));
+    }
+
+    private void handleTpAll(CommandContext ctx, Store<EntityStore> store, Ref<EntityStore> ref) {
+        TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+        if (playerTransform == null) return;
+        Vector3d pPos = playerTransform.getPosition();
+        int count = 0;
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc.entityRef != null && npc.entityRef.isValid()) {
+                TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                if (npcTransform != null) {
+                    npcTransform.setPosition(new Vector3d(pPos.x + (Math.random() - 0.5) * 4, pPos.y, pPos.z + (Math.random() - 0.5) * 4));
+                    store.putComponent(npc.entityRef, TransformComponent.getComponentType(), npcTransform);
+                    count++;
+                }
+            }
+        }
+        ctx.sendMessage(Message.raw("Teleportados " + count + " NPCs do SimTale para sua posicao."));
+    }
+
+    private void handleClearAll(CommandContext ctx, Store<EntityStore> store) {
+        int count = 0;
+        List<SimNPCComponent> toRemove = new ArrayList<>(SimTale.ACTIVE_NPCS);
+        for (SimNPCComponent npc : toRemove) {
+            if (npc.entityRef != null && npc.entityRef.isValid()) {
+                store.removeEntity(npc.entityRef, RemoveReason.REMOVE);
+                count++;
+            }
+            com.cookie.caskara.Caskara.delete(npc.entityId.toString(), com.cookieukw.SimTale.db.SimNPCData.class);
+        }
+        SimTale.ACTIVE_NPCS.clear();
+        ctx.sendMessage(Message.raw("Removidos permanentemente " + count + " NPCs do Hytale e banco de dados."));
     }
 
     private void sendUsage(CommandContext ctx) {
