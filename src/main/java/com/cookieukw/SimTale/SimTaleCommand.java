@@ -24,7 +24,8 @@ import com.hypixel.hytale.component.RemoveReason;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ArrayList;
-
+import com.cookieukw.SimTale.systems.PlumbobSystem;
+import com.cookie.caskara.Caskara;
 /**
  * Commands for the SimTale plugin.
  */
@@ -171,7 +172,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 store.removeEntity(npc.entityRef, RemoveReason.REMOVE);
                 count++;
             }
-            com.cookie.caskara.Caskara.delete(npc.entityId.toString(), com.cookieukw.SimTale.db.SimNPCData.class);
+            PlumbobSystem.removePlumbob(npc.entityId);
+            Caskara.delete(npc.entityId.toString(), com.cookieukw.SimTale.db.SimNPCData.class);
         }
         SimTale.ACTIVE_NPCS.clear();
         ctx.sendMessage(Message.raw("Removidos permanentemente " + count + " NPCs do Hytale e banco de dados."));

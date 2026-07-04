@@ -36,7 +36,7 @@ import com.cookieukw.SimTale.core.Mood;
 public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
 
     // Maps Player UUID to Plumbob Entity Ref
-    private static final Map<UUID, Ref<EntityStore>> playerPlumbobs = new HashMap<>();
+    private static final Map<UUID, Ref<EntityStore>> playerPlumbobs = java.util.Collections.synchronizedMap(new HashMap<>());
 
     @Override
     @Nonnull
@@ -52,7 +52,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         if (uuidComp == null) return;
         
         PersistentModel pm = chunk.getComponent(index, PersistentModel.getComponentType());
-        if (pm != null && "Plumbob".equals(pm.getModelReference().getModelAssetId())) {
+        if (pm != null && pm.getModelReference().getModelAssetId() != null && pm.getModelReference().getModelAssetId().startsWith("Plumbob")) {
             Ref<EntityStore> thisRef = chunk.getReferenceTo(index);
             if (!playerPlumbobs.containsValue(thisRef)) {
                 commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
@@ -145,5 +145,10 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
                 System.out.println("[SimTale-ERROR] Plumbob ModelAsset not found!");
             }
         }
+    }
+
+    public static void removePlumbob(UUID entityUuid) {
+        playerPlumbobs.remove(entityUuid);
+        System.out.println("[SimTale] Plumbob untracked para a entidade: " + entityUuid);
     }
 }

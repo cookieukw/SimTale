@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import com.cookieukw.SimTale.systems.PlumbobSystem;
 
 public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
@@ -429,6 +430,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                             LOGGER.error("Error giving soul to player", e);
                         }
                     });
+                    if (dyingNpc != null && dyingNpc.entityId != null) {
+                        PlumbobSystem.removePlumbob(dyingNpc.entityId);
+                    }
                     commandBuffer.removeEntity(dyingRef, RemoveReason.REMOVE);
                     ai.currentTask = TaskType.IDLE;
                 }
