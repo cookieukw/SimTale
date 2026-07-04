@@ -27,16 +27,8 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
-import com.hypixel.hytale.server.core.entity.entities.ProjectileComponent;
-import com.hypixel.hytale.server.core.modules.entity.component.Intangible;
-import com.hypixel.hytale.server.core.modules.entity.tracker.NetworkId;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
-import com.hypixel.hytale.server.npc.role.Role;
-import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.component.RemoveReason;
-import com.hypixel.hytale.component.Holder;
-import com.hypixel.hytale.math.vector.Rotation3f;
-import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandManager;
 
@@ -46,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import com.cookieukw.SimTale.systems.PlumbobSystem;
 
 public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
@@ -277,7 +268,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // --- FINDING_FOOD (OTIMIZADO) ---
+        // --- FINDING_FOOD (OPTIMIZATION) ---
         if (ai.currentTask == TaskType.FINDING_FOOD && world.getTick() - ai.taskStartTime >= FOOD_SEARCH_COOLDOWN_TICKS) {
             ai.taskStartTime = world.getTick();
             Vector3d pos = transform.getPosition();
@@ -339,7 +330,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // --- FINDING_BATH (OTIMIZADO) ---
+        // --- FINDING_BATH (OPTIMIZATION) ---
         if (ai.currentTask == TaskType.FINDING_BATH && world.getTick() - ai.taskStartTime >= BATH_SEARCH_COOLDOWN_TICKS) {
             ai.taskStartTime = world.getTick();
             Vector3d pos = transform.getPosition();
@@ -398,7 +389,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // --- REAPING (Logica do Ceifador) ---
+        // --- REAPING ---
         if (ai.currentTask == TaskType.REAPING && ai.dyingEntityId != null) {
             Ref<EntityStore> dyingRef = world.getEntityStore().getRefFromUUID(ai.dyingEntityId);
             TransformComponent dyingTransform = (dyingRef != null) ? store.getComponent(dyingRef, TransformComponent.getComponentType()) : null;
@@ -412,9 +403,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double d2 = dx*dx + dz*dz;
 
             if (d2 > 2.0 * 2.0) {
-                // Alvo é uma entidade viva (se movendo) — usa o mesmo throttle,
-                // que já tem um failsafe de resync a cada LEASH_FORCE_UPDATE_TICKS
-                // pra continuar perseguindo mesmo com update raro.
                 moveTo(ref, ai, world, new Vector3d(dyingTransform.getPosition().x, dyingTransform.getPosition().y, dyingTransform.getPosition().z));
             } else {
                 clearMoveTarget(ref, ai);

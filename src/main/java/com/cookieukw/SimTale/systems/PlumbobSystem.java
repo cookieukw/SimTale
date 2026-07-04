@@ -2,6 +2,9 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.SimTale;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.RemoveReason;
+import com.hypixel.hytale.component.dependency.Dependency;
+import com.hypixel.hytale.component.dependency.Order;
+import com.hypixel.hytale.component.dependency.SystemDependency;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.component.Ref;
@@ -33,6 +36,11 @@ import javax.annotation.Nonnull;
 
 import com.cookieukw.SimTale.core.Mood;
 
+import java.util.Set;
+
+
+import com.hypixel.hytale.server.core.modules.entity.player.PlayerProcessMovementSystem;
+
 public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
 
     // Maps Player UUID to Plumbob Entity Ref
@@ -44,6 +52,13 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         return UUIDComponent.getComponentType();
     }
 
+   @Override
+    @Nonnull
+    public Set<Dependency<EntityStore>> getDependencies() {
+        return Set.of(
+            new SystemDependency<>(Order.AFTER, PlayerProcessMovementSystem.class)
+        );
+    }
     @Override
     public void tick(float dt, int index, @Nonnull ArchetypeChunk<EntityStore> chunk,
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
@@ -91,7 +106,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
 
         double height = 2.2;
         BoundingBox box = chunk.getComponent(index, BoundingBox.getComponentType());
-        if (box != null && box.getBoundingBox() != null) {
+        if (box != null) {
             height = box.getBoundingBox().height() + 0.35;
         }
 

@@ -22,19 +22,21 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.joml.Vector3d;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 
 public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
 
+    @NullableDecl
     @Override
-    @Nonnull
-    
+
     public Query<EntityStore> getQuery() {
         return NPCEntity.getComponentType();
     }
@@ -44,7 +46,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
 
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
-        NPCEntity npcEntity = chunk.getComponent(index, NPCEntity.getComponentType());
+        NPCEntity npcEntity = chunk.getComponent(index, Objects.requireNonNull(NPCEntity.getComponentType()));
         if (npcEntity == null || npcEntity.getRoleName() == null || !npcEntity.getRoleName().startsWith("SimTale_")) {
             return;
         }

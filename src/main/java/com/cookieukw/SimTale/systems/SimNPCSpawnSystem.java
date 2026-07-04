@@ -1,8 +1,10 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.SimNPCFactory.NPCType;
+import com.cookieukw.SimTale.db.SimNPCData;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
@@ -14,6 +16,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
 
@@ -36,10 +39,10 @@ public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
             return;
         }
 
-        // If there are already saved NPCs in Caskara, don't spawn any more automatically!
+        // If there are already saved NPCs in Caskara, don't spawn anymore automatically!
         if (!SimTale.debugForceSpawning) {
             try {
-                java.util.List<com.cookieukw.SimTale.db.SimNPCData> saved = com.cookie.caskara.Caskara.list(com.cookieukw.SimTale.db.SimNPCData.class);
+                List<SimNPCData> saved = Caskara.list(SimNPCData.class);
                 if (saved != null && !saved.isEmpty()) {
                     return; // Skip spawning
                 }
