@@ -22,6 +22,10 @@ import com.cookieukw.SimTale.systems.MoodAnimationSystem;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.cookieukw.SimTale.logic.SimTaleUseNPCInteraction;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
+import com.hypixel.hytale.server.npc.interactions.UseNPCInteraction;
+import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 
 import javax.annotation.Nonnull;
 
@@ -78,5 +82,10 @@ public class SimTale extends JavaPlugin {
                 .registerCommand(new SimTaleCommand());
         this.getCommandRegistry().registerCommand(new BuildCommand());
         this.getCommandRegistry().registerCommand(new SimDebugCommand());
+
+        // Register custom UseNPCInteraction to hook interactions
+        Interaction.getAssetStore().loadAssets(DefaultAssetMap.DEFAULT_PACK_KEY, List.of(
+            new SimTaleUseNPCInteraction(UseNPCInteraction.DEFAULT_ID)
+        ));
     }
 }
