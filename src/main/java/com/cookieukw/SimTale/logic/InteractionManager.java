@@ -18,6 +18,8 @@ import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntitySta
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 
 public class InteractionManager {
 
@@ -115,22 +117,94 @@ public class InteractionManager {
                 response = "Interação Autônoma";
             }
             case GIFT -> {
+                Ref<EntityStore> pRef = playerRef != null ? playerRef.getReference() : null;
+                if (pRef == null || !pRef.isValid()) {
+                    // Revert interaction counter increment
+                    rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
+                    return "Erro: Jogador inválido.";
+                }
+                
+                InventoryComponent.Hotbar hotbar = 
+                    pRef.getStore().getComponent(pRef, InventoryComponent.Hotbar.getComponentType());
+                if (hotbar == null) {
+                    // Revert interaction counter increment
+                    rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
+                    return "Erro: Inventário indisponível.";
+                }
+                
+                byte activeSlot = hotbar.getActiveSlot();
+                ItemStack heldItem = hotbar.getActiveItem();
+                if (heldItem == null || heldItem.isEmpty()) {
+                    // Revert interaction counter increment
+                    rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
+                    return "Você não está segurando nenhum item em mãos para presentear!";
+                }
+                
+                String itemName = heldItem.getDisplayName().getAnsiMessage();
+                String itemId = heldItem.getItemId();
+                
+                // Consume 1 item from the active slot
+                hotbar.getInventory().removeItemStackFromSlot(activeSlot, 1);
+                
                 memEvent = MemoryEvent.GIFTED;
-                if (npc.personality.traits.contains(Trait.GREEDY)) {
-                    friendshipChange = 10;
-                    affinityChange = 20;
-                    trustChange = 5;
-                    response = npc.name + " arregala os olhos: Pra mim?! Haha, FINALMENTE alguém que me valoriza!";
-                } else if (npc.personality.traits.contains(Trait.PARANOID)) {
-                    friendshipChange = -5;
-                    affinityChange = -10;
+                
+                boolean loves = false;
+                boolean hates = false;
+                
+                if (npc.preferences != null) {
+                    if (npc.preferences.favoriteFoods != null) {
+                        for (String fav : npc.preferences.favoriteFoods) {
+                            if (fav.equalsIgnoreCase(itemName) || fav.equalsIgnoreCase(itemId)) {
+                                loves = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (npc.preferences.hatedFoods != null) {
+                        for (String hate : npc.preferences.hatedFoods) {
+                            if (hate.equalsIgnoreCase(itemName) || hate.equalsIgnoreCase(itemId)) {
+                                hates = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                boolean isTrash = itemId.contains("dirt") || itemId.contains("soil") || itemId.contains("stone") || itemId.contains("cobweb") || itemId.contains("gravel") || itemId.contains("sand") ||
+                                  itemName.toLowerCase().contains("terra") || itemName.toLowerCase().contains("pedra") || itemName.toLowerCase().contains("teia") || itemName.toLowerCase().contains("cascalho") || itemName.toLowerCase().contains("areia");
+                
+                if (loves) {
+                    friendshipChange = 15;
+                    affinityChange = 25;
+                    trustChange = 8;
+                    response = npc.name + " fica radiante: Oh meu deus, " + itemName + "?! Esse é o meu prato favorito! Você me conhece tão bem!";
+                } else if (hates) {
+                    friendshipChange = -15;
+                    affinityChange = -20;
                     trustChange = -10;
-                    response = npc.name + " olha o presente com suspeita: Isso não tem veneno, tem?";
+                    response = npc.name + " faz uma careta de nojo/raiva: Eca... " + itemName + "? Eu detesto isso! Você está tentando me insultar?";
+                } else if (isTrash) {
+                    friendshipChange = -10;
+                    affinityChange = -15;
+                    trustChange = -5;
+                    response = npc.name + " franze a testa com raiva: " + itemName + "? Por que você está me dando lixo?!";
                 } else {
-                    friendshipChange = 5;
-                    affinityChange = 10;
-                    trustChange = 3;
-                    response = npc.name + " sorri: Uau! Muito obrigado pelo presente.";
+                    if (npc.personality.traits.contains(Trait.GREEDY)) {
+                        friendshipChange = 10;
+                        affinityChange = 20;
+                        trustChange = 5;
+                        response = npc.name + " arregala os olhos: Pra mim?! Haha, " + itemName + "! Finalmente alguém que me valoriza!";
+                    } else if (npc.personality.traits.contains(Trait.PARANOID)) {
+                        friendshipChange = -5;
+                        affinityChange = -10;
+                        trustChange = -10;
+                        response = npc.name + " olha o presente (" + itemName + ") com suspeita: Isso não tem veneno, tem?";
+                    } else {
+                        friendshipChange = 5;
+                        affinityChange = 10;
+                        trustChange = 3;
+                        response = npc.name + " sorri: Uau, " + itemName + "! Muito obrigado pelo presente.";
+                    }
                 }
             }
         }
@@ -151,7 +225,9 @@ public class InteractionManager {
             response = npc.name + " arregala os olhos: Nossa, faz dias que não te vejo! Onde você estava?! " + response;
         }
 
-        npc.memory.addMemory(memEvent, playerUuid);
+        if (memEvent != null) {
+            npc.memory.addMemory(memEvent, playerUuid);
+        }
         npc.getRelationship(playerUuid).addAffinity(affinityChange);
         npc.getRelationship(playerUuid).addFriendship(friendshipChange);
         npc.getRelationship(playerUuid).addRomance(romanceChange);
