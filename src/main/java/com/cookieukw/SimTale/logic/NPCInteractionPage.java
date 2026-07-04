@@ -24,6 +24,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
+import com.hypixel.hytale.server.core.entity.Frozen;
 
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.joml.Vector3d;
@@ -46,6 +47,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
 
     @Override
     public void build(@NonNullDecl Ref<EntityStore> playerRef, UICommandBuilder commandBuilder, @NonNullDecl UIEventBuilder eventBuilder, @NonNullDecl Store<EntityStore> store) {
+        if (npc != null && npc.entityRef != null && npc.entityRef.isValid()) {
+            store.ensureComponent(npc.entityRef, Frozen.getComponentType());
+        }
         commandBuilder.append("NPCInteraction/NPCInteraction.ui");
         
         commandBuilder.set("#NpcName.Text", npc.name);
@@ -127,6 +131,14 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         } else if (eventData.contains("GiftButton")) {
             String resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.GIFT);
             playerRefComp.sendMessage(Message.raw(resp));
+        }
+    }
+
+    @Override
+    public void onDismiss(@Nonnull Ref<EntityStore> playerRef, @Nonnull Store<EntityStore> store) {
+        super.onDismiss(playerRef, store);
+        if (npc != null && npc.entityRef != null && npc.entityRef.isValid()) {
+            store.tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
         }
     }
 }

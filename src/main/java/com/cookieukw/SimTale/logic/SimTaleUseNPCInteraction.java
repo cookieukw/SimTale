@@ -17,6 +17,13 @@ import com.hypixel.hytale.server.npc.blackboard.view.interaction.ReservationStat
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.db.SimNPCData;
+import com.cookie.caskara.Caskara;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
 
 public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
 
@@ -48,6 +55,35 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
         } else {
             // Log interaction!
             LOGGER.atInfo().log("SimTale [DEBUG]: Interacao com NPC via UseNPCInteraction (tecla F). Player: " + playerRefComponent.getReference() + ", NPC: " + targetRef);
+
+            Player player = (Player) ref.getStore().getComponent(ref, Player.getComponentType());
+            SimNPCComponent npc = targetRef.getStore().getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+            
+            if (npc == null) {
+                UUIDComponent uuidComp = targetRef.getStore().getComponent(targetRef, UUIDComponent.getComponentType());
+                if (uuidComp != null) {
+                    SimNPCData data = Caskara.load(uuidComp.getUuid().toString(), SimNPCData.class);
+                    if (data != null) {
+                        npc = new SimNPCComponent(uuidComp.getUuid(), data.name);
+                        npc.entityRef = targetRef;
+                        SimNPCPersistence.loadNPC(npc);
+                        targetRef.getStore().addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
+                        
+                        final java.util.UUID targetId = uuidComp.getUuid();
+                        SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(targetId));
+                        SimTale.ACTIVE_NPCS.add(npc);
+                    }
+                }
+            }
+
+            if (player != null && npc != null) {
+                final Player finalPlayer = player;
+                final SimNPCComponent finalNpc = npc;
+                final PlayerRef finalPlayerRefComp = playerRefComponent;
+                ref.getStore().getExternalData().getWorld().execute(() -> {
+                    finalPlayer.getPageManager().openCustomPage(ref, ref.getStore(), new NPCInteractionPage(finalPlayerRefComp, finalPlayer, finalNpc));
+                });
+            }
 
             if (!npcComponent.getRole().getStateSupport().willInteractWith(ref)) {
                 context.getState().state = InteractionState.Failed;
