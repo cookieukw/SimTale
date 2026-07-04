@@ -12,8 +12,12 @@ import java.util.UUID;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
-import com.cookie.runecore.api.PlayerStats;
 
 public class InteractionManager {
 
@@ -165,12 +169,20 @@ public class InteractionManager {
     private static String getContextualGreeting(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef) {
         if (playerRef != null) {
             try {
-                PlayerStats stats = new PlayerStats(playerRef);
-                float health = stats.getHealth().getNow(-1f);
-                if (health > 0 && health <= 20f) {
-                    return npc.name + " arregala os olhos: Meu deus, você está sangrando! Precisa de ajuda?!";
+                Ref<EntityStore> pRef = playerRef.getReference();
+                if (pRef != null && pRef.isValid()) {
+                    EntityStatMap statMap = pRef.getStore().getComponent(pRef, EntityStatMap.getComponentType());
+                    if (statMap != null) {
+                        EntityStatValue healthVal = statMap.get(DefaultEntityStatTypes.getHealth());
+                        if (healthVal != null) {
+                            float health = healthVal.get();
+                            if (health > 0 && health <= 20f) {
+                                return npc.name + " arregala os olhos: Meu deus, você está sangrando! Precisa de ajuda?!";
+                            }
+                        }
+                    }
                 }
-            } catch (Exception ignored) {}
+            } catch (Throwable ignored) {}
 
             World world = null;
             for (World w : Universe.get().getWorlds().values()) {
