@@ -18,6 +18,7 @@ import javax.annotation.Nonnull;
 public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
 
     private long lastSpawnTick = 0;
+    private final long systemStartTime = System.currentTimeMillis();
 
     @Override
     @Nonnull
@@ -30,6 +31,11 @@ public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
 
         long currentTick = System.currentTimeMillis();
+        // Give the server 30 seconds to load existing chunk entities first
+        if (currentTick - systemStartTime < 30000) {
+            return;
+        }
+
         // Check every 10 seconds to avoid spamming
         if (currentTick - lastSpawnTick < 10000) {
             return;
