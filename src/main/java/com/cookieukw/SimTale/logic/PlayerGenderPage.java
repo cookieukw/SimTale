@@ -49,11 +49,11 @@ public class PlayerGenderPage extends InteractiveCustomUIPage<String> {
         if (eventData.contains("MaleButton")) {
             simPlayer.gender = Gender.MALE;
             SimPlayerPersistence.savePlayer(simPlayer);
-            playerRefComp.sendMessage(Message.raw("Gênero definido permanentemente como: MASCULINO"));
+            playerRefComp.sendMessage(Message.translation("simtale.gender.success.male"));
         } else if (eventData.contains("FemaleButton")) {
             simPlayer.gender = Gender.FEMALE;
             SimPlayerPersistence.savePlayer(simPlayer);
-            playerRefComp.sendMessage(Message.raw("Gênero definido permanentemente como: FEMININO"));
+            playerRefComp.sendMessage(Message.translation("simtale.gender.success.female"));
         }
     }
 

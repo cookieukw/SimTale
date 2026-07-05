@@ -266,3 +266,11 @@ rel.enemy = Inimigo
 rel.rival = Rival
 
 ui.relationship.values = {status} (Amizade: {friendship}%, Afinidade: {affinity}%)
+
+# GENDER UI
+ui.gender.title = ESCOLHA DE GÊNERO
+ui.gender.subtitle = Selecione o gênero do seu personagem. Esta escolha é permanente e definirá seu papel no sistema de casamento e gravidez do SimTale.
+ui.gender.male = MASCULINO
+ui.gender.female = FEMININO
+gender.success.male = Gênero definido permanentemente como: MASCULINO
+gender.success.female = Gênero definido permanentemente como: FEMININO

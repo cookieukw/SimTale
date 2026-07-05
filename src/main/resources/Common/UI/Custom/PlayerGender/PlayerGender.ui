@@ -8,13 +8,13 @@ Group {
     Padding: (Top: 40, Bottom: 40, Horizontal: 40);
 
     Label #Title {
-      Text: "ESCOLHA DE GÊNERO";
+      Text: %simtale.ui.gender.title;
       Anchor: (Width: 570, Height: 48, Bottom: 16);
       Style: (FontSize: 32, TextColor: #FFD700FF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
     }
 
     Label #Subtitle {
-      Text: "Selecione o gênero do seu personagem. Esta escolha é permanente e definirá seu papel no sistema de casamento e gravidez do SimTale.";
+      Text: %simtale.ui.gender.subtitle;
       Anchor: (Width: 520, Height: 70, Bottom: 40);
       Style: (FontSize: 16, TextColor: #A0A5C0FF, HorizontalAlignment: Center, VerticalAlignment: Center, Wrap: true);
     }
@@ -31,7 +31,7 @@ Group {
           LayoutMode: MiddleCenter;
           Anchor: (Full: 0);
           Label #MaleText {
-            Text: "MASCULINO";
+            Text: %simtale.ui.gender.male;
             Style: (FontSize: 24, TextColor: #E0F2FEFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
           }
         }
@@ -45,7 +45,7 @@ Group {
           LayoutMode: MiddleCenter;
           Anchor: (Full: 0);
           Label #FemaleText {
-            Text: "FEMININO";
+            Text: %simtale.ui.gender.female;
             Style: (FontSize: 24, TextColor: #FFE4E6FF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
           }
         }
