@@ -9,27 +9,14 @@ import java.util.Random;
  */
 public class GeneticsData {
 
-    /** Seed que determina atributos visuais: cor de pele, cabelo, olhos, altura. */
     public long geneticsSeed;
-
-    /** Seed que determina a personalidade base. */
     public long personalitySeed;
 
-    // --- Dados derivados (cacheable, regeneráveis a partir das seeds) ---
-
-    /** Índice do gradiente de cor de pele (do catálogo de GradientSets). */
     public transient String skinGradientId;
-
-    /** Índice do gradiente de cor de cabelo. */
     public transient String hairGradientId;
-
-    /** Índice do gradiente de cor dos olhos. */
     public transient String eyeGradientId;
-
-    /** Multiplicador de altura relativa (0.85 a 1.15). */
     public transient float heightMultiplier = 1.0f;
 
-    /** Índice do modelo de cabelo no catálogo. */
     public transient int hairModelIndex;
 
     public GeneticsData() {
@@ -43,8 +30,8 @@ public class GeneticsData {
     }
 
     /**
-     * Combina as seeds de dois pais para criar as seeds do filho.
-     * Usa XOR e deslocamento para misturar de forma determinística.
+     * Combines the seeds of two parents to create the child's seeds.
+     * Uses XOR and displacement to mix deterministically.
      */
     public static GeneticsData combine(GeneticsData mother, GeneticsData father) {
         Random mixer = new Random(mother.geneticsSeed ^ father.geneticsSeed);
@@ -54,45 +41,39 @@ public class GeneticsData {
     }
 
     /**
-     * Regenera os dados visuais derivados a partir da seed genética.
-     * Isso permite reconstruir a aparência sem salvar cada atributo individual.
+     * Regenerates the derived visual data from the genetic seed.
+     * This allows reconstructing the appearance without saving each individual attribute.
      *
-     * @param skinGradients lista de IDs de gradientes de pele disponíveis
-     * @param hairGradients lista de IDs de gradientes de cabelo disponíveis
-     * @param eyeGradients  lista de IDs de gradientes de olhos disponíveis
-     * @param totalHairModels total de modelos de cabelo disponíveis
+     * @param skinGradients list of available skin gradient IDs
+     * @param hairGradients list of available hair gradient IDs
+     * @param eyeGradients  list of available eye gradient IDs
+     * @param totalHairModels total number of available hair models
      */
     public void regenerateAppearance(String[] skinGradients, String[] hairGradients,
                                       String[] eyeGradients, int totalHairModels) {
         Random rng = new Random(geneticsSeed);
 
-        // Seleciona gradientes baseados na seed
         this.skinGradientId = skinGradients[rng.nextInt(skinGradients.length)];
         this.hairGradientId = hairGradients[rng.nextInt(hairGradients.length)];
         this.eyeGradientId = eyeGradients[rng.nextInt(eyeGradients.length)];
-
-        // Altura relativa: 0.85 a 1.15
         this.heightMultiplier = 0.85f + rng.nextFloat() * 0.30f;
-
-        // Modelo de cabelo
         this.hairModelIndex = rng.nextInt(totalHairModels);
     }
 
     /**
-     * Herda um atributo dos pais com chance 50/50.
-     * Útil para propriedades que precisam de herança discreta.
+     * Herds an attribute from one of the parents with 50/50 probability.
      */
     public static <T> T inherit(T fromMother, T fromFather) {
         return Math.random() < 0.5 ? fromMother : fromFather;
     }
 
     /**
-     * Gera um sobrenome do filho combinando os sobrenomes dos pais.
-     * 50% de chance para cada sobrenome.
+     * Generates a child's surname by combining the parents' surnames.
+     * Uses 50/50 probability for each parent's surname.
      *
-     * @param motherName nome completo da mãe (ex: "Luna Greenfield")
-     * @param fatherName nome completo do pai (ex: "Kori Steelbinder")
-     * @return sobrenome herdado, ou "" se nenhum pai tiver sobrenome
+     * @param motherName mother's full name (e.g., "Luna Greenfield")
+     * @param fatherName father's full name (e.g., "Kori Steelbinder")
+     * @return inherited surname, or "N/A" if neither parent has a surname
      */
     public static String inheritSurname(String motherName, String fatherName) {
         String motherSurname = extractSurname(motherName);
