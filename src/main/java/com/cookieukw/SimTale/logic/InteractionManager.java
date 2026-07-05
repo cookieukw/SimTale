@@ -34,7 +34,7 @@ public class InteractionManager {
         boolean isChild = false;
         if (npc.entityRef != null) {
             NPCEntity npcEntity = 
-                npc.entityRef.getStore().getComponent(npc.entityRef, com.hypixel.hytale.server.npc.entities.NPCEntity.getComponentType());
+                npc.entityRef.getStore().getComponent(npc.entityRef, NPCEntity.getComponentType());
             if (npcEntity != null && npcEntity.getRoleName() != null && npcEntity.getRoleName().toLowerCase().contains("child")) {
                 isChild = true;
             }
