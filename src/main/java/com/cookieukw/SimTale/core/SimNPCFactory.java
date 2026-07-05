@@ -33,7 +33,8 @@ public class SimNPCFactory {
         TRORK("SimTale_Trork"),
         HUMAN_MALE("SimTale_Human_Male"),
         HUMAN_FEMALE("SimTale_Human_Female"),
-        REAPER("SimTale_Human_Male");
+        REAPER("SimTale_Human_Male"),
+        CHILD("SimTale_Human_Child");
 
         public final String roleId;
 
