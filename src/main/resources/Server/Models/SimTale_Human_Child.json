@@ -1,6 +1,6 @@
 {
   "Parent": "Player",
-  "Model": "NPC/Player_Child/Player_Child.blockymodel",
+  "Model": "NPC/Player_Child/Player_With_Face_Child.blockymodel",
   "EyeHeight": 1.1,
   "DefaultAttachments": [
     {

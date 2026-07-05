@@ -21,7 +21,8 @@ Regra geral aplicada:
   "R-Boot" (dentro de "R-Foot") encolhe igual o osso "R-Foot", etc.
 - A posição de todo filho é sempre escalada pela escala PRÓPRIA do pai
   (ponto de encaixe acompanha o encolhimento do pai).
-- textureLayout nunca é tocado.
+- textureLayout e size nunca são tocados para preservar as coordenadas de textura.
+  Em vez disso, escalamos a propriedade 'stretch'.
 
 Suporta shape.type == "box" (size x/y/z) e "quad" (size só x/y).
 """
@@ -29,31 +30,44 @@ import json
 import copy
 import os
 
-SRC_DIR = "/mnt/user-data/uploads"
-DST_DIR = "/mnt/user-data/outputs"
+# Caminhos locais na máquina do usuário
+DST_DIR = "/home/cookie/Documents/hy mods/SimTale/src/main/resources/Common/NPC/Player_Child"
 
-# Mesma tabela usada no corpo -- ajuste aqui se recalibrar o corpo,
-# e todos os cosméticos acompanham automaticamente.
-NODE_SCALES = {
-    "Pelvis":       (0.95, 0.90, 0.95),
-    "Belly":        (0.95, 0.82, 0.95),
-    "Chest":        (0.95, 0.82, 0.95),
-    "Head":         (1.30, 1.30, 1.30),
-    "R-Shoulder":   (0.85, 0.85, 0.85),
-    "L-Shoulder":   (0.85, 0.85, 0.85),
-    "R-Arm":        (0.80, 0.72, 0.80),
-    "L-Arm":        (0.80, 0.72, 0.80),
-    "R-Forearm":    (0.80, 0.68, 0.80),
-    "L-Forearm":    (0.80, 0.68, 0.80),
-    "R-Hand":       (0.85, 0.85, 0.85),
-    "L-Hand":       (0.85, 0.85, 0.85),
-    "R-Thigh":      (0.85, 0.68, 0.85),
-    "L-Thigh":      (0.85, 0.68, 0.85),
-    "R-Calf":       (0.85, 0.62, 0.85),
-    "L-Calf":       (0.85, 0.62, 0.85),
-    "R-Foot":       (0.92, 0.92, 0.92),
-    "L-Foot":       (0.92, 0.92, 0.92),
+FILES_MAP = {
+    "/home/cookie/Documents/Assets/Common/Characters/Player_With_Face.blockymodel": (True, "Player_With_Face_Child.blockymodel"),
+    "/home/cookie/Documents/Assets/Common/Characters/Player.blockymodel": (True, "Player_Child.blockymodel"),
+    "/home/cookie/Documents/Assets/Common/Cosmetics/Underwears/Underwear.blockymodel": (False, "Underwear_Child.blockymodel"),
+    "/home/cookie/Documents/Assets/Common/Cosmetics/Shoes/FrostyWarm_Boots.blockymodel": (False, "FrostyWarm_Boots_Child.blockymodel"),
+    "/home/cookie/Documents/Assets/Common/Cosmetics/Pants/Skater_Shorts.blockymodel": (False, "Skater_Shorts_Child.blockymodel"),
+    "/home/cookie/Documents/Assets/Common/Characters/Body_Attachments/Beards/DoubleBraid.blockymodel": (False, "DoubleBraid_Child.blockymodel"),
+    "/home/cookie/Documents/Assets/Common/Characters/Body_Attachments/Mouths/Mouth1.blockymodel": (False, "Mouth1_Child.blockymodel")
 }
+
+# Tabela calibrada
+NODE_SCALES = {
+    "Pelvis":       (0.97, 0.95, 0.97),
+    "Belly":        (0.97, 0.92, 0.97),
+    "Chest":        (0.97, 0.92, 0.97),
+    "Head":         (1.10, 1.10, 1.10),
+    "R-Shoulder":   (0.93, 0.93, 0.93),
+    "L-Shoulder":   (0.93, 0.93, 0.93),
+    "R-Arm":        (0.92, 0.88, 0.92),
+    "L-Arm":        (0.92, 0.88, 0.92),
+    "R-Forearm":    (0.92, 0.86, 0.92),
+    "L-Forearm":    (0.92, 0.86, 0.92),
+    "R-Hand":       (0.93, 0.93, 0.93),
+    "L-Hand":       (0.93, 0.93, 0.93),
+    "R-Thigh":      (0.93, 0.85, 0.93),
+    "L-Thigh":      (0.93, 0.85, 0.93),
+    "R-Calf":       (0.93, 0.82, 0.93),
+    "L-Calf":       (0.93, 0.82, 0.93),
+    "R-Foot":       (0.96, 0.96, 0.96),
+    "L-Foot":       (0.96, 0.96, 0.96),
+}
+
+# Agora que usamos 'stretch' ao invés de 'size', o reposicionamento dos attachments
+# é fundamental para manter os olhos/orelhas/boca na superfície da cabeça escalada.
+SKIP_FACE_ATTACHMENT_REPOSITION = False
 
 FACE_ATTACHMENT_NAMES = {
     "Neck", "L-Eyelid", "R-Eyelid", "L-Eyelid-Bot", "R-Eyelid-Bot",
@@ -62,9 +76,7 @@ FACE_ATTACHMENT_NAMES = {
     "R-Ear-Attachment", "L-Ear-Attachment",
 }
 
-# Mesmo fator usado pra baixar o quadril do corpo (só se aplica no
-# arquivo do CORPO, que tem "Origin" como raiz -- cosméticos não têm).
-ROOT_HEIGHT_SCALE = 0.76
+ROOT_HEIGHT_SCALE = 0.90
 
 
 def get_own_scale(name, inherited_scale):
@@ -72,7 +84,7 @@ def get_own_scale(name, inherited_scale):
         return (1.0, 1.0, 1.0)
     if name in NODE_SCALES:
         return NODE_SCALES[name]
-    return inherited_scale  # malha genérica do cosmético -> herda do pai
+    return inherited_scale
 
 
 def scale_vec(vec, sx, sy, sz):
@@ -90,33 +102,27 @@ def scale_shape(shape, own_scale):
     if not shape:
         return
     if shape.get("type") in ("box", "quad"):
-        size = shape.get("settings", {}).get("size")
-        scale_vec(size, *own_scale)
+        # ESCALAMOS 'STRETCH' E NÃO 'SIZE' PARA NÃO QUEBRAR O ENCAIXE DE TEXTURA
+        stretch = shape.get("stretch")
+        if stretch is None:
+            stretch = {"x": 1.0, "y": 1.0, "z": 1.0}
+            shape["stretch"] = stretch
+        scale_vec(stretch, *own_scale)
         scale_vec(shape.get("offset"), *own_scale)
-    # textureLayout: NUNCA tocar
 
 
 def process_node(node, parent_scale):
-    """Uso geral: escala a posição deste nó pela escala do pai, calcula
-    a escala própria deste nó (explícita ou herdada), aplica na própria
-    shape, e recursiona pros filhos passando a escala própria."""
-    scale_vec(node.get("position"), *parent_scale)
-    own_scale = get_own_scale(node.get("name"), parent_scale)
+    name = node.get("name")
+    skip_position = SKIP_FACE_ATTACHMENT_REPOSITION and name in FACE_ATTACHMENT_NAMES
+    if not skip_position:
+        scale_vec(node.get("position"), *parent_scale)
+    own_scale = get_own_scale(name, parent_scale)
     scale_shape(node.get("shape"), own_scale)
     for child in node.get("children", []):
         process_node(child, own_scale)
 
 
 def process_root(root, is_body_origin):
-    """Trata a raiz de forma especial:
-    - Corpo (root == "Origin"): a própria "Origin" não escala; o filho
-      direto (Pelvis) usa ROOT_HEIGHT_SCALE pra reposicionar a altura.
-    - Cosmético (root já é um osso, ex: "Pelvis", "R-Foot", "Head"):
-      a posição da própria raiz NÃO é tocada (é o offset de encaixe no
-      esqueleto, definido pelo autor do cosmético -- não faz sentido
-      reescalar), só calculamos a escala própria dela pra propagar
-      pros filhos, e escalamos a própria shape dela se tiver uma.
-    """
     if is_body_origin:
         for child in root.get("children", []):
             scale_vec(child.get("position"), ROOT_HEIGHT_SCALE, ROOT_HEIGHT_SCALE, ROOT_HEIGHT_SCALE)
@@ -131,12 +137,10 @@ def process_root(root, is_body_origin):
             process_node(child, own_scale)
 
 
-def process_file(filename, is_body_origin=False):
-    src = os.path.join(SRC_DIR, filename)
-    name, ext = os.path.splitext(filename)
-    dst = os.path.join(DST_DIR, f"{name}_Child{ext}")
+def process_file(src_path, is_body_origin, dest_name):
+    dst = os.path.join(DST_DIR, dest_name)
 
-    with open(src, "r", encoding="utf-8") as f:
+    with open(src_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     data = copy.deepcopy(data)
 
@@ -146,19 +150,13 @@ def process_file(filename, is_body_origin=False):
     with open(dst, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
-    print(f"Gerado: {dst}")
+    print(f"Gerado com sucesso: {dst}")
 
 
 if __name__ == "__main__":
-    # Corpo (tem nó "Origin" envolvendo tudo)
-    process_file("Player_With_Face.blockymodel", is_body_origin=True)
-
-    # Cosméticos (raiz já é o próprio osso -- sem "Origin")
-    for cosmetic in [
-        "Underwear.blockymodel",
-        "FrostyWarm_Boots.blockymodel",
-        "Skater_Shorts.blockymodel",
-        "DoubleBraid.blockymodel",
-        "Mouth1.blockymodel",
-    ]:
-        process_file(cosmetic, is_body_origin=False)
+    os.makedirs(DST_DIR, exist_ok=True)
+    for src_path, (is_body_origin, dest_name) in FILES_MAP.items():
+        if os.path.exists(src_path):
+            process_file(src_path, is_body_origin, dest_name)
+        else:
+            print(f"Aviso: Arquivo de origem não encontrado: {src_path}")
