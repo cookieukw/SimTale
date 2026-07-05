@@ -20,24 +20,18 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
- * Sistema de tick que atualiza o crescimento de filhos ativos no mundo.
- *
- * Ao invés de iterar por entidades, itera pela lista global de filhos
- * ativos em {@link LifecycleManager#ACTIVE_CHILDREN}.
- *
- * Este tick roda a cada 100 ticks (~5 segundos) para performance.
+ * Tick system for child growth.
  */
 public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
 
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
-    private static final int TICK_INTERVAL = 100; // A cada ~5 segundos
+    private static final int TICK_INTERVAL = 100; 
     private long lastTick = 0;
 
     @NullableDecl
     @Override
     public Query<EntityStore> getQuery() {
-        // Precisamos de um query válido para ser registrado.
-        // Usamos NPCEntity como base — na prática iteramos a lista global.
+        // Needs a valid query to be registered.
         return NPCEntity.getComponentType();
     }
 
@@ -45,7 +39,7 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
     public void tick(float dt, int index, @Nonnull ArchetypeChunk<EntityStore> chunk,
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
 
-        // Executar apenas uma vez por intervalo, no primeiro index
+        // Run only once per interval, at the first index
         if (index != 0) return;
 
         World world = null;
@@ -56,22 +50,22 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
         if (world == null) return;
         long worldTick = world.getTick();
 
-        // Throttle: só roda a cada TICK_INTERVAL ticks
+        // Throttle: Only runs every TICK_INTERVAL ticks
         if (worldTick - lastTick < TICK_INTERVAL) return;
         lastTick = worldTick;
 
-        // Iterar todos os filhos ativos
+        // Iterate all active children
         for (int i = LifecycleManager.ACTIVE_CHILDREN.size() - 1; i >= 0; i--) {
             GrowthComponent child = LifecycleManager.ACTIVE_CHILDREN.get(i);
             LifecycleManager.tickGrowth(child, worldTick);
 
-            // Se ficou adulto, remover da lista (o onBecameAdult já foi chamado)
+            // If became adult, remove from list (onBecameAdult has already been called)
             if (child.isAdult()) {
                 LifecycleManager.ACTIVE_CHILDREN.remove(i);
             }
         }
 
-        // Tick da IA materna para cada mãe com filhos que precisam de cuidado
+        // Mother AI tick for each mother with children needing care
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc.entityId == null) continue;
             java.util.List<GrowthComponent> needingCare =
