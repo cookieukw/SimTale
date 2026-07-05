@@ -14,6 +14,7 @@ import java.util.UUID;
  */
 public class GrowthComponent {
 
+    public UUID childId;
     public UUID motherId;
 
     public UUID fatherId;
