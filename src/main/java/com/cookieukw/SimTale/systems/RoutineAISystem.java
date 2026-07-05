@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.ArchetypeChunk;
@@ -11,7 +12,6 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
-import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -20,7 +20,6 @@ import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import java.util.*;
 
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
-import com.cookieukw.SimTale.systems.BedRegistrySystem;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
@@ -229,6 +228,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
             if (dx*dx + dz*dz < 1.5 * 1.5) {
                 clearMoveTarget(ref, ai);
+                
+                // Snap position exactly to bed surface with a small Y offset
+                Vector3d snapPos = new Vector3d(ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.y + 0.35, ai.targetBlockPosition.z + 0.5);
+                transform.teleportPosition(snapPos);
+                
+                // Align rotation to bed's yaw
+                float bedYaw = npc.bedLocation != null ? npc.bedLocation.yaw : 0f;
+                transform.teleportRotation(new Rotation3f(0f, bedYaw, 0f));
+                store.putComponent(ref, TransformComponent.getComponentType(), transform);
+
                 ai.currentTask = TaskType.SLEEPING;
                 playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
             } else {

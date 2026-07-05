@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.component.query.Query;
+import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.joml.Vector3d;
 
 import java.util.Collections;
@@ -34,30 +35,32 @@ public class BedRegistrySystem extends RefChangeSystem<EntityStore, PersistentMo
     }
 
     @Override
-    public void onComponentAdded(Ref<EntityStore> ref, PersistentModel pm, Store<EntityStore> store, CommandBuffer<EntityStore> cb) {
+    public void onComponentAdded(@NonNullDecl Ref<EntityStore> ref, PersistentModel pm, @NonNullDecl Store<EntityStore> store, @NonNullDecl CommandBuffer<EntityStore> cb) {
         if (pm.getModelReference().getModelAssetId() != null) {
             String mName = pm.getModelReference().getModelAssetId().toLowerCase();
             if (mName.contains("bed") || mName.contains("cama") || mName.contains("furniture_village_bed")) {
                 TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
                 if (tc != null) {
                     Vector3d bedPos = tc.getPosition();
-                    BedPos bp = new BedPos((int) Math.floor(bedPos.x), (int) Math.floor(bedPos.y), (int) Math.floor(bedPos.z));
+                    com.hypixel.hytale.math.vector.Rotation3f rot = tc.getRotation();
+                    float yaw = rot.yaw();
+                    BedPos bp = new BedPos((int) Math.floor(bedPos.x), (int) Math.floor(bedPos.y), (int) Math.floor(bedPos.z), yaw);
                     BEDS.add(bp);
-                    System.out.println("[SimTale] Bed added to registry at: " + bp.x + ", " + bp.y + ", " + bp.z + " (Total active: " + BEDS.size() + ")");
+                    System.out.println("[SimTale] Bed added to registry at: " + bp.x + ", " + bp.y + ", " + bp.z + " with yaw: " + yaw + " (Total active: " + BEDS.size() + ")");
                 }
             }
         }
     }
 
     @Override
-    public void onComponentSet(Ref<EntityStore> ref, PersistentModel oldPm, PersistentModel newPm, Store<EntityStore> store, CommandBuffer<EntityStore> cb) {
+    public void onComponentSet(@NonNullDecl Ref<EntityStore> ref, PersistentModel oldPm, @NonNullDecl PersistentModel newPm, @NonNullDecl Store<EntityStore> store, @NonNullDecl CommandBuffer<EntityStore> cb) {
         // Unlikely to change models, but if it ceases to be a bed or becomes one:
         onComponentRemoved(ref, oldPm, store, cb);
         onComponentAdded(ref, newPm, store, cb);
     }
 
     @Override
-    public void onComponentRemoved(Ref<EntityStore> ref, PersistentModel pm, Store<EntityStore> store, CommandBuffer<EntityStore> cb) {
+    public void onComponentRemoved(@NonNullDecl Ref<EntityStore> ref, PersistentModel pm, @NonNullDecl Store<EntityStore> store, @NonNullDecl CommandBuffer<EntityStore> cb) {
         if (pm.getModelReference().getModelAssetId() != null) {
             String mName = pm.getModelReference().getModelAssetId().toLowerCase();
             if (mName.contains("bed") || mName.contains("cama") || mName.contains("furniture_village_bed")) {
