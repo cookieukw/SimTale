@@ -1,12 +1,17 @@
 package com.cookieukw.SimTale.core;
 
+import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 import org.joml.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * Mock architecture for Marriage, Pregnancy, and shared housing.
+ * Gerencia casamento, casa compartilhada e lista de filhos de um NPC.
+ *
+ * A gravidez agora é gerenciada pelo {@link PregnancyComponent} no SimNPCComponent,
+ * e o crescimento pelo {@link GrowthComponent} no LifecycleManager.
  */
 public class FamilySystem {
     public boolean isMarried = false;
@@ -15,13 +20,14 @@ public class FamilySystem {
     public boolean hasSharedHome = false;
     public double homeX, homeY, homeZ;
     
+    /** Lista de filhos (dados simplificados para persistência). */
     public List<Child> children = new ArrayList<>();
-    
-    public boolean isPregnant = false;
-    public int pregnancyDays = 0;
     
     public FamilySystem() {}
     
+    /**
+     * Realiza o casamento com um NPC.
+     */
     public void marry(UUID newSpouseId, Vector3d sharedHome) {
         this.isMarried = true;
         this.spouseId = newSpouseId;
@@ -32,39 +38,46 @@ public class FamilySystem {
             this.homeZ = sharedHome.z;
         }
     }
-    
-    public void attemptPregnancy(Gender thisGender, Gender spouseGender) {
-        if (isMarried && !isPregnant) {
-            boolean canHaveBiologicalChild = 
-                (thisGender == Gender.FEMALE && spouseGender == Gender.MALE) ||
-                (thisGender == Gender.MALE && spouseGender == Gender.FEMALE);
-                
-            if (canHaveBiologicalChild) {
-                // Chance calculation here based on mood/relationship
-                this.isPregnant = true;
-                this.pregnancyDays = 0;
-            }
-        }
+
+    /**
+     * Desfaz o casamento.
+     */
+    public void divorce() {
+        this.isMarried = false;
+        this.spouseId = null;
     }
-    
-    public void tickPregnancy() {
-        if (isPregnant) {
-            pregnancyDays++;
-            if (pregnancyDays >= 5) { // 5 in-game days
-                isPregnant = false;
-                pregnancyDays = 0;
-                onChildBirth();
-            }
-        }
-    }
-    
-    private void onChildBirth() {
-        
-        children.add(new Child("Bebê"));
-    }
-    
+
+    /**
+     * Retorna a localização da casa compartilhada, ou null se não tiver.
+     */
     public Vector3d getSharedHomeLocation() {
         if (!hasSharedHome) return null;
         return new Vector3d(homeX, homeY, homeZ);
+    }
+
+    /**
+     * Define a localização da casa compartilhada.
+     */
+    public void setSharedHome(Vector3d pos) {
+        if (pos != null) {
+            this.hasSharedHome = true;
+            this.homeX = pos.x;
+            this.homeY = pos.y;
+            this.homeZ = pos.z;
+        }
+    }
+
+    /**
+     * Número total de filhos.
+     */
+    public int getChildCount() {
+        return children.size();
+    }
+
+    /**
+     * Verifica se pode ter mais filhos (limite de 4 por casal).
+     */
+    public boolean canHaveMoreChildren() {
+        return children.size() < 4;
     }
 }
