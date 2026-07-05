@@ -21,10 +21,10 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
- * Sistema de tick que monitora NPCs grávidas e dispara o nascimento
- * quando a duração da gravidez expira.
+ * Tick system that monitors pregnant NPCs and triggers birth
+ * when the pregnancy duration expires.
  *
- * Roda a cada tick para cada NPC SimTale que tenha PregnancyComponent ativo.
+ * Runs every tick for each SimTale NPC with an active PregnancyComponent.
  */
 public class PregnancyTickSystem extends EntityTickingSystem<EntityStore> {
 
@@ -43,13 +43,13 @@ public class PregnancyTickSystem extends EntityTickingSystem<EntityStore> {
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
         if (npc == null) return;
 
-        // Apenas NPCs femininas podem estar grávidas
+        // Only females can be pregnant
         if (npc.gender != Gender.FEMALE) return;
 
         PregnancyComponent pregnancy = npc.pregnancy;
         if (pregnancy == null || !pregnancy.pregnant) return;
 
-        // Obter tick atual do mundo
+        // Get current world tick
         World world = null;
         for (World w : Universe.get().getWorlds().values()) {
             world = w;
@@ -58,15 +58,15 @@ public class PregnancyTickSystem extends EntityTickingSystem<EntityStore> {
         if (world == null) return;
         long worldTick = world.getTick();
 
-        // Atualizar trimestre
+        // Update trimester
         pregnancy.updateTrimester(worldTick);
 
-        // Aplicar comportamento de grávida (stub por enquanto)
+        // Apply pregnancy behavior (stub for now)
         LifecycleManager.applyPregnancyBehavior(npc);
 
-        // Verificar se é hora de nascer
+        // Check if it's time to give birth
         if (pregnancy.isReadyToBirth(worldTick)) {
-            LOGGER.atInfo().log("SimTale: " + npc.name + " está dando à luz!");
+            LOGGER.atInfo().log("SimTale: " + npc.name + " is giving birth!");
             LifecycleManager.birthBaby(npc, store, world, worldTick);
         }
     }
