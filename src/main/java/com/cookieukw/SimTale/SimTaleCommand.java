@@ -17,7 +17,6 @@ import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayer
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.component.RemoveReason;
@@ -26,6 +25,8 @@ import java.util.List;
 import java.util.ArrayList;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookie.caskara.Caskara;
+import com.cookieukw.SimTale.db.SimNPCData;
+import com.cookieukw.SimTale.ai.RoutineAIComponent;
 
 /**
  * Commands for the SimTale plugin.
@@ -42,6 +43,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new TpAllSubCommand());
         this.addSubCommand(new ClearAllSubCommand());
         this.addSubCommand(new ForceSpawnSubCommand());
+        this.addSubCommand(new ForceSleepSubCommand());
     }
 
     @Override
@@ -52,7 +54,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -179,7 +181,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     count++;
                 }
                 PlumbobSystem.removePlumbob(npc.entityId);
-                Caskara.delete(npc.entityId.toString(), com.cookieukw.SimTale.db.SimNPCData.class);
+                Caskara.delete(npc.entityId.toString(), SimNPCData.class);
             }
             SimTale.ACTIVE_NPCS.clear();
             ctx.sendMessage(Message.raw("Removidos permanentemente " + count + " NPCs do Hytale e banco de dados."));
@@ -221,6 +223,54 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             SimNPCPersistence.saveNPC(comp);
 
             ctx.sendMessage(Message.raw("Forcado spawn de NPC de debug do tipo: " + type.name()));
+        }
+    }
+
+    private static class ForceSleepSubCommand extends AbstractPlayerCommand {
+        public ForceSleepSubCommand() {
+            super("forcesleep", "Forca o NPC mais proximo a procurar uma cama e ir dormir");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null) {
+                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (playerTransform != null && npcTransform != null) {
+                        Vector3d pPos = playerTransform.getPosition();
+                        Vector3d nPos = npcTransform.getPosition();
+                        double distSq = pPos.distanceSquared(nPos);
+                        if (distSq < minDistance) {
+                            minDistance = distSq;
+                            nearestNPC = npc;
+                        }
+                    }
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("Nenhum NPC por perto."));
+                return;
+            }
+
+            nearestNPC.needs.energy = 0f;
+            nearestNPC.bedLocation = null;
+            nearestNPC.family.hasSharedHome = false;
+            
+            RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (ai != null) {
+                ai.currentTask = RoutineAIComponent.TaskType.FINDING_BED;
+                ai.targetBlockPosition = null;
+                ai.taskStartTime = world.getTick();
+                store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
+            }
+            
+            ctx.sendMessage(Message.raw("Forcando " + nearestNPC.name + " a ir dormir! Energia definida para 0."));
         }
     }
 }

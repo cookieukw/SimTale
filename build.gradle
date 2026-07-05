@@ -20,7 +20,6 @@ ext {
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(java_version)
     withSourcesJar()
-    withJavadocJar()
 }
 
 // Configuração para indexar pastas de assets extras no IDE e no JAR
