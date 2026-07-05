@@ -21,35 +21,30 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
- * Orquestrador central do sistema de gravidez e ciclo de vida.
+ * Central orchestrator of the pregnancy and life cycle system.
  *
- * Responsável por:
- * - Iniciar gravidez
- * - Realizar nascimento (spawn do filho)
- * - Atualizar crescimento
- * - Aplicar genética
- * - Converter filho adulto em NPC independente
+ * Responsible for:
+ * - Starting pregnancy
+ * - Performing birth (child spawn)
+ * - Updating growth
+ * - Applying genetics
+ * - Converting adult child into independent NPC
  *
- * Muitas funções são stubs para implementação futura.
+ * Many functions are stubs for future implementation.
  */
 public class LifecycleManager {
 
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
-    /** Lista global de filhos ativos no mundo. */
     public static final List<GrowthComponent> ACTIVE_CHILDREN = new ArrayList<>();
 
-    // =========================================================================
-    // GRAVIDEZ
-    // =========================================================================
-
     /**
-     * Tenta iniciar uma gravidez em um NPC feminino.
+     * Try to start a pregnancy in a female NPC.
      *
-     * @param mother     componente da mãe (deve ser FEMALE)
-     * @param fatherId   UUID do pai
-     * @param worldTick  tick atual do mundo
-     * @return true se a gravidez foi iniciada com sucesso
+     * @param mother     mother component (must be FEMALE)
+     * @param fatherId   UUID of the father
+     * @param worldTick  tick actual of the world
+     * @return true if the pregnancy was started successfully
      */
     public static boolean startPregnancy(SimNPCComponent mother, UUID fatherId, long worldTick) {
         if (mother.gender != Gender.FEMALE) {
@@ -62,20 +57,19 @@ public class LifecycleManager {
             return false;
         }
 
-        // Verifica se está casada com o pai
+        // Check if she is married to the father
         if (!mother.family.isMarried || !fatherId.equals(mother.family.spouseId)) {
             LOGGER.atInfo().log("SimTale: " + mother.name + " não é casada com o pai.");
             return false;
         }
 
-        // Verifica romance mínimo
+        // Minimum romance check
         Relationship rel = mother.getRelationship(fatherId);
         if (rel.romance < 50) {
             LOGGER.atInfo().log("SimTale: Romance insuficiente para gravidez (" + rel.romance + "/50)");
             return false;
         }
 
-        // Iniciar!
         if (mother.pregnancy == null) {
             mother.pregnancy = new PregnancyComponent();
         }
@@ -85,19 +79,15 @@ public class LifecycleManager {
         return true;
     }
 
-    // =========================================================================
-    // NASCIMENTO
-    // =========================================================================
-
     /**
-     * Realiza o nascimento de um bebê.
-     * Chamado pelo PregnancyTickSystem quando a gravidez expira.
+     * Perform the birth of a baby.
+     * Called by the PregnancyTickSystem when the pregnancy expires.
      *
-     * @param mother    componente da mãe
-     * @param store     store de entidades
-     * @param world     mundo atual
+     * @param mother    mother component
+     * @param store     store of entities
+     * @param world     world atual
      * @param worldTick tick atual
-     * @return o GrowthComponent do filho criado, ou null se falhou
+     * @return the GrowthComponent of the created child, or null if failed
      */
     public static GrowthComponent birthBaby(SimNPCComponent mother, Store<EntityStore> store,
                                              World world, long worldTick) {
@@ -107,29 +97,22 @@ public class LifecycleManager {
 
         UUID fatherId = mother.pregnancy.fatherId;
 
-        // Encontrar o componente do pai para genética
         SimNPCComponent father = findNPCById(fatherId);
         GeneticsData motherGenetics = getOrCreateGenetics(mother);
         GeneticsData fatherGenetics = father != null ? getOrCreateGenetics(father) : new GeneticsData();
 
-        // Combinar genética
         GeneticsData childGenetics = GeneticsData.combine(motherGenetics, fatherGenetics);
 
-        // Determinar gênero aleatoriamente
         Gender childGender = Math.random() < 0.5 ? Gender.MALE : Gender.FEMALE;
 
-        // Gerar nome
         String childFirstName = SimNPCNameGenerator.generate();
-        // Se o nome gerado tem sobrenome, tiramos para usar herança
         if (childFirstName.contains(" ")) {
             childFirstName = childFirstName.substring(0, childFirstName.indexOf(' '));
         }
 
-        // Herdar sobrenome
         String fatherName = father != null ? father.name : "";
         String childSurname = GeneticsData.inheritSurname(mother.name, fatherName);
 
-        // Criar GrowthComponent
         GrowthComponent child = new GrowthComponent(
             mother.entityId,
             fatherId,
@@ -140,14 +123,12 @@ public class LifecycleManager {
             childSurname
         );
 
-        // Spawnar a entidade do bebê no mundo
-        // Por enquanto usa o modelo de criança existente
         SimNPCFactory.NPCType childType = childGender == Gender.MALE
             ? SimNPCFactory.NPCType.CHILD_MALE
             : SimNPCFactory.NPCType.CHILD_FEMALE;
 
         try {
-            // Posição: ao lado da mãe
+            // Position: next to mother
             Vector3d spawnPos = getEntityPosition(mother, store);
             if (spawnPos == null) {
                 spawnPos = new Vector3d(0, 64, 0); // fallback
@@ -155,20 +136,16 @@ public class LifecycleManager {
 
             Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
 
-            // Registrar o filho na família da mãe
-            com.cookieukw.SimTale.core.Child familyChild = new com.cookieukw.SimTale.core.Child(child.getFullName());
+            Child familyChild = new Child(child.getFullName());
             mother.family.children.add(familyChild);
 
-            // Registrar na família do pai também
             if (father != null) {
-                com.cookieukw.SimTale.core.Child fatherFamilyChild = new com.cookieukw.SimTale.core.Child(child.getFullName());
+                Child fatherFamilyChild = new Child(child.getFullName());
                 father.family.children.add(fatherFamilyChild);
             }
 
-            // Mãe pega o bebê no colo automaticamente
             child.pickUp(mother.entityId);
 
-            // Registrar na lista global
             ACTIVE_CHILDREN.add(child);
 
             LOGGER.atInfo().log("SimTale: Nasceu " + child.getFullName() + " ("
@@ -179,132 +156,112 @@ public class LifecycleManager {
             return null;
         }
 
-        // Resetar gravidez
         mother.pregnancy.reset();
 
         return child;
     }
 
-    // =========================================================================
-    // CRESCIMENTO
-    // =========================================================================
-
     /**
-     * Tick de crescimento. Chamado pelo GrowthTickSystem para cada filho ativo.
+     * Growth tick. Called by the GrowthTickSystem for each active child.
      *
-     * @param child     componente de crescimento
-     * @param worldTick tick atual
+     * @param child     growth component
+     * @param worldTick current tick
      */
     public static void tickGrowth(GrowthComponent child, long worldTick) {
-        // Atualizar estágio
+        // Update stage
         boolean stageChanged = child.updateStage(worldTick);
 
         if (stageChanged) {
-            LOGGER.atInfo().log("SimTale: " + child.getFullName() + " cresceu para "
-                + child.stage.getDisplayName() + " (escala: " + child.currentScale + ")");
+            LOGGER.atInfo().log("SimTale: " + child.getFullName() + " grew to "
+                + child.stage.getDisplayName() + " (scale: " + child.currentScale + ")");
 
-            // TODO: Atualizar modelo/escala visual da entidade
+            // TODO: Update model/visual scale of the entity
             onStageChanged(child);
         }
 
-        // Se ainda precisa de cuidados, decair necessidades
+        // If still needs care, decay needs
         if (child.needsCare() && child.babyNeeds != null) {
             child.babyNeeds.tickDecay();
         }
     }
 
     /**
-     * Callback quando o estágio de crescimento muda.
-     * Stub — será implementado para trocar modelo/escala.
+     * Callback when growth stage changes.
+     * Stub — will be implemented to change model/scale.
      */
     private static void onStageChanged(GrowthComponent child) {
-        // TODO: Atualizar PersistentModel com nova escala
-        // TODO: Trocar modelo para versão adequada ao estágio
-        // TODO: Se atingiu ADULT, converter em NPC independente
+        // TODO: Update PersistentModel with new scale
+        // TODO: Change model to suitable version for the stage
+        // TODO: If reached ADULT, convert into independent NPC
         if (child.isAdult()) {
             onBecameAdult(child);
         }
     }
 
     /**
-     * Callback quando o filho se torna adulto.
-     * Stub — será implementado para converter em NPC completo.
+     * Callback when the child becomes an adult.
+     * Stub — will be implemented to convert into independent NPC.
      */
     private static void onBecameAdult(GrowthComponent child) {
         LOGGER.atInfo().log("SimTale: " + child.getFullName() + " se tornou adulto!");
-        // TODO: Converter a entidade de "filho" em um NPC adulto independente
-        // TODO: Gerar personalidade baseada nas experiências (babyNeeds.getPersonalityTendency())
-        // TODO: Remover da lista ACTIVE_CHILDREN
-        // TODO: Aplicar modelo adulto
+        // TODO: Convert the "child" entity into an independent adult NPC
+        // TODO: Generate personality based on experiences (babyNeeds.getPersonalityTendency())
+        // TODO: Remove from ACTIVE_CHILDREN list
+        // TODO: Apply adult model
     }
 
-    // =========================================================================
-    // ESCALA
-    // =========================================================================
-
     /**
-     * Retorna a escala visual para um determinado estágio.
+     * Get the visual scale for a given stage.
      */
     public static float getScaleForStage(GrowthStage stage) {
         return stage.getScale();
     }
 
-    // =========================================================================
-    // COMPORTAMENTO DA GRÁVIDA (STUBS)
-    // =========================================================================
-
     /**
-     * Aplica modificações de comportamento durante a gravidez.
-     * Stub vazio — será implementado futuramente.
+     * Apply modifications of behavior during pregnancy.
+     * Stub — will be implemented in the future.
      *
-     * Comportamentos planejados:
-     * - Dorme mais
-     * - Come mais
-     * - Anda mais devagar
-     * - Animação segurando barriga
-     * - Diálogo diferente
-     * - Evita combate
+     * Planned behaviors:
+     * - Sleeps more
+     * - Eats more
+     * - Walks slower
+     * - Animation holding belly
+     * - Different dialogue
+     * - Avoids combat
      */
     public static void applyPregnancyBehavior(SimNPCComponent mother) {
-        // TODO: Implementar comportamento de grávida
+        // TODO: Implement pregnancy behavior
     }
 
     /**
-     * Retorna o multiplicador de velocidade durante a gravidez.
-     * Stub — retorna 1.0 por enquanto.
+     * Get the speed multiplier during pregnancy.
+     * Stub — returns 1.0 for now.
      */
     public static float getPregnancySpeedMultiplier(PregnancyComponent pregnancy, long currentTick) {
         if (pregnancy == null || !pregnancy.pregnant) return 1.0f;
-        // Mais lenta conforme avança a gravidez
-        // TODO: Implementar curva real
+        // Slower as pregnancy advances
+        // TODO: Implement real curve
         return 1.0f;
     }
 
-    // =========================================================================
-    // IA DA MÃE (STUBS)
-    // =========================================================================
-
     /**
-     * Lógica de IA para a mãe cuidando do bebê.
-     * Stub vazio.
+     * Mother AI logic for caring for the baby.
+     * Stub — will be implemented in the future.
      *
-     * Comportamentos planejados:
-     * - Se bebê longe → ir até bebê
-     * - Se bebê no chão → pegar bebê
-     * - Se bebê chorando → consolar
-     * - Se noite → dormir com bebê
-     * - Se player segurando → esperar
+     * Planned behaviors:
+     * - If baby is far → go to baby
+     * - If baby is on the ground → pick up baby
+     * - If baby is crying → comfort
+     * - If night → sleep with baby
+     * - If player holding → wait
      */
     public static void tickMotherAI(SimNPCComponent mother, GrowthComponent baby, long worldTick) {
-        // TODO: Implementar IA materna
+        // TODO: Implement mother AI
     }
 
-    // =========================================================================
-    // UTILITÁRIOS
-    // =========================================================================
-
+  
     /**
-     * Encontra um NPC na lista de ativos pelo UUID.
+     * Find an NPC in the active list by UUID.
      */
     private static SimNPCComponent findNPCById(UUID id) {
         if (id == null) return null;
@@ -317,11 +274,11 @@ public class LifecycleManager {
     }
 
     /**
-     * Obtém ou cria dados genéticos para um NPC existente.
-     * Necessário porque NPCs adultos não tinham genética antes deste sistema.
+     * Get or create genetic data for an existing NPC.
+     * Necessary because adult NPCs didn't have genetics before this system.
      */
     private static GeneticsData getOrCreateGenetics(SimNPCComponent npc) {
-        // NPCs antigos não têm dados genéticos — criamos baseado no entityId como seed
+        // Old NPCs don't have genetic data — we create based on entityId as seed
         if (npc.entityId != null) {
             return new GeneticsData(npc.entityId.getMostSignificantBits(), npc.entityId.getLeastSignificantBits());
         }
@@ -329,7 +286,7 @@ public class LifecycleManager {
     }
 
     /**
-     * Obtém a posição de um NPC no mundo.
+     * Get the position of an NPC in the world.
      */
     private static Vector3d getEntityPosition(SimNPCComponent npc, Store<EntityStore> store) {
         if (npc.entityRef == null) return null;
@@ -347,7 +304,7 @@ public class LifecycleManager {
     }
 
     /**
-     * Encontra um filho ativo pela UUID da mãe.
+     * Find active children by mother's UUID.
      */
     public static List<GrowthComponent> findChildrenOfMother(UUID motherId) {
         List<GrowthComponent> result = new ArrayList<>();
@@ -360,7 +317,7 @@ public class LifecycleManager {
     }
 
     /**
-     * Encontra filhos que precisam de cuidado (BABY ou TODDLER).
+     * Find children who need care (BABY or TODDLER).
      */
     public static List<GrowthComponent> findChildrenNeedingCare(UUID parentId) {
         List<GrowthComponent> result = new ArrayList<>();
