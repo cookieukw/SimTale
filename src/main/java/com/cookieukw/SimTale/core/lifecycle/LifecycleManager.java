@@ -9,6 +9,7 @@ import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.SimNPCNameGenerator;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.Child;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
@@ -51,6 +52,23 @@ public class LifecycleManager {
         if (mother.gender != Gender.FEMALE) {
             LOGGER.atWarning().log("SimTale: Tentativa de gravidez em NPC não-feminino: " + mother.name);
             return false;
+        }
+
+        // Only adult NPCs can get pregnant
+        if (mother.entityRef != null) {
+            NPCEntity npcEntity = mother.entityRef.getStore().getComponent(mother.entityRef, NPCEntity.getComponentType());
+            if (npcEntity != null && npcEntity.getRoleName() != null && npcEntity.getRoleName().toLowerCase().contains("child")) {
+                LOGGER.atWarning().log("SimTale: Gravidez cancelada. A NPC " + mother.name + " e uma criança!");
+                return false;
+            }
+        }
+
+        // Also validates if registered in the active children list and has not yet reached adulthood
+        for (GrowthComponent child : ACTIVE_CHILDREN) {
+            if (mother.entityId != null && mother.entityId.equals(child.childId) && !child.isAdult()) {
+                LOGGER.atWarning().log("SimTale: Gravidez cancelada. A NPC " + mother.name + " e um filho em crescimento!");
+                return false;
+            }
         }
 
         if (mother.pregnancy != null && mother.pregnancy.pregnant) {
