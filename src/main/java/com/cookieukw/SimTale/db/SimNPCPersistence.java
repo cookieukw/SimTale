@@ -37,7 +37,8 @@ public class SimNPCPersistence {
                 component.preferences,
                 component.family,
                 component.gender,
-                component.bedLocation);
+                component.bedLocation,
+                component.pregnancy);
 
         // Convert Map<UUID, Relationship> to Map<String, Relationship> for Caskara
         for (Map.Entry<UUID, Relationship> entry : component.relationships.entrySet()) {
@@ -78,6 +79,11 @@ public class SimNPCPersistence {
             for (Map.Entry<String, Relationship> entry : data.relationships.entrySet()) {
                 component.relationships.put(UUID.fromString(entry.getKey()), entry.getValue());
             }
+            
+            // Restore pregnancy
+            if (data.pregnancy != null) {
+                component.pregnancy = data.pregnancy;
+            }
         }
     }
 
@@ -116,6 +122,11 @@ public class SimNPCPersistence {
                         for (Map.Entry<String, Relationship> entry : data.relationships.entrySet()) {
                             comp.relationships.put(UUID.fromString(entry.getKey()), entry.getValue());
                         }
+                    }
+                    
+                    // Restore pregnancy
+                    if (data.pregnancy != null) {
+                        comp.pregnancy = data.pregnancy;
                     }
                     result.add(comp);
                 }
