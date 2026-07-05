@@ -24,9 +24,32 @@ import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.Message;
 import java.util.Random;
 
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
+import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+
 public class InteractionManager {
 
     public static Message performInteraction(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, InteractionType type) {
+        // Prevent any romantic interactions with children
+        boolean isChild = false;
+        if (npc.entityRef != null) {
+            NPCEntity npcEntity = 
+                npc.entityRef.getStore().getComponent(npc.entityRef, com.hypixel.hytale.server.npc.entities.NPCEntity.getComponentType());
+            if (npcEntity != null && npcEntity.getRoleName() != null && npcEntity.getRoleName().toLowerCase().contains("child")) {
+                isChild = true;
+            }
+        }
+        for (GrowthComponent child : com.cookieukw.SimTale.core.lifecycle.LifecycleManager.ACTIVE_CHILDREN) {
+            if (npc.entityId != null && npc.entityId.equals(child.childId) && !child.isAdult()) {
+                isChild = true;
+                break;
+            }
+        }
+
+        if (isChild && type == InteractionType.ROMANTIC) {
+            return Message.raw("Voce nao pode flertar com uma criança!");
+        }
+
         Mood mood = npc.getMood();
         int friendshipChange = 0;
         int romanceChange = 0;

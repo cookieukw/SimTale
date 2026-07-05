@@ -29,6 +29,8 @@ import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.entity.Frozen;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
+import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.joml.Vector3d;
@@ -135,7 +137,6 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             commandBuilder.set("#NpcSeason.TextSpans", Message.translation("simtale.ui.season").insert(Message.raw(" ")).insert(Message.translation("simtale." + seasonKey)));
         }
         
-        // Relationship
         Relationship rel = npc.getRelationship(playerRefComp.getUuid());
         Message statusMsg = Message.translation("simtale.rel." + rel.getStatusName().toLowerCase());
         Message relValues = Message.translation("simtale.ui.relationship.values")
@@ -144,6 +145,26 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             .param("affinity", String.valueOf(rel.affinity));
         commandBuilder.set("#NpcRelationship.TextSpans", 
             Message.translation("simtale.ui.relationship").insert(Message.raw(" ")).insert(relValues));
+
+        // --- Child Verification to Hide Flirt Button ---
+        boolean isChild = false;
+        if (npc.entityRef != null) {
+            NPCEntity npcEntity = 
+                store.getComponent(npc.entityRef, NPCEntity.getComponentType());
+            if (npcEntity != null && npcEntity.getRoleName() != null && npcEntity.getRoleName().toLowerCase().contains("child")) {
+                isChild = true;
+            }
+        }
+        for (GrowthComponent child : com.cookieukw.SimTale.core.lifecycle.LifecycleManager.ACTIVE_CHILDREN) {
+            if (npc.entityId != null && npc.entityId.equals(child.childId) && !child.isAdult()) {
+                isChild = true;
+                break;
+            }
+        }
+
+        if (isChild) {
+            commandBuilder.set("#FlirtButton.Visible", false);
+        }
 
         // --- Button Event Bindings ---
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ChatButton", new EventData().append("button", "ChatButton"), false);
