@@ -274,3 +274,7 @@ ui.gender.male = MASCULINO
 ui.gender.female = FEMININO
 gender.success.male = Gênero definido permanentemente como: MASCULINO
 gender.success.female = Gênero definido permanentemente como: FEMININO
+
+# BABY ITEM
+item.baby.name = Bebê
+item.baby.description = Um bebê recém-nascido. Carregue-o com carinho.

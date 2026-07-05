@@ -274,3 +274,7 @@ ui.gender.male = MALE
 ui.gender.female = FEMALE
 gender.success.male = Gender permanently set to: MALE
 gender.success.female = Gender permanently set to: FEMALE
+
+# BABY ITEM
+item.baby.name = Baby
+item.baby.description = A newborn baby. Carry it with care.
