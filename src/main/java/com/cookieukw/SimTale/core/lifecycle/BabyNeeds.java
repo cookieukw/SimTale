@@ -63,8 +63,7 @@ public class BabyNeeds {
      */
     public PersonalityTendency getPersonalityTendency() {
         float score = getWellbeingScore();
-        if (score > 0.7f) return PersonalityTendency.SOCIABLE;
-        if (score > 0.4f) return PersonalityTendency.NEUTRAL;
+        if (score > 0.5f) return PersonalityTendency.SOCIABLE;
         return PersonalityTendency.WITHDRAWN;
     }
 
