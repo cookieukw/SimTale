@@ -66,33 +66,33 @@ public class InteractionManager {
                     friendshipChange = -2;
                     affinityChange = -5;
                     response = getRandomOption(
-                        Message.translation("chat.funny.angry.1").param("name", npc.name),
-                        Message.translation("chat.funny.angry.2").param("name", npc.name),
-                        Message.translation("chat.funny.angry.3").param("name", npc.name),
-                        Message.translation("chat.funny.angry.4").param("name", npc.name),
-                        Message.translation("chat.funny.angry.5").param("name", npc.name)
+                        Message.translation("simtale.chat.funny.angry.1").param("name", npc.name),
+                        Message.translation("simtale.chat.funny.angry.2").param("name", npc.name),
+                        Message.translation("simtale.chat.funny.angry.3").param("name", npc.name),
+                        Message.translation("simtale.chat.funny.angry.4").param("name", npc.name),
+                        Message.translation("simtale.chat.funny.angry.5").param("name", npc.name)
                     );
                 } else if (npc.personality.traits.contains(Trait.FUNNY)) {
                     friendshipChange = 5;
                     affinityChange = 15;
                     trustChange = 2;
                     response = getRandomOption(
-                        Message.translation("chat.funny.trait.1").param("name", npc.name),
-                        Message.translation("chat.funny.trait.2").param("name", npc.name),
-                        Message.translation("chat.funny.trait.3").param("name", npc.name),
-                        Message.translation("chat.funny.trait.4").param("name", npc.name),
-                        Message.translation("chat.funny.trait.5").param("name", npc.name)
+                        Message.translation("simtale.chat.funny.trait.1").param("name", npc.name),
+                        Message.translation("simtale.chat.funny.trait.2").param("name", npc.name),
+                        Message.translation("simtale.chat.funny.trait.3").param("name", npc.name),
+                        Message.translation("simtale.chat.funny.trait.4").param("name", npc.name),
+                        Message.translation("simtale.chat.funny.trait.5").param("name", npc.name)
                     );
                 } else {
                     friendshipChange = 3;
                     affinityChange = 5;
                     trustChange = 1;
                     response = getRandomOption(
-                        Message.translation("chat.funny.normal.1").param("name", npc.name),
-                        Message.translation("chat.funny.normal.2").param("name", npc.name),
-                        Message.translation("chat.funny.normal.3").param("name", npc.name),
-                        Message.translation("chat.funny.normal.4").param("name", npc.name),
-                        Message.translation("chat.funny.normal.5").param("name", npc.name)
+                        Message.translation("simtale.chat.funny.normal.1").param("name", npc.name),
+                        Message.translation("simtale.chat.funny.normal.2").param("name", npc.name),
+                        Message.translation("simtale.chat.funny.normal.3").param("name", npc.name),
+                        Message.translation("simtale.chat.funny.normal.4").param("name", npc.name),
+                        Message.translation("simtale.chat.funny.normal.5").param("name", npc.name)
                     );
                 }
             }
@@ -104,33 +104,33 @@ public class InteractionManager {
                     affinityChange = -15;
                     trustChange = -2;
                     response = getRandomOption(
-                        Message.translation("chat.romantic.reject.1").param("name", npc.name),
-                        Message.translation("chat.romantic.reject.2").param("name", npc.name),
-                        Message.translation("chat.romantic.reject.3").param("name", npc.name),
-                        Message.translation("chat.romantic.reject.4").param("name", npc.name),
-                        Message.translation("chat.romantic.reject.5").param("name", npc.name)
+                        Message.translation("simtale.chat.romantic.reject.1").param("name", npc.name),
+                        Message.translation("simtale.chat.romantic.reject.2").param("name", npc.name),
+                        Message.translation("simtale.chat.romantic.reject.3").param("name", npc.name),
+                        Message.translation("simtale.chat.romantic.reject.4").param("name", npc.name),
+                        Message.translation("simtale.chat.romantic.reject.5").param("name", npc.name)
                     );
                 } else if (npc.personality.traits.contains(Trait.SHY)) {
                     romanceChange = 15;
                     affinityChange = 10;
                     trustChange = 2;
                     response = getRandomOption(
-                        Message.translation("chat.romantic.shy.1").param("name", npc.name),
-                        Message.translation("chat.romantic.shy.2").param("name", npc.name),
-                        Message.translation("chat.romantic.shy.3").param("name", npc.name),
-                        Message.translation("chat.romantic.shy.4").param("name", npc.name),
-                        Message.translation("chat.romantic.shy.5").param("name", npc.name)
+                        Message.translation("simtale.chat.romantic.shy.1").param("name", npc.name),
+                        Message.translation("simtale.chat.romantic.shy.2").param("name", npc.name),
+                        Message.translation("simtale.chat.romantic.shy.3").param("name", npc.name),
+                        Message.translation("simtale.chat.romantic.shy.4").param("name", npc.name),
+                        Message.translation("simtale.chat.romantic.shy.5").param("name", npc.name)
                     );
                 } else {
                     romanceChange = 10;
                     affinityChange = 5;
                     trustChange = 1;
                     response = getRandomOption(
-                        Message.translation("chat.romantic.normal.1").param("name", npc.name),
-                        Message.translation("chat.romantic.normal.2").param("name", npc.name),
-                        Message.translation("chat.romantic.normal.3").param("name", npc.name),
-                        Message.translation("chat.romantic.normal.4").param("name", npc.name),
-                        Message.translation("chat.romantic.normal.5").param("name", npc.name)
+                        Message.translation("simtale.chat.romantic.normal.1").param("name", npc.name),
+                        Message.translation("simtale.chat.romantic.normal.2").param("name", npc.name),
+                        Message.translation("simtale.chat.romantic.normal.3").param("name", npc.name),
+                        Message.translation("simtale.chat.romantic.normal.4").param("name", npc.name),
+                        Message.translation("simtale.chat.romantic.normal.5").param("name", npc.name)
                     );
                 }
             }
@@ -141,37 +141,37 @@ public class InteractionManager {
                     friendshipChange = -10;
                     affinityChange = -20;
                     response = getRandomOption(
-                        Message.translation("chat.mean.aggressive.1").param("name", npc.name),
-                        Message.translation("chat.mean.aggressive.2").param("name", npc.name),
-                        Message.translation("chat.mean.aggressive.3").param("name", npc.name),
-                        Message.translation("chat.mean.aggressive.4").param("name", npc.name),
-                        Message.translation("chat.mean.aggressive.5").param("name", npc.name)
+                        Message.translation("simtale.chat.mean.aggressive.1").param("name", npc.name),
+                        Message.translation("simtale.chat.mean.aggressive.2").param("name", npc.name),
+                        Message.translation("simtale.chat.mean.aggressive.3").param("name", npc.name),
+                        Message.translation("simtale.chat.mean.aggressive.4").param("name", npc.name),
+                        Message.translation("simtale.chat.mean.aggressive.5").param("name", npc.name)
                     );
                 } else if (npc.personality.traits.contains(Trait.NEEDY)) {
                     friendshipChange = -5;
                     affinityChange = -15;
                     response = getRandomOption(
-                        Message.translation("chat.mean.needy.1").param("name", npc.name),
-                        Message.translation("chat.mean.needy.2").param("name", npc.name),
-                        Message.translation("chat.mean.needy.3").param("name", npc.name),
-                        Message.translation("chat.mean.needy.4").param("name", npc.name),
-                        Message.translation("chat.mean.needy.5").param("name", npc.name)
+                        Message.translation("simtale.chat.mean.needy.1").param("name", npc.name),
+                        Message.translation("simtale.chat.mean.needy.2").param("name", npc.name),
+                        Message.translation("simtale.chat.mean.needy.3").param("name", npc.name),
+                        Message.translation("simtale.chat.mean.needy.4").param("name", npc.name),
+                        Message.translation("simtale.chat.mean.needy.5").param("name", npc.name)
                     );
                 } else {
                     friendshipChange = -5;
                     affinityChange = -15;
                     response = getRandomOption(
-                        Message.translation("chat.mean.normal.1").param("name", npc.name),
-                        Message.translation("chat.mean.normal.2").param("name", npc.name),
-                        Message.translation("chat.mean.normal.3").param("name", npc.name),
-                        Message.translation("chat.mean.normal.4").param("name", npc.name),
-                        Message.translation("chat.mean.normal.5").param("name", npc.name)
+                        Message.translation("simtale.chat.mean.normal.1").param("name", npc.name),
+                        Message.translation("simtale.chat.mean.normal.2").param("name", npc.name),
+                        Message.translation("simtale.chat.mean.normal.3").param("name", npc.name),
+                        Message.translation("simtale.chat.mean.normal.4").param("name", npc.name),
+                        Message.translation("simtale.chat.mean.normal.5").param("name", npc.name)
                     );
                 }
             }
             case RANDOM -> {
                 affinityChange = 1;
-                response = Message.translation("chat.random");
+                response = Message.translation("simtale.chat.random");
             }
             case GIFT -> {
                 Ref<EntityStore> pRef = playerRef != null ? playerRef.getReference() : null;
@@ -230,33 +230,33 @@ public class InteractionManager {
                     friendshipChange = 15;
                     affinityChange = 25;
                     trustChange = 8;
-                    response = Message.translation("chat.gift.loves").param("name", npc.name).param("itemName", itemName);
+                    response = Message.translation("simtale.chat.gift.loves").param("name", npc.name).param("itemName", itemName);
                 } else if (hates) {
                     friendshipChange = -15;
                     affinityChange = -20;
                     trustChange = -10;
-                    response = Message.translation("chat.gift.hates").param("name", npc.name).param("itemName", itemName);
+                    response = Message.translation("simtale.chat.gift.hates").param("name", npc.name).param("itemName", itemName);
                 } else if (isTrash) {
                     friendshipChange = -10;
                     affinityChange = -15;
                     trustChange = -5;
-                    response = Message.translation("chat.gift.trash").param("name", npc.name).param("itemName", itemName);
+                    response = Message.translation("simtale.chat.gift.trash").param("name", npc.name).param("itemName", itemName);
                 } else {
                     if (npc.personality.traits.contains(Trait.GREEDY)) {
                         friendshipChange = 10;
                         affinityChange = 20;
                         trustChange = 5;
-                        response = Message.translation("chat.gift.greedy").param("name", npc.name).param("itemName", itemName);
+                        response = Message.translation("simtale.chat.gift.greedy").param("name", npc.name).param("itemName", itemName);
                     } else if (npc.personality.traits.contains(Trait.PARANOID)) {
                         friendshipChange = -5;
                         affinityChange = -10;
                         trustChange = -10;
-                        response = Message.translation("chat.gift.paranoid").param("name", npc.name).param("itemName", itemName);
+                        response = Message.translation("simtale.chat.gift.paranoid").param("name", npc.name).param("itemName", itemName);
                     } else {
                         friendshipChange = 5;
                         affinityChange = 10;
                         trustChange = 3;
-                        response = Message.translation("chat.gift.normal").param("name", npc.name).param("itemName", itemName);
+                        response = Message.translation("simtale.chat.gift.normal").param("name", npc.name).param("itemName", itemName);
                     }
                 }
             }
@@ -287,14 +287,14 @@ public class InteractionManager {
                 
                 if (targetProf == null) {
                     rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
-                    return Message.translation("chat.prof.assign.unknown").param("name", npc.name).param("itemName", itemName);
+                    return Message.translation("simtale.chat.prof.assign.unknown").param("name", npc.name).param("itemName", itemName);
                 }
                 
                 String profName = targetProf.ptName; // Will be localized later if needed or we can rely on UI translation for now
                 
                 if (npc.profession == targetProf) {
                     rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
-                    return Message.translation("chat.prof.assign.already").param("name", npc.name).param("profName", profName);
+                    return Message.translation("simtale.chat.prof.assign.already").param("name", npc.name).param("profName", profName);
                 }
                 
                 boolean refuses = false;
@@ -303,10 +303,10 @@ public class InteractionManager {
                 if (npc.preferences != null && npc.preferences.dislikedProfessions.contains(targetProf)) {
                     refuses = true;
                     refuseReason = getRandomOption(
-                        Message.translation("chat.prof.assign.dislike.1").param("name", npc.name).param("profName", profName).param("itemName", itemName),
-                        Message.translation("chat.prof.assign.dislike.2").param("name", npc.name).param("profName", profName).param("itemName", itemName),
-                        Message.translation("chat.prof.assign.dislike.3").param("name", npc.name).param("profName", profName).param("itemName", itemName),
-                        Message.translation("chat.prof.assign.dislike.4").param("name", npc.name).param("profName", profName).param("itemName", itemName)
+                        Message.translation("simtale.chat.prof.assign.dislike.1").param("name", npc.name).param("profName", profName).param("itemName", itemName),
+                        Message.translation("simtale.chat.prof.assign.dislike.2").param("name", npc.name).param("profName", profName).param("itemName", itemName),
+                        Message.translation("simtale.chat.prof.assign.dislike.3").param("name", npc.name).param("profName", profName).param("itemName", itemName),
+                        Message.translation("simtale.chat.prof.assign.dislike.4").param("name", npc.name).param("profName", profName).param("itemName", itemName)
                     );
                 }
                 
@@ -317,23 +317,23 @@ public class InteractionManager {
                     if (npc.personality.traits.contains(Trait.LAZY) && isHeavyWork && Math.random() < 0.6) {
                         refuses = true;
                         refuseReason = getRandomOption(
-                            Message.translation("chat.prof.assign.lazy.1").param("name", npc.name).param("profName", profName),
-                            Message.translation("chat.prof.assign.lazy.2").param("name", npc.name).param("profName", profName),
-                            Message.translation("chat.prof.assign.lazy.3").param("name", npc.name).param("profName", profName)
+                            Message.translation("simtale.chat.prof.assign.lazy.1").param("name", npc.name).param("profName", profName),
+                            Message.translation("simtale.chat.prof.assign.lazy.2").param("name", npc.name).param("profName", profName),
+                            Message.translation("simtale.chat.prof.assign.lazy.3").param("name", npc.name).param("profName", profName)
                         );
                     } else if (npc.personality.traits.contains(Trait.AGGRESSIVE) && isPeacefulWork && Math.random() < 0.7) {
                         refuses = true;
                         refuseReason = getRandomOption(
-                            Message.translation("chat.prof.assign.aggressive.1").param("name", npc.name).param("profName", profName),
-                            Message.translation("chat.prof.assign.aggressive.2").param("name", npc.name).param("profName", profName),
-                            Message.translation("chat.prof.assign.aggressive.3").param("name", npc.name).param("profName", profName)
+                            Message.translation("simtale.chat.prof.assign.aggressive.1").param("name", npc.name).param("profName", profName),
+                            Message.translation("simtale.chat.prof.assign.aggressive.2").param("name", npc.name).param("profName", profName),
+                            Message.translation("simtale.chat.prof.assign.aggressive.3").param("name", npc.name).param("profName", profName)
                         );
                     } else if (mood == Mood.ANGRY && Math.random() < 0.5) {
                         refuses = true;
                         refuseReason = getRandomOption(
-                            Message.translation("chat.prof.assign.angry.1").param("name", npc.name),
-                            Message.translation("chat.prof.assign.angry.2").param("name", npc.name),
-                            Message.translation("chat.prof.assign.angry.3").param("name", npc.name)
+                            Message.translation("simtale.chat.prof.assign.angry.1").param("name", npc.name),
+                            Message.translation("simtale.chat.prof.assign.angry.2").param("name", npc.name),
+                            Message.translation("simtale.chat.prof.assign.angry.3").param("name", npc.name)
                         );
                     }
                 }
@@ -347,10 +347,9 @@ public class InteractionManager {
                     Message prefix = Message.raw("");
                     if (npc.profession != null && npc.profession != Profession.UNEMPLOYED 
                         && !npc.profession.triggerItemKeyword.isEmpty()) {
-                        prefix = Message.translation("chat.prof.assign.return").param("name", npc.name).param("profName", npc.profession.ptName).insert(Message.raw(" "));
+                        prefix = Message.translation("simtale.chat.prof.assign.return").param("name", npc.name).param("profName", npc.profession.ptName).insert(Message.raw(" "));
                     }
-                    
-                    Profession oldProf = npc.profession;
+
                     npc.profession = targetProf;
                     
                     hotbar.getInventory().removeItemStackFromSlot(activeSlot, 1);
@@ -365,17 +364,17 @@ public class InteractionManager {
                         affinityChange = 25;
                         trustChange = 10;
                         reaction = getRandomOption(
-                            Message.translation("chat.prof.assign.liked.1").param("name", npc.name).param("profName", profName).param("itemName", itemName),
-                            Message.translation("chat.prof.assign.liked.2").param("name", npc.name).param("profName", profName).param("itemName", itemName),
-                            Message.translation("chat.prof.assign.liked.3").param("name", npc.name).param("profName", profName).param("itemName", itemName)
+                            Message.translation("simtale.chat.prof.assign.liked.1").param("name", npc.name).param("profName", profName).param("itemName", itemName),
+                            Message.translation("simtale.chat.prof.assign.liked.2").param("name", npc.name).param("profName", profName).param("itemName", itemName),
+                            Message.translation("simtale.chat.prof.assign.liked.3").param("name", npc.name).param("profName", profName).param("itemName", itemName)
                         );
                     } else {
                         reaction = getRandomOption(
-                            Message.translation("chat.prof.assign.accept.1").param("name", npc.name).param("profName", profName).param("itemName", itemName),
-                            Message.translation("chat.prof.assign.accept.2").param("name", npc.name).param("profName", profName).param("itemName", itemName),
-                            Message.translation("chat.prof.assign.accept.3").param("name", npc.name).param("profName", profName).param("itemName", itemName),
-                            Message.translation("chat.prof.assign.accept.4").param("name", npc.name).param("profName", profName).param("itemName", itemName),
-                            Message.translation("chat.prof.assign.accept.5").param("name", npc.name).param("profName", profName).param("itemName", itemName)
+                            Message.translation("simtale.chat.prof.assign.accept.1").param("name", npc.name).param("profName", profName).param("itemName", itemName),
+                            Message.translation("simtale.chat.prof.assign.accept.2").param("name", npc.name).param("profName", profName).param("itemName", itemName),
+                            Message.translation("simtale.chat.prof.assign.accept.3").param("name", npc.name).param("profName", profName).param("itemName", itemName),
+                            Message.translation("simtale.chat.prof.assign.accept.4").param("name", npc.name).param("profName", profName).param("itemName", itemName),
+                            Message.translation("simtale.chat.prof.assign.accept.5").param("name", npc.name).param("profName", profName).param("itemName", itemName)
                         );
                     }
                     response = prefix.insert(reaction);
@@ -389,19 +388,17 @@ public class InteractionManager {
             romanceChange = 0;
             trustChange = 0;
             if (type == InteractionType.FRIENDLY) {
-                response = Message.translation("chat.cooldown.friendly").param("name", npc.name);
+                response = Message.translation("simtale.chat.cooldown.friendly").param("name", npc.name);
             } else if (type == InteractionType.GIFT) {
-                response = Message.translation("chat.cooldown.gift").param("name", npc.name);
+                response = Message.translation("simtale.chat.cooldown.gift").param("name", npc.name);
             } else {
-                response = Message.translation("chat.cooldown.general").param("name", npc.name);
+                response = Message.translation("simtale.chat.cooldown.general").param("name", npc.name);
             }
         } else if (missedLongTime && type == InteractionType.FRIENDLY) {
-            response = Message.translation("chat.context.missed").param("name", npc.name).insert(Message.raw(" ")).insert(response);
+            response = Message.translation("simtale.chat.context.missed").param("name", npc.name).insert(Message.raw(" ")).insert(response);
         }
 
-        if (memEvent != null) {
-            npc.memory.addMemory(memEvent, playerUuid);
-        }
+        npc.memory.addMemory(memEvent, playerUuid);
         npc.getRelationship(playerUuid).addAffinity(affinityChange);
         npc.getRelationship(playerUuid).addFriendship(friendshipChange);
         npc.getRelationship(playerUuid).addRomance(romanceChange);
@@ -427,7 +424,7 @@ public class InteractionManager {
                         if (healthVal != null) {
                             float health = healthVal.get();
                             if (health > 0 && health <= 20f) {
-                                return Message.translation("chat.context.bleeding").param("name", npc.name);
+                                return Message.translation("simtale.chat.context.bleeding").param("name", npc.name);
                             }
                         }
                     }
@@ -443,47 +440,47 @@ public class InteractionManager {
                 WorldTimeResource timeResource = world.getEntityStore().getStore().getResource(WorldTimeResource.getResourceType());
                 float dayProgress = timeResource.getDayProgress();
                 if (dayProgress < 0.25f || dayProgress > 0.75f) {
-                    return Message.translation("chat.context.night").param("name", npc.name);
+                    return Message.translation("simtale.chat.context.night").param("name", npc.name);
                 }
             }
         }
 
         if (npc.memory.remembers(MemoryEvent.INSULTED, playerUuid, 300000)) {
-            return Message.translation("chat.context.insulted.recent").param("name", npc.name);
+            return Message.translation("simtale.chat.context.insulted.recent").param("name", npc.name);
         }
 
         for (SimNPCComponent otherNpc : SimTale.ACTIVE_NPCS) {
             if (otherNpc != npc && otherNpc.memory.remembers(MemoryEvent.INSULTED, playerUuid, 600000)) {
-                return Message.translation("chat.context.insulted.other").param("name", npc.name).param("otherName", otherNpc.name);
+                return Message.translation("simtale.chat.context.insulted.other").param("name", npc.name).param("otherName", otherNpc.name);
             }
         }
 
         if (npc.personality.traits.contains(Trait.GREEDY)) {
             return getRandomOption(
-                Message.translation("chat.greedy.greeting.1").param("name", npc.name),
-                Message.translation("chat.greedy.greeting.2").param("name", npc.name),
-                Message.translation("chat.greedy.greeting.3").param("name", npc.name)
+                Message.translation("simtale.chat.greedy.greeting.1").param("name", npc.name),
+                Message.translation("simtale.chat.greedy.greeting.2").param("name", npc.name),
+                Message.translation("simtale.chat.greedy.greeting.3").param("name", npc.name)
             );
         } else if (npc.personality.traits.contains(Trait.PARANOID)) {
             return getRandomOption(
-                Message.translation("chat.paranoid.greeting.1").param("name", npc.name),
-                Message.translation("chat.paranoid.greeting.2").param("name", npc.name),
-                Message.translation("chat.paranoid.greeting.3").param("name", npc.name)
+                Message.translation("simtale.chat.paranoid.greeting.1").param("name", npc.name),
+                Message.translation("simtale.chat.paranoid.greeting.2").param("name", npc.name),
+                Message.translation("simtale.chat.paranoid.greeting.3").param("name", npc.name)
             );
         } else if (npc.personality.traits.contains(Trait.LAZY)) {
             return getRandomOption(
-                Message.translation("chat.lazy.greeting.1").param("name", npc.name),
-                Message.translation("chat.lazy.greeting.2").param("name", npc.name),
-                Message.translation("chat.lazy.greeting.3").param("name", npc.name)
+                Message.translation("simtale.chat.lazy.greeting.1").param("name", npc.name),
+                Message.translation("simtale.chat.lazy.greeting.2").param("name", npc.name),
+                Message.translation("simtale.chat.lazy.greeting.3").param("name", npc.name)
             );
         }
 
         return getRandomOption(
-            Message.translation("chat.friendly.greeting.1").param("name", npc.name),
-            Message.translation("chat.friendly.greeting.2").param("name", npc.name),
-            Message.translation("chat.friendly.greeting.3").param("name", npc.name),
-            Message.translation("chat.friendly.greeting.4").param("name", npc.name),
-            Message.translation("chat.friendly.greeting.5").param("name", npc.name)
+            Message.translation("simtale.chat.friendly.greeting.1").param("name", npc.name),
+            Message.translation("simtale.chat.friendly.greeting.2").param("name", npc.name),
+            Message.translation("simtale.chat.friendly.greeting.3").param("name", npc.name),
+            Message.translation("simtale.chat.friendly.greeting.4").param("name", npc.name),
+            Message.translation("simtale.chat.friendly.greeting.5").param("name", npc.name)
         );
     }
 
