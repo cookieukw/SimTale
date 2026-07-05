@@ -5,54 +5,38 @@ import com.cookieukw.SimTale.core.Gender;
 import java.util.UUID;
 
 /**
- * Componente de crescimento atribuído a um NPC que é filho de outro.
- * Representa toda a informação de um ser que nasceu no jogo e está crescendo.
+ * Growth component assigned to an NPC that is the child of another.
+ * Represents all information about a being born in the game that is growing.
  *
- * Uma única entidade com este componente passa por todos os estágios
- * (BABY → TODDLER → CHILD → TEEN → ADULT) apenas mudando o estágio
- * e a escala visual.
+ * A single entity with this component goes through all stages
+ * (BABY → TODDLER → CHILD → TEEN → ADULT) just by changing the stage
+ * and the visual scale.
  */
 public class GrowthComponent {
 
-    /** UUID da mãe. */
     public UUID motherId;
 
-    /** UUID do pai. */
     public UUID fatherId;
 
-    /** Tick absoluto do mundo em que nasceu. */
     public long birthTick;
 
-    /** Estágio de crescimento atual. */
     public GrowthStage stage = GrowthStage.BABY;
 
-    /** Gênero do filho. */
     public Gender gender;
-
-    /** Dados genéticos (seeds para aparência e personalidade). */
     public GeneticsData genetics;
 
-    /** Necessidades do bebê (fome, afeto, saúde). */
     public BabyNeeds babyNeeds;
-
-    /** Nome do filho. */
     public String name;
 
-    /** Sobrenome herdado. */
     public String surname;
 
     /**
-     * Se true, o filho está sendo carregado por alguém (NPC mãe ou player).
-     * O UUID de quem está carregando fica em {@link #carriedBy}.
+     * If true, the child is being carried by someone (mother NPC or player).
+     * The UUID of who is carrying is in {@link #carriedBy}.
      */
     public boolean isBeingCarried = false;
-
-    /** UUID da entidade que está carregando este filho (mãe ou player). */
     public UUID carriedBy;
 
-    /**
-     * Escala atual aplicada ao modelo. Atualizada conforme o estágio muda.
-     */
     public float currentScale;
 
     public GrowthComponent() {
@@ -76,16 +60,16 @@ public class GrowthComponent {
     }
 
     /**
-     * Calcula a idade em dias in-game.
+     * Calculates the age in in-game days.
      */
     public int getAgeDays(long currentTick) {
         return (int) ((currentTick - birthTick) / PregnancyComponent.TICKS_PER_DAY);
     }
 
     /**
-     * Atualiza o estágio de crescimento baseado na idade.
+     * Updates the growth stage based on age.
      *
-     * @return true se o estágio mudou
+     * @return true if the stage changed
      */
     public boolean updateStage(long currentTick) {
         int ageDays = getAgeDays(currentTick);
@@ -98,43 +82,28 @@ public class GrowthComponent {
         return false;
     }
 
-    /**
-     * Verifica se o filho já é adulto.
-     */
+
     public boolean isAdult() {
         return stage == GrowthStage.ADULT;
     }
 
-    /**
-     * Verifica se o filho ainda precisa de cuidados (BABY ou TODDLER).
-     */
     public boolean needsCare() {
         return stage == GrowthStage.BABY || stage == GrowthStage.TODDLER;
     }
 
-    /**
-     * Pega o filho no colo.
-     */
     public void pickUp(UUID carrierId) {
         this.isBeingCarried = true;
         this.carriedBy = carrierId;
-        // Carregado → afeto sobe
         if (babyNeeds != null) {
             babyNeeds.showAffection(5f);
         }
     }
 
-    /**
-     * Solta o filho.
-     */
     public void putDown() {
         this.isBeingCarried = false;
         this.carriedBy = null;
     }
 
-    /**
-     * Retorna o nome completo (nome + sobrenome).
-     */
     public String getFullName() {
         if (surname != null && !surname.isEmpty()) {
             return name + " " + surname;
