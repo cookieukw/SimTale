@@ -25,7 +25,7 @@ Group {
 
     AssetImage #NpcPortrait {
       Anchor: (Width: 150, Height: 150, Bottom: 12);
-      AssetPath: "Textures/npc_portrait.jpg";
+      AssetPath: "Textures/npc_portrait.png";
     }
 
     Group #InfoPanel {
