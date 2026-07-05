@@ -45,24 +45,24 @@ FILES_MAP = {
 
 # Tabela calibrada
 NODE_SCALES = {
-    "Pelvis":       (0.97, 0.95, 0.97),
-    "Belly":        (0.97, 0.92, 0.97),
-    "Chest":        (0.97, 0.92, 0.97),
-    "Head":         (1.10, 1.10, 1.10),
-    "R-Shoulder":   (0.93, 0.93, 0.93),
-    "L-Shoulder":   (0.93, 0.93, 0.93),
-    "R-Arm":        (0.92, 0.88, 0.92),
-    "L-Arm":        (0.92, 0.88, 0.92),
-    "R-Forearm":    (0.92, 0.86, 0.92),
-    "L-Forearm":    (0.92, 0.86, 0.92),
-    "R-Hand":       (0.93, 0.93, 0.93),
-    "L-Hand":       (0.93, 0.93, 0.93),
-    "R-Thigh":      (0.93, 0.85, 0.93),
-    "L-Thigh":      (0.93, 0.85, 0.93),
-    "R-Calf":       (0.93, 0.82, 0.93),
-    "L-Calf":       (0.93, 0.82, 0.93),
-    "R-Foot":       (0.96, 0.96, 0.96),
-    "L-Foot":       (0.96, 0.96, 0.96),
+    "Pelvis":       (0.70, 0.68, 0.70),
+    "Belly":        (0.70, 0.65, 0.70),
+    "Chest":        (0.70, 0.65, 0.70),
+    "Head":         (1.20, 1.20, 1.20),
+    "R-Shoulder":   (0.70, 0.70, 0.70),
+    "L-Shoulder":   (0.70, 0.70, 0.70),
+    "R-Arm":        (0.68, 0.65, 0.68),
+    "L-Arm":        (0.68, 0.65, 0.68),
+    "R-Forearm":    (0.68, 0.65, 0.68),
+    "L-Forearm":    (0.68, 0.65, 0.68),
+    "R-Hand":       (0.70, 0.70, 0.70),
+    "L-Hand":       (0.70, 0.70, 0.70),
+    "R-Thigh":      (0.70, 0.65, 0.70),
+    "L-Thigh":      (0.70, 0.65, 0.70),
+    "R-Calf":       (0.70, 0.62, 0.70),
+    "L-Calf":       (0.70, 0.62, 0.70),
+    "R-Foot":       (0.75, 0.75, 0.75),
+    "L-Foot":       (0.75, 0.75, 0.75),
 }
 
 # Agora que usamos 'stretch' ao invés de 'size', o reposicionamento dos attachments
@@ -76,7 +76,7 @@ FACE_ATTACHMENT_NAMES = {
     "R-Ear-Attachment", "L-Ear-Attachment",
 }
 
-ROOT_HEIGHT_SCALE = 0.90
+ROOT_HEIGHT_SCALE = 0.65
 
 
 def get_own_scale(name, inherited_scale):

@@ -53,6 +53,9 @@ public class SimNPCFactory {
         } else if (type == NPCType.HUMAN_FEMALE) {
             int variant = 1 + (int)(Math.random() * 200);
             roleId = "SimTale_Human_Female_" + variant;
+        } else if (type == NPCType.CHILD) {
+            int variant = 1 + (int)(Math.random() * 10);
+            roleId = "SimTale_Human_Child_" + variant;
         }
 
         // 1. Spawn the NPC using the official Hytale NPC system
