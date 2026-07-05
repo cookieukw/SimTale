@@ -1,0 +1,55 @@
+Group {
+  LayoutMode: MiddleCenter;
+  Background: #000000CC;
+  Group #GenderPanel {
+    Anchor: (Width: 650, Height: 450);
+    LayoutMode: Top;
+    Background: #111422FF;
+    Padding: (Top: 40, Bottom: 40, Horizontal: 40);
+
+    Label #Title {
+      Text: "ESCOLHA DE GÊNERO";
+      Anchor: (Width: 570, Height: 48, Bottom: 16);
+      Style: (FontSize: 32, TextColor: #FFD700FF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+    }
+
+    Label #Subtitle {
+      Text: "Selecione o gênero do seu personagem. Esta escolha é permanente e definirá seu papel no sistema de casamento e gravidez do SimTale.";
+      Anchor: (Width: 520, Height: 70, Bottom: 40);
+      Style: (FontSize: 16, TextColor: #A0A5C0FF, HorizontalAlignment: Center, VerticalAlignment: Center, Wrap: true);
+    }
+
+    Group #ButtonsRow {
+      Anchor: (Width: 570, Height: 180);
+      LayoutMode: CenterMiddle;
+
+      Button #MaleButton {
+        Anchor: (Width: 260, Height: 150, Right: 24);
+        Background: #1E3A8AFF;
+        
+        Group #MaleContent {
+          LayoutMode: MiddleCenter;
+          Anchor: (Full: 0);
+          Label #MaleText {
+            Text: "MASCULINO";
+            Style: (FontSize: 24, TextColor: #E0F2FEFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+          }
+        }
+      }
+
+      Button #FemaleButton {
+        Anchor: (Width: 260, Height: 150);
+        Background: #881337FF;
+        
+        Group #FemaleContent {
+          LayoutMode: MiddleCenter;
+          Anchor: (Full: 0);
+          Label #FemaleText {
+            Text: "FEMININO";
+            Style: (FontSize: 24, TextColor: #FFE4E6FF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+          }
+        }
+      }
+    }
+  }
+}

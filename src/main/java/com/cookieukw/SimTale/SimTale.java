@@ -20,6 +20,9 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.cookieukw.SimTale.systems.SimTaleChatHandler;
 import com.hypixel.hytale.event.EventPriority;
 import com.cookieukw.SimTale.systems.MoodAnimationSystem;
+import com.cookieukw.SimTale.core.SimPlayerComponent;
+import com.cookieukw.SimTale.systems.PlayerJoinHandler;
+import com.hypixel.hytale.server.core.event.events.player.AddPlayerToWorldEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +43,7 @@ public class SimTale extends JavaPlugin {
     public static ComponentType<EntityStore, SimNPCComponent> SIM_NPC_COMPONENT_TYPE;
     public static ComponentType<EntityStore, RoutineAIComponent> ROUTINE_AI_COMPONENT_TYPE;
     public static ComponentType<EntityStore, ConstructionSiteComponent> CONSTRUCTION_COMPONENT_TYPE;
+    public static ComponentType<EntityStore, SimPlayerComponent> SIM_PLAYER_COMPONENT_TYPE;
     public static final List<SimNPCComponent> ACTIVE_NPCS = new ArrayList<>();
     public static final List<ConstructionSiteComponent> ACTIVE_SITES = new ArrayList<>();
     public static boolean debugForceSpawning = false;
@@ -62,6 +66,8 @@ public class SimTale extends JavaPlugin {
                 RoutineAIComponent::new);
         CONSTRUCTION_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(ConstructionSiteComponent.class, 
                 "simtale:construction_site", ConstructionSiteComponent.CODEC);
+        SIM_PLAYER_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(SimPlayerComponent.class,
+                SimPlayerComponent::new);
 
         // Register tick systems
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
@@ -79,6 +85,9 @@ public class SimTale extends JavaPlugin {
         // MobsAndMates: Register chat handler
         this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerChatEvent.class, "chat",
                 new SimTaleChatHandler());
+        
+        // SimTale: Register player join handler
+        this.getEventRegistry().registerGlobal(AddPlayerToWorldEvent.class, new PlayerJoinHandler());
 
         // Register commands
         this.getCommandRegistry()
