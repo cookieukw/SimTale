@@ -27,6 +27,14 @@ import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
+import com.cookieukw.SimTale.core.Gender;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
+import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
+import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
+import java.util.HashMap;
 
 /**
  * Commands for the SimTale plugin.
@@ -44,6 +52,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ClearAllSubCommand());
         this.addSubCommand(new ForceSpawnSubCommand());
         this.addSubCommand(new ForceSleepSubCommand());
+        this.addSubCommand(new ForcePregSubCommand());
+        this.addSubCommand(new ForceBirthSubCommand());
+        this.addSubCommand(new SetStageSubCommand());
     }
 
     @Override
@@ -54,7 +65,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -271,6 +282,166 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
             
             ctx.sendMessage(Message.raw("Forcando " + nearestNPC.name + " a ir dormir! Energia definida para 0."));
+        }
+    }
+
+    private static class ForcePregSubCommand extends AbstractPlayerCommand {
+        public ForcePregSubCommand() {
+            super("forcepreg", "Forca a gravidez na NPC feminina mais proxima");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null && npc.gender == Gender.FEMALE) {
+                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (playerTransform != null && npcTransform != null) {
+                        Vector3d pPos = playerTransform.getPosition();
+                        Vector3d nPos = npcTransform.getPosition();
+                        double distSq = pPos.distanceSquared(nPos);
+                        if (distSq < minDistance) {
+                            minDistance = distSq;
+                            nearestNPC = npc;
+                        }
+                    }
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("Nenhuma NPC feminina encontrada por perto."));
+                return;
+            }
+
+            if (nearestNPC.pregnancy != null && nearestNPC.pregnancy.pregnant) {
+                ctx.sendMessage(Message.raw(nearestNPC.name + " ja esta gravida!"));
+                return;
+            }
+
+            nearestNPC.family.marry(playerRef.getUuid(), null);
+            nearestNPC.getRelationship(playerRef.getUuid()).romance = 100;
+
+            boolean success = LifecycleManager.startPregnancy(nearestNPC, playerRef.getUuid(), world.getTick());
+            if (success) {
+                SimNPCPersistence.saveNPC(nearestNPC);
+                ctx.sendMessage(Message.raw("Gravidez forcada com sucesso para: " + nearestNPC.name));
+            } else {
+                ctx.sendMessage(Message.raw("Falha ao iniciar gravidez para: " + nearestNPC.name));
+            }
+        }
+    }
+
+    private static class ForceBirthSubCommand extends AbstractPlayerCommand {
+        public ForceBirthSubCommand() {
+            super("forcebirth", "Forca o parto imediato da NPC gravida mais proxima");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null && npc.pregnancy != null && npc.pregnancy.pregnant) {
+                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (playerTransform != null && npcTransform != null) {
+                        Vector3d pPos = playerTransform.getPosition();
+                        Vector3d nPos = npcTransform.getPosition();
+                        double distSq = pPos.distanceSquared(nPos);
+                        if (distSq < minDistance) {
+                            minDistance = distSq;
+                            nearestNPC = npc;
+                        }
+                    }
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("Nenhuma NPC gravida encontrada por perto."));
+                return;
+            }
+
+            nearestNPC.pregnancy.startTick = world.getTick() - nearestNPC.pregnancy.durationTicks - 1;
+            
+            GrowthComponent child = LifecycleManager.birthBaby(nearestNPC, store, world, world.getTick());
+            if (child != null) {
+                SimNPCPersistence.saveNPC(nearestNPC);
+                ctx.sendMessage(Message.raw(nearestNPC.name + " deu a luz a " + child.getFullName() + "!"));
+            } else {
+                ctx.sendMessage(Message.raw("Falha no parto de " + nearestNPC.name));
+            }
+        }
+    }
+
+    private static class SetStageSubCommand extends AbstractPlayerCommand {
+        private final RequiredArg<String> stageArg;
+
+        public SetStageSubCommand() {
+            super("setstage", "Define o estagio de crescimento do filho mais proximo");
+            this.stageArg = this.withRequiredArg("stage", "BABY|TODDLER|CHILD|TEEN|ADULT", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            String stageName = ctx.get(this.stageArg).toUpperCase();
+            GrowthStage targetStage;
+            try {
+                targetStage = GrowthStage.valueOf(stageName);
+            } catch (IllegalArgumentException e) {
+                ctx.sendMessage(Message.raw("Estagio invalido. Escolha entre: BABY, TODDLER, CHILD, TEEN, ADULT"));
+                return;
+            }
+
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            GrowthComponent nearestChild = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
+                if (child.childId != null) {
+                    Ref<EntityStore> childRef = world.getEntityStore().getRefFromUUID(child.childId);
+                    if (childRef != null) {
+                        TransformComponent childTransform = store.getComponent(childRef, TransformComponent.getComponentType());
+                        if (playerTransform != null && childTransform != null) {
+                            Vector3d pPos = playerTransform.getPosition();
+                            Vector3d cPos = childTransform.getPosition();
+                            double distSq = pPos.distanceSquared(cPos);
+                            if (distSq < minDistance) {
+                                minDistance = distSq;
+                                nearestChild = child;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (nearestChild == null) {
+                ctx.sendMessage(Message.raw("Nenhum filho ativo encontrado por perto."));
+                return;
+            }
+
+            nearestChild.stage = targetStage;
+            nearestChild.currentScale = targetStage.getScale();
+            nearestChild.birthTick = world.getTick() - (targetStage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
+
+            // Atualiza a escala visual do modelo da entidade filho
+            Ref<EntityStore> childRef = world.getEntityStore().getRefFromUUID(nearestChild.childId);
+            if (childRef != null) {
+                PersistentModel pm = store.getComponent(childRef, PersistentModel.getComponentType());
+                if (pm != null) {
+                    ModelReference oldRef = pm.getModelReference();
+                    ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), nearestChild.currentScale, new HashMap<>());
+                    store.replaceComponent(childRef, PersistentModel.getComponentType(), new PersistentModel(newRef));
+                }
+            }
+
+            ctx.sendMessage(Message.raw("Estagio de " + nearestChild.getFullName() + " definido para " + targetStage.name() + " (escala: " + nearestChild.currentScale + ")."));
         }
     }
 }
