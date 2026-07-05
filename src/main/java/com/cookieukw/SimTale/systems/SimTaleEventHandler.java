@@ -23,6 +23,23 @@ import com.hypixel.hytale.logger.HytaleLogger;
 
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.HashMap;
+import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
+import com.cookieukw.SimTale.core.SimNPCFactory;
+import com.cookieukw.SimTale.core.Gender;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.ItemUtils;
+import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
+import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
+import com.hypixel.hytale.component.RemoveReason;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
+import org.joml.Vector3d;
 
 /**
  * Handles interactions between players and NPCs.
@@ -47,6 +64,77 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
         if (world == null)
             return;
+
+        Player player = event.getPlayer();
+        Ref<EntityStore> playerRef = player.getReference();
+        if (playerRef == null) return;
+        ComponentAccessor playerAccessor = playerRef.getStore();
+        PlayerRef playerRefComp = (PlayerRef) playerAccessor.getComponent(playerRef, Universe.get().getPlayerRefComponentType());
+        if (playerRefComp == null) return;
+
+        // --- Place Baby Item on Block Click ---
+        ItemStack heldItem = event.getItemInHand();
+        if (heldItem != null && heldItem.getItemId() != null && heldItem.getItemId().equals("simtale:baby")) {
+            org.joml.Vector3i targetBlock = event.getTargetBlock();
+            if (targetBlock != null) {
+                BsonDocument metadata = heldItem.getMetadata();
+                if (metadata != null && metadata.containsKey("childId")) {
+                    String childIdStr = metadata.getString("childId").asString().getValue();
+                    UUID childId = UUID.fromString(childIdStr);
+
+                    GrowthComponent childComp = null;
+                    for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
+                        if (child.childId != null && child.childId.equals(childId)) {
+                            childComp = child;
+                            break;
+                        }
+                    }
+
+                    if (childComp != null) {
+                        // Spawn baby entity back at target block position (1 block above)
+                        Vector3d spawnPos = new Vector3d(targetBlock.x + 0.5, targetBlock.y + 1, targetBlock.z + 0.5);
+                        Store<EntityStore> store = world.getEntityStore().getStore();
+
+                        SimNPCFactory.NPCType childType = childComp.gender == Gender.MALE
+                            ? SimNPCFactory.NPCType.CHILD_MALE
+                            : SimNPCFactory.NPCType.CHILD_FEMALE;
+
+                        Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
+                        if (childRef != null) {
+                            childComp.childId = store.getComponent(childRef, UUIDComponent.getComponentType()).getUuid();
+
+                            SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+                            if (childNPCComp != null) {
+                                childNPCComp.name = childComp.getFullName();
+                                store.putComponent(childRef, com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName.getComponentType(), 
+                                    new com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName(com.hypixel.hytale.server.core.Message.raw(childComp.getFullName())));
+                                store.putComponent(childRef, com.hypixel.hytale.server.core.entity.nameplate.Nameplate.getComponentType(), 
+                                    new com.hypixel.hytale.server.core.entity.nameplate.Nameplate(childComp.getFullName()));
+                            }
+
+                            // Scale baby down visually to match BABY stage
+                            PersistentModel pm = store.getComponent(childRef, PersistentModel.getComponentType());
+                            if (pm != null) {
+                                ModelReference oldRef = pm.getModelReference();
+                                ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), childComp.currentScale, new HashMap<>());
+                                store.replaceComponent(childRef, PersistentModel.getComponentType(), new PersistentModel(newRef));
+                            }
+
+                            // Remove item from hand
+                            InventoryComponent.Hotbar hotbarComponent = playerRef.getStore().getComponent(playerRef, InventoryComponent.Hotbar.getComponentType());
+                            if (hotbarComponent != null && hotbarComponent.getActiveSlot() != -1) {
+                                CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
+                                combinedInventory.removeItemStackFromSlot((short)hotbarComponent.getActiveSlot(), heldItem, 1);
+                            }
+
+                            playerRefComp.sendMessage(com.hypixel.hytale.server.core.Message.raw("Você colocou o bebê " + childComp.getFullName() + " no chão."));
+                            event.consume();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
 
         // Blueprint item handling
         if (event.getItemInHand() != null && event.getItemInHand().getId() != null &&
@@ -121,15 +209,35 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         if (npc == null)
             return;
 
-        HytaleLogger.forEnclosingClass().atInfo().log("SimTale: Interacao com NPC detectada: " + npc.name);
+        // --- Pick up Baby NPC into Inventory ---
+        GrowthComponent childComp = null;
+        for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
+            if (npc.entityId != null && npc.entityId.equals(child.childId)) {
+                childComp = child;
+                break;
+            }
+        }
 
-        // Get PlayerRef component to open UI
-        Player player = event.getPlayer();
-        Ref<EntityStore> playerRef = player.getReference();
-        assert playerRef != null;
-        ComponentAccessor<EntityStore> playerAccessor = playerRef.getStore();
-        PlayerRef playerRefComp = playerAccessor.getComponent(playerRef,
-                Universe.get().getPlayerRefComponentType());
+        if (childComp != null && childComp.stage == GrowthStage.BABY) {
+            BsonDocument metadata = new BsonDocument();
+            metadata.put("childId", new BsonString(childComp.childId.toString()));
+            ItemStack babyItem = new ItemStack("simtale:baby", 1, metadata);
+
+            CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
+            ItemStackTransaction transaction = combinedInventory.addItemStack(babyItem);
+            ItemStack remainder = transaction.getRemainder();
+            if (remainder != null && !remainder.isEmpty()) {
+                ItemUtils.dropItem(playerRef, remainder, playerRef.getStore());
+            }
+
+            // Remove the baby entity from the world
+            store.removeEntity(targetRef, RemoveReason.REMOVE);
+
+            playerRefComp.sendMessage(com.hypixel.hytale.server.core.Message.raw("Você pegou o bebê " + childComp.getFullName() + " no colo!"));
+            return;
+        }
+
+        HytaleLogger.forEnclosingClass().atInfo().log("SimTale: Interacao com NPC detectada: " + npc.name);
 
         if (playerRefComp != null) {
             // Open the NPC interaction page
