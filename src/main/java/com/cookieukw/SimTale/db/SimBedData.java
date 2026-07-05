@@ -10,6 +10,7 @@ public class SimBedData {
         public int x;
         public int y;
         public int z;
+        public float yaw;
 
         public BedPos() {}
 
@@ -17,6 +18,13 @@ public class SimBedData {
             this.x = x;
             this.y = y;
             this.z = z;
+        }
+
+        public BedPos(int x, int y, int z, float yaw) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.yaw = yaw;
         }
 
         @Override
