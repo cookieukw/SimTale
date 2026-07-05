@@ -31,7 +31,7 @@ import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.Gender;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
-import com.hypixel.hytale.server.core.inventory.ItemUtils;
+import com.hypixel.hytale.server.core.entity.ItemUtils;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
@@ -73,7 +73,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         if (playerRefComp == null) return;
 
         // --- Place Baby Item on Block Click ---
-        ItemStack heldItem = event.getItemInHand();
+        ItemStack heldItem = InventoryComponent.getItemInHand(playerRef.getStore(), playerRef);
         if (heldItem != null && heldItem.getItemId() != null && heldItem.getItemId().equals("simtale:baby")) {
             org.joml.Vector3i targetBlock = event.getTargetBlock();
             if (targetBlock != null) {
@@ -128,7 +128,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                             }
 
                             playerRefComp.sendMessage(com.hypixel.hytale.server.core.Message.raw("Você colocou o bebê " + childComp.getFullName() + " no chão."));
-                            event.consume();
+                            event.setCancelled(true);
                             return;
                         }
                     }
