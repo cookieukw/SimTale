@@ -1,9 +1,5 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
-/**
- * Estágios de crescimento de um NPC filho.
- * Cada estágio define a escala visual e a duração em dias in-game.
- */
 public enum GrowthStage {
     BABY    (0.35f, 0,  3,  "Bebê"),
     TODDLER (0.50f, 4,  8,  "Criancinha"),
@@ -39,9 +35,6 @@ public enum GrowthStage {
         return displayName;
     }
 
-    /**
-     * Determina o estágio de crescimento baseado na idade em dias.
-     */
     public static GrowthStage fromAge(int ageDays) {
         if (ageDays >= ADULT.startDay) return ADULT;
         if (ageDays >= TEEN.startDay) return TEEN;
@@ -50,9 +43,6 @@ public enum GrowthStage {
         return BABY;
     }
 
-    /**
-     * Retorna o próximo estágio, ou null se já for ADULT.
-     */
     public GrowthStage next() {
         GrowthStage[] stages = values();
         int idx = this.ordinal();
