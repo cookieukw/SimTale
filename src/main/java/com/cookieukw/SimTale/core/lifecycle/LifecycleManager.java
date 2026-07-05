@@ -8,6 +8,7 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.SimNPCNameGenerator;
 import com.cookieukw.SimTale.core.Trait;
+import com.cookieukw.SimTale.core.Child;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
@@ -135,6 +136,22 @@ public class LifecycleManager {
             }
 
             Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
+            if (childRef != null) {
+                com.hypixel.hytale.server.core.entity.UUIDComponent uuidComp = 
+                    store.getComponent(childRef, com.hypixel.hytale.server.core.entity.UUIDComponent.getComponentType());
+                if (uuidComp != null) {
+                    child.childId = uuidComp.getUuid();
+                }
+                
+                SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+                if (childNPCComp != null) {
+                    childNPCComp.name = child.getFullName();
+                    store.putComponent(childRef, com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName.getComponentType(), 
+                        new com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName(com.hypixel.hytale.server.core.Message.raw(child.getFullName())));
+                    store.putComponent(childRef, com.hypixel.hytale.server.core.entity.nameplate.Nameplate.getComponentType(), 
+                        new com.hypixel.hytale.server.core.entity.nameplate.Nameplate(child.getFullName()));
+                }
+            }
 
             Child familyChild = new Child(child.getFullName());
             mother.family.children.add(familyChild);
