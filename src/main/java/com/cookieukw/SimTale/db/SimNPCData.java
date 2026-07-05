@@ -14,6 +14,7 @@ import java.util.UUID;
 import com.cookieukw.SimTale.core.NPCPreferences;
 import com.cookieukw.SimTale.core.FamilySystem;
 import com.cookieukw.SimTale.core.Gender;
+import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 
 /**
  * Data Transfer Object for persisting SimTale NPC state via Caskara.
@@ -31,6 +32,7 @@ public class SimNPCData {
     public FamilySystem family;
     public Gender gender;
     public SimBedData.BedPos bedLocation;
+    public PregnancyComponent pregnancy;
 
     /**
      * Required for Caskara POJO persistence.
@@ -38,7 +40,7 @@ public class SimNPCData {
     public SimNPCData() {
     }
 
-    public SimNPCData(UUID entityId, String name, Personality personality, Needs needs, SocialStats stats, MemoryManager memory, Profession profession, NPCPreferences preferences, FamilySystem family, Gender gender, SimBedData.BedPos bedLocation) {
+    public SimNPCData(UUID entityId, String name, Personality personality, Needs needs, SocialStats stats, MemoryManager memory, Profession profession, NPCPreferences preferences, FamilySystem family, Gender gender, SimBedData.BedPos bedLocation, PregnancyComponent pregnancy) {
         this.id = entityId.toString();
         this.name = name;
         this.personality = personality;
@@ -50,5 +52,6 @@ public class SimNPCData {
         this.family = family;
         this.gender = gender;
         this.bedLocation = bedLocation;
+        this.pregnancy = pregnancy;
     }
 }
