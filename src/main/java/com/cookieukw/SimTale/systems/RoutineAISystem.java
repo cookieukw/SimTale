@@ -20,6 +20,7 @@ import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import java.util.*;
 
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
+import com.cookieukw.SimTale.systems.BedRegistrySystem;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
@@ -44,13 +45,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     private static final int FOOD_SEARCH_COOLDOWN_TICKS = 40;
     private static final int BATH_SEARCH_COOLDOWN_TICKS = 40;
     private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 60;
-    private static final long BED_CHUNK_CACHE_TTL_TICKS = 400;
     private static final double LEASH_UPDATE_THRESHOLD_SQ = 0.25; 
     private static final int LEASH_FORCE_UPDATE_TICKS = 20; 
-
-    private static final Map<Long, List<BedPos>> bedChunkCache = new HashMap<>();
-    private static final Map<Long, Long> bedChunkCacheTick = new HashMap<>();
-
     private static final Logger LOGGER = LoggerFactory.getLogger(RoutineAISystem.class);
     @Override
     @Nonnull
@@ -111,6 +107,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         if (ai.currentTask == TaskType.DEAD) return;
 
+        // Check if bed was destroyed or unloaded
+        if (npc.bedLocation != null && !BedRegistrySystem.BEDS.contains(npc.bedLocation)) {
+            npc.bedLocation = null;
+            npc.family.hasSharedHome = false;
+        }
+
         if (ai.currentTask == TaskType.IDLE) {
             float sleepThreshold = npc.personality.traits.contains(Trait.LAZY) ? 60f : 30f;
             if (npc.needs.energy < sleepThreshold) {
@@ -155,10 +157,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             } else if (ai.currentTask == TaskType.IDLE && java.lang.Math.random() < 0.02) {
                 ai.currentTask = TaskType.WANDERING;
                 playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                double centerX = transform.getPosition().x;
+                double centerZ = transform.getPosition().z;
+                if (npc.bedLocation != null) {
+                    centerX = npc.bedLocation.x;
+                    centerZ = npc.bedLocation.z;
+                }
                 ai.targetBlockPosition = new Vector3i(
-                        (int)(transform.getPosition().x + (java.lang.Math.random() - 0.5) * 20),
+                        (int)(centerX + (java.lang.Math.random() - 0.5) * 16),
                         (int)transform.getPosition().y,
-                        (int)(transform.getPosition().z + (java.lang.Math.random() - 0.5) * 20)
+                        (int)(centerZ + (java.lang.Math.random() - 0.5) * 16)
                 );
             }
         }
@@ -183,52 +191,17 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     }
                 }
 
-                int sx = (int) myPos.x;
-                int sz = (int) myPos.z;
-                long nowTick = world.getTick();
-                Set<Long> visitedChunks = new HashSet<>();
-
-                for (int x = sx - 16; x <= sx + 16; x += 16) {
-                    for (int z = sz - 16; z <= sz + 16; z += 16) {
-                        long chunkIdx = ChunkUtil.indexChunkFromBlock(x, z);
-                        if (!visitedChunks.add(chunkIdx)) continue;
-
-                        List<BedPos> bedsInChunk = bedChunkCache.get(chunkIdx);
-                        Long lastScan = bedChunkCacheTick.get(chunkIdx);
-
-                        if (bedsInChunk == null || lastScan == null || (nowTick - lastScan) >= BED_CHUNK_CACHE_TTL_TICKS) {
-                            bedsInChunk = new ArrayList<>();
-                            WorldChunk chunkAt = world.getChunk(chunkIdx);
-                            if (chunkAt != null && chunkAt.getEntityChunk() != null) {
-                                for (Ref<EntityStore> er : chunkAt.getEntityChunk().getEntityReferences()) {
-                                    PersistentModel pm = store.getComponent(er, PersistentModel.getComponentType());
-                                    if (pm != null && pm.getModelReference().getModelAssetId() != null) {
-                                        String mName = pm.getModelReference().getModelAssetId().toLowerCase();
-                                        if (mName.contains("bed") || mName.contains("cama") || mName.contains("furniture_village_bed")) {
-                                            TransformComponent tc = store.getComponent(er, TransformComponent.getComponentType());
-                                            if (tc != null) {
-                                                Vector3d bedPos = tc.getPosition();
-                                                bedsInChunk.add(new BedPos((int) java.lang.Math.floor(bedPos.x), (int) java.lang.Math.floor(bedPos.y), (int) java.lang.Math.floor(bedPos.z)));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            bedChunkCache.put(chunkIdx, bedsInChunk);
-                            bedChunkCacheTick.put(chunkIdx, nowTick);
-                        }
-
-                        for (BedPos bp : bedsInChunk) {
-                            double dx = bp.x - myPos.x;
-                            double dy = bp.y - myPos.y;
-                            double dz = bp.z - myPos.z;
-                            double d2 = dx*dx + dy*dy + dz*dz;
-                            if (d2 < 16.0 * 16.0) {
-                                String key = bp.x + "," + bp.y + "," + bp.z;
-                                if (!claimedBedKeys.contains(key) && d2 < closestDistSq) {
-                                    closestDistSq = d2;
-                                    bestBed = bp;
-                                }
+                synchronized (BedRegistrySystem.BEDS) {
+                    for (BedPos bp : BedRegistrySystem.BEDS) {
+                        double dx = bp.x - myPos.x;
+                        double dy = bp.y - myPos.y;
+                        double dz = bp.z - myPos.z;
+                        double d2 = dx*dx + dy*dy + dz*dz;
+                        if (d2 < 48.0 * 48.0) { // Limit search radius to 48 blocks
+                            String key = bp.x + "," + bp.y + "," + bp.z;
+                            if (!claimedBedKeys.contains(key) && d2 < closestDistSq) {
+                                closestDistSq = d2;
+                                bestBed = bp;
                             }
                         }
                     }
@@ -236,6 +209,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
                 if (bestBed != null) {
                     npc.bedLocation = bestBed;
+                    npc.family.homeX = bestBed.x;
+                    npc.family.homeY = bestBed.y;
+                    npc.family.homeZ = bestBed.z;
+                    npc.family.hasSharedHome = true;
                     ai.targetBlockPosition = new Vector3i(bestBed.x, bestBed.y, bestBed.z);
                     ai.currentTask = TaskType.MOVING_TO_BED;
                     playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);

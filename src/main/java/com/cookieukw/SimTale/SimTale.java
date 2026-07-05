@@ -10,6 +10,7 @@ import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookieukw.SimTale.systems.ConstructionSystem;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.systems.RoutineAISystem;
+import com.cookieukw.SimTale.systems.BedRegistrySystem;
 import com.cookieukw.SimTale.systems.SimNPCSpawnSystem;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
@@ -65,6 +66,7 @@ public class SimTale extends JavaPlugin {
         // Register tick systems
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
         this.getEntityStoreRegistry().registerSystem(new RoutineAISystem());
+        this.getEntityStoreRegistry().registerSystem(new BedRegistrySystem());
         this.getEntityStoreRegistry().registerSystem(new PlumbobSystem());
         this.getEntityStoreRegistry().registerSystem(new MoodAnimationSystem());
         this.getEntityStoreRegistry().registerSystem(new ConstructionSystem());
