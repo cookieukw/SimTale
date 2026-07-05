@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 import com.cookieukw.SimTale.logic.JobType;
 import com.cookieukw.SimTale.engine.MagicEngine;
+import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 
 /**
  * Persists SimTale data for an entity.
@@ -30,6 +31,7 @@ public class SimNPCComponent implements Component<EntityStore> {
 
     public FamilySystem family = new FamilySystem();
     public Gender gender;
+    public PregnancyComponent pregnancy;
     public com.cookieukw.SimTale.db.SimBedData.BedPos bedLocation;
 
     // Runtime properties
@@ -103,6 +105,16 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.jobCompletionTick = jobCompletionTick;
         clone.jobEmployer = jobEmployer;
         clone.isAway = isAway;
+        
+        // Clone pregnancy
+        if (pregnancy != null) {
+            clone.pregnancy = new PregnancyComponent();
+            clone.pregnancy.pregnant = pregnancy.pregnant;
+            clone.pregnancy.fatherId = pregnancy.fatherId;
+            clone.pregnancy.startTick = pregnancy.startTick;
+            clone.pregnancy.durationTicks = pregnancy.durationTicks;
+            clone.pregnancy.trimester = pregnancy.trimester;
+        }
         return clone;
     }
 
