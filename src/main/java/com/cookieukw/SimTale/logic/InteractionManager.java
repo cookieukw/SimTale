@@ -421,6 +421,11 @@ public class InteractionManager {
             response = Message.translation("simtale.chat.context.missed").param("name", npc.name).insert(Message.raw(" ")).insert(response);
         }
 
+        if (isChild) {
+            romanceChange = 0;
+            npc.getRelationship(playerUuid).romance = 0;
+        }
+
         npc.memory.addMemory(memEvent, playerUuid);
         npc.getRelationship(playerUuid).addAffinity(affinityChange);
         npc.getRelationship(playerUuid).addFriendship(friendshipChange);
