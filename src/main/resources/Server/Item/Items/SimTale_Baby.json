@@ -1,0 +1,34 @@
+{
+  "TranslationProperties": {
+    "Name": "simtale.item.baby.name",
+    "Description": "simtale.item.baby.description"
+  },
+  "Icon": "Icons/Baby_Icon.png",
+  "Quality": "Epic",
+  "Categories": [
+    "Items.Ingredients"
+  ],
+  "Model": "Resources/Baby/Baby.blockymodel",
+  "Texture": "Resources/Baby/Baby_Texture.png",
+  "PlayerAnimationsId": "Item",
+  "IconProperties": {
+    "Scale": 0.6,
+    "Rotation": [
+      0,
+      0,
+      0
+    ],
+    "Translation": [
+      0,
+      -13
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Ingredient"
+    ]
+  },
+  "Scale": 0.8,
+  "MaxStack": 1,
+  "DropOnDeath": false
+}
