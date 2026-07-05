@@ -2,72 +2,72 @@ Group {
   LayoutMode: MiddleCenter;
   Background: #00000099;
   Group #MainPanel {
-    Anchor: (Width: 580, Height: 820);
+    Anchor: (Width: 580, Height: 900);
     LayoutMode: Top;
     Background: #1A1A2EFF;
     Padding: (Top: 24, Bottom: 20, Horizontal: 24);
 
     Label #NpcName {
       Text: "NPC";
-      Anchor: (Width: 520, Height: 48, Bottom: 4);
-      Style: (FontSize: 32, TextColor: #E0E0FFFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Anchor: (Width: 520, Height: 52, Bottom: 4);
+      Style: (FontSize: 36, TextColor: #E0E0FFFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
     }
     Label #NpcProfession {
       Text: "Profissão: Desempregado";
-      Anchor: (Width: 520, Height: 26, Bottom: 2);
-      Style: (FontSize: 17, TextColor: #FFD700FF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Anchor: (Width: 520, Height: 30, Bottom: 2);
+      Style: (FontSize: 20, TextColor: #FFD700FF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
     }
     Label #NpcMood {
       Text: "Humor: Feliz";
-      Anchor: (Width: 520, Height: 24, Bottom: 12);
-      Style: (FontSize: 16, TextColor: #AAAACCFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Anchor: (Width: 520, Height: 26, Bottom: 12);
+      Style: (FontSize: 18, TextColor: #AAAACCFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
     }
 
-    Group #NpcPortrait {
-      Anchor: (Width: 140, Height: 140, Bottom: 12);
-      Background: #2A2A4AFF;
+    AssetImage #NpcPortrait {
+      Anchor: (Width: 150, Height: 150, Bottom: 12);
+      AssetPath: "Textures/npc_portrait.jpg";
     }
 
     Group #InfoPanel {
-      Anchor: (Width: 520, Height: 168, Bottom: 12);
+      Anchor: (Width: 520, Height: 220, Bottom: 12);
       LayoutMode: Top;
       Background: #16213EFF;
       Padding: (Top: 8, Bottom: 8, Horizontal: 12);
 
       Label #InfoHeader {
         Text: "INFORMAÇÕES";
-        Anchor: (Width: 496, Height: 22, Bottom: 4);
-        Style: (FontSize: 14, TextColor: #8888AAFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+        Anchor: (Width: 496, Height: 26, Bottom: 4);
+        Style: (FontSize: 18, TextColor: #8888AAFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
       }
       Label #NpcTraits {
         Text: "Traços: —";
-        Anchor: (Width: 496, Height: 20, Bottom: 2);
-        Style: (FontSize: 14, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Width: 496, Height: 24, Bottom: 4);
+        Style: (FontSize: 16, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
       }
       Label #NpcLikes {
         Text: "Gosta de: —";
-        Anchor: (Width: 496, Height: 20, Bottom: 2);
-        Style: (FontSize: 14, TextColor: #88DD88FF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Width: 496, Height: 24, Bottom: 4);
+        Style: (FontSize: 16, TextColor: #88DD88FF, HorizontalAlignment: Start, VerticalAlignment: Center);
       }
       Label #NpcHates {
         Text: "Odeia: —";
-        Anchor: (Width: 496, Height: 20, Bottom: 2);
-        Style: (FontSize: 14, TextColor: #DD8888FF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Width: 496, Height: 24, Bottom: 4);
+        Style: (FontSize: 16, TextColor: #DD8888FF, HorizontalAlignment: Start, VerticalAlignment: Center);
       }
       Label #NpcHobby {
         Text: "Hobby: —";
-        Anchor: (Width: 496, Height: 20, Bottom: 2);
-        Style: (FontSize: 14, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Width: 496, Height: 24, Bottom: 4);
+        Style: (FontSize: 16, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
       }
       Label #NpcSeason {
         Text: "Estação Fav.: —";
-        Anchor: (Width: 240, Height: 20, Bottom: 2);
-        Style: (FontSize: 14, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Width: 496, Height: 24, Bottom: 4);
+        Style: (FontSize: 16, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
       }
       Label #NpcRelationship {
         Text: "Relacionamento: Desconhecido";
-        Anchor: (Width: 496, Height: 20);
-        Style: (FontSize: 14, TextColor: #AACCFFFF, RenderBold: true, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Width: 496, Height: 24);
+        Style: (FontSize: 16, TextColor: #AACCFFFF, RenderBold: true, HorizontalAlignment: Start, VerticalAlignment: Center);
       }
     }
 

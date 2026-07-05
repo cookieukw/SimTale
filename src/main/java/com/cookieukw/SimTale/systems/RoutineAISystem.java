@@ -32,6 +32,7 @@ import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandManager;
 
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 import org.slf4j.Logger;
@@ -178,33 +179,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
             } else if (world.getTick() - ai.taskStartTime >= BED_SEARCH_RETRY_COOLDOWN_TICKS) {
                 ai.taskStartTime = world.getTick();
-                BedPos bestBed = null;
-                double closestDistSq = Double.MAX_VALUE;
-                Vector3d myPos = transform.getPosition();
-
-                Set<String> claimedBedKeys = new HashSet<>();
-                for (SimNPCComponent otherNpc : SimTale.ACTIVE_NPCS) {
-                    if (otherNpc.bedLocation != null) {
-                        BedPos ob = otherNpc.bedLocation;
-                        claimedBedKeys.add(ob.x + "," + ob.y + "," + ob.z);
-                    }
-                }
-
-                synchronized (BedRegistrySystem.BEDS) {
-                    for (BedPos bp : BedRegistrySystem.BEDS) {
-                        double dx = bp.x - myPos.x;
-                        double dy = bp.y - myPos.y;
-                        double dz = bp.z - myPos.z;
-                        double d2 = dx*dx + dy*dy + dz*dz;
-                        if (d2 < 48.0 * 48.0) { // Limit search radius to 48 blocks
-                            String key = bp.x + "," + bp.y + "," + bp.z;
-                            if (!claimedBedKeys.contains(key) && d2 < closestDistSq) {
-                                closestDistSq = d2;
-                                bestBed = bp;
-                            }
-                        }
-                    }
-                }
+                BedPos bestBed = getBedPos(transform);
 
                 if (bestBed != null) {
                     npc.bedLocation = bestBed;
@@ -267,10 +242,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     WorldChunk chunkAt = world.getChunk(ChunkUtil.indexChunk(cx, cz));
                     if (chunkAt == null) continue;
 
-                    int minX = java.lang.Math.max(sx - 10, cx << 4);
-                    int maxX = java.lang.Math.min(sx + 10, (cx << 4) + 15);
-                    int minZ = java.lang.Math.max(sz - 10, cz << 4);
-                    int maxZ = java.lang.Math.min(sz + 10, (cz << 4) + 15);
+                    int minX = Math.max(sx - 10, cx << 4);
+                    int maxX = Math.min(sx + 10, (cx << 4) + 15);
+                    int minZ = Math.max(sz - 10, cz << 4);
+                    int maxZ = Math.min(sz + 10, (cz << 4) + 15);
 
                     for (int x = minX; x <= maxX; x++) {
                         for (int z = minZ; z <= maxZ; z++) {
@@ -329,10 +304,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     WorldChunk chunkAt = world.getChunk(ChunkUtil.indexChunk(cx, cz));
                     if (chunkAt == null) continue;
 
-                    int minX = java.lang.Math.max(sx - 15, cx << 4);
-                    int maxX = java.lang.Math.min(sx + 15, (cx << 4) + 15);
-                    int minZ = java.lang.Math.max(sz - 15, cz << 4);
-                    int maxZ = java.lang.Math.min(sz + 15, (cz << 4) + 15);
+                    int minX = Math.max(sx - 15, cx << 4);
+                    int maxX = Math.min(sx + 15, (cx << 4) + 15);
+                    int minZ = Math.max(sz - 15, cz << 4);
+                    int maxZ = Math.min(sz + 15, (cz << 4) + 15);
 
                     for (int x = minX; x <= maxX; x++) {
                         for (int z = minZ; z <= maxZ; z++) {
@@ -353,7 +328,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         }
 
         if (ai.currentTask == TaskType.MOVING_TO_BATH) {
-            if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
+            if (ai.targetBlockPosition == null) {
+                ai.currentTask = TaskType.IDLE; 
+                return;
+            }
             Vector3d pos = transform.getPosition();
             double dx = (ai.targetBlockPosition.x + 0.5) - pos.x;
             double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
@@ -416,7 +394,39 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         commandBuffer.replaceComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
     }
 
- 
+    @NullableDecl
+    private static BedPos getBedPos(TransformComponent transform) {
+        BedPos bestBed = null;
+        double closestDistSq = Double.MAX_VALUE;
+        Vector3d myPos = transform.getPosition();
+
+        Set<String> claimedBedKeys = new HashSet<>();
+        for (SimNPCComponent otherNpc : SimTale.ACTIVE_NPCS) {
+            if (otherNpc.bedLocation != null) {
+                BedPos ob = otherNpc.bedLocation;
+                claimedBedKeys.add(ob.x + "," + ob.y + "," + ob.z);
+            }
+        }
+
+        synchronized (BedRegistrySystem.BEDS) {
+            for (BedPos bp : BedRegistrySystem.BEDS) {
+                double dx = bp.x - myPos.x;
+                double dy = bp.y - myPos.y;
+                double dz = bp.z - myPos.z;
+                double d2 = dx*dx + dy*dy + dz*dz;
+                if (d2 < 48.0 * 48.0) { // Limit search radius to 48 blocks
+                    String key = bp.x + "," + bp.y + "," + bp.z;
+                    if (!claimedBedKeys.contains(key) && d2 < closestDistSq) {
+                        closestDistSq = d2;
+                        bestBed = bp;
+                    }
+                }
+            }
+        }
+        return bestBed;
+    }
+
+
     private void moveTo(Ref<EntityStore> ref, RoutineAIComponent ai, World world, Vector3d targetPos) {
         boolean needsUpdate;
 

@@ -264,3 +264,5 @@ rel.engaged = Noivo
 rel.married = Casado
 rel.enemy = Inimigo
 rel.rival = Rival
+
+ui.relationship.values = {status} (Amizade: {friendship}%, Afinidade: {affinity}%)

@@ -1,5 +1,6 @@
 package com.cookieukw.SimTale.logic;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.hypixel.hytale.server.core.modules.entity.tracker.NetworkId;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.cookieukw.SimTale.SimTale;
@@ -57,6 +58,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
 
         assert npc != null;
         commandBuilder.set("#NpcName.Text", npc.name);
+
         
         Message profMsg = npc.profession != null && npc.profession != Profession.UNEMPLOYED 
             ? Message.translation("simtale.prof." + npc.profession.name().toLowerCase()) 
@@ -136,10 +138,12 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         // Relationship
         Relationship rel = npc.getRelationship(playerRefComp.getUuid());
         Message statusMsg = Message.translation("simtale.rel." + rel.getStatusName().toLowerCase());
+        Message relValues = Message.translation("simtale.ui.relationship.values")
+            .param("status", statusMsg)
+            .param("friendship", String.valueOf(rel.friendship))
+            .param("affinity", String.valueOf(rel.affinity));
         commandBuilder.set("#NpcRelationship.TextSpans", 
-            Message.translation("simtale.ui.relationship").insert(Message.raw(" "))
-            .insert(statusMsg)
-            .insert(Message.raw(" (" + rel.friendship + " | " + rel.affinity + ")")));
+            Message.translation("simtale.ui.relationship").insert(Message.raw(" ")).insert(relValues));
 
         // --- Button Event Bindings ---
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ChatButton", new EventData().append("button", "ChatButton"), false);
