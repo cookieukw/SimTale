@@ -1,0 +1,680 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "R-Calf",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "orientation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+      },
+      "shape": {
+        "type": "none",
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "stretch": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      }
+    },
+    {
+      "id": "2",
+      "name": "R-Foot",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "orientation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+      },
+      "shape": {
+        "type": "none",
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "stretch": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "3",
+          "name": "R-Boot2",
+          "position": {
+            "x": 0.16818,
+            "y": -1.8965999999999998,
+            "z": -0.2397225
+          },
+          "orientation": {
+            "x": 0.00305,
+            "y": 0,
+            "z": 0,
+            "w": 1
+          },
+          "shape": {
+            "type": "box",
+            "offset": {
+              "x": -0.22499999999999998,
+              "y": 0.0008025,
+              "z": 0.13124999999999998
+            },
+            "stretch": {
+              "x": 0.735,
+              "y": 0.7649925,
+              "z": 0.7875000000000001
+            },
+            "settings": {
+              "isPiece": false,
+              "size": {
+                "x": 15,
+                "y": 3,
+                "z": 21
+              }
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {
+                  "x": 0,
+                  "y": 3
+                },
+                "mirror": {
+                  "x": false,
+                  "y": true
+                },
+                "angle": 0
+              },
+              "right": {
+                "offset": {
+                  "x": 15,
+                  "y": 3
+                },
+                "mirror": {
+                  "x": false,
+                  "y": true
+                },
+                "angle": 90
+              },
+              "front": {
+                "offset": {
+                  "x": 0,
+                  "y": 24
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              },
+              "left": {
+                "offset": {
+                  "x": 15,
+                  "y": 24
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 270
+              },
+              "top": {
+                "offset": {
+                  "x": 0,
+                  "y": 3
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              },
+              "bottom": {
+                "offset": {
+                  "x": 18,
+                  "y": 3
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "4",
+              "name": "R-Boot3",
+              "position": {
+                "x": 0.3281025,
+                "y": 2.946225,
+                "z": 0.05151
+              },
+              "orientation": {
+                "x": 0.03589,
+                "y": 0,
+                "z": 0,
+                "w": 0.99936
+              },
+              "shape": {
+                "type": "box",
+                "offset": {
+                  "x": -0.31875,
+                  "y": 0.074775,
+                  "z": -0.005835
+                },
+                "stretch": {
+                  "x": 0.705,
+                  "y": 0.6992174999999999,
+                  "z": 0.74265
+                },
+                "settings": {
+                  "isPiece": false,
+                  "size": {
+                    "x": 15,
+                    "y": 7,
+                    "z": 21
+                  }
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {
+                      "x": 41,
+                      "y": 7
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": true
+                    },
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {
+                      "x": 56,
+                      "y": 28
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 270
+                  },
+                  "front": {
+                    "offset": {
+                      "x": 41,
+                      "y": 28
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {
+                      "x": 41,
+                      "y": 7
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 90
+                  },
+                  "top": {
+                    "offset": {
+                      "x": 41,
+                      "y": 7
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "5",
+                  "name": "R-Boot1--C1",
+                  "position": {
+                    "x": -5.183655,
+                    "y": -0.074775,
+                    "z": -3.7441649999999997
+                  },
+                  "orientation": {
+                    "x": 0,
+                    "y": 1,
+                    "z": 0,
+                    "w": 0
+                  },
+                  "shape": {
+                    "type": "quad",
+                    "offset": {
+                      "x": 0.11249999999999999,
+                      "y": 0.074775,
+                      "z": 0.005835
+                    },
+                    "stretch": {
+                      "x": -0.6900000000000001,
+                      "y": 0.6990000000000001,
+                      "z": 0.7424999999999999
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 7,
+                        "y": 7
+                      },
+                      "normal": "-X",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {
+                          "x": 7,
+                          "y": 29
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "name": "L-Calf",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "orientation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+      },
+      "shape": {
+        "type": "none",
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "stretch": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      }
+    },
+    {
+      "id": "7",
+      "name": "L-Foot",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "orientation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+      },
+      "shape": {
+        "type": "none",
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "stretch": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "8",
+          "name": "L-Boot2",
+          "position": {
+            "x": -0.2297625,
+            "y": -1.8965999999999998,
+            "z": -0.2397225
+          },
+          "orientation": {
+            "x": 0.00305,
+            "y": 0,
+            "z": 0,
+            "w": 1
+          },
+          "shape": {
+            "type": "box",
+            "offset": {
+              "x": 0.20625000000000002,
+              "y": 0.0008025,
+              "z": 0.13124999999999998
+            },
+            "stretch": {
+              "x": 0.735,
+              "y": 0.7649925,
+              "z": 0.7875000000000001
+            },
+            "settings": {
+              "isPiece": false,
+              "size": {
+                "x": 15,
+                "y": 3,
+                "z": 21
+              }
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {
+                  "x": 0,
+                  "y": 3
+                },
+                "mirror": {
+                  "x": false,
+                  "y": true
+                },
+                "angle": 0
+              },
+              "right": {
+                "offset": {
+                  "x": 15,
+                  "y": 24
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 270
+              },
+              "front": {
+                "offset": {
+                  "x": 0,
+                  "y": 24
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              },
+              "left": {
+                "offset": {
+                  "x": 15,
+                  "y": 24
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 270
+              },
+              "top": {
+                "offset": {
+                  "x": 0,
+                  "y": 3
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              },
+              "bottom": {
+                "offset": {
+                  "x": 18,
+                  "y": 3
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "9",
+              "name": "L-Boot3",
+              "position": {
+                "x": -0.20135999999999998,
+                "y": 2.946225,
+                "z": 0.05151
+              },
+              "orientation": {
+                "x": 0.03589,
+                "y": 0,
+                "z": 0,
+                "w": 0.99936
+              },
+              "shape": {
+                "type": "box",
+                "offset": {
+                  "x": 0.24375000000000002,
+                  "y": 0.074775,
+                  "z": -0.005835
+                },
+                "stretch": {
+                  "x": 0.705,
+                  "y": 0.6990000000000001,
+                  "z": 0.7424999999999999
+                },
+                "settings": {
+                  "isPiece": false,
+                  "size": {
+                    "x": 15,
+                    "y": 7,
+                    "z": 21
+                  }
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {
+                      "x": 41,
+                      "y": 7
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": true
+                    },
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {
+                      "x": 56,
+                      "y": 28
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 270
+                  },
+                  "front": {
+                    "offset": {
+                      "x": 41,
+                      "y": 28
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {
+                      "x": 41,
+                      "y": 7
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 90
+                  },
+                  "top": {
+                    "offset": {
+                      "x": 41,
+                      "y": 7
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "10",
+                  "name": "L-Boot4--C1",
+                  "position": {
+                    "x": -0.41250000000000003,
+                    "y": -0.074775,
+                    "z": 2.255835
+                  },
+                  "orientation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "w": 1
+                  },
+                  "shape": {
+                    "type": "quad",
+                    "offset": {
+                      "x": 5.71875,
+                      "y": 0.074775,
+                      "z": -6.005835
+                    },
+                    "stretch": {
+                      "x": -0.6900000000000001,
+                      "y": 0.6990000000000001,
+                      "z": 0.7424999999999999
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 7,
+                        "y": 7
+                      },
+                      "normal": "-X",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {
+                          "x": 0,
+                          "y": 29
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

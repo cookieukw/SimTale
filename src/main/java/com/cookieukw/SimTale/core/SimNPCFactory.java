@@ -34,7 +34,8 @@ public class SimNPCFactory {
         HUMAN_MALE("SimTale_Human_Male"),
         HUMAN_FEMALE("SimTale_Human_Female"),
         REAPER("SimTale_Human_Male"),
-        CHILD("SimTale_Human_Child");
+        CHILD_MALE("SimTale_Human_Child_Male"),
+        CHILD_FEMALE("SimTale_Human_Child_Female");
 
         public final String roleId;
 
@@ -53,9 +54,12 @@ public class SimNPCFactory {
         } else if (type == NPCType.HUMAN_FEMALE) {
             int variant = 1 + (int)(Math.random() * 200);
             roleId = "SimTale_Human_Female_" + variant;
-        } else if (type == NPCType.CHILD) {
-            int variant = 1 + (int)(Math.random() * 10);
-            roleId = "SimTale_Human_Child_" + variant;
+        } else if (type == NPCType.CHILD_MALE) {
+            int variant = 1 + (int)(Math.random() * 200);
+            roleId = "SimTale_Human_Child_Male_" + variant;
+        } else if (type == NPCType.CHILD_FEMALE) {
+            int variant = 1 + (int)(Math.random() * 200);
+            roleId = "SimTale_Human_Child_Female_" + variant;
         }
 
         // 1. Spawn the NPC using the official Hytale NPC system
@@ -99,9 +103,9 @@ public class SimNPCFactory {
         SimNPCComponent simComponent = new SimNPCComponent(entityId, name);
         simComponent.entityRef = ref;
         
-        if (type == NPCType.HUMAN_MALE) {
+        if (type == NPCType.HUMAN_MALE || type == NPCType.CHILD_MALE) {
             simComponent.gender = Gender.MALE;
-        } else if (type == NPCType.HUMAN_FEMALE) {
+        } else if (type == NPCType.HUMAN_FEMALE || type == NPCType.CHILD_FEMALE) {
             simComponent.gender = Gender.FEMALE;
         } else {
             simComponent.gender = Math.random() > 0.5 ? Gender.MALE : Gender.FEMALE;

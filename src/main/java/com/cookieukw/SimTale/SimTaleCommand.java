@@ -64,7 +64,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
         public SpawnSubCommand() {
             super("spawn", "Cria um NPC do SimTale");
-            this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE|CHILD", ArgTypes.STRING);
+            this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE|CHILD_MALE|CHILD_FEMALE", ArgTypes.STRING);
         }
 
         @Override
@@ -75,7 +75,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             try {
                 type = SimNPCFactory.NPCType.valueOf(typeName.toUpperCase());
             } catch (IllegalArgumentException e) {
-                ctx.sendMessage(Message.translation("simtale.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD"));
+                ctx.sendMessage(Message.translation("simtale.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD_MALE/CHILD_FEMALE"));
                 return;
             }
 
@@ -193,7 +193,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
         public ForceSpawnSubCommand() {
             super("forcespawn", "Forca o spawn imediato de um NPC para debug");
-            this.npcTypeArg = this.withOptionalArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE|CHILD", ArgTypes.STRING);
+            this.npcTypeArg = this.withOptionalArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE|CHILD_MALE|CHILD_FEMALE", ArgTypes.STRING);
         }
 
         @Override
@@ -205,7 +205,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 try {
                     type = SimNPCFactory.NPCType.valueOf(typeName.toUpperCase());
                 } catch (IllegalArgumentException e) {
-                    ctx.sendMessage(Message.translation("simtale.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD"));
+                    ctx.sendMessage(Message.translation("simtale.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD_MALE/CHILD_FEMALE"));
                     return;
                 }
             } else {

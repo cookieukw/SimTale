@@ -104,24 +104,29 @@ overtops = load_catalog("Overtops.json")
 undertops = load_catalog("Undertops.json")
 shoes = load_catalog("Shoes.json")
 
+FEMALE_KEYWORDS = ["skirt", "dress", "bikini", "bra", "crop", "heels", "pigtail", "ponytail", "bun", "bobcut", "frilly", "icecream", "daisy", "popstar"]
+
+def is_female_exclusive(item):
+    item_id = item.get("Id", "").lower()
+    for kw in FEMALE_KEYWORDS:
+        if kw in item_id:
+            return True
+    return False
+
 def scale_cosmetic_model(model_rel_path):
-    # Resolve caminhos
     src_path = os.path.join(ASSETS_DIR, model_rel_path)
     if not os.path.exists(src_path):
         return None
 
-    # Caminho de destino no Mod
     filename = os.path.basename(model_rel_path)
     name_part, ext = os.path.splitext(filename)
     dest_filename = f"{name_part}_Child{ext}"
     
-    # Subpasta correspondente (ex: Pants, Shoes)
     subfolder = os.path.dirname(model_rel_path).split('/')[-1]
     dest_dir = os.path.join(CHILD_COSMETICS_DIR, subfolder)
     os.makedirs(dest_dir, exist_ok=True)
     dest_path = os.path.join(dest_dir, dest_filename)
 
-    # Processa e escala o modelo do cosmético
     with open(src_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     data = copy.deepcopy(data)
@@ -132,7 +137,6 @@ def scale_cosmetic_model(model_rel_path):
     with open(dest_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
-    # Retorna o caminho relativo do mod
     return f"NPC/Player_Child/Cosmetics/{subfolder}/{dest_filename}"
 
 def extract_attachment(item):
@@ -151,7 +155,6 @@ def extract_attachment(item):
     if not model:
         return None
 
-    # ESCALA o cosmético e gera a versão child
     scaled_model_path = scale_cosmetic_model(model)
     if not scaled_model_path:
         return None
@@ -166,10 +169,9 @@ def extract_attachment(item):
             att["GradientId"] = random.choice(gradients[item["GradientSet"]])
     return att
 
-def generate_child_model(index):
+def generate_child_model(gender, index):
     skin_gradient = random.choice(gradients["Skin"])
     hair_gradient = random.choice(gradients["Hair"])
-    gender = "Male" if random.choice([True, False]) else "Female"
     
     face_texture = "Characters/Body_Attachments/Faces/Faces_Detached_Textures/Face.png" if gender == "Male" else "Characters/Body_Attachments/Faces/Faces_Detached_Textures/MakeUp_Face.png"
     mouth_texture = "Characters/Body_Attachments/Mouths/Mouth1_Textures/Default_Greyscale.png" if gender == "Male" else "Characters/Body_Attachments/Mouths/Mouth1_Textures/Makeup_Greyscale.png"
@@ -180,6 +182,8 @@ def generate_child_model(index):
     # Hair
     while True:
         hair_item = random.choice(haircuts)
+        if gender == "Male" and is_female_exclusive(hair_item):
+            continue
         hair = extract_attachment(hair_item)
         if hair:
             hair["GradientSet"] = "Hair"
@@ -204,6 +208,8 @@ def generate_child_model(index):
     # Pants
     while True:
         pant_item = random.choice(pants)
+        if gender == "Male" and is_female_exclusive(pant_item):
+            continue
         pant = extract_attachment(pant_item)
         if pant:
             attachments.append(pant)
@@ -213,6 +219,8 @@ def generate_child_model(index):
     while True:
         top_catalog = undertops if random.choice([True, False]) else overtops
         top_item = random.choice(top_catalog)
+        if gender == "Male" and is_female_exclusive(top_item):
+            continue
         top = extract_attachment(top_item)
         if top:
             attachments.append(top)
@@ -221,6 +229,8 @@ def generate_child_model(index):
     # Shoes
     while True:
         shoe_item = random.choice(shoes)
+        if gender == "Male" and is_female_exclusive(shoe_item):
+            continue
         shoe = extract_attachment(shoe_item)
         if shoe:
             attachments.append(shoe)
@@ -255,7 +265,7 @@ def generate_child_model(index):
         if "Texture" in att and att["Texture"] == "":
             del att["Texture"]
             
-    model_name = f"SimTale_Human_Child_{index}"
+    model_name = f"SimTale_Human_Child_{gender}_{index}"
     
     model_json = {
         "Parent": "Player",
@@ -320,7 +330,8 @@ def generate_child_model(index):
     with open(os.path.join(ROLES_DIR, f"{model_name}.json"), "w") as f:
         json.dump(role_json, f, indent=2)
 
-for i in range(1, 11):
-    generate_child_model(i)
+for i in range(1, 201):
+    generate_child_model("Male", i)
+    generate_child_model("Female", i)
 
-print("Generated 10 clothed child NPC variants successfully.")
+print("Generated 200 male and 200 female clothed child NPC variants successfully.")
