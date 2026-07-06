@@ -3,7 +3,7 @@
     "Name": "simtale.item.wedding_ring.name",
     "Description": "simtale.item.wedding_ring.description"
   },
-  "Icon": "Icons/Wedding_Ring_Icon.png",
+  "Icon": "Icons/Items/Wedding_Ring_Icon.png",
   "Quality": "Legendary",
   "Categories": [
     "Items.Ingredients"

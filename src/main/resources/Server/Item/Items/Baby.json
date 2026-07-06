@@ -3,7 +3,7 @@
     "Name": "simtale.item.baby.name",
     "Description": "simtale.item.baby.description"
   },
-  "Icon": "Icons/Baby_Icon.png",
+  "Icon": "Icons/Items/Baby_Icon.png",
   "Quality": "Epic",
   "Categories": [
     "Items.Ingredients"
