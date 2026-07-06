@@ -2,22 +2,7 @@ package com.cookieukw.SimTale.core;
 
 import java.util.UUID;
 
-/**
- * Possible statuses for a relationship.
- */
-enum RelationshipStatus {
-    UNKNOWN,
-    STRANGER,
-    ACQUAINTANCE,
-    FRIEND,
-    GOOD_FRIEND,
-    BEST_FRIEND,
-    CRUSH,
-    DATING,
-    PARTNER,
-    MARRIED,
-    ENEMIES
-}
+
 
 /**
  * Tracks the social bond between a SimNPC and a target.
@@ -69,7 +54,7 @@ public class Relationship {
     }
 
     private void updateStatus() {
-        if (status == RelationshipStatus.MARRIED)
+        if (status == RelationshipStatus.MARRIED || status == RelationshipStatus.ENGAGED)
             return;
 
         // Enemy logic
