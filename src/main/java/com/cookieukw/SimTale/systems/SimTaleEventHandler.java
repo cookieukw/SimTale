@@ -7,11 +7,15 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
+import com.hypixel.hytale.codec.Codec;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
 import com.hypixel.hytale.protocol.MouseButtonType;
 import com.hypixel.hytale.protocol.MouseButtonState;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -39,6 +43,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import com.hypixel.hytale.component.RemoveReason;
 import org.joml.Vector3d;
+import org.joml.Vector3i;
 
 /**
  * Handles interactions between players and NPCs.
@@ -74,9 +79,9 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         // --- Place Baby Item on Block Click ---
         ItemStack heldItem = InventoryComponent.getItemInHand(playerRef.getStore(), playerRef);
         if (heldItem != null && heldItem.getItemId().equals("simtale:baby")) {
-            org.joml.Vector3i targetBlock = event.getTargetBlock();
+            Vector3i targetBlock = event.getTargetBlock();
             if (targetBlock != null) {
-                String childIdStr = heldItem.getFromMetadataOrNull("childId", com.hypixel.hytale.codec.Codec.STRING);
+                String childIdStr = heldItem.getFromMetadataOrNull("childId", Codec.STRING);
                 if (childIdStr != null) {
                     UUID childId = UUID.fromString(childIdStr);
 
@@ -103,10 +108,10 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                         SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
                         if (childNPCComp != null) {
                             childNPCComp.name = childComp.getFullName();
-                            store.putComponent(childRef, com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName.getComponentType(),
-                                new com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName(com.hypixel.hytale.server.core.Message.raw(childComp.getFullName())));
-                            store.putComponent(childRef, com.hypixel.hytale.server.core.entity.nameplate.Nameplate.getComponentType(),
-                                new com.hypixel.hytale.server.core.entity.nameplate.Nameplate(childComp.getFullName()));
+                            store.putComponent(childRef, PersistentDisplayName.getComponentType(),
+                                new PersistentDisplayName(com.hypixel.hytale.server.core.Message.raw(childComp.getFullName())));
+                            store.putComponent(childRef, Nameplate.getComponentType(),
+                                new Nameplate(childComp.getFullName()));
                         }
 
                         // Scale baby down visually to match BABY stage
@@ -141,7 +146,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             // Better: use the item's custom data or fallback to TavernHouse for the prototype
             String prefabName = "TavernHouse";
             
-            org.joml.Vector3i targetBlock = event.getTargetBlock();
+            Vector3i targetBlock = event.getTargetBlock();
             if (targetBlock != null) {
                 ConstructionSiteComponent closestSite = null;
                 double minDistance = Double.MAX_VALUE;
@@ -162,7 +167,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                     ConstructionHelper.clearPreview(world, closestSite);
                 } else {
                     // Place new preview 1 block above the clicked block
-                    org.joml.Vector3i spawnPos = new org.joml.Vector3i(targetBlock.x, targetBlock.y + 1, targetBlock.z);
+                    Vector3i spawnPos = new Vector3i(targetBlock.x, targetBlock.y + 1, targetBlock.z);
                     Store<EntityStore> eStore = world.getEntityStore().getStore();
                     ConstructionHelper.placePreview(world, eStore, spawnPos, prefabName);
                     pRef.sendMessage(com.hypixel.hytale.server.core.Message.raw("Preview placed for " + prefabName + ". Right click again nearby to confirm."));
@@ -215,7 +220,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         }
 
         if (childComp != null && childComp.stage == GrowthStage.BABY) {
-            ItemStack babyItem = new ItemStack("simtale:baby", 1).withMetadata("childId", com.hypixel.hytale.codec.Codec.STRING, childComp.childId.toString());
+            ItemStack babyItem = new ItemStack("simtale:baby", 1).withMetadata("childId", Codec.STRING, childComp.childId.toString());
 
             CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
             ItemStackTransaction transaction = combinedInventory.addItemStack(babyItem);
@@ -227,7 +232,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             // Remove the baby entity from the world
             store.removeEntity(targetRef, RemoveReason.REMOVE);
 
-            playerRefComp.sendMessage(com.hypixel.hytale.server.core.Message.raw("Você pegou o bebê " + childComp.getFullName() + " no colo!"));
+            playerRefComp.sendMessage(Message.raw("Você pegou o bebê " + childComp.getFullName() + " no colo!"));
             return;
         }
 
