@@ -16,6 +16,7 @@ import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.cookie.caskara.Caskara;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
@@ -189,6 +190,8 @@ public class LifecycleManager {
             child.pickUp(mother.entityId);
 
             ACTIVE_CHILDREN.add(child);
+            Caskara.save("child_" + child.childId.toString(), child);
+            BabyCareManager.initializeForChild(child);
 
             LOGGER.atInfo().log("SimTale: Nasceu " + child.getFullName() + " ("
                 + childGender.getDisplayName() + ") — filho(a) de " + mother.name);
@@ -357,6 +360,8 @@ public class LifecycleManager {
 
             child.pickUp(playerComp.playerUuid);
             ACTIVE_CHILDREN.add(child);
+            Caskara.save("child_" + child.childId.toString(), child);
+            BabyCareManager.initializeForChild(child);
 
             // Revert speed and subtract health
             EffectHelper.modifyMovement(playerRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);

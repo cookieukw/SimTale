@@ -14,6 +14,7 @@ import com.cookieukw.SimTale.systems.BedRegistrySystem;
 import com.cookieukw.SimTale.systems.SimNPCSpawnSystem;
 import com.cookieukw.SimTale.systems.PregnancyTickSystem;
 import com.cookieukw.SimTale.systems.PlayerPregnancyTickSystem;
+import com.cookieukw.SimTale.systems.BabyCareTickSystem;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
@@ -80,6 +81,7 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new SimNPCSpawnSystem());
         this.getEntityStoreRegistry().registerSystem(new PregnancyTickSystem());
         this.getEntityStoreRegistry().registerSystem(new PlayerPregnancyTickSystem());
+        this.getEntityStoreRegistry().registerSystem(new BabyCareTickSystem());
 
         // Register event handlers
         this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class,
