@@ -28,6 +28,10 @@ import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.Gender;
+import com.cookieukw.SimTale.core.Relationship;
+import com.cookieukw.SimTale.core.RelationshipStatus;
+import com.cookieukw.SimTale.core.SimPlayerComponent;
+import java.util.UUID;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
@@ -287,95 +291,132 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static class ForcePregSubCommand extends AbstractPlayerCommand {
+        private final OptionalArg<String> targetArg;
+
         public ForcePregSubCommand() {
-            super("forcepreg", "Forca a gravidez na NPC feminina mais proxima");
+            super("forcepreg", "Forca a gravidez no player executor ou na NPC feminina mais proxima");
+            this.targetArg = this.withOptionalArg("target", "me|npc", ArgTypes.STRING);
         }
 
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
-            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
-            SimNPCComponent nearestNPC = null;
-            double minDistance = Double.MAX_VALUE;
+            String target = ctx.get(this.targetArg);
+            if (target == null) target = "me";
 
-            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef != null && npc.gender == Gender.FEMALE) {
-                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
-                    if (playerTransform != null && npcTransform != null) {
-                        Vector3d pPos = playerTransform.getPosition();
-                        Vector3d nPos = npcTransform.getPosition();
-                        double distSq = pPos.distanceSquared(nPos);
-                        if (distSq < minDistance) {
-                            minDistance = distSq;
-                            nearestNPC = npc;
+            if (target.equalsIgnoreCase("me")) {
+                SimPlayerComponent playerComp = store.getComponent(ref, SimTale.SIM_PLAYER_COMPONENT_TYPE);
+                if (playerComp == null) {
+                    playerComp = new SimPlayerComponent(playerRef.getUuid());
+                    store.addComponent(ref, SimTale.SIM_PLAYER_COMPONENT_TYPE, playerComp);
+                }
+                if (playerComp.pregnancy == null) {
+                    playerComp.pregnancy = new PregnancyComponent();
+                }
+                playerComp.pregnancy.start(UUID.randomUUID(), world.getTick());
+                com.cookieukw.SimTale.db.SimPlayerPersistence.savePlayer(playerComp);
+                ctx.sendMessage(Message.raw("Gravidez forcada com sucesso em voce (ignoring gender)!"));
+            } else {
+                TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+                SimNPCComponent nearestNPC = null;
+                double minDistance = Double.MAX_VALUE;
+
+                for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                    if (npc.entityRef != null && npc.gender == Gender.FEMALE) {
+                        TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                        if (playerTransform != null && npcTransform != null) {
+                            Vector3d pPos = playerTransform.getPosition();
+                            Vector3d nPos = npcTransform.getPosition();
+                            double distSq = pPos.distanceSquared(nPos);
+                            if (distSq < minDistance) {
+                                minDistance = distSq;
+                                nearestNPC = npc;
+                            }
                         }
                     }
                 }
-            }
 
-            if (nearestNPC == null) {
-                ctx.sendMessage(Message.raw("Nenhuma NPC feminina encontrada por perto."));
-                return;
-            }
+                if (nearestNPC == null) {
+                    ctx.sendMessage(Message.raw("Nenhuma NPC feminina encontrada por perto."));
+                    return;
+                }
 
-            if (nearestNPC.pregnancy != null && nearestNPC.pregnancy.pregnant) {
-                ctx.sendMessage(Message.raw(nearestNPC.name + " ja esta gravida!"));
-                return;
-            }
+                if (nearestNPC.pregnancy != null && nearestNPC.pregnancy.pregnant) {
+                    ctx.sendMessage(Message.raw(nearestNPC.name + " ja esta gravida!"));
+                    return;
+                }
 
-            nearestNPC.family.marry(playerRef.getUuid(), null);
-            nearestNPC.getRelationship(playerRef.getUuid()).romance = 100;
+                nearestNPC.family.marry(playerRef.getUuid(), null);
+                nearestNPC.getRelationship(playerRef.getUuid()).romance = 100;
 
-            boolean success = LifecycleManager.startPregnancy(nearestNPC, playerRef.getUuid(), world.getTick());
-            if (success) {
-                SimNPCPersistence.saveNPC(nearestNPC);
-                ctx.sendMessage(Message.raw("Gravidez forcada com sucesso para: " + nearestNPC.name));
-            } else {
-                ctx.sendMessage(Message.raw("Falha ao iniciar gravidez para: " + nearestNPC.name));
+                boolean success = LifecycleManager.startPregnancy(nearestNPC, playerRef.getUuid(), world.getTick());
+                if (success) {
+                    SimNPCPersistence.saveNPC(nearestNPC);
+                    ctx.sendMessage(Message.raw("Gravidez forcada com sucesso para: " + nearestNPC.name));
+                } else {
+                    ctx.sendMessage(Message.raw("Falha ao iniciar gravidez para: " + nearestNPC.name));
+                }
             }
         }
     }
 
     private static class ForceBirthSubCommand extends AbstractPlayerCommand {
+        private final OptionalArg<String> targetArg;
+
         public ForceBirthSubCommand() {
-            super("forcebirth", "Forca o parto imediato da NPC gravida mais proxima");
+            super("forcebirth", "Forca o parto imediato do player executor ou da NPC mais proxima");
+            this.targetArg = this.withOptionalArg("target", "me|npc", ArgTypes.STRING);
         }
 
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
-            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
-            SimNPCComponent nearestNPC = null;
-            double minDistance = Double.MAX_VALUE;
+            String target = ctx.get(this.targetArg);
+            if (target == null) target = "me";
 
-            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef != null && npc.pregnancy != null && npc.pregnancy.pregnant) {
-                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
-                    if (playerTransform != null && npcTransform != null) {
-                        Vector3d pPos = playerTransform.getPosition();
-                        Vector3d nPos = npcTransform.getPosition();
-                        double distSq = pPos.distanceSquared(nPos);
-                        if (distSq < minDistance) {
-                            minDistance = distSq;
-                            nearestNPC = npc;
+            if (target.equalsIgnoreCase("me")) {
+                SimPlayerComponent playerComp = store.getComponent(ref, SimTale.SIM_PLAYER_COMPONENT_TYPE);
+                if (playerComp != null && playerComp.pregnancy != null && playerComp.pregnancy.pregnant) {
+                    playerComp.pregnancy.startTick = world.getTick() - playerComp.pregnancy.durationTicks - 1;
+                    LifecycleManager.birthPlayerBaby(ref, playerComp, store, world.getTick());
+                    ctx.sendMessage(Message.raw("Voce deu a luz ao seu bebe!"));
+                } else {
+                    ctx.sendMessage(Message.raw("Voce nao esta gravida para forcar o parto."));
+                }
+            } else {
+                TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+                SimNPCComponent nearestNPC = null;
+                double minDistance = Double.MAX_VALUE;
+
+                for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                    if (npc.entityRef != null && npc.pregnancy != null && npc.pregnancy.pregnant) {
+                        TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                        if (playerTransform != null && npcTransform != null) {
+                            Vector3d pPos = playerTransform.getPosition();
+                            Vector3d nPos = npcTransform.getPosition();
+                            double distSq = pPos.distanceSquared(nPos);
+                            if (distSq < minDistance) {
+                                minDistance = distSq;
+                                nearestNPC = npc;
+                            }
                         }
                     }
                 }
-            }
 
-            if (nearestNPC == null) {
-                ctx.sendMessage(Message.raw("Nenhuma NPC gravida encontrada por perto."));
-                return;
-            }
+                if (nearestNPC == null) {
+                    ctx.sendMessage(Message.raw("Nenhuma NPC gravida encontrada por perto."));
+                    return;
+                }
 
-            nearestNPC.pregnancy.startTick = world.getTick() - nearestNPC.pregnancy.durationTicks - 1;
-            
-            GrowthComponent child = LifecycleManager.birthBaby(nearestNPC, store, world, world.getTick());
-            if (child != null) {
-                SimNPCPersistence.saveNPC(nearestNPC);
-                ctx.sendMessage(Message.raw(nearestNPC.name + " deu a luz a " + child.getFullName() + "!"));
-            } else {
-                ctx.sendMessage(Message.raw("Falha no parto de " + nearestNPC.name));
+                nearestNPC.pregnancy.startTick = world.getTick() - nearestNPC.pregnancy.durationTicks - 1;
+                
+                GrowthComponent child = LifecycleManager.birthBaby(nearestNPC, store, world.getTick());
+                if (child != null) {
+                    SimNPCPersistence.saveNPC(nearestNPC);
+                    ctx.sendMessage(Message.raw(nearestNPC.name + " deu a luz a " + child.getFullName() + "!"));
+                } else {
+                    ctx.sendMessage(Message.raw("Falha no parto de " + nearestNPC.name));
+                }
             }
         }
     }
@@ -484,8 +525,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             // Set relationship status
-            com.cookieukw.SimTale.core.Relationship playerRel = nearestNPC.getRelationship(playerRef.getUuid());
-            playerRel.status = com.cookieukw.SimTale.core.RelationshipStatus.MARRIED;
+            Relationship playerRel = nearestNPC.getRelationship(playerRef.getUuid());
+            playerRel.status = RelationshipStatus.MARRIED;
             playerRel.romance = 100;
             playerRel.friendship = 100;
 
