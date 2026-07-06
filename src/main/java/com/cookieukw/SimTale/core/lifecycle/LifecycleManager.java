@@ -2,36 +2,46 @@ package com.cookieukw.SimTale.core.lifecycle;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Gender;
-import com.cookieukw.SimTale.core.Personality;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.SimNPCNameGenerator;
-import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.Child;
+import com.cookieukw.SimTale.core.SimPlayerComponent;
+import com.cookie.runecore.api.EffectHelper;
+import com.cookie.runecore.api.StatHelper;
+import com.cookieukw.SimTale.db.SimPlayerPersistence;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
+import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
+import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
+import com.hypixel.hytale.server.core.entity.ItemUtils;
+import com.hypixel.hytale.codec.Codec;
 import org.joml.Vector3d;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
  * Central orchestrator of the pregnancy and life cycle system.
- *
  * Responsible for:
  * - Starting pregnancy
  * - Performing birth (child spawn)
  * - Updating growth
  * - Applying genetics
  * - Converting adult child into independent NPC
- *
  * Many functions are stubs for future implementation.
  */
 public class LifecycleManager {
@@ -56,7 +66,7 @@ public class LifecycleManager {
 
         // Only adult NPCs can get pregnant
         if (mother.entityRef != null) {
-            NPCEntity npcEntity = mother.entityRef.getStore().getComponent(mother.entityRef, NPCEntity.getComponentType());
+            NPCEntity npcEntity = mother.entityRef.getStore().getComponent(mother.entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
             if (npcEntity != null && npcEntity.getRoleName() != null && npcEntity.getRoleName().toLowerCase().contains("child")) {
                 LOGGER.atWarning().log("SimTale: Gravidez cancelada. A NPC " + mother.name + " e uma criança!");
                 return false;
@@ -104,12 +114,11 @@ public class LifecycleManager {
      *
      * @param mother    mother component
      * @param store     store of entities
-     * @param world     world atual
      * @param worldTick tick atual
      * @return the GrowthComponent of the created child, or null if failed
      */
     public static GrowthComponent birthBaby(SimNPCComponent mother, Store<EntityStore> store,
-                                             World world, long worldTick) {
+                                            long worldTick) {
         if (mother.pregnancy == null || !mother.pregnancy.pregnant) {
             return null;
         }
@@ -154,21 +163,19 @@ public class LifecycleManager {
             }
 
             Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
-            if (childRef != null) {
-                com.hypixel.hytale.server.core.entity.UUIDComponent uuidComp = 
-                    store.getComponent(childRef, com.hypixel.hytale.server.core.entity.UUIDComponent.getComponentType());
-                if (uuidComp != null) {
-                    child.childId = uuidComp.getUuid();
-                }
-                
-                SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-                if (childNPCComp != null) {
-                    childNPCComp.name = child.getFullName();
-                    store.putComponent(childRef, com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName.getComponentType(), 
-                        new com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName(com.hypixel.hytale.server.core.Message.raw(child.getFullName())));
-                    store.putComponent(childRef, com.hypixel.hytale.server.core.entity.nameplate.Nameplate.getComponentType(), 
-                        new com.hypixel.hytale.server.core.entity.nameplate.Nameplate(child.getFullName()));
-                }
+            UUIDComponent uuidComp =
+                    store.getComponent(childRef, UUIDComponent.getComponentType());
+            if (uuidComp != null) {
+                child.childId = uuidComp.getUuid();
+            }
+
+            SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+            if (childNPCComp != null) {
+                childNPCComp.name = child.getFullName();
+                store.putComponent(childRef, PersistentDisplayName.getComponentType(),
+                    new PersistentDisplayName(Message.raw(child.getFullName())));
+                store.putComponent(childRef, Nameplate.getComponentType(),
+                    new Nameplate(child.getFullName()));
             }
 
             Child familyChild = new Child(child.getFullName());
@@ -192,6 +199,13 @@ public class LifecycleManager {
         }
 
         mother.pregnancy.reset();
+
+        if (mother.entityRef != null) {
+            EffectHelper.modifyMovement(mother.entityRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);
+            StatHelper.subtractHealth(mother.entityRef, 50.0f);
+        }
+
+        com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(mother);
 
         return child;
     }
@@ -255,7 +269,6 @@ public class LifecycleManager {
     /**
      * Apply modifications of behavior during pregnancy.
      * Stub — will be implemented in the future.
-     *
      * Planned behaviors:
      * - Sleeps more
      * - Eats more
@@ -265,24 +278,112 @@ public class LifecycleManager {
      * - Avoids combat
      */
     public static void applyPregnancyBehavior(SimNPCComponent mother) {
-        // TODO: Implement pregnancy behavior
+        if (mother.pregnancy == null || !mother.pregnancy.pregnant) return;
+        float mult = 1.0f + (mother.pregnancy.trimester * 0.3f);
+        // Extra decay per tick
+        mother.needs.hunger = Math.max(0, mother.needs.hunger - 0.0001f * (mult - 1.0f));
+        mother.needs.energy = Math.max(0, mother.needs.energy - 0.0002f * (mult - 1.0f));
     }
 
-    /**
-     * Get the speed multiplier during pregnancy.
-     * Stub — returns 1.0 for now.
-     */
-    public static float getPregnancySpeedMultiplier(PregnancyComponent pregnancy, long currentTick) {
-        if (pregnancy == null || !pregnancy.pregnant) return 1.0f;
-        // Slower as pregnancy advances
-        // TODO: Implement real curve
-        return 1.0f;
+    public static void applyPlayerPregnancyBehavior(Ref<EntityStore> playerRef, SimPlayerComponent playerComp) {
+        // Player pregnancy ticking behavior (can be extended for hunger/energy if SimTale player needs exist)
+    }
+
+    public static void applyPregnancySpeedDebuff(Ref<EntityStore> entityRef, PregnancyComponent pregnancy) {
+        if (entityRef == null || pregnancy == null) return;
+        if (!pregnancy.pregnant) {
+            EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);
+            return;
+        }
+        if (pregnancy.trimester == 2) {
+            EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = Math.max(1.0f, s.baseSpeed - 1.5f));
+        } else if (pregnancy.trimester == 3) {
+            EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = Math.max(1.0f, s.baseSpeed - 3.0f));
+        } else {
+            EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);
+        }
+    }
+
+    public static void birthPlayerBaby(Ref<EntityStore> playerRef, SimPlayerComponent playerComp, Store<EntityStore> store, long worldTick) {
+        if (playerComp.pregnancy == null || !playerComp.pregnancy.pregnant) return;
+
+        UUID fatherId = playerComp.pregnancy.fatherId;
+        Gender childGender = Math.random() < 0.5 ? Gender.MALE : Gender.FEMALE;
+        String childFirstName = SimNPCNameGenerator.generate();
+        if (childFirstName.contains(" ")) {
+            childFirstName = childFirstName.substring(0, childFirstName.indexOf(' '));
+        }
+        String childSurname = "SimTale";
+
+        GeneticsData childGenetics = GeneticsData.combine(new GeneticsData(), new GeneticsData());
+
+        GrowthComponent child = new GrowthComponent(
+            playerComp.playerUuid,
+            fatherId,
+            worldTick,
+            childGender,
+            childGenetics,
+            childFirstName,
+            childSurname
+        );
+
+        try {
+            Vector3d spawnPos = new Vector3d(0, 64, 0);
+            TransformComponent transform =
+                store.getComponent(playerRef, TransformComponent.getComponentType());
+            if (transform != null) {
+                spawnPos = transform.getPosition();
+            }
+
+            SimNPCFactory.NPCType childType = childGender == Gender.MALE
+                ? SimNPCFactory.NPCType.CHILD_MALE
+                : SimNPCFactory.NPCType.CHILD_FEMALE;
+
+            Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
+            UUIDComponent uuidComp =
+                    store.getComponent(childRef, UUIDComponent.getComponentType());
+            if (uuidComp != null) {
+                child.childId = uuidComp.getUuid();
+            }
+
+            SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+            if (childNPCComp != null) {
+                childNPCComp.name = child.getFullName();
+                store.putComponent(childRef, PersistentDisplayName.getComponentType(),
+                    new PersistentDisplayName(Message.raw(child.getFullName())));
+                store.putComponent(childRef, Nameplate.getComponentType(),
+                    new Nameplate(child.getFullName()));
+            }
+
+            child.pickUp(playerComp.playerUuid);
+            ACTIVE_CHILDREN.add(child);
+
+            // Revert speed and subtract health
+            EffectHelper.modifyMovement(playerRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);
+            StatHelper.subtractHealth(playerRef, 50.0f);
+
+            // Give baby item to player
+            ItemStack babyItem = new ItemStack("simtale:baby", 1).withMetadata("childId", Codec.STRING, child.childId.toString());
+            CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
+            ItemStackTransaction transaction = combinedInventory.addItemStack(babyItem);
+            ItemStack remainder = transaction.getRemainder();
+            if (remainder != null && !remainder.isEmpty()) {
+                ItemUtils.dropItem(playerRef, remainder, playerRef.getStore());
+            }
+
+            LOGGER.atInfo().log("SimTale: Player " + playerComp.playerUuid + " deu a luz a " + child.getFullName());
+
+        } catch (Exception e) {
+            LOGGER.atWarning().log("SimTale: Falha ao nascer o bebe do player: " + e.getMessage());
+        }
+
+        playerComp.pregnancy.reset();
+        SimPlayerPersistence.savePlayer(playerComp);
     }
 
     /**
      * Mother AI logic for caring for the baby.
      * Stub — will be implemented in the future.
-     *
      * Planned behaviors:
      * - If baby is far → go to baby
      * - If baby is on the ground → pick up baby
@@ -326,9 +427,9 @@ public class LifecycleManager {
     private static Vector3d getEntityPosition(SimNPCComponent npc, Store<EntityStore> store) {
         if (npc.entityRef == null) return null;
         try {
-            com.hypixel.hytale.server.core.modules.entity.component.TransformComponent transform =
+           TransformComponent transform =
                 store.getComponent(npc.entityRef,
-                    com.hypixel.hytale.server.core.modules.entity.component.TransformComponent.getComponentType());
+                    TransformComponent.getComponentType());
             if (transform != null) {
                 return transform.getPosition();
             }
