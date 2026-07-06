@@ -10,26 +10,52 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
-import com.hypixel.hytale.server.core.inventory.CombinedItemContainer;
+import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
-import com.hypixel.hytale.server.core.inventory.ItemStackTransaction;
+import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.entity.RemoveReason;
-import com.cookie.runecore.api.util.Codec;
+import com.hypixel.hytale.component.RemoveReason;
+import com.hypixel.hytale.codec.Codec;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BabyCareManager {
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
     
     // Default turn duration: 2 minutes (120,000 ms) for easy testing and debugging
     public static final long TURN_DURATION = 120000L;
+
+    // Cache for fast lookup during ticking: NPC UUID -> Child UUID
+    public static final Map<UUID, UUID> NPC_CARRIED_BABIES = new ConcurrentHashMap<>();
+
+    public static void loadCache() {
+        NPC_CARRIED_BABIES.clear();
+        try {
+            List<BabyCareData> all = Caskara.list(BabyCareData.class);
+            if (all != null) {
+                for (BabyCareData data : all) {
+                    if (data.currentHolderId != null && !data.currentHolderId.equals("none")) {
+                        try {
+                            UUID holderId = UUID.fromString(data.currentHolderId);
+                            UUID childId = UUID.fromString(data.childId);
+                            // If holder matches an NPC ID in active list, we cache it
+                            NPC_CARRIED_BABIES.put(holderId, childId);
+                        } catch (Exception ignored) {}
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.atWarning().log("SimTale: Erro ao carregar cache de bebês: " + e.getMessage());
+        }
+    }
 
     public static void save(BabyCareData data) {
         if (data == null || data.childId == null) return;
@@ -55,6 +81,9 @@ public class BabyCareManager {
     public static void simulateOfflineTime(Ref<EntityStore> playerRef, SimPlayerComponent playerComp) {
         if (playerComp == null || playerComp.playerUuid == null) return;
         
+        // Ensure cache is loaded
+        loadCache();
+
         String playerUuidStr = playerComp.playerUuid.toString();
         List<BabyCareData> allCares;
         try {
@@ -109,6 +138,11 @@ public class BabyCareManager {
                     if (remainder == null || remainder.isEmpty()) {
                         // Success! Removed from NPC / Ground if any
                         removeBabyEntityFromWorld(UUID.fromString(care.childId));
+                        // Remove from cache
+                        try {
+                            NPC_CARRIED_BABIES.remove(UUID.fromString(care.currentHolderId));
+                        } catch (Exception ignored) {}
+                        
                         care.currentHolderId = playerUuidStr;
                         
                         String otherParentName = getNPCName(UUID.fromString(playerUuidStr.equals(care.motherId) ? care.fatherId : care.motherId));
@@ -137,6 +171,11 @@ public class BabyCareManager {
 
                     if (removed) {
                         care.currentHolderId = care.currentTurnOwnerId;
+                        // Add to cache
+                        try {
+                            NPC_CARRIED_BABIES.put(UUID.fromString(care.currentHolderId), UUID.fromString(care.childId));
+                        } catch (Exception ignored) {}
+                        
                         String otherParentName = getNPCName(UUID.fromString(care.currentTurnOwnerId));
                         playerRefComp.sendMessage(Message.raw("Enquanto você estava fora, " + otherParentName + " pegou o bebê para cuidar!"));
                     }

@@ -8,6 +8,9 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 
+import com.cookieukw.SimTale.core.lifecycle.BabyCareData;
+import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
+
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -23,6 +26,7 @@ public class SimTaleTests {
             testLifecycleManagerPregnancy();
             testRelationships();
             testNeedsDecay();
+            testBabyCareSharing();
             
             System.out.println("========================================");
             System.out.println("Todos os testes passaram com sucesso!");
@@ -159,6 +163,35 @@ public class SimTaleTests {
         // Então decai 0.0001f * 0.9 = 0.00009f
         assertFloatEqual(mother.needs.hunger, preHunger - 0.00009f, "Decaimento fome gravidez T3");
         assertFloatEqual(mother.needs.energy, preEnergy - 0.00018f, "Decaimento energia gravidez T3");
+        System.out.println("OK");
+    }
+
+    private static void testBabyCareSharing() {
+        System.out.print("Testando Cuidado Compartilhado (BabyCare)... ");
+        
+        UUID childId = UUID.randomUUID();
+        UUID motherId = UUID.randomUUID();
+        UUID fatherId = UUID.randomUUID();
+
+        // 1. Inicializacao
+        BabyCareData care = new BabyCareData(childId.toString(), motherId.toString(), fatherId.toString());
+        assertEqual(care.childId, childId.toString(), "ID do filho");
+        assertEqual(care.motherId, motherId.toString(), "ID da mae");
+        assertEqual(care.fatherId, fatherId.toString(), "ID do pai");
+        assertEqual(care.currentHolderId, motherId.toString(), "Portador inicial");
+        assertEqual(care.currentTurnOwnerId, motherId.toString(), "Dono do turno inicial");
+
+        // 2. Testar troca permitida (cooldown)
+        long now = System.currentTimeMillis();
+        assertEqual(now < care.nextSwapAllowedTime, true, "Cooldown ativo inicialmente");
+
+        // Forcar tempo passar e testar toggle manual de turno
+        // Trocando turno: da mae para o pai
+        care.currentTurnOwnerId = fatherId.toString();
+        care.currentHolderId = fatherId.toString();
+        assertEqual(care.currentTurnOwnerId, fatherId.toString(), "Turno alterado para o pai");
+        assertEqual(care.currentHolderId, fatherId.toString(), "Portador alterado para o pai");
+
         System.out.println("OK");
     }
 

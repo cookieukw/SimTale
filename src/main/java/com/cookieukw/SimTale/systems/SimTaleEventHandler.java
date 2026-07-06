@@ -92,6 +92,13 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                         }
                     }
 
+                    if (childComp == null) {
+                        childComp = Caskara.load("child_" + childId.toString(), GrowthComponent.class);
+                        if (childComp != null) {
+                            LifecycleManager.ACTIVE_CHILDREN.add(childComp);
+                        }
+                    }
+
                     if (childComp != null) {
                         // Spawn baby entity back at target block position (1 block above)
                         Vector3d spawnPos = new Vector3d(targetBlock.x + 0.5, targetBlock.y + 1, targetBlock.z + 0.5);
@@ -120,6 +127,10 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                             ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), childComp.currentScale, new HashMap<>());
                             store.replaceComponent(childRef, PersistentModel.getComponentType(), new PersistentModel(newRef));
                         }
+
+                        // Update baby state and persist
+                        childComp.putDown();
+                        Caskara.save("child_" + childComp.childId.toString(), childComp);
 
                         // Remove item from hand
                         InventoryComponent.Hotbar hotbarComponent = playerRef.getStore().getComponent(playerRef, InventoryComponent.Hotbar.getComponentType());
@@ -227,6 +238,10 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             if (remainder != null && !remainder.isEmpty()) {
                 ItemUtils.dropItem(playerRef, remainder, playerRef.getStore());
             }
+
+            // Update baby state and persist
+            childComp.pickUp(playerUuid);
+            Caskara.save("child_" + childComp.childId.toString(), childComp);
 
             // Remove the baby entity from the world
             store.removeEntity(targetRef, RemoveReason.REMOVE);
