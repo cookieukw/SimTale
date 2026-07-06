@@ -29,10 +29,23 @@ sourceSets {
             srcDirs += ['assets']
         }
     }
+    test {
+        java {
+            srcDirs = ['tests']
+        }
+    }
 }
 
 dependencies {
     compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation sourceSets.main.output
+    testImplementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+tasks.register('runTests', JavaExec) {
+    dependsOn 'compileTestJava'
+    mainClass = 'com.cookieukw.SimTale.tests.SimTaleTests'
+    classpath = sourceSets.test.runtimeClasspath
 }
 
 // Tarefa de deploy
