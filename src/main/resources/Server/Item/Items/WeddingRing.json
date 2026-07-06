@@ -1,0 +1,20 @@
+{
+  "TranslationProperties": {
+    "Name": "simtale.item.wedding_ring.name",
+    "Description": "simtale.item.wedding_ring.description"
+  },
+  "Icon": "Icons/Wedding_Ring_Icon.png",
+  "Quality": "Legendary",
+  "Categories": [
+    "Items.Ingredients"
+  ],
+  "Model": "Resources/WeddingRing/WeddingRing.blockymodel",
+  "Tags": {
+    "Type": [
+      "Ingredient"
+    ]
+  },
+  "Scale": 0.5,
+  "MaxStack": 1,
+  "DropOnDeath": false
+}

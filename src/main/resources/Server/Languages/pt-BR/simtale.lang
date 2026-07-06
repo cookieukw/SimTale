@@ -260,8 +260,8 @@ rel.friend = Amigo
 rel.good_friend = Bom Amigo
 rel.best_friend = Melhor Amigo
 rel.dating = Namorando
-rel.engaged = Noivo
-rel.married = Casado
+rel.engaged = Noivo(a)
+rel.married = Casado(a)
 rel.enemy = Inimigo
 rel.rival = Rival
 
@@ -278,3 +278,16 @@ gender.success.female = Gênero definido permanentemente como: FEMININO
 # BABY ITEM
 item.baby.name = Bebê
 item.baby.description = Um bebê recém-nascido. Carregue-o com carinho.
+
+# WEDDING RING ITEM
+item.wedding_ring.name = Aliança de Casamento
+item.wedding_ring.description = Proponha casamento a um NPC com quem você tenha alto romance.
+
+# MARRIAGE DIALOGUES
+chat.marriage.accept.1 = {name} chora de alegria: Sim! Mil vezes sim! Eu aceito me casar com você!
+chat.marriage.accept.2 = {name} coloca a aliança com a mão trêmula: Eu aceito! Quero passar o resto da minha vida ao seu lado!
+chat.marriage.reject.1 = {name}: Casamento?! Acho que estamos indo rápido demais... Precisamos nos conhecer melhor.
+chat.marriage.reject.2 = {name}: Sinto muito, mas eu não sinto o mesmo por você ainda...
+chat.marriage.already_married = {name}: Ué, mas nós já somos casados!
+chat.marriage.target_already_married = {name}: Eu já sou casado com outra pessoa... Sinto muito.
+

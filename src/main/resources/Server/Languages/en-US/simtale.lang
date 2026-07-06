@@ -278,3 +278,16 @@ gender.success.female = Gender permanently set to: FEMALE
 # BABY ITEM
 item.baby.name = Baby
 item.baby.description = A newborn baby. Carry it with care.
+
+# WEDDING RING ITEM
+item.wedding_ring.name = Wedding Ring
+item.wedding_ring.description = Propose marriage to an NPC with whom you have high romance.
+
+# MARRIAGE DIALOGUES
+chat.marriage.accept.1 = {name} cries with joy: Yes! A thousand times yes! I accept to marry you!
+chat.marriage.accept.2 = {name} puts on the ring with a shaking hand: I accept! I want to spend the rest of my life by your side!
+chat.marriage.reject.1 = {name}: Marriage?! I think we are moving too fast... We need to get to know each other better first.
+chat.marriage.reject.2 = {name}: I'm sorry, but I don't feel the same way about you yet...
+chat.marriage.already_married = {name}: Wait, but we are already married!
+chat.marriage.target_already_married = {name}: I'm already married to someone else... I'm sorry.
+
