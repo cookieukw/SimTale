@@ -17,7 +17,6 @@ import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 /**
  * Tick system for child growth.

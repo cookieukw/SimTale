@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.cookieukw.SimTale.logic.PlayerGenderPage;
+import com.hypixel.hytale.component.Holder;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.AddPlayerToWorldEvent;
@@ -20,8 +21,7 @@ public class PlayerJoinHandler implements Consumer<AddPlayerToWorldEvent> {
 
     @Override
     public void accept(AddPlayerToWorldEvent event) {
-        com.hypixel.hytale.component.Holder<EntityStore> holder = event.getHolder();
-        if (holder == null) return;
+        Holder<EntityStore> holder = event.getHolder();
 
         Player player = holder.getComponent(Player.getComponentType());
         if (player == null) return;

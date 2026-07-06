@@ -1,6 +1,5 @@
 package com.cookieukw.SimTale.logic;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
-import com.hypixel.hytale.server.core.modules.entity.tracker.NetworkId;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.cookieukw.SimTale.SimTale;
@@ -35,6 +34,7 @@ import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.joml.Vector3d;
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 @SuppressWarnings("null")
 public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
@@ -150,7 +150,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         boolean isChild = false;
         if (npc.entityRef != null) {
             NPCEntity npcEntity = 
-                store.getComponent(npc.entityRef, NPCEntity.getComponentType());
+                store.getComponent(npc.entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
             if (npcEntity != null && npcEntity.getRoleName() != null && npcEntity.getRoleName().toLowerCase().contains("child")) {
                 isChild = true;
             }

@@ -14,6 +14,7 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -286,13 +287,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             return;
         }
 
-        Profession newProf = null;
-        if (message.contains("minerador") || message.contains("mineiro")) newProf = Profession.MINER;
-        else if (message.contains("fazendeiro") || message.contains("agricultor")) newProf = Profession.FARMER;
-        else if (message.contains("pescador")) newProf = Profession.FISHERMAN;
-        else if (message.contains("lenhador")) newProf = Profession.LUMBERJACK;
-        else if (message.contains("guarda") || message.contains("soldado")) newProf = Profession.GUARD;
-        else if (message.contains("explorador") || message.contains("aventureiro")) newProf = Profession.EXPLORER;
+        Profession newProf = getProfession(message);
 
         if (newProf != null) {
             npc.profession = newProf;
@@ -301,6 +296,18 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         } else {
             sendReply(sender, Message.translation(getRandomVariant("simtale.chat.prof.invalid", 3)).param("name", npc.name));
         }
+    }
+
+    @NullableDecl
+    private static Profession getProfession(String message) {
+        Profession newProf = null;
+        if (message.contains("minerador") || message.contains("mineiro")) newProf = Profession.MINER;
+        else if (message.contains("fazendeiro") || message.contains("agricultor")) newProf = Profession.FARMER;
+        else if (message.contains("pescador")) newProf = Profession.FISHERMAN;
+        else if (message.contains("lenhador")) newProf = Profession.LUMBERJACK;
+        else if (message.contains("guarda") || message.contains("soldado")) newProf = Profession.GUARD;
+        else if (message.contains("explorador") || message.contains("aventureiro")) newProf = Profession.EXPLORER;
+        return newProf;
     }
 
     private void assignJob(PlayerRef sender, SimNPCComponent npc, long currentTick, JobType job) {

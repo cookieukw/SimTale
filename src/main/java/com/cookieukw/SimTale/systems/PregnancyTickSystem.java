@@ -18,12 +18,10 @@ import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 /**
  * Tick system that monitors pregnant NPCs and triggers birth
  * when the pregnancy duration expires.
- *
  * Runs every tick for each SimTale NPC with an active PregnancyComponent.
  */
 public class PregnancyTickSystem extends EntityTickingSystem<EntityStore> {

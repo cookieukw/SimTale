@@ -15,6 +15,8 @@ import com.hypixel.hytale.server.npc.blackboard.Blackboard;
 import com.hypixel.hytale.server.npc.blackboard.view.interaction.InteractionView;
 import com.hypixel.hytale.server.npc.blackboard.view.interaction.ReservationStatus;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
+
+import java.util.Objects;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
 import com.hypixel.hytale.server.core.entity.entities.Player;
@@ -38,7 +40,8 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
     protected void firstRun(@Nonnull InteractionType type, @Nonnull InteractionContext context, @Nonnull CooldownHandler cooldownHandler) {
         Ref<EntityStore> ref = context.getEntity();
         CommandBuffer<EntityStore> commandBuffer = context.getCommandBuffer();
-        PlayerRef playerRefComponent = (PlayerRef) commandBuffer.getComponent(ref, PlayerRef.getComponentType());
+        assert commandBuffer != null;
+        PlayerRef playerRefComponent = commandBuffer.getComponent(ref, PlayerRef.getComponentType());
         if (playerRefComponent == null) {
             HytaleLogger.getLogger().at(Level.INFO).log("UseNPCInteraction requires a Player but was used for: %s", ref);
             context.getState().state = InteractionState.Failed;
@@ -49,7 +52,7 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             context.getState().state = InteractionState.Failed;
             return;
         }
-        NPCEntity npcComponent = (NPCEntity) commandBuffer.getComponent(targetRef, NPCEntity.getComponentType());
+        NPCEntity npcComponent = commandBuffer.getComponent(targetRef, Objects.requireNonNull(NPCEntity.getComponentType()));
         if (npcComponent == null) {
             HytaleLogger.getLogger().at(Level.INFO).log("UseNPCInteraction requires a target NPCEntity but was used for: %s", targetRef);
             context.getState().state = InteractionState.Failed;
@@ -57,7 +60,7 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             // Log interaction!
             LOGGER.atInfo().log("SimTale [DEBUG]: Interacao com NPC via UseNPCInteraction (tecla F). Player: " + playerRefComponent.getReference() + ", NPC: " + targetRef);
 
-            Player player = (Player) ref.getStore().getComponent(ref, Player.getComponentType());
+            Player player = ref.getStore().getComponent(ref, Player.getComponentType());
             SimNPCComponent npc = targetRef.getStore().getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
             
             if (npc == null) {
@@ -81,22 +84,21 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
                 final Player finalPlayer = player;
                 final SimNPCComponent finalNpc = npc;
                 final PlayerRef finalPlayerRefComp = playerRefComponent;
-                ref.getStore().getExternalData().getWorld().execute(() -> {
-                    finalPlayer.getPageManager().openCustomPage(ref, ref.getStore(), new NPCInteractionPage(finalPlayerRefComp, finalPlayer, finalNpc));
-                });
+                ref.getStore().getExternalData().getWorld().execute(() -> finalPlayer.getPageManager().openCustomPage(ref, ref.getStore(), new NPCInteractionPage(finalPlayerRefComp, finalPlayer, finalNpc)));
             }
 
+            assert npcComponent.getRole() != null;
             if (!npcComponent.getRole().getStateSupport().willInteractWith(ref)) {
                 context.getState().state = InteractionState.Failed;
                 return;
             }
-            InteractionView interactionView = (InteractionView) ((Blackboard) commandBuffer.getResource(Blackboard.getResourceType())).getView(InteractionView.class, 0L);
+            InteractionView interactionView = commandBuffer.getResource(Blackboard.getResourceType()).getView(InteractionView.class, 0L);
             if (interactionView.getReservationStatus(targetRef, ref, commandBuffer) == ReservationStatus.RESERVED_OTHER) {
                 playerRefComponent.sendMessage(Message.translation("server.npc.npc.isBusy").param("roleName", npcComponent.getRoleName()));
                 context.getState().state = InteractionState.Failed;
                 return;
             }
-            npcComponent.getRole().getStateSupport().addInteraction(playerRefComponent.getReference());
+            npcComponent.getRole().getStateSupport().addInteraction(Objects.requireNonNull(playerRefComponent.getReference()));
         }
     }
 }
