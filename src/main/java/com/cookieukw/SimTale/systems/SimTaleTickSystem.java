@@ -2,6 +2,8 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.Relationship;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookieukw.SimTale.logic.InteractionType;
@@ -94,6 +96,17 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
 
         if (absoluteTick % 600 == 0) {
             SimNPCPersistence.saveNPC(npc);
+        }
+
+        // Daily natural pregnancy check for married female NPCs
+        if (absoluteTick % 24000 == 0 && npc.gender == com.cookieukw.SimTale.core.Gender.FEMALE && npc.family.isMarried && npc.family.spouseId != null) {
+            if (npc.pregnancy == null || !npc.pregnancy.pregnant) {
+                Relationship spouseRel = npc.getRelationship(npc.family.spouseId);
+                // 25% chance of getting pregnant daily if romance is high (romance >= 75)
+                if (spouseRel.romance >= 75 && Math.random() < 0.25) {
+                    LifecycleManager.startPregnancy(npc, npc.family.spouseId, absoluteTick);
+                }
+            }
         }
 
         npc.needs.tickDecay(npc.personality.traits);

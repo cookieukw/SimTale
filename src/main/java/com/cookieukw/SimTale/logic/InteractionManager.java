@@ -5,6 +5,7 @@ import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Relationship;
+import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
@@ -219,6 +220,31 @@ public class InteractionManager {
                 
                 String itemName = heldItem.getDisplayName().getAnsiMessage();
                 String itemId = heldItem.getItemId();
+                
+                // --- Marriage proposal handling ---
+                if (itemId != null && itemId.equals("simtale:wedding_ring")) {
+                    if (npc.family.isMarried) {
+                        rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
+                        return Message.translation("simtale.chat.marriage.already_married").param("name", npc.name);
+                    }
+                    Relationship playerRel = npc.getRelationship(playerUuid);
+                    if (playerRel.romance >= 80 && playerRel.friendship >= 70) {
+                        // Accept proposal
+                        hotbar.getInventory().removeItemStackFromSlot(activeSlot, 1);
+                        playerRel.status = RelationshipStatus.MARRIED;
+                        npc.family.marry(playerUuid, null); // player has no fixed bed coordinate here
+                        
+                        // Mark spouse in player component if active
+                        // Save changes to database
+                        SimNPCPersistence.saveNPC(npc);
+                        
+                        return Message.translation("simtale.chat.marriage.accept." + (1 + (int)(Math.random() * 2))).param("name", npc.name);
+                    } else {
+                        // Reject proposal, do NOT consume the item
+                        rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
+                        return Message.translation("simtale.chat.marriage.reject." + (1 + (int)(Math.random() * 2))).param("name", npc.name);
+                    }
+                }
                 
                 hotbar.getInventory().removeItemStackFromSlot(activeSlot, 1);
                 
