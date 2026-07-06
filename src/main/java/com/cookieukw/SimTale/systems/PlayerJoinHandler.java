@@ -13,6 +13,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
 /**
  * Handles when a player is ready in the world.
  * Loads their SimTale data (gender) and opens the selection screen if they haven't selected one.
@@ -56,5 +57,8 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
                 playerRef.getStore().putComponent(playerRef, SimTale.SIM_PLAYER_COMPONENT_TYPE, simPlayer);
             }
         }
+
+        // Trigger offline baby care simulation
+        BabyCareManager.simulateOfflineTime(playerRef, simPlayer);
     }
 }

@@ -25,6 +25,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.cookie.runecore.api.util.Codec;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.joml.Vector3d;
+import com.hypixel.hytale.component.Ref;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
         // Process each active player
         for (PlayerRef playerRef : Universe.get().getPlayers()) {
             UUID playerUuid = playerRef.getUuid();
-            com.hypixel.hytale.component.Ref<EntityStore> entityRef = Universe.get().getWorlds().values().iterator().next().getEntityStore().getRefFromUUID(playerUuid);
+            Ref<EntityStore> entityRef = Universe.get().getWorlds().values().iterator().next().getEntityStore().getRefFromUUID(playerUuid);
             if (entityRef == null) continue;
 
             TransformComponent playerTransform = store.getComponent(entityRef, TransformComponent.getComponentType());
