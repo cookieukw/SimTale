@@ -11,6 +11,7 @@ public class PregnancyComponent {
     public long startTick;
     public long durationTicks;
     public int trimester = 0;
+    public int previousTrimester = 0;
 
     public PregnancyComponent() {}
 
@@ -20,6 +21,7 @@ public class PregnancyComponent {
         this.startTick = worldTick;
         this.durationTicks = DEFAULT_PREGNANCY_DAYS * TICKS_PER_DAY;
         this.trimester = 1;
+        this.previousTrimester = 0;
     }
 
     public void start(UUID fatherId, long worldTick, int durationDays) {
@@ -37,15 +39,24 @@ public class PregnancyComponent {
         return pregnant && (currentTick >= startTick + durationTicks);
     }
 
-    public void updateTrimester(long currentTick) {
+    public boolean updateTrimester(long currentTick) {
+        if (!pregnant) return false;
         float progress = getProgress(currentTick);
+        int newTrimester;
         if (progress >= 0.66f) {
-            trimester = 3;
+            newTrimester = 3;
         } else if (progress >= 0.33f) {
-            trimester = 2;
+            newTrimester = 2;
         } else {
-            trimester = 1;
+            newTrimester = 1;
         }
+        
+        if (newTrimester != trimester) {
+            previousTrimester = trimester;
+            trimester = newTrimester;
+            return true;
+        }
+        return false;
     }
 
     public void reset() {
@@ -54,6 +65,7 @@ public class PregnancyComponent {
         this.startTick = 0;
         this.durationTicks = 0;
         this.trimester = 0;
+        this.previousTrimester = 0;
     }
 
     public int getElapsedDays(long currentTick) {
