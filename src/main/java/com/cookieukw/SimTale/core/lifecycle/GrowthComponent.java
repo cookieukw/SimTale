@@ -7,7 +7,6 @@ import java.util.UUID;
 /**
  * Growth component assigned to an NPC that is the child of another.
  * Represents all information about a being born in the game that is growing.
- *
  * A single entity with this component goes through all stages
  * (BABY → TODDLER → CHILD → TEEN → ADULT) just by changing the stage
  * and the visual scale.
@@ -56,7 +55,6 @@ public class GrowthComponent {
         this.babyNeeds = new BabyNeeds();
         this.name = name;
         this.surname = surname;
-        this.stage = GrowthStage.BABY;
         this.currentScale = GrowthStage.BABY.getScale();
     }
 
