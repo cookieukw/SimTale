@@ -55,6 +55,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ForcePregSubCommand());
         this.addSubCommand(new ForceBirthSubCommand());
         this.addSubCommand(new SetStageSubCommand());
+        this.addSubCommand(new ForceMarrySubCommand());
     }
 
     @Override
@@ -65,7 +66,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -442,6 +443,56 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             ctx.sendMessage(Message.raw("Estagio de " + nearestChild.getFullName() + " definido para " + targetStage.name() + " (escala: " + nearestChild.currentScale + ")."));
+        }
+    }
+
+    private static class ForceMarrySubCommand extends AbstractPlayerCommand {
+        public ForceMarrySubCommand() {
+            super("marry", "Forca o casamento com o NPC mais proximo");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null) {
+                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (playerTransform != null && npcTransform != null) {
+                        Vector3d pPos = playerTransform.getPosition();
+                        Vector3d nPos = npcTransform.getPosition();
+                        double distSq = pPos.distanceSquared(nPos);
+                        if (distSq < minDistance) {
+                            minDistance = distSq;
+                            nearestNPC = npc;
+                        }
+                    }
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("Nenhum NPC por perto para casar."));
+                return;
+            }
+
+            if (nearestNPC.family.isMarried) {
+                ctx.sendMessage(Message.raw(nearestNPC.name + " ja esta casado(a)!"));
+                return;
+            }
+
+            // Set relationship status
+            com.cookieukw.SimTale.core.Relationship playerRel = nearestNPC.getRelationship(playerRef.getUuid());
+            playerRel.status = com.cookieukw.SimTale.core.RelationshipStatus.MARRIED;
+            playerRel.romance = 100;
+            playerRel.friendship = 100;
+
+            nearestNPC.family.marry(playerRef.getUuid(), null);
+            SimNPCPersistence.saveNPC(nearestNPC);
+
+            ctx.sendMessage(Message.raw("Voce agora esta casado com: " + nearestNPC.name + "!"));
         }
     }
 }
