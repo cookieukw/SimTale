@@ -9,6 +9,7 @@
     "Items.Ingredients"
   ],
   "Model": "Resources/WeddingRing/WeddingRing.blockymodel",
+  "Texture": "Resources/WeddingRing/WeddingRing_texture.png",
   "Tags": {
     "Type": [
       "Ingredient"
