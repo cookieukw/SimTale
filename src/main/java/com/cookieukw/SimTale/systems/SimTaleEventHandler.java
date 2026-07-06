@@ -70,7 +70,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         Ref<EntityStore> playerRef = player.getReference();
         if (playerRef == null) return;
         ComponentAccessor<EntityStore> playerAccessor = playerRef.getStore();
-        PlayerRef playerRefComp = (PlayerRef) playerAccessor.getComponent(playerRef, Universe.get().getPlayerRefComponentType());
+        PlayerRef playerRefComp = playerAccessor.getComponent(playerRef, Universe.get().getPlayerRefComponentType());
         if (playerRefComp == null) return;
 
         // --- Place Baby Item on Block Click ---
@@ -124,7 +124,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                         InventoryComponent.Hotbar hotbarComponent = playerRef.getStore().getComponent(playerRef, InventoryComponent.Hotbar.getComponentType());
                         if (hotbarComponent != null && hotbarComponent.getActiveSlot() != -1) {
                             CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
-                            combinedInventory.removeItemStackFromSlot((short)hotbarComponent.getActiveSlot(), heldItem, 1);
+                            combinedInventory.removeItemStackFromSlot(hotbarComponent.getActiveSlot(), heldItem, 1);
                         }
 
                         playerRefComp.sendMessage(com.hypixel.hytale.server.core.Message.raw("Você colocou o bebê " + childComp.getFullName() + " no chão."));
@@ -238,9 +238,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
         HytaleLogger.forEnclosingClass().atInfo().log("SimTale: Interacao com NPC detectada: " + npc.name);
 
-        if (playerRefComp != null) {
-            // Open the NPC interaction page
-            player.getPageManager().openCustomPage(playerRef, playerRef.getStore(), new NPCInteractionPage(playerRefComp, player, npc));
-        }
+        // Open the NPC interaction page
+        player.getPageManager().openCustomPage(playerRef, playerRef.getStore(), new NPCInteractionPage(playerRefComp, player, npc));
     }
 }

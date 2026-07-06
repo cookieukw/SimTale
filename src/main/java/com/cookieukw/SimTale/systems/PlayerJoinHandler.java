@@ -8,6 +8,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -24,7 +25,7 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
 
         Ref<EntityStore> playerRef = event.getPlayerRef();
 
-        PlayerRef playerRefComponent = player.getPlayerRef();
+        PlayerRef playerRefComponent = playerRef.getStore().getComponent(playerRef, Universe.get().getPlayerRefComponentType());
         if (playerRefComponent == null) return;
 
         UUID playerUuid = playerRefComponent.getUuid();
