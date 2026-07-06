@@ -22,7 +22,6 @@ import com.hypixel.hytale.event.EventPriority;
 import com.cookieukw.SimTale.systems.MoodAnimationSystem;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.cookieukw.SimTale.systems.PlayerJoinHandler;
-import com.hypixel.hytale.server.core.event.events.player.AddPlayerToWorldEvent;
 
 import java.util.ArrayList;
 import java.util.List;

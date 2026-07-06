@@ -38,8 +38,6 @@ import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import com.hypixel.hytale.component.RemoveReason;
-import org.bson.BsonDocument;
-import org.bson.BsonString;
 import org.joml.Vector3d;
 
 /**
@@ -78,9 +76,8 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         if (heldItem != null && heldItem.getItemId().equals("simtale:baby")) {
             org.joml.Vector3i targetBlock = event.getTargetBlock();
             if (targetBlock != null) {
-                BsonDocument metadata = heldItem.getMetadata();
-                if (metadata != null && metadata.containsKey("childId")) {
-                    String childIdStr = metadata.getString("childId").asString().getValue();
+                String childIdStr = heldItem.getFromMetadataOrNull("childId", com.hypixel.hytale.codec.Codec.STRING);
+                if (childIdStr != null) {
                     UUID childId = UUID.fromString(childIdStr);
 
                     GrowthComponent childComp = null;
@@ -218,9 +215,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         }
 
         if (childComp != null && childComp.stage == GrowthStage.BABY) {
-            BsonDocument metadata = new BsonDocument();
-            metadata.put("childId", new BsonString(childComp.childId.toString()));
-            ItemStack babyItem = new ItemStack("simtale:baby", 1, metadata);
+            ItemStack babyItem = new ItemStack("simtale:baby", 1).withMetadata("childId", com.hypixel.hytale.codec.Codec.STRING, childComp.childId.toString());
 
             CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
             ItemStackTransaction transaction = combinedInventory.addItemStack(babyItem);
