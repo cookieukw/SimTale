@@ -4,38 +4,34 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.cookieukw.SimTale.logic.PlayerGenderPage;
-import com.hypixel.hytale.component.Holder;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.entity.entities.Player;
-import com.hypixel.hytale.server.core.event.events.player.AddPlayerToWorldEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
- * Handles when a player joins the world.
+ * Handles when a player is ready in the world.
  * Loads their SimTale data (gender) and opens the selection screen if they haven't selected one.
  */
-public class PlayerJoinHandler implements Consumer<AddPlayerToWorldEvent> {
+public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
 
     @Override
-    public void accept(AddPlayerToWorldEvent event) {
-        Holder<EntityStore> holder = event.getHolder();
+    public void accept(PlayerReadyEvent event) {
+        Player player = event.getPlayer();
 
-        Player player = holder.getComponent(Player.getComponentType());
-        if (player == null) return;
+        Ref<EntityStore> playerRef = event.getPlayerRef();
 
-        Ref<EntityStore> playerRef = player.getReference();
-        if (playerRef == null) return;
-
-        PlayerRef playerRefComponent = holder.getComponent(PlayerRef.getComponentType());
+        PlayerRef playerRefComponent = player.getPlayerRef();
         if (playerRefComponent == null) return;
 
         UUID playerUuid = playerRefComponent.getUuid();
 
         // Load or create player persistent data
         SimPlayerComponent simPlayer = SimPlayerPersistence.loadPlayer(playerUuid);
+
         if (simPlayer == null || simPlayer.gender == null) {
             if (simPlayer == null) {
                 simPlayer = new SimPlayerComponent(playerUuid);

@@ -21,6 +21,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.HashMap;
@@ -68,13 +69,13 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         Player player = event.getPlayer();
         Ref<EntityStore> playerRef = player.getReference();
         if (playerRef == null) return;
-        ComponentAccessor playerAccessor = playerRef.getStore();
+        ComponentAccessor<EntityStore> playerAccessor = playerRef.getStore();
         PlayerRef playerRefComp = (PlayerRef) playerAccessor.getComponent(playerRef, Universe.get().getPlayerRefComponentType());
         if (playerRefComp == null) return;
 
         // --- Place Baby Item on Block Click ---
         ItemStack heldItem = InventoryComponent.getItemInHand(playerRef.getStore(), playerRef);
-        if (heldItem != null && heldItem.getItemId() != null && heldItem.getItemId().equals("simtale:baby")) {
+        if (heldItem != null && heldItem.getItemId().equals("simtale:baby")) {
             org.joml.Vector3i targetBlock = event.getTargetBlock();
             if (targetBlock != null) {
                 BsonDocument metadata = heldItem.getMetadata();
@@ -100,37 +101,35 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                             : SimNPCFactory.NPCType.CHILD_FEMALE;
 
                         Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
-                        if (childRef != null) {
-                            childComp.childId = store.getComponent(childRef, UUIDComponent.getComponentType()).getUuid();
+                        childComp.childId = Objects.requireNonNull(store.getComponent(childRef, UUIDComponent.getComponentType())).getUuid();
 
-                            SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-                            if (childNPCComp != null) {
-                                childNPCComp.name = childComp.getFullName();
-                                store.putComponent(childRef, com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName.getComponentType(), 
-                                    new com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName(com.hypixel.hytale.server.core.Message.raw(childComp.getFullName())));
-                                store.putComponent(childRef, com.hypixel.hytale.server.core.entity.nameplate.Nameplate.getComponentType(), 
-                                    new com.hypixel.hytale.server.core.entity.nameplate.Nameplate(childComp.getFullName()));
-                            }
-
-                            // Scale baby down visually to match BABY stage
-                            PersistentModel pm = store.getComponent(childRef, PersistentModel.getComponentType());
-                            if (pm != null) {
-                                ModelReference oldRef = pm.getModelReference();
-                                ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), childComp.currentScale, new HashMap<>());
-                                store.replaceComponent(childRef, PersistentModel.getComponentType(), new PersistentModel(newRef));
-                            }
-
-                            // Remove item from hand
-                            InventoryComponent.Hotbar hotbarComponent = playerRef.getStore().getComponent(playerRef, InventoryComponent.Hotbar.getComponentType());
-                            if (hotbarComponent != null && hotbarComponent.getActiveSlot() != -1) {
-                                CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
-                                combinedInventory.removeItemStackFromSlot((short)hotbarComponent.getActiveSlot(), heldItem, 1);
-                            }
-
-                            playerRefComp.sendMessage(com.hypixel.hytale.server.core.Message.raw("Você colocou o bebê " + childComp.getFullName() + " no chão."));
-                            event.setCancelled(true);
-                            return;
+                        SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+                        if (childNPCComp != null) {
+                            childNPCComp.name = childComp.getFullName();
+                            store.putComponent(childRef, com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName.getComponentType(),
+                                new com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName(com.hypixel.hytale.server.core.Message.raw(childComp.getFullName())));
+                            store.putComponent(childRef, com.hypixel.hytale.server.core.entity.nameplate.Nameplate.getComponentType(),
+                                new com.hypixel.hytale.server.core.entity.nameplate.Nameplate(childComp.getFullName()));
                         }
+
+                        // Scale baby down visually to match BABY stage
+                        PersistentModel pm = store.getComponent(childRef, PersistentModel.getComponentType());
+                        if (pm != null) {
+                            ModelReference oldRef = pm.getModelReference();
+                            ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), childComp.currentScale, new HashMap<>());
+                            store.replaceComponent(childRef, PersistentModel.getComponentType(), new PersistentModel(newRef));
+                        }
+
+                        // Remove item from hand
+                        InventoryComponent.Hotbar hotbarComponent = playerRef.getStore().getComponent(playerRef, InventoryComponent.Hotbar.getComponentType());
+                        if (hotbarComponent != null && hotbarComponent.getActiveSlot() != -1) {
+                            CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
+                            combinedInventory.removeItemStackFromSlot((short)hotbarComponent.getActiveSlot(), heldItem, 1);
+                        }
+
+                        playerRefComp.sendMessage(com.hypixel.hytale.server.core.Message.raw("Você colocou o bebê " + childComp.getFullName() + " no chão."));
+                        event.setCancelled(true);
+                        return;
                     }
                 }
             }

@@ -87,7 +87,7 @@ public class SimTale extends JavaPlugin {
                 new SimTaleChatHandler());
         
         // SimTale: Register player join handler
-        this.getEventRegistry().registerGlobal(AddPlayerToWorldEvent.class, new PlayerJoinHandler());
+        this.getEventRegistry().registerGlobal(com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent.class, new PlayerJoinHandler());
 
         // Register commands
         this.getCommandRegistry()
