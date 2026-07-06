@@ -49,7 +49,6 @@ import org.joml.Vector3i;
  * Handles interactions between players and NPCs.
  */
 
-@SuppressWarnings("null")
 public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
     @Override
