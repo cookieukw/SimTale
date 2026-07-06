@@ -8,15 +8,19 @@
   "Categories": [
     "Items.Ingredients"
   ],
-  "Model": "Resources/WeddingRing/WeddingRing.blockymodel",
-  "Texture": "Resources/WeddingRing/WeddingRing_texture.png",
-  "PlayerAnimationsId": "Item",
+  "Rendering": {
+    "Model": "Resources/WeddingRing/WeddingRing.blockymodel",
+    "Texture": "Resources/WeddingRing/WeddingRing_texture.png",
+    "Animation": "Characters/Animations/WeddingRing/Hold.blockyanim",
+    "UsePlayerAnimations": true
+  },
+  "PlayerAnimationsId": "Torch",
   "Tags": {
     "Type": [
       "Ingredient"
     ]
   },
-  "Scale": 1.3,
+  "Scale": 1.7,
   "MaxStack": 1,
   "DropOnDeath": false
 }
