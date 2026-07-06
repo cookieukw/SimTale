@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
+import com.hypixel.hytale.math.vector.Rotation3f;
+
 public class BedRegistrySystem extends RefChangeSystem<EntityStore, PersistentModel> {
 
     public static final Set<BedPos> BEDS = Collections.synchronizedSet(new HashSet<>());
@@ -42,7 +44,7 @@ public class BedRegistrySystem extends RefChangeSystem<EntityStore, PersistentMo
                 TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
                 if (tc != null) {
                     Vector3d bedPos = tc.getPosition();
-                    com.hypixel.hytale.math.vector.Rotation3f rot = tc.getRotation();
+                    Rotation3f rot = tc.getRotation();
                     float yaw = rot.yaw();
                     BedPos bp = new BedPos((int) Math.floor(bedPos.x), (int) Math.floor(bedPos.y), (int) Math.floor(bedPos.z), yaw);
                     BEDS.add(bp);
