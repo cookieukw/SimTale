@@ -1,6 +1,8 @@
 package com.cookieukw.SimTale.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -39,8 +41,8 @@ public class NPCPreferences {
         // Generate profession preferences (1-2 liked, 1-2 disliked)
         Profession[] workProfs = {Profession.MINER, Profession.FARMER, Profession.FISHERMAN, 
                                    Profession.LUMBERJACK, Profession.GUARD, Profession.EXPLORER, Profession.BUILDER};
-        List<Profession> shuffled = new ArrayList<>(java.util.Arrays.asList(workProfs));
-        java.util.Collections.shuffle(shuffled, rand);
+        List<Profession> shuffled = new ArrayList<>(Arrays.asList(workProfs));
+        Collections.shuffle(shuffled, rand);
         
         int likedCount = 1 + rand.nextInt(2); // 1-2 liked
         int dislikedCount = 1 + rand.nextInt(2); // 1-2 disliked
