@@ -2,33 +2,35 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
-import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
+import com.cookieukw.SimTale.db.SimNPCData;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookieukw.SimTale.logic.InteractionType;
-import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.cookieukw.SimTale.logic.JobType;
 import com.cookieukw.SimTale.logic.JobLootTable;
-import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.Universe;
-import com.hypixel.hytale.server.core.Message;
-import com.hypixel.hytale.server.core.command.system.CommandManager;
-import com.hypixel.hytale.server.core.entity.UUIDComponent;
-import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.component.Ref;
+import com.cookieukw.SimTale.logic.JobType;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.command.system.CommandManager;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.joml.Vector3d;
-import com.cookieukw.SimTale.db.SimNPCData;
-import com.cookieukw.SimTale.db.SimNPCPersistence;
-import com.hypixel.hytale.server.npc.entities.NPCEntity;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -88,8 +90,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         }
 
         if (!SimTale.ACTIVE_NPCS.contains(npc)) {
-            final UUID targetId2 = npc.entityId;
-            SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(targetId2));
+            SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(npc.entityId));
             SimNPCPersistence.loadNPC(npc);
             SimTale.ACTIVE_NPCS.add(npc);
         }
@@ -99,7 +100,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         }
 
         // Daily natural pregnancy check for married female NPCs
-        if (absoluteTick % 24000 == 0 && npc.gender == com.cookieukw.SimTale.core.Gender.FEMALE && npc.family.isMarried && npc.family.spouseId != null) {
+        if (absoluteTick % 24000 == 0 && npc.gender == Gender.FEMALE && npc.family.isMarried && npc.family.spouseId != null) {
             if (npc.pregnancy == null || !npc.pregnancy.pregnant) {
                 Relationship spouseRel = npc.getRelationship(npc.family.spouseId);
                 // 25% chance of getting pregnant daily if romance is high (romance >= 75)
