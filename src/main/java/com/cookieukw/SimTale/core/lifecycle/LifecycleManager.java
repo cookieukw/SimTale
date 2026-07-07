@@ -179,11 +179,11 @@ public class LifecycleManager {
                     new Nameplate(child.getFullName()));
             }
 
-            Child familyChild = new Child(child.getFullName());
+            Child familyChild = new Child(child.childId, child.getFullName());
             mother.family.children.add(familyChild);
 
             if (father != null) {
-                Child fatherFamilyChild = new Child(child.getFullName());
+                Child fatherFamilyChild = new Child(child.childId, child.getFullName());
                 father.family.children.add(fatherFamilyChild);
             }
 
