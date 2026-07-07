@@ -1,21 +1,22 @@
 package com.cookieukw.SimTale.db;
+
 import com.cookieukw.SimTale.core.MemoryManager;
 import com.cookieukw.SimTale.SimTale;
-import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.component.ComponentAccessor;
-import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.server.core.universe.world.World;
-
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookie.caskara.Caskara;
+import com.hypixel.hytale.component.ComponentAccessor;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 
 /**
  * Handles persistence for SimTale NPCs using the Caskara database.
