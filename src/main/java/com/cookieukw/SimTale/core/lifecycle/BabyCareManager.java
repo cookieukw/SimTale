@@ -157,7 +157,7 @@ public class BabyCareManager {
                     // Search player inventory for baby item and remove it
                     CombinedItemContainer combinedInventory = InventoryComponent.getCombined(store, playerRef, InventoryComponent.HOTBAR_FIRST);
                     boolean removed = false;
-                    for (int slot = 0; slot < combinedInventory.getSlotCount(); slot++) {
+                    for (short slot = 0; slot < combinedInventory.getCapacity(); slot++) {
                         ItemStack item = combinedInventory.getItemStack(slot);
                         if (item != null && item.getItemId().equals("simtale:baby")) {
                             String cId = item.getFromMetadataOrNull("childId", Codec.STRING);
