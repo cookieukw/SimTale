@@ -159,11 +159,13 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                     BedPos bp = beds.get(bedIndex);
                     TransformComponent transform = store.getComponent(storeRef, TransformComponent.getComponentType());
                     if (transform != null) {
-                        Teleport tp = new Teleport(
+                        World world = store.getExternalData().getWorld();
+                        Teleport tp = Teleport.createForPlayer(
+                            world,
                             new Vector3d(bp.x + 0.5, bp.y + 1.2, bp.z + 0.5),
                             transform.getRotation()
                         );
-                        store.putComponent(storeRef, Teleport.getComponentType(), tp);
+                        store.addComponent(storeRef, Teleport.getComponentType(), tp);
                         playerRefComp.sendMessage(Message.raw("[SimBedDebug] Teletransportado para a Cama #" + (bedIndex + 1)));
                     }
                 }

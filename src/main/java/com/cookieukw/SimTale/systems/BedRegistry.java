@@ -13,6 +13,7 @@ public final class BedRegistry {
     public static boolean isBedId(String id) {
         if (id == null) return false;
         String name = id.toLowerCase();
+        if (name.contains("bedrock")) return false;
         return name.contains("bed") || name.contains("cama") || name.contains("furniture_village_bed");
     }
 
