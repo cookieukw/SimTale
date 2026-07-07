@@ -108,7 +108,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
             if (spouseNpc == null) continue;
 
             // --- Case 1: Player holds baby, approaches NPC spouse ---
-            if (babyItem != null && babyChildId != null) {
+            if (babyItem != null) {
                 BabyCareData care = BabyCareManager.load(babyChildId);
                 if (care != null) {
                     if (nowMs >= care.nextSwapAllowedTime) {
