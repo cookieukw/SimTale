@@ -2,7 +2,7 @@ Group {
   LayoutMode: MiddleCenter;
   Background: #00000099;
   Group #MainPanel {
-    Anchor: (Width: 580, Height: 900);
+    Anchor: (Width: 580, Height: 952);
     LayoutMode: Top;
     Background: #1A1A2EFF;
     Padding: (Top: 24, Bottom: 20, Horizontal: 24);
@@ -29,7 +29,7 @@ Group {
     }
 
     Group #InfoPanel {
-      Anchor: (Width: 520, Height: 220, Bottom: 12);
+      Anchor: (Width: 520, Height: 276, Bottom: 12);
       LayoutMode: Top;
       Background: #16213EFF;
       Padding: (Top: 8, Bottom: 8, Horizontal: 12);
@@ -61,6 +61,16 @@ Group {
       }
       Label #NpcSeason {
         Text: "Estação Fav.: —";
+        Anchor: (Width: 496, Height: 24, Bottom: 4);
+        Style: (FontSize: 16, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+      }
+      Label #NpcFamilyParents {
+        Text: "Pais: —";
+        Anchor: (Width: 496, Height: 24, Bottom: 4);
+        Style: (FontSize: 16, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+      }
+      Label #NpcFamilyChildren {
+        Text: "Filhos: —";
         Anchor: (Width: 496, Height: 24, Bottom: 4);
         Style: (FontSize: 16, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
       }

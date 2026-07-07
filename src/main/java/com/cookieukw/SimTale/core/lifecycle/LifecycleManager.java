@@ -29,6 +29,13 @@ import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction
 import com.hypixel.hytale.server.core.entity.ItemUtils;
 import com.hypixel.hytale.codec.Codec;
 import org.joml.Vector3d;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.component.RemoveReason;
+import com.cookieukw.SimTale.core.Trait;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 
 import java.util.ArrayList;
 import java.util.List;

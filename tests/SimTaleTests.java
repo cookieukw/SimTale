@@ -11,6 +11,12 @@ import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareData;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
 
+import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
+import com.cookieukw.SimTale.core.lifecycle.GeneticsData;
+import com.cookieukw.SimTale.core.Gender;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
+
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -27,6 +33,7 @@ public class SimTaleTests {
             testRelationships();
             testNeedsDecay();
             testBabyCareSharing();
+            testChildGrowth();
             
             System.out.println("========================================");
             System.out.println("Todos os testes passaram com sucesso!");
@@ -191,6 +198,58 @@ public class SimTaleTests {
         care.currentHolderId = fatherId.toString();
         assertEqual(care.currentTurnOwnerId, fatherId.toString(), "Turno alterado para o pai");
         assertEqual(care.currentHolderId, fatherId.toString(), "Portador alterado para o pai");
+
+        System.out.println("OK");
+    }
+
+    private static void testChildGrowth() {
+        System.out.print("Testando Crescimento Infantil (Visual Scale)... ");
+
+        UUID motherId = UUID.randomUUID();
+        UUID fatherId = UUID.randomUUID();
+
+        GrowthComponent child = new GrowthComponent(
+            motherId,
+            fatherId,
+            0L, // birthTick
+            Gender.MALE,
+            new GeneticsData(),
+            "Enzo",
+            "SimTale"
+        );
+
+        // 1. Testar escalas iniciais nas fases de crescimento
+        child.ageDays = 0;
+        child.stage = GrowthStage.BABY;
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.35f, "Escala do Bebe");
+
+        child.ageDays = 4;
+        child.stage = GrowthStage.TODDLER;
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.45f, "Escala do Toddler Inicial");
+
+        child.ageDays = 8;
+        child.stage = GrowthStage.TODDLER;
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.55f, "Escala do Toddler Final");
+
+        child.ageDays = 9;
+        child.stage = GrowthStage.CHILD;
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.55f, "Escala da Crianca Inicial");
+
+        child.ageDays = 20;
+        child.stage = GrowthStage.CHILD;
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.85f, "Escala da Crianca Final");
+
+        child.ageDays = 21;
+        child.stage = GrowthStage.TEEN;
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.75f, "Escala do Adolescente Inicial");
+
+        child.ageDays = 40;
+        child.stage = GrowthStage.TEEN;
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.95f, "Escala do Adolescente Final");
+
+        child.ageDays = 41;
+        child.stage = GrowthStage.ADULT;
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 1.00f, "Escala do Adulto");
 
         System.out.println("OK");
     }
