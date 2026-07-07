@@ -149,7 +149,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 ai.currentTask = TaskType.FINDING_BATH;
                 ai.targetBlockPosition = null;
                 ai.taskStartTime = world.getTick() - BATH_SEARCH_COOLDOWN_TICKS;
-            } else if (ai.currentTask == TaskType.IDLE && npc.needs.social < 50 && java.lang.Math.random() < 0.05) {
+            } else if (ai.currentTask == TaskType.IDLE && npc.needs.social < 50 && Math.random() < 0.05) {
                 SimNPCComponent bestTarget = null;
                 double bestDist = 400.0;
                 for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
@@ -166,7 +166,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
                     ai.socializeTargetId = bestTarget.entityId;
                 }
-            } else if (ai.currentTask == TaskType.IDLE && java.lang.Math.random() < 0.02) {
+            } else if (ai.currentTask == TaskType.IDLE && Math.random() < 0.02) {
                 ai.currentTask = TaskType.WANDERING;
                 playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
                 double centerX = transform.getPosition().x;
@@ -176,9 +176,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     centerZ = npc.bedLocation.z;
                 }
                 ai.targetBlockPosition = new Vector3i(
-                        (int)(centerX + (java.lang.Math.random() - 0.5) * 16),
+                        (int)(centerX + (Math.random() - 0.5) * 16),
                         (int)transform.getPosition().y,
-                        (int)(centerZ + (java.lang.Math.random() - 0.5) * 16)
+                        (int)(centerZ + (Math.random() - 0.5) * 16)
                 );
             }
         }
@@ -297,7 +297,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         if (ai.currentTask == TaskType.EATING) {
             if (world.getTick() - ai.taskStartTime == 1) playAnim(ref, "Characters/Animations/Actions/Eat.blockyanim", "Eat", store);
             if (world.getTick() - ai.taskStartTime > 60) {
-                npc.needs.hunger = java.lang.Math.min(100f, npc.needs.hunger + 40f);
+                npc.needs.hunger = Math.min(100f, npc.needs.hunger + 40f);
                 ai.currentTask = TaskType.IDLE;
                 playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             }
@@ -358,7 +358,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         }
 
         if (ai.currentTask == TaskType.BATHING) {
-            npc.needs.hygiene = java.lang.Math.min(100f, npc.needs.hygiene + 1.0f);
+            npc.needs.hygiene = Math.min(100f, npc.needs.hygiene + 1.0f);
             if (npc.needs.hygiene >= 100f) {
                 ai.currentTask = TaskType.IDLE;
                 playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
