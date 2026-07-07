@@ -75,6 +75,9 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
         this.getEntityStoreRegistry().registerSystem(new RoutineAISystem());
         this.getEntityStoreRegistry().registerSystem(new BedRegistrySystem());
+        this.getChunkStoreRegistry().registerSystem(new BedRegistrySystem.BedChunkLoadSystem());
+        this.getEntityStoreRegistry().registerSystem(new BedRegistrySystem.BedBlockPlaceSystem());
+        this.getEntityStoreRegistry().registerSystem(new BedRegistrySystem.BedBlockBreakSystem());
         this.getEntityStoreRegistry().registerSystem(new PlumbobSystem());
         this.getEntityStoreRegistry().registerSystem(new MoodAnimationSystem());
         this.getEntityStoreRegistry().registerSystem(new ConstructionSystem());
