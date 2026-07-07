@@ -10,6 +10,7 @@ import com.cookieukw.SimTale.core.Child;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.cookie.runecore.api.EffectHelper;
 import com.cookie.runecore.api.StatHelper;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
@@ -209,7 +210,7 @@ public class LifecycleManager {
             StatHelper.subtractHealth(mother.entityRef, 50.0f);
         }
 
-        com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(mother);
+        SimNPCPersistence.saveNPC(mother);
 
         return child;
     }
@@ -337,7 +338,7 @@ public class LifecycleManager {
                 toddlerNpc.name = child.getFullName();
                 childRef.getStore().putComponent(childRef, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(toddlerNpc.name)));
                 childRef.getStore().putComponent(childRef, Nameplate.getComponentType(), new Nameplate(toddlerNpc.name));
-                com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(toddlerNpc);
+                SimNPCPersistence.saveNPC(toddlerNpc);
             }
             
             if (care != null) {
@@ -404,7 +405,7 @@ public class LifecycleManager {
                 }
                 teenRef.getStore().putComponent(teenRef, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(teenNpc.name)));
                 teenRef.getStore().putComponent(teenRef, Nameplate.getComponentType(), new Nameplate(teenNpc.name));
-                com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(teenNpc);
+                SimNPCPersistence.saveNPC(teenNpc);
             }
             
             updateFamilyChildId(child.motherId, oldChildId, newEntityId);
@@ -439,7 +440,7 @@ public class LifecycleManager {
                     Trait extraTrait = tendency == BabyNeeds.PersonalityTendency.SOCIABLE ? Trait.LOYAL : Trait.SHY;
                     npc.personality.traits.add(extraTrait);
                 }
-                com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
+                SimNPCPersistence.saveNPC(npc);
                 break;
             }
         }
@@ -458,19 +459,19 @@ public class LifecycleManager {
                 for (Child c : npc.family.children) {
                     if (c.id != null && c.id.equals(oldId)) {
                         c.id = newId;
-                        com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
+                        SimNPCPersistence.saveNPC(npc);
                         return;
                     }
                 }
             }
         }
         SimNPCComponent temp = new SimNPCComponent(parentId, "Parent");
-        com.cookieukw.SimTale.db.SimNPCPersistence.loadNPC(temp);
+        SimNPCPersistence.loadNPC(temp);
         if (!temp.name.equals("Parent")) {
             for (Child c : temp.family.children) {
                 if (c.id != null && c.id.equals(oldId)) {
                     c.id = newId;
-                    com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(temp);
+                    SimNPCPersistence.saveNPC(temp);
                     return;
                 }
             }
@@ -596,7 +597,7 @@ public class LifecycleManager {
                     if (npc.entityId != null && npc.entityId.equals(fatherId)) {
                         Child fatherFamilyChild = new Child(child.childId, child.getFullName());
                         npc.family.children.add(fatherFamilyChild);
-                        com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
+                        SimNPCPersistence.saveNPC(npc);
                         break;
                     }
                 }
