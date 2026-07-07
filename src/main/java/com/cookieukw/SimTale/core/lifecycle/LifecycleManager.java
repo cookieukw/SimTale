@@ -326,7 +326,7 @@ public class LifecycleManager {
             Store<EntityStore> store = world.getEntityStore().getStore();
             Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, type);
             
-            UUID newEntityId = childRef.getStore().getComponent(childRef, UUIDComponent.getComponentType()).getUuid();
+            UUID newEntityId = Objects.requireNonNull(childRef.getStore().getComponent(childRef, UUIDComponent.getComponentType())).getUuid();
             
             child.childId = newEntityId;
             Caskara.delete("child_" + oldChildId.toString(), GrowthComponent.class);
