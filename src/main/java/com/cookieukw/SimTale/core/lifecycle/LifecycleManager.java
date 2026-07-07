@@ -367,7 +367,7 @@ public class LifecycleManager {
             if (childRef != null && childRef.isValid()) {
                 TransformComponent t = childRef.getStore().getComponent(childRef, TransformComponent.getComponentType());
                 if (t != null) spawnPos = new Vector3d(t.getPosition());
-                childRef.getStore().getStore().removeEntity(childRef, RemoveReason.REMOVE);
+                Universe.get().getWorlds().values().iterator().next().getEntityStore().getStore().removeEntity(childRef, RemoveReason.REMOVE);
             }
             
             SimNPCComponent oldNpc = null;
@@ -391,7 +391,7 @@ public class LifecycleManager {
             
             UUID oldChildId = child.childId;
             child.childId = newEntityId;
-            Caskara.delete("child_" + oldChildId.toString());
+            Caskara.delete("child_" + oldChildId.toString(), GrowthComponent.class);
             Caskara.save("child_" + newEntityId.toString(), child);
             
             SimNPCComponent teenNpc = store.getComponent(teenRef, SimTale.SIM_NPC_COMPONENT_TYPE);
