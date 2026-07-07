@@ -20,6 +20,11 @@ public class Child {
         this.name = name;
     }
 
+    public Child(UUID id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public void growUp(int currentDayIndex) {
         daysInCurrentStage++;
         if (daysInCurrentStage >= 10 && ageStage < 3) {
