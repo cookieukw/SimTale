@@ -62,7 +62,9 @@ public class PlayerGenderPage extends InteractiveCustomUIPage<String> {
         super.onDismiss(playerRef, store);
         // Force player to choose a gender; do not allow closing without selection
         if (simPlayer.gender == null) {
-            player.getPageManager().openCustomPage(playerRef, store, this);
+            store.getExternalData().getWorld().execute(() -> {
+                player.getPageManager().openCustomPage(playerRef, store, new PlayerGenderPage(playerRefComp, player, simPlayer));
+            });
         }
     }
 }
