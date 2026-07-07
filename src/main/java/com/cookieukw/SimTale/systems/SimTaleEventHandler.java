@@ -3,53 +3,54 @@ package com.cookieukw.SimTale.systems;
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
+import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.SimNPCFactory;
+import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.hypixel.hytale.codec.Codec;
+import com.hypixel.hytale.component.ComponentAccessor;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.RemoveReason;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.protocol.MouseButtonState;
+import com.hypixel.hytale.protocol.MouseButtonType;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
+import com.hypixel.hytale.server.core.entity.ItemUtils;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
-import com.hypixel.hytale.protocol.MouseButtonType;
-import com.hypixel.hytale.protocol.MouseButtonState;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
+import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
-import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.component.ComponentAccessor;
-import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.logger.HytaleLogger;
+import org.joml.Vector3d;
+import org.joml.Vector3i;
 
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.HashMap;
-import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
-import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
-import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
-import com.cookieukw.SimTale.core.SimNPCFactory;
-import com.cookieukw.SimTale.core.Gender;
-import com.hypixel.hytale.server.core.inventory.ItemStack;
-import com.hypixel.hytale.server.core.inventory.InventoryComponent;
-import com.hypixel.hytale.server.core.entity.ItemUtils;
-import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
-import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
-import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
-import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
-import com.hypixel.hytale.component.RemoveReason;
-import org.joml.Vector3d;
-import org.joml.Vector3i;
 
 /**
  * Handles interactions between players and NPCs.
  */
-
 public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
+
+    private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
     @Override
     public void accept(PlayerMouseButtonEvent event) {
@@ -115,7 +116,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                         if (childNPCComp != null) {
                             childNPCComp.name = childComp.getFullName();
                             store.putComponent(childRef, PersistentDisplayName.getComponentType(),
-                                new PersistentDisplayName(com.hypixel.hytale.server.core.Message.raw(childComp.getFullName())));
+                                new PersistentDisplayName(Message.raw(childComp.getFullName())));
                             store.putComponent(childRef, Nameplate.getComponentType(),
                                 new Nameplate(childComp.getFullName()));
                         }
@@ -139,7 +140,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                             combinedInventory.removeItemStackFromSlot(hotbarComponent.getActiveSlot(), heldItem, 1);
                         }
 
-                        playerRefComp.sendMessage(com.hypixel.hytale.server.core.Message.raw("Você colocou o bebê " + childComp.getFullName() + " no chão."));
+                        playerRefComp.sendMessage(Message.raw("Você colocou o bebê " + childComp.getFullName() + " no chão."));
                         event.setCancelled(true);
                         return;
                     }
@@ -173,14 +174,14 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                 
                 if (closestSite != null && !closestSite.isBuilding) {
                     closestSite.isBuilding = true;
-                    pRef.sendMessage(com.hypixel.hytale.server.core.Message.raw("Construction started! NPCs will now come to build."));
+                    pRef.sendMessage(Message.raw("Construction started! NPCs will now come to build."));
                     ConstructionHelper.clearPreview(world, closestSite);
                 } else {
                     // Place new preview 1 block above the clicked block
                     Vector3i spawnPos = new Vector3i(targetBlock.x, targetBlock.y + 1, targetBlock.z);
                     Store<EntityStore> eStore = world.getEntityStore().getStore();
                     ConstructionHelper.placePreview(world, eStore, spawnPos, prefabName);
-                    pRef.sendMessage(com.hypixel.hytale.server.core.Message.raw("Preview placed for " + prefabName + ". Right click again nearby to confirm."));
+                    pRef.sendMessage(Message.raw("Preview placed for " + prefabName + ". Right click again nearby to confirm."));
                 }
             }
             return;
@@ -188,7 +189,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
         Ref<EntityStore> targetRef = event.getTargetEntityRef();
         
-        HytaleLogger.forEnclosingClass().atInfo().log("SimTale [DEBUG]: PlayerMouseButtonEvent (Right Click) DISPARADO. Alvo Ref: " + (targetRef != null ? targetRef.toString() : "null"));
+        LOGGER.atInfo().log("SimTale [DEBUG]: PlayerMouseButtonEvent (Right Click) DISPARADO. Alvo Ref: " + (targetRef != null ? targetRef.toString() : "null"));
         
         if (targetRef == null)
             return;
@@ -204,7 +205,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             if (uuidComp != null) {
                 SimNPCData data = Caskara.load(uuidComp.getUuid().toString(), SimNPCData.class);
                 if (data != null) {
-                    HytaleLogger.forEnclosingClass().atInfo().log("SimTale: NPC " + data.name + " remontado apos carregamento do mundo!");
+                    LOGGER.atInfo().log("SimTale: NPC " + data.name + " remontado apos carregamento do mundo!");
                     npc = new SimNPCComponent(uuidComp.getUuid(), data.name);
                     npc.entityRef = targetRef;
                     SimNPCPersistence.loadNPC(npc);
@@ -250,7 +251,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             return;
         }
 
-        HytaleLogger.forEnclosingClass().atInfo().log("SimTale: Interacao com NPC detectada: " + npc.name);
+        LOGGER.atInfo().log("SimTale: Interacao com NPC detectada: " + npc.name);
 
         // Open the NPC interaction page
         player.getPageManager().openCustomPage(playerRef, playerRef.getStore(), new NPCInteractionPage(playerRefComp, player, npc));
