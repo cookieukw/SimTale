@@ -34,7 +34,7 @@ public class Personality {
     public static Personality createDefault() {
         Personality p = new Personality(50, 50, 20, 50);
         Trait[] allTraits = Trait.values();
-        List<Trait> traitList = new java.util.ArrayList<>(java.util.Arrays.asList(allTraits));
+        List<Trait> traitList = new ArrayList<>(Arrays.asList(allTraits));
         Collections.shuffle(traitList);
         p.traits.add(traitList.get(0));
         p.traits.add(traitList.get(1));
