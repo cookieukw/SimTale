@@ -180,7 +180,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                     BedPos bp = beds.get(bedIndex);
                     TransformComponent transform = store.getComponent(storeRef, TransformComponent.getComponentType());
                     if (transform != null) {
-                        World world = store.getExternalData().getWorld();
+
                         world.execute(() -> {
                             Teleport tp = Teleport.createForPlayer(
                                 world,
