@@ -10,6 +10,7 @@ import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3i;
+import com.cookieukw.SimTale.core.PrefabBlock;
 
 public class ConstructionHelper {
 
@@ -71,7 +72,7 @@ public class ConstructionHelper {
             int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
             int minY = Integer.MAX_VALUE, maxY = Integer.MIN_VALUE;
             int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
-            for (com.cookieukw.SimTale.core.PrefabBlock b : prefab.getBlocks()) {
+            for (PrefabBlock b : prefab.getBlocks()) {
                 if (b.getX() < minX) minX = b.getX();
                 if (b.getX() > maxX) maxX = b.getX();
                 if (b.getY() < minY) minY = b.getY();

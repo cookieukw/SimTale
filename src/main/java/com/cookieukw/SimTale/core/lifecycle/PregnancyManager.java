@@ -189,7 +189,25 @@ public class PregnancyManager {
     }
 
     public static void applyPlayerPregnancyBehavior(Ref<EntityStore> playerRef, SimPlayerComponent playerComp) {
-        // Player pregnancy ticking behavior (can be extended for hunger/energy if SimTale player needs exist)
+        if (playerComp.pregnancy == null || !playerComp.pregnancy.pregnant) return;
+
+        float mult = 1.0f + (playerComp.pregnancy.trimester * 0.3f);
+        
+        Store<EntityStore> store = playerRef.getStore();
+        com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap statMap = 
+            store.getComponent(playerRef, com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap.getComponentType());
+            
+        if (statMap != null) {
+            com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue staminaVal = 
+                statMap.get(com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes.getStamina());
+                
+            if (staminaVal != null) {
+                float current = staminaVal.get();
+                float drainAmount = 0.05f * mult; 
+                float newValue = Math.max(0, current - drainAmount);
+                statMap.setStatValue(com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes.getStamina(), newValue);
+            }
+        }
     }
 
     public static void birthPlayerBaby(Ref<EntityStore> playerRef, SimPlayerComponent playerComp, Store<EntityStore> store, long worldTick) {
