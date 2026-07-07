@@ -6,6 +6,10 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import org.joml.Vector3d;
 
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
+
+
 public final class BedWorldBootstrap {
     private BedWorldBootstrap() {}
 
@@ -35,9 +39,33 @@ public final class BedWorldBootstrap {
                     BlockType type = chunk.getBlockType(x, y, z);
                     if (type == null || type.getId() == null) continue;
                     if (!BedRegistry.isBedId(type.getId())) continue;
+                    if (!isPrimaryBedBlock(chunk, x, y, z)) continue;
                     BedRegistry.addOrReplace(x, y, z, 0f);
                 }
             }
         }
+    }
+
+    public static boolean isPrimaryBedBlock(WorldChunk chunk, int x, int y, int z) {
+        RotationTuple rot = chunk.getRotation(x, y, z);
+        if (rot == null || rot.yaw() == null) {
+            return true;
+        }
+        Rotation yaw = rot.yaw();
+        if (yaw == Rotation.None || 
+            yaw == Rotation.OneEighty) {
+            // Aligned along Z. Pick the one with the smaller Z coord.
+            BlockType otherType = chunk.getBlockType(x, y, z - 1);
+            if (otherType != null && otherType.getId() != null && BedRegistry.isBedId(otherType.getId())) {
+                return false;
+            }
+        } else {
+            // Aligned along X. Pick the one with the smaller X coord.
+            BlockType otherType = chunk.getBlockType(x - 1, y, z);
+            if (otherType != null && otherType.getId() != null && BedRegistry.isBedId(otherType.getId())) {
+                return false;
+            }
+        }
+        return true;
     }
 }

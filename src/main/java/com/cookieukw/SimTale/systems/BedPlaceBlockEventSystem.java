@@ -13,6 +13,9 @@ import javax.annotation.Nullable;
 
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.Archetype;
+import com.hypixel.hytale.math.util.ChunkUtil;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 
 public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, PlaceBlockEvent> {
 
@@ -31,9 +34,13 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
         Vector3i pos = event.getTargetBlock();
         if (pos != null) {
             commandBuffer.getExternalData().getWorld().execute(() -> {
-                BlockType bType = store.getExternalData().getWorld().getBlockType(pos.x, pos.y, pos.z);
+               World world = store.getExternalData().getWorld();
+                BlockType bType = world.getBlockType(pos.x, pos.y, pos.z);
                 if (bType != null && bType.getId() != null && BedRegistry.isBedId(bType.getId())) {
-                    BedRegistry.addOrReplace(pos.x, pos.y, pos.z, 0f);
+                    WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
+                    if (chunk != null && BedWorldBootstrap.isPrimaryBedBlock(chunk, pos.x, pos.y, pos.z)) {
+                        BedRegistry.addOrReplace(pos.x, pos.y, pos.z, 0f);
+                    }
                 }
             });
         }
