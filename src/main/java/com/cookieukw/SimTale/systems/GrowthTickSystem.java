@@ -74,8 +74,8 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
                     }
                     
                     if (parentRef != null && parentRef.isValid()) {
-                        TransformComponent childT = store.getComponent(childRef, com.hypixel.hytale.server.core.modules.entity.component.TransformComponent.getComponentType());
-                        TransformComponent parentT = store.getComponent(parentRef, com.hypixel.hytale.server.core.modules.entity.component.TransformComponent.getComponentType());
+                        TransformComponent childT = store.getComponent(childRef, TransformComponent.getComponentType());
+                        TransformComponent parentT = store.getComponent(parentRef, TransformComponent.getComponentType());
                         if (childT != null && parentT != null) {
                             double distSq = childT.getPosition().distanceSquared(parentT.getPosition());
                             if (distSq > 36.0) { // More than 6 blocks away
