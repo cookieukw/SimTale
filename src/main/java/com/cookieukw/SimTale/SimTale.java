@@ -20,7 +20,7 @@ import com.cookieukw.SimTale.systems.SimTaleTickSystem;
 import com.cookieukw.SimTale.systems.BedRegistry;
 import com.cookieukw.SimTale.systems.BedEntityRegistrySystem;
 import com.cookieukw.SimTale.systems.BedBlockEventSystem;
-import com.hypixel.hytale.server.core.event.events.ecs.PlaceBlockEvent;
+import com.cookieukw.SimTale.systems.BedPlaceBlockEventSystem;
 import org.joml.Vector3i;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
@@ -83,6 +83,7 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new RoutineAISystem());
         this.getEntityStoreRegistry().registerSystem(new BedEntityRegistrySystem());
         this.getEntityStoreRegistry().registerSystem(new BedBlockEventSystem());
+        this.getEntityStoreRegistry().registerSystem(new BedPlaceBlockEventSystem());
         this.getEntityStoreRegistry().registerSystem(new PlumbobSystem());
         this.getEntityStoreRegistry().registerSystem(new MoodAnimationSystem());
         this.getEntityStoreRegistry().registerSystem(new ConstructionSystem());
@@ -101,23 +102,6 @@ public class SimTale extends JavaPlugin {
         
         // SimTale: Register player join handler
         this.getEventRegistry().registerGlobal(PlayerReadyEvent.class, new PlayerJoinHandler());
-
-        // SimTale: Register block placement handler globally
-        this.getEventRegistry().registerGlobal(PlaceBlockEvent.class, event -> {
-            Vector3i pos = event.getTargetBlock();
-            if (pos != null) {
-                // Since PlaceBlockEvent runs before the block is in voxel grid, we run deferred check
-                World world = Universe.get().getDefaultWorld();
-                if (world != null) {
-                    world.execute(() -> {
-                        BlockType bType = world.getBlockType(pos.x, pos.y, pos.z);
-                        if (bType != null && bType.getId() != null && BedRegistry.isBedId(bType.getId())) {
-                            BedRegistry.addOrReplace(pos.x, pos.y, pos.z, 0f);
-                        }
-                    });
-                }
-            }
-        });
 
         // Register commands
         this.getCommandRegistry()
