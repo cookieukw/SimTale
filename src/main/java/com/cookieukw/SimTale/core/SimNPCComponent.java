@@ -1,15 +1,18 @@
 package com.cookieukw.SimTale.core;
-import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
+
+import com.cookieukw.SimTale.db.SimBedData.BedPos;
+import com.cookieukw.SimTale.engine.MagicEngine;
+import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
+import com.cookieukw.SimTale.logic.JobType;
 import com.cookieukw.SimTale.logic.SocialStats;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import com.cookieukw.SimTale.logic.JobType;
-import com.cookieukw.SimTale.engine.MagicEngine;
-import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 
 /**
  * Persists SimTale data for an entity.
@@ -25,16 +28,10 @@ public class SimNPCComponent implements Component<EntityStore> {
     public Profession profession;
     public NPCPreferences preferences;
 
-    {
-        new NPCPreferences();
-    }
-
     public FamilySystem family = new FamilySystem();
     public Gender gender;
     public PregnancyComponent pregnancy;
-    public com.cookieukw.SimTale.db.SimBedData.BedPos bedLocation;
-
-    // Runtime properties
+    public BedPos bedLocation;
     public transient Ref<EntityStore> entityRef;
     public transient ModelComponent originalModel;
     
@@ -94,7 +91,7 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.preferences.hobby = preferences.hobby;
 
         if (bedLocation != null) {
-            clone.bedLocation = new com.cookieukw.SimTale.db.SimBedData.BedPos(bedLocation.x, bedLocation.y, bedLocation.z);
+            clone.bedLocation = new BedPos(bedLocation.x, bedLocation.y, bedLocation.z);
         }
         
         // Clone new states
