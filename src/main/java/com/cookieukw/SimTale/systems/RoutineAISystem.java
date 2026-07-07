@@ -104,7 +104,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // Ensure Frozen component is cleared if task changes externally and dialogue is inactive
         boolean hasFrozen = store.getComponent(ref, Frozen.getComponentType()) != null;
         if (ai.currentTask != TaskType.SLEEPING && hasFrozen && npc.currentConversationPartner == null) {
-            store.tryRemoveComponent(ref, Frozen.getComponentType());
+            commandBuffer.tryRemoveComponent(ref, Frozen.getComponentType());
         }
 
         // --- 1. Evaluation Phase ---
@@ -246,11 +246,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 // Align rotation to bed's yaw
                 float bedYaw = npc.bedLocation != null ? npc.bedLocation.yaw : 0f;
                 transform.teleportRotation(new Rotation3f(0f, bedYaw, 0f));
-                store.putComponent(ref, TransformComponent.getComponentType(), transform);
+                commandBuffer.putComponent(ref, TransformComponent.getComponentType(), transform);
 
                 ai.currentTask = TaskType.SLEEPING;
                 playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
-                store.ensureComponent(ref, Frozen.getComponentType());
+                commandBuffer.ensureComponent(ref, Frozen.getComponentType());
             } else {
                 moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
             }
@@ -262,7 +262,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 npc.needs.energy = 100;
                 ai.currentTask = TaskType.IDLE;
                 playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
-                store.tryRemoveComponent(ref, Frozen.getComponentType());
+                commandBuffer.tryRemoveComponent(ref, Frozen.getComponentType());
             }
         }
 
