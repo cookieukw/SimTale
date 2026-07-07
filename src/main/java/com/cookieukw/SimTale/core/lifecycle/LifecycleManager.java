@@ -425,7 +425,7 @@ public class LifecycleManager {
         LOGGER.atInfo().log("SimTale: " + child.getFullName() + " se tornou adulto!");
         
         ACTIVE_CHILDREN.remove(child);
-        Caskara.delete("child_" + child.childId.toString());
+        Caskara.delete("child_" + child.childId.toString(), GrowthComponent.class);
         
         Ref<EntityStore> childRef = getEntityRef(child.childId);
         if (childRef != null && childRef.isValid()) {
@@ -466,7 +466,8 @@ public class LifecycleManager {
             }
         }
         SimNPCComponent temp = new SimNPCComponent(parentId, "Parent");
-        if (com.cookieukw.SimTale.db.SimNPCPersistence.loadNPC(temp)) {
+        com.cookieukw.SimTale.db.SimNPCPersistence.loadNPC(temp);
+        if (!temp.name.equals("Parent")) {
             for (Child c : temp.family.children) {
                 if (c.id != null && c.id.equals(oldId)) {
                     c.id = newId;
