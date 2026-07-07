@@ -272,6 +272,36 @@ ui.gender.title = ESCOLHA DE GÊNERO
 ui.gender.subtitle = Selecione o gênero do seu personagem. Esta escolha é permanente e definirá seu papel no sistema de casamento e gravidez do SimTale.
 ui.gender.male = MASCULINO
 ui.gender.female = FEMININO
+
+# PREGNANCY UI
+ui.pregnancy.subtitle = Acompanhamento de Gestação
+ui.pregnancy.back = Voltar
+ui.pregnancy.close = Fechar
+ui.pregnancy.not_pregnant = Estado: Não Grávida
+ui.pregnancy.father = Pai do Bebê: {name}
+ui.pregnancy.stage = Estágio:
+ui.pregnancy.trimester1 = 1º Trimestre (Início)
+ui.pregnancy.trimester2 = 2º Trimestre (Desenvolvimento)
+ui.pregnancy.trimester3 = 3º Trimestre (Reta Final)
+ui.pregnancy.trimester_unknown = Desconhecido
+ui.pregnancy.elapsed = Dia {current} de {total}
+ui.pregnancy.progress = Progresso da Gestação: {percent}%
+ui.pregnancy.time_none = Tempo Restante: —
+ui.pregnancy.time_birth_imminent = Parto iminente!
+ui.pregnancy.time_remaining_days = Tempo Restante: {days} dias ({minutes} min reais)
+ui.pregnancy.time_remaining_minutes = Tempo Restante: {minutes} min reais
+ui.pregnancy.symptoms_none = Sintomas: —
+ui.pregnancy.symptoms_player_t1 = Sintomas: Leve drenagem de stamina
+ui.pregnancy.symptoms_player_t2 = Sintomas: Drenagem de stamina aumentada, lentidão moderada
+ui.pregnancy.symptoms_player_t3 = Sintomas: Drenagem de stamina intensa, lentidão severa
+ui.pregnancy.symptoms_npc_t1 = Sintomas: Fome e energia aumentadas levemente
+ui.pregnancy.symptoms_npc_t2 = Sintomas: Fome e energia aumentadas, lentidão moderada
+ui.pregnancy.symptoms_npc_t3 = Sintomas: Fome e energia intensas, lentidão severa
+ui.pregnancy.children = Total de Filhos: {count}
+ui.button.pregnancy = Ver Gestação
+
+# COMMANDS
+cmd.forcepreg.success = Gravidez forçada com sucesso! Abrindo painel de gestação...
 gender.success.male = Gênero definido permanentemente como: MASCULINO
 gender.success.female = Gênero definido permanentemente como: FEMININO
 
