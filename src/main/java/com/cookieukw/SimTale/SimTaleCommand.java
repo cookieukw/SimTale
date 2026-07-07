@@ -5,6 +5,8 @@ import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.cookieukw.SimTale.logic.PlayerPregnancyPage;
+import com.cookieukw.SimTale.logic.SimBedDebugPage;
+import com.cookieukw.SimTale.systems.BedWorldBootstrap;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import org.joml.Vector3d;
@@ -574,7 +576,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             Player player = store.getComponent(ref, Player.getComponentType());
             if (player != null) {
-                player.getPageManager().openCustomPage(ref, store, new com.cookieukw.SimTale.logic.SimBedDebugPage(playerRef, player));
+                TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
+                if (tc != null) {
+                    BedWorldBootstrap.bootstrapLoadedRadius(world, tc.getPosition(), 96);
+                }
+                player.getPageManager().openCustomPage(ref, store, new SimBedDebugPage(playerRef, player));
             }
         }
     }
