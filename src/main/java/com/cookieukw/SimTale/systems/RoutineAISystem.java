@@ -42,6 +42,7 @@ import org.joml.Vector3d;
 import org.joml.Vector3i;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 
 import javax.annotation.Nonnull;
 
@@ -141,6 +142,18 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         if (ai.currentTask == TaskType.DEAD) return;
 
         if (ai.currentTask == TaskType.IDLE) {
+            if (npc.bedLocation == null && world.getTick() % 60 == 0) {
+                BedPos bestBed = getBedPos(transform);
+                if (bestBed != null) {
+                    npc.bedLocation = bestBed;
+                    npc.family.homeX = bestBed.x;
+                    npc.family.homeY = bestBed.y;
+                    npc.family.homeZ = bestBed.z;
+                    npc.family.hasSharedHome = true;
+                    SimNPCPersistence.saveNPC(npc);
+                }
+            }
+
             float sleepThreshold = npc.personality.traits.contains(Trait.LAZY) ? 60f : 30f;
             if (npc.needs.energy < sleepThreshold) {
                 ai.currentTask = TaskType.FINDING_BED;
