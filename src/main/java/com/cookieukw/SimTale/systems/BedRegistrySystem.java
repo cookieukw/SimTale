@@ -1,15 +1,17 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
+import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.component.CommandBuffer;
+import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.RefChangeSystem;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
-import com.hypixel.hytale.component.query.Query;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.joml.Vector3d;
 
@@ -18,9 +20,9 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
-import com.hypixel.hytale.math.vector.Rotation3f;
-
 public class BedRegistrySystem extends RefChangeSystem<EntityStore, PersistentModel> {
+
+    private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
     public static final Set<BedPos> BEDS = Collections.synchronizedSet(new HashSet<>());
 
@@ -48,7 +50,7 @@ public class BedRegistrySystem extends RefChangeSystem<EntityStore, PersistentMo
                     float yaw = rot.yaw();
                     BedPos bp = new BedPos((int) Math.floor(bedPos.x), (int) Math.floor(bedPos.y), (int) Math.floor(bedPos.z), yaw);
                     BEDS.add(bp);
-                    System.out.println("[SimTale] Bed added to registry at: " + bp.x + ", " + bp.y + ", " + bp.z + " with yaw: " + yaw + " (Total active: " + BEDS.size() + ")");
+                    LOGGER.atInfo().log("[SimTale] Bed added to registry at: " + bp.x + ", " + bp.y + ", " + bp.z + " with yaw: " + yaw + " (Total active: " + BEDS.size() + ")");
                 }
             }
         }
@@ -71,7 +73,7 @@ public class BedRegistrySystem extends RefChangeSystem<EntityStore, PersistentMo
                     Vector3d bedPos = tc.getPosition();
                     BedPos bp = new BedPos((int) Math.floor(bedPos.x), (int) Math.floor(bedPos.y), (int) Math.floor(bedPos.z));
                     BEDS.remove(bp);
-                    System.out.println("[SimTale] Bed removed from registry at: " + bp.x + ", " + bp.y + ", " + bp.z + " (Total active: " + BEDS.size() + ")");
+                    LOGGER.atInfo().log("[SimTale] Bed removed from registry at: " + bp.x + ", " + bp.y + ", " + bp.z + " (Total active: " + BEDS.size() + ")");
                 }
             }
         }
