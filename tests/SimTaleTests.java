@@ -219,37 +219,37 @@ public class SimTaleTests {
         );
 
         // 1. Testar escalas iniciais nas fases de crescimento
-        child.ageDays = 0;
+        child.birthTick = 0L;
         child.stage = GrowthStage.BABY;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.35f, "Escala do Bebe");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.35f, "Escala do Bebe");
 
-        child.ageDays = 4;
+        child.birthTick = -4 * 24000L;
         child.stage = GrowthStage.TODDLER;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.45f, "Escala do Toddler Inicial");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.45f, "Escala do Toddler Inicial");
 
-        child.ageDays = 8;
+        child.birthTick = -8 * 24000L;
         child.stage = GrowthStage.TODDLER;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.55f, "Escala do Toddler Final");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.55f, "Escala do Toddler Final");
 
-        child.ageDays = 9;
+        child.birthTick = -9 * 24000L;
         child.stage = GrowthStage.CHILD;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.55f, "Escala da Crianca Inicial");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.55f, "Escala da Crianca Inicial");
 
-        child.ageDays = 20;
+        child.birthTick = -20 * 24000L;
         child.stage = GrowthStage.CHILD;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.85f, "Escala da Crianca Final");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.85f, "Escala da Crianca Final");
 
-        child.ageDays = 21;
+        child.birthTick = -21 * 24000L;
         child.stage = GrowthStage.TEEN;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.75f, "Escala do Adolescente Inicial");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.75f, "Escala do Adolescente Inicial");
 
-        child.ageDays = 40;
+        child.birthTick = -40 * 24000L;
         child.stage = GrowthStage.TEEN;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 0.95f, "Escala do Adolescente Final");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.95f, "Escala do Adolescente Final");
 
-        child.ageDays = 41;
+        child.birthTick = -41 * 24000L;
         child.stage = GrowthStage.ADULT;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child), 1.00f, "Escala do Adulto");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 1.00f, "Escala do Adulto");
 
         System.out.println("OK");
     }
