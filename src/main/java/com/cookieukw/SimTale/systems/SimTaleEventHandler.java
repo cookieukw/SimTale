@@ -240,7 +240,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             }
 
             // Update baby state and persist
-            childComp.pickUp(playerUuid);
+            childComp.pickUp(playerRefComp.getUuid());
             Caskara.save("child_" + childComp.childId.toString(), childComp);
 
             // Remove the baby entity from the world
