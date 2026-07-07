@@ -43,7 +43,7 @@ public class BedEntityRegistrySystem extends RefChangeSystem<EntityStore, Persis
 
         Vector3d pos = tc.getPosition();
         Rotation3f rot = tc.getRotation();
-        float yaw = rot != null ? rot.yaw() : 0f;
+        float yaw = rot.yaw();
 
         BedRegistry.addOrReplace((int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z), yaw);
         LOGGER.atInfo().log("[SimTale] Bed entity added: " + id + " total=" + BedRegistry.size());
