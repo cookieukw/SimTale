@@ -30,8 +30,10 @@ import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.core.Child;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 import java.util.UUID;
 
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
@@ -185,7 +187,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                 isChild = true;
             }
         }
-        for (GrowthComponent child : com.cookieukw.SimTale.core.lifecycle.LifecycleManager.ACTIVE_CHILDREN) {
+        for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
             if (npc.entityId != null && npc.entityId.equals(child.childId) && !child.isAdult()) {
                 isChild = true;
                 break;
@@ -292,7 +294,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             }
         }
         SimNPCComponent temp = new SimNPCComponent(parentId, "Parent");
-        com.cookieukw.SimTale.db.SimNPCPersistence.loadNPC(temp);
+        SimNPCPersistence.loadNPC(temp);
         if (!temp.name.equals("Parent")) {
             return temp.name;
         }
