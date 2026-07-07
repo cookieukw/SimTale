@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.logic;
 
-import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.SimPlayerComponent;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleState;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
@@ -19,40 +20,36 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
 
 @SuppressWarnings("null")
-public class NPCPregnancyPage extends InteractiveCustomUIPage<String> {
+public class PlayerPregnancyPage extends InteractiveCustomUIPage<String> {
 
-    private final SimNPCComponent npc;
     private final Player player;
     private final PlayerRef playerRefComp;
+    private final SimPlayerComponent playerComp;
 
-    public NPCPregnancyPage(@Nonnull PlayerRef playerRefComp, Player player, SimNPCComponent npc) {
+    public PlayerPregnancyPage(@Nonnull PlayerRef playerRefComp, Player player, SimPlayerComponent playerComp) {
         super(playerRefComp, CustomPageLifetime.CanDismiss, BuilderCodec.builder(String.class, String::new).build());
-        this.npc = npc;
         this.player = player;
         this.playerRefComp = playerRefComp;
+        this.playerComp = playerComp;
     }
 
     @Override
     public void build(@Nonnull Ref<EntityStore> playerRef, @Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
         commandBuilder.append("NPCPregnancy/NPCPregnancy.ui");
-        commandBuilder.set("#BackButton.Visible", true);
-        commandBuilder.set("#CloseButton.Visible", false);
+        commandBuilder.set("#BackButton.Visible", false);
+        commandBuilder.set("#CloseButton.Visible", true);
 
-        PregnancyComponent preg = npc.pregnancy;
+        PregnancyComponent preg = playerComp.pregnancy;
         long currentTick = PregnancyDisplayUtil.getCurrentWorldTick();
-        int totalChildren = npc.family.children != null ? npc.family.children.size() : 0;
+        int totalChildren = LifecycleState.findChildrenOfMother(playerRefComp.getUuid()).size();
 
-        PregnancyDisplayUtil.populatePregnancyUI(commandBuilder, preg, currentTick, npc.name, totalChildren, false);
+        PregnancyDisplayUtil.populatePregnancyUI(commandBuilder, preg, currentTick, playerRefComp.getUsername(), totalChildren, true);
 
-        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BackButton", new EventData().append("button", "BackButton"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#CloseButton", new EventData().append("button", "CloseButton"), false);
     }
 
     @Override
     public void handleDataEvent(@Nonnull Ref<EntityStore> storeRef, @Nonnull Store<EntityStore> store, @Nonnull String eventData) {
         player.getPageManager().setPage(storeRef, store, Page.None);
-
-        if (eventData.contains("BackButton")) {
-            player.getPageManager().openCustomPage(storeRef, store, new NPCInteractionPage(playerRefComp, player, npc));
-        }
     }
 }

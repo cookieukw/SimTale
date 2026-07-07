@@ -99,6 +99,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         commandBuilder.set("#GiftButtonText.TextSpans", Message.translation("simtale.ui.button.gift"));
         commandBuilder.set("#InsultButtonText.TextSpans", Message.translation("simtale.ui.button.insult"));
         commandBuilder.set("#AssignProfessionButtonText.TextSpans", Message.translation("simtale.ui.button.prof"));
+        commandBuilder.set("#PregnancyButtonText.TextSpans", Message.translation("simtale.ui.button.pregnancy"));
 
         // Traits
         if (npc.personality != null && npc.personality.traits != null && !npc.personality.traits.isEmpty()) {

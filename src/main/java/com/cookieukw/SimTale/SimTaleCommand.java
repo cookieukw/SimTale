@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
+import com.cookieukw.SimTale.logic.PlayerPregnancyPage;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import org.joml.Vector3d;
@@ -62,6 +63,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new SetStageSubCommand());
         this.addSubCommand(new ForceMarrySubCommand());
         this.addSubCommand(new DebugBedsSubCommand());
+        this.addSubCommand(new PregnancySubCommand());
     }
 
     @Override
@@ -72,7 +74,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -315,7 +317,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 }
                 playerComp.pregnancy.start(UUID.randomUUID(), world.getTick());
                 SimPlayerPersistence.savePlayer(playerComp);
-                ctx.sendMessage(Message.raw("Gravidez forcada com sucesso em voce (ignoring gender)!"));
+                ctx.sendMessage(Message.translation("simtale.cmd.forcepreg.success"));
+                openPlayerPregnancyPage(ref, store, playerRef, playerComp);
             } else {
                 TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
                 SimNPCComponent nearestNPC = null;
@@ -534,6 +537,30 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             SimNPCPersistence.saveNPC(nearestNPC);
 
             ctx.sendMessage(Message.raw("Voce agora esta casado com: " + nearestNPC.name + "!"));
+        }
+    }
+
+    private static void openPlayerPregnancyPage(Ref<EntityStore> ref, Store<EntityStore> store, PlayerRef playerRef, SimPlayerComponent playerComp) {
+        Player player = store.getComponent(ref, Player.getComponentType());
+        if (player != null) {
+            player.getPageManager().openCustomPage(ref, store, new PlayerPregnancyPage(playerRef, player, playerComp));
+        }
+    }
+
+    private static class PregnancySubCommand extends AbstractPlayerCommand {
+        public PregnancySubCommand() {
+            super("pregnancy", "Abre a tela de informacoes da gravidez do jogador");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            SimPlayerComponent playerComp = store.getComponent(ref, SimTale.SIM_PLAYER_COMPONENT_TYPE);
+            if (playerComp == null) {
+                playerComp = new SimPlayerComponent(playerRef.getUuid());
+                store.addComponent(ref, SimTale.SIM_PLAYER_COMPONENT_TYPE, playerComp);
+            }
+            openPlayerPregnancyPage(ref, store, playerRef, playerComp);
         }
     }
 
