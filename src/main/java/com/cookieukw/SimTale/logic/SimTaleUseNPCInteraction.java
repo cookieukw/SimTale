@@ -1,14 +1,21 @@
 package com.cookieukw.SimTale.logic;
 
-import com.hypixel.hytale.server.core.modules.interaction.interaction.config.SimpleInstantInteraction;
-import com.hypixel.hytale.protocol.InteractionState;
-import com.hypixel.hytale.protocol.InteractionType;
-import com.hypixel.hytale.server.core.entity.InteractionContext;
-import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
+import com.cookie.caskara.Caskara;
+import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.db.SimNPCData;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.protocol.InteractionState;
+import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.entity.InteractionContext;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.SimpleInstantInteraction;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.blackboard.Blackboard;
@@ -17,16 +24,9 @@ import com.hypixel.hytale.server.npc.blackboard.view.interaction.ReservationStat
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 
 import java.util.Objects;
+import java.util.UUID;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
-import com.hypixel.hytale.server.core.entity.entities.Player;
-import com.cookieukw.SimTale.SimTale;
-import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.cookieukw.SimTale.db.SimNPCData;
-import com.cookie.caskara.Caskara;
-import com.cookieukw.SimTale.db.SimNPCPersistence;
-import java.util.UUID;
-import com.hypixel.hytale.server.core.entity.UUIDComponent;
 
 public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
 
