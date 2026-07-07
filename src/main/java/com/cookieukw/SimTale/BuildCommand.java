@@ -3,15 +3,18 @@ package com.cookieukw.SimTale;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Prefab;
 import com.cookieukw.SimTale.core.PrefabManager;
+import com.cookieukw.SimTale.systems.ConstructionHelper;
+import com.cookieukw.SimTale.systems.ConstructionSystem;
+import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.component.Holder;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
+import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
-import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -23,7 +26,7 @@ import javax.annotation.Nonnull;
 public class BuildCommand extends AbstractPlayerCommand {
 
     private final RequiredArg<String> prefabArg;
-    private final com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg<Integer> speedArg;
+    private final OptionalArg<Integer> speedArg;
 
     public BuildCommand() {
         super("build", "Start a progressive building construction");
@@ -62,7 +65,7 @@ public class BuildCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("Construction started! NPCs will now come to build."));
                 
                 // Clear wireframe
-                com.cookieukw.SimTale.systems.ConstructionHelper.clearPreview(world, closestSite);
+                ConstructionHelper.clearPreview(world, closestSite);
             } else {
                 ctx.sendMessage(Message.raw("No pending construction site found nearby."));
             }
@@ -85,7 +88,7 @@ public class BuildCommand extends AbstractPlayerCommand {
                 closestSite.isBuilding = true;
                 closestSite.forceBuild = true;
                 ctx.sendMessage(Message.raw("Forced construction started! It will build rapidly."));
-                com.cookieukw.SimTale.systems.ConstructionHelper.clearPreview(world, closestSite);
+                ConstructionHelper.clearPreview(world, closestSite);
             } else {
                 ctx.sendMessage(Message.raw("No pending construction site found nearby to force."));
             }
@@ -95,10 +98,10 @@ public class BuildCommand extends AbstractPlayerCommand {
         if (prefabName.equalsIgnoreCase("speed")) {
             Integer speed = ctx.get(this.speedArg);
             if (speed != null) {
-                com.cookieukw.SimTale.systems.ConstructionSystem.GLOBAL_SPEED = speed;
+                ConstructionSystem.GLOBAL_SPEED = speed;
                 ctx.sendMessage(Message.raw("Construction global speed set to " + speed));
             } else {
-                ctx.sendMessage(Message.raw("Current construction global speed is " + com.cookieukw.SimTale.systems.ConstructionSystem.GLOBAL_SPEED));
+                ctx.sendMessage(Message.raw("Current construction global speed is " + ConstructionSystem.GLOBAL_SPEED));
             }
             return;
         }
@@ -122,7 +125,7 @@ public class BuildCommand extends AbstractPlayerCommand {
                 closestSite.isBuilding = true;
                 closestSite.simulatedBuilders = builders;
                 ctx.sendMessage(Message.raw("Simulated construction started with " + builders + " ghost builders."));
-                com.cookieukw.SimTale.systems.ConstructionHelper.clearPreview(world, closestSite);
+                ConstructionHelper.clearPreview(world, closestSite);
             } else {
                 ctx.sendMessage(Message.raw("No pending construction site found nearby to simulate."));
             }
@@ -143,7 +146,7 @@ public class BuildCommand extends AbstractPlayerCommand {
         SimTale.ACTIVE_SITES.add(site);
         eStore.addEntity(holder, AddReason.SPAWN);
 
-        com.cookieukw.SimTale.systems.ConstructionHelper.placePreview(world, eStore, playerAnchor, prefabName);
+        ConstructionHelper.placePreview(world, eStore, playerAnchor, prefabName);
 
         ctx.sendMessage(Message.raw("Preview placed for " + prefabName + " at " + playerAnchor.x + ", " + playerAnchor.y + ", " + playerAnchor.z));
         ctx.sendMessage(Message.raw("Type '/build start' to confirm and let NPCs begin building."));
