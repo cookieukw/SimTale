@@ -6,7 +6,6 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.cookieukw.SimTale.logic.SimTaleUseNPCInteraction;
 import com.cookieukw.SimTale.systems.BabyCareTickSystem;
-import com.cookieukw.SimTale.systems.BedRegistrySystem;
 import com.cookieukw.SimTale.systems.ConstructionSystem;
 import com.cookieukw.SimTale.systems.MoodAnimationSystem;
 import com.cookieukw.SimTale.systems.PlayerJoinHandler;
@@ -18,6 +17,13 @@ import com.cookieukw.SimTale.systems.SimNPCSpawnSystem;
 import com.cookieukw.SimTale.systems.SimTaleChatHandler;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.cookieukw.SimTale.systems.SimTaleTickSystem;
+import com.cookieukw.SimTale.systems.BedRegistry;
+import com.cookieukw.SimTale.systems.BedEntityRegistrySystem;
+import com.cookieukw.SimTale.systems.BedBlockEventSystem;
+import com.hypixel.hytale.server.core.event.events.ecs.PlaceBlockEvent;
+import org.joml.Vector3i;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.event.EventPriority;
@@ -29,6 +35,7 @@ import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Int
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.npc.interactions.UseNPCInteraction;
 
 import javax.annotation.Nonnull;
@@ -74,10 +81,8 @@ public class SimTale extends JavaPlugin {
         // Register tick systems
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
         this.getEntityStoreRegistry().registerSystem(new RoutineAISystem());
-        this.getEntityStoreRegistry().registerSystem(new BedRegistrySystem());
-        this.getChunkStoreRegistry().registerSystem(new BedRegistrySystem.BedChunkLoadSystem());
-        this.getEntityStoreRegistry().registerSystem(new BedRegistrySystem.BedBlockPlaceSystem());
-        this.getEntityStoreRegistry().registerSystem(new BedRegistrySystem.BedBlockBreakSystem());
+        this.getEntityStoreRegistry().registerSystem(new BedEntityRegistrySystem());
+        this.getEntityStoreRegistry().registerSystem(new BedBlockEventSystem());
         this.getEntityStoreRegistry().registerSystem(new PlumbobSystem());
         this.getEntityStoreRegistry().registerSystem(new MoodAnimationSystem());
         this.getEntityStoreRegistry().registerSystem(new ConstructionSystem());
@@ -96,6 +101,23 @@ public class SimTale extends JavaPlugin {
         
         // SimTale: Register player join handler
         this.getEventRegistry().registerGlobal(PlayerReadyEvent.class, new PlayerJoinHandler());
+
+        // SimTale: Register block placement handler globally
+        this.getEventRegistry().registerGlobal(PlaceBlockEvent.class, event -> {
+            Vector3i pos = event.getTargetBlock();
+            if (pos != null) {
+                // Since PlaceBlockEvent runs before the block is in voxel grid, we run deferred check
+                World world = Universe.get().getDefaultWorld();
+                if (world != null) {
+                    world.execute(() -> {
+                        BlockType bType = world.getBlockType(pos.x, pos.y, pos.z);
+                        if (bType != null && bType.getId() != null && BedRegistry.isBedId(bType.getId())) {
+                            BedRegistry.addOrReplace(pos.x, pos.y, pos.z, 0f);
+                        }
+                    });
+                }
+            }
+        });
 
         // Register commands
         this.getCommandRegistry()

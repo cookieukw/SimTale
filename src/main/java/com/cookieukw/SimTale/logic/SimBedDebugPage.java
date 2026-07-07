@@ -4,7 +4,8 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
-import com.cookieukw.SimTale.systems.BedRegistrySystem;
+import com.cookieukw.SimTale.systems.BedRegistry;
+import com.cookieukw.SimTale.systems.BedWorldBootstrap;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -16,6 +17,7 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
@@ -34,7 +36,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
 
     private final Player player;
     private final PlayerRef playerRefComp;
-    private int selectedIndex;
+    private int selectedIndex; // Represents current Page Index
 
     public SimBedDebugPage(@Nonnull PlayerRef playerRefComp, Player player) {
         super(playerRefComp, CustomPageLifetime.CanDismiss, BuilderCodec.builder(String.class, String::new).build());
@@ -51,62 +53,79 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     private List<BedPos> getBeds() {
-        synchronized (BedRegistrySystem.BEDS) {
-            return new ArrayList<>(BedRegistrySystem.BEDS);
+        synchronized (BedRegistry.BEDS) {
+            List<BedPos> list = new ArrayList<>(BedRegistry.BEDS);
+            list.sort((b1, b2) -> {
+                if (b1.x != b2.x) return Integer.compare(b1.x, b2.x);
+                if (b1.y != b2.y) return Integer.compare(b1.y, b2.y);
+                return Integer.compare(b1.z, b2.z);
+            });
+            return list;
         }
-    }
-
-    private BedPos getSelectedBed(List<BedPos> beds) {
-        if (beds.isEmpty()) return null;
-        if (selectedIndex < 0) selectedIndex = 0;
-        if (selectedIndex >= beds.size()) selectedIndex = beds.size() - 1;
-        return beds.get(selectedIndex);
     }
 
     @Override
     public void build(@NonNullDecl Ref<EntityStore> playerRef, UICommandBuilder cmd, @NonNullDecl UIEventBuilder eventBuilder, @NonNullDecl Store<EntityStore> store) {
         cmd.append("SimBedDebug/SimBedDebug.ui");
 
-        List<BedPos> beds = getBeds();
-        BedPos selectedBed = getSelectedBed(beds);
-
-        if (selectedBed != null) {
-            cmd.set("#BedCoords.Text", String.format("Posição: X: %d, Y: %d, Z: %d", selectedBed.x, selectedBed.y, selectedBed.z));
-            cmd.set("#BedYaw.Text", String.format("Direção (Yaw): %.1f°", selectedBed.yaw));
-
-            // Find owners
-            List<String> owners = new ArrayList<>();
-            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.bedLocation != null && 
-                    npc.bedLocation.x == selectedBed.x && 
-                    npc.bedLocation.y == selectedBed.y && 
-                    npc.bedLocation.z == selectedBed.z) {
-                    owners.add(npc.name);
-                }
-            }
-
-            if (owners.isEmpty()) {
-                cmd.set("#BedStatus.Text", "Status: LIVRE");
-                cmd.set("#BedStatus.Style.TextColor", "#44ff88");
-            } else {
-                cmd.set("#BedStatus.Text", "Dono(s): " + String.join(", ", owners));
-                cmd.set("#BedStatus.Style.TextColor", "#ffaa55");
-            }
-
-            cmd.set("#BedIndex.Text", (selectedIndex + 1) + " / " + beds.size());
-        } else {
-            cmd.set("#BedCoords.Text", "Nenhuma cama cadastrada");
-            cmd.set("#BedYaw.Text", "—");
-            cmd.set("#BedStatus.Text", "Status: Vazio");
-            cmd.set("#BedIndex.Text", "0 / 0");
+        // Scan beds in loaded chunks around the player
+        TransformComponent playerTransform = store.getComponent(playerRef, TransformComponent.getComponentType());
+        if (playerTransform != null) {
+            World world = store.getExternalData().getWorld();
+            BedWorldBootstrap.bootstrapLoadedRadius(world, playerTransform.getPosition(), 96);
         }
 
-        // Register buttons
-        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnTeleport", new EventData().append("action", "teleport"), false);
-        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnUnclaim", new EventData().append("action", "unclaim"), false);
+        List<BedPos> beds = getBeds();
+        int totalPages = (int) Math.ceil(beds.size() / 5.0);
+        if (totalPages == 0) totalPages = 1;
+
+        if (selectedIndex < 0) selectedIndex = 0;
+        if (selectedIndex >= totalPages) selectedIndex = totalPages - 1;
+
+        // Render 5 items for the current page
+        for (int i = 0; i < 5; i++) {
+            int bedIndex = selectedIndex * 5 + i;
+            String rowSelector = "#Row" + i;
+
+            if (bedIndex < beds.size()) {
+                BedPos bp = beds.get(bedIndex);
+                cmd.set(rowSelector + ".Visible", true);
+                cmd.set(rowSelector + " #Coords.Text", String.format("Cama %d — X: %d, Y: %d, Z: %d", bedIndex + 1, bp.x, bp.y, bp.z));
+
+                // Find owners
+                List<String> owners = new ArrayList<>();
+                for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                    if (npc.bedLocation != null && 
+                        npc.bedLocation.x == bp.x && 
+                        npc.bedLocation.y == bp.y && 
+                        npc.bedLocation.z == bp.z) {
+                        owners.add(npc.name);
+                    }
+                }
+
+                if (owners.isEmpty()) {
+                    cmd.set(rowSelector + " #Status.Text", "Status: LIVRE");
+                    cmd.set(rowSelector + " #Status.Style.TextColor", "#44ff88");
+                } else {
+                    cmd.set(rowSelector + " #Status.Text", "Dono(s): " + String.join(", ", owners));
+                    cmd.set(rowSelector + " #Status.Style.TextColor", "#ffaa55");
+                }
+
+                // Bind buttons uniquely for this row's bed index
+                eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp", new EventData().append("action", "tp_" + bedIndex), false);
+                eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnUnclaim", new EventData().append("action", "unclaim_" + bedIndex), false);
+            } else {
+                // Hide unused rows
+                cmd.set(rowSelector + ".Visible", false);
+            }
+        }
+
+        cmd.set("#PageIndex.Text", "Página " + (selectedIndex + 1) + " / " + totalPages);
+
+        // Register navigation buttons
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnPrevPage", new EventData().append("action", "prev_page"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnNextPage", new EventData().append("action", "next_page"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnBack", new EventData().append("action", "back"), false);
-        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnPrevBed", new EventData().append("action", "prev_bed"), false);
-        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnNextBed", new EventData().append("action", "next_bed"), false);
     }
 
     @Override
@@ -115,13 +134,15 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
 
         List<BedPos> beds = getBeds();
 
-        if (eventData.contains("prev_bed")) {
+        if (eventData.contains("prev_page")) {
             selectedIndex = Math.max(0, selectedIndex - 1);
             refreshUI(storeRef, store);
             return;
         }
-        if (eventData.contains("next_bed")) {
-            selectedIndex = Math.min(beds.size() - 1, selectedIndex + 1);
+        if (eventData.contains("next_page")) {
+            int totalPages = (int) Math.ceil(beds.size() / 5.0);
+            if (totalPages == 0) totalPages = 1;
+            selectedIndex = Math.min(totalPages - 1, selectedIndex + 1);
             refreshUI(storeRef, store);
             return;
         }
@@ -130,36 +151,49 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             return;
         }
 
-        BedPos selectedBed = getSelectedBed(beds);
-        if (selectedBed == null) {
-            playerRefComp.sendMessage(Message.raw("[SimBedDebug] Cama indisponível."));
-            return;
-        }
-
-        if (eventData.contains("teleport")) {
-            TransformComponent transform = store.getComponent(storeRef, TransformComponent.getComponentType());
-            if (transform != null) {
-                // Teleport slightly above the bed to avoid getting stuck
-                transform.teleportPosition(new Vector3d(selectedBed.x + 0.5, selectedBed.y + 1.2, selectedBed.z + 0.5));
-                store.putComponent(storeRef, TransformComponent.getComponentType(), transform);
-                playerRefComp.sendMessage(Message.raw("[SimBedDebug] Teletransportado para: X=" + selectedBed.x + " Y=" + selectedBed.y + " Z=" + selectedBed.z));
+        // Handle Row-specific actions
+        if (eventData.contains("tp_")) {
+            try {
+                int bedIndex = Integer.parseInt(eventData.substring(eventData.indexOf("tp_") + 3));
+                if (bedIndex >= 0 && bedIndex < beds.size()) {
+                    BedPos bp = beds.get(bedIndex);
+                    TransformComponent transform = store.getComponent(storeRef, TransformComponent.getComponentType());
+                    if (transform != null) {
+                        Teleport tp = new Teleport(
+                            new Vector3d(bp.x + 0.5, bp.y + 1.2, bp.z + 0.5),
+                            transform.getRotation()
+                        );
+                        store.putComponent(storeRef, Teleport.getComponentType(), tp);
+                        playerRefComp.sendMessage(Message.raw("[SimBedDebug] Teletransportado para a Cama #" + (bedIndex + 1)));
+                    }
+                }
+            } catch (Exception e) {
+                HytaleLogger.forEnclosingClass().atWarning().withCause(e).log("Failed to process teleport event: " + eventData);
             }
             player.getPageManager().setPage(storeRef, store, Page.None);
-        } else if (eventData.contains("unclaim")) {
-            int count = 0;
-            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.bedLocation != null && 
-                    npc.bedLocation.x == selectedBed.x && 
-                    npc.bedLocation.y == selectedBed.y && 
-                    npc.bedLocation.z == selectedBed.z) {
-                    
-                    npc.bedLocation = null;
-                    npc.family.hasSharedHome = false;
-                    SimNPCPersistence.saveNPC(npc);
-                    count++;
+        } else if (eventData.contains("unclaim_")) {
+            try {
+                int bedIndex = Integer.parseInt(eventData.substring(eventData.indexOf("unclaim_") + 8));
+                if (bedIndex >= 0 && bedIndex < beds.size()) {
+                    BedPos bp = beds.get(bedIndex);
+                    int count = 0;
+                    for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                        if (npc.bedLocation != null && 
+                            npc.bedLocation.x == bp.x && 
+                            npc.bedLocation.y == bp.y && 
+                            npc.bedLocation.z == bp.z) {
+                            
+                            npc.bedLocation = null;
+                            npc.family.hasSharedHome = false;
+                            SimNPCPersistence.saveNPC(npc);
+                            count++;
+                        }
+                    }
+                    playerRefComp.sendMessage(Message.raw("[SimBedDebug] " + count + " NPCs desvinculados da Cama #" + (bedIndex + 1) + "!"));
                 }
+            } catch (Exception e) {
+                HytaleLogger.forEnclosingClass().atWarning().withCause(e).log("Failed to process unclaim event: " + eventData);
             }
-            playerRefComp.sendMessage(Message.raw("[SimBedDebug] " + count + " NPCs desvinculados desta cama!"));
             refreshUI(storeRef, store);
         }
     }

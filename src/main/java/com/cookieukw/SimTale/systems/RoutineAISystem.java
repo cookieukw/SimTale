@@ -232,7 +232,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 clearMoveTarget(ref, ai);
                 
                 // If we arrived and the bed is not in BEDS, it was destroyed (since chunk is loaded)
-                if (npc.bedLocation != null && !BedRegistrySystem.BEDS.contains(npc.bedLocation)) {
+                if (npc.bedLocation != null && !BedRegistry.BEDS.contains(npc.bedLocation)) {
                     npc.bedLocation = null;
                     npc.family.hasSharedHome = false;
                     ai.currentTask = TaskType.IDLE;
@@ -445,8 +445,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        synchronized (BedRegistrySystem.BEDS) {
-            for (BedPos bp : BedRegistrySystem.BEDS) {
+        synchronized (BedRegistry.BEDS) {
+            for (BedPos bp : BedRegistry.BEDS) {
                 double dx = bp.x - myPos.x;
                 double dy = bp.y - myPos.y;
                 double dz = bp.z - myPos.z;
