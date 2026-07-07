@@ -3,20 +3,26 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
+import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+import org.joml.Vector3d;
 
 import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Tick system for child growth.
@@ -58,6 +64,34 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
             GrowthComponent child = LifecycleManager.ACTIVE_CHILDREN.get(i);
             LifecycleManager.tickGrowth(child, worldTick);
 
+            // Proximity AI: Children and teenagers follow their parents
+            if (child.stage != GrowthStage.BABY && !child.isAdult()) {
+                Ref<EntityStore> childRef = world.getEntityStore().getRefFromUUID(child.childId);
+                if (childRef != null && childRef.isValid()) {
+                    Ref<EntityStore> parentRef = world.getEntityStore().getRefFromUUID(child.motherId);
+                    if (parentRef == null) {
+                        parentRef = world.getEntityStore().getRefFromUUID(child.fatherId);
+                    }
+                    
+                    if (parentRef != null && parentRef.isValid()) {
+                        TransformComponent childT = store.getComponent(childRef, com.hypixel.hytale.server.core.modules.entity.component.TransformComponent.getComponentType());
+                        TransformComponent parentT = store.getComponent(parentRef, com.hypixel.hytale.server.core.modules.entity.component.TransformComponent.getComponentType());
+                        if (childT != null && parentT != null) {
+                            double distSq = childT.getPosition().distanceSquared(parentT.getPosition());
+                            if (distSq > 36.0) { // More than 6 blocks away
+                                NPCEntity npcEntity = store.getComponent(childRef, Objects.requireNonNull(NPCEntity.getComponentType()));
+                                if (npcEntity != null) {
+                                    npcEntity.setLeashPoint(new Vector3d(parentT.getPosition().x, parentT.getPosition().y, parentT.getPosition().z));
+                                    if (npcEntity.getRole() != null) {
+                                        npcEntity.getRole().getStateSupport().setState(childRef, "Moving", null, store);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             // If became adult, remove from list (onBecameAdult has already been called)
             if (child.isAdult()) {
                 LifecycleManager.ACTIVE_CHILDREN.remove(i);
@@ -67,7 +101,7 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
         // Mother AI tick for each mother with children needing care
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc.entityId == null) continue;
-            java.util.List<GrowthComponent> needingCare =
+            List<GrowthComponent> needingCare =
                 LifecycleManager.findChildrenNeedingCare(npc.entityId);
             for (GrowthComponent baby : needingCare) {
                 LifecycleManager.tickMotherAI(npc, baby, worldTick);

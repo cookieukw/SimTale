@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -60,6 +62,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
         if (npc == null || npc.needs == null) return;
+
+        // Skip routine AI if NPC is a child or teenager (lives with parents, no independent routine)
+        for (GrowthComponent gc : LifecycleManager.ACTIVE_CHILDREN) {
+            if (npc.entityId != null && npc.entityId.equals(gc.childId)) {
+                if (!gc.isAdult()) {
+                    return; // Disable standard routine AI
+                }
+                break;
+            }
+        }
 
         RoutineAIComponent ai = chunk.getComponent(index, SimTale.ROUTINE_AI_COMPONENT_TYPE);
         if (ai == null) {
