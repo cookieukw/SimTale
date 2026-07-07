@@ -74,7 +74,7 @@ public final class PregnancyDisplayUtil {
             cmd.set("#TotalChildren.TextSpans", Message.translation("simtale.ui.pregnancy.children").param("count", String.valueOf(totalChildren)));
             Anchor anchor = new Anchor();
             anchor.setWidth(Value.of(0));
-            anchor.setHeight(.Value.of(20));
+            anchor.setHeight(Value.of(20));
             cmd.setObject("#ProgressBarFill.Anchor", anchor); 
             return;
         }
