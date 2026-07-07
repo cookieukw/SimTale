@@ -57,12 +57,21 @@ public class PlayerGenderPage extends InteractiveCustomUIPage<String> {
         }
     }
 
+    private boolean isReopening = false;
+
     @Override
     public void onDismiss(@Nonnull Ref<EntityStore> playerRef, @Nonnull Store<EntityStore> store) {
         super.onDismiss(playerRef, store);
+        if (isReopening) return;
+
         // Force player to choose a gender; do not allow closing without selection
         if (simPlayer.gender == null) {
-            store.getExternalData().getWorld().execute(() -> player.getPageManager().openCustomPage(playerRef, store, new PlayerGenderPage(playerRefComp, player, simPlayer)));
+            isReopening = true;
+            try {
+                player.getPageManager().openCustomPage(playerRef, store, new PlayerGenderPage(playerRefComp, player, simPlayer));
+            } finally {
+                isReopening = false;
+            }
         }
     }
 }
