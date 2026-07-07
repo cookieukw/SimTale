@@ -82,7 +82,7 @@ Group {
     }
 
     Group #ButtonGrid {
-      Anchor: (Width: 520, Height: 180);
+      Anchor: (Width: 520, Height: 240);
       LayoutMode: Top;
 
       Group #ButtonRow1 {
@@ -132,7 +132,7 @@ Group {
       }
 
       Group #ButtonRow3 {
-        Anchor: (Width: 520, Height: 52);
+        Anchor: (Width: 520, Height: 52, Bottom: 8);
         LayoutMode: CenterMiddle;
         Button #InsultButton {
           Anchor: (Width: 248, Height: 52, Right: 12);
@@ -150,6 +150,21 @@ Group {
             Text: "Dar Emprego";
             Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
             Style: (FontSize: 20, TextColor: #FFEECCFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+          }
+        }
+      }
+
+      Group #ButtonRow4 {
+        Anchor: (Width: 520, Height: 52);
+        LayoutMode: CenterMiddle;
+        Button #PregnancyButton {
+          Anchor: (Width: 520, Height: 52);
+          Background: #772244FF;
+          Visible: false;
+          Label #PregnancyButtonText {
+            Text: "Ver Gestação";
+            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
+            Style: (FontSize: 20, TextColor: #FFCCCCFF, HorizontalAlignment: Center, VerticalAlignment: Center, RenderBold: true);
           }
         }
       }

@@ -89,10 +89,11 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             return;
         }
 
-        if (!SimTale.ACTIVE_NPCS.contains(npc)) {
-            SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(npc.entityId));
-            SimNPCPersistence.loadNPC(npc);
-            SimTale.ACTIVE_NPCS.add(npc);
+        final SimNPCComponent finalNpc = npc;
+        if (!SimTale.ACTIVE_NPCS.contains(finalNpc)) {
+            SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(finalNpc.entityId));
+            SimNPCPersistence.loadNPC(finalNpc);
+            SimTale.ACTIVE_NPCS.add(finalNpc);
         }
 
         if (absoluteTick % 600 == 0) {

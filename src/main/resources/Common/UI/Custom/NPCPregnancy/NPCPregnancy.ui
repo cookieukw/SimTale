@@ -1,0 +1,64 @@
+Group {
+  LayoutMode: MiddleCenter;
+  Background: #00000099;
+  Group #MainPanel {
+    Anchor: (Width: 580, Height: 700);
+    LayoutMode: Top;
+    Background: #1A1A2EFF;
+    Padding: (Top: 24, Bottom: 24, Horizontal: 24);
+
+    Label #NpcName {
+      Text: "NPC";
+      Anchor: (Width: 520, Height: 52, Bottom: 4);
+      Style: (FontSize: 32, TextColor: #E0E0FFFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+    }
+    Label #SubTitle {
+      Text: "Acompanhamento de Gestação";
+      Anchor: (Width: 520, Height: 30, Bottom: 24);
+      Style: (FontSize: 20, TextColor: #FF88AAFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+    }
+
+    Group #InfoPanel {
+      Anchor: (Width: 520, Height: 350, Bottom: 32);
+      LayoutMode: Top;
+      Background: #16213EFF;
+      Padding: (Top: 16, Bottom: 16, Horizontal: 20);
+
+      Label #FatherName {
+        Text: "Pai do Bebê: —";
+        Anchor: (Width: 480, Height: 32, Bottom: 12);
+        Style: (FontSize: 18, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+      }
+      Label #GestationStage {
+        Text: "Estágio: Trimestre 1 (Início)";
+        Anchor: (Width: 480, Height: 32, Bottom: 12);
+        Style: (FontSize: 18, TextColor: #FFB3D9FF, RenderBold: true, HorizontalAlignment: Start, VerticalAlignment: Center);
+      }
+      Label #ProgressText {
+        Text: "Progresso da Gestação: 0%";
+        Anchor: (Width: 480, Height: 32, Bottom: 12);
+        Style: (FontSize: 18, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+      }
+      Label #TimeRemaining {
+        Text: "Tempo Restante: —";
+        Anchor: (Width: 480, Height: 32, Bottom: 12);
+        Style: (FontSize: 18, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+      }
+      Label #TotalChildren {
+        Text: "Total de Filhos: 0";
+        Anchor: (Width: 480, Height: 32, Bottom: 12);
+        Style: (FontSize: 18, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+      }
+    }
+
+    Button #BackButton {
+      Anchor: (Width: 520, Height: 52);
+      Background: #334466FF;
+      Label #BackButtonText {
+        Text: "Voltar";
+        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
+        Style: (FontSize: 20, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center, RenderBold: true);
+      }
+    }
+  }
+}

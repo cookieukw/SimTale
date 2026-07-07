@@ -197,6 +197,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         if (isChild) {
             commandBuilder.set("#FlirtButton.Visible", false);
         }
+        if (npc.pregnancy != null && npc.pregnancy.pregnant) {
+            commandBuilder.set("#PregnancyButton.Visible", true);
+        }
 
         // --- Button Event Bindings ---
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ChatButton", new EventData().append("button", "ChatButton"), false);
@@ -205,6 +208,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#InsultButton", new EventData().append("button", "InsultButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GiftButton", new EventData().append("button", "GiftButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#AssignProfessionButton", new EventData().append("button", "AssignProfessionButton"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#PregnancyButton", new EventData().append("button", "PregnancyButton"), false);
     }
 
     @Override
@@ -270,6 +274,8 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         } else if (eventData.contains("AssignProfessionButton")) {
             Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.ASSIGN_PROFESSION);
             playerRefComp.sendMessage(resp);
+        } else if (eventData.contains("PregnancyButton")) {
+            player.getPageManager().openCustomPage(storeRef, store, new NPCPregnancyPage(playerRefComp, player, npc));
         }
     }
 
