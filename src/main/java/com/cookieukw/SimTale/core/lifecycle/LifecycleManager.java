@@ -222,25 +222,25 @@ public class LifecycleManager {
      */
     public static float calculateTargetScale(GrowthComponent child, long worldTick) {
         int age = child.getAgeDays(worldTick);
-        switch (child.stage) {
-            case BABY:
-                return 0.35f;
-            case TODDLER:
+        return switch (child.stage) {
+            case BABY -> 0.35f;
+            case TODDLER -> {
                 // Age 4 to 8. Toddler scale: starts at 0.45f, grows to 0.55f
-                float toddlerProgress = (float)(age - 4) / 4.0f; // 0.0 to 1.0
-                return 0.45f + toddlerProgress * 0.10f;
-            case CHILD:
+                float toddlerProgress = (float) (age - 4) / 4.0f; // 0.0 to 1.0
+                yield 0.45f + toddlerProgress * 0.10f; // 0.0 to 1.0
+            }
+            case CHILD -> {
                 // Age 9 to 20. Child scale: starts at 0.55f, grows to 0.85f
-                float childProgress = (float)(age - 9) / 11.0f; // 0.0 to 1.0
-                return 0.55f + childProgress * 0.30f;
-            case TEEN:
+                float childProgress = (float) (age - 9) / 11.0f; // 0.0 to 1.0
+                yield 0.55f + childProgress * 0.30f; // 0.0 to 1.0
+            }
+            case TEEN -> {
                 // Age 21 to 40. Teen scale (adult model): starts at 0.75f, grows to 0.95f
-                float teenProgress = (float)(age - 21) / 19.0f; // 0.0 to 1.0
-                return 0.75f + teenProgress * 0.20f;
-            case ADULT:
-            default:
-                return 1.00f;
-        }
+                float teenProgress = (float) (age - 21) / 19.0f; // 0.0 to 1.0
+                yield 0.75f + teenProgress * 0.20f; // 0.0 to 1.0
+            }
+            default -> 1.00f;
+        };
     }
 
     public static void applyVisualScale(Ref<EntityStore> ref, float scale) {
@@ -436,10 +436,8 @@ public class LifecycleManager {
             if (npc.entityId != null && npc.entityId.equals(child.childId)) {
                 if (child.babyNeeds != null) {
                     BabyNeeds.PersonalityTendency tendency = child.babyNeeds.getPersonalityTendency();
-                    Trait extraTrait = tendency == BabyNeeds.PersonalityTendency.SOCIABLE ? Trait.FRIENDLY : Trait.SHY;
-                    if (!npc.personality.traits.contains(extraTrait)) {
-                        npc.personality.traits.add(extraTrait);
-                    }
+                    Trait extraTrait = tendency == BabyNeeds.PersonalityTendency.SOCIABLE ? Trait.LOYAL : Trait.SHY;
+                    npc.personality.traits.add(extraTrait);
                 }
                 com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
                 break;
