@@ -57,7 +57,7 @@ public class LifecycleManager {
 
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
-    public static final List<GrowthComponent> ACTIVE_CHILDREN = new ArrayList<>();
+    public static final List<GrowthComponent> ACTIVE_CHILDREN = new java.util.concurrent.CopyOnWriteArrayList<>();
 
     /**
      * Try to start a pregnancy in a female NPC.

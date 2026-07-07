@@ -46,8 +46,8 @@ public class SimTale extends JavaPlugin {
     public static ComponentType<EntityStore, RoutineAIComponent> ROUTINE_AI_COMPONENT_TYPE;
     public static ComponentType<EntityStore, ConstructionSiteComponent> CONSTRUCTION_COMPONENT_TYPE;
     public static ComponentType<EntityStore, SimPlayerComponent> SIM_PLAYER_COMPONENT_TYPE;
-    public static final List<SimNPCComponent> ACTIVE_NPCS = new ArrayList<>();
-    public static final List<ConstructionSiteComponent> ACTIVE_SITES = new ArrayList<>();
+    public static final List<SimNPCComponent> ACTIVE_NPCS = new java.util.concurrent.CopyOnWriteArrayList<>();
+    public static final List<ConstructionSiteComponent> ACTIVE_SITES = new java.util.concurrent.CopyOnWriteArrayList<>();
     public static boolean debugForceSpawning = false;
 
     public SimTale(@Nonnull JavaPluginInit init) {
