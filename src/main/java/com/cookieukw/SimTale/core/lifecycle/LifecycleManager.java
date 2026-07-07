@@ -220,8 +220,8 @@ public class LifecycleManager {
      * @param child     growth component
      * @param worldTick current tick
      */
-    public static float calculateTargetScale(GrowthComponent child) {
-        int age = child.ageDays;
+    public static float calculateTargetScale(GrowthComponent child, long worldTick) {
+        int age = child.getAgeDays(worldTick);
         switch (child.stage) {
             case BABY:
                 return 0.35f;
@@ -244,7 +244,7 @@ public class LifecycleManager {
     }
 
     public static void applyVisualScale(Ref<EntityStore> ref, float scale) {
-        Store<EntityStore> store = ref.getStore().getStore();
+        Store<EntityStore> store = ref.getStore();
         PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
         if (pm != null) {
             ModelReference oldRef = pm.getModelReference();
@@ -275,7 +275,7 @@ public class LifecycleManager {
         boolean stageChanged = child.updateStage(worldTick);
 
         // Calculate and apply scale
-        child.currentScale = calculateTargetScale(child);
+        child.currentScale = calculateTargetScale(child, worldTick);
 
         Ref<EntityStore> entityRef = getEntityRef(child.childId);
         if (entityRef != null && entityRef.isValid()) {
@@ -435,8 +435,9 @@ public class LifecycleManager {
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc.entityId != null && npc.entityId.equals(child.childId)) {
                 if (child.babyNeeds != null) {
-                    Trait extraTrait = child.babyNeeds.getPersonalityTendency();
-                    if (extraTrait != null && !npc.personality.traits.contains(extraTrait)) {
+                    BabyNeeds.PersonalityTendency tendency = child.babyNeeds.getPersonalityTendency();
+                    Trait extraTrait = tendency == BabyNeeds.PersonalityTendency.SOCIABLE ? Trait.FRIENDLY : Trait.SHY;
+                    if (!npc.personality.traits.contains(extraTrait)) {
                         npc.personality.traits.add(extraTrait);
                     }
                 }
