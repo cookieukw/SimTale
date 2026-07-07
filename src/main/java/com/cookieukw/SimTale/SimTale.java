@@ -1,39 +1,39 @@
 package com.cookieukw.SimTale;
-import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
+import com.cookieukw.SimTale.core.ConstructionSiteComponent;
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.SimPlayerComponent;
+import com.cookieukw.SimTale.logic.SimTaleUseNPCInteraction;
+import com.cookieukw.SimTale.systems.BabyCareTickSystem;
+import com.cookieukw.SimTale.systems.BedRegistrySystem;
+import com.cookieukw.SimTale.systems.ConstructionSystem;
+import com.cookieukw.SimTale.systems.MoodAnimationSystem;
+import com.cookieukw.SimTale.systems.PlayerJoinHandler;
+import com.cookieukw.SimTale.systems.PlayerPregnancyTickSystem;
+import com.cookieukw.SimTale.systems.PlumbobSystem;
+import com.cookieukw.SimTale.systems.PregnancyTickSystem;
+import com.cookieukw.SimTale.systems.RoutineAISystem;
+import com.cookieukw.SimTale.systems.SimNPCSpawnSystem;
+import com.cookieukw.SimTale.systems.SimTaleChatHandler;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.cookieukw.SimTale.systems.SimTaleTickSystem;
-import com.cookieukw.SimTale.systems.PlumbobSystem;
-import com.cookieukw.SimTale.systems.ConstructionSystem;
-import com.cookieukw.SimTale.core.ConstructionSiteComponent;
-import com.cookieukw.SimTale.systems.RoutineAISystem;
-import com.cookieukw.SimTale.systems.BedRegistrySystem;
-import com.cookieukw.SimTale.systems.SimNPCSpawnSystem;
-import com.cookieukw.SimTale.systems.PregnancyTickSystem;
-import com.cookieukw.SimTale.systems.PlayerPregnancyTickSystem;
-import com.cookieukw.SimTale.systems.BabyCareTickSystem;
+import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.event.EventPriority;
+import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
-import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
-import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
-import com.cookieukw.SimTale.systems.SimTaleChatHandler;
-import com.hypixel.hytale.event.EventPriority;
-import com.cookieukw.SimTale.systems.MoodAnimationSystem;
-import com.cookieukw.SimTale.core.SimPlayerComponent;
-import com.cookieukw.SimTale.systems.PlayerJoinHandler;
-
-import java.util.ArrayList;
-import java.util.List;
-import com.cookieukw.SimTale.logic.SimTaleUseNPCInteraction;
-import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.interactions.UseNPCInteraction;
-import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Main entrypoint for the SimTale plugin.
@@ -92,7 +92,7 @@ public class SimTale extends JavaPlugin {
                 new SimTaleChatHandler());
         
         // SimTale: Register player join handler
-        this.getEventRegistry().registerGlobal(com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent.class, new PlayerJoinHandler());
+        this.getEventRegistry().registerGlobal(PlayerReadyEvent.class, new PlayerJoinHandler());
 
         // Register commands
         this.getCommandRegistry()
