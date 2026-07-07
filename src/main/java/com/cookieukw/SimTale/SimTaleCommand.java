@@ -61,6 +61,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ForceBirthSubCommand());
         this.addSubCommand(new SetStageSubCommand());
         this.addSubCommand(new ForceMarrySubCommand());
+        this.addSubCommand(new DebugBedsSubCommand());
     }
 
     @Override
@@ -71,7 +72,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -533,6 +534,21 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             SimNPCPersistence.saveNPC(nearestNPC);
 
             ctx.sendMessage(Message.raw("Voce agora esta casado com: " + nearestNPC.name + "!"));
+        }
+    }
+
+    private static class DebugBedsSubCommand extends AbstractPlayerCommand {
+        public DebugBedsSubCommand() {
+            super("debugbeds", "Abre a tela de debug de camas");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            Player player = store.getComponent(ref, Player.getComponentType());
+            if (player != null) {
+                player.getPageManager().openCustomPage(ref, store, new com.cookieukw.SimTale.logic.SimBedDebugPage(playerRef, player));
+            }
         }
     }
 }

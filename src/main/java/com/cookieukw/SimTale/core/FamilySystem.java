@@ -9,7 +9,6 @@ import java.util.UUID;
 
 /**
  * Manages the marriage, shared home, and child list of an NPC.
- *
  * Pregnancy is now managed by the {@link PregnancyComponent} in SimNPCComponent,
  * and growth by the {@link GrowthComponent} in LifecycleManager.
  */

@@ -3,7 +3,7 @@ Group {
   Background: #000000(0.7);
 
   Group #MainPanel {
-    Anchor: (Width: 600, Height: 650);
+    Anchor: (Width: 600, Height: 710);
     LayoutMode: Top;
     Background: #1e1e24;
     Padding: (Horizontal: 20, Vertical: 20);
@@ -118,7 +118,7 @@ Group {
     }
 
     Group #NpcListPanel {
-      Anchor: (Width: 560, Height: 44);
+      Anchor: (Width: 560, Height: 44, Bottom: 12);
       LayoutMode: Left;
       
       Button #BtnPrevNpc {
@@ -135,6 +135,16 @@ Group {
         Anchor: (Width: 150, Height: 44);
         Background: #444455FF;
         Label { Text: "Proximo >"; Anchor: (Full: 0); Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center); }
+      }
+    }
+
+    Group #TabPanel {
+      Anchor: (Width: 560, Height: 44);
+      LayoutMode: Left;
+      Button #BtnViewBeds {
+        Anchor: (Width: 560, Height: 44);
+        Background: #444466FF;
+        Label { Text: "Ver Camas Registradas"; Anchor: (Full: 0); Style: (FontSize: 16, TextColor: #ffffffFF, HorizontalAlignment: Center, VerticalAlignment: Center, RenderBold: true); }
       }
     }
   }

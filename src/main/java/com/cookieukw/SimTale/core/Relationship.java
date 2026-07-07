@@ -34,22 +34,22 @@ public class Relationship {
     }
 
     public void addAffinity(int amount) {
-        this.affinity = Math.max(-100, Math.min(1000, this.affinity + amount));
+        this.affinity = Math.clamp(this.affinity + amount, -100, 1000);
         updateStatus();
     }
 
     public void addFriendship(int amount) {
-        this.friendship = Math.max(-100, Math.min(100, this.friendship + amount));
+        this.friendship = Math.clamp(this.friendship + amount, -100, 100);
         updateStatus();
     }
 
     public void addRomance(int amount) {
-        this.romance = Math.max(0, Math.min(100, this.romance + amount));
+        this.romance = Math.clamp(this.romance + amount, 0, 100);
         updateStatus();
     }
 
     public void addTrust(int amount) {
-        this.trust = Math.max(-100, Math.min(100, this.trust + amount));
+        this.trust = Math.clamp(this.trust + amount, -100, 100);
         updateStatus();
     }
 

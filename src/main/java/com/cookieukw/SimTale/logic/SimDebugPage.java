@@ -74,6 +74,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnResetNeeds", new EventData().append("action", "reset_needs"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnPrevNpc", new EventData().append("action", "prev_npc"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnNextNpc", new EventData().append("action", "next_npc"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnViewBeds", new EventData().append("action", "view_beds"), false);
     }
 
     private void populateNPCData(UICommandBuilder cmd, SimNPCComponent npc, Store<EntityStore> store) {
@@ -116,6 +117,10 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
         if (eventData.contains("next_npc")) {
             selectedIndex = Math.min(SimTale.ACTIVE_NPCS.size() - 1, selectedIndex + 1);
             refreshUI(storeRef, store);
+            return;
+        }
+        if (eventData.contains("view_beds")) {
+            player.getPageManager().openCustomPage(storeRef, store, new SimBedDebugPage(playerRefComp, player));
             return;
         }
 
