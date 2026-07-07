@@ -1,0 +1,273 @@
+package com.cookieukw.SimTale.core.lifecycle;
+
+import com.cookie.caskara.Caskara;
+import com.cookie.runecore.api.EffectHelper;
+import com.cookie.runecore.api.StatHelper;
+import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.Child;
+import com.cookieukw.SimTale.core.Gender;
+import com.cookieukw.SimTale.core.Relationship;
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.SimNPCFactory;
+import com.cookieukw.SimTale.core.SimNPCNameGenerator;
+import com.cookieukw.SimTale.core.SimPlayerComponent;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.db.SimPlayerPersistence;
+import com.hypixel.hytale.codec.Codec;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.RemoveReason;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.entity.ItemUtils;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
+import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
+import org.joml.Vector3d;
+
+import java.util.Objects;
+import java.util.UUID;
+
+public class PregnancyManager {
+
+    private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+
+    public static boolean startPregnancy(SimNPCComponent mother, UUID fatherId, long worldTick) {
+        if (mother.gender != Gender.FEMALE) {
+            LOGGER.atWarning().log("SimTale: Tentativa de gravidez em NPC não-feminino: " + mother.name);
+            return false;
+        }
+
+        if (mother.entityRef != null) {
+            NPCEntity npcEntity = mother.entityRef.getStore().getComponent(mother.entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
+            if (npcEntity != null && npcEntity.getRoleName() != null && npcEntity.getRoleName().toLowerCase().contains("child")) {
+                LOGGER.atWarning().log("SimTale: Gravidez cancelada. A NPC " + mother.name + " e uma criança!");
+                return false;
+            }
+        }
+
+        for (GrowthComponent child : LifecycleState.ACTIVE_CHILDREN) {
+            if (mother.entityId != null && mother.entityId.equals(child.childId) && !child.isAdult()) {
+                LOGGER.atWarning().log("SimTale: Gravidez cancelada. A NPC " + mother.name + " e um filho em crescimento!");
+                return false;
+            }
+        }
+
+        if (mother.pregnancy != null && mother.pregnancy.pregnant) {
+            LOGGER.atInfo().log("SimTale: " + mother.name + " já está grávida.");
+            return false;
+        }
+
+        if (!mother.family.isMarried || !fatherId.equals(mother.family.spouseId)) {
+            LOGGER.atInfo().log("SimTale: " + mother.name + " não é casada com o pai.");
+            return false;
+        }
+
+        Relationship rel = mother.getRelationship(fatherId);
+        if (rel.romance < 50) {
+            LOGGER.atInfo().log("SimTale: Romance insuficiente para gravidez (" + rel.romance + "/50)");
+            return false;
+        }
+
+        if (mother.pregnancy == null) {
+            mother.pregnancy = new PregnancyComponent();
+        }
+        mother.pregnancy.start(fatherId, worldTick);
+
+        LOGGER.atInfo().log("SimTale: " + mother.name + " está grávida! Pai: " + fatherId);
+        return true;
+    }
+
+    public static GrowthComponent birthBaby(SimNPCComponent mother, Store<EntityStore> store, long worldTick) {
+        if (mother.pregnancy == null || !mother.pregnancy.pregnant) {
+            return null;
+        }
+
+        UUID fatherId = mother.pregnancy.fatherId;
+        SimNPCComponent father = LifecycleUtils.findNPCById(fatherId);
+        GeneticsData motherGenetics = LifecycleUtils.getOrCreateGenetics(mother);
+        GeneticsData fatherGenetics = father != null ? LifecycleUtils.getOrCreateGenetics(father) : new GeneticsData();
+
+        GeneticsData childGenetics = GeneticsData.combine(motherGenetics, fatherGenetics);
+
+        Gender childGender = Math.random() < 0.5 ? Gender.MALE : Gender.FEMALE;
+
+        String childFirstName = SimNPCNameGenerator.generate();
+        if (childFirstName.contains(" ")) {
+            childFirstName = childFirstName.substring(0, childFirstName.indexOf(' '));
+        }
+
+        String fatherName = father != null ? father.name : "";
+        String childSurname = GeneticsData.inheritSurname(mother.name, fatherName);
+
+        GrowthComponent child = new GrowthComponent(
+            mother.entityId,
+            fatherId,
+            worldTick,
+            childGender,
+            childGenetics,
+            childFirstName,
+            childSurname
+        );
+
+        SimNPCFactory.NPCType childType = childGender == Gender.MALE
+            ? SimNPCFactory.NPCType.CHILD_MALE
+            : SimNPCFactory.NPCType.CHILD_FEMALE;
+
+        try {
+            Vector3d spawnPos = LifecycleUtils.getEntityPosition(mother, store);
+            if (spawnPos == null) {
+                spawnPos = new Vector3d(0, 64, 0); // fallback
+            }
+
+            Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
+            UUIDComponent uuidComp = store.getComponent(childRef, UUIDComponent.getComponentType());
+            if (uuidComp != null) {
+                child.childId = uuidComp.getUuid();
+            }
+
+            store.removeEntity(childRef, RemoveReason.REMOVE);
+
+            Child familyChild = new Child(child.childId, child.getFullName());
+            mother.family.children.add(familyChild);
+
+            if (father != null) {
+                Child fatherFamilyChild = new Child(child.childId, child.getFullName());
+                father.family.children.add(fatherFamilyChild);
+            }
+
+            child.pickUp(mother.entityId);
+
+            LifecycleState.ACTIVE_CHILDREN.add(child);
+            Caskara.save("child_" + child.childId.toString(), child);
+            BabyCareManager.initializeForChild(child);
+
+            LOGGER.atInfo().log("SimTale: Nasceu " + child.getFullName() + " ("
+                + childGender.getDisplayName() + ") — filho(a) de " + mother.name);
+
+        } catch (Exception e) {
+            LOGGER.atWarning().log("SimTale: Falha ao spawnar bebê: " + e.getMessage());
+            return null;
+        }
+
+        mother.pregnancy.reset();
+
+        if (mother.entityRef != null) {
+            EffectHelper.modifyMovement(mother.entityRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);
+            StatHelper.subtractHealth(mother.entityRef, 50.0f);
+        }
+
+        SimNPCPersistence.saveNPC(mother);
+
+        return child;
+    }
+
+    public static void applyPregnancyBehavior(SimNPCComponent mother) {
+        if (mother.pregnancy == null || !mother.pregnancy.pregnant) return;
+        float mult = 1.0f + (mother.pregnancy.trimester * 0.3f);
+        mother.needs.hunger = Math.max(0, mother.needs.hunger - 0.0001f * (mult - 1.0f));
+        mother.needs.energy = Math.max(0, mother.needs.energy - 0.0002f * (mult - 1.0f));
+    }
+
+    public static void applyPregnancySpeedDebuff(Ref<EntityStore> entityRef, PregnancyComponent pregnancy) {
+        if (entityRef == null || pregnancy == null) return;
+        if (!pregnancy.pregnant) {
+            EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);
+            return;
+        }
+        if (pregnancy.trimester == 2) {
+            EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = Math.max(1.0f, s.baseSpeed - 1.5f));
+        } else if (pregnancy.trimester == 3) {
+            EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = Math.max(1.0f, s.baseSpeed - 3.0f));
+        } else {
+            EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);
+        }
+    }
+
+    public static void applyPlayerPregnancyBehavior(Ref<EntityStore> playerRef, SimPlayerComponent playerComp) {
+        // Player pregnancy ticking behavior (can be extended for hunger/energy if SimTale player needs exist)
+    }
+
+    public static void birthPlayerBaby(Ref<EntityStore> playerRef, SimPlayerComponent playerComp, Store<EntityStore> store, long worldTick) {
+        if (playerComp.pregnancy == null || !playerComp.pregnancy.pregnant) return;
+
+        UUID fatherId = playerComp.pregnancy.fatherId;
+        Gender childGender = Math.random() < 0.5 ? Gender.MALE : Gender.FEMALE;
+        String childFirstName = SimNPCNameGenerator.generate();
+        if (childFirstName.contains(" ")) {
+            childFirstName = childFirstName.substring(0, childFirstName.indexOf(' '));
+        }
+        String childSurname = "SimTale";
+
+        GeneticsData childGenetics = GeneticsData.combine(new GeneticsData(), new GeneticsData());
+
+        GrowthComponent child = new GrowthComponent(
+            playerComp.playerUuid,
+            fatherId,
+            worldTick,
+            childGender,
+            childGenetics,
+            childFirstName,
+            childSurname
+        );
+
+        try {
+            Vector3d spawnPos = new Vector3d(0, 64, 0);
+            TransformComponent transform = store.getComponent(playerRef, TransformComponent.getComponentType());
+            if (transform != null) {
+                spawnPos = transform.getPosition();
+            }
+
+            SimNPCFactory.NPCType childType = childGender == Gender.MALE
+                ? SimNPCFactory.NPCType.CHILD_MALE
+                : SimNPCFactory.NPCType.CHILD_FEMALE;
+
+            Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
+            UUIDComponent uuidComp = store.getComponent(childRef, UUIDComponent.getComponentType());
+            if (uuidComp != null) {
+                child.childId = uuidComp.getUuid();
+            }
+
+            store.removeEntity(childRef, RemoveReason.REMOVE);
+
+            if (fatherId != null) {
+                for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                    if (npc.entityId != null && npc.entityId.equals(fatherId)) {
+                        Child fatherFamilyChild = new Child(child.childId, child.getFullName());
+                        npc.family.children.add(fatherFamilyChild);
+                        SimNPCPersistence.saveNPC(npc);
+                        break;
+                    }
+                }
+            }
+
+            child.pickUp(playerComp.playerUuid);
+            LifecycleState.ACTIVE_CHILDREN.add(child);
+            Caskara.save("child_" + child.childId.toString(), child);
+            BabyCareManager.initializeForChild(child);
+
+            EffectHelper.modifyMovement(playerRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);
+            StatHelper.subtractHealth(playerRef, 50.0f);
+
+            ItemStack babyItem = new ItemStack("simtale:baby", 1).withMetadata("childId", Codec.STRING, child.childId.toString());
+            CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
+            ItemStackTransaction transaction = combinedInventory.addItemStack(babyItem);
+            ItemStack remainder = transaction.getRemainder();
+            if (remainder != null && !remainder.isEmpty()) {
+                ItemUtils.dropItem(playerRef, remainder, playerRef.getStore());
+            }
+
+            LOGGER.atInfo().log("SimTale: Player " + playerComp.playerUuid + " deu a luz a " + child.getFullName());
+
+        } catch (Exception e) {
+            LOGGER.atWarning().log("SimTale: Falha ao nascer o bebe do player: " + e.getMessage());
+        }
+
+        playerComp.pregnancy.reset();
+        SimPlayerPersistence.savePlayer(playerComp);
+    }
+}
