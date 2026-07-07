@@ -1,29 +1,29 @@
 package com.cookieukw.SimTale.systems;
-import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.SimTale;
-import com.hypixel.hytale.server.core.universe.world.World;
-
+import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
-import com.cookieukw.SimTale.logic.JobType;
 import com.cookieukw.SimTale.engine.Animal;
 import com.cookieukw.SimTale.engine.MagicDataLoader;
 import com.cookieukw.SimTale.engine.MagicEngine;
 import com.cookieukw.SimTale.engine.Question;
+import com.cookieukw.SimTale.logic.JobType;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
-import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 
 /**
  * Handles chat interactions for controlling SimTale NPCs.
  */
 public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
-    @javax.annotation.Nonnull
+    @Nonnull
     public static String getRandomVariant(String baseKey, int variants) {
         return baseKey + "." + (1 + (int)(Math.random() * variants));
     }
