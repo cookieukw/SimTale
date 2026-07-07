@@ -63,11 +63,23 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
         if (npc == null || npc.needs == null) return;
 
-        // Skip routine AI if NPC is a child or teenager (lives with parents, no independent routine)
+        // Skip routine AI for babies and toddlers (cared for by parents)
         for (GrowthComponent gc : LifecycleManager.ACTIVE_CHILDREN) {
             if (npc.entityId != null && npc.entityId.equals(gc.childId)) {
-                if (!gc.isAdult()) {
-                    return; // Disable standard routine AI
+                if (gc.stage == com.cookieukw.SimTale.core.lifecycle.GrowthStage.BABY || gc.stage == com.cookieukw.SimTale.core.lifecycle.GrowthStage.TODDLER) {
+                    return; 
+                }
+                // If they are CHILD or TEEN, inherit parent's bed
+                if (npc.bedLocation == null) {
+                    SimNPCComponent mother = com.cookieukw.SimTale.core.lifecycle.LifecycleUtils.findNPCById(gc.motherId);
+                    if (mother != null && mother.bedLocation != null) {
+                        npc.bedLocation = mother.bedLocation;
+                    } else {
+                        SimNPCComponent father = com.cookieukw.SimTale.core.lifecycle.LifecycleUtils.findNPCById(gc.fatherId);
+                        if (father != null && father.bedLocation != null) {
+                            npc.bedLocation = father.bedLocation;
+                        }
+                    }
                 }
                 break;
             }
@@ -85,6 +97,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         World world = Universe.get().getWorlds().values().stream().findFirst().orElse(null);
         if (world == null) return;
+
+        // Ensure Frozen component is cleared if task changes externally and dialogue is inactive
+        boolean hasFrozen = store.getComponent(ref, com.hypixel.hytale.server.core.entity.Frozen.getComponentType()) != null;
+        if (ai.currentTask != TaskType.SLEEPING && hasFrozen && npc.currentConversationPartner == null) {
+            store.tryRemoveComponent(ref, com.hypixel.hytale.server.core.entity.Frozen.getComponentType());
+        }
 
         // --- 1. Evaluation Phase ---
         if (ai.currentTask != TaskType.DYING && ai.currentTask != TaskType.DEAD && ai.currentTask != TaskType.REAPING) {
@@ -118,12 +136,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         }
 
         if (ai.currentTask == TaskType.DEAD) return;
-
-        // Check if bed was destroyed or unloaded
-        if (npc.bedLocation != null && !BedRegistrySystem.BEDS.contains(npc.bedLocation)) {
-            npc.bedLocation = null;
-            npc.family.hasSharedHome = false;
-        }
 
         if (ai.currentTask == TaskType.IDLE) {
             float sleepThreshold = npc.personality.traits.contains(Trait.LAZY) ? 60f : 30f;
@@ -216,6 +228,14 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             if (dx*dx + dz*dz < 1.5 * 1.5) {
                 clearMoveTarget(ref, ai);
                 
+                // If we arrived and the bed is not in BEDS, it was destroyed (since chunk is loaded)
+                if (npc.bedLocation != null && !BedRegistrySystem.BEDS.contains(npc.bedLocation)) {
+                    npc.bedLocation = null;
+                    npc.family.hasSharedHome = false;
+                    ai.currentTask = TaskType.IDLE;
+                    return;
+                }
+                
                 // Snap position exactly to bed surface with a small Y offset
                 Vector3d snapPos = new Vector3d(ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.y + 0.35, ai.targetBlockPosition.z + 0.5);
                 transform.teleportPosition(snapPos);
@@ -227,6 +247,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
                 ai.currentTask = TaskType.SLEEPING;
                 playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
+                store.ensureComponent(ref, com.hypixel.hytale.server.core.entity.Frozen.getComponentType());
             } else {
                 moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
             }
@@ -238,6 +259,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 npc.needs.energy = 100;
                 ai.currentTask = TaskType.IDLE;
                 playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                store.tryRemoveComponent(ref, com.hypixel.hytale.server.core.entity.Frozen.getComponentType());
             }
         }
 
@@ -426,7 +448,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 double dy = bp.y - myPos.y;
                 double dz = bp.z - myPos.z;
                 double d2 = dx*dx + dy*dy + dz*dz;
-                if (d2 < 48.0 * 48.0) { // Limit search radius to 48 blocks
+                if (d2 < 96.0 * 96.0) { // Limit search radius to 96 blocks
                     String key = bp.x + "," + bp.y + "," + bp.z;
                     if (!claimedBedKeys.contains(key) && d2 < closestDistSq) {
                         closestDistSq = d2;

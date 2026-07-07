@@ -276,8 +276,6 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             nearestNPC.needs.energy = 0f;
-            nearestNPC.bedLocation = null;
-            nearestNPC.family.hasSharedHome = false;
             
             RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
             if (ai != null) {
