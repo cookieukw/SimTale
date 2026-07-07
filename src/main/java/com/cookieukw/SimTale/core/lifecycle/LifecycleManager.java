@@ -170,14 +170,8 @@ public class LifecycleManager {
                 child.childId = uuidComp.getUuid();
             }
 
-            SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-            if (childNPCComp != null) {
-                childNPCComp.name = child.getFullName();
-                store.putComponent(childRef, PersistentDisplayName.getComponentType(),
-                    new PersistentDisplayName(Message.raw(child.getFullName())));
-                store.putComponent(childRef, Nameplate.getComponentType(),
-                    new Nameplate(child.getFullName()));
-            }
+            // Immediately despawn the entity because the baby is in item form
+            store.removeEntity(childRef, RemoveReason.REMOVE);
 
             Child familyChild = new Child(child.childId, child.getFullName());
             mother.family.children.add(familyChild);
@@ -586,13 +580,19 @@ public class LifecycleManager {
                 child.childId = uuidComp.getUuid();
             }
 
-            SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-            if (childNPCComp != null) {
-                childNPCComp.name = child.getFullName();
-                store.putComponent(childRef, PersistentDisplayName.getComponentType(),
-                    new PersistentDisplayName(Message.raw(child.getFullName())));
-                store.putComponent(childRef, Nameplate.getComponentType(),
-                    new Nameplate(child.getFullName()));
+            // Immediately despawn the entity because the baby is in item form
+            store.removeEntity(childRef, RemoveReason.REMOVE);
+
+            // Add to father's family children if NPC
+            if (fatherId != null) {
+                for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                    if (npc.entityId != null && npc.entityId.equals(fatherId)) {
+                        Child fatherFamilyChild = new Child(child.childId, child.getFullName());
+                        npc.family.children.add(fatherFamilyChild);
+                        com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
+                        break;
+                    }
+                }
             }
 
             child.pickUp(playerComp.playerUuid);
