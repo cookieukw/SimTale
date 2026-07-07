@@ -10,10 +10,12 @@ import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
@@ -22,6 +24,7 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.universe.world.World;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
@@ -55,12 +58,27 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
     private List<BedPos> getBeds(World world) {
         synchronized (BedRegistry.BEDS) {
             if (world != null) {
+                // Self-healing: prune bed ONLY if chunk is loaded AND block is no longer a bed block
                 BedRegistry.BEDS.removeIf(bp -> {
-                    com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType type = world.getBlockType(bp.x, bp.y, bp.z);
-                    return type == null || type.getId() == null || !BedRegistry.isBedId(type.getId());
+                    WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(bp.x, bp.z));
+                    if (chunk != null) {
+                        BlockType type = world.getBlockType(bp.x, bp.y, bp.z);
+                        return type == null || type.getId() == null || !BedRegistry.isBedId(type.getId());
+                    }
+                    return false; // Keep bed if chunk is unloaded
                 });
             }
-            List<BedPos> list = new ArrayList<>(BedRegistry.BEDS);
+            List<BedPos> list = new ArrayList<>();
+            for (BedPos bp : BedRegistry.BEDS) {
+                if (world != null) {
+                    WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(bp.x, bp.z));
+                    // Display-only deduplication: skip the foot/secondary part of the bed
+                    if (chunk != null && BedWorldBootstrap.isPrimaryBedBlock(chunk, bp.x, bp.y, bp.z)) {
+                        continue;
+                    }
+                }
+                list.add(bp);
+            }
             list.sort((b1, b2) -> {
                 if (b1.x != b2.x) return Integer.compare(b1.x, b2.x);
                 if (b1.y != b2.y) return Integer.compare(b1.y, b2.y);
@@ -73,13 +91,6 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
     @Override
     public void build(@NonNullDecl Ref<EntityStore> playerRef, UICommandBuilder cmd, @NonNullDecl UIEventBuilder eventBuilder, @NonNullDecl Store<EntityStore> store) {
         cmd.append("SimBedDebug/SimBedDebug.ui");
-
-        // Scan beds in loaded chunks around the player
-        TransformComponent playerTransform = store.getComponent(playerRef, TransformComponent.getComponentType());
-        if (playerTransform != null) {
-            World world = store.getExternalData().getWorld();
-            BedWorldBootstrap.bootstrapLoadedRadius(world, playerTransform.getPosition(), 96);
-        }
 
         World world = store.getExternalData().getWorld();
         List<BedPos> beds = getBeds(world);

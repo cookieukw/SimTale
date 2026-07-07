@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.systems.BedWorldBootstrap;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -13,6 +14,7 @@ import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
@@ -120,6 +122,10 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             return;
         }
         if (eventData.contains("view_beds")) {
+            TransformComponent tc = store.getComponent(storeRef, TransformComponent.getComponentType());
+            if (tc != null) {
+                BedWorldBootstrap.bootstrapLoadedRadius(store.getExternalData().getWorld(), tc.getPosition(), 96);
+            }
             player.getPageManager().openCustomPage(storeRef, store, new SimBedDebugPage(playerRefComp, player));
             return;
         }
