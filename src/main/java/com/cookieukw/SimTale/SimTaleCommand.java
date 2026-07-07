@@ -36,6 +36,7 @@ import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
+import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import java.util.HashMap;
@@ -314,7 +315,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     playerComp.pregnancy = new PregnancyComponent();
                 }
                 playerComp.pregnancy.start(UUID.randomUUID(), world.getTick());
-                com.cookieukw.SimTale.db.SimPlayerPersistence.savePlayer(playerComp);
+                SimPlayerPersistence.savePlayer(playerComp);
                 ctx.sendMessage(Message.raw("Gravidez forcada com sucesso em voce (ignoring gender)!"));
             } else {
                 TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
