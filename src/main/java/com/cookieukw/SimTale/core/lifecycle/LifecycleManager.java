@@ -219,15 +219,72 @@ public class LifecycleManager {
      * @param child     growth component
      * @param worldTick current tick
      */
+    public static float calculateTargetScale(GrowthComponent child) {
+        int age = child.ageDays;
+        switch (child.stage) {
+            case BABY:
+                return 0.35f;
+            case TODDLER:
+                // Age 4 to 8. Toddler scale: starts at 0.45f, grows to 0.55f
+                float toddlerProgress = (float)(age - 4) / 4.0f; // 0.0 to 1.0
+                return 0.45f + toddlerProgress * 0.10f;
+            case CHILD:
+                // Age 9 to 20. Child scale: starts at 0.55f, grows to 0.85f
+                float childProgress = (float)(age - 9) / 11.0f; // 0.0 to 1.0
+                return 0.55f + childProgress * 0.30f;
+            case TEEN:
+                // Age 21 to 40. Teen scale (adult model): starts at 0.75f, grows to 0.95f
+                float teenProgress = (float)(age - 21) / 19.0f; // 0.0 to 1.0
+                return 0.75f + teenProgress * 0.20f;
+            case ADULT:
+            default:
+                return 1.00f;
+        }
+    }
+
+    public static void applyVisualScale(Ref<EntityStore> ref, float scale) {
+        Store<EntityStore> store = ref.getStore().getStore();
+        PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
+        if (pm != null) {
+            ModelReference oldRef = pm.getModelReference();
+            if (oldRef != null && Math.abs(oldRef.getScale() - scale) > 0.01f) {
+                ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), scale, oldRef.getRandomAttachmentIds());
+                pm.setModelReference(newRef);
+                store.putComponent(ref, PersistentModel.getComponentType(), pm);
+            }
+        }
+    }
+
+    private static Ref<EntityStore> getEntityRef(UUID childId) {
+        for (World world : Universe.get().getWorlds().values()) {
+            Ref<EntityStore> ref = world.getEntityStore().getRefFromUUID(childId);
+            if (ref != null) return ref;
+        }
+        return null;
+    }
+
+    /**
+     * Growth tick. Called by the GrowthTickSystem for each active child.
+     *
+     * @param child     growth component
+     * @param worldTick current tick
+     */
     public static void tickGrowth(GrowthComponent child, long worldTick) {
         // Update stage
         boolean stageChanged = child.updateStage(worldTick);
+
+        // Calculate and apply scale
+        child.currentScale = calculateTargetScale(child);
+
+        Ref<EntityStore> entityRef = getEntityRef(child.childId);
+        if (entityRef != null && entityRef.isValid()) {
+            applyVisualScale(entityRef, child.currentScale);
+        }
 
         if (stageChanged) {
             LOGGER.atInfo().log("SimTale: " + child.getFullName() + " grew to "
                 + child.stage.getDisplayName() + " (scale: " + child.currentScale + ")");
 
-            // TODO: Update model/visual scale of the entity
             onStageChanged(child);
         }
 
@@ -239,27 +296,207 @@ public class LifecycleManager {
 
     /**
      * Callback when growth stage changes.
-     * Stub — will be implemented to change model/scale.
      */
     private static void onStageChanged(GrowthComponent child) {
-        // TODO: Update PersistentModel with new scale
-        // TODO: Change model to suitable version for the stage
-        // TODO: If reached ADULT, convert into independent NPC
-        if (child.isAdult()) {
+        if (child.stage == GrowthStage.TODDLER) {
+            UUID oldChildId = child.childId;
+            UUID holderId = null;
+            BabyCareData care = BabyCareManager.load(oldChildId);
+            if (care != null) {
+                try {
+                    holderId = UUID.fromString(care.currentHolderId);
+                } catch (Exception ignored) {}
+            }
+
+            Vector3d spawnPos = new Vector3d(0, 100, 0); // fallback
+            if (holderId != null) {
+                Ref<EntityStore> holderRef = getEntityRef(holderId);
+                if (holderRef != null) {
+                    TransformComponent t = holderRef.getStore().getComponent(holderRef, TransformComponent.getComponentType());
+                    if (t != null) spawnPos = new Vector3d(t.getPosition());
+                }
+            }
+
+            SimNPCFactory.NPCType type = child.gender == Gender.MALE 
+                ? SimNPCFactory.NPCType.CHILD_MALE 
+                : SimNPCFactory.NPCType.CHILD_FEMALE;
+                
+            World world = Universe.get().getWorlds().values().iterator().next();
+            Store<EntityStore> store = world.getEntityStore().getStore();
+            Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, type);
+            
+            UUID newEntityId = childRef.getStore().getComponent(childRef, UUIDComponent.getComponentType()).getUuid();
+            
+            child.childId = newEntityId;
+            Caskara.delete("child_" + oldChildId.toString());
+            Caskara.save("child_" + newEntityId.toString(), child);
+            
+            SimNPCComponent toddlerNpc = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+            if (toddlerNpc != null) {
+                toddlerNpc.name = child.getFullName();
+                childRef.getStore().putComponent(childRef, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(toddlerNpc.name)));
+                childRef.getStore().putComponent(childRef, Nameplate.getComponentType(), new Nameplate(toddlerNpc.name));
+                com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(toddlerNpc);
+            }
+            
+            if (care != null) {
+                Caskara.delete("babycare_" + oldChildId.toString());
+                care.childId = newEntityId.toString();
+                BabyCareManager.save(care);
+            }
+            
+            updateFamilyChildId(child.motherId, oldChildId, newEntityId);
+            updateFamilyChildId(child.fatherId, oldChildId, newEntityId);
+            
+            if (holderId != null) {
+                PlayerRef pRef = getPlayerRef(holderId);
+                if (pRef != null) {
+                    removeBabyItemFromPlayer(pRef, oldChildId);
+                    pRef.sendMessage(Message.raw("Seu bebê " + child.getFullName() + " cresceu e começou a andar!"));
+                }
+            }
+            
+            if (holderId != null) {
+                BabyCareManager.NPC_CARRIED_BABIES.remove(holderId);
+            }
+        } 
+        else if (child.stage == GrowthStage.TEEN) {
+            Ref<EntityStore> childRef = getEntityRef(child.childId);
+            Vector3d spawnPos = new Vector3d(0, 100, 0);
+            if (childRef != null && childRef.isValid()) {
+                TransformComponent t = childRef.getStore().getComponent(childRef, TransformComponent.getComponentType());
+                if (t != null) spawnPos = new Vector3d(t.getPosition());
+                childRef.getStore().getStore().removeEntity(childRef, RemoveReason.REMOVE);
+            }
+            
+            SimNPCComponent oldNpc = null;
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityId != null && npc.entityId.equals(child.childId)) {
+                    oldNpc = npc;
+                    SimTale.ACTIVE_NPCS.remove(npc);
+                    break;
+                }
+            }
+            
+            SimNPCFactory.NPCType type = child.gender == Gender.MALE 
+                ? SimNPCFactory.NPCType.HUMAN_MALE 
+                : SimNPCFactory.NPCType.HUMAN_FEMALE;
+                
+            World world = Universe.get().getWorlds().values().iterator().next();
+            Store<EntityStore> store = world.getEntityStore().getStore();
+            Ref<EntityStore> teenRef = SimNPCFactory.spawnNPC(store, spawnPos, type);
+            
+            UUID newEntityId = teenRef.getStore().getComponent(teenRef, UUIDComponent.getComponentType()).getUuid();
+            
+            UUID oldChildId = child.childId;
+            child.childId = newEntityId;
+            Caskara.delete("child_" + oldChildId.toString());
+            Caskara.save("child_" + newEntityId.toString(), child);
+            
+            SimNPCComponent teenNpc = store.getComponent(teenRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+            if (teenNpc != null) {
+                teenNpc.name = child.getFullName();
+                if (oldNpc != null) {
+                    teenNpc.personality = oldNpc.personality;
+                    teenNpc.preferences = oldNpc.preferences;
+                    teenNpc.profession = oldNpc.profession;
+                }
+                teenRef.getStore().putComponent(teenRef, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(teenNpc.name)));
+                teenRef.getStore().putComponent(teenRef, Nameplate.getComponentType(), new Nameplate(teenNpc.name));
+                com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(teenNpc);
+            }
+            
+            updateFamilyChildId(child.motherId, oldChildId, newEntityId);
+            updateFamilyChildId(child.fatherId, oldChildId, newEntityId);
+            
+            PlayerRef pRef = getPlayerRef(child.motherId);
+            if (pRef == null) pRef = getPlayerRef(child.fatherId);
+            if (pRef != null) {
+                pRef.sendMessage(Message.raw("Seu filho " + child.getFullName() + " virou um adolescente!"));
+            }
+        }
+        else if (child.isAdult()) {
             onBecameAdult(child);
         }
     }
 
-    /**
-     * Callback when the child becomes an adult.
-     * Stub — will be implemented to convert into independent NPC.
-     */
     private static void onBecameAdult(GrowthComponent child) {
         LOGGER.atInfo().log("SimTale: " + child.getFullName() + " se tornou adulto!");
-        // TODO: Convert the "child" entity into an independent adult NPC
-        // TODO: Generate personality based on experiences (babyNeeds.getPersonalityTendency())
-        // TODO: Remove from ACTIVE_CHILDREN list
-        // TODO: Apply adult model
+        
+        ACTIVE_CHILDREN.remove(child);
+        Caskara.delete("child_" + child.childId.toString());
+        
+        Ref<EntityStore> childRef = getEntityRef(child.childId);
+        if (childRef != null && childRef.isValid()) {
+            applyVisualScale(childRef, 1.0f);
+        }
+        
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc.entityId != null && npc.entityId.equals(child.childId)) {
+                if (child.babyNeeds != null) {
+                    Trait extraTrait = child.babyNeeds.getPersonalityTendency();
+                    if (extraTrait != null && !npc.personality.traits.contains(extraTrait)) {
+                        npc.personality.traits.add(extraTrait);
+                    }
+                }
+                com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
+                break;
+            }
+        }
+        
+        PlayerRef pRef = getPlayerRef(child.motherId);
+        if (pRef == null) pRef = getPlayerRef(child.fatherId);
+        if (pRef != null) {
+            pRef.sendMessage(Message.raw("Seu filho " + child.getFullName() + " atingiu a fase adulta e agora e independente!"));
+        }
+    }
+
+    private static void updateFamilyChildId(UUID parentId, UUID oldId, UUID newId) {
+        if (parentId == null) return;
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc.entityId != null && npc.entityId.equals(parentId)) {
+                for (Child c : npc.family.children) {
+                    if (c.id != null && c.id.equals(oldId)) {
+                        c.id = newId;
+                        com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
+                        return;
+                    }
+                }
+            }
+        }
+        SimNPCComponent temp = new SimNPCComponent(parentId, "Parent");
+        if (com.cookieukw.SimTale.db.SimNPCPersistence.loadNPC(temp)) {
+            for (Child c : temp.family.children) {
+                if (c.id != null && c.id.equals(oldId)) {
+                    c.id = newId;
+                    com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(temp);
+                    return;
+                }
+            }
+        }
+    }
+
+    private static PlayerRef getPlayerRef(UUID playerUuid) {
+        for (PlayerRef pRef : Universe.get().getPlayers()) {
+            if (pRef.getUuid().equals(playerUuid)) return pRef;
+        }
+        return null;
+    }
+
+    private static void removeBabyItemFromPlayer(PlayerRef playerRef, UUID oldChildId) {
+        Ref<EntityStore> pRef = Universe.get().getWorlds().values().iterator().next().getEntityStore().getRefFromUUID(playerRef.getUuid());
+        if (pRef == null) return;
+        CombinedItemContainer combinedInventory = InventoryComponent.getCombined(pRef.getStore(), pRef, InventoryComponent.HOTBAR_FIRST);
+        for (short slot = 0; slot < combinedInventory.getCapacity(); slot++) {
+            ItemStack item = combinedInventory.getItemStack(slot);
+            if (item != null && item.getItemId().equals("simtale:baby")) {
+                String cId = item.getFromMetadataOrNull("childId", Codec.STRING);
+                if (cId != null && cId.equals(oldChildId.toString())) {
+                    combinedInventory.removeItemStackFromSlot(slot, item, 1);
+                    break;
+                }
+            }
+        }
     }
 
     /**
