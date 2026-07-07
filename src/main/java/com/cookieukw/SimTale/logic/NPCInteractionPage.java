@@ -30,6 +30,9 @@ import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookie.caskara.Caskara;
+import com.cookieukw.SimTale.core.Child;
+import java.util.UUID;
 
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.joml.Vector3d;
@@ -146,6 +149,33 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         commandBuilder.set("#NpcRelationship.TextSpans", 
             Message.translation("simtale.ui.relationship").insert(Message.raw(" ")).insert(relValues));
 
+        // --- Family Info Panel Population ---
+        String parentsText = "Pais: —";
+        GrowthComponent npcGrowth = Caskara.load("child_" + npc.entityId.toString(), GrowthComponent.class);
+        if (npcGrowth != null) {
+            String motherName = getParentName(npcGrowth.motherId);
+            String fatherName = getParentName(npcGrowth.fatherId);
+            parentsText = "Pais: " + motherName + " & " + fatherName;
+        }
+        commandBuilder.set("#NpcFamilyParents.Text", parentsText);
+
+        StringBuilder childrenBuilder = new StringBuilder("Filhos: ");
+        if (npc.family.children == null || npc.family.children.isEmpty()) {
+            childrenBuilder.append("—");
+        } else {
+            boolean first = true;
+            for (Child c : npc.family.children) {
+                if (c.id == null) continue;
+                if (!first) childrenBuilder.append(", ");
+                GrowthComponent gc = Caskara.load("child_" + c.id.toString(), GrowthComponent.class);
+                String stageName = gc != null ? gc.stage.getDisplayName() : "Adulto";
+                childrenBuilder.append(c.name).append(" (").append(stageName).append(")");
+                first = false;
+            }
+            if (first) childrenBuilder.append("—");
+        }
+        commandBuilder.set("#NpcFamilyChildren.Text", childrenBuilder.toString());
+
         // --- Child Verification to Hide Flirt Button ---
         boolean isChild = false;
         if (npc.entityRef != null) {
@@ -247,5 +277,25 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         if (npc != null && npc.entityRef != null && npc.entityRef.isValid()) {
             store.tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
         }
+    }
+
+    private String getParentName(UUID parentId) {
+        if (parentId == null) return "Desconhecido";
+        for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
+            if (other.entityId != null && other.entityId.equals(parentId)) {
+                return other.name;
+            }
+        }
+        for (PlayerRef pRef : Universe.get().getPlayers()) {
+            if (pRef.getUuid().equals(parentId)) {
+                return pRef.getUsername();
+            }
+        }
+        SimNPCComponent temp = new SimNPCComponent(parentId, "Parent");
+        com.cookieukw.SimTale.db.SimNPCPersistence.loadNPC(temp);
+        if (!temp.name.equals("Parent")) {
+            return temp.name;
+        }
+        return "Desconhecido";
     }
 }

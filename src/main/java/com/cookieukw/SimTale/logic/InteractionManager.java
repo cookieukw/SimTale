@@ -27,6 +27,7 @@ import java.util.Random;
 
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookie.caskara.Caskara;
 
 public class InteractionManager {
 
@@ -220,6 +221,27 @@ public class InteractionManager {
                 
                 String itemName = heldItem.getDisplayName().getAnsiMessage();
                 String itemId = heldItem.getItemId();
+                
+                // Handle feeding for children/teens to accelerate growth
+                if (isChild) {
+                    boolean isFood = itemId.contains("food") || itemId.contains("apple") || itemId.contains("bread") 
+                        || itemId.contains("meat") || itemId.contains("fish") || itemId.contains("carrot") 
+                        || itemId.contains("potato") || itemId.contains("soup") || itemId.contains("fruit")
+                        || itemId.contains("berry") || itemId.contains("cookie") || itemId.contains("pie");
+                    if (isFood) {
+                        hotbar.getInventory().removeItemStackFromSlot(activeSlot, 1);
+                        GrowthComponent childComp = Caskara.load("child_" + npc.entityId.toString(), GrowthComponent.class);
+                        if (childComp != null) {
+                            childComp.birthTick -= 24000; // Speed up by 1 Hytale day
+                            Caskara.save("child_" + npc.entityId.toString(), childComp);
+                            com.cookieukw.SimTale.core.lifecycle.LifecycleManager.tickGrowth(childComp, Universe.get().getWorlds().values().iterator().next().getTick());
+                        }
+                        return Message.raw("Você alimentou " + npc.name + " com " + itemName + "! O crescimento dele(a) foi acelerado.");
+                    } else {
+                        rel.interactionsToday = Math.max(0, rel.interactionsToday - 1);
+                        return Message.raw(npc.name + " é apenas uma criança e não quer esse presente. Experimente dar alguma comida!");
+                    }
+                }
                 
                 // --- Marriage proposal handling ---
                 if (itemId != null && itemId.equals("simtale:wedding_ring")) {
