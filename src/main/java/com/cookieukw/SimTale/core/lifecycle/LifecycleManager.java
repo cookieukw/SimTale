@@ -248,7 +248,7 @@ public class LifecycleManager {
         PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
         if (pm != null) {
             ModelReference oldRef = pm.getModelReference();
-            if (oldRef != null && Math.abs(oldRef.getScale() - scale) > 0.01f) {
+            if (Math.abs(oldRef.getScale() - scale) > 0.01f) {
                 ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), scale, oldRef.getRandomAttachmentIds());
                 pm.setModelReference(newRef);
                 store.putComponent(ref, PersistentModel.getComponentType(), pm);
@@ -330,7 +330,7 @@ public class LifecycleManager {
             
             child.childId = newEntityId;
             Caskara.delete("child_" + oldChildId.toString(), GrowthComponent.class);
-            Caskara.save("child_" + newEntityId.toString(), child);
+            Caskara.save("child_" + newEntityId, child);
             
             SimNPCComponent toddlerNpc = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
             if (toddlerNpc != null) {
@@ -387,7 +387,7 @@ public class LifecycleManager {
             Store<EntityStore> store = world.getEntityStore().getStore();
             Ref<EntityStore> teenRef = SimNPCFactory.spawnNPC(store, spawnPos, type);
             
-            UUID newEntityId = teenRef.getStore().getComponent(teenRef, UUIDComponent.getComponentType()).getUuid();
+            UUID newEntityId = Objects.requireNonNull(teenRef.getStore().getComponent(teenRef, UUIDComponent.getComponentType())).getUuid();
             
             UUID oldChildId = child.childId;
             child.childId = newEntityId;
