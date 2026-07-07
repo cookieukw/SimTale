@@ -27,6 +27,7 @@ import java.util.Random;
 
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookie.caskara.Caskara;
 
 public class InteractionManager {
@@ -41,7 +42,7 @@ public class InteractionManager {
                 isChild = true;
             }
         }
-        for (GrowthComponent child : com.cookieukw.SimTale.core.lifecycle.LifecycleManager.ACTIVE_CHILDREN) {
+        for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
             if (npc.entityId != null && npc.entityId.equals(child.childId) && !child.isAdult()) {
                 isChild = true;
                 break;
