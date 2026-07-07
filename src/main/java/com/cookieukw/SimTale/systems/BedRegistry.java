@@ -8,13 +8,29 @@ import java.util.Set;
 public final class BedRegistry {
     private BedRegistry() {}
 
+    private static final Set<String> BED_IDS = Set.of(
+        "furniture_ancient_bed",
+        "furniture_crude_bed",
+        "furniture_desert_bed",
+        "furniture_feran_bed",
+        "furniture_frozen_castle_bed",
+        "furniture_human_ruins_bed",
+        "furniture_jungle_bed",
+        "furniture_kweebec_bed",
+        "furniture_lumberjack_bed",
+        "furniture_royal_magic_bed",
+        "furniture_tavern_bed",
+        "furniture_temple_dark_bed",
+        "furniture_temple_emerald_bed",
+        "furniture_temple_light_bed",
+        "furniture_village_bed"
+    );
+
     public static final Set<BedPos> BEDS = Collections.synchronizedSet(new HashSet<>());
 
     public static boolean isBedId(String id) {
         if (id == null) return false;
-        String name = id.toLowerCase();
-        if (name.contains("bedrock")) return false;
-        return name.contains("bed") || name.contains("cama") || name.contains("furniture_village_bed");
+        return BED_IDS.contains(id.toLowerCase());
     }
 
     public static void addOrReplace(int x, int y, int z, float yaw) {
