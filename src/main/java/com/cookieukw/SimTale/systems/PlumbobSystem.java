@@ -1,50 +1,50 @@
 package com.cookieukw.SimTale.systems;
+
 import com.cookieukw.SimTale.SimTale;
-import com.hypixel.hytale.component.Store;
+import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.hypixel.hytale.component.AddReason;
+import com.hypixel.hytale.component.ArchetypeChunk;
+import com.hypixel.hytale.component.CommandBuffer;
+import com.hypixel.hytale.component.Holder;
+import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.RemoveReason;
+import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.dependency.Dependency;
 import com.hypixel.hytale.component.dependency.Order;
 import com.hypixel.hytale.component.dependency.SystemDependency;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.server.core.universe.world.World;
-
-import com.hypixel.hytale.server.core.entity.entities.Player;
-import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
-import com.hypixel.hytale.server.core.universe.Universe;
-import com.hypixel.hytale.component.ArchetypeChunk;
-import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
-import com.hypixel.hytale.server.core.modules.entity.component.BoundingBox;
-import com.hypixel.hytale.server.core.entity.UUIDComponent;
-import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model;
 import com.hypixel.hytale.server.core.asset.type.model.config.ModelAsset;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.modules.entity.component.BoundingBox;
 import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.modules.entity.player.PlayerProcessMovementSystem;
 import com.hypixel.hytale.server.core.modules.entity.tracker.NetworkId;
-import com.hypixel.hytale.component.Holder;
-import com.hypixel.hytale.component.AddReason;
-import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 
-import com.cookieukw.SimTale.core.Mood;
-
-import java.util.Set;
-
-
-import com.hypixel.hytale.server.core.modules.entity.player.PlayerProcessMovementSystem;
-
 public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
 
+    private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+
     // Maps Player UUID to Plumbob Entity Ref
-    private static final Map<UUID, Ref<EntityStore>> playerPlumbobs = java.util.Collections.synchronizedMap(new HashMap<>());
+    private static final Map<UUID, Ref<EntityStore>> playerPlumbobs = Collections.synchronizedMap(new HashMap<>());
 
     @Override
     @Nonnull
@@ -71,7 +71,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
             Ref<EntityStore> thisRef = chunk.getReferenceTo(index);
             if (!playerPlumbobs.containsValue(thisRef)) {
                 commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
-                System.out.println("[SimTale] Limpando Plumbob orfão do mundo: " + uuidComp.getUuid());
+                LOGGER.atInfo().log("[SimTale] Limpando Plumbob orfão do mundo: " + uuidComp.getUuid());
             }
             return;
         }
@@ -163,15 +163,15 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
                 
                 Ref<EntityStore> newPlumbob = commandBuffer.addEntity(holder, AddReason.SPAWN);
                 playerPlumbobs.put(entityUuid, newPlumbob);
-                System.out.println("[SimTale] Spawned Plumbob for entity " + entityUuid);
+                LOGGER.atInfo().log("[SimTale] Spawned Plumbob for entity " + entityUuid);
             } else {
-                System.out.println("[SimTale-ERROR] Plumbob ModelAsset not found!");
+                LOGGER.atWarning().log("[SimTale-ERROR] Plumbob ModelAsset not found!");
             }
         }
     }
 
     public static void removePlumbob(UUID entityUuid) {
         playerPlumbobs.remove(entityUuid);
-        System.out.println("[SimTale] Plumbob untracked para a entidade: " + entityUuid);
+        LOGGER.atInfo().log("[SimTale] Plumbob untracked para a entidade: " + entityUuid);
     }
 }
