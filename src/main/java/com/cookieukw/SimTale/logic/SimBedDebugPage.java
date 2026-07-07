@@ -52,8 +52,14 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
         this.selectedIndex = initialIndex;
     }
 
-    private List<BedPos> getBeds() {
+    private List<BedPos> getBeds(World world) {
         synchronized (BedRegistry.BEDS) {
+            if (world != null) {
+                BedRegistry.BEDS.removeIf(bp -> {
+                    com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType type = world.getBlockType(bp.x, bp.y, bp.z);
+                    return type == null || type.getId() == null || !BedRegistry.isBedId(type.getId());
+                });
+            }
             List<BedPos> list = new ArrayList<>(BedRegistry.BEDS);
             list.sort((b1, b2) -> {
                 if (b1.x != b2.x) return Integer.compare(b1.x, b2.x);
@@ -75,7 +81,8 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             BedWorldBootstrap.bootstrapLoadedRadius(world, playerTransform.getPosition(), 96);
         }
 
-        List<BedPos> beds = getBeds();
+        World world = store.getExternalData().getWorld();
+        List<BedPos> beds = getBeds(world);
         int totalPages = (int) Math.ceil(beds.size() / 5.0);
         if (totalPages == 0) totalPages = 1;
 
@@ -129,10 +136,24 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     @Override
-    public void handleDataEvent(@NonNullDecl Ref<EntityStore> storeRef, @NonNullDecl Store<EntityStore> store, @NonNullDecl String eventData) {
-        HytaleLogger.forEnclosingClass().atInfo().log("SimBedDebug [EVENT]: " + eventData);
+    public void handleDataEvent(@NonNullDecl Ref<EntityStore> storeRef, @NonNullDecl Store<EntityStore> store, @NonNullDecl String rawEventData) {
+        HytaleLogger.forEnclosingClass().atInfo().log("SimBedDebug [EVENT]: " + rawEventData);
 
-        List<BedPos> beds = getBeds();
+        // Safely extract action string if Hytale client wrapped the event inside a JSON string
+        String eventData = rawEventData;
+        if (rawEventData.startsWith("{")) {
+            int idx = rawEventData.indexOf("\"action\":\"");
+            if (idx != -1) {
+                int start = idx + 10;
+                int end = rawEventData.indexOf("\"", start);
+                if (end != -1) {
+                    eventData = rawEventData.substring(start, end);
+                }
+            }
+        }
+
+        World world = store.getExternalData().getWorld();
+        List<BedPos> beds = getBeds(world);
 
         if (eventData.contains("prev_page")) {
             selectedIndex = Math.max(0, selectedIndex - 1);

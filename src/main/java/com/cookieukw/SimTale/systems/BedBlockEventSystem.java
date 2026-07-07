@@ -28,6 +28,10 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         Vector3i pos = event.getTargetBlock();
         if (pos != null) {
             BedRegistry.removeAt(pos.x, pos.y, pos.z);
+            BedRegistry.removeAt(pos.x - 1, pos.y, pos.z);
+            BedRegistry.removeAt(pos.x + 1, pos.y, pos.z);
+            BedRegistry.removeAt(pos.x, pos.y, pos.z - 1);
+            BedRegistry.removeAt(pos.x, pos.y, pos.z + 1);
         }
     }
 }
