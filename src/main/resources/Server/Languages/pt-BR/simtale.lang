@@ -321,3 +321,83 @@ chat.marriage.reject.2 = {name}: Sinto muito, mas eu não sinto o mesmo por voc�
 chat.marriage.already_married = {name}: Ué, mas nós já somos casados!
 chat.marriage.target_already_married = {name}: Eu já sou casado com outra pessoa... Sinto muito.
 
+# ==========================================
+# GREETINGS (SAUDAÇÕES POR STATUS)
+# ==========================================
+
+# STRANGER & UNKNOWN (DESCONHECIDOS)
+chat.greeting.stranger.1 = {name}: Oh, olá. Acho que não fomos apresentados formalmente.
+chat.greeting.stranger.2 = {name}: Saudações. Você é novo(a) por aqui?
+chat.greeting.stranger.3 = {name}: Oi. Posso te ajudar com alguma coisa?
+chat.greeting.stranger.4 = {name}: Hum, olá. O clima tá bom hoje, né?
+chat.greeting.stranger.5 = {name} acena educadamente: Bom dia pra você.
+
+# CLOSE FRIEND (AMIGO ÍNTIMO)
+chat.greeting.close_friend.1 = O rosto de {name} se ilumina: Ei! Que bom te ver!
+chat.greeting.close_friend.2 = {name}: Olha só quem apareceu! Eu tava mesmo torcendo pra te encontrar hoje.
+chat.greeting.close_friend.3 = {name}: E aí, melhor amigo(a)! Qual é a boa de hoje?
+chat.greeting.close_friend.4 = {name}: É sempre um prazer ver minha pessoa favorita por aqui!
+chat.greeting.close_friend.5 = {name} faz um toca-aqui: Quais são os planos pra hoje?
+
+# ROMANTIC (CASADO, NAMORANDO, NOIVO)
+chat.greeting.romantic.1 = {name} sorri calorosamente: Olha lá o meu amor. Como você tá?
+chat.greeting.romantic.2 = {name}: Eu tava agorinha pensando em você. Vem cá!
+chat.greeting.romantic.3 = {name} cora levemente: Só de te ver meu dia já melhora.
+chat.greeting.romantic.4 = {name}: Olá, querido(a). Precisa de mim para alguma coisa hoje?
+chat.greeting.romantic.5 = {name}: A razão do meu sorriso acabou de chegar!
+
+# ENEMIES (INIMIGOS)
+chat.greeting.enemy.1 = {name} te fuzila com o olhar: O que você quer agora?
+chat.greeting.enemy.2 = {name} cruza os braços: Fala logo, eu não tenho tempo a perder com você.
+chat.greeting.enemy.3 = {name} suspira fundo: Você de novo? Ninguém merece.
+
+# ==========================================
+# INTERAÇÕES CONTEXTUAIS
+# ==========================================
+
+# FUNNY (ENGRAÇADO)
+chat.funny.cheerup.1 = {name} enxuga uma lágrima e sorri: Haha... valeu. Eu realmente precisava disso agora.
+chat.funny.cheerup.2 = {name}: Você sempre sabe como me fazer sorrir, mesmo quando tô na pior.
+chat.funny.cheerup.3 = {name} ri baixinho: Tá bom, essa foi muito boa.
+chat.funny.enemy.1 = {name}: Poupe fôlego. Você não tem graça nenhuma.
+chat.funny.enemy.2 = {name} revira os olhos: Isso era pra ser uma piada? Patético.
+chat.funny.enemy.3 = {name}: Faz um favor a si mesmo(a) e desista dessa carreira de comediante.
+
+# ROMANTIC (FLERTES)
+chat.romantic.stranger.1 = {name} dá um passo pra trás: Opa, limites! A gente nem se conhece direito!
+chat.romantic.stranger.2 = {name} parece desconfortável: Isso é... meio inadequado pra quem acabou de se conhecer.
+chat.romantic.stranger.3 = {name}: Você é sempre tão atirado(a) assim com quem acaba de conhecer?
+chat.romantic.enemy.1 = {name} faz cara de nojo: Você enlouqueceu? Fica longe de mim!
+chat.romantic.enemy.2 = {name}: Eu preferiria namorar um zumbi a ouvir essas suas cantadas baratas.
+chat.romantic.enemy.3 = {name}: Nem tenta. Eu tenho nojo de você.
+chat.romantic.partner.1 = {name} pisca pra você: Você continua charmoso(a) como no dia em que nos conhecemos.
+chat.romantic.partner.2 = {name}: Flertando comigo? Você sabe que já ganhou meu coração, né?
+chat.romantic.partner.3 = {name} te puxa pra perto: Continua falando assim...
+chat.romantic.partner.4 = {name}: Para com isso, você tá me deixando com vergonha de novo!
+chat.romantic.partner.5 = {name}: Eu tenho tanta, mas tanta sorte de ter você.
+
+# MEAN (MALDADE)
+chat.mean.partner.1 = {name} parece de coração partido: Como você tem coragem de me dizer isso?! Eu achei que você me amasse!
+chat.mean.partner.2 = {name} fica com os olhos marejados: Isso... isso dói demais vindo de você.
+chat.mean.partner.3 = {name}: Eu nem sei quem você é agora. Não fala mais comigo.
+
+# RANDOM (ALEATÓRIO)
+chat.random.stranger = {name}: Sabia que os padrões climáticos por aqui são bem imprevisíveis?
+chat.random.known = {name}: Ei, lembra daquela vez que a gente lutou contra aqueles esqueletos? Bons tempos.
+
+# PROFESSION REJECTIONS BY STATUS (RECUSA DE TRABALHO POR STATUS)
+chat.prof.assign.refuse_status.1 = {name} debocha: Por que eu trabalharia pra alguém como você? De jeito nenhum.
+chat.prof.assign.refuse_status.2 = {name}: Eu não recebo ordens de estranhos. Vai caçar outro(a) pra ser {profName}.
+chat.prof.assign.refuse_status.3 = {name}: Você só pode estar de brincadeira. Eu não vou fazer serviço de {profName} pra você.
+
+
+
+chat.prof.assign.noitem = {name} olha para você confuso: Você não está segurando nada... Como eu vou saber que profissão você quer que eu tenha?
+
+chat.flirt.child = Você não pode flertar com uma criança!
+
+chat.gift.noitem = Você não está segurando nenhum item para dar de presente!
+
+chat.gift.accelerated = Voce deu algum item para {name}? Aumentamos o crescimento dele(a) de +5% para +10%!
+
+chat.gift.child_reject = {name} é apenas uma criança e não quer esse presente. Tente dar comida!

@@ -321,3 +321,77 @@ chat.marriage.reject.2 = {name}: I'm sorry, but I don't feel the same way about 
 chat.marriage.already_married = {name}: Wait, but we are already married!
 chat.marriage.target_already_married = {name}: I'm already married to someone else... I'm sorry.
 
+# ==========================================
+# RELATIONSHIP STATUS GREETINGS
+# ==========================================
+
+# STRANGER & UNKNOWN
+chat.greeting.stranger.1 = {name}: Oh, hello. I don't think we've formally met.
+chat.greeting.stranger.2 = {name}: Greetings. Are you new around here?
+chat.greeting.stranger.3 = {name}: Hi. Can I help you with something?
+chat.greeting.stranger.4 = {name}: Um, hello. Nice weather today, I guess?
+chat.greeting.stranger.5 = {name} nods politely: Good day to you.
+
+# CLOSE FRIEND (BEST_FRIEND)
+chat.greeting.close_friend.1 = {name}'s face lights up: Hey! It's so good to see you!
+chat.greeting.close_friend.2 = {name}: There you are! I was hoping we'd run into each other today.
+chat.greeting.close_friend.3 = {name}: Hey bestie! What are we up to today?
+chat.greeting.close_friend.4 = {name}: Always a pleasure to see my favorite person around!
+chat.greeting.close_friend.5 = {name} gives a high-five: What's the plan for today?
+
+# ROMANTIC (MARRIED, PARTNER, ENGAGED)
+chat.greeting.romantic.1 = {name} smiles warmly: There's my love. How are you doing?
+chat.greeting.romantic.2 = {name}: I was just thinking about you. Come here!
+chat.greeting.romantic.3 = {name} blushes slightly: Seeing you always makes my day better.
+chat.greeting.romantic.4 = {name}: Hello, darling. Need anything from me today?
+chat.greeting.romantic.5 = {name}: My favorite person is here!
+
+# ENEMIES
+chat.greeting.enemy.1 = {name} glares at you: What do you want now?
+chat.greeting.enemy.2 = {name} crosses their arms: Make it quick, I don't have time for you.
+chat.greeting.enemy.3 = {name} sighs heavily: You again? Unbelievable.
+
+# ==========================================
+# CONTEXTUAL INTERACTIONS
+# ==========================================
+
+# FUNNY
+chat.funny.cheerup.1 = {name} wipes a tear and smiles: Haha... thanks. I really needed that right now.
+chat.funny.cheerup.2 = {name}: You always know how to make me smile, even when I'm down.
+chat.funny.cheerup.3 = {name} laughs softly: Okay, that was actually pretty good.
+chat.funny.enemy.1 = {name}: Save your breath. You're not funny.
+chat.funny.enemy.2 = {name} rolls their eyes: Was that supposed to be a joke? Pathetic.
+chat.funny.enemy.3 = {name}: Do yourself a favor and stop trying to be a comedian.
+
+# ROMANTIC
+chat.romantic.stranger.1 = {name} steps back: Whoa, boundaries! We don't even know each other!
+chat.romantic.stranger.2 = {name} looks uncomfortable: That's... inappropriate for strangers.
+chat.romantic.stranger.3 = {name}: Are you always this forward with people you just met?
+chat.romantic.enemy.1 = {name} looks disgusted: Are you out of your mind? Stay away from me!
+chat.romantic.enemy.2 = {name}: I'd rather date a zombie than listen to your cheap lines.
+chat.romantic.enemy.3 = {name}: Don't even try it. I despise you.
+chat.romantic.partner.1 = {name} winks: You're still as charming as the day we met.
+chat.romantic.partner.2 = {name}: Flirting with me? You already won my heart, you know.
+chat.romantic.partner.3 = {name} pulls you closer: Keep talking like that...
+chat.romantic.partner.4 = {name}: Stop it, you're making me blush all over again!
+chat.romantic.partner.5 = {name}: I am so incredibly lucky to have you.
+
+# MEAN
+chat.mean.partner.1 = {name} looks heartbroken: How could you say that to me?! I thought you loved me!
+chat.mean.partner.2 = {name} tears up: That... that really hurts coming from you.
+chat.mean.partner.3 = {name}: I don't know who you are right now. Don't speak to me.
+
+# RANDOM
+chat.random.stranger = {name}: Did you know the weather patterns here are quite unpredictable?
+chat.random.known = {name}: Hey, remember that time we fought off those skeletons? Good times.
+
+# PROFESSION REJECTIONS BY STATUS
+chat.prof.assign.refuse_status.1 = {name} scoffs: Why would I work for someone like you? No way.
+chat.prof.assign.refuse_status.2 = {name}: I don't take orders from strangers. Find someone else to be a {profName}.
+chat.prof.assign.refuse_status.3 = {name}: You must be joking. I'm not doing any {profName} work for you.
+
+chat.prof.assign.noitem = {name} looks at you confused: You're not holding anything... How am I supposed to know what job you want me to do?
+chat.flirt.child = You can't flirt with a child!
+chat.gift.noitem = You are not holding any item to give as a gift!
+chat.gift.accelerated = You fed {name} with {item}! Their growth was accelerated.
+chat.gift.child_reject = {name} is just a child and doesn't want this gift. Try giving some food!
