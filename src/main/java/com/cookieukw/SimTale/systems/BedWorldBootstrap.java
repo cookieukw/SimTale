@@ -11,7 +11,8 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 
 
 public final class BedWorldBootstrap {
-    private BedWorldBootstrap() {}
+    private BedWorldBootstrap() {
+    }
 
     public static void bootstrapLoadedRadius(World world, Vector3d center, int radius) {
         int sx = (int) Math.floor(center.x);
@@ -47,20 +48,30 @@ public final class BedWorldBootstrap {
     }
 
     public static boolean isPrimaryBedBlock(WorldChunk chunk, int x, int y, int z) {
-        RotationTuple rot = chunk.getRotation(x, y, z);
-        if (rot == null || rot.yaw() == null) {
+        BlockType type = chunk.getBlockType(x, y, z);
+        if (!isBed(type)) {
             return false;
         }
-        Rotation yaw = rot.yaw();
-        BlockType otherType;
-        if (yaw == Rotation.None ||
-            yaw == Rotation.OneEighty) {
-            // Aligned along Z. Pick the one with the smaller Z coord.
-            otherType = chunk.getBlockType(x, y, z - 1);
-        } else {
-            // Aligned along X. Pick the one with the smaller X coord.
-            otherType = chunk.getBlockType(x - 1, y, z);
+
+        boolean posX = isBed(chunk.getBlockType(x + 1, y, z));
+        boolean negX = isBed(chunk.getBlockType(x - 1, y, z));
+        boolean posZ = isBed(chunk.getBlockType(x, y, z + 1));
+        boolean negZ = isBed(chunk.getBlockType(x, y, z - 1));
+
+        int adjacentBeds = 0;
+        if (posX) adjacentBeds++;
+        if (negX) adjacentBeds++;
+        if (posZ) adjacentBeds++;
+        if (negZ) adjacentBeds++;
+
+        if (adjacentBeds != 1) {
+            return false;
         }
-        return otherType != null && otherType.getId() != null && BedRegistry.isBedId(otherType.getId());
+
+        return posX || posZ;
+    }
+
+    private static boolean isBed(BlockType type) {
+        return type != null && type.getId() != null && BedRegistry.isBedId(type.getId());
     }
 }
