@@ -44,6 +44,7 @@ public class SimNPCComponent implements Component<EntityStore> {
     public UUID jobEmployer;
     public boolean isAway = false;
     public transient MagicEngine activeMagicGame;
+    public transient boolean isInteractingViaUI = false;
 
     /**
      * Default constructor for registry and codecs.

@@ -104,7 +104,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // Ensure Frozen component is cleared if task changes externally and dialogue is inactive
         boolean hasFrozen = store.getComponent(ref, Frozen.getComponentType()) != null;
-        if (ai.currentTask != TaskType.SLEEPING && hasFrozen && npc.currentConversationPartner == null) {
+        if (ai.currentTask != TaskType.SLEEPING && hasFrozen && npc.currentConversationPartner == null && !npc.isInteractingViaUI) {
             commandBuffer.tryRemoveComponent(ref, Frozen.getComponentType());
         }
 

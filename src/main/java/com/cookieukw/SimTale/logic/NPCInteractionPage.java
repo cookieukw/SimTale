@@ -58,8 +58,11 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
 
     @Override
     public void build(@Nonnull Ref<EntityStore> playerRef, @Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
-        if (npc != null && npc.entityRef != null && npc.entityRef.isValid()) {
-            store.ensureComponent(npc.entityRef, Frozen.getComponentType());
+        if (npc != null) {
+            npc.isInteractingViaUI = true;
+            if (npc.entityRef != null && npc.entityRef.isValid()) {
+                store.ensureComponent(npc.entityRef, Frozen.getComponentType());
+            }
         }
 
         // Clear any active chat conversation so the timeout system doesn't
@@ -292,8 +295,11 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     @Override
     public void onDismiss(@Nonnull Ref<EntityStore> playerRef, @Nonnull Store<EntityStore> store) {
         super.onDismiss(playerRef, store);
-        if (npc != null && npc.entityRef != null && npc.entityRef.isValid()) {
-            store.tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
+        if (npc != null) {
+            npc.isInteractingViaUI = false;
+            if (npc.entityRef != null && npc.entityRef.isValid()) {
+                store.tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
+            }
         }
     }
 
