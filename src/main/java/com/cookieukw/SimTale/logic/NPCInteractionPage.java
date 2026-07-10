@@ -57,7 +57,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     }
 
     @Override
-    public void build(@NonNullDecl Ref<EntityStore> playerRef, @NonNullDecl UICommandBuilder commandBuilder, @NonNullDecl UIEventBuilder eventBuilder, @NonNullDecl Store<EntityStore> store) {
+    public void build(@Nonnull Ref<EntityStore> playerRef, @Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
         if (npc != null && npc.entityRef != null && npc.entityRef.isValid()) {
             store.ensureComponent(npc.entityRef, Frozen.getComponentType());
         }
@@ -213,7 +213,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     }
 
     @Override
-    public void handleDataEvent(@NonNullDecl Ref<EntityStore> storeRef, @NonNullDecl Store<EntityStore> store, @NonNullDecl String eventData) {
+    public void handleDataEvent(@Nonnull Ref<EntityStore> storeRef, @Nonnull Store<EntityStore> store, @Nonnull String eventData) {
         HytaleLogger.forEnclosingClass().atInfo().log("SimTale [DEBUG UI EVENT]: payload = " + eventData);
         
         player.getPageManager().setPage(storeRef, store, Page.None);

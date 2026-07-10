@@ -33,7 +33,7 @@ public class BedEntityRegistrySystem extends RefChangeSystem<EntityStore, Persis
     }
 
     @Override
-    public void onComponentAdded(@NonNullDecl Ref<EntityStore> ref, PersistentModel pm, @NonNullDecl Store<EntityStore> store, @NonNullDecl CommandBuffer<EntityStore> cb) {
+    public void onComponentAdded(@Nonnull Ref<EntityStore> ref, PersistentModel pm, @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> cb) {
         if (pm.getModelReference().getModelAssetId() == null) return;
         String id = pm.getModelReference().getModelAssetId();
         if (!BedRegistry.isBedId(id)) return;
@@ -50,13 +50,15 @@ public class BedEntityRegistrySystem extends RefChangeSystem<EntityStore, Persis
     }
 
     @Override
-    public void onComponentSet(@NonNullDecl Ref<EntityStore> ref, PersistentModel oldPm, @NonNullDecl PersistentModel newPm, @NonNullDecl Store<EntityStore> store, @NonNullDecl CommandBuffer<EntityStore> cb) {
+    public void onComponentSet(@Nonnull Ref<EntityStore> ref, PersistentModel oldPm, @Nonnull PersistentModel newPm, @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> cb) {
         onComponentRemoved(ref, oldPm, store, cb);
         onComponentAdded(ref, newPm, store, cb);
     }
 
+
+    @Nonnull
     @Override
-    public void onComponentRemoved(@NonNullDecl Ref<EntityStore> ref, PersistentModel pm, @NonNullDecl Store<EntityStore> store, @NonNullDecl CommandBuffer<EntityStore> cb) {
+    public void onComponentRemoved(@Nonnull Ref<EntityStore> ref, PersistentModel pm, @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> cb) {
         if (pm.getModelReference().getModelAssetId() == null) return;
         String id = pm.getModelReference().getModelAssetId();
         if (!BedRegistry.isBedId(id)) return;

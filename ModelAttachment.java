@@ -34717,7 +34717,7 @@ extends SimpleInteraction {
     }
 
     @Override
-    protected void tick0(boolean firstRun, float time, @NonNullDecl InteractionType type, @Nonnull InteractionContext context, @NonNullDecl CooldownHandler cooldownHandler) {
+    protected void tick0(boolean firstRun, float time, @Nonnull InteractionType type, @Nonnull InteractionContext context, @Nonnull CooldownHandler cooldownHandler) {
         DynamicMetaStore<Interaction> instanceStore = context.getInstanceStore();
         if (firstRun) {
             Vector3d position;
@@ -34792,7 +34792,7 @@ extends SimpleInteraction {
     }
 
     @Override
-    protected void simulateTick0(boolean firstRun, float time, @NonNullDecl InteractionType type, @Nonnull InteractionContext context, @NonNullDecl CooldownHandler cooldownHandler) {
+    protected void simulateTick0(boolean firstRun, float time, @Nonnull InteractionType type, @Nonnull InteractionContext context, @Nonnull CooldownHandler cooldownHandler) {
     }
 
     @Override
@@ -35400,7 +35400,7 @@ extends SimpleInstantInteraction {
     }
 
     @Override
-    protected void firstRun(@NonNullDecl InteractionType type, @NonNullDecl InteractionContext context, @NonNullDecl CooldownHandler cooldownHandler) {
+    protected void firstRun(@Nonnull InteractionType type, @Nonnull InteractionContext context, @Nonnull CooldownHandler cooldownHandler) {
         CommandBuffer<EntityStore> commandBuffer = context.getCommandBuffer();
         assert (commandBuffer != null);
         InteractionSyncData state = context.getState();
@@ -62671,13 +62671,13 @@ UserMapMarkersStore {
     }
 
     @Override
-    @NonNullDecl
+    @Nonnull
     public Collection<? extends UserMapMarker> getUserMapMarkers() {
         return this.mapMarkersById.values();
     }
 
     @Override
-    @NonNullDecl
+    @Nonnull
     public Collection<? extends UserMapMarker> getUserMapMarkers(UUID createdByUuid) {
         ArrayList<UserMapMarker> filtered = new ArrayList<UserMapMarker>();
         for (UserMapMarker marker : this.mapMarkersById.values()) {
@@ -66743,7 +66743,7 @@ implements IChunkStorageProvider<IndexedStorageCache> {
     private boolean flushOnWrite = false;
 
     @Override
-    public IndexedStorageCache initialize(@NonNullDecl Store<ChunkStore> store) throws IOException {
+    public IndexedStorageCache initialize(@Nonnull Store<ChunkStore> store) throws IOException {
         World world = store.getExternalData().getWorld();
         IndexedStorageCache cache = new IndexedStorageCache();
         cache.path = world.getSavePath().resolve("chunks");
@@ -66757,7 +66757,7 @@ implements IChunkStorageProvider<IndexedStorageCache> {
     }
 
     @Override
-    public void close(@NonNullDecl IndexedStorageCache cache, @NonNullDecl Store<ChunkStore> store) throws IOException {
+    public void close(@Nonnull IndexedStorageCache cache, @Nonnull Store<ChunkStore> store) throws IOException {
         cache.close();
     }
 
@@ -67306,7 +67306,7 @@ implements IChunkStorageProvider<Object> {
     }
 
     @Override
-    public void close(@Nonnull Object o, @NonNullDecl Store<ChunkStore> store) throws IOException {
+    public void close(@Nonnull Object o, @Nonnull Store<ChunkStore> store) throws IOException {
         this.provider.close(o, store);
     }
 
@@ -67391,7 +67391,7 @@ implements IChunkStorageProvider<RocksDbResource> {
      * Exception decompiling
      */
     @Override
-    public RocksDbResource initialize(@NonNullDecl Store<ChunkStore> store) throws IOException {
+    public RocksDbResource initialize(@Nonnull Store<ChunkStore> store) throws IOException {
         /*
          * This method has failed to decompile.  When submitting a bug report, please provide this stack trace, and (if you hold appropriate legal rights) the relevant class file.
          * 
@@ -67421,7 +67421,7 @@ implements IChunkStorageProvider<RocksDbResource> {
     }
 
     @Override
-    public void close(@NonNullDecl RocksDbResource resource, @NonNullDecl Store<ChunkStore> store) throws IOException {
+    public void close(@Nonnull RocksDbResource resource, @Nonnull Store<ChunkStore> store) throws IOException {
         try {
             resource.db.syncWal();
         }
@@ -67785,7 +67785,7 @@ implements IChunkStorageProvider<Void> {
     private static final EmptyChunkSaver EMPTY_CHUNK_SAVER = new EmptyChunkSaver();
 
     @Override
-    public Void initialize(@NonNullDecl Store<ChunkStore> store) throws IOException {
+    public Void initialize(@Nonnull Store<ChunkStore> store) throws IOException {
         return null;
     }
 
@@ -67794,7 +67794,7 @@ implements IChunkStorageProvider<Void> {
     }
 
     @Override
-    public void close(@NonNullDecl Void o, @NonNullDecl Store<ChunkStore> store) throws IOException {
+    public void close(@Nonnull Void o, @Nonnull Store<ChunkStore> store) throws IOException {
     }
 
     @Override
@@ -67916,7 +67916,7 @@ implements IChunkStorageProvider<MigrationData> {
     }
 
     @Override
-    public MigrationData initialize(@NonNullDecl Store<ChunkStore> store) throws IOException {
+    public MigrationData initialize(@Nonnull Store<ChunkStore> store) throws IOException {
         MigrationData data = new MigrationData();
         data.loaderData = new Object[this.from.length];
         for (int i = 0; i < this.from.length; ++i) {
@@ -67935,7 +67935,7 @@ implements IChunkStorageProvider<MigrationData> {
     }
 
     @Override
-    public void close(@NonNullDecl MigrationData migrationData, @NonNullDecl Store<ChunkStore> store) throws IOException {
+    public void close(@Nonnull MigrationData migrationData, @Nonnull Store<ChunkStore> store) throws IOException {
         for (int i = 0; i < this.from.length; ++i) {
             this.from[i].close(migrationData.loaderData[i], store);
         }
@@ -84579,8 +84579,8 @@ extends AbstractCommandCollection {
         }
 
         @Override
-        @NonNullDecl
-        protected CompletableFuture<Void> executeAsync(@NonNullDecl CommandContext context, @NonNullDecl World world) {
+        @Nonnull
+        protected CompletableFuture<Void> executeAsync(@Nonnull CommandContext context, @Nonnull World world) {
             Object storage = world.getChunkStore().getStorageData();
             if (storage instanceof RocksDbChunkStorageProvider.RocksDbResource) {
                 RocksDbChunkStorageProvider.RocksDbResource rocksDbResource = (RocksDbChunkStorageProvider.RocksDbResource)storage;

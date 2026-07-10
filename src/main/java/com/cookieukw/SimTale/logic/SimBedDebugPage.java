@@ -89,7 +89,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     @Override
-    public void build(@NonNullDecl Ref<EntityStore> playerRef, UICommandBuilder cmd, @NonNullDecl UIEventBuilder eventBuilder, @NonNullDecl Store<EntityStore> store) {
+    public void build(@Nonnull Ref<EntityStore> playerRef, UICommandBuilder cmd, @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
         cmd.append("SimBedDebug/SimBedDebug.ui");
 
         World world = store.getExternalData().getWorld();
@@ -147,7 +147,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     @Override
-    public void handleDataEvent(@NonNullDecl Ref<EntityStore> storeRef, @NonNullDecl Store<EntityStore> store, @NonNullDecl String rawEventData) {
+    public void handleDataEvent(@Nonnull Ref<EntityStore> storeRef, @Nonnull Store<EntityStore> store, @Nonnull String rawEventData) {
         HytaleLogger.forEnclosingClass().atInfo().log("SimBedDebug [EVENT]: " + rawEventData);
 
         // Safely extract action string if Hytale client wrapped the event inside a JSON string

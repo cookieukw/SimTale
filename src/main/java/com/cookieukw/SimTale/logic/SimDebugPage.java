@@ -59,7 +59,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     @Override
-    public void build(@NonNullDecl Ref<EntityStore> playerRef, UICommandBuilder cmd, @NonNullDecl UIEventBuilder eventBuilder, @NonNullDecl Store<EntityStore> store) {
+    public void build(@Nonnull Ref<EntityStore> playerRef, UICommandBuilder cmd, @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
         cmd.append("SimDebug/SimDebug.ui");
 
         SimNPCComponent npc = getSelectedNPC();
@@ -107,7 +107,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     @Override
-    public void handleDataEvent(@NonNullDecl Ref<EntityStore> storeRef, @NonNullDecl Store<EntityStore> store, @NonNullDecl String eventData) {
+    public void handleDataEvent(@Nonnull Ref<EntityStore> storeRef, @Nonnull Store<EntityStore> store, @Nonnull String eventData) {
         HytaleLogger.forEnclosingClass().atInfo().log("SimDebug [EVENT]: " + eventData);
 
         // Navigation
