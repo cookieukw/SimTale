@@ -1,0 +1,367 @@
+# NPC CHAT - GREETING
+chat.greeting.hostile.1 = {name} mal te encara e murmura algo incompreensível.
+chat.greeting.hostile.2 = {name} vira o rosto. Claramente não quer papo com você.
+chat.greeting.hostile.3 = {name} cruza os braços e não responde de imediato.
+chat.greeting.hostile.4 = {name} solta um "o que você quer" seco.
+chat.greeting.hostile.5 = {name} suspira, visivelmente incomodado(a) com sua presença.
+chat.greeting.stranger.1 = {name} acena educadamente. "Olá."
+chat.greeting.stranger.2 = {name} cumprimenta com um leve aceno de cabeça.
+chat.greeting.stranger.3 = {name} olha pra você, meio desconfiado(a), mas responde.
+chat.greeting.stranger.4 = "Oi", diz {name}, sem muita familiaridade na voz.
+chat.greeting.stranger.5 = {name} te cumprimenta formalmente.
+chat.greeting.acquaintance.1 = "Ei, e aí!" {name} parece feliz em te ver.
+chat.greeting.acquaintance.2 = {name} sorri. "Voltou de novo, hein?"
+chat.greeting.acquaintance.3 = {name} acena animadamente. "Olá, olá!"
+chat.greeting.acquaintance.4 = "Fala!" {name} parece contente com a visita.
+chat.greeting.acquaintance.5 = {name} te reconhece de longe e já vem puxando assunto.
+chat.greeting.friend.1 = "Que bom te ver!" {name} sorri largo.
+chat.greeting.friend.2 = {name} larga o que estava fazendo pra vir te cumprimentar.
+chat.greeting.friend.3 = "E aí, meu amigo(a)!" {name} parece genuinamente animado(a).
+chat.greeting.friend.4 = {name} te dá um tapinha nas costas. "Tava com saudade!"
+chat.greeting.friend.5 = "Justo você que eu queria ver!" diz {name}, sorrindo.
+chat.greeting.close_friend.1 = {name} corre até você. "Você voltou! Que saudade!"
+chat.greeting.close_friend.2 = "Meu melhor amigo(a)!" {name} te abraça sem cerimônia.
+chat.greeting.close_friend.3 = {name} ilumina o rosto ao te ver. "Finalmente!"
+chat.greeting.close_friend.4 = "Já tava contando os minutos!" brinca {name}.
+chat.greeting.close_friend.5 = {name} larga tudo e vem te dar um abraço apertado.
+
+# NPC CHAT - SMALLTALK
+chat.smalltalk.hostile.1 = {name} responde com o mínimo de palavras possível.
+chat.smalltalk.hostile.2 = "Não tenho muito o que falar com você," diz {name}.
+chat.smalltalk.hostile.3 = {name} dá de ombros e desvia o olhar.
+chat.smalltalk.hostile.4 = {name} responde algo curto, sem interesse em continuar a conversa.
+chat.smalltalk.hostile.5 = {name} parece querer encerrar essa conversa o quanto antes.
+chat.smalltalk.hostile.6 = {name} mal olha pra você enquanto responde.
+chat.smalltalk.hostile.7 = {name} responde num tom seco e distante.
+chat.smalltalk.hostile.8 = {name} parece ocupado(a) demais pra dar atenção de verdade.
+chat.smalltalk.hostile.9 = {name} responde com uma pergunta de volta, meio desconfiado(a).
+chat.smalltalk.hostile.10 = {name} não parece muito à vontade falando com você.
+chat.smalltalk.stranger.1 = {name} comenta sobre o tempo hoje.
+chat.smalltalk.stranger.2 = "As coisas andam tranquilas por aqui," diz {name}.
+chat.smalltalk.stranger.3 = {name} pergunta educadamente como você está.
+chat.smalltalk.stranger.4 = {name} fala sobre o dia a dia da vila.
+chat.smalltalk.stranger.5 = "Ainda estou me acostumando por aqui," comenta {name}.
+chat.smalltalk.stranger.6 = {name} responde de forma cordial, mas breve.
+chat.smalltalk.stranger.7 = {name} conta uma novidade qualquer da vizinhança.
+chat.smalltalk.stranger.8 = {name} pergunta se você é novo(a) por essas terras.
+chat.smalltalk.stranger.9 = {name} comenta sobre o trabalho do dia.
+chat.smalltalk.stranger.10 = {name} puxa uma conversa educada, sem muita intimidade.
+chat.smalltalk.acquaintance.1 = "Sabe, tava pensando em você outro dia," diz {name}.
+chat.smalltalk.acquaintance.2 = {name} conta uma pequena novidade, animado(a).
+chat.smalltalk.acquaintance.3 = "Como andam as coisas?" pergunta {name}, curioso(a).
+chat.smalltalk.acquaintance.4 = {name} compartilha uma opinião sincera sobre algo.
+chat.smalltalk.acquaintance.5 = "Já reparou como a vila mudou?" comenta {name}.
+chat.smalltalk.acquaintance.6 = {name} ri de algo e puxa você pra conversa.
+chat.smalltalk.acquaintance.7 = {name} pergunta sua opinião sobre um assunto qualquer.
+chat.smalltalk.acquaintance.8 = "Você é gente boa, sabia?" solta {name}, meio de brincadeira.
+chat.smalltalk.acquaintance.9 = {name} conta uma história curta e engraçada.
+chat.smalltalk.acquaintance.10 = {name} parece gostar de bater papo com você.
+chat.smalltalk.friend.1 = "Cara, ainda bem que você apareceu," diz {name}.
+chat.smalltalk.friend.2 = {name} desabafa algo pessoal, confiando em você.
+chat.smalltalk.friend.3 = "Você é uma das poucas pessoas em quem confio por aqui," admite {name}.
+chat.smalltalk.friend.4 = {name} pede sua opinião sobre algo importante.
+chat.smalltalk.friend.5 = "Lembra daquele dia que a gente..." {name} relembra algo com carinho.
+chat.smalltalk.friend.6 = {name} ri gostoso de uma piada interna entre vocês.
+chat.smalltalk.friend.7 = "Como você tem passado, de verdade?" pergunta {name}, preocupado(a).
+chat.smalltalk.friend.8 = {name} compartilha um sonho ou objetivo pessoal.
+chat.smalltalk.friend.9 = "Sinto que posso contar qualquer coisa pra você," diz {name}.
+chat.smalltalk.friend.10 = {name} parece genuinamente feliz só de estar conversando com você.
+chat.smalltalk.close_friend.1 = "Você é praticamente família pra mim," diz {name}, emocionado(a).
+chat.smalltalk.close_friend.2 = {name} conta um segredo que só contaria pra alguém de muita confiança.
+chat.smalltalk.close_friend.3 = "Não sei o que seria de mim sem você por aqui," admite {name}.
+chat.smalltalk.close_friend.4 = {name} ri lembrando de todas as aventuras que vocês já viveram juntos.
+chat.smalltalk.close_friend.5 = "Você sempre pode contar comigo, sabia?" diz {name}, sincero(a).
+chat.smalltalk.close_friend.6 = {name} compartilha um medo pessoal, confiando totalmente em você.
+chat.smalltalk.close_friend.7 = "Nossa amizade significa muito pra mim," diz {name}.
+chat.smalltalk.close_friend.8 = {name} planeja algo especial com você em mente.
+chat.smalltalk.close_friend.9 = "Você foi a melhor coisa que aconteceu por aqui," brinca {name}, mas fala sério.
+chat.smalltalk.close_friend.10 = {name} só sorri, feliz em ter você por perto.
+
+# NPC CHAT - CANCEL
+chat.cancel.hostile.1 = {name} vai embora sem dizer mais nada.
+chat.cancel.hostile.2 = "Finalmente," murmura {name}, virando as costas.
+chat.cancel.hostile.3 = {name} nem espera você terminar de falar.
+chat.cancel.stranger.1 = {name} balança a cabeça. "Tudo bem então."
+chat.cancel.stranger.2 = "Até mais," diz {name}, educadamente.
+chat.cancel.stranger.3 = {name} volta a cuidar da própria vida.
+chat.cancel.acquaintance.1 = "Beleza! Até mais," diz {name}.
+chat.cancel.acquaintance.2 = {name} acena se despedindo com um sorriso.
+chat.cancel.acquaintance.3 = "Se cuida!" diz {name}, animado(a).
+chat.cancel.friend.1 = "Ah, já? Tá bom, se cuida," diz {name}.
+chat.cancel.friend.2 = {name} parece meio decepcionado(a), mas sorri. "Até logo!"
+chat.cancel.friend.3 = "Volta logo, tá?" diz {name}.
+chat.cancel.close_friend.1 = "Já indo? Vou sentir sua falta," diz {name}.
+chat.cancel.close_friend.2 = {name} aperta sua mão. "Volta rápido, viu?"
+chat.cancel.close_friend.3 = "Até a próxima, meu amigo(a)," diz {name} com carinho.
+
+# NPC CHAT - BUSY (ANOTHER PLAYER)
+chat.busy_multiplayer.hostile.1 = {name} está ocupado(a) com outra pessoa. Não parece que vai te dar atenção tão cedo.
+chat.busy_multiplayer.hostile.2 = {name} está no meio de uma conversa e mal nota que você está esperando.
+chat.busy_multiplayer.hostile.3 = {name} está falando com outra pessoa agora.
+chat.busy_multiplayer.stranger.1 = {name} está conversando com outra pessoa no momento.
+chat.busy_multiplayer.stranger.2 = {name} parece ocupado(a) com outra conversa agora.
+chat.busy_multiplayer.stranger.3 = {name} está ocupado(a) no momento -- tente de novo daqui a pouco.
+chat.busy_multiplayer.acquaintance.1 = {name} está batendo papo com outra pessoa -- dá um tempinho!
+chat.busy_multiplayer.acquaintance.2 = {name} está ocupado(a) agora, mas deve ficar livre logo.
+chat.busy_multiplayer.acquaintance.3 = {name} olha na sua direção, mas ainda está conversando com outra pessoa.
+chat.busy_multiplayer.friend.1 = {name} está falando com outra pessoa, mas fica olhando pra você de vez em quando.
+chat.busy_multiplayer.friend.2 = {name} faz sinal de "só um segundo!" enquanto termina outra conversa.
+chat.busy_multiplayer.friend.3 = {name} está ocupado(a), mas claramente quer falar com você em seguida.
+chat.busy_multiplayer.close_friend.1 = {name} está falando com outra pessoa, mas dá pra perceber que preferia estar conversando com você.
+chat.busy_multiplayer.close_friend.2 = {name} te lança um olhar de desculpas -- ainda ocupado(a) com outra pessoa.
+chat.busy_multiplayer.close_friend.3 = {name} está terminando de falar com outra pessoa. Promete que não vai demorar.
+
+# NPC CHAT - BUSY (WORKING)
+chat.busy_job.hostile.1 = {name} está ocupado(a) fazendo {job}. Não incomode.
+chat.busy_job.hostile.2 = "Ocupado(a) com {job}. Que parte disso você não entendeu?" resmunga {name}.
+chat.busy_job.hostile.3 = {name} está em algum lugar fazendo {job}, sem interesse em companhia.
+chat.busy_job.stranger.1 = {name} está ocupado(a) com {job} no momento.
+chat.busy_job.stranger.2 = {name} está fora fazendo {job} agora.
+chat.busy_job.stranger.3 = {name} saiu pra cuidar de {job}.
+chat.busy_job.acquaintance.1 = {name} está fazendo {job} agora -- volta mais tarde!
+chat.busy_job.acquaintance.2 = {name} está ocupado(a) com {job}, mas deve voltar logo.
+chat.busy_job.acquaintance.3 = {name} saiu pra cuidar de {job}. Deve aparecer daqui a pouco.
+chat.busy_job.friend.1 = {name} está fazendo {job} pra você -- vai voltar rapidinho.
+chat.busy_job.friend.2 = {name} está trabalhando duro em {job} agora.
+chat.busy_job.friend.3 = {name} está ocupado(a) com {job}, mas você sabe que preferia estar conversando.
+chat.busy_job.close_friend.1 = {name} está fazendo {job} por aí, provavelmente pensando em você o tempo todo.
+chat.busy_job.close_friend.2 = {name} aceitou {job} sem pestanejar, só pra te ajudar.
+chat.busy_job.close_friend.3 = {name} está ocupado(a) com {job} -- mal pode esperar pra te contar como foi.
+
+# NPC CHAT - COME HERE
+chat.come.hostile.1 = {name} para o que estava fazendo, meio a contragosto.
+chat.come.hostile.2 = "Tá bom, já vou," resmunga {name}.
+chat.come.hostile.3 = {name} larga a tarefa com um suspiro.
+chat.come.stranger.1 = {name} para de trabalhar e vem na sua direção.
+chat.come.stranger.2 = "Tá bom, já vou," diz {name}.
+chat.come.stranger.3 = {name} deixa a tarefa de lado.
+chat.come.acquaintance.1 = "Claro!" {name} larga o que estava fazendo.
+chat.come.acquaintance.2 = {name} para feliz pra vir te ver.
+chat.come.acquaintance.3 = "Já vou!" diz {name}.
+chat.come.friend.1 = "Pra você? Sempre," diz {name}, largando tudo.
+chat.come.friend.2 = {name} corre até você sem pensar duas vezes.
+chat.come.friend.3 = "Já to indo!" {name} diz sorrindo.
+chat.come.close_friend.1 = {name} larga tudo na hora, sem nem perguntar por quê.
+chat.come.close_friend.2 = "Qualquer coisa por você," diz {name}, já a caminho.
+chat.come.close_friend.3 = {name} praticamente corre até você.
+
+# NPC CHAT - PROFESSION REJECT
+chat.prof.reject.hostile.1 = "Você? Me dizendo o que fazer? Nem pensar," diz {name}.
+chat.prof.reject.hostile.2 = {name} zomba da sugestão.
+chat.prof.reject.hostile.3 = "Eu não aceito conselho de carreira de você," diz {name}, friamente.
+chat.prof.reject.stranger.1 = "Eu não te conheço bem o suficiente pra isso," diz {name}.
+chat.prof.reject.stranger.2 = {name} recusa educadamente. "Talvez quando a gente se conhecer melhor."
+chat.prof.reject.stranger.3 = "Essa é uma decisão grande pra tomar com um(a) estranho(a)," diz {name}.
+chat.prof.reject.acquaintance.1 = "Hmm, ainda não tenho certeza. Vamos conversar mais primeiro," diz {name}.
+chat.prof.reject.acquaintance.2 = {name} hesita. "Eu precisaria confiar um pouco mais em você pra isso."
+chat.prof.reject.acquaintance.3 = "Ainda não tô pronto(a) pra esse tipo de mudança," admite {name}.
+chat.prof.reject.friend.1 = "Eu confio em você, mas ainda é um passo grande pra mim," diz {name}.
+chat.prof.reject.friend.2 = {name} pensa a respeito, mas balança a cabeça. "Ainda não, amigo(a)."
+chat.prof.reject.friend.3 = "Me dá mais um tempinho pra pensar nisso," diz {name}.
+chat.prof.reject.close_friend.1 = "Eu faria quase qualquer coisa que você pedisse, mas preciso pensar nessa," diz {name}.
+chat.prof.reject.close_friend.2 = {name} parece dividido(a). "Você sabe que eu confio totalmente em você, só... não essa, ainda não."
+chat.prof.reject.close_friend.3 = "Vamos conversar mais sobre isso, só nós dois," diz {name}.
+
+# NPC CHAT - PROFESSION ACCEPT
+chat.prof.accept.hostile.1 = "Tá bom. {prof_name}, então. Feliz agora?" diz {name}, sem entusiasmo.
+chat.prof.accept.hostile.2 = {name} dá de ombros. "{prof_name}, então, eu acho."
+chat.prof.accept.hostile.3 = "Tanto faz. Agora sou {prof_name}," resmunga {name}.
+chat.prof.accept.stranger.1 = "Tá bom, vou tentar ser {prof_name}," diz {name}.
+chat.prof.accept.stranger.2 = {name} concorda com a cabeça. "{prof_name}. Parece razoável."
+chat.prof.accept.stranger.3 = "Acho que {prof_name} pode funcionar," diz {name}.
+chat.prof.accept.acquaintance.1 = "{prof_name}? Claro, por que não!" diz {name}, sorrindo.
+chat.prof.accept.acquaintance.2 = {name} parece animado(a). "Sempre quis tentar {prof_name}!"
+chat.prof.accept.acquaintance.3 = "Beleza, {prof_name} então!" diz {name}, animado(a).
+chat.prof.accept.friend.1 = "Por você, viro {prof_name} com o maior prazer," diz {name}.
+chat.prof.accept.friend.2 = {name} sorri largo. "{prof_name}! Vamos nessa, amigo(a)."
+chat.prof.accept.friend.3 = "Você acha mesmo que eu daria um bom {prof_name}? Vamos descobrir!" diz {name}.
+chat.prof.accept.close_friend.1 = "Qualquer coisa que você pedir -- {prof_name} então!" diz {name}, radiante.
+chat.prof.accept.close_friend.2 = {name} te abraça. "Confio totalmente em você. {prof_name}, lá vou eu!"
+chat.prof.accept.close_friend.3 = "Com você ao meu lado, posso ser o(a) melhor {prof_name} de todos," diz {name}.
+
+# NPC CHAT - PROFESSION INVALID
+chat.prof.invalid.hostile.1 = "Isso nem é um trabalho de verdade," diz {name}, sem entusiasmo.
+chat.prof.invalid.hostile.2 = {name} ergue uma sobrancelha. "Tenta de novo, e faz sentido dessa vez."
+chat.prof.invalid.hostile.3 = "Não faço ideia do que você está falando," diz {name}, seco(a).
+chat.prof.invalid.stranger.1 = "Não conheço essa profissão," diz {name}.
+chat.prof.invalid.stranger.2 = {name} parece confuso(a). "Poderia esclarecer o que quis dizer?"
+chat.prof.invalid.stranger.3 = "Não entendi direito qual trabalho você quis dizer," diz {name}.
+chat.prof.invalid.acquaintance.1 = "Hmm, que trabalho é esse exatamente?" pergunta {name}, curioso(a).
+chat.prof.invalid.acquaintance.2 = {name} ri. "Nunca ouvi falar dessa! Tenta outra?"
+chat.prof.invalid.acquaintance.3 = "Acho que não conheço esse trabalho," diz {name}.
+chat.prof.invalid.friend.1 = "Não peguei bem, amigo(a) -- que profissão você quis dizer?" pergunta {name}.
+chat.prof.invalid.friend.2 = {name} dá risada. "Vai ter que me explicar essa aí."
+chat.prof.invalid.friend.3 = "Quero ajudar, mas não entendi que trabalho era esse," diz {name}.
+chat.prof.invalid.close_friend.1 = "Adoraria tentar, mas não faço ideia do que é esse trabalho!" ri {name}.
+chat.prof.invalid.close_friend.2 = {name} sorri. "Me fala de novo? Quero muito acertar isso pra você."
+chat.prof.invalid.close_friend.3 = "Por você eu tentaria qualquer coisa, mas o que É esse trabalho?" pergunta {name}, se divertindo.
+
+# NPC CHAT - JOB WRONG PROFESSION
+chat.job.wrong_prof.hostile.1 = "Eu sou {prof_name}, não sei lá o que faz {job_name}. Óbvio," resmunga {name}.
+chat.job.wrong_prof.hostile.2 = {name} revira os olhos. "Eu tenho cara de quem faz {job_name}?"
+chat.job.wrong_prof.hostile.3 = "Profissão errada, pessoa errada," diz {name}, desdenhoso(a).
+chat.job.wrong_prof.stranger.1 = "Receio que {job_name} não seja algo que um(a) {prof_name} faça," diz {name}.
+chat.job.wrong_prof.stranger.2 = {name} balança a cabeça. "Isso não é bem a minha área."
+chat.job.wrong_prof.stranger.3 = "Como {prof_name}, eu não faço {job_name}," explica {name}.
+chat.job.wrong_prof.acquaintance.1 = "Ah, quem dera! Mas {job_name} não é coisa de {prof_name}," diz {name}.
+chat.job.wrong_prof.acquaintance.2 = {name} ri. "Profissão errada pra isso, desculpa!"
+chat.job.wrong_prof.acquaintance.3 = "Eu precisaria ser outra coisa além de {prof_name} pra isso," diz {name}.
+chat.job.wrong_prof.friend.1 = "Eu ajudaria se pudesse, mas {job_name} não é habilidade de {prof_name}," diz {name}.
+chat.job.wrong_prof.friend.2 = {name} parece pesaroso(a). "Queria poder, amigo(a), mas não é meu ofício."
+chat.job.wrong_prof.friend.3 = "Talvez se eu trocar de profissão algum dia? Por enquanto, nada de {job_name} desse(a) {prof_name}," brinca {name}.
+chat.job.wrong_prof.close_friend.1 = "Eu realmente queria fazer {job_name} por você, mas um(a) {prof_name} simplesmente não consegue," diz {name}, sincero(a).
+chat.job.wrong_prof.close_friend.2 = {name} parece genuinamente triste. "Se ao menos ser {prof_name} me deixasse fazer isso por você..."
+chat.job.wrong_prof.close_friend.3 = "Talvez eu devesse aprender um ofício novo só pra poder te ajudar com coisas tipo {job_name}," diz {name}.
+
+# NPC CHAT - JOB REJECT
+chat.job.reject.hostile.1 = "Trabalhar pra você? Ha. Não," diz {name}, seco(a).
+chat.job.reject.hostile.2 = {name} zomba. "Eu não recebo ordens suas."
+chat.job.reject.hostile.3 = "Nem pensar," diz {name}, indo embora.
+chat.job.reject.stranger.1 = "Acho que não te conheço o suficiente pra isso," diz {name}.
+chat.job.reject.stranger.2 = {name} recusa educadamente. "Talvez outra hora."
+chat.job.reject.stranger.3 = "É meio demais pedir isso de quem acabei de conhecer," diz {name}.
+chat.job.reject.acquaintance.1 = "Hmm, vamos nos conhecer mais primeiro," diz {name}.
+chat.job.reject.acquaintance.2 = {name} hesita. "Ainda não chegamos lá, desculpa."
+chat.job.reject.acquaintance.3 = "Talvez depois que a gente conversar mais," diz {name}.
+chat.job.reject.friend.1 = "Eu confio em você, mas não tenho certeza dessa," diz {name}.
+chat.job.reject.friend.2 = {name} pensa a respeito. "Me dá mais um tempinho, amigo(a)."
+chat.job.reject.friend.3 = "Quase lá -- só preciso de um pouco mais de convencimento," diz {name}, sorrindo.
+chat.job.reject.close_friend.1 = "Você sabe que eu faria quase tudo por você... só não tenho certeza dessa," diz {name}.
+chat.job.reject.close_friend.2 = {name} parece dividido(a), claramente querendo ajudar. "Vamos conversar mais sobre isso?"
+chat.job.reject.close_friend.3 = "Por você, sempre -- só deixa eu pensar bem nessa," diz {name} com carinho.
+
+# NPC CHAT - JOB ACCEPT
+chat.job.accept.hostile.1 = "Tá bom. {job_name}. Não espera que eu fique feliz com isso," diz {name}.
+chat.job.accept.hostile.2 = {name} resmunga e vai fazer {job_name}.
+chat.job.accept.hostile.3 = "Seja lá o que for pra você sair do meu pé," diz {name}, indo fazer {job_name}.
+chat.job.accept.stranger.1 = "Tá bom, vou cuidar de {job_name}," diz {name}.
+chat.job.accept.stranger.2 = {name} concorda com a cabeça e vai cuidar de {job_name}.
+chat.job.accept.stranger.3 = "Claro, {job_name} então," diz {name}.
+chat.job.accept.acquaintance.1 = "Claro! {job_name}, já vou cuidar disso," diz {name}.
+chat.job.accept.acquaintance.2 = {name} sorri. "Feliz em ajudar com {job_name}!"
+chat.job.accept.acquaintance.3 = "Pode deixar! Te vejo quando {job_name} tiver pronto," diz {name}.
+chat.job.accept.friend.1 = "Por você? Com certeza -- {job_name} então," diz {name}.
+chat.job.accept.friend.2 = {name} sorri largo. "Qualquer coisa por um(a) amigo(a). Vou fazer {job_name}!"
+chat.job.accept.friend.3 = "Considere {job_name} resolvido, amigo(a)," diz {name}.
+chat.job.accept.close_friend.1 = "Qualquer coisa que você precisar -- {job_name}, já vou!" diz {name}, radiante.
+chat.job.accept.close_friend.2 = {name} te abraça antes de correr pra fazer {job_name}.
+chat.job.accept.close_friend.3 = "Por você, sempre. {job_name} não vai demorar," diz {name} com carinho.
+
+# NPC CHAT - MAGIC GAME START
+chat.magic.start.hostile.1 = "Tá bom, vou jogar esse joguinho bobo," suspira {name}.
+chat.magic.start.hostile.2 = {name} concorda, claramente sem entusiasmo.
+chat.magic.start.hostile.3 = "É bom ser rápido," resmunga {name}, começando o jogo.
+chat.magic.start.stranger.1 = "Tá bom, vamos tentar," diz {name}.
+chat.magic.start.stranger.2 = {name} concorda em jogar, curioso(a).
+chat.magic.start.stranger.3 = "Claro, topo," diz {name}.
+chat.magic.start.acquaintance.1 = "Ah, eu adoro esse jogo! Vamos lá," diz {name}.
+chat.magic.start.acquaintance.2 = {name} sorri largo. "Aposto que não adivinha o meu!"
+chat.magic.start.acquaintance.3 = "Tá bom, pensa num animal... espera, isso é comigo. Vamos!" ri {name}.
+chat.magic.start.friend.1 = "Com você? Sempre divertido," diz {name}, animado(a).
+chat.magic.start.friend.2 = {name} esfrega as mãos. "Vamos ver se você descobre!"
+chat.magic.start.friend.3 = "Já tava esperando alguém pra jogar isso," diz {name}, feliz.
+chat.magic.start.close_friend.1 = "Sim! Adoro jogar isso com você," diz {name}, encantado(a).
+chat.magic.start.close_friend.2 = {name} pula animado(a). "Tá bom, tá bom, tô pronto(a)!"
+chat.magic.start.close_friend.3 = "Essa é minha coisa favorita de fazer com você," diz {name}, sorrindo.
+
+# NPC CHAT - MAGIC GAME REJECT
+chat.magic.reject.hostile.1 = "Jogar com você? Não," diz {name}, sem entusiasmo.
+chat.magic.reject.hostile.2 = {name} balança a cabeça. "Não tenho interesse."
+chat.magic.reject.hostile.3 = "Vai incomodar outra pessoa," diz {name}.
+chat.magic.reject.stranger.1 = "Prefiro não, obrigado(a)," diz {name}.
+chat.magic.reject.stranger.2 = {name} recusa educadamente. "Talvez outra hora."
+chat.magic.reject.stranger.3 = "Não tô muito no clima pra jogos agora," diz {name}.
+chat.magic.reject.acquaintance.1 = "Talvez depois? Agora não," diz {name}.
+chat.magic.reject.acquaintance.2 = {name} sorri se desculpando. "Hoje não, desculpa!"
+chat.magic.reject.acquaintance.3 = "Não tô muito afim no momento," diz {name}.
+chat.magic.reject.friend.1 = "Eu jogaria, mas não tô no clima agora, amigo(a)," diz {name}.
+chat.magic.reject.friend.2 = {name} parece meio cansado(a). "Fica pra próxima?"
+chat.magic.reject.friend.3 = "Pergunta de novo depois? Prometo que vou dizer sim," diz {name}.
+chat.magic.reject.close_friend.1 = "Eu sempre quero jogar com você, só... não nesse exato momento," diz {name} gentilmente.
+chat.magic.reject.close_friend.2 = {name} te abraça. "Depois, prometo. Só não agora."
+chat.magic.reject.close_friend.3 = "Você sabe que eu nunca digo não pra você, mas preciso de uma pausinha," diz {name}.
+
+# NPC CHAT - MAGIC GAME CANCEL
+chat.magic.cancel.hostile.1 = "Finalmente, acabou," diz {name}, aliviado(a).
+chat.magic.cancel.hostile.2 = {name} vai embora sem dizer nada.
+chat.magic.cancel.hostile.3 = "Bom, tava ficando entediante," resmunga {name}.
+chat.magic.cancel.stranger.1 = "Tá bom, talvez outra hora então," diz {name}.
+chat.magic.cancel.stranger.2 = {name} dá de ombros. "Justo."
+chat.magic.cancel.stranger.3 = "Sem problemas, podemos parar por aqui," diz {name}.
+chat.magic.cancel.acquaintance.1 = "Ah, tá bom! Terminamos da próxima vez," diz {name}.
+chat.magic.cancel.acquaintance.2 = {name} sorri. "Foi divertido enquanto durou!"
+chat.magic.cancel.acquaintance.3 = "Tá bom, sem problemas!" diz {name}.
+chat.magic.cancel.friend.1 = "Sem problemas, amigo(a). Jogamos de novo em breve," diz {name}.
+chat.magic.cancel.friend.2 = {name} ri. "Você só não queria perder, né?"
+chat.magic.cancel.friend.3 = "Quando você quiser revanche, eu topo," diz {name}.
+chat.magic.cancel.close_friend.1 = "Tá bom! Eu sempre me divirto jogando com você, ganhando ou não," diz {name}.
+chat.magic.cancel.close_friend.2 = {name} sorri com carinho. "Terminamos da próxima vez, juntos."
+chat.magic.cancel.close_friend.3 = "Parar agora só significa mais diversão depois," diz {name}, piscando.
+
+# NPC CHAT - MAGIC GAME INVALID ANSWER
+chat.magic.invalid.hostile.1 = "Sim ou não. Não é difícil," diz {name}, irritado(a).
+chat.magic.invalid.hostile.2 = {name} suspira. "Responde direito."
+chat.magic.invalid.hostile.3 = "Isso não é uma resposta," resmunga {name}.
+chat.magic.invalid.stranger.1 = "Não entendi direito -- sim ou não?" pergunta {name}.
+chat.magic.invalid.stranger.2 = {name} parece confuso(a). "Pode esclarecer?"
+chat.magic.invalid.stranger.3 = "Desculpa, preciso de uma resposta mais clara," diz {name}.
+chat.magic.invalid.acquaintance.1 = "Hehe, preciso de uma resposta de verdade pra essa!" diz {name}.
+chat.magic.invalid.acquaintance.2 = {name} ri. "Sim, não, ou algo no meio?"
+chat.magic.invalid.acquaintance.3 = "Tenta de novo -- sim ou não funciona melhor!" diz {name}.
+chat.magic.invalid.friend.1 = "Qual é, amigo(a), me dá algo pra trabalhar!" ri {name}.
+chat.magic.invalid.friend.2 = {name} sorri largo. "Sim ou não, você já sabe como funciona!"
+chat.magic.invalid.friend.3 = "Preciso de uma resposta mais clara pra continuar adivinhando!" diz {name}.
+chat.magic.invalid.close_friend.1 = "Você tá me zoando, né? Me dá uma resposta de verdade!" ri {name}.
+chat.magic.invalid.close_friend.2 = {name} cutuca você de brincadeira. "Qual é, sim ou não!"
+chat.magic.invalid.close_friend.3 = "Eu sei que você tá só brincando comigo agora," ri {name}.
+
+# NPC CHAT - MAGIC GAME WIN
+chat.magic.win.hostile.1 = "{animal_name}. Óbvio. Terminamos?" diz {name}.
+chat.magic.win.hostile.2 = {name} adivinha "{animal_name}" sem muito entusiasmo.
+chat.magic.win.hostile.3 = "Era {animal_name}. Não fiquei impressionado(a) com esse jogo," diz {name}.
+chat.magic.win.stranger.1 = "Acredito que seja {animal_name}!" diz {name}.
+chat.magic.win.stranger.2 = {name} sorri. "{animal_name}, acertei?"
+chat.magic.win.stranger.3 = "Meu palpite é {animal_name}," diz {name}.
+chat.magic.win.acquaintance.1 = "Ha! É {animal_name}, eu sabia!" ri {name}.
+chat.magic.win.acquaintance.2 = {name} bate palmas. "{animal_name}! Tô ficando bom(boa) nisso!"
+chat.magic.win.acquaintance.3 = "{animal_name}! Falei!" diz {name}, sorrindo.
+chat.magic.win.friend.1 = "{animal_name}! Eu sabia que você ia escolher algo assim, amigo(a)!" ri {name}.
+chat.magic.win.friend.2 = {name} comemora. "{animal_name}! Já te conheço bem demais!"
+chat.magic.win.friend.3 = "Acertei -- {animal_name}! Esse jogo nunca cansa com você," diz {name}.
+chat.magic.win.close_friend.1 = "{animal_name}! Claro, eu te conheço melhor que ninguém!" diz {name}, encantado(a).
+chat.magic.win.close_friend.2 = {name} te abraça. "{animal_name}! Adoro o quanto te conheço bem."
+chat.magic.win.close_friend.3 = "{animal_name}! Somos imbatíveis juntos," diz {name}, radiante.
+
+# NPC CHAT - MAGIC GAME LOSE
+chat.magic.lose.hostile.1 = "Desisto. Esse jogo não tem sentido," diz {name}.
+chat.magic.lose.hostile.2 = {name} dá de ombros. "Seja lá o que era, não ligo mais."
+chat.magic.lose.hostile.3 = "Você venceu, eu acho. Não que eu ligasse," resmunga {name}.
+chat.magic.lose.stranger.1 = "Não tenho certeza, na verdade. Você me pegou," diz {name}.
+chat.magic.lose.stranger.2 = {name} admite a derrota. "Não consigo descobrir."
+chat.magic.lose.stranger.3 = "Bem, você me venceu dessa vez," diz {name}.
+chat.magic.lose.acquaintance.1 = "Ah, você ganhou! Não consegui adivinhar," diz {name}, sorrindo.
+chat.magic.lose.acquaintance.2 = {name} ri. "Tá bom, você me pegou! O que era?"
+chat.magic.lose.acquaintance.3 = "Desisto! Me conta, o que era?" pergunta {name}, curioso(a).
+chat.magic.lose.friend.1 = "Ha, você finalmente me pegou, amigo(a)!" ri {name}.
+chat.magic.lose.friend.2 = {name} sorri largo. "Tá bom, você venceu essa rodada. Revanche em breve?"
+chat.magic.lose.friend.3 = "Não consegui, mas foi divertido! O que era?" pergunta {name}.
+chat.magic.lose.close_friend.1 = "Você venceu! Adoro que você ainda consegue me surpreender," diz {name}, rindo.
+chat.magic.lose.close_friend.2 = {name} te abraça. "Não consegui adivinhar, mas me diverti muito com você."
+chat.magic.lose.close_friend.3 = "Perdi de novo! Não me importo de perder pra você," diz {name} com carinho.
+
+# NPC CHAT - MAGIC GAME QUESTION
+chat.magic.question.hostile.1 = {name} pergunta, seco(a): Pergunta {num}: {question}
+chat.magic.question.hostile.2 = "Pergunta {num}:" diz {name}, sem entusiasmo. {question}
+chat.magic.question.hostile.3 = {name} suspira. "Pergunta {num}. {question}"
+chat.magic.question.stranger.1 = {name} pergunta: "Pergunta {num}: {question}"
+chat.magic.question.stranger.2 = "Tá bom, pergunta {num}:" diz {name}. "{question}"
+chat.magic.question.stranger.3 = {name} pensa por um momento. "Pergunta {num}: {question}"
+chat.magic.question.acquaintance.1 = "Ooh, pergunta {num}!" diz {name}. "{question}"
+chat.magic.question.acquaintance.2 = {name} sorri largo. "Pergunta {num}: {question}"
+chat.magic.question.acquaintance.3 = "Essa aqui é boa -- pergunta {num}: {question}" diz {name}.
+chat.magic.question.friend.1 = "Pergunta {num}, amigo(a):" diz {name}, sorrindo. "{question}"
+chat.magic.question.friend.2 = {name} se inclina. "Pergunta {num}: {question}"
+chat.magic.question.friend.3 = "Tá bom, vamos ver... pergunta {num}: {question}" diz {name}.
+chat.magic.question.close_friend.1 = "Pergunta {num}, só pra você:" diz {name}, com carinho. "{question}"
+chat.magic.question.close_friend.2 = {name} sorri pra você. "Pergunta {num}: {question}"
+chat.magic.question.close_friend.3 = "Adoro essa parte -- pergunta {num}: {question}" diz {name}, animado(a).
