@@ -1,7 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "simtale.item.baby.name",
-    "Description": "simtale.item.baby.description"
+    "Name": "general.item.baby.name",
+    "Description": "general.item.baby.description"
   },
   "Icon": "Icons/Items/Baby_Icon.png",
   "Quality": "Epic",
