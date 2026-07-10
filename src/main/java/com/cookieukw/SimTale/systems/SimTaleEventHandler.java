@@ -17,6 +17,8 @@ import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.component.Holder;
+import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.MouseButtonState;
 import com.hypixel.hytale.protocol.MouseButtonType;
@@ -180,7 +182,15 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                     // Place new preview 1 block above the clicked block
                     Vector3i spawnPos = new Vector3i(targetBlock.x, targetBlock.y + 1, targetBlock.z);
                     Store<EntityStore> eStore = world.getEntityStore().getStore();
-                    ConstructionHelper.placePreview(world, eStore, spawnPos, prefabName);
+                    
+                    Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
+                    ConstructionSiteComponent site = new ConstructionSiteComponent(prefabName, spawnPos);
+                    holder.addComponent(SimTale.CONSTRUCTION_COMPONENT_TYPE, site);
+
+                    SimTale.ACTIVE_SITES.add(site);
+                    eStore.addEntity(holder, AddReason.SPAWN);
+
+                    ConstructionHelper.placePreview(world, spawnPos, prefabName);
                     pRef.sendMessage(Message.raw("Preview placed for " + prefabName + ". Right click again nearby to confirm."));
                 }
             }

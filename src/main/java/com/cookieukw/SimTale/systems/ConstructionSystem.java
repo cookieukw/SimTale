@@ -38,6 +38,10 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
         ConstructionSiteComponent site = chunk.getComponent(index, SimTale.CONSTRUCTION_COMPONENT_TYPE);
         if (site == null) return;
 
+        if (!SimTale.ACTIVE_SITES.contains(site)) {
+            SimTale.ACTIVE_SITES.add(site);
+        }
+
         World world = null;
         for (World w : Universe.get().getWorlds().values()) {
             world = w;
@@ -107,7 +111,7 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
 
                 String type = blockInfo.getName();
                 if (type == null) {
-                    type = "Air"; // Fallback to air if null
+                    type = "Empty"; // Fallback to empty if null
                 }
 
                 if (blockInfo.getRotation() != null) {

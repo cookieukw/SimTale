@@ -33,39 +33,32 @@ public class ConstructionHelper {
             int pz = site.anchor.z;
             // Clear Bottom and Top edges
             for (int x = minX; x <= maxX; x++) {
-                world.setBlock(px + x, py + minY, pz + minZ, "Air");
-                world.setBlock(px + x, py + minY, pz + maxZ, "Air");
-                world.setBlock(px + x, py + maxY, pz + minZ, "Air");
-                world.setBlock(px + x, py + maxY, pz + maxZ, "Air");
+                world.setBlock(px + x, py + minY, pz + minZ, "Empty");
+                world.setBlock(px + x, py + minY, pz + maxZ, "Empty");
+                world.setBlock(px + x, py + maxY, pz + minZ, "Empty");
+                world.setBlock(px + x, py + maxY, pz + maxZ, "Empty");
             }
             for (int z = minZ; z <= maxZ; z++) {
-                world.setBlock(px + minX, py + minY, pz + z, "Air");
-                world.setBlock(px + maxX, py + minY, pz + z, "Air");
-                world.setBlock(px + minX, py + maxY, pz + z, "Air");
-                world.setBlock(px + maxX, py + maxY, pz + z, "Air");
+                world.setBlock(px + minX, py + minY, pz + z, "Empty");
+                world.setBlock(px + maxX, py + minY, pz + z, "Empty");
+                world.setBlock(px + minX, py + maxY, pz + z, "Empty");
+                world.setBlock(px + maxX, py + maxY, pz + z, "Empty");
             }
             // Clear Vertical pillars
             for (int y = minY; y <= maxY; y++) {
-                world.setBlock(px + minX, py + y, pz + minZ, "Air");
-                world.setBlock(px + maxX, py + y, pz + minZ, "Air");
-                world.setBlock(px + minX, py + y, pz + maxZ, "Air");
-                world.setBlock(px + maxX, py + y, pz + maxZ, "Air");
+                world.setBlock(px + minX, py + y, pz + minZ, "Empty");
+                world.setBlock(px + maxX, py + y, pz + minZ, "Empty");
+                world.setBlock(px + minX, py + y, pz + maxZ, "Empty");
+                world.setBlock(px + maxX, py + y, pz + maxZ, "Empty");
             }
         }
     }
 
-    public static void placePreview(World world, Store<EntityStore> eStore, Vector3i playerAnchor, String prefabName) {
+    public static void placePreview(World world, Vector3i playerAnchor, String prefabName) {
         Prefab prefab = PrefabManager.getPrefab(prefabName);
         if (prefab == null) {
             return;
         }
-
-        Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
-        ConstructionSiteComponent site = new ConstructionSiteComponent(prefabName, playerAnchor);
-        holder.addComponent(SimTale.CONSTRUCTION_COMPONENT_TYPE, site);
-
-        SimTale.ACTIVE_SITES.add(site);
-        eStore.addEntity(holder, AddReason.SPAWN);
 
         // Place wireframe blocks for preview
         if (!prefab.getBlocks().isEmpty()) {

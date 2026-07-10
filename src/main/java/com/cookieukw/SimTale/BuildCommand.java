@@ -54,20 +54,23 @@ public class BuildCommand extends AbstractPlayerCommand {
 
             for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
                 double dist = site.anchor.distance(playerAnchor);
-                if (dist < 20.0 && dist < minDistance) {
+                if (dist < 100.0 && dist < minDistance) {
                     minDistance = dist;
                     closestSite = site;
                 }
             }
 
-            if (closestSite != null && !closestSite.isBuilding) {
-                closestSite.isBuilding = true;
-                ctx.sendMessage(Message.raw("Construction started! NPCs will now come to build."));
-                
-                // Clear wireframe
-                ConstructionHelper.clearPreview(world, closestSite);
+            if (closestSite != null) {
+                if (closestSite.isBuilding) {
+                    ctx.sendMessage(Message.raw("Construction is already in progress for " + closestSite.prefabName + "!"));
+                } else {
+                    closestSite.isBuilding = true;
+                    ctx.sendMessage(Message.raw("Construction started! NPCs will now come to build."));
+                    // Clear wireframe
+                    ConstructionHelper.clearPreview(world, closestSite);
+                }
             } else {
-                ctx.sendMessage(Message.raw("No pending construction site found nearby."));
+                ctx.sendMessage(Message.raw("No pending construction site found nearby (within 100 blocks). Active sites total: " + SimTale.ACTIVE_SITES.size()));
             }
             return;
         }
@@ -78,7 +81,7 @@ public class BuildCommand extends AbstractPlayerCommand {
 
             for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
                 double dist = site.anchor.distance(playerAnchor);
-                if (dist < 20.0 && dist < minDistance) {
+                if (dist < 100.0 && dist < minDistance) {
                     minDistance = dist;
                     closestSite = site;
                 }
@@ -115,7 +118,7 @@ public class BuildCommand extends AbstractPlayerCommand {
 
             for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
                 double dist = site.anchor.distance(playerAnchor);
-                if (dist < 20.0 && dist < minDistance) {
+                if (dist < 100.0 && dist < minDistance) {
                     minDistance = dist;
                     closestSite = site;
                 }
@@ -146,7 +149,7 @@ public class BuildCommand extends AbstractPlayerCommand {
         SimTale.ACTIVE_SITES.add(site);
         eStore.addEntity(holder, AddReason.SPAWN);
 
-        ConstructionHelper.placePreview(world, eStore, playerAnchor, prefabName);
+        ConstructionHelper.placePreview(world, playerAnchor, prefabName);
 
         ctx.sendMessage(Message.raw("Preview placed for " + prefabName + " at " + playerAnchor.x + ", " + playerAnchor.y + ", " + playerAnchor.z));
         ctx.sendMessage(Message.raw("Type '/build start' to confirm and let NPCs begin building."));
