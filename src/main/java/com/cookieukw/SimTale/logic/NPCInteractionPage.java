@@ -204,8 +204,10 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
 
         if (isChild) {
             commandBuilder.set("#FlirtButton.Visible", false);
+            commandBuilder.set("#AssignProfessionButton.Visible", false);
+            commandBuilder.set("#PregnancyButton.Visible", false);
         }
-        if (npc.pregnancy != null && npc.pregnancy.pregnant) {
+        if (!isChild && npc.pregnancy != null && npc.pregnancy.pregnant) {
             commandBuilder.set("#PregnancyButton.Visible", true);
         }
 
