@@ -61,6 +61,13 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         if (npc != null && npc.entityRef != null && npc.entityRef.isValid()) {
             store.ensureComponent(npc.entityRef, Frozen.getComponentType());
         }
+
+        // Clear any active chat conversation so the timeout system doesn't
+        // fire "Você parece distraído" while the player is using the UI
+        if (npc != null) {
+            npc.currentConversationPartner = null;
+        }
+
         commandBuilder.append("NPCInteraction/NPCInteraction.ui");
 
         assert npc != null;

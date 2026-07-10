@@ -24,25 +24,21 @@ import javax.annotation.Nonnull;
 
 /**
  * Handles chat interactions for controlling SimTale NPCs.
- * Talks now vary by FriendshipTier: the SAME response category
- * (e.g. greeting, job refusal) has separate translation pools based on
- * how close the NPC is to the player -- a stranger speaks formally/dryly, a
- * close_friend speaks warmly/informally. This requires creating the corresponding
- * translation keys (see key section at the end of the file).
+ * 
+ * Conversations are context-aware: the NPC responds differently based on
+ * the friendship tier AND what the player actually said (compliment, question,
+ * joke, job request, etc). This makes dialogue feel alive and connected
+ * rather than a sequence of random phrases.
  */
 public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
-    private static final int CONVERSATION_TIMEOUT_TICKS = 600; // 10 seconds
+    private static final int CONVERSATION_TIMEOUT_TICKS = 1200; // 20 seconds (was 10s)
 
     @Nonnull
     public static String getRandomVariant(String baseKey, int variants) {
         return baseKey + "." + (1 + (int) (Math.random() * variants));
     }
 
-    /**
-     * Builds the translation key including the friendship tier:
-     * "chat.greeting" + ".friend" + ".2"
-     */
     @Nonnull
     public static String getRandomVariant(String baseKey, FriendshipTier tier, int variants) {
         return baseKey + "." + tier.translationKey + "." + (1 + (int) (Math.random() * variants));
@@ -204,6 +200,44 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
                 openConversation(npc, sender, currentTick);
                 sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.greeting", tier, 5)).param("name", npc.name));
             }
+            // --- NEW CONVERSATIONAL INTENTS ---
+            case COMPLIMENT -> {
+                openConversation(npc, sender, currentTick);
+                sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.compliment", tier, 5)).param("name", npc.name));
+            }
+            case PERSONAL_QUESTION -> {
+                openConversation(npc, sender, currentTick);
+                sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.personal_question", tier, 5)).param("name", npc.name)
+                    .param("prof_name", npc.profession != null ? npc.profession.ptName : "nada"));
+            }
+            case SELF_TALK -> {
+                openConversation(npc, sender, currentTick);
+                sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.self_talk", tier, 5)).param("name", npc.name));
+            }
+            case HUMOR -> {
+                openConversation(npc, sender, currentTick);
+                sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.humor", tier, 5)).param("name", npc.name));
+            }
+            case GRATITUDE -> {
+                openConversation(npc, sender, currentTick);
+                sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.gratitude", tier, 5)).param("name", npc.name));
+            }
+            case INSULT_CHAT -> {
+                openConversation(npc, sender, currentTick);
+                sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.insult_chat", tier, 5)).param("name", npc.name));
+            }
+            case HELP_REQUEST -> {
+                openConversation(npc, sender, currentTick);
+                sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.help_request", tier, 3)).param("name", npc.name)
+                    .param("prof_name", npc.profession != null ? npc.profession.ptName : "nada"));
+            }
+            case WHAT_CAN_YOU_DO -> {
+                openConversation(npc, sender, currentTick);
+                String jobList = npc.profession != null ? npc.profession.getJobListPt() : "nada no momento";
+                sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.what_can_you_do", tier, 3))
+                    .param("name", npc.name).param("prof_name", npc.profession != null ? npc.profession.ptName : "Desempregado")
+                    .param("job_list", jobList));
+            }
             default -> {
                 openConversation(npc, sender, currentTick);
                 sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.smalltalk", tier, 10)).param("name", npc.name));
@@ -330,8 +364,11 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
     private void assignJob(PlayerRef sender, SimNPCComponent npc, long currentTick, JobType job, FriendshipTier tier) {
         if (!npc.profession.canDoJob(job)) {
+            // Find which profession CAN do this job, and suggest it
+            String neededProf = findProfessionForJob(job);
             sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.job.wrong_prof", tier, 3))
-                    .param("name", npc.name).param("prof_name", npc.profession.ptName).param("job_name", job.getPortugueseName()));
+                    .param("name", npc.name).param("prof_name", npc.profession.ptName)
+                    .param("job_name", job.getPortugueseName()).param("needed_prof", neededProf));
             return;
         }
 
@@ -348,6 +385,17 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         npc.isAway = false;
         npc.currentConversationPartner = null; // Unlock conversation now that intent is clear
         sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.job.accept", tier, 3)).param("name", npc.name).param("job_name", job.getPortugueseName()));
+    }
+
+    /** Returns the Portuguese name of a profession that can do the given job. */
+    @Nonnull
+    private String findProfessionForJob(JobType job) {
+        for (Profession p : Profession.values()) {
+            if (p.canDoJob(job)) {
+                return p.ptName;
+            }
+        }
+        return "outra profissão";
     }
 
     private void sendReply(PlayerRef sender, Message text) {
@@ -376,34 +424,158 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
     }
 
     /**
-     * Intent classification extracted from the original boolean mess.
-     * Same keywords as before, just organized -- behavior
-     * identical to the previous code, easier to extend later.
+     * Intent classification with word-boundary-aware matching.
+     * <p>
+     * Key improvement: instead of simple contains(), we use "command matching" --
+     * a message is only classified as a job/action intent if the keyword appears
+     * as a standalone command or at the START of the message (not buried in a longer
+     * sentence like "mas eu disse minerar"). This prevents false positives.
+     * <p>
+     * New conversational intents: COMPLIMENT, PERSONAL_QUESTION, SELF_TALK,
+     * HUMOR, GRATITUDE, INSULT_CHAT, HELP_REQUEST, WHAT_CAN_YOU_DO.
      */
     private enum ChatIntent {
-        CANCEL, CHANGE_PROFESSION, PLAY_MAGIC_GAME, MINE, FISH, FARM, GATHER, EXPLORE, COME, GREETING, SMALLTALK;
+        CANCEL, CHANGE_PROFESSION, PLAY_MAGIC_GAME,
+        MINE, FISH, FARM, GATHER, EXPLORE, COME,
+        GREETING, COMPLIMENT, PERSONAL_QUESTION, SELF_TALK, HUMOR,
+        GRATITUDE, INSULT_CHAT, HELP_REQUEST, WHAT_CAN_YOU_DO,
+        SMALLTALK;
+
+        /**
+         * Checks if the message IS a command (the whole message or starts with the command).
+         * This prevents "mas eu disse minerar" from matching MINE.
+         */
+        private static boolean isCommand(String message, String... keywords) {
+            String trimmed = message.trim();
+            for (String kw : keywords) {
+                // Exact match: "minerar"
+                if (trimmed.equals(kw)) return true;
+                // Starts with command + space: "minerar agora" or "vai minerar"
+                if (trimmed.startsWith(kw + " ") || trimmed.startsWith(kw + "!") || trimmed.startsWith(kw + ",")) return true;
+                // Ends with command: "pode minerar" or "vai lá minerar"
+                if (trimmed.endsWith(" " + kw) || trimmed.endsWith(" " + kw + "!") || trimmed.endsWith(" " + kw + "?")) return true;
+            }
+            return false;
+        }
+
+        /**
+         * Checks if the message contains any of the given phrases.
+         * Used for conversational intents where context doesn't matter as much.
+         */
+        private static boolean hasPhrase(String message, String... phrases) {
+            for (String phrase : phrases) {
+                if (message.contains(phrase)) return true;
+            }
+            return false;
+        }
+
+        /**
+         * Checks if any of the keywords appear as standalone words in the message.
+         */
+        private static boolean hasWord(String message, String... words) {
+            String[] messageWords = message.trim().split("\\s+");
+            for (String target : words) {
+                for (String mWord : messageWords) {
+                    if (mWord.equals(target)) return true;
+                }
+            }
+            return false;
+        }
 
         static ChatIntent detect(String message, String npcName) {
+            // --- CANCEL ---
             if (message.equals("tchau") || message.equals("adeus") || message.equals("sair")
-                    || message.equals("cancelar") || message.contains("deixa pra lá")
-                    || message.contains("deixa pra la") || message.contains("esquece")) {
+                    || message.equals("cancelar") || hasPhrase(message, "deixa pra lá", "deixa pra la", "esquece", "falou")) {
                 return CANCEL;
             }
-            if (message.contains("vire ") || message.contains("seja ") || message.contains("trabalhe como ")) {
+
+            // --- PROFESSION CHANGE (must be before job commands) ---
+            if (hasPhrase(message, "vire ", "seja ", "trabalhe como ", "mude pra ", "muda pra ", "vira ")) {
                 return CHANGE_PROFESSION;
             }
-            if (message.contains("jogar magic") || message.contains("play magic") || message.contains("akinator")) {
+
+            // --- MAGIC GAME ---
+            if (hasPhrase(message, "jogar magic", "play magic", "akinator", "jogo do animal", "adivinha")) {
                 return PLAY_MAGIC_GAME;
             }
-            if (message.contains("mine") || message.contains("minerar")) return MINE;
-            if (message.contains("fish") || message.contains("pescar")) return FISH;
-            if (message.contains("farm") || message.contains("farmar") || message.contains("plantar")) return FARM;
-            if (message.contains("gather") || message.contains("catar") || message.contains("coletar")) return GATHER;
-            if (message.contains("explore") || message.contains("explorar")) return EXPLORE;
-            if (message.contains("vem") || message.contains("come") || message.contains("aqui")) return COME;
 
-            boolean isGreeting = message.contains("olá") || message.contains("ola") || message.contains("hello")
-                    || message.contains("hi") || message.contains("oi") || message.contains("eae");
+            // --- JOB COMMANDS (word-boundary aware to avoid false positives) ---
+            if (isCommand(message, "minerar", "mine", "vai minerar", "pode minerar", "va minerar", "vá minerar")) return MINE;
+            if (isCommand(message, "pescar", "fish", "vai pescar", "pode pescar", "va pescar", "vá pescar")) return FISH;
+            if (isCommand(message, "farmar", "farm", "plantar", "vai farmar", "pode farmar", "vai plantar")) return FARM;
+            if (isCommand(message, "coletar", "gather", "catar", "vai coletar", "pode coletar")) return GATHER;
+            if (isCommand(message, "explorar", "explore", "vai explorar", "pode explorar")) return EXPLORE;
+
+            // --- COME HERE ---
+            if (isCommand(message, "vem", "vem cá", "vem aqui", "vem pra cá", "come here")
+                    || message.equals("aqui") || message.equals("volta")) {
+                return COME;
+            }
+
+            // --- WHAT CAN YOU DO (before general conversation) ---
+            if (hasPhrase(message, "o que você sabe", "o que voce sabe", "o que pode fazer",
+                    "o que vc faz", "o que tu faz", "que trabalho", "qual seu trabalho",
+                    "qual é seu trabalho", "qual sua profissão", "qual sua profissao",
+                    "me ajuda com o que", "como posso te usar", "o que sabe fazer")) {
+                return WHAT_CAN_YOU_DO;
+            }
+
+            // --- HELP REQUEST ---
+            if (hasPhrase(message, "me ajuda", "ajuda eu", "preciso de ajuda", "pode me ajudar",
+                    "ajuda aí", "ajuda ai", "help me", "uma mão", "uma mao", "socorro")) {
+                return HELP_REQUEST;
+            }
+
+            // --- COMPLIMENT ---
+            if (hasPhrase(message, "bonit", "lind", "gat", "massa", "top", "fod", "incrível", "incrivel",
+                    "maravilhos", "demais", "show", "gostei de você", "gostei de vc",
+                    "te adoro", "te admiro", "amo você", "amo voce", "te amo",
+                    "você é legal", "voce é legal", "vc é legal", "gosto de vc",
+                    "gosto de você", "gosto de voce")) {
+                return COMPLIMENT;
+            }
+
+            // --- INSULT ---
+            if (hasPhrase(message, "fei", "chato", "irritante", "idiota", "burro", "burra",
+                    "odeio", "nojent", "ridícul", "ridicul", "inútil", "inutil",
+                    "vai embora", "sai daqui", "some", "cala a boca", "cala boca",
+                    "ninguém te quer", "ninguem te quer", "lixo", "ruim")) {
+                return INSULT_CHAT;
+            }
+
+            // --- GRATITUDE ---
+            if (hasPhrase(message, "obrigad", "valeu", "brigad", "thanks", "thank you",
+                    "muito obrigad", "vlw", "tmj")) {
+                return GRATITUDE;
+            }
+
+            // --- HUMOR / JOKE ---
+            if (hasPhrase(message, "piada", "conta uma", "faz rir", "joke", "engraçad", "engracad",
+                    "kk", "haha", "kkk", "risos", "lol", "hehe")) {
+                return HUMOR;
+            }
+
+            // --- PERSONAL QUESTION ---
+            if (hasPhrase(message, "como você tá", "como voce ta", "como vc ta", "tudo bem",
+                    "como vai", "ta bem", "tá bem", "você gosta de", "voce gosta de",
+                    "vc gosta de", "qual seu nome", "de onde", "onde mora",
+                    "o que acha", "você é de", "vc é de", "como se sente",
+                    "tá feliz", "ta feliz", "tá triste", "ta triste",
+                    "o que aconteceu", "qual seu hobby", "o que você gosta")) {
+                return PERSONAL_QUESTION;
+            }
+
+            // --- SELF TALK (player talking about themselves) ---
+            if (hasPhrase(message, "eu tô", "eu to ", "eu sou", "eu fui", "eu quero",
+                    "minha vida", "meu dia", "tô cansad", "to cansad",
+                    "tô com fome", "to com fome", "tô triste", "to triste",
+                    "tô feliz", "to feliz", "tô entediad", "to entediad")) {
+                return SELF_TALK;
+            }
+
+            // --- GREETING ---
+            boolean isGreeting = hasWord(message, "olá", "ola", "hello", "hi", "oi", "eae", "eai",
+                    "fala", "salve", "bom dia", "boa tarde", "boa noite", "e aí", "e ai");
             boolean justCalledName = message.trim().equalsIgnoreCase(npcName) || message.trim().equalsIgnoreCase(npcName + "!");
             if (isGreeting || justCalledName) return GREETING;
 
@@ -411,4 +583,3 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         }
     }
 }
-
