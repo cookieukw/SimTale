@@ -97,7 +97,7 @@ public class SimTale extends JavaPlugin {
                 new SimTaleEventHandler());
         
         // MobsAndMates: Register chat handler
-        this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerChatEvent.class, "chat",
+        this.getEventRegistry().registerGlobal(EventPriority.NORMAL.getValue(), PlayerChatEvent.class,
                 new SimTaleChatHandler());
         
         // SimTale: Register player join handler
