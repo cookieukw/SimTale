@@ -327,7 +327,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 double minDistance = Double.MAX_VALUE;
 
                 for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                    if (npc.entityRef != null && npc.gender == Gender.FEMALE) {
+                    if (npc.entityRef != null && npc.entityRef.isValid() && npc.gender == Gender.FEMALE) {
                         TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
                         if (playerTransform != null && npcTransform != null) {
                             Vector3d pPos = playerTransform.getPosition();
@@ -394,7 +394,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 double minDistance = Double.MAX_VALUE;
 
                 for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                    if (npc.entityRef != null && npc.pregnancy != null && npc.pregnancy.pregnant) {
+                    if (npc.entityRef != null && npc.entityRef.isValid() && npc.pregnancy != null && npc.pregnancy.pregnant) {
                         TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
                         if (playerTransform != null && npcTransform != null) {
                             Vector3d pPos = playerTransform.getPosition();
