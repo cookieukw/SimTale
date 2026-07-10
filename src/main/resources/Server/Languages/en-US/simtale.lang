@@ -231,6 +231,7 @@ trait.lazy = Lazy
 trait.greedy = Greedy
 trait.paranoid = Paranoid
 trait.funny = Funny
+trait.loyal = Loyal
 
 # PROFESSIONS
 prof.unemployed = Unemployed
