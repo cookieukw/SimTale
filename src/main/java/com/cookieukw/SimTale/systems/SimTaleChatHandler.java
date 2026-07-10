@@ -14,10 +14,12 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.logger.HytaleLogger;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 /**
@@ -70,6 +72,9 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         SimNPCComponent targetNpc = findTargetNpc(sender, message);
 
+        HytaleLogger.forEnclosingClass().atInfo().log("SimTale [CHAT DEBUG]: message='" + message + "', foundNPC=" + (targetNpc != null ? targetNpc.name : "null") + ", activeNPCs=" + 
+            SimTale.ACTIVE_NPCS.stream().map(n -> n.name).collect(Collectors.joining(", ")));
+
         if (targetNpc != null && world != null) {
             if (targetNpc.currentConversationPartner != null && world.getTick() >= targetNpc.conversationTimeoutTick) {
                 targetNpc.currentConversationPartner = null;
@@ -88,6 +93,11 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
     /** Uses the tracking list to find the NPC (exact name, or fuzzy match by Levenshtein). */
     @NullableDecl
     private SimNPCComponent findTargetNpc(PlayerRef sender, String message) {
+        if (message == null) return null;
+
+        // Clean message: lowercase, remove color codes, strip basic punctuation, normalize spaces
+        String cleanMessage = message.toLowerCase().replaceAll("§.", "").replaceAll("[.,!?;:]", " ").replaceAll("\\s+", " ").trim();
+
         SimNPCComponent approximateNpc = null;
         int bestDistance = Integer.MAX_VALUE;
 
@@ -98,19 +108,34 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
             if (npc.name == null) continue;
 
-            String lowerName = npc.name.toLowerCase();
-            if (message.contains(lowerName)) {
+            // Clean NPC name in same way
+            String cleanNpcName = npc.name.toLowerCase().replaceAll("§.", "").replaceAll("[.,!?;:]", " ").replaceAll("\\s+", " ").trim();
+
+            // 1. Exact full-name substring match
+            if (cleanMessage.contains(cleanNpcName)) {
                 return npc;
             }
 
-            String[] messageWords = message.split("\\s+");
-            String[] nameWords = lowerName.split("\\s+");
+            String[] nameWords = cleanNpcName.split("\\s+");
+            String[] messageWords = cleanMessage.split("\\s+");
 
+            // 2. Standalone exact word match (e.g. typing first name or last name exactly)
+            for (String nWord : nameWords) {
+                if (nWord.length() >= 3) {
+                    for (String mWord : messageWords) {
+                        if (mWord.equals(nWord)) {
+                            return npc;
+                        }
+                    }
+                }
+            }
+
+            // 3. Fallback fuzzy Levenshtein match
             for (String mWord : messageWords) {
                 for (String nWord : nameWords) {
                     if (nWord.length() > 3) {
                         int dist = getLevenshteinDistance(mWord, nWord);
-                        int maxDist = nWord.length() <= 5 ? 1 : 2; // Allow 1 typo for small names, 2 for larger
+                        int maxDist = nWord.length() <= 5 ? 1 : 2;
                         if (dist <= maxDist && dist < bestDistance) {
                             bestDistance = dist;
                             approximateNpc = npc;
