@@ -42,7 +42,7 @@ public class MotherAIManager {
                 BabyCareManager.NPC_CARRIED_BABIES.put(parent.entityId, baby.childId);
                 BabyCareManager.save(careData);
                 
-                broadcastLocalMessage(parent, Message.translation("simtale.chat.baby.pickup").param("parent", parent.name).param("baby", baby.getFullName()));
+                broadcastLocalMessage(parent, Message.translation("npc-dialogues.chat.baby.pickup").param("parent", parent.name).param("baby", baby.getFullName()));
             }
             return;
         }
@@ -57,15 +57,15 @@ public class MotherAIManager {
             
             if (needs.hunger < 50f) {
                 needs.feed(30f);
-                broadcastLocalMessage(parent, Message.translation("simtale.chat.baby.feed").param("parent", parent.name).param("baby", baby.getFullName()));
+                broadcastLocalMessage(parent, Message.translation("npc-dialogues.chat.baby.feed").param("parent", parent.name).param("baby", baby.getFullName()));
                 acted = true;
             } else if (needs.affection < 50f) {
                 needs.showAffection(30f);
-                broadcastLocalMessage(parent, Message.translation("simtale.chat.baby.play").param("parent", parent.name).param("baby", baby.getFullName()));
+                broadcastLocalMessage(parent, Message.translation("npc-dialogues.chat.baby.play").param("parent", parent.name).param("baby", baby.getFullName()));
                 acted = true;
             } else if (needs.health < 50f) {
                 needs.heal(30f);
-                broadcastLocalMessage(parent, Message.translation("simtale.chat.baby.heal").param("parent", parent.name).param("baby", baby.getFullName()));
+                broadcastLocalMessage(parent, Message.translation("npc-dialogues.chat.baby.heal").param("parent", parent.name).param("baby", baby.getFullName()));
                 acted = true;
             }
             
@@ -104,15 +104,15 @@ public class MotherAIManager {
             boolean acted = false;
             if (needs.hunger < 50f) {
                 needs.feed(30f);
-                broadcastLocalMessage(parent, Message.translation("simtale.chat.toddler.feed").param("parent", parent.name).param("baby", toddler.getFullName()));
+                broadcastLocalMessage(parent, Message.translation("npc-dialogues.chat.toddler.feed").param("parent", parent.name).param("baby", toddler.getFullName()));
                 acted = true;
             } else if (needs.affection < 50f) {
                 needs.showAffection(30f);
-                broadcastLocalMessage(parent, Message.translation("simtale.chat.toddler.play").param("parent", parent.name).param("baby", toddler.getFullName()));
+                broadcastLocalMessage(parent, Message.translation("npc-dialogues.chat.toddler.play").param("parent", parent.name).param("baby", toddler.getFullName()));
                 acted = true;
             } else if (needs.health < 50f) {
                 needs.heal(30f);
-                broadcastLocalMessage(parent, Message.translation("simtale.chat.toddler.heal").param("parent", parent.name).param("baby", toddler.getFullName()));
+                broadcastLocalMessage(parent, Message.translation("npc-dialogues.chat.toddler.heal").param("parent", parent.name).param("baby", toddler.getFullName()));
                 acted = true;
             }
             

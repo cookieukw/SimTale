@@ -117,7 +117,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             if (absoluteTick > npc.conversationTimeoutTick) {
                 for (PlayerRef pr : Universe.get().getPlayers()) {
                     if (pr.getUuid().equals(npc.currentConversationPartner)) {
-                        pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("simtale.tick.chat.timeout", 3)).param("name", npc.name));
+                        pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("general.tick.chat.timeout", 3)).param("name", npc.name));
                     }
                 }
                 npc.currentConversationPartner = null;
@@ -129,7 +129,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                 npc.isAway = true;
                 for (PlayerRef pr : Universe.get().getPlayers()) {
                     if (pr.getUuid().equals(npc.jobEmployer)) {
-                        pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("simtale.tick.job.depart", 3)).param("name", npc.name));
+                        pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("general.tick.job.depart", 3)).param("name", npc.name));
                     }
                 }
                 Ref<EntityStore> ref = world.getEntityStore().getRefFromUUID(npc.entityId);
@@ -177,7 +177,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         try {
             for (PlayerRef pr : Universe.get().getPlayers()) {
                 if (pr.getUuid().equals(npc.jobEmployer)) {
-                    pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("simtale.tick.job.complete", 3)).param("name", npc.name).param("job_name", npc.currentJob.getPortugueseName()));
+                    pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("general.tick.job.complete", 3)).param("name", npc.name).param("job_name", npc.currentJob.getPortugueseName()));
                     
                     List<JobLootTable.LootEntry> loots = JobLootTable.getLootForJob(npc.currentJob);
                     for (JobLootTable.LootEntry loot : loots) {

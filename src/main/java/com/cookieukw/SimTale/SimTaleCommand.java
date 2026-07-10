@@ -97,7 +97,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             try {
                 type = SimNPCFactory.NPCType.valueOf(typeName.toUpperCase());
             } catch (IllegalArgumentException e) {
-                ctx.sendMessage(Message.translation("simtale.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD_MALE/CHILD_FEMALE"));
+                ctx.sendMessage(Message.translation("general.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD_MALE/CHILD_FEMALE"));
                 return;
             }
 
@@ -112,7 +112,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             assert comp != null;
             SimNPCPersistence.saveNPC(comp);
 
-            ctx.sendMessage(Message.translation("simtale.cmd.spawn.success").param("type", type.name()));
+            ctx.sendMessage(Message.translation("general.cmd.spawn.success").param("type", type.name()));
         }
     }
 
@@ -126,7 +126,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             // If no NPCs tracked (e.g., after world reload), try to reassemble from database
             if (SimTale.ACTIVE_NPCS.isEmpty()) {
-                ctx.sendMessage(Message.translation("simtale.cmd.reload.db"));
+                ctx.sendMessage(Message.translation("general.cmd.reload.db"));
                 SimNPCPersistence.reassembleActiveNPCs(world);
             }
             
@@ -150,14 +150,14 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestNPC == null) {
-                ctx.sendMessage(Message.translation("simtale.cmd.interact.none"));
+                ctx.sendMessage(Message.translation("general.cmd.interact.none"));
                 return;
             }
 
             Player player = store.getComponent(ref, Player.getComponentType());
             assert player != null;
             player.getPageManager().openCustomPage(ref, store, new NPCInteractionPage(playerRef, player, nearestNPC));
-            ctx.sendMessage(Message.translation("simtale.cmd.interact.success").param("name", nearestNPC.name));
+            ctx.sendMessage(Message.translation("general.cmd.interact.success").param("name", nearestNPC.name));
         }
     }
 
@@ -227,7 +227,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 try {
                     type = SimNPCFactory.NPCType.valueOf(typeName.toUpperCase());
                 } catch (IllegalArgumentException e) {
-                    ctx.sendMessage(Message.translation("simtale.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD_MALE/CHILD_FEMALE"));
+                    ctx.sendMessage(Message.translation("general.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD_MALE/CHILD_FEMALE"));
                     return;
                 }
             } else {
@@ -319,7 +319,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 }
                 playerComp.pregnancy.start(UUID.randomUUID(), world.getTick());
                 SimPlayerPersistence.savePlayer(playerComp);
-                ctx.sendMessage(Message.translation("simtale.cmd.forcepreg.success"));
+                ctx.sendMessage(Message.translation("general.cmd.forcepreg.success"));
                 openPlayerPregnancyPage(ref, store, playerRef, playerComp);
             } else {
                 TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());

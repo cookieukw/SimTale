@@ -46,12 +46,12 @@ public class PlayerGenderPage extends InteractiveCustomUIPage<String> {
             simPlayer.gender = Gender.MALE;
             SimPlayerPersistence.savePlayer(simPlayer);
             player.getPageManager().setPage(storeRef, store, Page.None);
-            playerRefComp.sendMessage(Message.translation("simtale.gender.success.male"));
+            playerRefComp.sendMessage(Message.translation("general.gender.success.male"));
         } else if (eventData.contains("FemaleButton")) {
             simPlayer.gender = Gender.FEMALE;
             SimPlayerPersistence.savePlayer(simPlayer);
             player.getPageManager().setPage(storeRef, store, Page.None);
-            playerRefComp.sendMessage(Message.translation("simtale.gender.success.female"));
+            playerRefComp.sendMessage(Message.translation("general.gender.success.female"));
         }
     }
 }

@@ -116,7 +116,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
 
                 Universe.get().getPlayers().forEach(p ->
-                        p.sendMessage(Message.translation("simtale.npc.dying").param("name", npc.name))
+                        p.sendMessage(Message.translation("general.npc.dying").param("name", npc.name))
                 );
             }
         }
@@ -425,7 +425,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     SimNPCComponent dyingNpc = store.getComponent(dyingRef, SimTale.SIM_NPC_COMPONENT_TYPE);
                     String deceasedName = dyingNpc != null ? dyingNpc.name : "Someone";
                     Universe.get().getPlayers().forEach(p -> {
-                        p.sendMessage(Message.translation("simtale.reaper.soul_taken").param("name", deceasedName));
+                        p.sendMessage(Message.translation("general.reaper.soul_taken").param("name", deceasedName));
                         try {
                             CommandManager.get().handleCommand(p, "give " + p.getUsername() + " Rock_Stone_Cobble --quantity=1");
                         } catch (Exception e) {

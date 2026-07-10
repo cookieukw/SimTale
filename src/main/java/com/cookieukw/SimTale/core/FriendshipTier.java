@@ -19,7 +19,7 @@ public enum FriendshipTier {
 
     public final int min;
     public final int max;
-    /** Used as part of the translation key, e.g.: "simtale.chat.greeting.friend.1" */
+    /** Used as part of the translation key, e.g.: "npc-interactions.chat.greeting.friend.1" */
     public final String translationKey;
 
     FriendshipTier(int min, int max, String translationKey) {

@@ -71,7 +71,7 @@ public class InteractionManager {
         boolean isChild = isNpcAChild(npc);
 
         if (isChild && type == InteractionType.ROMANTIC) {
-            return Message.translation("simtale.chat.flirt.child");
+            return Message.translation("npc-dialogues.chat.flirt.child");
         }
 
         Relationship rel = npc.getRelationship(playerUuid);
@@ -109,7 +109,7 @@ public class InteractionManager {
     private static InteractionOutcome handleFriendly(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, Relationship rel, boolean missedLongTime) {
         Message response = getContextualGreeting(npc, playerUuid, playerRef, rel);
         if (missedLongTime) {
-            response = Message.translation("simtale.chat.context.missed").param("name", npc.name).insert(Message.raw(" ")).insert(response);
+            response = Message.translation("npc-dialogues.chat.context.missed").param("name", npc.name).insert(Message.raw(" ")).insert(response);
         }
         
         int fGain = rel.status == RelationshipStatus.STRANGER ? 8 : (rel.status == RelationshipStatus.ENEMIES ? 1 : 5);
@@ -122,74 +122,74 @@ public class InteractionManager {
         Mood mood = npc.getMood();
         
         if (rel.status == RelationshipStatus.ENEMIES) {
-            return InteractionOutcome.of(-2, 0, 0, -5, pickRandomTranslation("simtale.chat.funny.enemy", 3, npc.name), MemoryEvent.JOKED);
+            return InteractionOutcome.of(-2, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.funny.enemy", 3, npc.name), MemoryEvent.JOKED);
         }
 
         if (mood == Mood.ANGRY || mood == Mood.SAD) {
             if (rel.status == RelationshipStatus.BEST_FRIEND || rel.status == RelationshipStatus.PARTNER) {
-                return InteractionOutcome.of(2, 0, 1, 5, pickRandomTranslation("simtale.chat.funny.cheerup", 3, npc.name), MemoryEvent.JOKED);
+                return InteractionOutcome.of(2, 0, 1, 5, pickRandomTranslation("npc-dialogues.chat.funny.cheerup", 3, npc.name), MemoryEvent.JOKED);
             }
-            return InteractionOutcome.of(-2, 0, 0, -5, pickRandomTranslation("simtale.chat.funny.angry", 5, npc.name), MemoryEvent.JOKED);
+            return InteractionOutcome.of(-2, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.funny.angry", 5, npc.name), MemoryEvent.JOKED);
         }
         
         if (npc.personality.traits.contains(Trait.FUNNY)) {
-            return InteractionOutcome.of(5, 0, 2, 15, pickRandomTranslation("simtale.chat.funny.trait", 5, npc.name), MemoryEvent.JOKED);
+            return InteractionOutcome.of(5, 0, 2, 15, pickRandomTranslation("npc-dialogues.chat.funny.trait", 5, npc.name), MemoryEvent.JOKED);
         }
         
-        return InteractionOutcome.of(3, 0, 1, 5, pickRandomTranslation("simtale.chat.funny.normal", 5, npc.name), MemoryEvent.JOKED);
+        return InteractionOutcome.of(3, 0, 1, 5, pickRandomTranslation("npc-dialogues.chat.funny.normal", 5, npc.name), MemoryEvent.JOKED);
     }
 
     private static InteractionOutcome handleRomantic(SimNPCComponent npc, Relationship rel) {
         Mood mood = npc.getMood();
 
         if (rel.status == RelationshipStatus.ENEMIES) {
-            return InteractionOutcome.of(-5, -15, -5, -20, pickRandomTranslation("simtale.chat.romantic.enemy", 3, npc.name), MemoryEvent.FLIRTED);
+            return InteractionOutcome.of(-5, -15, -5, -20, pickRandomTranslation("npc-dialogues.chat.romantic.enemy", 3, npc.name), MemoryEvent.FLIRTED);
         }
         
         if (rel.status == RelationshipStatus.STRANGER || rel.status == RelationshipStatus.ACQUAINTANCE) {
-            return InteractionOutcome.of(-3, -5, -2, -10, pickRandomTranslation("simtale.chat.romantic.stranger", 3, npc.name), MemoryEvent.FLIRTED);
+            return InteractionOutcome.of(-3, -5, -2, -10, pickRandomTranslation("npc-dialogues.chat.romantic.stranger", 3, npc.name), MemoryEvent.FLIRTED);
         }
 
         if (mood == Mood.ANGRY) {
-            return InteractionOutcome.of(0, -10, -2, -15, pickRandomTranslation("simtale.chat.romantic.reject", 5, npc.name), MemoryEvent.FLIRTED);
+            return InteractionOutcome.of(0, -10, -2, -15, pickRandomTranslation("npc-dialogues.chat.romantic.reject", 5, npc.name), MemoryEvent.FLIRTED);
         }
 
         if (rel.status == RelationshipStatus.MARRIED || rel.status == RelationshipStatus.PARTNER) {
-            return InteractionOutcome.of(2, 10, 2, 10, pickRandomTranslation("simtale.chat.romantic.partner", 5, npc.name), MemoryEvent.FLIRTED);
+            return InteractionOutcome.of(2, 10, 2, 10, pickRandomTranslation("npc-dialogues.chat.romantic.partner", 5, npc.name), MemoryEvent.FLIRTED);
         }
 
         if (npc.personality.traits.contains(Trait.SHY)) {
-            return InteractionOutcome.of(0, 15, 2, 10, pickRandomTranslation("simtale.chat.romantic.shy", 5, npc.name), MemoryEvent.FLIRTED);
+            return InteractionOutcome.of(0, 15, 2, 10, pickRandomTranslation("npc-dialogues.chat.romantic.shy", 5, npc.name), MemoryEvent.FLIRTED);
         }
         
-        return InteractionOutcome.of(0, 10, 1, 5, pickRandomTranslation("simtale.chat.romantic.normal", 5, npc.name), MemoryEvent.FLIRTED);
+        return InteractionOutcome.of(0, 10, 1, 5, pickRandomTranslation("npc-dialogues.chat.romantic.normal", 5, npc.name), MemoryEvent.FLIRTED);
     }
 
     private static InteractionOutcome handleMean(SimNPCComponent npc, Relationship rel) {
         // Being mean to a partner breaks trust brutally
         if (rel.status == RelationshipStatus.MARRIED || rel.status == RelationshipStatus.PARTNER) {
-            return InteractionOutcome.of(-15, -20, -30, -25, pickRandomTranslation("simtale.chat.mean.partner", 3, npc.name), MemoryEvent.INSULTED);
+            return InteractionOutcome.of(-15, -20, -30, -25, pickRandomTranslation("npc-dialogues.chat.mean.partner", 3, npc.name), MemoryEvent.INSULTED);
         }
         
         if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
-            return InteractionOutcome.of(-10, 0, -15, -20, pickRandomTranslation("simtale.chat.mean.aggressive", 5, npc.name), MemoryEvent.INSULTED);
+            return InteractionOutcome.of(-10, 0, -15, -20, pickRandomTranslation("npc-dialogues.chat.mean.aggressive", 5, npc.name), MemoryEvent.INSULTED);
         }
         if (npc.personality.traits.contains(Trait.NEEDY)) {
-            return InteractionOutcome.of(-5, 0, -15, -15, pickRandomTranslation("simtale.chat.mean.needy", 5, npc.name), MemoryEvent.INSULTED);
+            return InteractionOutcome.of(-5, 0, -15, -15, pickRandomTranslation("npc-dialogues.chat.mean.needy", 5, npc.name), MemoryEvent.INSULTED);
         }
         
-        return InteractionOutcome.of(-5, 0, -15, -15, pickRandomTranslation("simtale.chat.mean.normal", 5, npc.name), MemoryEvent.INSULTED);
+        return InteractionOutcome.of(-5, 0, -15, -15, pickRandomTranslation("npc-dialogues.chat.mean.normal", 5, npc.name), MemoryEvent.INSULTED);
     }
 
     private static InteractionOutcome handleRandom(Relationship rel) {
-        String key = rel.status == RelationshipStatus.STRANGER ? "simtale.chat.random.stranger" : "simtale.chat.random.known";
+        String key = rel.status == RelationshipStatus.STRANGER ? "npc-dialogues.chat.random.stranger" : "npc-dialogues.chat.random.known";
         return InteractionOutcome.of(0, 0, 0, 1, Message.translation(key), MemoryEvent.CHATTED);
     }
 
     private static InteractionOutcome handleGift(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, Relationship rel, boolean isChild) {
         Optional<ItemStack> optItem = getHeldItemFromPlayer(playerRef);
         if (optItem.isEmpty()) {
-            return InteractionOutcome.error(Message.translation("simtale.chat.gift.noitem"));
+            return InteractionOutcome.error(Message.translation("npc-dialogues.chat.gift.noitem"));
         }
 
         ItemStack heldItem = optItem.get();
@@ -217,26 +217,26 @@ public class InteractionManager {
                 LifecycleManager.tickGrowth(childComp, Universe.get().getWorlds().values().iterator().next().getTick());
             }
             return InteractionOutcome.ofItem(0, 0, 0, 0, 
-                Message.translation("simtale.chat.gift.accelerated").param("name", npc.name).param("item", itemName), 
+                Message.translation("npc-dialogues.chat.gift.accelerated").param("name", npc.name).param("item", itemName), 
                 MemoryEvent.GIFTED, true);
         }
-        return InteractionOutcome.error(Message.translation("simtale.chat.gift.child_reject").param("name", npc.name).insert(Message.raw(". Try giving some food!")));
+        return InteractionOutcome.error(Message.translation("npc-dialogues.chat.gift.child_reject").param("name", npc.name).insert(Message.raw(". Try giving some food!")));
     }
 
     private static InteractionOutcome handleMarriageProposal(SimNPCComponent npc, Relationship rel, UUID playerUuid) {
         if (npc.family.isMarried) {
-            return InteractionOutcome.error(Message.translation("simtale.chat.marriage.already_married").param("name", npc.name));
+            return InteractionOutcome.error(Message.translation("npc-dialogues.chat.marriage.already_married").param("name", npc.name));
         }
 
         if (rel.romance >= 80 && rel.friendship >= 70) {
             rel.status = RelationshipStatus.MARRIED;
             npc.family.marry(playerUuid, null);
             return InteractionOutcome.ofItem(0, 0, 0, 0, 
-                Message.translation("simtale.chat.marriage.accept." + ThreadLocalRandom.current().nextInt(1, 3)).param("name", npc.name), 
+                Message.translation("npc-dialogues.chat.marriage.accept." + ThreadLocalRandom.current().nextInt(1, 3)).param("name", npc.name), 
                 MemoryEvent.GIFTED, true);
         }
         
-        return InteractionOutcome.error(Message.translation("simtale.chat.marriage.reject." + ThreadLocalRandom.current().nextInt(1, 3)).param("name", npc.name));
+        return InteractionOutcome.error(Message.translation("npc-dialogues.chat.marriage.reject." + ThreadLocalRandom.current().nextInt(1, 3)).param("name", npc.name));
     }
 
     private static InteractionOutcome calculateGiftAffinity(SimNPCComponent npc, String itemId, String itemName, Relationship rel) {
@@ -254,24 +254,24 @@ public class InteractionManager {
         double multiplier = rel.status == RelationshipStatus.ENEMIES ? 0.5 : (rel.status == RelationshipStatus.MARRIED ? 1.5 : 1.0);
 
         if (loves) {
-            return InteractionOutcome.ofItem((int)(15 * multiplier), 0, (int)(8 * multiplier), (int)(25 * multiplier), Message.translation("simtale.chat.gift.loves").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+            return InteractionOutcome.ofItem((int)(15 * multiplier), 0, (int)(8 * multiplier), (int)(25 * multiplier), Message.translation("npc-dialogues.chat.gift.loves").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
         } else if (hates) {
-            return InteractionOutcome.ofItem((int)(-15 * multiplier), 0, (int)(-10 * multiplier), (int)(-20 * multiplier), Message.translation("simtale.chat.gift.hates").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+            return InteractionOutcome.ofItem((int)(-15 * multiplier), 0, (int)(-10 * multiplier), (int)(-20 * multiplier), Message.translation("npc-dialogues.chat.gift.hates").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
         } else if (isTrash) {
-            return InteractionOutcome.ofItem(-10, 0, -5, -15, Message.translation("simtale.chat.gift.trash").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+            return InteractionOutcome.ofItem(-10, 0, -5, -15, Message.translation("npc-dialogues.chat.gift.trash").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
         } else if (npc.personality.traits.contains(Trait.GREEDY)) {
-            return InteractionOutcome.ofItem((int)(10 * multiplier), 0, 5, (int)(20 * multiplier), Message.translation("simtale.chat.gift.greedy").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+            return InteractionOutcome.ofItem((int)(10 * multiplier), 0, 5, (int)(20 * multiplier), Message.translation("npc-dialogues.chat.gift.greedy").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
         } else if (npc.personality.traits.contains(Trait.PARANOID)) {
-            return InteractionOutcome.ofItem(-5, 0, -10, -10, Message.translation("simtale.chat.gift.paranoid").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+            return InteractionOutcome.ofItem(-5, 0, -10, -10, Message.translation("npc-dialogues.chat.gift.paranoid").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
         }
         
-        return InteractionOutcome.ofItem((int)(5 * multiplier), 0, 3, (int)(10 * multiplier), Message.translation("simtale.chat.gift.normal").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+        return InteractionOutcome.ofItem((int)(5 * multiplier), 0, 3, (int)(10 * multiplier), Message.translation("npc-dialogues.chat.gift.normal").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
     }
 
     private static InteractionOutcome handleProfession(SimNPCComponent npc, PlayerRef playerRef, Relationship rel) {
         Optional<ItemStack> optItem = getHeldItemFromPlayer(playerRef);
         if (optItem.isEmpty()) {
-            return InteractionOutcome.error(Message.translation("simtale.chat.prof.assign.noitem").param("name", npc.name));
+            return InteractionOutcome.error(Message.translation("npc-dialogues.chat.prof.assign.noitem").param("name", npc.name));
         }
 
         ItemStack heldItem = optItem.get();
@@ -280,22 +280,22 @@ public class InteractionManager {
         Profession targetProf = Profession.fromItemId(itemId);
 
         if (targetProf == null) {
-            return InteractionOutcome.error(Message.translation("simtale.chat.prof.assign.unknown").param("name", npc.name).param("itemName", itemName));
+            return InteractionOutcome.error(Message.translation("npc-dialogues.chat.prof.assign.unknown").param("name", npc.name).param("itemName", itemName));
         }
 
         String profName = targetProf.ptName;
 
         if (npc.profession == targetProf) {
-            return InteractionOutcome.error(Message.translation("simtale.chat.prof.assign.already").param("name", npc.name).param("profName", profName));
+            return InteractionOutcome.error(Message.translation("npc-dialogues.chat.prof.assign.already").param("name", npc.name).param("profName", profName));
         }
 
         // Se for inimigo ou desconhecido, recusa trabalhar pra você quase sempre
         if (rel.status == RelationshipStatus.ENEMIES || rel.status == RelationshipStatus.STRANGER) {
-             return InteractionOutcome.of(-5, 0, -5, -10, pickRandomTranslation("simtale.chat.prof.assign.refuse_status", 3, npc.name).param("profName", profName), MemoryEvent.CHATTED);
+             return InteractionOutcome.of(-5, 0, -5, -10, pickRandomTranslation("npc-dialogues.chat.prof.assign.refuse_status", 3, npc.name).param("profName", profName), MemoryEvent.CHATTED);
         }
 
         if (npc.preferences != null && npc.preferences.dislikedProfessions.contains(targetProf)) {
-            return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("simtale.chat.prof.assign.dislike", 4, npc.name).param("profName", profName).param("itemName", itemName), MemoryEvent.CHATTED);
+            return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.dislike", 4, npc.name).param("profName", profName).param("itemName", itemName), MemoryEvent.CHATTED);
         }
 
         boolean isHeavyWork = (targetProf == Profession.MINER || targetProf == Profession.LUMBERJACK);
@@ -303,28 +303,28 @@ public class InteractionManager {
         double roll = ThreadLocalRandom.current().nextDouble();
 
         if (npc.personality.traits.contains(Trait.LAZY) && isHeavyWork && roll < 0.6) {
-            return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("simtale.chat.prof.assign.lazy", 3, npc.name).param("profName", profName), MemoryEvent.CHATTED);
+            return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.lazy", 3, npc.name).param("profName", profName), MemoryEvent.CHATTED);
         }
         if (npc.personality.traits.contains(Trait.AGGRESSIVE) && isPeacefulWork && roll < 0.7) {
-            return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("simtale.chat.prof.assign.aggressive", 3, npc.name).param("profName", profName), MemoryEvent.CHATTED);
+            return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.aggressive", 3, npc.name).param("profName", profName), MemoryEvent.CHATTED);
         }
         if (npc.getMood() == Mood.ANGRY && roll < 0.5) {
-            return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("simtale.chat.prof.assign.angry", 3, npc.name), MemoryEvent.CHATTED);
+            return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.angry", 3, npc.name), MemoryEvent.CHATTED);
         }
 
         Message prefix = Message.raw("");
         if (npc.profession != null && npc.profession != Profession.UNEMPLOYED && !npc.profession.triggerItemKeyword.isEmpty()) {
-            prefix = Message.translation("simtale.chat.prof.assign.return").param("name", npc.name).param("profName", npc.profession.ptName).insert(Message.raw(" "));
+            prefix = Message.translation("npc-dialogues.chat.prof.assign.return").param("name", npc.name).param("profName", npc.profession.ptName).insert(Message.raw(" "));
         }
 
         npc.profession = targetProf;
 
         if (npc.preferences != null && npc.preferences.likedProfessions.contains(targetProf)) {
-            Message reaction = pickRandomTranslation("simtale.chat.prof.assign.liked", 3, npc.name).param("profName", profName).param("itemName", itemName);
+            Message reaction = pickRandomTranslation("npc-dialogues.chat.prof.assign.liked", 3, npc.name).param("profName", profName).param("itemName", itemName);
             return InteractionOutcome.ofItem(15, 0, 10, 25, prefix.insert(reaction), MemoryEvent.CHATTED, true);
         }
 
-        Message reaction = pickRandomTranslation("simtale.chat.prof.assign.accept", 5, npc.name).param("profName", profName).param("itemName", itemName);
+        Message reaction = pickRandomTranslation("npc-dialogues.chat.prof.assign.accept", 5, npc.name).param("profName", profName).param("itemName", itemName);
         return InteractionOutcome.ofItem(8, 0, 5, 15, prefix.insert(reaction), MemoryEvent.CHATTED, true);
     }
 
@@ -414,7 +414,7 @@ public class InteractionManager {
                     if (statMap != null) {
                         EntityStatValue healthVal = statMap.get(DefaultEntityStatTypes.getHealth());
                         if (healthVal != null && healthVal.get() > 0 && healthVal.get() <= 20f) {
-                            return Message.translation("simtale.chat.context.bleeding").param("name", npc.name);
+                            return Message.translation("npc-dialogues.chat.context.bleeding").param("name", npc.name);
                         }
                     }
                 }
@@ -425,37 +425,37 @@ public class InteractionManager {
                 WorldTimeResource timeResource = world.getEntityStore().getStore().getResource(WorldTimeResource.getResourceType());
                 float dayProgress = timeResource.getDayProgress();
                 if (dayProgress < 0.25f || dayProgress > 0.75f) {
-                    return Message.translation("simtale.chat.context.night").param("name", npc.name);
+                    return Message.translation("npc-dialogues.chat.context.night").param("name", npc.name);
                 }
             }
         }
 
         if (npc.memory.remembers(MemoryEvent.INSULTED, playerUuid, 300000)) {
-            return Message.translation("simtale.chat.context.insulted.recent").param("name", npc.name);
+            return Message.translation("npc-dialogues.chat.context.insulted.recent").param("name", npc.name);
         }
 
         // Modificações guiadas pelo RelationshipStatus
         return switch (rel.status) {
-            case MARRIED, PARTNER, ENGAGED -> pickRandomTranslation("simtale.chat.greeting.romantic", 5, npc.name);
-            case ENEMIES -> pickRandomTranslation("simtale.chat.greeting.enemy", 3, npc.name);
-            case BEST_FRIEND -> pickRandomTranslation("simtale.chat.greeting.close_friend", 5, npc.name);
-            case STRANGER, UNKNOWN -> pickRandomTranslation("simtale.chat.greeting.stranger", 5, npc.name);
+            case MARRIED, PARTNER, ENGAGED -> pickRandomTranslation("npc-dialogues.chat.greeting.romantic", 5, npc.name);
+            case ENEMIES -> pickRandomTranslation("npc-dialogues.chat.greeting.enemy", 3, npc.name);
+            case BEST_FRIEND -> pickRandomTranslation("npc-dialogues.chat.greeting.close_friend", 5, npc.name);
+            case STRANGER, UNKNOWN -> pickRandomTranslation("npc-dialogues.chat.greeting.stranger", 5, npc.name);
             default -> getDefaultTraitGreeting(npc);
         };
     }
     
     private static Message getDefaultTraitGreeting(SimNPCComponent npc) {
-        if (npc.personality.traits.contains(Trait.GREEDY)) return pickRandomTranslation("simtale.chat.greedy.greeting", 3, npc.name);
-        if (npc.personality.traits.contains(Trait.PARANOID)) return pickRandomTranslation("simtale.chat.paranoid.greeting", 3, npc.name);
-        if (npc.personality.traits.contains(Trait.LAZY)) return pickRandomTranslation("simtale.chat.lazy.greeting", 3, npc.name);
+        if (npc.personality.traits.contains(Trait.GREEDY)) return pickRandomTranslation("npc-dialogues.chat.greedy.greeting", 3, npc.name);
+        if (npc.personality.traits.contains(Trait.PARANOID)) return pickRandomTranslation("npc-dialogues.chat.paranoid.greeting", 3, npc.name);
+        if (npc.personality.traits.contains(Trait.LAZY)) return pickRandomTranslation("npc-dialogues.chat.lazy.greeting", 3, npc.name);
 
-        return pickRandomTranslation("simtale.chat.friendly.greeting", 5, npc.name);
+        return pickRandomTranslation("npc-dialogues.chat.friendly.greeting", 5, npc.name);
     }
 
     private static Message getCooldownMessage(InteractionType type, String npcName) {
-        if (type == InteractionType.FRIENDLY) return Message.translation("simtale.chat.cooldown.friendly").param("name", npcName);
-        if (type == InteractionType.GIFT) return Message.translation("simtale.chat.cooldown.gift").param("name", npcName);
-        return Message.translation("simtale.chat.cooldown.general").param("name", npcName);
+        if (type == InteractionType.FRIENDLY) return Message.translation("npc-dialogues.chat.cooldown.friendly").param("name", npcName);
+        if (type == InteractionType.GIFT) return Message.translation("npc-dialogues.chat.cooldown.gift").param("name", npcName);
+        return Message.translation("npc-dialogues.chat.cooldown.general").param("name", npcName);
     }
 
     private static Message pickRandomTranslation(String baseKey, int optionsCount, String npcName) {
