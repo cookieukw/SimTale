@@ -441,6 +441,47 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
+        if (ai.currentTask == TaskType.MOVING_TO_CONSTRUCTION) {
+            if (ai.targetBlockPosition == null) {
+                ai.currentTask = TaskType.IDLE;
+                return;
+            }
+            Vector3d pos = transform.getPosition();
+            double dx = (ai.targetBlockPosition.x + 0.5) - pos.x;
+            double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
+            if (dx*dx + dz*dz < 3.0 * 3.0) {
+                clearMoveTarget(ref, ai);
+                ai.currentTask = TaskType.BUILDING;
+                ai.taskStartTime = world.getTick();
+                playAnim(ref, "Characters/Animations/Actions/Smith.blockyanim", "Smith", store);
+            } else {
+                moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
+            }
+        }
+
+        if (ai.currentTask == TaskType.BUILDING) {
+            ConstructionSiteComponent activeSite = null;
+            for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
+                if (site.isBuilding && site.anchor.equals(ai.targetBlockPosition)) {
+                    activeSite = site;
+                    break;
+                }
+            }
+            if (activeSite == null) {
+                ai.currentTask = TaskType.IDLE;
+                playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+            } else {
+                if ((world.getTick() - ai.taskStartTime) % 40 == 0) {
+                    playAnim(ref, "Characters/Animations/Actions/Smith.blockyanim", "Smith", store);
+                }
+                npc.needs.energy = Math.max(0f, npc.needs.energy - 0.05f);
+                if (npc.needs.energy <= 10f) {
+                    ai.currentTask = TaskType.IDLE;
+                    playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                }
+            }
+        }
+
         commandBuffer.replaceComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
     }
 
