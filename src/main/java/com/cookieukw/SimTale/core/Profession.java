@@ -27,6 +27,19 @@ public enum Profession {
         return allowedJobs.contains(job);
     }
 
+    /** Returns a comma-separated list of Portuguese job names this profession can perform. */
+    public String getJobListPt() {
+        if (allowedJobs.isEmpty()) return "nenhum trabalho específico";
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (JobType j : allowedJobs) {
+            if (!first) sb.append(", ");
+            sb.append(j.getPortugueseName());
+            first = false;
+        }
+        return sb.toString();
+    }
+
     /**
      * Finds a profession based on the item ID the player is holding.
      * Matches by checking if the item ID contains the trigger keyword.
