@@ -71,7 +71,7 @@ public class LifecycleUtils {
         CombinedItemContainer combinedInventory = InventoryComponent.getCombined(pRef.getStore(), pRef, InventoryComponent.HOTBAR_FIRST);
         for (short slot = 0; slot < combinedInventory.getCapacity(); slot++) {
             ItemStack item = combinedInventory.getItemStack(slot);
-            if (item != null && item.getItemId().equals("simtale:baby")) {
+            if (item != null && item.getItemId().equals("simtale:Baby")) {
                 String cId = item.getFromMetadataOrNull("childId", Codec.STRING);
                 if (cId != null && cId.equals(oldChildId.toString())) {
                     combinedInventory.removeItemStackFromSlot(slot, item, 1);

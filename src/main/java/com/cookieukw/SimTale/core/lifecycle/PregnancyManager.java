@@ -274,7 +274,7 @@ public class PregnancyManager {
             EffectHelper.modifyMovement(playerRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);
             StatHelper.subtractHealth(playerRef, 50.0f);
 
-            ItemStack babyItem = new ItemStack("simtale:baby", 1).withMetadata("childId", Codec.STRING, child.childId.toString());
+            ItemStack babyItem = new ItemStack("simtale:Baby", 1).withMetadata("childId", Codec.STRING, child.childId.toString());
             CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
             ItemStackTransaction transaction = combinedInventory.addItemStack(babyItem);
             ItemStack remainder = transaction.getRemainder();

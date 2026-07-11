@@ -130,7 +130,7 @@ public class BabyCareManager {
                 if (care.currentTurnOwnerId.equals(playerUuidStr) && !playerUuidStr.equals(care.currentHolderId)) {
                     // Give baby to player if inventory has space
                     CombinedItemContainer combinedInventory = InventoryComponent.getCombined(store, playerRef, InventoryComponent.HOTBAR_FIRST);
-                    ItemStack babyItem = new ItemStack("simtale:baby", 1).withMetadata("childId", Codec.STRING, care.childId);
+                    ItemStack babyItem = new ItemStack("simtale:Baby", 1).withMetadata("childId", Codec.STRING, care.childId);
                     
                     ItemStackTransaction transaction = combinedInventory.addItemStack(babyItem);
                     ItemStack remainder = transaction.getRemainder();
@@ -159,7 +159,7 @@ public class BabyCareManager {
                     boolean removed = false;
                     for (short slot = 0; slot < combinedInventory.getCapacity(); slot++) {
                         ItemStack item = combinedInventory.getItemStack(slot);
-                        if (item != null && item.getItemId().equals("simtale:baby")) {
+                        if (item != null && item.getItemId().equals("simtale:Baby")) {
                             String cId = item.getFromMetadataOrNull("childId", Codec.STRING);
                             if (care.childId.equals(cId)) {
                                 combinedInventory.removeItemStackFromSlot(slot, item, 1);

@@ -20,7 +20,7 @@
     ],
     "Translation": [
       0,
-      -13
+     0
     ]
   },
   "Tags": {
@@ -28,7 +28,7 @@
       "Ingredient"
     ]
   },
-  "Scale": 0.8,
+  "Scale": 1,
   "MaxStack": 1,
   "DropOnDeath": false
 }
