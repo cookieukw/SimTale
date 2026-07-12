@@ -8,6 +8,9 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.builtin.mounts.BlockMountAPI;
+import com.hypixel.hytale.builtin.mounts.MountedComponent;
+import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -51,6 +54,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     private static final int FOOD_SEARCH_COOLDOWN_TICKS = 40;
     private static final int BATH_SEARCH_COOLDOWN_TICKS = 40;
     private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 60;
+    private static final int SLEEP_DURATION_TICKS = 20 * 8;
+    private static final int WAKE_ANIM_TICKS = 20;
+    private static final double BED_REACH_DISTANCE_SQ = 0.75 * 0.75;
     private static final double LEASH_UPDATE_THRESHOLD_SQ = 0.25; 
     private static final int LEASH_FORCE_UPDATE_TICKS = 20; 
     private static final Logger LOGGER = LoggerFactory.getLogger(RoutineAISystem.class);
@@ -104,7 +110,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // Ensure Frozen component is cleared if task changes externally and dialogue is inactive
         boolean hasFrozen = store.getComponent(ref, Frozen.getComponentType()) != null;
-        if (ai.currentTask != TaskType.SLEEPING && hasFrozen && npc.currentConversationPartner == null && !npc.isInteractingViaUI) {
+        if (ai.currentTask != TaskType.SLEEPING && ai.currentTask != TaskType.ENTERING_BED
+                && ai.currentTask != TaskType.WAKING
+                && hasFrozen && npc.currentConversationPartner == null && !npc.isInteractingViaUI) {
             commandBuffer.tryRemoveComponent(ref, Frozen.getComponentType());
         }
 
@@ -236,46 +244,93 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
+        // --- MOVING_TO_BED: navigate to approach position adjacent to bed ---
         if (ai.currentTask == TaskType.MOVING_TO_BED) {
-            if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
-            Vector3d pos = transform.getPosition();
-            double dx = (ai.targetBlockPosition.x + 0.5) - pos.x;
-            double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
-            if (dx*dx + dz*dz < 1.5 * 1.5) {
-                clearMoveTarget(ref, ai);
-                
-                // If we arrived and the bed is not in BEDS, it was destroyed (since chunk is loaded)
-                if (npc.bedLocation != null && !BedRegistry.BEDS.contains(npc.bedLocation)) {
+            if (npc.bedLocation == null) {
+                ai.currentTask = TaskType.FINDING_BED;
+                ai.taskStartTime = world.getTick();
+                return;
+            }
+
+            Vector3i bedPos = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
+
+            // Validate bed still exists (only if chunk is loaded)
+            if (!BedRegistry.BEDS.contains(npc.bedLocation)) {
+                WorldChunk bedChunk = world.getChunk(ChunkUtil.indexChunk(bedPos.x >> 4, bedPos.z >> 4));
+                if (bedChunk != null) {
+                    // Chunk loaded but bed gone — destroyed
                     npc.bedLocation = null;
                     npc.family.hasSharedHome = false;
                     ai.currentTask = TaskType.IDLE;
                     return;
                 }
-                
-                // Snap position exactly to bed surface with a small Y offset
-                Vector3d snapPos = new Vector3d(ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.y + 0.35, ai.targetBlockPosition.z + 0.5);
-                transform.teleportPosition(snapPos);
-                
-                // Align rotation to bed's yaw
-                float bedYaw = npc.bedLocation != null ? npc.bedLocation.yaw : 0f;
-                transform.teleportRotation(new Rotation3f(0f, bedYaw, 0f));
-                commandBuffer.putComponent(ref, TransformComponent.getComponentType(), transform);
+            }
 
-                ai.currentTask = TaskType.SLEEPING;
-                playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
-                commandBuffer.ensureComponent(ref, Frozen.getComponentType());
+            Vector3i approachPos = getBedApproachPosition(bedPos, transform, world);
+            ai.targetBlockPosition = approachPos;
+
+            Vector3d pos = transform.getPosition();
+            double dx = (approachPos.x + 0.5) - pos.x;
+            double dz = (approachPos.z + 0.5) - pos.z;
+
+            if (dx * dx + dz * dz < BED_REACH_DISTANCE_SQ) {
+                clearMoveTarget(ref, ai);
+                ai.currentTask = TaskType.ENTERING_BED;
+                ai.taskStartTime = world.getTick();
             } else {
-                moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
+                moveTo(ref, ai, world, new Vector3d(approachPos.x + 0.5, pos.y, approachPos.z + 0.5));
             }
         }
 
+        // --- ENTERING_BED: attempt to mount onto the bed block ---
+        if (ai.currentTask == TaskType.ENTERING_BED) {
+            if (npc.bedLocation == null) {
+                ai.currentTask = TaskType.FINDING_BED;
+                ai.taskStartTime = world.getTick();
+                return;
+            }
+
+            Vector3i bedPos = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
+            Vector3i approachPos = ai.targetBlockPosition != null ? ai.targetBlockPosition : getBedApproachPosition(bedPos, transform, world);
+            Vector3d interactPos = getBedInteractionPosition(bedPos, approachPos);
+
+            BlockMountAPI.BlockMountResult result = BlockMountAPI.mountOnBlock(ref, commandBuffer, bedPos, interactPos);
+
+            if (result instanceof BlockMountAPI.Mounted) {
+                setSleepingState(ref, store, true);
+                playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
+                ai.currentTask = TaskType.SLEEPING;
+                ai.taskStartTime = world.getTick();
+            } else {
+                // Mount failed (occupied, destroyed, no mount point, etc.)
+                LOGGER.warn("[SimTale] Bed mount failed for NPC '{}': {}", npc.name, result);
+                npc.bedLocation = null;
+                ai.currentTask = TaskType.FINDING_BED;
+                ai.taskStartTime = world.getTick();
+            }
+        }
+
+        // --- SLEEPING: maintain sleep state and recover energy ---
         if (ai.currentTask == TaskType.SLEEPING) {
+            setSleepingState(ref, store, true);
             npc.needs.healEnergy(0.5f);
-            if (npc.needs.energy >= 100) {
-                npc.needs.energy = 100;
-                ai.currentTask = TaskType.IDLE;
+
+            if (npc.needs.energy >= 100 || world.getTick() - ai.taskStartTime >= SLEEP_DURATION_TICKS) {
+                npc.needs.energy = Math.min(100f, npc.needs.energy);
+                ai.currentTask = TaskType.WAKING;
+                ai.taskStartTime = world.getTick();
                 playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
-                commandBuffer.tryRemoveComponent(ref, Frozen.getComponentType());
+            }
+        }
+
+        // --- WAKING: wait for wake animation then dismount ---
+        if (ai.currentTask == TaskType.WAKING) {
+            if (world.getTick() - ai.taskStartTime >= WAKE_ANIM_TICKS) {
+                commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
+                setSleepingState(ref, store, false);
+                playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                ai.currentTask = TaskType.IDLE;
+                ai.taskStartTime = world.getTick();
             }
         }
 
@@ -560,5 +615,95 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
     void playAnim(Ref<EntityStore> ref, String anim, String name, Store<EntityStore> store) {
         AnimationUtils.playAnimation(ref, AnimationSlot.Action, anim, name, store);
+    }
+
+    /**
+     * Set or clear the sleeping movement state on an NPC.
+     * When sleeping=true: locks movement by disabling walk/run/sprint/jump and enabling sleeping+mounting.
+     * When sleeping=false: restores idle state and clears sleep flags.
+     */
+    private void setSleepingState(Ref<EntityStore> ref, Store<EntityStore> store, boolean sleeping) {
+        MovementStatesComponent msc = store.getComponent(ref, MovementStatesComponent.getComponentType());
+        if (msc == null) return;
+        com.hypixel.hytale.protocol.MovementStates ms = msc.getMovementStates();
+        ms.idle = true;
+        ms.horizontalIdle = true;
+        ms.walking = false;
+        ms.running = false;
+        ms.sprinting = false;
+        ms.jumping = false;
+        ms.falling = false;
+        ms.mantling = false;
+        ms.sliding = false;
+        ms.mounting = sleeping;
+        ms.sleeping = sleeping;
+    }
+
+    /**
+     * Find the best adjacent block to stand on when approaching a bed.
+     * Checks all 4 cardinal directions and picks the standable block closest to the NPC.
+     * Falls back to the bed position itself if no standable neighbor found.
+     */
+    private Vector3i getBedApproachPosition(Vector3i bedPos, TransformComponent transform, World world) {
+        Vector3i[] candidates = {
+            new Vector3i(bedPos.x + 1, bedPos.y, bedPos.z),
+            new Vector3i(bedPos.x - 1, bedPos.y, bedPos.z),
+            new Vector3i(bedPos.x, bedPos.y, bedPos.z + 1),
+            new Vector3i(bedPos.x, bedPos.y, bedPos.z - 1)
+        };
+
+        Vector3d npcPos = transform.getPosition();
+        Vector3i best = null;
+        double bestDistSq = Double.MAX_VALUE;
+
+        for (Vector3i c : candidates) {
+            if (!isStandable(c, world)) continue;
+            double dx = (c.x + 0.5) - npcPos.x;
+            double dz = (c.z + 0.5) - npcPos.z;
+            double d2 = dx * dx + dz * dz;
+            if (d2 < bestDistSq) {
+                bestDistSq = d2;
+                best = c;
+            }
+        }
+
+        // Fallback: if no standable neighbor, use bed position directly
+        return best != null ? best : bedPos;
+    }
+
+    /**
+     * Calculate the interaction position for mounting a bed.
+     * Returns a point slightly offset from the bed center toward the approach direction,
+     * so BlockMountAPI selects the correct mount point.
+     */
+    private Vector3d getBedInteractionPosition(Vector3i bedPos, Vector3i approachPos) {
+        double dx = bedPos.x - approachPos.x;
+        double dz = bedPos.z - approachPos.z;
+        return new Vector3d(
+            bedPos.x + 0.5 + (dx * 0.35),
+            bedPos.y + 0.2,
+            bedPos.z + 0.5 + (dz * 0.35)
+        );
+    }
+
+    /**
+     * Check if a position is standable: the block and the one above must be air (passable),
+     * and the block below must be solid (non-null block type).
+     */
+    private boolean isStandable(Vector3i pos, World world) {
+        WorldChunk chunk = world.getChunk(ChunkUtil.indexChunk(pos.x >> 4, pos.z >> 4));
+        if (chunk == null) return false;
+
+        // Block at pos should be air (null or air type)
+        BlockType atPos = chunk.getBlockType(pos);
+        if (atPos != null && atPos.getId() != null) return false;
+
+        // Block above should be air too (space for entity)
+        BlockType above = chunk.getBlockType(new Vector3i(pos.x, pos.y + 1, pos.z));
+        if (above != null && above.getId() != null) return false;
+
+        // Block below should be solid (not air)
+        BlockType below = chunk.getBlockType(new Vector3i(pos.x, pos.y - 1, pos.z));
+        return below != null && below.getId() != null;
     }
 }
