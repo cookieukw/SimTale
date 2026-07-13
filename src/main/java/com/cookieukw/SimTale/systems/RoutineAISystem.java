@@ -362,7 +362,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 // This prevents Hytale's physics engine from pushing her sideways onto the grass.
                 // Start with the center of the claimed bed block
                 double seatX = bedPos.x + 0.5;
-                double seatY = bedPos.y + 1.5; // Drop from slightly above to land smoothly on mattress
+                double seatY = bedPos.y + 2.0; // User preferred drop height to land perfectly without sliding
                 double seatZ = bedPos.z + 0.5;
                 
                 // Adjust to the exact geometric center if it's a double bed
