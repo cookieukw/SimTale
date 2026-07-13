@@ -66,6 +66,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ForceMarrySubCommand());
         this.addSubCommand(new DebugBedsSubCommand());
         this.addSubCommand(new PregnancySubCommand());
+        this.addSubCommand(new DebugNearSubCommand());
     }
 
     @Override
@@ -76,7 +77,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -281,14 +282,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             nearestNPC.needs.energy = 0f;
-            
-            RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
-            if (ai != null) {
-                ai.currentTask = RoutineAIComponent.TaskType.FINDING_BED;
-                ai.targetBlockPosition = null;
-                ai.taskStartTime = world.getTick();
-                store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
-            }
+            nearestNPC.forceSleep = true;
             
             ctx.sendMessage(Message.raw("Forcando " + nearestNPC.name + " a ir dormir! Energia definida para 0."));
         }
@@ -581,6 +575,56 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     BedWorldBootstrap.bootstrapLoadedRadius(world, tc.getPosition(), 96);
                 }
                 player.getPageManager().openCustomPage(ref, store, new SimBedDebugPage(playerRef, player));
+            }
+        }
+    }
+
+    private static class DebugNearSubCommand extends AbstractPlayerCommand {
+        public DebugNearSubCommand() {
+            super("debugnear", "Mostra detalhes de blocos e entidades proximas");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
+            if (tc == null) {
+                ctx.sendMessage(Message.raw("Erro: TransformComponent nulo."));
+                return;
+            }
+
+            Vector3d pos = tc.getPosition();
+            int px = (int) Math.floor(pos.x);
+            int py = (int) Math.floor(pos.y);
+            int pz = (int) Math.floor(pos.z);
+
+            ctx.sendMessage(Message.raw("--- DIAGNOSTICO PROXIMO (Sua Pos: " + px + "," + py + "," + pz + ") ---"));
+
+            // 1. Scan blocks in 3x3x3
+            ctx.sendMessage(Message.raw("Blocos proximos:"));
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 2; dy++) {
+                    for (int dz = -1; dz <= 1; dz++) {
+                        com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType type = world.getBlockType(px + dx, py + dy, pz + dz);
+                        if (type != null && type.getId() != null && !type.getId().equalsIgnoreCase("Empty")) {
+                            ctx.sendMessage(Message.raw("  Block (" + dx + "," + dy + "," + dz + "): ID='" + type.getId() + "'"));
+                        }
+                    }
+                }
+            }
+
+            // 2. Scan all ACTIVE_NPCS near the player
+            ctx.sendMessage(Message.raw("NPCs Ativos proximos:"));
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null) {
+                    TransformComponent npcTc = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (npcTc != null) {
+                        double dist = pos.distance(npcTc.getPosition());
+                        if (dist <= 15.0) {
+                            ctx.sendMessage(Message.raw("  NPC: Name='" + npc.name + "' Dist=" + String.format("%.2f", dist) + " (id=" + npc.entityId + ")"));
+                        }
+                    }
+                }
             }
         }
     }
