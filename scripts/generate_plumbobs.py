@@ -14,7 +14,8 @@ MOOD_COLORS = {
     "SAD": (30, 100, 255),      # Deep Blue
     "SCARED": (255, 140, 0),    # Orange
     "SLEEPY": (148, 0, 211),    # Purple
-    "EXCITED": (255, 215, 0)    # Gold
+    "EXCITED": (255, 215, 0),   # Gold
+    "BORED": (160, 160, 160)    # Slate Gray
 }
 
 # Ensure directories exist
