@@ -33,6 +33,12 @@ public class SimNPCData {
     public Gender gender;
     public SimBedData.BedPos bedLocation;
     public PregnancyComponent pregnancy;
+    
+    // Emotion system persistence fields
+    public String activeEmotion = "NEUTRAL";
+    public float emotionIntensity = 0.0f;
+    public String emotionSource = "routine";
+    public long lastEmotionChangeTick = 0;
 
     /**
      * Required for Caskara POJO persistence.

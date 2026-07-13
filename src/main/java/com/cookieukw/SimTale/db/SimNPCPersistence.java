@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.db;
 
 import com.cookieukw.SimTale.core.MemoryManager;
+import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -47,6 +48,11 @@ public class SimNPCPersistence {
             data.relationships.put(entry.getKey().toString(), entry.getValue());
         }
 
+        data.activeEmotion = component.activeEmotion != null ? component.activeEmotion.name() : "NEUTRAL";
+        data.emotionIntensity = component.emotionIntensity;
+        data.emotionSource = component.emotionSource;
+        data.lastEmotionChangeTick = component.lastEmotionChangeTick;
+
         Caskara.save(component.entityId.toString(), data);
     }
 
@@ -87,6 +93,20 @@ public class SimNPCPersistence {
             if (data.pregnancy != null) {
                 component.pregnancy = data.pregnancy;
             }
+
+            // Restore emotion state
+            if (data.activeEmotion != null) {
+                try {
+                    component.activeEmotion = Mood.valueOf(data.activeEmotion);
+                } catch (IllegalArgumentException e) {
+                    component.activeEmotion = Mood.NEUTRAL;
+                }
+            }
+            component.emotionIntensity = data.emotionIntensity;
+            if (data.emotionSource != null) {
+                component.emotionSource = data.emotionSource;
+            }
+            component.lastEmotionChangeTick = data.lastEmotionChangeTick;
         }
     }
 
@@ -132,6 +152,21 @@ public class SimNPCPersistence {
                     if (data.pregnancy != null) {
                         comp.pregnancy = data.pregnancy;
                     }
+
+                    // Restore emotion state
+                    if (data.activeEmotion != null) {
+                        try {
+                            comp.activeEmotion = Mood.valueOf(data.activeEmotion);
+                        } catch (IllegalArgumentException e) {
+                            comp.activeEmotion = Mood.NEUTRAL;
+                        }
+                    }
+                    comp.emotionIntensity = data.emotionIntensity;
+                    if (data.emotionSource != null) {
+                        comp.emotionSource = data.emotionSource;
+                    }
+                    comp.lastEmotionChangeTick = data.lastEmotionChangeTick;
+
                     result.add(comp);
                 }
             }

@@ -35,6 +35,12 @@ public class SimNPCComponent implements Component<EntityStore> {
     public transient Ref<EntityStore> entityRef;
     public transient ModelComponent originalModel;
     
+    // Emotion system fields
+    public Mood activeEmotion = Mood.NEUTRAL;
+    public float emotionIntensity = 0.0f;
+    public String emotionSource = "routine";
+    public long lastEmotionChangeTick = 0;
+    
     // MobsAndMates job and conversation state
     public UUID currentConversationPartner;
     public long conversationTimeoutTick;
@@ -105,6 +111,12 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.jobEmployer = jobEmployer;
         clone.isAway = isAway;
         
+        // Clone emotion state
+        clone.activeEmotion = activeEmotion;
+        clone.emotionIntensity = emotionIntensity;
+        clone.emotionSource = emotionSource;
+        clone.lastEmotionChangeTick = lastEmotionChangeTick;
+        
         // Clone pregnancy
         if (pregnancy != null) {
             clone.pregnancy = new PregnancyComponent();
@@ -122,15 +134,43 @@ public class SimNPCComponent implements Component<EntityStore> {
     }
 
     public Mood getMood() {
-        if (memory.remembers(MemoryEvent.ATTACKED, null, 300000)) return Mood.SCARED;
-        if (memory.remembers(MemoryEvent.INSULTED, null, 120000)) return Mood.ANGRY;
+        return activeEmotion != null ? activeEmotion : Mood.NEUTRAL;
+    }
+
+    public void setEmotion(Mood emotion, float intensity, String source, long currentTick) {
+        long elapsed = currentTick - lastEmotionChangeTick;
+        boolean forceChange = false;
         
-        if (needs != null) {
-            if (personality.traits.contains(Trait.AGGRESSIVE) && (needs.hunger < 50 || needs.energy < 50)) return Mood.ANGRY;
-            if (needs.energy < 20) return Mood.SLEEPY;
-            if (needs.isMiserable()) return Mood.SAD;
-            return Mood.HAPPY;
+        if (elapsed < 100) {
+            int newPriority = getEmotionPriority(emotion);
+            int currentPriority = getEmotionPriority(activeEmotion);
+            if (newPriority > currentPriority) {
+                forceChange = true;
+            } else if (intensity - emotionIntensity > 0.4f) {
+                forceChange = true;
+            }
+        } else {
+            forceChange = true;
         }
-        return Mood.NEUTRAL;
+
+        if (forceChange) {
+            this.activeEmotion = emotion;
+            this.emotionIntensity = Math.max(0.0f, Math.min(1.0f, intensity));
+            this.emotionSource = source;
+            this.lastEmotionChangeTick = currentTick;
+        }
+    }
+
+    private int getEmotionPriority(Mood m) {
+        if (m == null) return 0;
+        return switch (m) {
+            case SCARED -> 6;
+            case ANGRY -> 5;
+            case SAD -> 4;
+            case SLEEPY -> 3;
+            case EXCITED, HAPPY -> 2;
+            case BORED -> 1;
+            case NEUTRAL -> 0;
+        };
     }
 }
