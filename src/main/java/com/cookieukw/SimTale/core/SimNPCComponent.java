@@ -45,6 +45,7 @@ public class SimNPCComponent implements Component<EntityStore> {
     public boolean isAway = false;
     public transient MagicEngine activeMagicGame;
     public transient boolean isInteractingViaUI = false;
+    public transient boolean forceSleep = false;
 
     /**
      * Default constructor for registry and codecs.

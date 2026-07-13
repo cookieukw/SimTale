@@ -73,7 +73,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                 if (world != null) {
                     WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(bp.x, bp.z));
                     // Display-only deduplication: skip the foot/secondary part of the bed
-                    if (chunk != null && BedWorldBootstrap.isPrimaryBedBlock(chunk, bp.x, bp.y, bp.z)) {
+                    if (chunk != null && BedWorldBootstrap.isPrimaryBedBlock(world, bp.x, bp.y, bp.z)) {
                         continue;
                     }
                 }
@@ -110,13 +110,13 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                 cmd.set(rowSelector + ".Visible", true);
                 cmd.set(rowSelector + " #Coords.Text", String.format("Cama %d — X: %d, Y: %d, Z: %d", bedIndex + 1, bp.x, bp.y, bp.z));
 
-                // Find owners
+                // Find owners (accept distance <= 1 block to handle offsets/deduplications)
                 List<String> owners = new ArrayList<>();
                 for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                     if (npc.bedLocation != null && 
-                        npc.bedLocation.x == bp.x && 
-                        npc.bedLocation.y == bp.y && 
-                        npc.bedLocation.z == bp.z) {
+                        Math.abs(npc.bedLocation.x - bp.x) <= 1 && 
+                        Math.abs(npc.bedLocation.y - bp.y) <= 1 && 
+                        Math.abs(npc.bedLocation.z - bp.z) <= 1) {
                         owners.add(npc.name);
                     }
                 }

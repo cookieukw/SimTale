@@ -73,7 +73,8 @@ public class SimNPCPersistence {
                 component.gender = data.gender;
             }
             if (data.bedLocation != null) {
-                component.bedLocation = new com.cookieukw.SimTale.db.SimBedData.BedPos(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z);
+                component.bedLocation = new com.cookieukw.SimTale.db.SimBedData.BedPos(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
+                com.cookieukw.SimTale.systems.BedRegistry.addOrReplace(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
             }
 
             // Reconstruct relationships
@@ -116,7 +117,8 @@ public class SimNPCPersistence {
                         comp.gender = data.gender;
                     }
                     if (data.bedLocation != null) {
-                        comp.bedLocation = new com.cookieukw.SimTale.db.SimBedData.BedPos(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z);
+                        comp.bedLocation = new com.cookieukw.SimTale.db.SimBedData.BedPos(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
+                        com.cookieukw.SimTale.systems.BedRegistry.addOrReplace(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
                     }
                     
                     if (data.relationships != null) {
