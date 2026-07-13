@@ -59,8 +59,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     private static final int SLEEP_DURATION_TICKS = 20 * 8;
     private static final int WAKE_ANIM_TICKS = 20;
     private static final double BED_REACH_DISTANCE_SQ = 2.5 * 2.5; // Increased to prevent getting stuck on bed collision
-    private static final double LEASH_UPDATE_THRESHOLD_SQ = 0.25; 
-    private static final int LEASH_FORCE_UPDATE_TICKS = 20; 
+    private static final double LEASH_UPDATE_THRESHOLD_SQ = 0.25;
     private static final Logger LOGGER = LoggerFactory.getLogger(RoutineAISystem.class);
     @Override
     @Nonnull
@@ -153,14 +152,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // --- Check low energy to go to bed immediately (interrupts current task) ---
         float sleepThreshold = npc.personality.traits.contains(Trait.LAZY) ? 60f : 30f;
-        if (npc.needs.energy < sleepThreshold && 
-            ai.currentTask != TaskType.FINDING_BED && 
-            ai.currentTask != TaskType.MOVING_TO_BED && 
-            ai.currentTask != TaskType.ENTERING_BED && 
-            ai.currentTask != TaskType.SLEEPING && 
-            ai.currentTask != TaskType.WAKING &&
-            ai.currentTask != TaskType.DYING &&
-            ai.currentTask != TaskType.DEAD) {
+        if (npc.needs.energy < sleepThreshold && ai.currentTask != TaskType.FINDING_BED && ai.currentTask != TaskType.MOVING_TO_BED && ai.currentTask != TaskType.ENTERING_BED && ai.currentTask != TaskType.SLEEPING && ai.currentTask != TaskType.WAKING) {
             
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
@@ -342,9 +334,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
 
             Vector3i bedPos = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
-            Vector3i approachPos = ai.targetBlockPosition != null ? ai.targetBlockPosition : getBedApproachPosition(bedPos, transform, world);
-            
-            org.joml.Vector3d interactPos = new org.joml.Vector3d(
+            if (ai.targetBlockPosition == null) {
+                getBedApproachPosition(bedPos, transform, world);
+            }
+
+            Vector3d interactPos = new Vector3d(
                 bedPos.x + 0.5,
                 bedPos.y + 0.2,
                 bedPos.z + 0.5
@@ -371,38 +365,37 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 BlockType posZ = world.getBlockType(bedPos.x, bedPos.y, bedPos.z + 1);
                 BlockType negZ = world.getBlockType(bedPos.x, bedPos.y, bedPos.z - 1);
 
-                if (posX != null && posX.getId() != null && com.cookieukw.SimTale.systems.BedRegistry.isBedId(posX.getId())) {
+                if (posX != null && posX.getId() != null && BedRegistry.isBedId(posX.getId())) {
                     seatX = bedPos.x + 1.0;
-                } else if (negX != null && negX.getId() != null && com.cookieukw.SimTale.systems.BedRegistry.isBedId(negX.getId())) {
+                } else if (negX != null && negX.getId() != null && BedRegistry.isBedId(negX.getId())) {
                     seatX = bedPos.x;
-                } else if (posZ != null && posZ.getId() != null && com.cookieukw.SimTale.systems.BedRegistry.isBedId(posZ.getId())) {
+                } else if (posZ != null && posZ.getId() != null && BedRegistry.isBedId(posZ.getId())) {
                     seatZ = bedPos.z + 1.0;
-                } else if (negZ != null && negZ.getId() != null && com.cookieukw.SimTale.systems.BedRegistry.isBedId(negZ.getId())) {
+                } else if (negZ != null && negZ.getId() != null && BedRegistry.isBedId(negZ.getId())) {
                     seatZ = bedPos.z;
                 }
                 
-                org.joml.Vector3d teleportPos = new org.joml.Vector3d(seatX, seatY, seatZ);
+                Vector3d teleportPos = new Vector3d(seatX, seatY, seatZ);
                 Rotation3f teleportRot = new Rotation3f(0f, bedYawRad, 0f);
                 
                 commandBuffer.addComponent(ref, Teleport.getComponentType(), new Teleport(teleportPos, teleportRot));
                 
                 setSleepingState(ref, store, commandBuffer, true);
                 
-                NPCEntity npcEntityComponent = store.getComponent(ref, NPCEntity.getComponentType());
+                NPCEntity npcEntityComponent = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
                 if (npcEntityComponent != null && npcEntityComponent.getRole() != null) {
                     npcEntityComponent.getRole().getStateSupport().setState(ref, "Sleep", null, store);
                 }
                 
                 playAnim(ref, AnimationSlot.Status, "Characters/Animations/Flavor/Sleep.blockyanim", "Sleep", store);
                 ai.currentTask = TaskType.SLEEPING;
-                ai.taskStartTime = world.getTick();
             } else {
                 LOGGER.warn("[SimTale] Bed mount failed for NPC '{}': {}", npc.name, result);
                 npc.bedLocation = null;
-                com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
+                SimNPCPersistence.saveNPC(npc);
                 ai.currentTask = TaskType.FINDING_BED;
-                ai.taskStartTime = world.getTick();
             }
+            ai.taskStartTime = world.getTick();
         }
 
         // --- SLEEPING: maintain sleep state and recover energy ---
@@ -440,7 +433,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
                 setSleepingState(ref, store, commandBuffer, false);
                 
-                NPCEntity npcEntityComponent = store.getComponent(ref, NPCEntity.getComponentType());
+                NPCEntity npcEntityComponent = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
                 if (npcEntityComponent != null && npcEntityComponent.getRole() != null) {
                     npcEntityComponent.getRole().getStateSupport().setState(ref, "Idle", null, store);
                 }
@@ -806,8 +799,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        Vector3i chosen = best != null ? best : bedPos;
-        return chosen;
+        return best != null ? best : bedPos;
     }
 
 
@@ -820,23 +812,20 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // Block at pos should be air (null or empty ID)
         BlockType atPos = world.getBlockType(pos.x, pos.y, pos.z);
         if (atPos != null && atPos.getId() != null && !atPos.getId().equalsIgnoreCase("Empty")) {
-            System.out.println("[SimTale-DEBUG] isStandable(" + pos.x + "," + pos.y + "," + pos.z + ") failed: atPos='" + atPos.getId() + "'");
+           // System.out.println("[SimTale-DEBUG] isStandable(" + pos.x + "," + pos.y + "," + pos.z + ") failed: atPos='" + atPos.getId() + "'");
             return false;
         }
 
         // Block above should be air too (space for entity)
         BlockType above = world.getBlockType(pos.x, pos.y + 1, pos.z);
         if (above != null && above.getId() != null && !above.getId().equalsIgnoreCase("Empty")) {
-            System.out.println("[SimTale-DEBUG] isStandable(" + pos.x + "," + pos.y + "," + pos.z + ") failed: above='" + above.getId() + "'");
+            //System.out.println("[SimTale-DEBUG] isStandable(" + pos.x + "," + pos.y + "," + pos.z + ") failed: above='" + above.getId() + "'");
             return false;
         }
 
         // Block below should be solid (not air)
         BlockType below = world.getBlockType(pos.x, pos.y - 1, pos.z);
-        boolean stand = below != null && below.getId() != null && !below.getId().equalsIgnoreCase("Empty");
-        if (!stand) {
-            System.out.println("[SimTale-DEBUG] isStandable(" + pos.x + "," + pos.y + "," + pos.z + ") failed: below=" + (below != null ? below.getId() : "null"));
-        }
-        return stand;
+        //   System.out.println("[SimTale-DEBUG] isStandable(" + pos.x + "," + pos.y + "," + pos.z + ") failed: below=" + (below != null ? below.getId() : "null"));
+        return below != null && below.getId() != null && !below.getId().equalsIgnoreCase("Empty");
     }
 }
