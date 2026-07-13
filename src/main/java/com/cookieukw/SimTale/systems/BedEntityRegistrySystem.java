@@ -7,12 +7,10 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.RefChangeSystem;
-import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.joml.Vector3d;
 
 import javax.annotation.Nonnull;
@@ -21,7 +19,7 @@ import java.util.Map;
 
 public class BedEntityRegistrySystem extends RefChangeSystem<EntityStore, PersistentModel> {
 
-    private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+  //  private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
     private final Map<Ref<EntityStore>, BedPos> trackedBeds = new HashMap<>();
 
     @Override
@@ -69,7 +67,6 @@ public class BedEntityRegistrySystem extends RefChangeSystem<EntityStore, Persis
     }
 
 
-    @Nonnull
     @Override
     public void onComponentRemoved(@Nonnull Ref<EntityStore> ref, PersistentModel pm, @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> cb) {
         if (pm.getModelReference().getModelAssetId() == null) return;
