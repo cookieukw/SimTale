@@ -74,8 +74,9 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
                 animName = "Grin";
                 break;
             case BORED:
-                animPath = "Characters/Animations/Expressions/Smirk.blockyanim";
-                animName = "Smirk";
+                // Neutral face is best for boredom to avoid weird smiles
+                animPath = null;
+                animName = null;
                 break;
             case NEUTRAL:
             default:
