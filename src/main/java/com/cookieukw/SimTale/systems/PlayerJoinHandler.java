@@ -60,5 +60,16 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
 
         // Trigger offline baby care simulation
         BabyCareManager.simulateOfflineTime(playerRef, simPlayer);
+
+        // Bootstrap bed scan around the player
+        try {
+            com.hypixel.hytale.server.core.modules.entity.component.TransformComponent tc = 
+                playerRef.getStore().getComponent(playerRef, com.hypixel.hytale.server.core.modules.entity.component.TransformComponent.getComponentType());
+            if (tc != null) {
+                BedWorldBootstrap.bootstrapLoadedRadius(player.getWorld(), tc.getPosition(), 96);
+            }
+        } catch (Exception e) {
+            System.out.println("[SimTale] Error bootstrapping beds on player join: " + e.getMessage());
+        }
     }
 }

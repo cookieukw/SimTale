@@ -117,8 +117,8 @@ public class SimNPCPersistence {
                         comp.gender = data.gender;
                     }
                     if (data.bedLocation != null) {
-                        comp.bedLocation = new com.cookieukw.SimTale.db.SimBedData.BedPos(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
-                        com.cookieukw.SimTale.systems.BedRegistry.addOrReplace(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
+                        comp.bedLocation = new SimBedData.BedPos(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
+                        BedRegistry.addOrReplace(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
                     }
                     
                     if (data.relationships != null) {
