@@ -111,49 +111,5 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
                 commandBuffer.replaceComponent(ref, ActiveAnimationComponent.getComponentType(), animComp);
             }
         }
-
-        // Apply HeadRotation effects based on active emotion (runs dynamically per tick for movement/shudders)
-        HeadRotation headRot = chunk.getComponent(index, HeadRotation.getComponentType());
-        if (headRot != null) {
-            float targetPitch = 0f;
-            float targetYaw = headRot.getRotation().yaw(); // keep current head yaw
-            float targetRoll = 0f;
-
-            World world = Universe.get().getWorlds().values().stream().findFirst().orElse(null);
-            long tick = (world != null) ? world.getTick() : 0;
-
-            switch (npc.activeEmotion) {
-                case SAD:
-                case SLEEPY:
-                    // Look down sadly or sleepily
-                    targetPitch = -0.3f;
-                    break;
-                case BORED:
-                    // Look down slightly and drift gaze slowly left/right
-                    targetPitch = -0.1f;
-                    targetYaw += (float) Math.sin(tick * 0.05f) * 0.3f;
-                    break;
-                case HAPPY:
-                case EXCITED:
-                    // Gaze up slightly with positive energy
-                    targetPitch = 0.1f + (float) Math.sin(tick * 0.08f) * 0.05f;
-                    break;
-                case ANGRY:
-                    // Stare rigidly straight forward
-                    targetPitch = 0.0f;
-                    break;
-                case SCARED:
-                    // Fast nervous shudder/twitch
-                    targetYaw += (float) Math.sin(tick * 0.6f) * 0.15f;
-                    targetPitch = (float) Math.cos(tick * 0.6f) * 0.1f;
-                    break;
-                default:
-                    break;
-            }
-
-            Rotation3f newRot = new Rotation3f(targetPitch, targetYaw, targetRoll);
-            headRot.setRotation(newRot);
-            commandBuffer.replaceComponent(ref, HeadRotation.getComponentType(), headRot);
-        }
     }
 }
