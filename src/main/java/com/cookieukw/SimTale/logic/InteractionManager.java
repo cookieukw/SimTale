@@ -347,6 +347,23 @@ public class InteractionManager {
 
         npc.stats.addXP(Math.abs(outcome.affinity()) * 10);
         npc.needs.social = Math.min(100, npc.needs.social + 10);
+
+        // Dynamic emotion trigger based on interaction outcome
+        long tick = 0;
+        World world = Universe.get().getWorlds().values().stream().findFirst().orElse(null);
+        if (world != null) {
+            tick = world.getTick();
+        }
+        
+        if (outcome.affinity() > 0) {
+            npc.setEmotion(Mood.HAPPY, 0.6f, "interaction", tick);
+        } else if (outcome.affinity() < 0) {
+            if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
+                npc.setEmotion(Mood.ANGRY, 0.8f, "interaction", tick);
+            } else {
+                npc.setEmotion(Mood.SAD, 0.6f, "interaction", tick);
+            }
+        }
     }
 
     private static DailyState refreshDailyState(Relationship rel) {
