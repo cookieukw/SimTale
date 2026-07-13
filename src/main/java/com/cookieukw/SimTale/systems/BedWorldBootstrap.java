@@ -1,13 +1,8 @@
 package com.cookieukw.SimTale.systems;
 
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import org.joml.Vector3d;
-
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 
 
 public final class BedWorldBootstrap {
@@ -36,9 +31,9 @@ public final class BedWorldBootstrap {
                     
                     // Estimate yaw based on the neighboring bed block orientation
                     float yaw = 0f;
-                    if (isBed(world, world.getBlockType(x + 1, y, z)) || isBed(world, world.getBlockType(x - 1, y, z))) {
+                    if (isBed(world.getBlockType(x + 1, y, z)) || isBed(world.getBlockType(x - 1, y, z))) {
                         yaw = (float) (Math.PI / 2.0); // oriented along X-axis (90 degrees in radians)
-                    } else if (isBed(world, world.getBlockType(x, y, z + 1)) || isBed(world, world.getBlockType(x, y, z - 1))) {
+                    } else if (isBed(world.getBlockType(x, y, z + 1)) || isBed(world.getBlockType(x, y, z - 1))) {
                         yaw = 0f;  // oriented along Z-axis (0 degrees in radians)
                     }
                     
@@ -51,20 +46,16 @@ public final class BedWorldBootstrap {
         System.out.println("[SimTale-DEBUG] Simple scan finished: found " + newBeds + " new beds. Total beds: " + BedRegistry.size());
     }
 
-    public static void scanChunk(World world, int chunkX, int chunkZ) {
-        // No longer needed as we scan the radius directly, kept as empty stub for backward compatibility
-    }
-
     public static boolean isPrimaryBedBlock(World world, int x, int y, int z) {
         BlockType type = world.getBlockType(x, y, z);
-        if (!isBed(world, type)) {
+        if (!isBed(type)) {
             return false;
         }
 
-        boolean posX = isBed(world, world.getBlockType(x + 1, y, z));
-        boolean negX = isBed(world, world.getBlockType(x - 1, y, z));
-        boolean posZ = isBed(world, world.getBlockType(x, y, z + 1));
-        boolean negZ = isBed(world, world.getBlockType(x, y, z - 1));
+        boolean posX = isBed(world.getBlockType(x + 1, y, z));
+        boolean negX = isBed(world.getBlockType(x - 1, y, z));
+        boolean posZ = isBed(world.getBlockType(x, y, z + 1));
+        boolean negZ = isBed(world.getBlockType(x, y, z - 1));
 
         int adjacentBeds = 0;
         if (posX) adjacentBeds++;
@@ -79,7 +70,7 @@ public final class BedWorldBootstrap {
         return posX || posZ;
     }
 
-    private static boolean isBed(World world, BlockType type) {
+    private static boolean isBed(BlockType type) {
         return type != null && type.getId() != null && BedRegistry.isBedId(type.getId());
     }
 }
