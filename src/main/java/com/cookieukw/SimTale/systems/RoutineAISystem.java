@@ -56,7 +56,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     private static final int FOOD_SEARCH_COOLDOWN_TICKS = 40;
     private static final int BATH_SEARCH_COOLDOWN_TICKS = 40;
     private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 60;
-    private static final int SLEEP_DURATION_TICKS = 20 * 8;
+    private static final int SLEEP_DURATION_TICKS = 20 * 120;
     private static final int WAKE_ANIM_TICKS = 20;
     private static final double BED_REACH_DISTANCE_SQ = 2.5 * 2.5; // Increased to prevent getting stuck on bed collision
     private static final double LEASH_UPDATE_THRESHOLD_SQ = 0.25;
@@ -400,7 +400,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // --- SLEEPING: maintain sleep state and recover energy ---
         if (ai.currentTask == TaskType.SLEEPING) {
-            npc.needs.healEnergy(0.5f);
+            npc.needs.healEnergy(0.045f);
 
             // Verify bed still exists periodically
             if ((world.getTick() - ai.taskStartTime) % 20 == 0) {
