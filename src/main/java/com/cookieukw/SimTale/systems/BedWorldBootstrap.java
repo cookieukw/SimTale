@@ -15,48 +15,47 @@ public final class BedWorldBootstrap {
     }
 
     public static void bootstrapLoadedRadius(World world, Vector3d center, int radius) {
-        int sx = (int) Math.floor(center.x);
-        int sz = (int) Math.floor(center.z);
-
-        for (int cx = (sx - radius) >> 4; cx <= (sx + radius) >> 4; cx++) {
-            for (int cz = (sz - radius) >> 4; cz <= (sz + radius) >> 4; cz++) {
-                long index = ChunkUtil.indexChunk(cx, cz);
-                WorldChunk chunk = world.getChunkIfInMemory(index);
-                if (chunk == null) continue;
-                scanChunk(chunk, cx, cz);
-            }
-        }
-    }
-
-    public static void scanChunk(WorldChunk chunk, int chunkX, int chunkZ) {
-        int minX = chunkX << 4;
-        int minZ = chunkZ << 4;
-        int maxX = minX + 15;
-        int maxZ = minZ + 15;
-
-        for (int x = minX; x <= maxX; x++) {
-            for (int z = minZ; z <= maxZ; z++) {
-                for (int y = 0; y <= 319; y++) {
-                    BlockType type = chunk.getBlockType(x, y, z);
+        int px = (int) Math.floor(center.x);
+        int py = (int) Math.floor(center.y);
+        int pz = (int) Math.floor(center.z);
+        
+        int bedsFound = BedRegistry.size();
+        System.out.println("[SimTale-DEBUG] Starting simple radius scan around (" + px + "," + py + "," + pz + ") with radius " + radius);
+        
+        // Scan a cube around the player position
+        for (int x = px - radius; x <= px + radius; x++) {
+            for (int z = pz - radius; z <= pz + radius; z++) {
+                for (int y = Math.max(0, py - 16); y <= Math.min(319, py + 16); y++) {
+                    BlockType type = world.getBlockType(x, y, z);
                     if (type == null || type.getId() == null) continue;
                     if (!BedRegistry.isBedId(type.getId())) continue;
-                    if (isPrimaryBedBlock(chunk, x, y, z)) continue;
+                    
+                    boolean isPrimary = isPrimaryBedBlock(world, x, y, z);
+                    System.out.println("[SimTale-DEBUG] Block scan found bed-like block: '" + type.getId() + "' at (" + x + "," + y + "," + z + ") isPrimary=" + isPrimary);
+                    if (isPrimary) continue;
                     BedRegistry.addOrReplace(x, y, z, 0f);
                 }
             }
         }
+        
+        int newBeds = BedRegistry.size() - bedsFound;
+        System.out.println("[SimTale-DEBUG] Simple scan finished: found " + newBeds + " new beds. Total beds: " + BedRegistry.size());
     }
 
-    public static boolean isPrimaryBedBlock(WorldChunk chunk, int x, int y, int z) {
-        BlockType type = chunk.getBlockType(x, y, z);
-        if (!isBed(type)) {
+    public static void scanChunk(World world, int chunkX, int chunkZ) {
+        // No longer needed as we scan the radius directly, kept as empty stub for backward compatibility
+    }
+
+    public static boolean isPrimaryBedBlock(World world, int x, int y, int z) {
+        BlockType type = world.getBlockType(x, y, z);
+        if (!isBed(world, type)) {
             return false;
         }
 
-        boolean posX = isBed(chunk.getBlockType(x + 1, y, z));
-        boolean negX = isBed(chunk.getBlockType(x - 1, y, z));
-        boolean posZ = isBed(chunk.getBlockType(x, y, z + 1));
-        boolean negZ = isBed(chunk.getBlockType(x, y, z - 1));
+        boolean posX = isBed(world, world.getBlockType(x + 1, y, z));
+        boolean negX = isBed(world, world.getBlockType(x - 1, y, z));
+        boolean posZ = isBed(world, world.getBlockType(x, y, z + 1));
+        boolean negZ = isBed(world, world.getBlockType(x, y, z - 1));
 
         int adjacentBeds = 0;
         if (posX) adjacentBeds++;
@@ -71,7 +70,7 @@ public final class BedWorldBootstrap {
         return posX || posZ;
     }
 
-    private static boolean isBed(BlockType type) {
+    private static boolean isBed(World world, BlockType type) {
         return type != null && type.getId() != null && BedRegistry.isBedId(type.getId());
     }
 }
