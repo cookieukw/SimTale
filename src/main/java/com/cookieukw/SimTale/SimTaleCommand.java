@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale;
 
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
@@ -67,6 +68,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new DebugBedsSubCommand());
         this.addSubCommand(new PregnancySubCommand());
         this.addSubCommand(new DebugNearSubCommand());
+        this.addSubCommand(new SetMoodSubCommand());
     }
 
     @Override
@@ -77,7 +79,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -626,6 +628,62 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     }
                 }
             }
+        }
+    }
+
+    private static class SetMoodSubCommand extends AbstractPlayerCommand {
+        private final RequiredArg<String> moodArg;
+        private final OptionalArg<Double> intensityArg;
+
+        public SetMoodSubCommand() {
+            super("setmood", "Define o humor/expressao do NPC mais proximo");
+            this.moodArg = this.withRequiredArg("mood", "NEUTRAL|HAPPY|ANGRY|SAD|SCARED|SLEEPY|EXCITED|BORED", ArgTypes.STRING);
+            this.intensityArg = this.withOptionalArg("intensity", "Intensidade da emocao (0.0 a 1.0)", ArgTypes.DOUBLE);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            String moodName = ctx.get(this.moodArg).toUpperCase();
+            Mood targetMood;
+            try {
+                targetMood = Mood.valueOf(moodName);
+            } catch (IllegalArgumentException e) {
+                ctx.sendMessage(Message.raw("Humor invalido. Escolha entre: NEUTRAL, HAPPY, ANGRY, SAD, SCARED, SLEEPY, EXCITED, BORED"));
+                return;
+            }
+
+            Double intensityVal = ctx.get(this.intensityArg);
+            float intensity = intensityVal != null ? intensityVal.floatValue() : 1.0f;
+
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null) {
+                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (playerTransform != null && npcTransform != null) {
+                        Vector3d pPos = playerTransform.getPosition();
+                        Vector3d nPos = npcTransform.getPosition();
+                        double distSq = pPos.distanceSquared(nPos);
+                        if (distSq < minDistance) {
+                            minDistance = distSq;
+                            nearestNPC = npc;
+                        }
+                    }
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("Nenhum NPC por perto."));
+                return;
+            }
+
+            nearestNPC.setEmotion(targetMood, intensity, "command", world.getTick());
+            SimNPCPersistence.saveNPC(nearestNPC);
+
+            ctx.sendMessage(Message.raw("Humor de " + nearestNPC.name + " definido para " + targetMood.name() + " com intensidade " + intensity + "."));
         }
     }
 }
