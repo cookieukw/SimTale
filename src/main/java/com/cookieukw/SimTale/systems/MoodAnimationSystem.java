@@ -35,8 +35,9 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
         
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
-        if (npc == null || npc.getMood() == null) return;
+        if (npc == null) return;
         
+        Mood currentMood = npc.getMood();
         Ref<EntityStore> ref = chunk.getReferenceTo(index);
         
         ActiveAnimationComponent animComp = chunk.getComponent(index, ActiveAnimationComponent.getComponentType());
@@ -45,7 +46,7 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
         String animPath = null;
         String animName = null;
         
-        switch (npc.getMood()) {
+        switch (currentMood) {
             case HAPPY:
                 animPath = "Characters/Animations/Expressions/Smile.blockyanim";
                 animName = "Smile";
@@ -82,24 +83,35 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
         }
         
         AnimationSlot slotToUse = AnimationSlot.Face;
-        String currentAnim = animComp.getActiveAnimations()[slotToUse.ordinal()];
         
-        if (animName != null) {
-            if (currentAnim == null || !currentAnim.equals(animName)) {
+        // Determine if the visual face expression needs to be sent to the client
+        boolean expressionChanged = (npc.lastPlayedEmotion != currentMood);
+        
+        // Special transition handling for ANGRY intensity changes (Angry <=> Rage)
+        if (currentMood == Mood.ANGRY && animName != null) {
+            String currentPlaying = animComp.getActiveAnimations()[slotToUse.ordinal()];
+            if (currentPlaying == null || !currentPlaying.equals(animName)) {
+                expressionChanged = true;
+            }
+        }
+        
+        if (expressionChanged) {
+            npc.lastPlayedEmotion = currentMood;
+            
+            if (animName != null) {
                 animComp.getActiveAnimations()[slotToUse.ordinal()] = animName;
                 animComp.setPlayingAnimation(slotToUse, animName);
-                AnimationUtils.playAnimation(ref, slotToUse, animPath, animName, store);
+                AnimationUtils.playAnimation(ref, slotToUse, animName, store);
                 commandBuffer.replaceComponent(ref, ActiveAnimationComponent.getComponentType(), animComp);
-            }
-        } else {
-            // Stop animation if it's playing a mood animation
-            if (currentAnim != null && (currentAnim.equals("Smile") || currentAnim.equals("Angry") || currentAnim.equals("Rage") || currentAnim.equals("Frown") || currentAnim.equals("Surprised") || currentAnim.equals("Cheerful") || currentAnim.equals("Grin") || currentAnim.equals("Smirk"))) {
+            } else {
+                // Clear the Face slot animation
                 animComp.getActiveAnimations()[slotToUse.ordinal()] = null;
+                AnimationUtils.playAnimation(ref, slotToUse, null, store);
                 commandBuffer.replaceComponent(ref, ActiveAnimationComponent.getComponentType(), animComp);
             }
         }
 
-        // Apply HeadRotation effects based on active emotion
+        // Apply HeadRotation effects based on active emotion (runs dynamically per tick for movement/shudders)
         HeadRotation headRot = chunk.getComponent(index, HeadRotation.getComponentType());
         if (headRot != null) {
             float targetPitch = 0f;

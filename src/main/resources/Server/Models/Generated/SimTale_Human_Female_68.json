@@ -1,5 +1,5 @@
 {
-  "Parent": "Player",
+  "Parent": "SimTale_Human_Female",
   "Model": "Characters/Player.blockymodel",
   "GradientSet": "Skin",
   "GradientId": "49",

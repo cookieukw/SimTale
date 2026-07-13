@@ -1,5 +1,5 @@
 {
-  "Parent": "Player",
+  "Parent": "SimTale_Human_Child",
   "Model": "NPC/Player_Child/Player_With_Face_Child.blockymodel",
   "EyeHeight": 1.1,
   "GradientSet": "Skin",
