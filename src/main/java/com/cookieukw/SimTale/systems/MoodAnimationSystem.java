@@ -10,9 +10,14 @@ import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.modules.entity.component.ActiveAnimationComponent;
+import com.hypixel.hytale.server.core.modules.entity.component.HeadRotation;
+import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.Universe;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.Mood;
 
 import javax.annotation.Nonnull;
 
@@ -46,8 +51,13 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
                 animName = "Smile";
                 break;
             case ANGRY:
-                animPath = "Characters/Animations/Expressions/Angry.blockyanim";
-                animName = "Angry";
+                if (npc.emotionIntensity >= 0.7f) {
+                    animPath = "Characters/Animations/Expressions/Rage.blockyanim";
+                    animName = "Rage";
+                } else {
+                    animPath = "Characters/Animations/Expressions/Angry.blockyanim";
+                    animName = "Angry";
+                }
                 break;
             case SAD:
             case SLEEPY:
@@ -55,31 +65,23 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
                 animName = "Frown";
                 break;
             case SCARED:
-                // Typo in CharacterCreator: Suprised.blockyanim
                 animPath = "Characters/Animations/Expressions/Suprised.blockyanim";
                 animName = "Surprised";
                 break;
             case EXCITED:
-                animPath = "Characters/Animations/Expressions/Cheerful.blockyanim";
-                animName = "Cheerful";
+                animPath = "Characters/Animations/Expressions/Grin.blockyanim";
+                animName = "Grin";
+                break;
+            case BORED:
+                animPath = "Characters/Animations/Expressions/Smirk.blockyanim";
+                animName = "Smirk";
                 break;
             case NEUTRAL:
             default:
                 break;
         }
         
-        // Let's use AnimationSlot.valueOf("Expression") or fallback to Action
-        AnimationSlot slotToUse = AnimationSlot.Action;
-        try {
-            slotToUse = AnimationSlot.valueOf("Expression");
-        } catch (IllegalArgumentException e) {
-            try {
-                slotToUse = AnimationSlot.valueOf("Face");
-            } catch (IllegalArgumentException e2) {
-                // Ignore
-            }
-        }
-        
+        AnimationSlot slotToUse = AnimationSlot.Face;
         String currentAnim = animComp.getActiveAnimations()[slotToUse.ordinal()];
         
         if (animName != null) {
@@ -91,12 +93,54 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
             }
         } else {
             // Stop animation if it's playing a mood animation
-            if (currentAnim != null && (currentAnim.equals("Smile") || currentAnim.equals("Angry") || currentAnim.equals("Frown") || currentAnim.equals("Surprised") || currentAnim.equals("Cheerful"))) {
+            if (currentAnim != null && (currentAnim.equals("Smile") || currentAnim.equals("Angry") || currentAnim.equals("Rage") || currentAnim.equals("Frown") || currentAnim.equals("Surprised") || currentAnim.equals("Cheerful") || currentAnim.equals("Grin") || currentAnim.equals("Smirk"))) {
                 animComp.getActiveAnimations()[slotToUse.ordinal()] = null;
-                // We'd stop the animation here, but Hytale API for stopAnimation is not immediately clear.
-                // Just clear it from the slot
                 commandBuffer.replaceComponent(ref, ActiveAnimationComponent.getComponentType(), animComp);
             }
+        }
+
+        // Apply HeadRotation effects based on active emotion
+        HeadRotation headRot = chunk.getComponent(index, HeadRotation.getComponentType());
+        if (headRot != null) {
+            float targetPitch = 0f;
+            float targetYaw = headRot.getRotation().yaw(); // keep current head yaw
+            float targetRoll = 0f;
+
+            World world = Universe.get().getWorlds().values().stream().findFirst().orElse(null);
+            long tick = (world != null) ? world.getTick() : 0;
+
+            switch (npc.activeEmotion) {
+                case SAD:
+                case SLEEPY:
+                    // Look down sadly or sleepily
+                    targetPitch = -0.3f;
+                    break;
+                case BORED:
+                    // Look down slightly and drift gaze slowly left/right
+                    targetPitch = -0.1f;
+                    targetYaw += (float) Math.sin(tick * 0.05f) * 0.3f;
+                    break;
+                case HAPPY:
+                case EXCITED:
+                    // Gaze up slightly with positive energy
+                    targetPitch = 0.1f + (float) Math.sin(tick * 0.08f) * 0.05f;
+                    break;
+                case ANGRY:
+                    // Stare rigidly straight forward
+                    targetPitch = 0.0f;
+                    break;
+                case SCARED:
+                    // Fast nervous shudder/twitch
+                    targetYaw += (float) Math.sin(tick * 0.6f) * 0.15f;
+                    targetPitch = (float) Math.cos(tick * 0.6f) * 0.1f;
+                    break;
+                default:
+                    break;
+            }
+
+            Rotation3f newRot = new Rotation3f(targetPitch, targetYaw, targetRoll);
+            headRot.setRotation(newRot);
+            commandBuffer.replaceComponent(ref, HeadRotation.getComponentType(), headRot);
         }
     }
 }
