@@ -46,6 +46,7 @@ public class NPCPregnancyPage extends InteractiveCustomUIPage<String> {
         commandBuilder.set("#BackButton.Visible", true);
         commandBuilder.set("#CloseButton.Visible", false);
 
+        assert npc != null;
         PregnancyComponent preg = npc.pregnancy;
         long currentTick = PregnancyDisplayUtil.getCurrentWorldTick();
         int totalChildren = npc.family.children != null ? npc.family.children.size() : 0;

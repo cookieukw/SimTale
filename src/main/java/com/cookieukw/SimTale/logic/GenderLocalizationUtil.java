@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  */
 public class GenderLocalizationUtil {
 
-    private static final Pattern GENDER_PATTERN = Pattern.compile("\\{([^|{}]+)\\|([^|{}]+)\\}");
+    private static final Pattern GENDER_PATTERN = Pattern.compile("\\{([^|{}]+)\\|([^|{}]+)}");
 
     /**
      * Formats a text by replacing gender-specific markers with the appropriate term.
