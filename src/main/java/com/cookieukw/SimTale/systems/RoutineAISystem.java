@@ -360,9 +360,26 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 
                 // We use +0.65 to ensure her bounding box is completely above the solid bed collision box (0.6 height).
                 // This prevents Hytale's physics engine from pushing her sideways onto the grass.
+                // Start with the center of the claimed bed block
                 double seatX = bedPos.x + 0.5;
-                double seatY = bedPos.y + 2; 
+                double seatY = bedPos.y + 1.5; // Drop from slightly above to land smoothly on mattress
                 double seatZ = bedPos.z + 0.5;
+                
+                // Adjust to the exact geometric center if it's a double bed
+                BlockType posX = world.getBlockType(bedPos.x + 1, bedPos.y, bedPos.z);
+                BlockType negX = world.getBlockType(bedPos.x - 1, bedPos.y, bedPos.z);
+                BlockType posZ = world.getBlockType(bedPos.x, bedPos.y, bedPos.z + 1);
+                BlockType negZ = world.getBlockType(bedPos.x, bedPos.y, bedPos.z - 1);
+
+                if (posX != null && posX.getId() != null && com.cookieukw.SimTale.systems.BedRegistry.isBedId(posX.getId())) {
+                    seatX = bedPos.x + 1.0;
+                } else if (negX != null && negX.getId() != null && com.cookieukw.SimTale.systems.BedRegistry.isBedId(negX.getId())) {
+                    seatX = bedPos.x;
+                } else if (posZ != null && posZ.getId() != null && com.cookieukw.SimTale.systems.BedRegistry.isBedId(posZ.getId())) {
+                    seatZ = bedPos.z + 1.0;
+                } else if (negZ != null && negZ.getId() != null && com.cookieukw.SimTale.systems.BedRegistry.isBedId(negZ.getId())) {
+                    seatZ = bedPos.z;
+                }
                 
                 org.joml.Vector3d teleportPos = new org.joml.Vector3d(seatX, seatY, seatZ);
                 Rotation3f teleportRot = new Rotation3f(0f, bedYawRad, 0f);
