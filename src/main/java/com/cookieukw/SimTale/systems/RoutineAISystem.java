@@ -22,6 +22,7 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
@@ -353,6 +354,21 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
             if (result instanceof BlockMountAPI.Mounted || result.getClass().getSimpleName().equals("Mounted")) {
                 LOGGER.info("[SimTale] NPC '{}' successfully mounted bed at ({},{},{})", npc.name, bedPos.x, bedPos.y, bedPos.z);
+                
+                // Teleport the NPC onto the bed block mattress using Hytale's official Teleport component
+                float bedYawRad = npc.bedLocation.yaw; // Already in radians
+                
+                // We use +0.65 to ensure her bounding box is completely above the solid bed collision box (0.6 height).
+                // This prevents Hytale's physics engine from pushing her sideways onto the grass.
+                double seatX = bedPos.x + 0.5;
+                double seatY = bedPos.y + 2; 
+                double seatZ = bedPos.z + 0.5;
+                
+                org.joml.Vector3d teleportPos = new org.joml.Vector3d(seatX, seatY, seatZ);
+                Rotation3f teleportRot = new Rotation3f(0f, bedYawRad, 0f);
+                
+                commandBuffer.addComponent(ref, Teleport.getComponentType(), new Teleport(teleportPos, teleportRot));
+                
                 setSleepingState(ref, store, commandBuffer, true);
                 
                 NPCEntity npcEntityComponent = store.getComponent(ref, NPCEntity.getComponentType());
@@ -742,20 +758,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         ms.mounting = sleeping;
         ms.sleeping = sleeping;
         commandBuffer.replaceComponent(ref, MovementStatesComponent.getComponentType(), msc);
-
-        if (sleeping) {
-            if (store.getComponent(ref, Frozen.getComponentType()) == null) {
-                try {
-                    java.lang.reflect.Constructor<Frozen> c = Frozen.class.getDeclaredConstructor();
-                    c.setAccessible(true);
-                    commandBuffer.addComponent(ref, Frozen.getComponentType(), c.newInstance());
-                } catch (Exception e) {
-                    LOGGER.warn("[SimTale] Failed to instantiate Frozen via reflection", e);
-                }
-            }
-        } else {
-            commandBuffer.tryRemoveComponent(ref, Frozen.getComponentType());
-        }
     }
 
     /**

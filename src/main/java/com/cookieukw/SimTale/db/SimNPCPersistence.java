@@ -11,6 +11,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.cookieukw.SimTale.systems.BedRegistry;
 
 import java.util.ArrayList;
 import java.util.List;

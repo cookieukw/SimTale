@@ -33,7 +33,16 @@ public final class BedWorldBootstrap {
                     boolean isPrimary = isPrimaryBedBlock(world, x, y, z);
                     System.out.println("[SimTale-DEBUG] Block scan found bed-like block: '" + type.getId() + "' at (" + x + "," + y + "," + z + ") isPrimary=" + isPrimary);
                     if (isPrimary) continue;
-                    BedRegistry.addOrReplace(x, y, z, 0f);
+                    
+                    // Estimate yaw based on the neighboring bed block orientation
+                    float yaw = 0f;
+                    if (isBed(world, world.getBlockType(x + 1, y, z)) || isBed(world, world.getBlockType(x - 1, y, z))) {
+                        yaw = (float) (Math.PI / 2.0); // oriented along X-axis (90 degrees in radians)
+                    } else if (isBed(world, world.getBlockType(x, y, z + 1)) || isBed(world, world.getBlockType(x, y, z - 1))) {
+                        yaw = 0f;  // oriented along Z-axis (0 degrees in radians)
+                    }
+                    
+                    BedRegistry.addOrReplace(x, y, z, yaw);
                 }
             }
         }
