@@ -36,6 +36,8 @@ import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
@@ -700,29 +702,32 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             String query = ctx.get(this.nameArg).toLowerCase();
-            ctx.sendMessage(Message.translation("general.cmd.search.searching").param("query", query));
-            try {
-                List<SimNPCData> allData = Caskara.list(SimNPCData.class);
-                if (allData == null || allData.isEmpty()) {
-                    ctx.sendMessage(Message.translation("general.cmd.search.empty"));
-                    return;
-                }
-                int count = 0;
-                for (SimNPCData data : allData) {
-                    if (data.name != null && data.name.toLowerCase().contains(query)) {
-                        ctx.sendMessage(Message.translation("general.cmd.search.found")
-                            .param("name", data.name.toLowerCase())
-                            .param("id", data.id.toLowerCase())
-                            .param("profession", data.profession != null 
-                                ? Message.raw(data.profession.name().toLowerCase()) 
-                                : Message.translation("general.profession.none")));
-                        count++;
+            playerRef.sendMessage(Message.translation("general.cmd.search.searching").param("query", query));
+            
+            CompletableFuture.runAsync(() -> {
+                try {
+                    List<SimNPCData> allData = Caskara.list(SimNPCData.class);
+                    if (allData == null || allData.isEmpty()) {
+                        playerRef.sendMessage(Message.translation("general.cmd.search.empty"));
+                        return;
                     }
+                    int count = 0;
+                    for (SimNPCData data : allData) {
+                        if (data.name != null && data.name.toLowerCase().contains(query)) {
+                            playerRef.sendMessage(Message.translation("general.cmd.search.found")
+                                .param("name", data.name.toLowerCase())
+                                .param("id", data.id.toLowerCase())
+                                .param("profession", data.profession != null 
+                                    ? Message.raw(data.profession.name().toLowerCase()) 
+                                    : Message.translation("general.profession.none")));
+                            count++;
+                        }
+                    }
+                    playerRef.sendMessage(Message.translation("general.cmd.search.finished").param("count", count));
+                } catch (Exception e) {
+                    playerRef.sendMessage(Message.translation("general.cmd.search.error").param("error", e.getMessage()));
                 }
-                ctx.sendMessage(Message.translation("general.cmd.search.finished").param("count", count));
-            } catch (Exception e) {
-                ctx.sendMessage(Message.translation("general.cmd.search.error").param("error", e.getMessage()));
-            }
+            });
         }
     }
 }
