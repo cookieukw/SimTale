@@ -21,6 +21,7 @@ import com.cookieukw.SimTale.systems.BedRegistry;
 import com.cookieukw.SimTale.systems.BedEntityRegistrySystem;
 import com.cookieukw.SimTale.systems.BedBlockEventSystem;
 import com.cookieukw.SimTale.systems.BedPlaceBlockEventSystem;
+import com.cookieukw.SimTale.systems.GrowthTickSystem;
 import org.joml.Vector3i;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
@@ -91,6 +92,7 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new PregnancyTickSystem());
         this.getEntityStoreRegistry().registerSystem(new PlayerPregnancyTickSystem());
         this.getEntityStoreRegistry().registerSystem(new BabyCareTickSystem());
+        this.getEntityStoreRegistry().registerSystem(new GrowthTickSystem());
 
         // Register event handlers
         this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class,
