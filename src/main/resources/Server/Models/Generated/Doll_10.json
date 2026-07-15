@@ -1,0 +1,72 @@
+{
+  "Parent": "Player",
+  "Model": "NPC/Dolls/ChibiDoll.blockymodel",
+  "GradientSet": "Skin",
+  "GradientId": "32",
+  "HitBox": {
+    "Max": {
+      "X": 0.3,
+      "Y": 1.0,
+      "Z": 0.3
+    },
+    "Min": {
+      "X": -0.3,
+      "Y": 0.0,
+      "Z": -0.3
+    }
+  },
+  "DefaultAttachments": [
+    {
+      "Model": "NPC/Dolls/Cosmetics/Haircuts/Cat_ChibiDoll.blockymodel",
+      "Texture": "Characters/Haircuts/Cat_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "Black"
+    },
+    {
+      "Model": "NPC/Dolls/Cosmetics/Faces/Player_Face_Detached_ChibiDoll.blockymodel",
+      "Texture": "Characters/Body_Attachments/Faces/Faces_Detached_Textures/Face.png",
+      "GradientSet": "Skin",
+      "GradientId": "32"
+    },
+    {
+      "Model": "NPC/Dolls/Cosmetics/Eyes/Eyes_ChibiDoll.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
+    },
+    {
+      "Model": "NPC/Dolls/Cosmetics/Pants/Pants_Straight_ChibiDoll.blockymodel",
+      "Texture": "Cosmetics/Pants/Pants_Straight_Textures/Leather_Greyscale.png",
+      "GradientSet": "Faded_Leather",
+      "GradientId": "Violet"
+    },
+    {
+      "Model": "NPC/Dolls/Cosmetics/Overtops/Overtops_Top_ChibiDoll.blockymodel",
+      "Texture": "Cosmetics/Overtops/Overtops_Top_Textures/Mini_Leather_Jacket_Greyscale.png",
+      "GradientSet": "Faded_Leather",
+      "GradientId": "Green"
+    },
+    {
+      "Model": "NPC/Dolls/Cosmetics/Shoes/Sneakers_Shaped_ChibiDoll.blockymodel",
+      "Texture": "Cosmetics/Shoes/Shaped_Sneakers_Textures/Shaped_Sneakers.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Yellow"
+    },
+    {
+      "Model": "NPC/Dolls/Cosmetics/Mouths/Mouth1_ChibiDoll.blockymodel",
+      "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Default_Greyscale.png",
+      "GradientSet": "Skin",
+      "GradientId": "32"
+    },
+    {
+      "Model": "NPC/Dolls/Cosmetics/Ears/Ears1_ChibiDoll.blockymodel",
+      "Texture": "Characters/Body_Attachments/Ears/Ears.png",
+      "GradientSet": "Skin",
+      "GradientId": "32"
+    },
+    {
+      "Model": "NPC/Dolls/Cosmetics/Eyebrows/Eyebrows_Medium_ChibiDoll.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyebrows/Medium_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "Black"
+    }
+  ]
+}
