@@ -4,6 +4,8 @@ import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleUtils;
+import com.cookie.caskara.Caskara;
+import com.cookieukw.SimTale.db.SimNPCData;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.Frozen;
@@ -609,6 +611,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     });
                     if (dyingNpc != null && dyingNpc.entityId != null) {
                         PlumbobSystem.removePlumbob(dyingNpc.entityId);
+                        try {
+                            Caskara.delete(dyingNpc.entityId.toString(), SimNPCData.class);
+                        } catch (Exception e) {
+                            LOGGER.error("Error deleting deceased NPC from Caskara", e);
+                        }
                     }
                     commandBuffer.removeEntity(dyingRef, RemoveReason.REMOVE);
                     ai.currentTask = TaskType.IDLE;
