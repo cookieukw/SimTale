@@ -30,8 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BabyCareManager {
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
     
-    // Default turn duration: 2 minutes (120,000 ms) for easy testing and debugging
-    public static final long TURN_DURATION = 120000L;
+    // Default turn duration: 4 hours (14,400,000 ms) for natural real-time co-parenting pacing
+    public static final long TURN_DURATION = 14400000L;
 
     // Cache for fast lookup during ticking: NPC UUID -> Child UUID
     public static final Map<UUID, UUID> NPC_CARRIED_BABIES = new ConcurrentHashMap<>();

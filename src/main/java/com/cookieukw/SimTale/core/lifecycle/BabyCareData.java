@@ -21,8 +21,8 @@ public class BabyCareData {
         this.currentTurnOwnerId = motherId;
         long now = System.currentTimeMillis();
         this.turnStartTime = now;
-        // Default swap cooldown: 2 minutes (120,000 ms) for easy debug and gameplay pacing
-        this.nextSwapAllowedTime = now + 120000;
+        // Default swap cooldown: 4 hours for natural gameplay pacing
+        this.nextSwapAllowedTime = now + BabyCareManager.TURN_DURATION;
         this.lastInteractionTime = now;
     }
 }
