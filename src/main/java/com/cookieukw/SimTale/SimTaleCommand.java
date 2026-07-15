@@ -69,6 +69,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new PregnancySubCommand());
         this.addSubCommand(new DebugNearSubCommand());
         this.addSubCommand(new SetMoodSubCommand());
+        this.addSubCommand(new SearchSubCommand());
     }
 
     @Override
@@ -79,7 +80,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -684,6 +685,44 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             SimNPCPersistence.saveNPC(nearestNPC);
 
             ctx.sendMessage(Message.raw("Humor de " + nearestNPC.name + " definido para " + targetMood.name() + " com intensidade " + intensity + "."));
+        }
+    }
+
+    private static class SearchSubCommand extends AbstractPlayerCommand {
+        private final RequiredArg<String> nameArg;
+
+        public SearchSubCommand() {
+            super("search", "Procura um NPC no banco de dados pelo nome");
+            this.nameArg = this.withRequiredArg("name", "Nome do NPC", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            String query = ctx.get(this.nameArg).toLowerCase();
+            ctx.sendMessage(Message.translation("general.cmd.search.searching").param("query", query));
+            try {
+                List<SimNPCData> allData = Caskara.list(SimNPCData.class);
+                if (allData == null || allData.isEmpty()) {
+                    ctx.sendMessage(Message.translation("general.cmd.search.empty"));
+                    return;
+                }
+                int count = 0;
+                for (SimNPCData data : allData) {
+                    if (data.name != null && data.name.toLowerCase().contains(query)) {
+                        ctx.sendMessage(Message.translation("general.cmd.search.found")
+                            .param("name", data.name.toLowerCase())
+                            .param("id", data.id.toLowerCase())
+                            .param("profession", data.profession != null 
+                                ? Message.raw(data.profession.name().toLowerCase()) 
+                                : Message.translation("general.profession.none")));
+                        count++;
+                    }
+                }
+                ctx.sendMessage(Message.translation("general.cmd.search.finished").param("count", count));
+            } catch (Exception e) {
+                ctx.sendMessage(Message.translation("general.cmd.search.error").param("error", e.getMessage()));
+            }
         }
     }
 }
