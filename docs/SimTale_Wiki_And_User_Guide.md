@@ -403,16 +403,16 @@ These administrative commands are used by developers and moderators to skip simu
 *   **Parameters:** None.
 *   **Under the hood:** Sets the NPC's energy to 0 and flags `forceSleep = true`.
 
-### `/simtale forcepreg [me|npc]`
+### `/simtale forcepreg [--target=me|npc]`
 *   **Description:** Forces pregnancy on the player or nearest female NPC.
 *   **Parameters:**
-    *   `[me|npc]` *(Optional, defaults to me)*: Selects the target.
+    *   `--target=me|npc` *(Optional, defaults to me)*: Selects the target.
 *   **NPC Behavior:** If `npc` is selected, the nearest female NPC is married to the player, romance is set to 100, and pregnancy starts at Tick 1.
 
-### `/simtale forcebirth [me|npc]`
+### `/simtale forcebirth [--target=me|npc]`
 *   **Description:** Forces immediate childbirth.
 *   **Parameters:**
-    *   `[me|npc]` *(Optional, defaults to me)*: Selects the target.
+    *   `--target=me|npc` *(Optional, defaults to me)*: Selects the target.
 *   **Under the hood:** Adjusts `startTick` to exceed gestation duration, spawning the baby. The player receives a physical baby item in their hotbar.
 
 ### `/simtale setstage <stage>`
