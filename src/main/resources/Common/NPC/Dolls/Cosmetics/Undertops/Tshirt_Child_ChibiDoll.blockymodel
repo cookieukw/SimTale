@@ -5,9 +5,9 @@
       "id": "56",
       "name": "Belly",
       "position": {
-        "x": 0,
-        "y": 55,
-        "z": 0
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
       },
       "orientation": {
         "w": 1,

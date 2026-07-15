@@ -5,9 +5,9 @@
       "id": "1",
       "name": "Mouth-Attachment",
       "position": {
-        "x": 0,
-        "y": 97,
-        "z": 15
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
       },
       "orientation": {
         "w": 1,

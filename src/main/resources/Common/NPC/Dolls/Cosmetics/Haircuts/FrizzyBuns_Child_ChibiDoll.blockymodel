@@ -4,9 +4,9 @@
       "id": "1",
       "name": "Head",
       "position": {
-        "x": 0,
-        "y": 82,
-        "z": 0
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
       },
       "orientation": {
         "x": 0,
