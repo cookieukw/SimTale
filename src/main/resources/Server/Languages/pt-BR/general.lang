@@ -25,3 +25,4 @@ item.baby.description = Um bebê recém-nascido. Carregue-o com carinho.
 item.wedding_ring.name = Aliança de Casamento
 item.wedding_ring.description = Proponha casamento a um NPC com quem você tenha alto romance.
 npc.dying = {name} está muito doente e corre perigo de vida!
+baby.newborn_cannot_place = Seu bebê ainda é muito pequeno e precisa ser carregado! Ele começará a andar sozinho quando crescer.

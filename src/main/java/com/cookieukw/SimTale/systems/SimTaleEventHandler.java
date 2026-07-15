@@ -103,6 +103,12 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                     }
 
                     if (childComp != null) {
+                        if (childComp.stage == GrowthStage.BABY) {
+                            playerRefComp.sendMessage(Message.translation("general.baby.newborn_cannot_place"));
+                            event.setCancelled(true);
+                            return;
+                        }
+
                         // Spawn baby entity back at target block position (1 block above)
                         Vector3d spawnPos = new Vector3d(targetBlock.x + 0.5, targetBlock.y + 1, targetBlock.z + 0.5);
                         Store<EntityStore> store = world.getEntityStore().getStore();
