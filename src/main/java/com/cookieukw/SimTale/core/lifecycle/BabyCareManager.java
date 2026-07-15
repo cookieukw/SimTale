@@ -21,11 +21,13 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.codec.Codec;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class BabyCareManager {
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
@@ -33,8 +35,29 @@ public class BabyCareManager {
     // Default turn duration: 4 hours (14,400,000 ms) for natural real-time co-parenting pacing
     public static final long TURN_DURATION = 14400000L;
 
-    // Cache for fast lookup during ticking: NPC UUID -> Child UUID
-    public static final Map<UUID, UUID> NPC_CARRIED_BABIES = new ConcurrentHashMap<>();
+    // Cache for fast lookup during ticking: NPC UUID -> List of Child UUIDs
+    public static final Map<UUID, List<UUID>> NPC_CARRIED_BABIES = new ConcurrentHashMap<>();
+
+    public static void addCarriedBaby(UUID npcId, UUID childId) {
+        if (npcId == null || childId == null) return;
+        NPC_CARRIED_BABIES.computeIfAbsent(npcId, k -> new java.util.concurrent.CopyOnWriteArrayList<>()).add(childId);
+    }
+
+    public static void removeCarriedBaby(UUID npcId, UUID childId) {
+        if (npcId == null || childId == null) return;
+        List<UUID> list = NPC_CARRIED_BABIES.get(npcId);
+        if (list != null) {
+            list.remove(childId);
+            if (list.isEmpty()) {
+                NPC_CARRIED_BABIES.remove(npcId);
+            }
+        }
+    }
+
+    public static List<UUID> getCarriedBabies(UUID npcId) {
+        if (npcId == null) return java.util.Collections.emptyList();
+        return NPC_CARRIED_BABIES.getOrDefault(npcId, java.util.Collections.emptyList());
+    }
 
     public static void loadCache() {
         NPC_CARRIED_BABIES.clear();
@@ -46,8 +69,7 @@ public class BabyCareManager {
                         try {
                             UUID holderId = UUID.fromString(data.currentHolderId);
                             UUID childId = UUID.fromString(data.childId);
-                            // If holder matches an NPC ID in active list, we cache it
-                            NPC_CARRIED_BABIES.put(holderId, childId);
+                            addCarriedBaby(holderId, childId);
                         } catch (Exception ignored) {}
                     }
                 }
@@ -140,7 +162,7 @@ public class BabyCareManager {
                         removeBabyEntityFromWorld(UUID.fromString(care.childId));
                         // Remove from cache
                         try {
-                            NPC_CARRIED_BABIES.remove(UUID.fromString(care.currentHolderId));
+                            removeCarriedBaby(UUID.fromString(care.currentHolderId), UUID.fromString(care.childId));
                         } catch (Exception ignored) {}
                         
                         care.currentHolderId = playerUuidStr;
@@ -173,7 +195,7 @@ public class BabyCareManager {
                         care.currentHolderId = care.currentTurnOwnerId;
                         // Add to cache
                         try {
-                            NPC_CARRIED_BABIES.put(UUID.fromString(care.currentHolderId), UUID.fromString(care.childId));
+                            addCarriedBaby(UUID.fromString(care.currentHolderId), UUID.fromString(care.childId));
                         } catch (Exception ignored) {}
                         
                         String otherParentName = getNPCName(UUID.fromString(care.currentTurnOwnerId));

@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 
+import java.util.List;
 import java.util.UUID;
 
 public class MotherAIManager {
@@ -30,8 +31,8 @@ public class MotherAIManager {
     }
 
     private static void handleBabyAI(SimNPCComponent parent, GrowthComponent baby, BabyCareData careData, String parentIdStr) {
-        UUID heldBabyId = BabyCareManager.NPC_CARRIED_BABIES.get(parent.entityId);
-        boolean isHolding = heldBabyId != null && heldBabyId.equals(baby.childId);
+        List<UUID> carriedList = BabyCareManager.getCarriedBabies(parent.entityId);
+        boolean isHolding = carriedList.contains(baby.childId);
         boolean isTurnOwner = parentIdStr.equals(careData.currentTurnOwnerId);
         
         if (!isHolding && isTurnOwner) {
@@ -39,7 +40,7 @@ public class MotherAIManager {
             if (now - careData.lastInteractionTime > 15000) { 
                 careData.currentHolderId = parentIdStr;
                 careData.lastInteractionTime = now;
-                BabyCareManager.NPC_CARRIED_BABIES.put(parent.entityId, baby.childId);
+                BabyCareManager.addCarriedBaby(parent.entityId, baby.childId);
                 BabyCareManager.save(careData);
                 
                 broadcastLocalMessage(parent, Message.translation("npc-dialogues.chat.baby.pickup").param("parent", parent.name).param("baby", baby.getFullName()));

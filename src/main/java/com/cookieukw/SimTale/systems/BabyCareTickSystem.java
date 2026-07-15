@@ -26,7 +26,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import com.hypixel.hytale.component.Ref;
 
 import javax.annotation.Nonnull;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -107,70 +110,77 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
 
             if (spouseNpc == null) continue;
 
-            // --- Case 1: Player holds baby, approaches NPC spouse ---
-            if (babyItem != null) {
-                BabyCareData care = BabyCareManager.load(babyChildId);
-                if (care != null) {
-                    if (nowMs >= care.nextSwapAllowedTime) {
-                        // Perform automatic swap: give baby to NPC
-                        combinedInventory.removeItemStackFromSlot(babySlot, babyItem, 1);
-                        
-                        care.currentHolderId = spouseNpc.entityId.toString();
-                        care.currentTurnOwnerId = spouseNpc.entityId.toString();
+            // --- Process Baby Items in Player Inventory (Swap to NPC if ready) ---
+            for (short slot = 0; slot < combinedInventory.getCapacity(); slot++) {
+                ItemStack item = combinedInventory.getItemStack(slot);
+                if (item != null && item.getItemId().equals("simtale:Baby")) {
+                    String childIdStr = item.getFromMetadataOrNull("childId", Codec.STRING);
+                    if (childIdStr != null) {
+                        UUID invBabyChildId = UUID.fromString(childIdStr);
+                        BabyCareData care = BabyCareManager.load(invBabyChildId);
+                        if (care != null) {
+                            if (nowMs >= care.nextSwapAllowedTime) {
+                                // Perform automatic swap: give baby to NPC
+                                combinedInventory.removeItemStackFromSlot(slot, item, 1);
+                                
+                                care.currentHolderId = spouseNpc.entityId.toString();
+                                care.currentTurnOwnerId = spouseNpc.entityId.toString();
+                                care.turnStartTime = nowMs;
+                                care.nextSwapAllowedTime = nowMs + BabyCareManager.TURN_DURATION;
+                                care.lastInteractionTime = nowMs;
+                                BabyCareManager.save(care);
+
+                                BabyCareManager.addCarriedBaby(spouseNpc.entityId, invBabyChildId);
+
+                                GrowthComponent child = Caskara.load("child_" + care.childId, GrowthComponent.class);
+                                String childName = child != null ? child.getFullName() : "do bebê";
+                                playerRef.sendMessage(Message.raw(spouseNpc.name + " pegou o bebê " + childName + " para cuidar!"));
+                            } else {
+                                // Early swap rejection feedback (cooldown check)
+                                long lastMsg = MESSAGE_COOLDOWNS.getOrDefault(playerUuid, 0L);
+                                if (nowMs - lastMsg > 10000) {
+                                    GrowthComponent child = Caskara.load("child_" + care.childId, GrowthComponent.class);
+                                    String childName = child != null ? child.getFullName() : "dele";
+                                    playerRef.sendMessage(Message.raw("<" + spouseNpc.name + "> Agora é a sua vez de cuidar de " + childName + " por um tempo."));
+                                    MESSAGE_COOLDOWNS.put(playerUuid, nowMs);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // --- Process Babies Carried by NPC (Swap back to Player if ready) ---
+            List<UUID> npcCarried = new ArrayList<>(BabyCareManager.getCarriedBabies(spouseNpc.entityId));
+            for (UUID npcChildId : npcCarried) {
+                BabyCareData care = BabyCareManager.load(npcChildId);
+                if (care != null && nowMs >= care.nextSwapAllowedTime) {
+                    // Give baby back to player if inventory has space
+                    ItemStack newBabyItem = new ItemStack("simtale:Baby", 1).withMetadata("childId", Codec.STRING, npcChildId.toString());
+                    ItemStackTransaction transaction = combinedInventory.addItemStack(newBabyItem);
+                    ItemStack remainder = transaction.getRemainder();
+
+                    if (remainder == null || remainder.isEmpty()) {
+                        // Success!
+                        care.currentHolderId = playerUuid.toString();
+                        care.currentTurnOwnerId = playerUuid.toString();
                         care.turnStartTime = nowMs;
                         care.nextSwapAllowedTime = nowMs + BabyCareManager.TURN_DURATION;
                         care.lastInteractionTime = nowMs;
                         BabyCareManager.save(care);
 
                         // Cache update
-                        BabyCareManager.NPC_CARRIED_BABIES.put(spouseNpc.entityId, babyChildId);
+                        BabyCareManager.removeCarriedBaby(spouseNpc.entityId, npcChildId);
 
                         GrowthComponent child = Caskara.load("child_" + care.childId, GrowthComponent.class);
                         String childName = child != null ? child.getFullName() : "do bebê";
-                        playerRef.sendMessage(Message.raw(spouseNpc.name + " pegou o bebê " + childName + " para cuidar!"));
+                        playerRef.sendMessage(Message.raw("Você pegou o bebê " + childName + " de volta de " + spouseNpc.name + "!"));
                     } else {
-                        // Early swap rejection feedback (cooldown check)
+                        // Inventory full feedback
                         long lastMsg = MESSAGE_COOLDOWNS.getOrDefault(playerUuid, 0L);
-                        if (nowMs - lastMsg > 5000) {
-                            playerRef.sendMessage(Message.raw("<" + spouseNpc.name + "> Agora é a sua vez de cuidar dele por um tempo."));
+                        if (nowMs - lastMsg > 10000) {
+                            playerRef.sendMessage(Message.raw("Seu inventário está cheio! Abra espaço para pegar o bebê de volta."));
                             MESSAGE_COOLDOWNS.put(playerUuid, nowMs);
-                        }
-                    }
-                }
-            }
-            // --- Case 2: Player has no baby, approaches NPC spouse who holds baby ---
-            else {
-                UUID npcChildId = BabyCareManager.NPC_CARRIED_BABIES.get(spouseNpc.entityId);
-                if (npcChildId != null) {
-                    BabyCareData care = BabyCareManager.load(npcChildId);
-                    if (care != null && nowMs >= care.nextSwapAllowedTime) {
-                        // Give baby back to player if inventory has space
-                        ItemStack newBabyItem = new ItemStack("simtale:Baby", 1).withMetadata("childId", Codec.STRING, npcChildId.toString());
-                        ItemStackTransaction transaction = combinedInventory.addItemStack(newBabyItem);
-                        ItemStack remainder = transaction.getRemainder();
-
-                        if (remainder == null || remainder.isEmpty()) {
-                            // Success!
-                            care.currentHolderId = playerUuid.toString();
-                            care.currentTurnOwnerId = playerUuid.toString();
-                            care.turnStartTime = nowMs;
-                            care.nextSwapAllowedTime = nowMs + BabyCareManager.TURN_DURATION;
-                            care.lastInteractionTime = nowMs;
-                            BabyCareManager.save(care);
-
-                            // Cache update
-                            BabyCareManager.NPC_CARRIED_BABIES.remove(spouseNpc.entityId);
-
-                            GrowthComponent child = Caskara.load("child_" + care.childId, GrowthComponent.class);
-                            String childName = child != null ? child.getFullName() : "do bebê";
-                            playerRef.sendMessage(Message.raw("Você pegou o bebê " + childName + " de volta de " + spouseNpc.name + "!"));
-                        } else {
-                            // Inventory full feedback
-                            long lastMsg = MESSAGE_COOLDOWNS.getOrDefault(playerUuid, 0L);
-                            if (nowMs - lastMsg > 5000) {
-                                playerRef.sendMessage(Message.raw("Seu inventário está cheio! Abra espaço para pegar o bebê de volta."));
-                                MESSAGE_COOLDOWNS.put(playerUuid, nowMs);
-                            }
                         }
                     }
                 }
