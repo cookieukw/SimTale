@@ -3,6 +3,8 @@ package com.cookieukw.SimTale.systems;
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
+import com.cookieukw.SimTale.core.Rotation4;
+import com.cookieukw.SimTale.systems.ConstructionPreviewManager;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
@@ -35,6 +37,7 @@ import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -160,44 +163,44 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         if (event.getItemInHand() != null && event.getItemInHand().getId() != null &&
             event.getItemInHand().getId().toLowerCase().contains("blueprint")) {
             
-            // Extract prefab name (e.g. from simtale:blueprint_tavernhouse -> TavernHouse)
-            // For now, hardcode "TavernHouse" or map it if needed. 
-            // Better: use the item's custom data or fallback to TavernHouse for the prototype
             String prefabName = "TavernHouse";
-            
             Vector3i targetBlock = event.getTargetBlock();
             if (targetBlock != null) {
-                ConstructionSiteComponent closestSite = null;
-                double minDistance = Double.MAX_VALUE;
-
-                for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
-                    double dist = site.anchor.distance(targetBlock);
-                    if (dist < 20.0 && dist < minDistance) {
-                        minDistance = dist;
-                        closestSite = site;
-                    }
-                }
-
                 PlayerRef pRef = event.getPlayerRefComponent();
-                
-                if (closestSite != null && !closestSite.isBuilding) {
-                    closestSite.isBuilding = true;
-                    pRef.sendMessage(Message.raw("Construction started! NPCs will now come to build."));
-                    ConstructionHelper.clearPreview(world, closestSite);
+                ConstructionSiteComponent activePreview = ConstructionPreviewManager.get(pRef.getUuid());
+
+                if (activePreview != null) {
+                    // Confirm and commit if player right-clicks close to the preview anchor
+                    if (targetBlock.distance(activePreview.anchor) < 4.0) {
+                        ConstructionSiteComponent committed = ConstructionPreviewManager.commit(pRef.getUuid(), world);
+                        if (committed != null) {
+                            committed.isBuilding = true;
+                            pRef.sendMessage(Message.raw("Construction started! NPCs will now come to build."));
+                        }
+                    } else {
+                        // Otherwise, move/update the preview to the new looked block
+                        Vector3i spawnPos = new Vector3i(targetBlock.x, targetBlock.y + 1, targetBlock.z);
+                        TransformComponent transform = playerAccessor.getComponent(playerRef, TransformComponent.getComponentType());
+                        Rotation4 facing = Rotation4.NORTH;
+                        if (transform != null) {
+                            facing = Rotation4.fromYawDegrees(Math.toDegrees(transform.getRotation().yaw()));
+                        }
+                        ConstructionPreviewManager.update(pRef.getUuid(), world, spawnPos, facing);
+                        pRef.sendMessage(Message.raw("Moved preview to new location. Right click the preview to confirm."));
+                    }
                 } else {
-                    // Place new preview 1 block above the clicked block
+                    // Start a new preview session
                     Vector3i spawnPos = new Vector3i(targetBlock.x, targetBlock.y + 1, targetBlock.z);
-                    Store<EntityStore> eStore = world.getEntityStore().getStore();
-                    
-                    Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
-                    ConstructionSiteComponent site = new ConstructionSiteComponent(prefabName, spawnPos);
-                    holder.addComponent(SimTale.CONSTRUCTION_COMPONENT_TYPE, site);
-
-                    SimTale.ACTIVE_SITES.add(site);
-                    eStore.addEntity(holder, AddReason.SPAWN);
-
-                    ConstructionHelper.placePreview(world, spawnPos, prefabName);
-                    pRef.sendMessage(Message.raw("Preview placed for " + prefabName + ". Right click again nearby to confirm."));
+                    TransformComponent transform = playerAccessor.getComponent(playerRef, TransformComponent.getComponentType());
+                    Rotation4 facing = Rotation4.NORTH;
+                    if (transform != null) {
+                        facing = Rotation4.fromYawDegrees(Math.toDegrees(transform.getRotation().yaw()));
+                    }
+                    ConstructionSiteComponent site = ConstructionPreviewManager.start(pRef.getUuid(), prefabName, spawnPos);
+                    site.facing = facing;
+                    site.roofFacing = facing;
+                    ConstructionHelper.placePreview(world, site);
+                    pRef.sendMessage(Message.raw("Ghost preview placed. Right click the preview to confirm, or use '/build rotate'."));
                 }
             }
             return;

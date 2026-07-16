@@ -4,9 +4,8 @@ import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Prefab;
 import com.cookieukw.SimTale.core.PrefabManager;
 import com.cookieukw.SimTale.systems.ConstructionHelper;
+import com.cookieukw.SimTale.systems.ConstructionPreviewManager;
 import com.cookieukw.SimTale.systems.ConstructionSystem;
-import com.hypixel.hytale.component.AddReason;
-import com.hypixel.hytale.component.Holder;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -19,6 +18,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.cookieukw.SimTale.core.Rotation4;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 import javax.annotation.Nonnull;
@@ -31,7 +31,7 @@ public class BuildCommand extends AbstractPlayerCommand {
     public BuildCommand() {
         super("build", "Start a progressive building construction");
         this.setPermissionGroups("Admin", "Adventure");
-        this.prefabArg = this.withRequiredArg("prefab", "TavernHouse (or start/force/speed/simulate)", ArgTypes.STRING);
+        this.prefabArg = this.withRequiredArg("prefab", "TavernHouse (or start/clear/rotate/rotateroof/force/speed/simulate)", ArgTypes.STRING);
         this.speedArg = this.withOptionalArg("speed", "Multiplier or Simulated Builders", ArgTypes.INTEGER);
     }
 
@@ -45,33 +45,32 @@ public class BuildCommand extends AbstractPlayerCommand {
         Vector3d pos = transform.getPosition();
         Vector3i playerAnchor = new Vector3i((int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z));
 
-        EntityStore entityStore = world.getEntityStore();
-        Store<EntityStore> eStore = entityStore.getStore();
-
         if (prefabName.equalsIgnoreCase("start")) {
-            ConstructionSiteComponent closestSite = null;
-            double minDistance = Double.MAX_VALUE;
-
-            for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
-                double dist = site.anchor.distance(playerAnchor);
-                if (dist < 100.0 && dist < minDistance) {
-                    minDistance = dist;
-                    closestSite = site;
-                }
-            }
-
-            if (closestSite != null) {
-                if (closestSite.isBuilding) {
-                    ctx.sendMessage(Message.raw("Construction is already in progress for " + closestSite.prefabName + "!"));
-                } else {
-                    closestSite.isBuilding = true;
-                    ctx.sendMessage(Message.raw("Construction started! NPCs will now come to build."));
-                    // Clear wireframe
-                    ConstructionHelper.clearPreview(world, closestSite);
-                }
+            ConstructionSiteComponent site = ConstructionPreviewManager.commit(playerRef.getUuid(), world);
+            if (site != null) {
+                site.isBuilding = true;
+                ctx.sendMessage(Message.raw("Construction started! NPCs will now come to build."));
             } else {
-                ctx.sendMessage(Message.raw("No pending construction site found nearby (within 100 blocks). Active sites total: " + SimTale.ACTIVE_SITES.size()));
+                ctx.sendMessage(Message.raw("No active preview found to start. Use '/build <prefab>' first."));
             }
+            return;
+        }
+
+        if (prefabName.equalsIgnoreCase("clear")) {
+            ConstructionPreviewManager.clear(playerRef.getUuid(), world);
+            ctx.sendMessage(Message.raw("Construction preview cleared."));
+            return;
+        }
+
+        if (prefabName.equalsIgnoreCase("rotate")) {
+            ConstructionPreviewManager.rotate(playerRef.getUuid(), world);
+            ctx.sendMessage(Message.raw("Rotated construction preview."));
+            return;
+        }
+
+        if (prefabName.equalsIgnoreCase("rotateroof")) {
+            ConstructionPreviewManager.rotateRoof(playerRef.getUuid(), world);
+            ctx.sendMessage(Message.raw("Rotated construction roof preview."));
             return;
         }
 
@@ -142,16 +141,17 @@ public class BuildCommand extends AbstractPlayerCommand {
             return;
         }
 
-        Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
-        ConstructionSiteComponent site = new ConstructionSiteComponent(prefabName, playerAnchor);
-        holder.addComponent(SimTale.CONSTRUCTION_COMPONENT_TYPE, site);
+        ConstructionPreviewManager.clear(playerRef.getUuid(), world);
 
-        SimTale.ACTIVE_SITES.add(site);
-        eStore.addEntity(holder, AddReason.SPAWN);
+        double yawDegrees = Math.toDegrees(transform.getRotation().yaw());
+        Rotation4 facing = Rotation4.fromYawDegrees(yawDegrees);
 
-        ConstructionHelper.placePreview(world, playerAnchor, prefabName);
+        ConstructionSiteComponent site = ConstructionPreviewManager.start(playerRef.getUuid(), prefabName, playerAnchor);
+        site.facing = facing;
+        site.roofFacing = facing;
+        ConstructionHelper.placePreview(world, site);
 
         ctx.sendMessage(Message.raw("Preview placed for " + prefabName + " at " + playerAnchor.x + ", " + playerAnchor.y + ", " + playerAnchor.z));
-        ctx.sendMessage(Message.raw("Type '/build start' to confirm and let NPCs begin building."));
+        ctx.sendMessage(Message.raw("Type '/build start' to confirm, '/build rotate' to rotate, '/build clear' to clear."));
     }
 }

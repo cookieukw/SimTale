@@ -6,6 +6,8 @@ import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import org.joml.Vector3i;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ConstructionSiteComponent implements Component<EntityStore> {
     public String prefabName;
@@ -17,6 +19,11 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
     public boolean forceBuild;
     public int simulatedBuilders;
     public transient int activeBuilders;
+
+    public Rotation4 facing = Rotation4.NORTH;
+    public Rotation4 roofFacing = Rotation4.NORTH;
+    public final Set<Long> previewBody = ConcurrentHashMap.newKeySet();
+    public final Set<Long> previewRoof = ConcurrentHashMap.newKeySet();
     
     public ConstructionSiteComponent() {
     }
@@ -30,6 +37,8 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         this.forceBuild = false;
         this.simulatedBuilders = 0;
         this.activeBuilders = 0;
+        this.facing = Rotation4.NORTH;
+        this.roofFacing = Rotation4.NORTH;
     }
 
     public static final BuilderCodec<ConstructionSiteComponent> CODEC = BuilderCodec
@@ -42,6 +51,8 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         .append(new KeyedCodec<>("IsBuilding", Codec.BOOLEAN), (c, v) -> c.isBuilding = v, c -> c.isBuilding).add()
         .append(new KeyedCodec<>("ForceBuild", Codec.BOOLEAN), (c, v) -> c.forceBuild = v, c -> c.forceBuild).add()
         .append(new KeyedCodec<>("SimulatedBuilders", Codec.INTEGER), (c, v) -> c.simulatedBuilders = v, c -> c.simulatedBuilders).add()
+        .append(new KeyedCodec<>("Facing", Codec.STRING), (c, v) -> c.facing = Rotation4.valueOf(v), c -> c.facing.name()).add()
+        .append(new KeyedCodec<>("RoofFacing", Codec.STRING), (c, v) -> c.roofFacing = Rotation4.valueOf(v), c -> c.roofFacing.name()).add()
         .build();
 
     @Override
@@ -57,6 +68,8 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         clone.forceBuild = this.forceBuild;
         clone.simulatedBuilders = this.simulatedBuilders;
         clone.activeBuilders = this.activeBuilders;
+        clone.facing = this.facing;
+        clone.roofFacing = this.roofFacing;
         return clone;
     }
 }
