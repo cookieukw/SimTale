@@ -72,6 +72,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new DebugNearSubCommand());
         this.addSubCommand(new SetMoodSubCommand());
         this.addSubCommand(new SearchSubCommand());
+        this.addSubCommand(new ToggleAiSubCommand());
     }
 
     @Override
@@ -82,7 +83,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -728,6 +729,36 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     playerRef.sendMessage(Message.translation("general.cmd.search.error").param("error", e.getMessage()));
                 }
             });
+        }
+    }
+
+    private static class ToggleAiSubCommand extends AbstractPlayerCommand {
+        private final OptionalArg<String> stateArg;
+
+        public ToggleAiSubCommand() {
+            super("toggleai", "Ativa ou desativa o uso de Inteligencia Artificial para interacoes");
+            this.stateArg = this.withOptionalArg("state", "on|off", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            
+            com.cookieukw.SimTale.ai.AiConfig config = com.cookieukw.SimTale.ai.AiConfigManager.getConfig();
+            String stateStr = ctx.get(this.stateArg);
+
+            if (stateStr == null) {
+                // Toggle state
+                config.enabled = !config.enabled;
+            } else if (stateStr.equalsIgnoreCase("on") || stateStr.equalsIgnoreCase("true")) {
+                config.enabled = true;
+            } else if (stateStr.equalsIgnoreCase("off") || stateStr.equalsIgnoreCase("false")) {
+                config.enabled = false;
+            }
+
+            com.cookieukw.SimTale.ai.AiConfigManager.save();
+            String status = config.enabled ? "ATIVADO" : "DESATIVADO";
+            ctx.sendMessage(Message.raw("O uso de IA Generativa para conversas com NPCs foi: " + status));
         }
     }
 }

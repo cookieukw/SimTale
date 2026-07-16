@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.logic;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.ai.AiConfigManager;
 import com.cookieukw.SimTale.ai.AiMessage;
 import com.cookieukw.SimTale.ai.AiRequest;
 import com.cookieukw.SimTale.ai.NpcContextBuilder;
@@ -120,7 +121,7 @@ public class InteractionManager {
         int aGain = rel.status == RelationshipStatus.STRANGER ? 10 : 5;
         
         // Trigger Generative AI async call to reply in the background
-        if (SimTale.aiManager != null) {
+        if (SimTale.aiManager != null && AiConfigManager.getConfig().enabled) {
             AiRequest aiRequest = NpcContextBuilder.build(
                     npc,
                     playerUuid,

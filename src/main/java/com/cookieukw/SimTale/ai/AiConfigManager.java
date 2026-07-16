@@ -22,6 +22,11 @@ public class AiConfigManager {
             String content = Files.readString(CONFIG_FILE.toPath());
             AiConfig config = new AiConfig();
             
+            String enabledStr = JsonParser.extractPath(content, "enabled");
+            if (enabledStr != null) {
+                config.enabled = Boolean.parseBoolean(enabledStr);
+            }
+
             String provider = JsonParser.extractPath(content, "provider");
             if (provider != null) config.provider = provider;
             
@@ -49,6 +54,7 @@ public class AiConfigManager {
     public static void save() {
         try {
             JsonBuilder builder = JsonBuilder.create().object();
+            builder.key("enabled").value(currentConfig.enabled);
             builder.key("provider").value(currentConfig.provider);
             builder.key("geminiKey").value(currentConfig.geminiKey);
             builder.key("openaiKey").value(currentConfig.openaiKey);
