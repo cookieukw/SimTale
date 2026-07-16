@@ -1,6 +1,10 @@
 package com.cookieukw.SimTale.logic;
 
 import com.cookie.caskara.Caskara;
+import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.ai.AiMessage;
+import com.cookieukw.SimTale.ai.AiRequest;
+import com.cookieukw.SimTale.ai.NpcContextBuilder;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.Profession;
@@ -114,6 +118,21 @@ public class InteractionManager {
         
         int fGain = rel.status == RelationshipStatus.STRANGER ? 8 : (rel.status == RelationshipStatus.ENEMIES ? 1 : 5);
         int aGain = rel.status == RelationshipStatus.STRANGER ? 10 : 5;
+        
+        // Trigger Generative AI async call to reply in the background
+        if (SimTale.aiManager != null) {
+            AiRequest aiRequest = NpcContextBuilder.build(
+                    npc,
+                    playerUuid,
+                    playerRef != null ? playerRef.getUsername() : "Player",
+                    List.of(new AiMessage("user", "The player is starting a friendly conversation with you. Say hello or reply to them."))
+            );
+            SimTale.aiManager.generateAsync(aiRequest).thenAccept(aiRes -> {
+                if (aiRes.success() && playerRef != null) {
+                    playerRef.sendMessage(Message.raw("[" + npc.name + "] " + aiRes.text()));
+                }
+            });
+        }
         
         return InteractionOutcome.of(fGain, 0, 1, aGain, response, MemoryEvent.CHATTED);
     }

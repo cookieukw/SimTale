@@ -59,7 +59,8 @@ public class OpenAIProvider implements NpcAiProvider {
                 request.playerName(),
                 null, // system prompt already formatted in messages list
                 openAiMsgs,
-                request.metadata()
+                request.metadata(),
+                request.playerUuid()
         );
 
         return delegate.generate(transformed);

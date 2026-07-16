@@ -7,6 +7,8 @@ import com.cookieukw.SimTale.core.NPCPreferences;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Trait;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +19,22 @@ import java.util.UUID;
 public class NpcContextBuilder {
 
     public static AiRequest build(SimNPCComponent npc, UUID playerUuid, String playerName, List<AiMessage> conversationHistory) {
+       
+       UUID uuid = UUID.fromString(playerUuid.toString());
+
+       PlayerRef player = Universe.get().getPlayer(uuid);
+        String language = "en-US";
+        try {
+           /*
+            for (PlayerRef pRef : Universe.get().getPlayers()) {
+                if (pRef.getUuid().equals(playerUuid)) {
+                    language = pRef.getLanguage();
+                    break;
+                }
+            } */
+            language = player.getLanguage();
+        } catch (Throwable ignored) {}
+
         StringBuilder systemPrompt = new StringBuilder();
         
         // 1. Basic Stats
@@ -131,9 +149,8 @@ public class NpcContextBuilder {
                         .append(" há ").append(ageSecs).append(" segundos atrás.\n");
             }
         }
-
         // 10. Directives
-        systemPrompt.append("\nRespond in the first person in a natural way, maintaining total consistency with your personality, mood, traits and feelings towards the player. Do not break character.");
+        systemPrompt.append("\nRespond in the first person in a natural way, maintaining total consistency with your personality, mood, traits and feelings towards the player. Do not break character. Important: You must respond exclusively in " + language + "’s native language.");
 
         // Metadata Map construction for tracing/debug
         Map<String, Object> metadata = new HashMap<>();
@@ -148,7 +165,7 @@ public class NpcContextBuilder {
                 playerName,
                 systemPrompt.toString(),
                 conversationHistory,
-                metadata
+                metadata, playerUuid
         );
     }
 }

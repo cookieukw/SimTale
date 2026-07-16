@@ -1,6 +1,11 @@
 package com.cookieukw.SimTale;
 
+import com.cookieukw.SimTale.ai.AiConfig;
+import com.cookieukw.SimTale.ai.AiConfigManager;
+import com.cookieukw.SimTale.ai.NpcAiManager;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
+import com.cookieukw.SimTale.ai.providers.GeminiProvider;
+import com.cookieukw.SimTale.ai.providers.OpenAIProvider;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
@@ -57,6 +62,7 @@ public class SimTale extends JavaPlugin {
     public static final List<SimNPCComponent> ACTIVE_NPCS = new java.util.concurrent.CopyOnWriteArrayList<>();
     public static final List<ConstructionSiteComponent> ACTIVE_SITES = new java.util.concurrent.CopyOnWriteArrayList<>();
     public static boolean debugForceSpawning = false;
+    public static NpcAiManager aiManager;
 
     public SimTale(@Nonnull JavaPluginInit init) {
         super(init);
@@ -66,6 +72,44 @@ public class SimTale extends JavaPlugin {
     @Override
     protected void setup() {
         LOGGER.atInfo().log("Setting up SimTale registries...");
+
+        // Load local JSON configuration
+        AiConfigManager.load();
+        AiConfig config = AiConfigManager.getConfig();
+
+        // Initialize AI manager
+        aiManager = new NpcAiManager();
+
+        // 1. Setup Gemini
+        String geminiKey = !config.geminiKey.isBlank() ? config.geminiKey : System.getenv("GEMINI_API_KEY");
+        if (geminiKey != null && !geminiKey.isBlank()) {
+            String model = !config.customModel.isBlank() ? config.customModel : "gemini-2.5-flash";
+            aiManager.register(new GeminiProvider(geminiKey, model));
+            LOGGER.atInfo().log("Registered Gemini AI Provider.");
+        }
+
+        // 2. Setup OpenAI
+        String openAiKey = !config.openaiKey.isBlank() ? config.openaiKey : System.getenv("OPENAI_API_KEY");
+        if (openAiKey != null && !openAiKey.isBlank()) {
+            String model = !config.customModel.isBlank() ? config.customModel : "gpt-4o-mini";
+            String url = !config.customUrl.isBlank() ? config.customUrl : "https://api.openai.com";
+            aiManager.register(new OpenAIProvider(url, openAiKey, model));
+            LOGGER.atInfo().log("Registered OpenAI Provider.");
+        }
+
+        // 3. Setup OpenRouter (Fallback to custom if configured, else default)
+        String openRouterKey = !config.openrouterKey.isBlank() ? config.openrouterKey : System.getenv("OPENROUTER_API_KEY");
+        if (openRouterKey != null && !openRouterKey.isBlank()) {
+            String model = !config.customModel.isBlank() ? config.customModel : "google/gemini-2.5-flash";
+            String url = !config.customUrl.isBlank() ? config.customUrl : "https://openrouter.ai";
+            aiManager.register(new OpenAIProvider(url, openRouterKey, model));
+            LOGGER.atInfo().log("Registered OpenRouter AI Provider.");
+        }
+
+        // Set default active provider according to config selection
+        if (config.provider != null && !config.provider.isBlank()) {
+            aiManager.setDefaultProvider(config.provider);
+        }
 
         // Register data components
         // registerComponent(Class, Supplier) is the available method in

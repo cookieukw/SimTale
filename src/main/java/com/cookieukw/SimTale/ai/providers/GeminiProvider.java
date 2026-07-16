@@ -93,7 +93,8 @@ public class GeminiProvider implements NpcAiProvider {
                 request.playerName(),
                 null,
                 List.of(),
-                metadata
+                metadata,
+                request.playerUuid()
         );
     }
 }
