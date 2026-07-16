@@ -3,12 +3,12 @@
     {
       "id": "1",
       "name": "swaddle",
-      "position": {"x": 2.50161, "y": 40.61908, "z": 20.5801},
+      "position": {"x": 0, "y": 0, "z": 0},
       "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
       "shape": {
         "type": "box",
-        "offset": {"x": 5.99839, "y": 2.88092, "z": -4.0801},
-        "stretch": {"x": 0.75, "y": 1.125, "z": 1.125},
+        "offset": {"x": 11.99678, "y": 5.76184, "z": -8.1602},
+        "stretch": {"x": 1.5, "y": 2.25, "z": 2.25},
         "settings": {
           "isPiece": false,
           "size": {"x": 17, "y": 7, "z": 7}
@@ -54,7 +54,7 @@
         {
           "id": "2",
           "name": "body",
-          "position": {"x": -11.99678, "y": 22.23816, "z": 8.1602},
+          "position": {"x": -23.99356, "y": 44.47632, "z": 16.3204},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "none",
@@ -73,7 +73,7 @@
             {
               "id": "3",
               "name": "head",
-              "position": {"x": -2.59531, "y": 39.97158, "z": 16.59649},
+              "position": {"x": -5.19062, "y": 79.94316, "z": 33.19298},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
               "shape": {
                 "type": "none",
@@ -92,12 +92,12 @@
                 {
                   "id": "4",
                   "name": "neck",
-                  "position": {"x": 1.08263, "y": -2.76856, "z": 0.03363},
+                  "position": {"x": 2.16526, "y": -5.53712, "z": 0.06726},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                   "shape": {
                     "type": "box",
-                    "offset": {"x": 6.75946, "y": -59.44119, "z": -24.79032},
-                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "offset": {"x": 13.51892, "y": -118.88238, "z": -49.58064},
+                    "stretch": {"x": 2, "y": 2, "z": 2},
                     "settings": {
                       "isPiece": false,
                       "size": {"x": 1, "y": 6, "z": 6}
@@ -145,12 +145,12 @@
             {
               "id": "5",
               "name": "swaddle_head--C1",
-              "position": {"x": 1.10303, "y": -21.76481, "z": -9.18628},
+              "position": {"x": 2.20606, "y": -43.52962, "z": -18.37256},
               "orientation": {"x": 0, "y": 0, "z": -0.06541, "w": 0.99786},
               "shape": {
                 "type": "box",
-                "offset": {"x": 0, "y": 0, "z": 1},
-                "stretch": {"x": 1, "y": 1, "z": 1},
+                "offset": {"x": 0, "y": 0, "z": 2},
+                "stretch": {"x": 2, "y": 2, "z": 2},
                 "settings": {
                   "isPiece": false,
                   "size": {"x": 8, "y": 7, "z": 9},
@@ -197,12 +197,12 @@
             {
               "id": "6",
               "name": "face--C2",
-              "position": {"x": 1.49228, "y": -18.20676, "z": -8.4102},
+              "position": {"x": 2.98456, "y": -36.41352, "z": -16.8204},
               "orientation": {"x": 0.46622, "y": -0.53164, "z": 0.46622, "w": 0.53164},
               "shape": {
                 "type": "quad",
                 "offset": {"x": 0, "y": 0, "z": 0},
-                "stretch": {"x": 1, "y": 1, "z": 1},
+                "stretch": {"x": 2, "y": 2, "z": 2},
                 "settings": {
                   "isPiece": false,
                   "size": {"x": 6, "y": 7},
