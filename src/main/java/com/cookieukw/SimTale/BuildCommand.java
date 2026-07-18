@@ -46,6 +46,11 @@ public class BuildCommand extends AbstractPlayerCommand {
         Vector3i playerAnchor = new Vector3i((int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z));
 
         if (prefabName.equalsIgnoreCase("start")) {
+            ConstructionSiteComponent activePreview = ConstructionPreviewManager.get(playerRef.getUuid());
+            if (activePreview != null && !activePreview.isClear) {
+                ctx.sendMessage(Message.raw("Construction denied! The area is obstructed (marked red)."));
+                return;
+            }
             ConstructionSiteComponent site = ConstructionPreviewManager.commit(playerRef.getUuid(), world);
             if (site != null) {
                 site.isBuilding = true;

@@ -33,6 +33,7 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
     public boolean forceBuild;
     public int simulatedBuilders;
     public transient int activeBuilders;
+    public boolean isClear = true;
 
     public Rotation4 facing = Rotation4.NORTH;
     public Rotation4 roofFacing = Rotation4.NORTH;
@@ -69,6 +70,7 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         .append(new KeyedCodec<>("SimulatedBuilders", Codec.INTEGER), (c, v) -> c.simulatedBuilders = v, c -> c.simulatedBuilders).add()
         .append(new KeyedCodec<>("Facing", Codec.STRING), (c, v) -> c.facing = Rotation4.valueOf(v), c -> c.facing.name()).add()
         .append(new KeyedCodec<>("RoofFacing", Codec.STRING), (c, v) -> c.roofFacing = Rotation4.valueOf(v), c -> c.roofFacing.name()).add()
+        .append(new KeyedCodec<>("IsClear", Codec.BOOLEAN), (c, v) -> c.isClear = v, c -> c.isClear).add()
         .build();
 
     @Override
@@ -87,6 +89,7 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         clone.activeBuilders = this.activeBuilders;
         clone.facing = this.facing;
         clone.roofFacing = this.roofFacing;
+        clone.isClear = this.isClear;
         return clone;
     }
 }

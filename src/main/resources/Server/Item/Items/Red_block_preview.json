@@ -1,0 +1,16 @@
+{
+  "TranslationProperties": {
+    "Name": "Red Preview Block"
+  },
+  "Categories": [
+    "Blocks.Building"
+  ],
+  "BlockType": {
+    "DrawType": "Cube",
+    "Textures": {
+      "All": "BlockTextures/red_block_preview.png"
+    },
+    "Material": "Empty"
+  },
+  "MaxStack": 100
+}

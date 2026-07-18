@@ -50,6 +50,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Main entrypoint for the SimTale plugin.
  */
@@ -150,18 +151,6 @@ public class SimTale extends JavaPlugin {
         
         // SimTale: Register player join handler
         this.getEventRegistry().registerGlobal(PlayerReadyEvent.class, new PlayerJoinHandler());
-
-        // SimTale: Register player disconnect handler to clear preview
-        this.getEventRegistry().registerGlobal(PlayerDisconnectEvent.class, event -> {
-            World world = null;
-            for (World w : Universe.get().getWorlds().values()) {
-                world = w;
-                break;
-            }
-            if (world != null) {
-                ConstructionPreviewManager.clear(event.getPlayerRef().getUuid(), world);
-            }
-        });
 
         // Register commands
         this.getCommandRegistry()

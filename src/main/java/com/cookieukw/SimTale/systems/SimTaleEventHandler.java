@@ -172,6 +172,10 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                 if (activePreview != null) {
                     // Confirm and commit if player right-clicks close to the preview anchor
                     if (targetBlock.distance(activePreview.anchor) < 4.0) {
+                        if (!activePreview.isClear) {
+                            pRef.sendMessage(Message.raw("Construction denied! The area is obstructed (marked red)."));
+                            return;
+                        }
                         ConstructionSiteComponent committed = ConstructionPreviewManager.commit(pRef.getUuid(), world);
                         if (committed != null) {
                             committed.isBuilding = true;
