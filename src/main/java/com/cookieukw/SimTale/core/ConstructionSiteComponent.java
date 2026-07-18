@@ -5,11 +5,25 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import org.joml.Vector3i;
 import java.util.Set;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConstructionSiteComponent implements Component<EntityStore> {
+    public static class OriginalBlockState {
+        public BlockType type;
+        public int rotation;
+
+        public OriginalBlockState(BlockType type, int rotation) {
+            this.type = type;
+            this.rotation = rotation;
+        }
+    }
+
+    public UUID ownerId;
     public String prefabName;
     public Vector3i anchor;
     public int currentIndex;
@@ -24,6 +38,7 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
     public Rotation4 roofFacing = Rotation4.NORTH;
     public final Set<Long> previewBody = ConcurrentHashMap.newKeySet();
     public final Set<Long> previewRoof = ConcurrentHashMap.newKeySet();
+    public final transient Map<Long, OriginalBlockState> originalBlocks = new ConcurrentHashMap<>();
     
     public ConstructionSiteComponent() {
     }
@@ -43,6 +58,7 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
 
     public static final BuilderCodec<ConstructionSiteComponent> CODEC = BuilderCodec
         .builder(ConstructionSiteComponent.class, ConstructionSiteComponent::new)
+        .append(new KeyedCodec<>("OwnerId", Codec.STRING), (c, v) -> c.ownerId = (v != null && !v.isEmpty()) ? UUID.fromString(v) : null, c -> c.ownerId != null ? c.ownerId.toString() : "").add()
         .append(new KeyedCodec<>("PrefabName", Codec.STRING), (c, v) -> c.prefabName = v, c -> c.prefabName).add()
         .append(new KeyedCodec<>("AnchorX", Codec.INTEGER), (c, v) -> { if (c.anchor == null) c.anchor = new Vector3i(); c.anchor.x = v; }, c -> c.anchor != null ? c.anchor.x : 0).add()
         .append(new KeyedCodec<>("AnchorY", Codec.INTEGER), (c, v) -> { if (c.anchor == null) c.anchor = new Vector3i(); c.anchor.y = v; }, c -> c.anchor != null ? c.anchor.y : 0).add()
@@ -58,6 +74,7 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
     @Override
     public ConstructionSiteComponent clone() {
         ConstructionSiteComponent clone = new ConstructionSiteComponent();
+        clone.ownerId = this.ownerId;
         clone.prefabName = this.prefabName;
         if (this.anchor != null) {
             clone.anchor = new Vector3i(this.anchor);

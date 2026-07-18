@@ -23,6 +23,7 @@ public final class ConstructionPreviewManager {
 
     public static ConstructionSiteComponent start(UUID playerId, String prefabName, Vector3i anchor) {
         ConstructionSiteComponent site = new ConstructionSiteComponent(prefabName, new Vector3i(anchor));
+        site.ownerId = playerId;
         SESSIONS.put(playerId, site);
         return site;
     }

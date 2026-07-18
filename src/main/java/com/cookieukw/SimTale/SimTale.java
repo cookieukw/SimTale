@@ -23,6 +23,7 @@ import com.cookieukw.SimTale.systems.SimTaleChatHandler;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.cookieukw.SimTale.systems.SimTaleTickSystem;
 import com.cookieukw.SimTale.systems.BedRegistry;
+import com.cookieukw.SimTale.systems.ConstructionPreviewManager;
 import com.cookieukw.SimTale.systems.BedEntityRegistrySystem;
 import com.cookieukw.SimTale.systems.BedBlockEventSystem;
 import com.cookieukw.SimTale.systems.BedPlaceBlockEventSystem;
@@ -37,6 +38,7 @@ import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
@@ -148,6 +150,18 @@ public class SimTale extends JavaPlugin {
         
         // SimTale: Register player join handler
         this.getEventRegistry().registerGlobal(PlayerReadyEvent.class, new PlayerJoinHandler());
+
+        // SimTale: Register player disconnect handler to clear preview
+        this.getEventRegistry().registerGlobal(PlayerDisconnectEvent.class, event -> {
+            World world = null;
+            for (World w : Universe.get().getWorlds().values()) {
+                world = w;
+                break;
+            }
+            if (world != null) {
+                ConstructionPreviewManager.clear(event.getPlayerRef().getUuid(), world);
+            }
+        });
 
         // Register commands
         this.getCommandRegistry()
