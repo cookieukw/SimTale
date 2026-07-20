@@ -39,15 +39,6 @@ public final class BedRegistry {
         }
     }
 
-    public static boolean containsAt(int x, int y, int z) {
-        synchronized (BEDS) {
-            for (BedPos b : BEDS) {
-                if (b.x == x && b.y == y && b.z == z) return true;
-            }
-            return false;
-        }
-    }
-
     public static int size() {
         return BEDS.size();
     }

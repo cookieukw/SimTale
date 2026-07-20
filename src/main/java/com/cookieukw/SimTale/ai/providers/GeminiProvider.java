@@ -55,7 +55,6 @@ public class GeminiProvider implements NpcAiProvider {
      *     "parts": [ { "text": "..." } ]
      *   }
      * }
-     *
      * We map this dynamically into extraPayload/custom structure mapping.
      */
     private AiRequest transform(AiRequest request) {

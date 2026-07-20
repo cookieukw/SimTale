@@ -10,10 +10,6 @@ import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.modules.entity.component.ActiveAnimationComponent;
-import com.hypixel.hytale.server.core.modules.entity.component.HeadRotation;
-import com.hypixel.hytale.math.vector.Rotation3f;
-import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.Universe;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -75,8 +71,6 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
                 break;
             case BORED:
                 // Neutral face is best for boredom to avoid weird smiles
-                animPath = null;
-                animName = null;
                 break;
             case NEUTRAL:
             default:
@@ -89,7 +83,7 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
         boolean expressionChanged = (npc.lastPlayedEmotion != currentMood);
         
         // Special transition handling for ANGRY intensity changes (Angry <=> Rage)
-        if (currentMood == Mood.ANGRY && animName != null) {
+        if (currentMood == Mood.ANGRY) {
             String currentPlaying = animComp.getActiveAnimations()[slotToUse.ordinal()];
             if (currentPlaying == null || !currentPlaying.equals(animName)) {
                 expressionChanged = true;

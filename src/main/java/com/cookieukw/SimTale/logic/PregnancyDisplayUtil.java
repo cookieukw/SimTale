@@ -128,7 +128,7 @@ public final class PregnancyDisplayUtil {
 
         cmd.set("#TotalChildren.TextSpans", Message.translation("ui.ui.pregnancy.children").param("count", String.valueOf(totalChildren)));
 
-        int fillWidth = Math.max(0, Math.min(PROGRESS_BAR_MAX_WIDTH, Math.round(progress * PROGRESS_BAR_MAX_WIDTH)));
+        int fillWidth = Math.clamp(Math.round(progress * PROGRESS_BAR_MAX_WIDTH), 0, PROGRESS_BAR_MAX_WIDTH);
         Anchor anchor = new Anchor();
         anchor.setWidth(Value.of(fillWidth));
         anchor.setHeight(Value.of(20));

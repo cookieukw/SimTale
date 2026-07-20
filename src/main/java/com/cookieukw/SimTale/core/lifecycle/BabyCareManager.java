@@ -9,7 +9,6 @@ import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.Message;
-import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
@@ -21,13 +20,10 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.codec.Codec;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class BabyCareManager {
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
@@ -40,7 +36,7 @@ public class BabyCareManager {
 
     public static void addCarriedBaby(UUID npcId, UUID childId) {
         if (npcId == null || childId == null) return;
-        NPC_CARRIED_BABIES.computeIfAbsent(npcId, k -> new java.util.concurrent.CopyOnWriteArrayList<>()).add(childId);
+        NPC_CARRIED_BABIES.computeIfAbsent(npcId, _ -> new java.util.concurrent.CopyOnWriteArrayList<>()).add(childId);
     }
 
     public static void removeCarriedBaby(UUID npcId, UUID childId) {
@@ -86,7 +82,7 @@ public class BabyCareManager {
 
     public static BabyCareData load(UUID childId) {
         if (childId == null) return null;
-        return Caskara.load("babycare_" + childId.toString(), BabyCareData.class);
+        return Caskara.load("babycare_" + childId, BabyCareData.class);
     }
 
     public static void initializeForChild(GrowthComponent child) {

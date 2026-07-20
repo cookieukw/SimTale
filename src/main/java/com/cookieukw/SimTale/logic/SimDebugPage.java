@@ -24,8 +24,6 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.Message;
 
-import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
-
 import javax.annotation.Nonnull;
 
 @SuppressWarnings("null")

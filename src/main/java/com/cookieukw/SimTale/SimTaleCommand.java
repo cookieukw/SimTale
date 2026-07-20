@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.db.SimNPCData;
-import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;

@@ -7,7 +7,6 @@ import com.cookieukw.SimTale.logic.JobType;
 import com.cookieukw.SimTale.logic.SocialStats;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import java.util.HashMap;
@@ -33,8 +32,7 @@ public class SimNPCComponent implements Component<EntityStore> {
     public PregnancyComponent pregnancy;
     public BedPos bedLocation;
     public transient Ref<EntityStore> entityRef;
-    public transient ModelComponent originalModel;
-    
+
     // Emotion system fields
     public Mood activeEmotion = Mood.NEUTRAL;
     public float emotionIntensity = 0.0f;
@@ -156,7 +154,7 @@ public class SimNPCComponent implements Component<EntityStore> {
 
         if (forceChange) {
             this.activeEmotion = emotion;
-            this.emotionIntensity = Math.max(0.0f, Math.min(1.0f, intensity));
+            this.emotionIntensity = Math.clamp(intensity, 0.0f, 1.0f);
             this.emotionSource = source;
             this.lastEmotionChangeTick = currentTick;
         }

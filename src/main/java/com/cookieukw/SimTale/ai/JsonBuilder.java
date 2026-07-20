@@ -28,19 +28,17 @@ public class JsonBuilder {
         return this;
     }
 
-    public JsonBuilder array() {
+    public void array() {
         comma();
         sb.append("[");
         first = true;
         depth++;
-        return this;
     }
 
-    public JsonBuilder endArray() {
+    public void endArray() {
         sb.append("]");
         first = false;
         depth--;
-        return this;
     }
 
     public JsonBuilder key(String key) {
@@ -112,11 +110,10 @@ public class JsonBuilder {
             }
             endArray();
             return this;
-        } else if (value instanceof AiMessage) {
-            AiMessage msg = (AiMessage) value;
+        } else if (value instanceof AiMessage(String role, String content)) {
             object();
-            key("role").value(msg.role());
-            key("content").value(msg.content());
+            key("role").value(role);
+            key("content").value(content);
             endObject();
             return this;
         }
@@ -161,5 +158,13 @@ public class JsonBuilder {
     @Override
     public String toString() {
         return sb.toString();
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
     }
 }

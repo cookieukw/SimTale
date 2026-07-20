@@ -34,7 +34,6 @@ import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
-import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.joml.Vector3d;
 
 import java.util.Objects;
@@ -180,7 +179,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             for (Child c : npc.family.children) {
                 if (c.id == null) continue;
                 if (!first) childrenBuilder.append(", ");
-                GrowthComponent gc = Caskara.load("child_" + c.id.toString(), GrowthComponent.class);
+                GrowthComponent gc = Caskara.load("child_" + c.id, GrowthComponent.class);
                 String stageName = gc != null ? gc.stage.getDisplayName() : "Adulto";
                 childrenBuilder.append(c.name).append(" (").append(stageName).append(")");
                 first = false;

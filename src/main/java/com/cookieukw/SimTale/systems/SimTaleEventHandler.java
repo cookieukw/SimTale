@@ -4,7 +4,6 @@ import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Rotation4;
-import com.cookieukw.SimTale.systems.ConstructionPreviewManager;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
@@ -19,8 +18,6 @@ import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.component.Holder;
-import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.MouseButtonState;
 import com.hypixel.hytale.protocol.MouseButtonType;
@@ -99,7 +96,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                     }
 
                     if (childComp == null) {
-                        childComp = Caskara.load("child_" + childId.toString(), GrowthComponent.class);
+                        childComp = Caskara.load("child_" + childId, GrowthComponent.class);
                         if (childComp != null) {
                             LifecycleManager.ACTIVE_CHILDREN.add(childComp);
                         }

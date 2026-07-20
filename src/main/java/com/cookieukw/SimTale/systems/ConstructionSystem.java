@@ -22,7 +22,7 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 
 public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
 
-    private static final int TICKS_PER_BLOCK = 2; // Speed of construction
+    // Speed of construction
     public static int GLOBAL_SPEED = 1;
 
     @Override

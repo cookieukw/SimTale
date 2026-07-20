@@ -1,6 +1,5 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Child;
 import com.cookieukw.SimTale.core.SimNPCComponent;

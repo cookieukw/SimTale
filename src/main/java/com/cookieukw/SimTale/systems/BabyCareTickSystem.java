@@ -71,18 +71,13 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
 
             // Search player inventory for baby item
             CombinedItemContainer combinedInventory = InventoryComponent.getCombined(store, entityRef, InventoryComponent.HOTBAR_FIRST);
-            ItemStack babyItem = null;
-            short babySlot = -1;
-            UUID babyChildId = null;
 
             for (short slot = 0; slot < combinedInventory.getCapacity(); slot++) {
                 ItemStack item = combinedInventory.getItemStack(slot);
                 if (item != null && item.getItemId().equals("simtale:Baby")) {
                     String childIdStr = item.getFromMetadataOrNull("childId", Codec.STRING);
                     if (childIdStr != null) {
-                        babyItem = item;
-                        babySlot = slot;
-                        babyChildId = UUID.fromString(childIdStr);
+                        UUID.fromString(childIdStr);
                         break;
                     }
                 }

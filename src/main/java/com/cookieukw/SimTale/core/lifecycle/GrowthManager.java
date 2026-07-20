@@ -127,7 +127,7 @@ public class GrowthManager {
             }
             
             if (care != null) {
-                Caskara.delete("babycare_" + oldChildId.toString(), BabyCareData.class);
+                Caskara.delete("babycare_" + oldChildId, BabyCareData.class);
                 care.childId = newEntityId.toString();
                 BabyCareManager.save(care);
             }
@@ -178,7 +178,7 @@ public class GrowthManager {
             UUID oldChildId = child.childId;
             child.childId = newEntityId;
             Caskara.delete("child_" + oldChildId.toString(), GrowthComponent.class);
-            Caskara.save("child_" + newEntityId.toString(), child);
+            Caskara.save("child_" + newEntityId, child);
             
             SimNPCComponent teenNpc = store.getComponent(teenRef, SimTale.SIM_NPC_COMPONENT_TYPE);
             if (teenNpc != null) {

@@ -3,7 +3,6 @@ package com.cookieukw.SimTale.core.lifecycle;
 /**
  * Specific needs of a growing baby/child.
  * Influences personality development upon growing up.
- *
  * Two children of the same parents can grow up in different ways
  * depending on how they were cared for.
  */

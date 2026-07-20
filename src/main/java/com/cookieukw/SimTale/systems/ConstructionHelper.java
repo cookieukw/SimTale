@@ -168,11 +168,11 @@ public final class ConstructionHelper {
     }
 
     private static boolean isObstructed(World world, int x, int y, int z) {
-        return !isEmptyBlock(world.getBlockType(x, y, z));
+        return isEmptyBlock(world.getBlockType(x, y, z));
     }
 
     private static boolean isEmptyBlock(BlockType type) {
-        return type == null || type.getId().equalsIgnoreCase(EMPTY_BLOCK_ID);
+        return type != null && !type.getId().equalsIgnoreCase(EMPTY_BLOCK_ID);
     }
 
     // ---------------------------------------------------------------------
@@ -216,7 +216,7 @@ public final class ConstructionHelper {
     /** Places the marker block only if the target cell is empty, saving what was there for later restoration. */
     private static void tryPlaceMarker(World world, ConstructionSiteComponent site, Vector3i pos, String markerBlockId) {
         BlockType originalType = world.getBlockType(pos.x, pos.y, pos.z);
-        if (!isEmptyBlock(originalType)) return;
+        if (isEmptyBlock(originalType)) return;
 
         int originalRotation = world.getBlockRotationIndex(pos.x, pos.y, pos.z);
         long packed = pack(pos.x, pos.y, pos.z);

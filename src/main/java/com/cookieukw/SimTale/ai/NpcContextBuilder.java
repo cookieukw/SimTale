@@ -32,6 +32,7 @@ public class NpcContextBuilder {
                     break;
                 }
             } */
+            assert player != null;
             language = player.getLanguage();
         } catch (Throwable ignored) {}
 
@@ -150,7 +151,7 @@ public class NpcContextBuilder {
             }
         }
         // 10. Directives
-        systemPrompt.append("\nRespond in the first person in a natural way, maintaining total consistency with your personality, mood, traits and feelings towards the player. Do not break character. Important: You must respond exclusively in " + language + "’s native language.");
+        systemPrompt.append("\nRespond in the first person in a natural way, maintaining total consistency with your personality, mood, traits and feelings towards the player. Do not break character. Important: You must respond exclusively in ").append(language).append("’s native language.");
 
         // Metadata Map construction for tracing/debug
         Map<String, Object> metadata = new HashMap<>();

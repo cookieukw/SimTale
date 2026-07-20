@@ -4,7 +4,7 @@ import com.hypixel.hytale.component.Component;
 import org.joml.Vector3d;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3i;
-import com.hypixel.hytale.component.Ref;
+
 import java.util.UUID;
 
 public class RoutineAIComponent implements Component<EntityStore> {

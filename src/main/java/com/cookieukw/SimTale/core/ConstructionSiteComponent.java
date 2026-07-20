@@ -53,8 +53,6 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         this.forceBuild = false;
         this.simulatedBuilders = 0;
         this.activeBuilders = 0;
-        this.facing = Rotation4.NORTH;
-        this.roofFacing = Rotation4.NORTH;
     }
 
     public static final BuilderCodec<ConstructionSiteComponent> CODEC = BuilderCodec
