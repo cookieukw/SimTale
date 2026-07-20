@@ -32,3 +32,19 @@ cmd.search.found = Encontrado: {name} | ID: {id} | Profissao: {profession}
 cmd.search.finished = Busca finalizada. Total de NPCs encontrados: {count}
 cmd.search.error = Erro ao buscar no banco de dados: {error}
 profession.none = nenhuma
+npc.invalid = NPC não encontrado ou inválido.
+npc.no_storage = O NPC não possui um inventário de armazenamento.
+npc.no_container = O NPC não possui um contêiner de armazenamento.
+baby.custody.taken = Você pegou {name} sob seus cuidados.
+baby.custody.given = Você entregou {name} aos cuidados de seu cônjuge.
+baby.custody.spouse_taken = {spouse} pegou {name} para cuidar!
+baby.custody.spouse_reject = <{spouse}> Agora é a sua vez de cuidar de {name} por um tempo.
+baby.custody.taken_back = Você pegou {name} de volta de {spouse}!
+baby.custody.offline_taken = Enquanto você estava fora, você pegou {name} de volta de {spouse} para cuidar!
+baby.custody.offline_given = Enquanto você estava fora, {spouse} pegou {name} para cuidar!
+baby.generic = o bebê
+baby.generic.prep = o bebê
+baby.custody.inventory_full = Seu inventário está cheio! Abra espaço para pegar o bebê de volta.
+
+
+

@@ -158,13 +158,23 @@ Group {
         Anchor: (Width: 520, Height: 52);
         LayoutMode: CenterMiddle;
         Button #PregnancyButton {
-          Anchor: (Width: 520, Height: 52);
+          Anchor: (Width: 248, Height: 52, Right: 12);
           Background: #772244FF;
           Visible: false;
           Label #PregnancyButtonText {
             Text: %simtale.ui.button.pregnancy;
             Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
             Style: (FontSize: 20, TextColor: #FFCCCCFF, HorizontalAlignment: Center, VerticalAlignment: Center, RenderBold: true);
+          }
+        }
+        Button #InventoryButton {
+          Anchor: (Width: 248, Height: 52);
+          Background: #2B5B84FF;
+          Visible: false;
+          Label #InventoryButtonText {
+            Text: "Inventário";
+            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
+            Style: (FontSize: 20, TextColor: #DCE6F0FF, HorizontalAlignment: Center, VerticalAlignment: Center, RenderBold: true);
           }
         }
       }

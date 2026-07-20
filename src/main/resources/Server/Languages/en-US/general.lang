@@ -32,3 +32,19 @@ cmd.search.found = Found: {name} | ID: {id} | Profession: {profession}
 cmd.search.finished = Search finished. Total NPCs found: {count}
 cmd.search.error = Error searching the database: {error}
 profession.none = none
+npc.invalid = NPC not found or invalid.
+npc.no_storage = The NPC does not have a storage inventory.
+npc.no_container = The NPC does not have a storage container.
+baby.custody.taken = You took {name} under your care.
+baby.custody.given = You gave {name} to your spouse's care.
+baby.custody.spouse_taken = {spouse} took {name} to care for!
+baby.custody.spouse_reject = <{spouse}> Now it's your turn to take care of {name} for a while.
+baby.custody.taken_back = You took {name} back from {spouse}!
+baby.custody.offline_taken = While you were away, you took {name} back from {spouse} to care for!
+baby.custody.offline_given = While you were away, {spouse} took {name} to care for!
+baby.generic = the baby
+baby.generic.prep = the baby
+baby.custody.inventory_full = Your inventory is full! Make space to take the baby back.
+
+
+
