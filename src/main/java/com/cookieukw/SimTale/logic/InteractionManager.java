@@ -31,6 +31,8 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.function.Function;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class InteractionManager {
@@ -64,13 +66,38 @@ public class InteractionManager {
         "potato", "soup", "fruit", "berry", "cookie", "pie"
     );
 
-    private static final Set<String> TRASH_KEYWORDS_EN = Set.of(
-        "dirt", "soil_sand", "rock_stone", "spiderweb", "gravel", "deco_trash"
-    );
-    
-    private static final Set<String> TRASH_KEYWORDS_PT = Set.of(
-        "terra", "pedra", "teia", "cascalho", "areia", "lixo"
-    );
+    private enum GiftCategory {
+        TRASH(
+            Set.of("dirt", "soil_sand", "rock_stone", "spiderweb", "gravel", "deco_trash",
+                   "trash", "bone", "poison", "weed", "scrap", "sludge"),
+            Set.of("terra", "pedra", "teia", "cascalho", "areia", "lixo",
+                   "osso", "veneno", "ervas", "sucata")
+        ),
+        BASIC(
+            Set.of("stone", "wood", "cobble", "gravel", "sand", "plank", "seed", "sapling",
+                   "food_beef_raw", "food_chicken_raw", "food_pork_raw", "food_egg", "food_wildmeat_raw"),
+            Set.of()
+        );
+
+        private final Set<String> idKeywords;
+        private final Set<String> nameKeywords;
+
+        GiftCategory(Set<String> idKeywords, Set<String> nameKeywords) {
+            this.idKeywords = idKeywords;
+            this.nameKeywords = nameKeywords;
+        }
+
+        boolean matches(String itemIdLower, String itemNameLower) {
+            return idKeywords.stream().anyMatch(itemIdLower::contains)
+                || nameKeywords.stream().anyMatch(itemNameLower::contains);
+        }
+
+        static Optional<GiftCategory> classify(String itemIdLower, String itemNameLower) {
+            return Arrays.stream(values())
+                .filter(c -> c.matches(itemIdLower, itemNameLower))
+                .findFirst();
+        }
+    }
 
     public static Message performInteraction(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, InteractionType type) {
         boolean isChild = isNpcAChild(npc);
@@ -138,67 +165,73 @@ public class InteractionManager {
         return InteractionOutcome.of(fGain, 0, 1, aGain, response, MemoryEvent.CHATTED);
     }
 
-    private static InteractionOutcome handleFunny(SimNPCComponent npc, Relationship rel) {
-        Mood mood = npc.getMood();
-        
-        if (rel.status == RelationshipStatus.ENEMIES) {
-            return InteractionOutcome.of(-2, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.funny.enemy", 3, npc.name), MemoryEvent.JOKED);
-        }
+    private record FunnyContext(SimNPCComponent npc, Relationship rel, Mood mood) {}
+    private record FunnyRule(Predicate<FunnyContext> condition, Function<FunnyContext, InteractionOutcome> outcome) {}
 
-        if (mood == Mood.ANGRY || mood == Mood.SAD) {
-            if (rel.status == RelationshipStatus.BEST_FRIEND || rel.status == RelationshipStatus.PARTNER) {
-                return InteractionOutcome.of(2, 0, 1, 5, pickRandomTranslation("npc-dialogues.chat.funny.cheerup", 3, npc.name), MemoryEvent.JOKED);
-            }
-            return InteractionOutcome.of(-2, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.funny.angry", 5, npc.name), MemoryEvent.JOKED);
-        }
-        
-        if (npc.personality.traits.contains(Trait.FUNNY)) {
-            return InteractionOutcome.of(5, 0, 2, 15, pickRandomTranslation("npc-dialogues.chat.funny.trait", 5, npc.name), MemoryEvent.JOKED);
-        }
-        
-        return InteractionOutcome.of(3, 0, 1, 5, pickRandomTranslation("npc-dialogues.chat.funny.normal", 5, npc.name), MemoryEvent.JOKED);
+    private static final List<FunnyRule> FUNNY_RULES = List.of(
+        new FunnyRule(ctx -> ctx.rel().status == RelationshipStatus.ENEMIES,
+                      ctx -> InteractionOutcome.of(-2, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.funny.enemy", 3, ctx.npc().name), MemoryEvent.JOKED)),
+        new FunnyRule(ctx -> (ctx.mood() == Mood.ANGRY || ctx.mood() == Mood.SAD) && (ctx.rel().status == RelationshipStatus.BEST_FRIEND || ctx.rel().status == RelationshipStatus.PARTNER),
+                      ctx -> InteractionOutcome.of(2, 0, 1, 5, pickRandomTranslation("npc-dialogues.chat.funny.cheerup", 3, ctx.npc().name), MemoryEvent.JOKED)),
+        new FunnyRule(ctx -> ctx.mood() == Mood.ANGRY || ctx.mood() == Mood.SAD,
+                      ctx -> InteractionOutcome.of(-2, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.funny.angry", 5, ctx.npc().name), MemoryEvent.JOKED)),
+        new FunnyRule(ctx -> ctx.npc().personality.traits.contains(Trait.FUNNY),
+                      ctx -> InteractionOutcome.of(5, 0, 2, 15, pickRandomTranslation("npc-dialogues.chat.funny.trait", 5, ctx.npc().name), MemoryEvent.JOKED))
+    );
+
+    private static InteractionOutcome handleFunny(SimNPCComponent npc, Relationship rel) {
+        FunnyContext ctx = new FunnyContext(npc, rel, npc.getMood());
+        return FUNNY_RULES.stream()
+            .filter(r -> r.condition().test(ctx))
+            .findFirst()
+            .map(r -> r.outcome().apply(ctx))
+            .orElseGet(() -> InteractionOutcome.of(3, 0, 1, 5, pickRandomTranslation("npc-dialogues.chat.funny.normal", 5, npc.name), MemoryEvent.JOKED));
     }
+
+    private record RomanticContext(SimNPCComponent npc, Relationship rel, Mood mood) {}
+    private record RomanticRule(Predicate<RomanticContext> condition, Function<RomanticContext, InteractionOutcome> outcome) {}
+
+    private static final List<RomanticRule> ROMANTIC_RULES = List.of(
+        new RomanticRule(ctx -> ctx.rel().status == RelationshipStatus.ENEMIES,
+                         ctx -> InteractionOutcome.of(-5, -15, -5, -20, pickRandomTranslation("npc-dialogues.chat.romantic.enemy", 3, ctx.npc().name), MemoryEvent.FLIRTED)),
+        new RomanticRule(ctx -> ctx.rel().status == RelationshipStatus.STRANGER || ctx.rel().status == RelationshipStatus.ACQUAINTANCE,
+                         ctx -> InteractionOutcome.of(-3, -5, -2, -10, pickRandomTranslation("npc-dialogues.chat.romantic.stranger", 3, ctx.npc().name), MemoryEvent.FLIRTED)),
+        new RomanticRule(ctx -> ctx.mood() == Mood.ANGRY,
+                         ctx -> InteractionOutcome.of(0, -10, -2, -15, pickRandomTranslation("npc-dialogues.chat.romantic.reject", 5, ctx.npc().name), MemoryEvent.FLIRTED)),
+        new RomanticRule(ctx -> ctx.rel().status == RelationshipStatus.MARRIED || ctx.rel().status == RelationshipStatus.PARTNER,
+                         ctx -> InteractionOutcome.of(2, 10, 2, 10, pickRandomTranslation("npc-dialogues.chat.romantic.partner", 5, ctx.npc().name), MemoryEvent.FLIRTED)),
+        new RomanticRule(ctx -> ctx.npc().personality.traits.contains(Trait.SHY),
+                         ctx -> InteractionOutcome.of(0, 15, 2, 10, pickRandomTranslation("npc-dialogues.chat.romantic.shy", 5, ctx.npc().name), MemoryEvent.FLIRTED))
+    );
 
     private static InteractionOutcome handleRomantic(SimNPCComponent npc, Relationship rel) {
-        Mood mood = npc.getMood();
-
-        if (rel.status == RelationshipStatus.ENEMIES) {
-            return InteractionOutcome.of(-5, -15, -5, -20, pickRandomTranslation("npc-dialogues.chat.romantic.enemy", 3, npc.name), MemoryEvent.FLIRTED);
-        }
-        
-        if (rel.status == RelationshipStatus.STRANGER || rel.status == RelationshipStatus.ACQUAINTANCE) {
-            return InteractionOutcome.of(-3, -5, -2, -10, pickRandomTranslation("npc-dialogues.chat.romantic.stranger", 3, npc.name), MemoryEvent.FLIRTED);
-        }
-
-        if (mood == Mood.ANGRY) {
-            return InteractionOutcome.of(0, -10, -2, -15, pickRandomTranslation("npc-dialogues.chat.romantic.reject", 5, npc.name), MemoryEvent.FLIRTED);
-        }
-
-        if (rel.status == RelationshipStatus.MARRIED || rel.status == RelationshipStatus.PARTNER) {
-            return InteractionOutcome.of(2, 10, 2, 10, pickRandomTranslation("npc-dialogues.chat.romantic.partner", 5, npc.name), MemoryEvent.FLIRTED);
-        }
-
-        if (npc.personality.traits.contains(Trait.SHY)) {
-            return InteractionOutcome.of(0, 15, 2, 10, pickRandomTranslation("npc-dialogues.chat.romantic.shy", 5, npc.name), MemoryEvent.FLIRTED);
-        }
-        
-        return InteractionOutcome.of(0, 10, 1, 5, pickRandomTranslation("npc-dialogues.chat.romantic.normal", 5, npc.name), MemoryEvent.FLIRTED);
+        RomanticContext ctx = new RomanticContext(npc, rel, npc.getMood());
+        return ROMANTIC_RULES.stream()
+            .filter(r -> r.condition().test(ctx))
+            .findFirst()
+            .map(r -> r.outcome().apply(ctx))
+            .orElseGet(() -> InteractionOutcome.of(0, 10, 1, 5, pickRandomTranslation("npc-dialogues.chat.romantic.normal", 5, npc.name), MemoryEvent.FLIRTED));
     }
 
+    private record MeanContext(SimNPCComponent npc, Relationship rel) {}
+    private record MeanRule(Predicate<MeanContext> condition, Function<MeanContext, InteractionOutcome> outcome) {}
+
+    private static final List<MeanRule> MEAN_RULES = List.of(
+        new MeanRule(ctx -> ctx.rel().status == RelationshipStatus.MARRIED || ctx.rel().status == RelationshipStatus.PARTNER,
+                     ctx -> InteractionOutcome.of(-15, -20, -30, -25, pickRandomTranslation("npc-dialogues.chat.mean.partner", 3, ctx.npc().name), MemoryEvent.INSULTED)),
+        new MeanRule(ctx -> ctx.npc().personality.traits.contains(Trait.AGGRESSIVE),
+                     ctx -> InteractionOutcome.of(-10, 0, -15, -20, pickRandomTranslation("npc-dialogues.chat.mean.aggressive", 5, ctx.npc().name), MemoryEvent.INSULTED)),
+        new MeanRule(ctx -> ctx.npc().personality.traits.contains(Trait.NEEDY),
+                     ctx -> InteractionOutcome.of(-5, 0, -15, -15, pickRandomTranslation("npc-dialogues.chat.mean.needy", 5, ctx.npc().name), MemoryEvent.INSULTED))
+    );
+
     private static InteractionOutcome handleMean(SimNPCComponent npc, Relationship rel) {
-        // Being mean to a partner breaks trust brutally
-        if (rel.status == RelationshipStatus.MARRIED || rel.status == RelationshipStatus.PARTNER) {
-            return InteractionOutcome.of(-15, -20, -30, -25, pickRandomTranslation("npc-dialogues.chat.mean.partner", 3, npc.name), MemoryEvent.INSULTED);
-        }
-        
-        if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
-            return InteractionOutcome.of(-10, 0, -15, -20, pickRandomTranslation("npc-dialogues.chat.mean.aggressive", 5, npc.name), MemoryEvent.INSULTED);
-        }
-        if (npc.personality.traits.contains(Trait.NEEDY)) {
-            return InteractionOutcome.of(-5, 0, -15, -15, pickRandomTranslation("npc-dialogues.chat.mean.needy", 5, npc.name), MemoryEvent.INSULTED);
-        }
-        
-        return InteractionOutcome.of(-5, 0, -15, -15, pickRandomTranslation("npc-dialogues.chat.mean.normal", 5, npc.name), MemoryEvent.INSULTED);
+        MeanContext ctx = new MeanContext(npc, rel);
+        return MEAN_RULES.stream()
+            .filter(r -> r.condition().test(ctx))
+            .findFirst()
+            .map(r -> r.outcome().apply(ctx))
+            .orElseGet(() -> InteractionOutcome.of(-5, 0, -15, -15, pickRandomTranslation("npc-dialogues.chat.mean.normal", 5, npc.name), MemoryEvent.INSULTED));
     }
 
     private static InteractionOutcome handleRandom(Relationship rel) {
@@ -259,59 +292,96 @@ public class InteractionManager {
         return InteractionOutcome.error(Message.translation("npc-dialogues.chat.marriage.reject." + ThreadLocalRandom.current().nextInt(1, 3)).param("name", npc.name));
     }
 
+    private record GiftContext(SimNPCComponent npc, Relationship rel, String itemId, String itemName, double multiplier) {}
+
+    private record GiftRule(Predicate<GiftContext> condition, Function<GiftContext, InteractionOutcome> outcome) {}
+
+    private static final List<GiftRule> GIFT_RULES = List.of(
+        new GiftRule(ctx -> isLoved(ctx), ctx -> giftOutcome(20, 12, 30, "loves", ctx)),
+        new GiftRule(ctx -> isHated(ctx), ctx -> giftOutcome(-20, -15, -25, "hates", ctx)),
+        new GiftRule(ctx -> isTrash(ctx), ctx -> giftOutcomeFlat(-15, -10, -20, "trash", ctx)),
+        new GiftRule(ctx -> ctx.npc().personality.traits.contains(Trait.GREEDY),
+                     ctx -> giftOutcome(15, 5, 25, "greedy", ctx)),
+        new GiftRule(ctx -> ctx.npc().personality.traits.contains(Trait.PARANOID),
+                     ctx -> giftOutcomeFlat(-5, -12, -10, "paranoid", ctx)),
+        new GiftRule(ctx -> isBasic(ctx), ctx -> giftOutcome(2, 1, 3, "basic", ctx))
+    );
+
+    private static boolean isLoved(GiftContext ctx) {
+        return ctx.npc().preferences != null && (
+            (ctx.npc().preferences.getFavoriteFoods() != null && ctx.npc().preferences.getFavoriteFoods().stream().anyMatch(f -> f.equalsIgnoreCase(ctx.itemName()) || f.equalsIgnoreCase(ctx.itemId()))) ||
+            (ctx.npc().preferences.getFavoriteItems() != null && ctx.npc().preferences.getFavoriteItems().stream().anyMatch(i -> i.equalsIgnoreCase(ctx.itemName()) || i.equalsIgnoreCase(ctx.itemId())))
+        );
+    }
+
+    private static boolean isHated(GiftContext ctx) {
+        return ctx.npc().preferences != null && (
+            (ctx.npc().preferences.getHatedFoods() != null && ctx.npc().preferences.getHatedFoods().stream().anyMatch(f -> f.equalsIgnoreCase(ctx.itemName()) || f.equalsIgnoreCase(ctx.itemId()))) ||
+            (ctx.npc().preferences.getHatedItems() != null && ctx.npc().preferences.getHatedItems().stream().anyMatch(i -> i.equalsIgnoreCase(ctx.itemName()) || i.equalsIgnoreCase(ctx.itemId())))
+        );
+    }
+
+    private static boolean isTrash(GiftContext ctx) {
+        String itemIdLower = ctx.itemId().toLowerCase(Locale.ROOT);
+        String itemNameLower = ctx.itemName().toLowerCase(Locale.ROOT);
+        return GiftCategory.classify(itemIdLower, itemNameLower).map(c -> c == GiftCategory.TRASH).orElse(false);
+    }
+
+    private static boolean isBasic(GiftContext ctx) {
+        String itemIdLower = ctx.itemId().toLowerCase(Locale.ROOT);
+        String itemNameLower = ctx.itemName().toLowerCase(Locale.ROOT);
+        return GiftCategory.classify(itemIdLower, itemNameLower).map(c -> c == GiftCategory.BASIC).orElse(false);
+    }
+
+    private static InteractionOutcome giftOutcome(int f, int t, int a, String key, GiftContext ctx) {
+        return InteractionOutcome.ofItem(
+            (int) (f * ctx.multiplier()), 0, (int) (t * ctx.multiplier()), (int) (a * ctx.multiplier()),
+            Message.translation("npc-dialogues.chat.gift." + key).param("name", ctx.npc().name).param("itemName", ctx.itemName()),
+            MemoryEvent.GIFTED, true
+        );
+    }
+
+    private static InteractionOutcome giftOutcomeFlat(int f, int t, int a, String key, GiftContext ctx) {
+        return InteractionOutcome.ofItem(
+            f, 0, t, a,
+            Message.translation("npc-dialogues.chat.gift." + key).param("name", ctx.npc().name).param("itemName", ctx.itemName()),
+            MemoryEvent.GIFTED, true
+        );
+    }
+
     private static InteractionOutcome calculateGiftAffinity(SimNPCComponent npc, String itemId, String itemName, Relationship rel) {
-        boolean loves = npc.preferences != null && (
-            (npc.preferences.getFavoriteFoods() != null && npc.preferences.getFavoriteFoods().stream().anyMatch(f -> f.equalsIgnoreCase(itemName) || f.equalsIgnoreCase(itemId))) ||
-            (npc.preferences.getFavoriteItems() != null && npc.preferences.getFavoriteItems().stream().anyMatch(i -> i.equalsIgnoreCase(itemName) || i.equalsIgnoreCase(itemId)))
-        );
-        
-        boolean hates = npc.preferences != null && (
-            (npc.preferences.getHatedFoods() != null && npc.preferences.getHatedFoods().stream().anyMatch(f -> f.equalsIgnoreCase(itemName) || f.equalsIgnoreCase(itemId))) ||
-            (npc.preferences.getHatedItems() != null && npc.preferences.getHatedItems().stream().anyMatch(i -> i.equalsIgnoreCase(itemName) || i.equalsIgnoreCase(itemId)))
-        );
-
-        String itemIdLower = itemId.toLowerCase(Locale.ROOT);
-        String itemNameLower = itemName.toLowerCase(Locale.ROOT);
-
-        // Consider actual junk / waste as trash
-        boolean isTrash = TRASH_KEYWORDS_EN.stream().anyMatch(itemIdLower::contains) || 
-                          TRASH_KEYWORDS_PT.stream().anyMatch(itemNameLower::contains) ||
-                          itemIdLower.contains("trash") || itemIdLower.contains("bone") || 
-                          itemIdLower.contains("poison") || itemIdLower.contains("spiderweb") || 
-                          itemIdLower.contains("dirt") || itemIdLower.contains("weed") || 
-                          itemIdLower.contains("scrap") || itemIdLower.contains("sludge") ||
-                          itemNameLower.contains("lixo") || itemNameLower.contains("osso") || 
-                          itemNameLower.contains("veneno") || itemNameLower.contains("teia") || 
-                          itemNameLower.contains("terra") || itemNameLower.contains("ervas") || 
-                          itemNameLower.contains("sucata");
-
-        // Basic items: generic building blocks (dirt, cobblestone, basic wood), basic raw seeds, raw common foods
-        boolean isBasic = itemIdLower.contains("stone") || itemIdLower.contains("wood") || 
-                          itemIdLower.contains("cobble") || itemIdLower.contains("gravel") || 
-                          itemIdLower.contains("sand") || itemIdLower.contains("plank") || 
-                          itemIdLower.contains("seed") || itemIdLower.contains("sapling") ||
-                          itemIdLower.equals("food_beef_raw") || itemIdLower.equals("food_chicken_raw") ||
-                          itemIdLower.equals("food_pork_raw") || itemIdLower.equals("food_egg") ||
-                          itemIdLower.equals("food_wildmeat_raw");
-
-        // Multiplier based on relationship status
         double multiplier = rel.status == RelationshipStatus.ENEMIES ? 0.5 : (rel.status == RelationshipStatus.MARRIED ? 1.5 : 1.0);
+        GiftContext ctx = new GiftContext(npc, rel, itemId, itemName, multiplier);
 
-        if (loves) {
-            return InteractionOutcome.ofItem((int)(20 * multiplier), 0, (int)(12 * multiplier), (int)(30 * multiplier), Message.translation("npc-dialogues.chat.gift.loves").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
-        } else if (hates) {
-            return InteractionOutcome.ofItem((int)(-20 * multiplier), 0, (int)(-15 * multiplier), (int)(-25 * multiplier), Message.translation("npc-dialogues.chat.gift.hates").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
-        } else if (isTrash) {
-            return InteractionOutcome.ofItem(-15, 0, -10, -20, Message.translation("npc-dialogues.chat.gift.trash").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
-        } else if (npc.personality.traits.contains(Trait.GREEDY)) {
-            return InteractionOutcome.ofItem((int)(15 * multiplier), 0, 5, (int)(25 * multiplier), Message.translation("npc-dialogues.chat.gift.greedy").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
-        } else if (npc.personality.traits.contains(Trait.PARANOID)) {
-            return InteractionOutcome.ofItem(-5, 0, -12, -10, Message.translation("npc-dialogues.chat.gift.paranoid").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
-        } else if (isBasic) {
-            return InteractionOutcome.ofItem((int)(2 * multiplier), 0, 1, (int)(3 * multiplier), Message.translation("npc-dialogues.chat.gift.basic").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
-        }
-        
-        return InteractionOutcome.ofItem((int)(8 * multiplier), 0, 4, (int)(15 * multiplier), Message.translation("npc-dialogues.chat.gift.normal").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+        return GIFT_RULES.stream()
+            .filter(r -> r.condition().test(ctx))
+            .findFirst()
+            .map(r -> r.outcome().apply(ctx))
+            .orElseGet(() -> giftOutcome(8, 4, 15, "normal", ctx));
+    }
+
+    private record ProfessionContext(SimNPCComponent npc, Relationship rel, Profession targetProf, String profName, String itemName, double roll) {}
+    private record ProfessionRule(Predicate<ProfessionContext> condition, Function<ProfessionContext, InteractionOutcome> outcome) {}
+
+    private static final List<ProfessionRule> PROFESSION_RULES = List.of(
+        new ProfessionRule(ctx -> ctx.rel().status == RelationshipStatus.ENEMIES || ctx.rel().status == RelationshipStatus.STRANGER,
+                           ctx -> InteractionOutcome.of(-5, 0, -5, -10, pickRandomTranslation("npc-dialogues.chat.prof.assign.refuse_status", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+        new ProfessionRule(ctx -> ctx.npc().preferences != null && ctx.npc().preferences.getDislikedProfessions().contains(ctx.targetProf()),
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.dislike", 4, ctx.npc().name).param("profName", ctx.profName()).param("itemName", ctx.itemName()), MemoryEvent.CHATTED)),
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.LAZY) && isHeavyWork(ctx.targetProf()) && ctx.roll() < 0.6,
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.lazy", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.AGGRESSIVE) && isPeacefulWork(ctx.targetProf()) && ctx.roll() < 0.7,
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.aggressive", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+        new ProfessionRule(ctx -> ctx.npc().getMood() == Mood.ANGRY && ctx.roll() < 0.5,
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.angry", 3, ctx.npc().name), MemoryEvent.CHATTED))
+    );
+
+    private static boolean isHeavyWork(Profession prof) {
+        return prof == Profession.MINER || prof == Profession.LUMBERJACK;
+    }
+
+    private static boolean isPeacefulWork(Profession prof) {
+        return prof == Profession.FARMER || prof == Profession.FISHERMAN;
     }
 
     private static InteractionOutcome handleProfession(SimNPCComponent npc, PlayerRef playerRef, Relationship rel) {
@@ -335,29 +405,19 @@ public class InteractionManager {
             return InteractionOutcome.error(Message.translation("npc-dialogues.chat.prof.assign.already").param("name", npc.name).param("profName", profName));
         }
 
-        // Se for inimigo ou desconhecido, recusa trabalhar pra você quase sempre
-        if (rel.status == RelationshipStatus.ENEMIES || rel.status == RelationshipStatus.STRANGER) {
-             return InteractionOutcome.of(-5, 0, -5, -10, pickRandomTranslation("npc-dialogues.chat.prof.assign.refuse_status", 3, npc.name).param("profName", profName), MemoryEvent.CHATTED);
-        }
-
-        if (npc.preferences != null && npc.preferences.getDislikedProfessions().contains(targetProf)) {
-            return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.dislike", 4, npc.name).param("profName", profName).param("itemName", itemName), MemoryEvent.CHATTED);
-        }
-
-        boolean isHeavyWork = (targetProf == Profession.MINER || targetProf == Profession.LUMBERJACK);
-        boolean isPeacefulWork = (targetProf == Profession.FARMER || targetProf == Profession.FISHERMAN);
         double roll = ThreadLocalRandom.current().nextDouble();
+        ProfessionContext ctx = new ProfessionContext(npc, rel, targetProf, profName, itemName, roll);
 
-        if (npc.personality.traits.contains(Trait.LAZY) && isHeavyWork && roll < 0.6) {
-            return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.lazy", 3, npc.name).param("profName", profName), MemoryEvent.CHATTED);
-        }
-        if (npc.personality.traits.contains(Trait.AGGRESSIVE) && isPeacefulWork && roll < 0.7) {
-            return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.aggressive", 3, npc.name).param("profName", profName), MemoryEvent.CHATTED);
-        }
-        if (npc.getMood() == Mood.ANGRY && roll < 0.5) {
-            return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.angry", 3, npc.name), MemoryEvent.CHATTED);
+        Optional<InteractionOutcome> refusal = PROFESSION_RULES.stream()
+            .filter(r -> r.condition().test(ctx))
+            .findFirst()
+            .map(r -> r.outcome().apply(ctx));
+
+        if (refusal.isPresent()) {
+            return refusal.get();
         }
 
+        // Success path: perform the assignment
         Message prefix = Message.raw("");
         if (npc.profession != null && npc.profession != Profession.UNEMPLOYED && !npc.profession.triggerItemKeyword.isEmpty()) {
             prefix = Message.translation("npc-dialogues.chat.prof.assign.return").param("name", npc.name).param("profName", npc.profession.ptName).insert(Message.raw(" "));
@@ -525,12 +585,20 @@ public class InteractionManager {
         };
     }
     
-    private static Message getDefaultTraitGreeting(SimNPCComponent npc) {
-        if (npc.personality.traits.contains(Trait.GREEDY)) return pickRandomTranslation("npc-dialogues.chat.greedy.greeting", 3, npc.name);
-        if (npc.personality.traits.contains(Trait.PARANOID)) return pickRandomTranslation("npc-dialogues.chat.paranoid.greeting", 3, npc.name);
-        if (npc.personality.traits.contains(Trait.LAZY)) return pickRandomTranslation("npc-dialogues.chat.lazy.greeting", 3, npc.name);
+    private record TraitGreeting(Trait trait, String key, int options) {}
 
-        return pickRandomTranslation("npc-dialogues.chat.friendly.greeting", 5, npc.name);
+    private static final List<TraitGreeting> TRAIT_GREETINGS = List.of(
+        new TraitGreeting(Trait.GREEDY, "npc-dialogues.chat.greedy.greeting", 3),
+        new TraitGreeting(Trait.PARANOID, "npc-dialogues.chat.paranoid.greeting", 3),
+        new TraitGreeting(Trait.LAZY, "npc-dialogues.chat.lazy.greeting", 3)
+    );
+
+    private static Message getDefaultTraitGreeting(SimNPCComponent npc) {
+        return TRAIT_GREETINGS.stream()
+            .filter(tg -> npc.personality.traits.contains(tg.trait()))
+            .findFirst()
+            .map(tg -> pickRandomTranslation(tg.key(), tg.options(), npc.name))
+            .orElseGet(() -> pickRandomTranslation("npc-dialogues.chat.friendly.greeting", 5, npc.name));
     }
 
     private static Message getCooldownMessage(InteractionType type, String npcName) {
