@@ -94,23 +94,40 @@ public class NpcContextBuilder {
         // 6. Preferences
         if (npc.preferences != null) {
             systemPrompt.append("Your preferences:\n");
-            if (!npc.preferences.favoriteFoods.isEmpty()) {
-                List<String> favs = new ArrayList<>();
-                for (String f : npc.preferences.favoriteFoods) {
-                    favs.add(NPCPreferences.getFoodPtName(f));
+            
+            List<String> favs = new ArrayList<>();
+            if (npc.preferences.getFavoriteFoods() != null) {
+                for (String f : npc.preferences.getFavoriteFoods()) {
+                    favs.add(NPCPreferences.getFoodDisplayName(f));
                 }
-                systemPrompt.append("- Favorite food: ").append(String.join(", ", favs)).append("\n");
             }
-            if (!npc.preferences.hatedFoods.isEmpty()) {
-                List<String> hated = new ArrayList<>();
-                for (String f : npc.preferences.hatedFoods) {
-                    hated.add(NPCPreferences.getFoodPtName(f));
+            if (npc.preferences.getFavoriteItems() != null) {
+                for (String i : npc.preferences.getFavoriteItems()) {
+                    favs.add(NPCPreferences.getFoodDisplayName(i));
                 }
-                systemPrompt.append("- Hated food: ").append(String.join(", ", hated)).append("\n");
             }
-            systemPrompt.append("- Favorite season: ").append(npc.preferences.getSeasonPtName()).append("\n");
-            systemPrompt.append("- Favorite weather: ").append(npc.preferences.getWeatherPtName()).append("\n");
-            systemPrompt.append("- Hobby: ").append(npc.preferences.hobby).append("\n");
+            if (!favs.isEmpty()) {
+                systemPrompt.append("- Things/Foods you love: ").append(String.join(", ", favs)).append("\n");
+            }
+            
+            List<String> hated = new ArrayList<>();
+            if (npc.preferences.getHatedFoods() != null) {
+                for (String f : npc.preferences.getHatedFoods()) {
+                    hated.add(NPCPreferences.getFoodDisplayName(f));
+                }
+            }
+            if (npc.preferences.getHatedItems() != null) {
+                for (String i : npc.preferences.getHatedItems()) {
+                    hated.add(NPCPreferences.getFoodDisplayName(i));
+                }
+            }
+            if (!hated.isEmpty()) {
+                systemPrompt.append("- Things/Foods you hate: ").append(String.join(", ", hated)).append("\n");
+            }
+            
+            systemPrompt.append("- Favorite season: ").append(npc.preferences.getSeasonDisplayName()).append("\n");
+            systemPrompt.append("- Favorite weather: ").append(npc.preferences.getWeatherDisplayName()).append("\n");
+            systemPrompt.append("- Hobby: ").append(npc.preferences.getHobby().displayName()).append("\n");
         }
 
         // 7. Family Status

@@ -90,12 +90,17 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.memory = new MemoryManager();
         clone.memory.recentMemories.addAll(memory.recentMemories);
         clone.relationships = new HashMap<>(relationships);
-        clone.preferences = new NPCPreferences();
-        clone.preferences.favoriteFoods.addAll(preferences.favoriteFoods);
-        clone.preferences.hatedFoods.addAll(preferences.hatedFoods);
-        clone.preferences.favoriteSeason = preferences.favoriteSeason;
-        clone.preferences.favoriteWeather = preferences.favoriteWeather;
-        clone.preferences.hobby = preferences.hobby;
+        clone.preferences = new NPCPreferences(
+            preferences.getFavoriteFoods(),
+            preferences.getHatedFoods(),
+            preferences.getFavoriteItems(),
+            preferences.getHatedItems(),
+            preferences.getFavoriteSeason(),
+            preferences.getFavoriteWeather(),
+            preferences.getHobby(),
+            preferences.getLikedProfessions(),
+            preferences.getDislikedProfessions()
+        );
 
         if (bedLocation != null) {
             clone.bedLocation = new BedPos(bedLocation.x, bedLocation.y, bedLocation.z);

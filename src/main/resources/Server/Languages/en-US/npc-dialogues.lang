@@ -68,6 +68,7 @@ chat.gift.trash = {name} frowns angrily: {itemName}? Why are you giving me trash
 chat.gift.greedy = {name} widens their eyes: For me?! Haha, {itemName}! Finally someone who values me!
 chat.gift.paranoid = {name} looks at the gift ({itemName}) suspiciously: This isn't poisoned, is it?
 chat.gift.normal = {name} smiles: Wow, {itemName}! Thank you so much for the gift.
+chat.gift.basic = {name} thanks you politely: Thank you for this, it's simple but it will be useful!
 chat.prof.assign.unknown = {name} looks confused at the {itemName}: ...and what do I do with this? This isn't a work tool!
 chat.prof.assign.already = {name}: I'm already a {profName}, forgot? I'm working on it every day!
 chat.prof.assign.dislike.1 = {name} makes a disgusted face: {profName}?! Not even dead! I hate that kind of work!

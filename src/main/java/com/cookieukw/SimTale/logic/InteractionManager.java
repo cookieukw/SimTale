@@ -260,32 +260,58 @@ public class InteractionManager {
     }
 
     private static InteractionOutcome calculateGiftAffinity(SimNPCComponent npc, String itemId, String itemName, Relationship rel) {
-        boolean loves = npc.preferences != null && npc.preferences.favoriteFoods != null &&
-                        npc.preferences.favoriteFoods.stream().anyMatch(f -> f.equalsIgnoreCase(itemName) || f.equalsIgnoreCase(itemId));
+        boolean loves = npc.preferences != null && (
+            (npc.preferences.getFavoriteFoods() != null && npc.preferences.getFavoriteFoods().stream().anyMatch(f -> f.equalsIgnoreCase(itemName) || f.equalsIgnoreCase(itemId))) ||
+            (npc.preferences.getFavoriteItems() != null && npc.preferences.getFavoriteItems().stream().anyMatch(i -> i.equalsIgnoreCase(itemName) || i.equalsIgnoreCase(itemId)))
+        );
         
-        boolean hates = npc.preferences != null && npc.preferences.hatedFoods != null &&
-                        npc.preferences.hatedFoods.stream().anyMatch(f -> f.equalsIgnoreCase(itemName) || f.equalsIgnoreCase(itemId));
+        boolean hates = npc.preferences != null && (
+            (npc.preferences.getHatedFoods() != null && npc.preferences.getHatedFoods().stream().anyMatch(f -> f.equalsIgnoreCase(itemName) || f.equalsIgnoreCase(itemId))) ||
+            (npc.preferences.getHatedItems() != null && npc.preferences.getHatedItems().stream().anyMatch(i -> i.equalsIgnoreCase(itemName) || i.equalsIgnoreCase(itemId)))
+        );
 
+        String itemIdLower = itemId.toLowerCase(Locale.ROOT);
         String itemNameLower = itemName.toLowerCase(Locale.ROOT);
-        boolean isTrash = TRASH_KEYWORDS_EN.stream().anyMatch(itemId::contains) || 
-                          TRASH_KEYWORDS_PT.stream().anyMatch(itemNameLower::contains);
 
-        // Multiplicador de eficácia: presentes de cônjuges/amigos valem mais, de inimigos são suspeitos
+        // Consider actual junk / waste as trash
+        boolean isTrash = TRASH_KEYWORDS_EN.stream().anyMatch(itemIdLower::contains) || 
+                          TRASH_KEYWORDS_PT.stream().anyMatch(itemNameLower::contains) ||
+                          itemIdLower.contains("trash") || itemIdLower.contains("bone") || 
+                          itemIdLower.contains("poison") || itemIdLower.contains("spiderweb") || 
+                          itemIdLower.contains("dirt") || itemIdLower.contains("weed") || 
+                          itemIdLower.contains("scrap") || itemIdLower.contains("sludge") ||
+                          itemNameLower.contains("lixo") || itemNameLower.contains("osso") || 
+                          itemNameLower.contains("veneno") || itemNameLower.contains("teia") || 
+                          itemNameLower.contains("terra") || itemNameLower.contains("ervas") || 
+                          itemNameLower.contains("sucata");
+
+        // Basic items: generic building blocks (dirt, cobblestone, basic wood), basic raw seeds, raw common foods
+        boolean isBasic = itemIdLower.contains("stone") || itemIdLower.contains("wood") || 
+                          itemIdLower.contains("cobble") || itemIdLower.contains("gravel") || 
+                          itemIdLower.contains("sand") || itemIdLower.contains("plank") || 
+                          itemIdLower.contains("seed") || itemIdLower.contains("sapling") ||
+                          itemIdLower.equals("food_beef_raw") || itemIdLower.equals("food_chicken_raw") ||
+                          itemIdLower.equals("food_pork_raw") || itemIdLower.equals("food_egg") ||
+                          itemIdLower.equals("food_wildmeat_raw");
+
+        // Multiplier based on relationship status
         double multiplier = rel.status == RelationshipStatus.ENEMIES ? 0.5 : (rel.status == RelationshipStatus.MARRIED ? 1.5 : 1.0);
 
         if (loves) {
-            return InteractionOutcome.ofItem((int)(15 * multiplier), 0, (int)(8 * multiplier), (int)(25 * multiplier), Message.translation("npc-dialogues.chat.gift.loves").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+            return InteractionOutcome.ofItem((int)(20 * multiplier), 0, (int)(12 * multiplier), (int)(30 * multiplier), Message.translation("npc-dialogues.chat.gift.loves").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
         } else if (hates) {
-            return InteractionOutcome.ofItem((int)(-15 * multiplier), 0, (int)(-10 * multiplier), (int)(-20 * multiplier), Message.translation("npc-dialogues.chat.gift.hates").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+            return InteractionOutcome.ofItem((int)(-20 * multiplier), 0, (int)(-15 * multiplier), (int)(-25 * multiplier), Message.translation("npc-dialogues.chat.gift.hates").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
         } else if (isTrash) {
-            return InteractionOutcome.ofItem(-10, 0, -5, -15, Message.translation("npc-dialogues.chat.gift.trash").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+            return InteractionOutcome.ofItem(-15, 0, -10, -20, Message.translation("npc-dialogues.chat.gift.trash").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
         } else if (npc.personality.traits.contains(Trait.GREEDY)) {
-            return InteractionOutcome.ofItem((int)(10 * multiplier), 0, 5, (int)(20 * multiplier), Message.translation("npc-dialogues.chat.gift.greedy").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+            return InteractionOutcome.ofItem((int)(15 * multiplier), 0, 5, (int)(25 * multiplier), Message.translation("npc-dialogues.chat.gift.greedy").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
         } else if (npc.personality.traits.contains(Trait.PARANOID)) {
-            return InteractionOutcome.ofItem(-5, 0, -10, -10, Message.translation("npc-dialogues.chat.gift.paranoid").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+            return InteractionOutcome.ofItem(-5, 0, -12, -10, Message.translation("npc-dialogues.chat.gift.paranoid").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+        } else if (isBasic) {
+            return InteractionOutcome.ofItem((int)(2 * multiplier), 0, 1, (int)(3 * multiplier), Message.translation("npc-dialogues.chat.gift.basic").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
         }
         
-        return InteractionOutcome.ofItem((int)(5 * multiplier), 0, 3, (int)(10 * multiplier), Message.translation("npc-dialogues.chat.gift.normal").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
+        return InteractionOutcome.ofItem((int)(8 * multiplier), 0, 4, (int)(15 * multiplier), Message.translation("npc-dialogues.chat.gift.normal").param("name", npc.name).param("itemName", itemName), MemoryEvent.GIFTED, true);
     }
 
     private static InteractionOutcome handleProfession(SimNPCComponent npc, PlayerRef playerRef, Relationship rel) {
@@ -314,7 +340,7 @@ public class InteractionManager {
              return InteractionOutcome.of(-5, 0, -5, -10, pickRandomTranslation("npc-dialogues.chat.prof.assign.refuse_status", 3, npc.name).param("profName", profName), MemoryEvent.CHATTED);
         }
 
-        if (npc.preferences != null && npc.preferences.dislikedProfessions.contains(targetProf)) {
+        if (npc.preferences != null && npc.preferences.getDislikedProfessions().contains(targetProf)) {
             return InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.chat.prof.assign.dislike", 4, npc.name).param("profName", profName).param("itemName", itemName), MemoryEvent.CHATTED);
         }
 
@@ -339,7 +365,7 @@ public class InteractionManager {
 
         npc.profession = targetProf;
 
-        if (npc.preferences != null && npc.preferences.likedProfessions.contains(targetProf)) {
+        if (npc.preferences != null && npc.preferences.getLikedProfessions().contains(targetProf)) {
             Message reaction = pickRandomTranslation("npc-dialogues.chat.prof.assign.liked", 3, npc.name).param("profName", profName).param("itemName", itemName);
             return InteractionOutcome.ofItem(15, 0, 10, 25, prefix.insert(reaction), MemoryEvent.CHATTED, true);
         }
@@ -375,13 +401,31 @@ public class InteractionManager {
             tick = world.getTick();
         }
         
-        if (outcome.affinity() > 0) {
-            npc.setEmotion(Mood.HAPPY, 0.6f, "interaction", tick);
-        } else if (outcome.affinity() < 0) {
-            if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
-                npc.setEmotion(Mood.ANGRY, 0.8f, "interaction", tick);
+        if (outcome.memoryEvent() == MemoryEvent.GIFTED) {
+            if (outcome.affinity() >= 20) {
+                npc.setEmotion(Mood.HAPPY, 1.0f, "gift_loves", tick);
+            } else if (outcome.affinity() < 0) {
+                if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
+                    npc.setEmotion(Mood.ANGRY, 1.0f, "gift_hates", tick);
+                } else {
+                    npc.setEmotion(Mood.SAD, 1.0f, "gift_hates", tick);
+                }
+            } else if (outcome.affinity() > 0 && outcome.affinity() <= 4) {
+                // Basic item: do not alter mood
             } else {
-                npc.setEmotion(Mood.SAD, 0.6f, "interaction", tick);
+                if (ThreadLocalRandom.current().nextDouble() < 0.5) {
+                    npc.setEmotion(Mood.HAPPY, 0.6f, "gift_normal", tick);
+                }
+            }
+        } else {
+            if (outcome.affinity() > 0) {
+                npc.setEmotion(Mood.HAPPY, 0.6f, "interaction", tick);
+            } else if (outcome.affinity() < 0) {
+                if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
+                    npc.setEmotion(Mood.ANGRY, 0.8f, "interaction", tick);
+                } else {
+                    npc.setEmotion(Mood.SAD, 0.6f, "interaction", tick);
+                }
             }
         }
     }

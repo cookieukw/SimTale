@@ -5,6 +5,7 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Child;
 import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.core.NPCPreferences;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -44,6 +45,8 @@ import com.cookieukw.SimTale.core.RelationshipStatus;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
 import javax.annotation.Nonnull;
 
 @SuppressWarnings("null")
@@ -132,29 +135,39 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         
         // Preferences
         if (npc.preferences != null) {
-            if (npc.preferences.favoriteFoods != null && !npc.preferences.favoriteFoods.isEmpty()) {
+            List<String> allLikes = new ArrayList<>();
+            if (npc.preferences.getFavoriteFoods() != null) allLikes.addAll(npc.preferences.getFavoriteFoods());
+            if (npc.preferences.getFavoriteItems() != null) allLikes.addAll(npc.preferences.getFavoriteItems());
+            
+            if (!allLikes.isEmpty()) {
                 Message likesMsg = Message.raw("");
                 boolean first = true;
-                for (String foodId : npc.preferences.favoriteFoods) {
+                for (String itemId : allLikes) {
                     if (!first) likesMsg = likesMsg.insert(Message.raw(", "));
-                    likesMsg = likesMsg.insert(Message.translation("ui." + foodId));
+                    likesMsg = likesMsg.insert(Message.raw(NPCPreferences.getFoodDisplayName(itemId)));
                     first = false;
                 }
                 commandBuilder.set("#NpcLikes.TextSpans", Message.translation("ui.ui.likes").insert(Message.raw(" ")).insert(likesMsg));
             }
-            if (npc.preferences.hatedFoods != null && !npc.preferences.hatedFoods.isEmpty()) {
+
+            List<String> allHates = new ArrayList<>();
+            if (npc.preferences.getHatedFoods() != null) allHates.addAll(npc.preferences.getHatedFoods());
+            if (npc.preferences.getHatedItems() != null) allHates.addAll(npc.preferences.getHatedItems());
+            
+            if (!allHates.isEmpty()) {
                 Message hatesMsg = Message.raw("");
                 boolean first = true;
-                for (String foodId : npc.preferences.hatedFoods) {
+                for (String itemId : allHates) {
                     if (!first) hatesMsg = hatesMsg.insert(Message.raw(", "));
-                    hatesMsg = hatesMsg.insert(Message.translation("ui." + foodId));
+                    hatesMsg = hatesMsg.insert(Message.raw(NPCPreferences.getFoodDisplayName(itemId)));
                     first = false;
                 }
                 commandBuilder.set("#NpcHates.TextSpans", Message.translation("ui.ui.hates").insert(Message.raw(" ")).insert(hatesMsg));
             }
-            commandBuilder.set("#NpcHobby.TextSpans", Message.translation("ui.ui.hobby").insert(Message.raw(" " + npc.preferences.hobby)));
+
+            commandBuilder.set("#NpcHobby.TextSpans", Message.translation("ui.ui.hobby").insert(Message.raw(" " + npc.preferences.getHobby().displayName())));
             
-            String seasonKey = "season." + (npc.preferences.favoriteSeason != null ? npc.preferences.favoriteSeason.toLowerCase() : "spring");
+            String seasonKey = "season." + (npc.preferences.getFavoriteSeason() != null ? npc.preferences.getFavoriteSeason().name().toLowerCase() : "spring");
             commandBuilder.set("#NpcSeason.TextSpans", Message.translation("ui.ui.season").insert(Message.raw(" ")).insert(Message.translation("ui." + seasonKey)));
         }
         
