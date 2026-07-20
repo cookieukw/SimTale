@@ -19,7 +19,11 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.codec.Codec;
+import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
+import com.hypixel.hytale.event.EventPriority;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import java.util.UUID;
 import java.util.Map;
@@ -164,10 +168,12 @@ public class BabyCareManager {
                         care.currentHolderId = playerUuidStr;
                         
                         String otherParentName = getNPCName(UUID.fromString(playerUuidStr.equals(care.motherId) ? care.fatherId : care.motherId));
-                        playerRefComp.sendMessage(Message.raw("Enquanto você estava fora, você pegou o bebê de volta de " + otherParentName + " para cuidar!"));
+                        playerRefComp.sendMessage(Message.translation("general.baby.custody.offline_taken")
+                            .param("name", Message.translation("general.baby.generic"))
+                            .param("spouse", otherParentName));
                     } else {
                         // Inventory full
-                        playerRefComp.sendMessage(Message.raw("Era a sua vez de cuidar do bebê, mas seu inventário está cheio! O outro pai continuará com ele por enquanto."));
+                        playerRefComp.sendMessage(Message.translation("general.baby.custody.inventory_full"));
                     }
                 }
                 // If the turn owner is now the NPC, but the player currently holds the baby in inventory
@@ -195,7 +201,9 @@ public class BabyCareManager {
                         } catch (Exception ignored) {}
                         
                         String otherParentName = getNPCName(UUID.fromString(care.currentTurnOwnerId));
-                        playerRefComp.sendMessage(Message.raw("Enquanto você estava fora, " + otherParentName + " pegou o bebê para cuidar!"));
+                        playerRefComp.sendMessage(Message.translation("general.baby.custody.offline_given")
+                            .param("name", Message.translation("general.baby.generic"))
+                            .param("spouse", otherParentName));
                     }
                 }
 
@@ -227,5 +235,126 @@ public class BabyCareManager {
         SimNPCComponent temp = new SimNPCComponent(npcId, "Parceiro");
         SimNPCPersistence.loadNPC(temp);
         return temp.name;
+    }
+
+    public static void syncCarriedBabiesToInventory(UUID npcId, ItemContainer container) {
+        if (npcId == null || container == null) return;
+        List<UUID> carried = getCarriedBabies(npcId);
+        
+        // Find existing baby items in container
+        Set<UUID> presentIds = new HashSet<>();
+        for (short slot = 0; slot < container.getCapacity(); slot++) {
+            ItemStack item = container.getItemStack(slot);
+            if (item != null && item.getItemId().equals("simtale:Baby")) {
+                String cIdStr = item.getFromMetadataOrNull("childId", Codec.STRING);
+                if (cIdStr != null) {
+                    try {
+                        presentIds.add(UUID.fromString(cIdStr));
+                    } catch (Exception ignored) {}
+                }
+            }
+        }
+
+        // Add missing babies
+        for (UUID childId : carried) {
+            if (!presentIds.contains(childId)) {
+                ItemStack babyItem = new ItemStack("simtale:Baby", 1).withMetadata("childId", Codec.STRING, childId.toString());
+                container.addItemStack(babyItem);
+            }
+        }
+
+        // Remove extra babies (that are no longer carried by this NPC)
+        for (short slot = 0; slot < container.getCapacity(); slot++) {
+            ItemStack item = container.getItemStack(slot);
+            if (item != null && item.getItemId().equals("simtale:Baby")) {
+                String cIdStr = item.getFromMetadataOrNull("childId", Codec.STRING);
+                if (cIdStr != null) {
+                    try {
+                        UUID cId = UUID.fromString(cIdStr);
+                        if (!carried.contains(cId)) {
+                            container.removeItemStackFromSlot(slot, item, 1);
+                        }
+                    } catch (Exception ignored) {}
+                }
+            }
+        }
+    }
+
+    public static void registerInventoryListener(UUID npcId, ItemContainer container, UUID playerUuid) {
+        if (npcId == null || container == null || playerUuid == null) return;
+
+        final boolean[] isSelfModifying = {false};
+
+        container.registerChangeEvent(EventPriority.NORMAL, event -> {
+            if (isSelfModifying[0]) return;
+
+            isSelfModifying[0] = true;
+            try {
+                Set<UUID> currentInInv = new HashSet<>();
+                for (short slot = 0; slot < container.getCapacity(); slot++) {
+                    ItemStack item = container.getItemStack(slot);
+                    if (item != null && item.getItemId().equals("simtale:Baby")) {
+                        String cIdStr = item.getFromMetadataOrNull("childId", Codec.STRING);
+                        if (cIdStr != null) {
+                            try {
+                                currentInInv.add(UUID.fromString(cIdStr));
+                            } catch (Exception ignored) {}
+                        }
+                    }
+                }
+
+                List<UUID> carried = getCarriedBabies(npcId);
+
+                // 1. Check if a baby was REMOVED (taken by player)
+                for (UUID childId : new HashSet<>(carried)) {
+                    if (!currentInInv.contains(childId)) {
+                        BabyCareData care = load(childId);
+                        if (care != null) {
+                            care.currentHolderId = playerUuid.toString();
+                            long now = System.currentTimeMillis();
+                            care.currentTurnOwnerId = playerUuid.toString();
+                            care.turnStartTime = now;
+                            care.nextSwapAllowedTime = now + TURN_DURATION;
+                            care.lastInteractionTime = now;
+                            save(care);
+                            removeCarriedBaby(npcId, childId);
+
+                            PlayerRef pRef = LifecycleUtils.getPlayerRef(playerUuid);
+                            if (pRef != null) {
+                                GrowthComponent child = Caskara.load("child_" + childId, GrowthComponent.class);
+                                Message childMsg = child != null ? Message.raw(child.getFullName()) : Message.translation("general.baby.generic");
+                                pRef.sendMessage(Message.translation("general.baby.custody.taken").param("name", childMsg));
+                            }
+                        }
+                    }
+                }
+
+                // 2. Check if a baby was ADDED (given by player to NPC)
+                for (UUID childId : currentInInv) {
+                    if (!carried.contains(childId)) {
+                        BabyCareData care = load(childId);
+                        if (care != null) {
+                            care.currentHolderId = npcId.toString();
+                            long now = System.currentTimeMillis();
+                            care.currentTurnOwnerId = npcId.toString();
+                            care.turnStartTime = now;
+                            care.nextSwapAllowedTime = now + TURN_DURATION;
+                            care.lastInteractionTime = now;
+                            save(care);
+                            addCarriedBaby(npcId, childId);
+
+                            PlayerRef pRef = LifecycleUtils.getPlayerRef(playerUuid);
+                            if (pRef != null) {
+                                GrowthComponent child = Caskara.load("child_" + childId, GrowthComponent.class);
+                                Message childMsg = child != null ? Message.raw(child.getFullName()) : Message.translation("general.baby.generic");
+                                pRef.sendMessage(Message.translation("general.baby.custody.given").param("name", childMsg));
+                            }
+                        }
+                    }
+                }
+            } finally {
+                isSelfModifying[0] = false;
+            }
+        });
     }
 }

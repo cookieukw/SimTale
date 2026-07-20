@@ -35,6 +35,12 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.joml.Vector3d;
+import com.hypixel.hytale.server.core.entity.entities.player.windows.ContainerWindow;
+import com.hypixel.hytale.server.core.entity.entities.player.windows.Window;
+import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
+import com.cookieukw.SimTale.core.RelationshipStatus;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -213,6 +219,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             commandBuilder.set("#PregnancyButton.Visible", true);
         }
 
+        boolean isMarried = rel.status == RelationshipStatus.MARRIED;
+        commandBuilder.set("#InventoryButton.Visible", isMarried);
+
         // --- Button Event Bindings ---
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ChatButton", new EventData().append("button", "ChatButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#JokeButton", new EventData().append("button", "JokeButton"), false);
@@ -221,6 +230,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GiftButton", new EventData().append("button", "GiftButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#AssignProfessionButton", new EventData().append("button", "AssignProfessionButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#PregnancyButton", new EventData().append("button", "PregnancyButton"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#InventoryButton", new EventData().append("button", "InventoryButton"), false);
     }
 
     @Override
@@ -288,7 +298,37 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             playerRefComp.sendMessage(resp);
         } else if (eventData.contains("PregnancyButton")) {
             player.getPageManager().openCustomPage(storeRef, store, new NPCPregnancyPage(playerRefComp, player, npc));
+        } else if (eventData.contains("InventoryButton")) {
+            openNpcInventory(storeRef, store);
         }
+    }
+
+    private void openNpcInventory(Ref<EntityStore> playerRef, Store<EntityStore> store) {
+        if (npc.entityRef == null || !npc.entityRef.isValid()) {
+            playerRefComp.sendMessage(Message.translation("general.npc.invalid"));
+            return;
+        }
+
+        InventoryComponent.Storage storage = store.getComponent(npc.entityRef, InventoryComponent.Storage.getComponentType());
+        if (storage == null) {
+            playerRefComp.sendMessage(Message.translation("general.npc.no_storage"));
+            return;
+        }
+
+        ItemContainer container = storage.getInventory();
+        if (container == null) {
+            playerRefComp.sendMessage(Message.translation("general.npc.no_container"));
+            return;
+        }
+
+        // Sync carried babies to inventory
+        BabyCareManager.syncCarriedBabiesToInventory(npc.entityId, container);
+        
+        // Register inventory change listener to sync baby custody back
+        BabyCareManager.registerInventoryListener(npc.entityId, container, playerRefComp.getUuid());
+
+        ContainerWindow window = new ContainerWindow(container);
+        player.getPageManager().setPageWithWindows(playerRef, store, Page.Bench, true, new Window[]{window});
     }
 
     @Override

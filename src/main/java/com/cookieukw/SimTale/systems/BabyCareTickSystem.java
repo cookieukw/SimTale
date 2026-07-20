@@ -128,15 +128,19 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
                                 BabyCareManager.addCarriedBaby(spouseNpc.entityId, invBabyChildId);
 
                                 GrowthComponent child = Caskara.load("child_" + care.childId, GrowthComponent.class);
-                                String childName = child != null ? child.getFullName() : "do bebê";
-                                playerRef.sendMessage(Message.raw(spouseNpc.name + " pegou o bebê " + childName + " para cuidar!"));
+                                Message childMsg = child != null ? Message.raw(child.getFullName()) : Message.translation("general.baby.generic");
+                                playerRef.sendMessage(Message.translation("general.baby.custody.spouse_taken")
+                                    .param("spouse", spouseNpc.name)
+                                    .param("name", childMsg));
                             } else {
                                 // Early swap rejection feedback (cooldown check)
                                 long lastMsg = MESSAGE_COOLDOWNS.getOrDefault(playerUuid, 0L);
                                 if (nowMs - lastMsg > 10000) {
                                     GrowthComponent child = Caskara.load("child_" + care.childId, GrowthComponent.class);
-                                    String childName = child != null ? child.getFullName() : "dele";
-                                    playerRef.sendMessage(Message.raw("<" + spouseNpc.name + "> Agora é a sua vez de cuidar de " + childName + " por um tempo."));
+                                    Message childMsg = child != null ? Message.raw(child.getFullName()) : Message.translation("general.baby.generic");
+                                    playerRef.sendMessage(Message.translation("general.baby.custody.spouse_reject")
+                                        .param("spouse", spouseNpc.name)
+                                        .param("name", childMsg));
                                     MESSAGE_COOLDOWNS.put(playerUuid, nowMs);
                                 }
                             }
@@ -168,13 +172,15 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
                         BabyCareManager.removeCarriedBaby(spouseNpc.entityId, npcChildId);
 
                         GrowthComponent child = Caskara.load("child_" + care.childId, GrowthComponent.class);
-                        String childName = child != null ? child.getFullName() : "do bebê";
-                        playerRef.sendMessage(Message.raw("Você pegou o bebê " + childName + " de volta de " + spouseNpc.name + "!"));
+                        Message childMsg = child != null ? Message.raw(child.getFullName()) : Message.translation("general.baby.generic");
+                        playerRef.sendMessage(Message.translation("general.baby.custody.taken_back")
+                            .param("name", childMsg)
+                            .param("spouse", spouseNpc.name));
                     } else {
                         // Inventory full feedback
                         long lastMsg = MESSAGE_COOLDOWNS.getOrDefault(playerUuid, 0L);
                         if (nowMs - lastMsg > 10000) {
-                            playerRef.sendMessage(Message.raw("Seu inventário está cheio! Abra espaço para pegar o bebê de volta."));
+                            playerRef.sendMessage(Message.translation("general.baby.custody.inventory_full"));
                             MESSAGE_COOLDOWNS.put(playerUuid, nowMs);
                         }
                     }
