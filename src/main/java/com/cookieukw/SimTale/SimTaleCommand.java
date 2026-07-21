@@ -39,8 +39,10 @@ import java.util.concurrent.CompletableFuture;
 
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.HouseBlockPos;
+import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.systems.HouseManager;
 import com.cookieukw.SimTale.systems.BedRegistry;
+import com.cookieukw.SimTale.systems.ChestRegistry;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
@@ -76,6 +78,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new SearchSubCommand());
         this.addSubCommand(new ToggleAiSubCommand());
         this.addSubCommand(new HouseCheckSubCommand());
+        this.addSubCommand(new ChestCheckSubCommand());
     }
 
     @Override
@@ -809,6 +812,66 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             HouseManager.HouseCompatibilityResult result = HouseManager.checkFullCompatibility(world, houseBed, playerRef.getUuid());
             
             ctx.sendMessage(HouseManager.buildCompatibilityReport(result));
+        }
+    }
+
+    private static class ChestCheckSubCommand extends AbstractPlayerCommand {
+        public ChestCheckSubCommand() {
+            super("chestcheck", "Verifica o registro e a posse do bau mais proximo");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
+            if (tc == null) {
+                ctx.sendMessage(Message.raw("Erro: TransformComponent nulo."));
+                return;
+            }
+            Vector3d pos = tc.getPosition();
+
+            HouseBlockPos nearestChest = null;
+            double minDist = Double.MAX_VALUE;
+
+            synchronized (ChestRegistry.CHESTS) {
+                for (HouseBlockPos cp : ChestRegistry.CHESTS) {
+                    double dx = cp.x - pos.x;
+                    double dy = cp.y - pos.y;
+                    double dz = cp.z - pos.z;
+                    double distSq = dx*dx + dy*dy + dz*dz;
+                    if (distSq < minDist) {
+                        minDist = distSq;
+                        nearestChest = cp;
+                    }
+                }
+            }
+
+            if (nearestChest == null) {
+                ctx.sendMessage(Message.raw("Nenhum bau registrado no ChestRegistry."));
+                return;
+            }
+
+            if (minDist > 16 * 16) {
+                ctx.sendMessage(Message.raw("Nenhum bau registrado proximo (raio de 16 blocos)!"));
+                return;
+            }
+
+            String msg = "§e[ChestCheck] Baú localizado em (" + nearestChest.x + ", " + nearestChest.y + ", " + nearestChest.z + ")§f\n";
+
+            UUID houseId = HouseManager.BLOCK_TO_HOUSE_ID.get(nearestChest);
+            if (houseId != null) {
+                HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
+                if (house != null) {
+                    msg += "§aResidência: §f" + houseId + "\n";
+                    msg += "§aProprietários: §f" + String.join(", ", house.owners);
+                } else {
+                    msg += "§cErro: Vinculado à casa " + houseId + " mas dados da casa não encontrados.";
+                }
+            } else {
+                msg += "§bTipo: §fBaú Público (Não pertence a nenhuma casa cadastrada)";
+            }
+
+            ctx.sendMessage(Message.raw(msg));
         }
     }
 }

@@ -72,12 +72,17 @@ Para que os NPCs consigam navegar livremente até suas camas ou baús de comida 
 *   **Causa Raiz**: O método `isSolid()` retornava `true` para camas e baús, disparando o comando `continue` antes que o código chegasse nos ifs específicos de checagem de camas/baús.
 *   **Correção**: O loop de vizinhos foi reordenado para rodar os testes específicos de Porta, Cama e Baú em primeiro lugar, coletando-os nos respectivos conjuntos de dados antes de aplicar a checagem genérica de blocos sólidos.
 
----
+## 6. Os Comandos de Debug e Verificação
 
-## 6. O Comando `/simtale housecheck`
+### O Comando `/simtale housecheck`
 Jogadores e desenvolvedores podem verificar a compatibilidade de qualquer casa digitando `/simtale housecheck` no console do servidor.
 *   O sistema localiza a cama cadastrada mais próxima (limite de 16 blocos de distância).
 *   Gera e imprime na tela o relatório estruturado: se a casa é válida, se está incompleta e exibe a lista localizada com o que falta (por exemplo: "Precisa de: um assento, uma fonte de luz").
+
+### O Comando `/simtale chestcheck`
+Permite validar em tempo real o registro e posse de baús digitando `/simtale chestcheck` no console do servidor.
+*   Localiza o baú registrado mais próximo do jogador (raio de 16 blocos).
+*   Informa as coordenadas exatas do baú, se ele está devidamente cadastrado no `ChestRegistry`, a qual ID de residência ele pertence, e a lista de UUIDs dos NPCs proprietários com permissão para abri-lo (ou se é um baú público livre para todos).
 
 ---
 
