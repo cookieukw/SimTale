@@ -88,3 +88,8 @@ Não. O método `HouseManager.canOpenChest(npcId, chestPos)` intercepta as busca
 
 ### Como um casal compartilha a mesma residência?
 Se o flood fill de uma cama A encontrar uma cama B na mesma região de ar fechada sem registros prévios, o scan classifica o resultado como `NEW_HOUSE_MULTI_OWNER` e registra ambos os candidatos a donos como proprietários da mesma `HouseData`.
+
+### Como os NPCs localizam baús de comida sem causar lag de chunk scan?
+Para evitar qualquer tipo de varredura física e lag no servidor, o `NPCHungerHelper` não faz nenhuma busca por proximidade ou varredura de chunks. Ele simplesmente consulta a própria residência do NPC via `HouseManager.OWNER_TO_HOUSE_ID` e recupera diretamente a coordenada do baú cadastrado em `HouseData.chests`. O NPC então se move em linha reta diretamente para o seu próprio baú de comida.
+
+

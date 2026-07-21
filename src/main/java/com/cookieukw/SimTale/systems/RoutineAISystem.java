@@ -456,70 +456,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // --- FINDING_FOOD (OPTIMIZATION) ---
-        if (ai.currentTask == TaskType.FINDING_FOOD && world.getTick() - ai.taskStartTime >= FOOD_SEARCH_COOLDOWN_TICKS) {
-            ai.taskStartTime = world.getTick();
-            Vector3d pos = transform.getPosition();
-            int sx = (int) pos.x; int sy = (int) pos.y; int sz = (int) pos.z;
-            boolean found = false;
-
-            foodSearch:
-            for (int cx = (sx - 10) >> 4; cx <= (sx + 10) >> 4; cx++) {
-                for (int cz = (sz - 10) >> 4; cz <= (sz + 10) >> 4; cz++) {
-                    WorldChunk chunkAt = world.getChunk(ChunkUtil.indexChunk(cx, cz));
-                    if (chunkAt == null) continue;
-
-                    int minX = Math.max(sx - 10, cx << 4);
-                    int maxX = Math.min(sx + 10, (cx << 4) + 15);
-                    int minZ = Math.max(sz - 10, cz << 4);
-                    int maxZ = Math.min(sz + 10, (cz << 4) + 15);
-
-                    for (int x = minX; x <= maxX; x++) {
-                        for (int z = minZ; z <= maxZ; z++) {
-                            for (int y = sy - 2; y <= sy + 2; y++) {
-                                BlockType bType = chunkAt.getBlockType(new Vector3i(x, y, z));
-                                if (bType != null && bType.getId() != null) {
-                                    String name = bType.getId().toLowerCase();
-                                    if (name.contains("barrel") || name.contains("chest") || name.contains("food") || name.contains("cupboard")) {
-                                        HouseBlockPos chestPos = new HouseBlockPos(x, y, z);
-                                        if (HouseManager.canOpenChest(npc.entityId, chestPos)) {
-                                            ai.targetBlockPosition = new Vector3i(x, y, z);
-                                            ai.currentTask = TaskType.MOVING_TO_FOOD;
-                                            playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
-                                            found = true; break foodSearch;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (!found) ai.currentTask = TaskType.IDLE;
-        }
-
-        if (ai.currentTask == TaskType.MOVING_TO_FOOD) {
-            if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
-            Vector3d pos = transform.getPosition();
-            double dx = (ai.targetBlockPosition.x + 0.5) - pos.x;
-            double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
-            if (dx*dx + dz*dz < 2.0 * 2.0) {
-                clearMoveTarget(ref, ai);
-                ai.currentTask = TaskType.EATING;
-                ai.taskStartTime = world.getTick();
-            } else {
-                moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
-            }
-        }
-
-        if (ai.currentTask == TaskType.EATING) {
-            if (world.getTick() - ai.taskStartTime == 1) playAnim(ref, "Characters/Animations/Actions/Eat.blockyanim", "Eat", store);
-            if (world.getTick() - ai.taskStartTime > 60) {
-                npc.needs.hunger = Math.min(100f, npc.needs.hunger + 40f);
-                ai.currentTask = TaskType.IDLE;
-                playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
-            }
-        }
+        // --- Chest Interaction & Feeding Logic (Delegado ao NPCHungerHelper) ---
+        NPCHungerHelper.handleHungerLogic(ref, npc, ai, transform, world, store, commandBuffer);
 
         // --- FINDING_BATH (OPTIMIZATION) ---
         if (ai.currentTask == TaskType.FINDING_BATH && world.getTick() - ai.taskStartTime >= BATH_SEARCH_COOLDOWN_TICKS) {
