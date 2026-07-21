@@ -14,8 +14,8 @@ cmd.reload.db = Reassembling NPCs from the database...
 cmd.here.success = Called {count} NPCs to your position!
 cmd.interact.none = No living NPCs nearby!
 cmd.interact.success = Forced UI to open for {name}
-reaper.soul_taken = §c{name}'s time is up. The Grim Reaper has taken their soul.
-reaper.tombstone_given = §eYou kept a Rock_Stone_Cobble as a 'Tombstone' for {name}
+reaper.soul_taken = {name}'s time is up. The Grim Reaper has taken their soul.
+reaper.tombstone_given = You kept a Rock_Stone_Cobble as a 'Tombstone' for {name}
 chat.random = Autonomous Interaction
 cmd.forcepreg.success = Pregnancy forced successfully! Opening pregnancy panel...
 gender.success.male = Gender permanently set to: MALE
@@ -46,5 +46,14 @@ baby.generic = the baby
 baby.generic.prep = the baby
 baby.custody.inventory_full = Your inventory is full! Make space to take the baby back.
 
-
-
+simtale.house.check.unenclosed = The house is not fully enclosed by walls or is too large!
+simtale.house.check.too_small = The house is too small! The interior volume must be at least 15 blocks.
+simtale.house.check.no_entrance = The house has no entrance doors!
+simtale.house.check.conflict = This house conflicts with an already registered residency!
+simtale.house.check.unknown_error = Unknown structural error validating the house.
+simtale.house.check.valid = This is a valid house! An NPC can live here.
+simtale.house.check.incomplete = This house is incomplete. Needs: 
+simtale.house.requirement.light_source = a light source
+simtale.house.requirement.seating = a seating
+simtale.house.requirement.surface = a table surface
+simtale.house.requirement.storage_optional = a container (optional)

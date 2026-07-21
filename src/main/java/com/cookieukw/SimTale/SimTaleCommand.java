@@ -38,6 +38,9 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
+import com.cookieukw.SimTale.core.HouseBlockPos;
+import com.cookieukw.SimTale.systems.HouseManager;
+import com.cookieukw.SimTale.systems.BedRegistry;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
@@ -72,6 +75,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new SetMoodSubCommand());
         this.addSubCommand(new SearchSubCommand());
         this.addSubCommand(new ToggleAiSubCommand());
+        this.addSubCommand(new HouseCheckSubCommand());
     }
 
     @Override
@@ -758,6 +762,53 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             com.cookieukw.SimTale.ai.AiConfigManager.save();
             String status = config.enabled ? "ATIVADO" : "DESATIVADO";
             ctx.sendMessage(Message.raw("O uso de IA Generativa para conversas com NPCs foi: " + status));
+        }
+    }
+
+    private static class HouseCheckSubCommand extends AbstractPlayerCommand {
+        public HouseCheckSubCommand() {
+            super("housecheck", "Verifica a validade estrutural e a mobilia da casa mais proxima");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
+            if (tc == null) {
+                ctx.sendMessage(Message.raw("Erro: TransformComponent nulo."));
+                return;
+            }
+            Vector3d pos = tc.getPosition();
+            
+            com.cookieukw.SimTale.db.SimBedData.BedPos nearestBed = null;
+            double minDist = Double.MAX_VALUE;
+            synchronized (BedRegistry.BEDS) {
+                for (com.cookieukw.SimTale.db.SimBedData.BedPos bp : BedRegistry.BEDS) {
+                    double dx = bp.x - pos.x;
+                    double dy = bp.y - pos.y;
+                    double dz = bp.z - pos.z;
+                    double distSq = dx*dx + dy*dy + dz*dz;
+                    if (distSq < minDist) {
+                        minDist = distSq;
+                        nearestBed = bp;
+                    }
+                }
+            }
+            
+            if (nearestBed == null) {
+                ctx.sendMessage(Message.raw("Nenhuma cama registrada encontrada proxima!"));
+                return;
+            }
+            
+            if (minDist > 16 * 16) {
+                ctx.sendMessage(Message.raw("Nenhuma cama registrada em um raio de 16 blocos!"));
+                return;
+            }
+            
+            HouseBlockPos houseBed = new HouseBlockPos(nearestBed.x, nearestBed.y, nearestBed.z);
+            HouseManager.HouseCompatibilityResult result = HouseManager.checkFullCompatibility(world, houseBed, playerRef.getUuid());
+            
+            ctx.sendMessage(HouseManager.buildCompatibilityReport(result));
         }
     }
 }

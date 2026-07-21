@@ -10,8 +10,10 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hypixel.hytale.server.core.Message;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class HouseManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(HouseManager.class);
@@ -27,6 +29,7 @@ public class HouseManager {
         MERGED_INTO_EXISTING,
         CONFLICT_WITH_EXISTING,
         TOO_LARGE_OR_UNENCLOSED,
+        TOO_SMALL,
         NO_ENTRANCE
     }
 
@@ -183,6 +186,7 @@ public class HouseManager {
         HouseScanResult raw = scanHouseFromBed(world, bedPos);
 
         if (raw.overflowed) return new ScanReport(ScanOutcome.TOO_LARGE_OR_UNENCLOSED, Set.of(), null, raw);
+        if (raw.interiorBlocks.size() < 15) return new ScanReport(ScanOutcome.TOO_SMALL, Set.of(), null, raw);
         if (raw.doorBlocks.isEmpty()) return new ScanReport(ScanOutcome.NO_ENTRANCE, Set.of(), null, raw);
 
         for (HouseBlockPos pos : raw.interiorBlocks) {
@@ -307,5 +311,141 @@ public class HouseManager {
             return false;
         }
         return true;
+    }
+
+    // ---------------------------------------------------------------------
+    // Terraria-style Furniture and Comfort Requirements
+    // ---------------------------------------------------------------------
+
+    public enum FurnitureRequirement {
+        LIGHT_SOURCE("torch", "lantern", "candle", "campfire", "glow"),
+        SEATING("chair", "stool", "bench", "seat"),
+        SURFACE("table", "workbench", "desk", "counter"),
+        STORAGE_OPTIONAL("chest", "barrel", "cupboard", "cabinet");
+
+        private final List<String> idKeywords;
+
+        FurnitureRequirement(String... idKeywords) {
+            this.idKeywords = List.of(idKeywords);
+        }
+
+        public boolean matches(String blockIdLower) {
+            return idKeywords.stream().anyMatch(blockIdLower::contains);
+        }
+
+        public static Optional<FurnitureRequirement> classify(String blockIdLower) {
+            return Arrays.stream(values()).filter(r -> r.matches(blockIdLower)).findFirst();
+        }
+    }
+
+    public static class HouseRequirementSet {
+        private final Set<FurnitureRequirement> mandatory;
+        private final Set<FurnitureRequirement> bonus;
+
+        public HouseRequirementSet(Set<FurnitureRequirement> mandatory, Set<FurnitureRequirement> bonus) {
+            this.mandatory = mandatory;
+            this.bonus = bonus;
+        }
+
+        public Set<FurnitureRequirement> mandatory() { return mandatory; }
+        public Set<FurnitureRequirement> bonus() { return bonus; }
+
+        public static final HouseRequirementSet DEFAULT = new HouseRequirementSet(
+            Set.of(FurnitureRequirement.LIGHT_SOURCE, FurnitureRequirement.SEATING, FurnitureRequirement.SURFACE),
+            Set.of(FurnitureRequirement.STORAGE_OPTIONAL)
+        );
+    }
+
+    public static class FurnitureScanResult {
+        private final Map<FurnitureRequirement, Integer> foundCounts;
+        private final Set<FurnitureRequirement> missingMandatory;
+        private final boolean compatible;
+
+        public FurnitureScanResult(Map<FurnitureRequirement, Integer> foundCounts,
+                                   Set<FurnitureRequirement> missingMandatory, boolean compatible) {
+            this.foundCounts = foundCounts;
+            this.missingMandatory = missingMandatory;
+            this.compatible = compatible;
+        }
+
+        public Map<FurnitureRequirement, Integer> foundCounts() { return foundCounts; }
+        public Set<FurnitureRequirement> missingMandatory() { return missingMandatory; }
+        public boolean compatible() { return compatible; }
+    }
+
+    public static class HouseCompatibilityResult {
+        private final ScanOutcome structuralOutcome;
+        private final FurnitureScanResult furniture;
+        private final boolean fullyCompatible;
+
+        public HouseCompatibilityResult(ScanOutcome structuralOutcome, FurnitureScanResult furniture, boolean fullyCompatible) {
+            this.structuralOutcome = structuralOutcome;
+            this.furniture = furniture;
+            this.fullyCompatible = fullyCompatible;
+        }
+
+        public ScanOutcome structuralOutcome() { return structuralOutcome; }
+        public FurnitureScanResult furniture() { return furniture; }
+        public boolean fullyCompatible() { return fullyCompatible; }
+    }
+
+    public static FurnitureScanResult scanFurniture(World world, Set<HouseBlockPos> interiorBlocks, HouseRequirementSet requirements) {
+        Map<FurnitureRequirement, Integer> counts = new EnumMap<>(FurnitureRequirement.class);
+
+        for (HouseBlockPos pos : interiorBlocks) {
+            BlockType type = world.getBlockType(pos.x, pos.y, pos.z);
+            if (type == null || type.getId() == null) continue;
+
+            FurnitureRequirement.classify(type.getId().toLowerCase())
+                .ifPresent(req -> counts.merge(req, 1, Integer::sum));
+        }
+
+        Set<FurnitureRequirement> missing = requirements.mandatory().stream()
+            .filter(req -> counts.getOrDefault(req, 0) == 0)
+            .collect(Collectors.toCollection(() -> EnumSet.noneOf(FurnitureRequirement.class)));
+
+        return new FurnitureScanResult(counts, missing, missing.isEmpty());
+    }
+
+    public static HouseCompatibilityResult checkFullCompatibility(World world, HouseBlockPos bedPos, UUID scanningOwner) {
+        ScanReport structural = scanAndClassify(world, bedPos, scanningOwner);
+
+        boolean structuralOk = structural.outcome == ScanOutcome.NEW_HOUSE_SINGLE_OWNER
+            || structural.outcome == ScanOutcome.NEW_HOUSE_MULTI_OWNER;
+
+        if (!structuralOk) {
+            return new HouseCompatibilityResult(structural.outcome, null, false);
+        }
+
+        FurnitureScanResult furniture = scanFurniture(world, structural.raw.interiorBlocks, HouseRequirementSet.DEFAULT);
+        return new HouseCompatibilityResult(structural.outcome, furniture, furniture.compatible());
+    }
+
+    public static Message buildCompatibilityReport(HouseCompatibilityResult result) {
+        if (result.furniture() == null) {
+            return switch (result.structuralOutcome()) {
+                case TOO_LARGE_OR_UNENCLOSED -> Message.translation("simtale.house.check.unenclosed");
+                case TOO_SMALL -> Message.translation("simtale.house.check.too_small");
+                case NO_ENTRANCE -> Message.translation("simtale.house.check.no_entrance");
+                case MERGED_INTO_EXISTING, CONFLICT_WITH_EXISTING -> Message.translation("simtale.house.check.conflict");
+                default -> Message.translation("simtale.house.check.unknown_error");
+            };
+        }
+
+        if (result.fullyCompatible()) {
+            return Message.translation("simtale.house.check.valid");
+        }
+
+        Message missingList = Message.raw("");
+        boolean first = true;
+        for (FurnitureRequirement missing : result.furniture().missingMandatory()) {
+            if (!first) {
+                missingList = missingList.insert(Message.raw(", "));
+            }
+            missingList = missingList.insert(Message.translation("simtale.house.requirement." + missing.name().toLowerCase()));
+            first = false;
+        }
+
+        return Message.translation("simtale.house.check.incomplete").insert(missingList);
     }
 }

@@ -14,8 +14,8 @@ cmd.reload.db = Remontando NPCs do banco de dados...
 cmd.here.success = Chamou {count} NPCs para a sua posição!
 cmd.interact.none = Nenhum NPC vivo por perto!
 cmd.interact.success = Forced UI to open for {name}
-reaper.soul_taken = §cO tempo de {name} acabou. A Dona Morte levou sua alma.
-reaper.tombstone_given = §eVocê guardou um Rock_Stone_Cobble como 'Lápide' de {name}
+reaper.soul_taken = O tempo de {name} acabou. A Dona Morte levou sua alma.
+reaper.tombstone_given = Você guardou um Rock_Stone_Cobble como 'Lápide' de {name}
 chat.random = Interação Autônoma
 cmd.forcepreg.success = Gravidez forçada com sucesso! Abrindo painel de gestação...
 gender.success.male = Gênero definido permanentemente como: MASCULINO
@@ -46,5 +46,14 @@ baby.generic = o bebê
 baby.generic.prep = o bebê
 baby.custody.inventory_full = Seu inventário está cheio! Abra espaço para pegar o bebê de volta.
 
-
-
+simtale.house.check.unenclosed = A casa não está totalmente cercada por paredes ou é grande demais!
+simtale.house.check.too_small = A casa é muito pequena! O volume interno deve ser de pelo menos 15 blocos.
+simtale.house.check.no_entrance = A casa não possui nenhuma porta de entrada!
+simtale.house.check.conflict = Esta casa conflita com uma residência já registrada!
+simtale.house.check.unknown_error = Erro estrutural desconhecido ao validar a casa.
+simtale.house.check.valid = Esta é uma casa válida! Um NPC pode morar aqui.
+simtale.house.check.incomplete = Esta casa está incompleta. Precisa de: 
+simtale.house.requirement.light_source = uma fonte de luz
+simtale.house.requirement.seating = um assento
+simtale.house.requirement.surface = uma superfície de mesa
+simtale.house.requirement.storage_optional = um contêiner (opcional)

@@ -92,7 +92,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         if (message == null) return null;
 
         // Clean message: lowercase, remove color codes, strip basic punctuation, normalize spaces
-        String cleanMessage = message.toLowerCase().replaceAll("§.", "").replaceAll("[.,!?;:]", " ").replaceAll("\\s+", " ").trim();
+        String cleanMessage = message.toLowerCase().replaceAll("[.,!?;:]", " ").replaceAll("\\s+", " ").trim();
 
         SimNPCComponent approximateNpc = null;
         int bestDistance = Integer.MAX_VALUE;
@@ -105,7 +105,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             if (npc.name == null) continue;
 
             // Clean NPC name in same way
-            String cleanNpcName = npc.name.toLowerCase().replaceAll("§.", "").replaceAll("[.,!?;:]", " ").replaceAll("\\s+", " ").trim();
+            String cleanNpcName = npc.name.toLowerCase().replaceAll("[.,!?;:]", " ").replaceAll("\\s+", " ").trim();
 
             // 1. Exact full-name substring match
             if (cleanMessage.contains(cleanNpcName)) {
