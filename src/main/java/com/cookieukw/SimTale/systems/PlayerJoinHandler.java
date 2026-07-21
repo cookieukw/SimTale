@@ -61,6 +61,13 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
         // Trigger offline baby care simulation
         BabyCareManager.simulateOfflineTime(playerRef, simPlayer);
 
+        // Load all houses from database
+        try {
+            HouseManager.loadAllHouses();
+        } catch (Exception e) {
+            System.out.println("[SimTale] Error loading houses: " + e.getMessage());
+        }
+
         // Bootstrap bed scan around the player
         try {
             com.hypixel.hytale.server.core.modules.entity.component.TransformComponent tc = 

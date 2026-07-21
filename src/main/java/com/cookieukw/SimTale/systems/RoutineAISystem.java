@@ -39,6 +39,10 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
+import com.cookieukw.SimTale.core.HouseBlockPos;
+import com.cookieukw.SimTale.core.HouseData;
+import com.cookieukw.SimTale.systems.HouseManager;
+import java.util.UUID;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.server.core.Message;
@@ -175,12 +179,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             if (npc.bedLocation == null && world.getTick() % 60 == 0) {
                 BedPos bestBed = getBedPos(transform);
                 if (bestBed != null) {
-                    npc.bedLocation = bestBed;
-                    npc.family.homeX = bestBed.x;
-                    npc.family.homeY = bestBed.y;
-                    npc.family.homeZ = bestBed.z;
-                    npc.family.hasSharedHome = true;
-                    SimNPCPersistence.saveNPC(npc);
+                    validateAndClaimBed(world, bestBed, npc);
                 }
             }
 
@@ -253,16 +252,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 if (bestBed != null) {
                     LOGGER.info("[SimTale] NPC '{}' found unclaimed bed at ({},{},{})",
                             npc.name, bestBed.x, bestBed.y, bestBed.z);
-                    npc.bedLocation = bestBed;
-                    npc.family.homeX = bestBed.x;
-                    npc.family.homeY = bestBed.y;
-                    npc.family.homeZ = bestBed.z;
-                    npc.family.hasSharedHome = true;
-                    com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
-                    
-                    ai.targetBlockPosition = new Vector3i(bestBed.x, bestBed.y, bestBed.z);
-                    ai.currentTask = TaskType.MOVING_TO_BED;
-                    playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                    if (validateAndClaimBed(world, bestBed, npc)) {
+                        ai.targetBlockPosition = new Vector3i(bestBed.x, bestBed.y, bestBed.z);
+                        ai.currentTask = TaskType.MOVING_TO_BED;
+                        playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                    } else {
+                        ai.currentTask = TaskType.IDLE;
+                    }
                 } else {
                     LOGGER.warn("[SimTale] NPC '{}' could not find any bed! BedRegistry.BEDS.size={}",
                             npc.name, BedRegistry.BEDS.size());
@@ -481,10 +477,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                                 if (bType != null && bType.getId() != null) {
                                     String name = bType.getId().toLowerCase();
                                     if (name.contains("barrel") || name.contains("chest") || name.contains("food") || name.contains("cupboard")) {
-                                        ai.targetBlockPosition = new Vector3i(x, y, z);
-                                        ai.currentTask = TaskType.MOVING_TO_FOOD;
-                                        playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
-                                        found = true; break foodSearch;
+                                        HouseBlockPos chestPos = new HouseBlockPos(x, y, z);
+                                        if (HouseManager.canOpenChest(npc.entityId, chestPos)) {
+                                            ai.targetBlockPosition = new Vector3i(x, y, z);
+                                            ai.currentTask = TaskType.MOVING_TO_FOOD;
+                                            playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                                            found = true; break foodSearch;
+                                        }
                                     }
                                 }
                             }
@@ -834,5 +833,36 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         BlockType below = world.getBlockType(pos.x, pos.y - 1, pos.z);
         //   System.out.println("[SimTale-DEBUG] isStandable(" + pos.x + "," + pos.y + "," + pos.z + ") failed: below=" + (below != null ? below.getId() : "null"));
         return below != null && below.getId() != null && !below.getId().equalsIgnoreCase("Empty");
+    }
+
+    private static boolean validateAndClaimBed(World world, BedPos bestBed, SimNPCComponent npc) {
+        HouseBlockPos houseBed = new HouseBlockPos(bestBed.x, bestBed.y, bestBed.z);
+        HouseManager.ScanReport report = HouseManager.scanAndClassify(world, houseBed, npc.entityId);
+        if (report.outcome == HouseManager.ScanOutcome.NEW_HOUSE_SINGLE_OWNER || 
+            report.outcome == HouseManager.ScanOutcome.NEW_HOUSE_MULTI_OWNER) {
+            
+            HouseData house = new HouseData(
+                UUID.randomUUID(), 
+                report.freshBedOwners, 
+                houseBed, 
+                report.raw.interiorBlocks, 
+                report.raw.doorBlocks, 
+                report.raw.chestBlocks
+            );
+            HouseManager.registerHouse(house);
+            
+            npc.bedLocation = bestBed;
+            npc.family.homeX = bestBed.x;
+            npc.family.homeY = bestBed.y;
+            npc.family.homeZ = bestBed.z;
+            npc.family.hasSharedHome = true;
+            SimNPCPersistence.saveNPC(npc);
+            LOGGER.info("[SimTale] NPC '{}' registrou e validou com sucesso sua casa na cama ({},{},{})!", npc.name, bestBed.x, bestBed.y, bestBed.z);
+            return true;
+        } else {
+            LOGGER.warn("[SimTale] Cama ({},{},{}) para o NPC '{}' foi rejeitada: a casa candidata e invalida ({})", 
+                        bestBed.x, bestBed.y, bestBed.z, npc.name, report.outcome);
+            return false;
+        }
     }
 }
