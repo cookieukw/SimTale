@@ -708,165 +708,34 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
 
     private void moveTo(Ref<EntityStore> ref, RoutineAIComponent ai, World world, Vector3d targetPos) {
-        boolean needsUpdate;
-
-        if (ai.lastLeashPos == null) {
-            needsUpdate = true;
-        } else {
-            double d2 = ai.lastLeashPos.distanceSquared(targetPos);
-            needsUpdate = d2 > LEASH_UPDATE_THRESHOLD_SQ;
-        }
-
-        if (needsUpdate) {
-            LOGGER.info("[SimTale-DEBUG] moveTo updating leash point to ({},{},{}) for NPC", targetPos.x, targetPos.y, targetPos.z);
-            ai.lastLeashPos = new Vector3d(targetPos);
-            ai.lastLeashTick = world.getTick();
-            
-            // Set leash point for pathfinding
-            NPCEntity npcEntity = ref.getStore().getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
-            if (npcEntity != null) {
-                npcEntity.setLeashPoint(new Vector3d(targetPos.x, targetPos.y, targetPos.z));
-                if (npcEntity.getRole() != null) {
-                    npcEntity.getRole().getStateSupport().setState(ref, "Moving", null, ref.getStore());
-                }
-            }
-        }
+        NPCMovementHelper.moveTo(ref, ai, world, targetPos);
     }
 
     private void clearMoveTarget(Ref<EntityStore> npcRef, RoutineAIComponent ai) {
-        ai.lastLeashPos = null;
-        ai.lastLeashTick = 0;
-
-        NPCEntity npcEntity = npcRef.getStore().getComponent(npcRef, Objects.requireNonNull(NPCEntity.getComponentType()));
-        if (npcEntity != null) {
-            TransformComponent transform = npcRef.getStore().getComponent(npcRef, TransformComponent.getComponentType());
-            if (transform != null) {
-                npcEntity.setLeashPoint(new Vector3d(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z));
-            }
-            if (npcEntity.getRole() != null) {
-                npcEntity.getRole().getStateSupport().setState(npcRef, "Idle", null, npcRef.getStore());
-            }
-        }
+        NPCMovementHelper.clearMoveTarget(npcRef, ai);
     }
 
     void playAnim(Ref<EntityStore> ref, String anim, String name, Store<EntityStore> store) {
-        playAnim(ref, AnimationSlot.Action, anim, name, store);
+        NPCMovementHelper.playAnim(ref, anim, name, store);
     }
 
     void playAnim(Ref<EntityStore> ref, AnimationSlot slot, String anim, String name, Store<EntityStore> store) {
-        AnimationUtils.playAnimation(ref, slot, anim, name, store);
+        NPCMovementHelper.playAnim(ref, slot, anim, name, store);
     }
 
-    /**
-     * Set or clear the sleeping movement state on an NPC.
-     * When sleeping=true: locks movement by disabling walk/run/sprint/jump and enabling sleeping+mounting.
-     * When sleeping=false: restores idle state and clears sleep flags.
-     */
     private void setSleepingState(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, boolean sleeping) {
-        MovementStatesComponent msc = store.getComponent(ref, MovementStatesComponent.getComponentType());
-        if (msc == null) return;
-        com.hypixel.hytale.protocol.MovementStates ms = msc.getMovementStates();
-        ms.idle = true;
-        ms.horizontalIdle = true;
-        ms.walking = false;
-        ms.running = false;
-        ms.sprinting = false;
-        ms.jumping = false;
-        ms.falling = false;
-        ms.mantling = false;
-        ms.sliding = false;
-        ms.mounting = sleeping;
-        ms.sleeping = sleeping;
-        commandBuffer.replaceComponent(ref, MovementStatesComponent.getComponentType(), msc);
+        NPCMovementHelper.setSleepingState(ref, store, commandBuffer, sleeping);
     }
 
-    /**
-     * Find the best adjacent block to stand on when approaching a bed.
-     * Checks all 4 cardinal directions and picks the standable block closest to the NPC.
-     * Falls back to the bed position itself if no standable neighbor found.
-     */
     private Vector3i getBedApproachPosition(Vector3i bedPos, TransformComponent transform, World world) {
-        Vector3i[] candidates = {
-            new Vector3i(bedPos.x + 1, bedPos.y, bedPos.z),
-            new Vector3i(bedPos.x - 1, bedPos.y, bedPos.z),
-            new Vector3i(bedPos.x, bedPos.y, bedPos.z + 1),
-            new Vector3i(bedPos.x, bedPos.y, bedPos.z - 1)
-        };
-
-        Vector3d npcPos = transform.getPosition();
-        Vector3i best = null;
-        double bestDistSq = Double.MAX_VALUE;
-
-        for (Vector3i c : candidates) {
-            boolean stand = isStandable(c, world);
-            if (!stand) continue;
-            double dx = (c.x + 0.5) - npcPos.x;
-            double dz = (c.z + 0.5) - npcPos.z;
-            double d2 = dx * dx + dz * dz;
-            if (d2 < bestDistSq) {
-                bestDistSq = d2;
-                best = c;
-            }
-        }
-
-        return best != null ? best : bedPos;
+        return NPCMovementHelper.getBedApproachPosition(bedPos, transform, world);
     }
 
-
-
-    /**
-     * Check if a position is standable: the block and the one above must be air (passable),
-     * and the block below must be solid (non-null block type).
-     */
     private boolean isStandable(Vector3i pos, World world) {
-        // Block at pos should be air (null or empty ID)
-        BlockType atPos = world.getBlockType(pos.x, pos.y, pos.z);
-        if (atPos != null && atPos.getId() != null && !atPos.getId().equalsIgnoreCase("Empty")) {
-           // System.out.println("[SimTale-DEBUG] isStandable(" + pos.x + "," + pos.y + "," + pos.z + ") failed: atPos='" + atPos.getId() + "'");
-            return false;
-        }
-
-        // Block above should be air too (space for entity)
-        BlockType above = world.getBlockType(pos.x, pos.y + 1, pos.z);
-        if (above != null && above.getId() != null && !above.getId().equalsIgnoreCase("Empty")) {
-            //System.out.println("[SimTale-DEBUG] isStandable(" + pos.x + "," + pos.y + "," + pos.z + ") failed: above='" + above.getId() + "'");
-            return false;
-        }
-
-        // Block below should be solid (not air)
-        BlockType below = world.getBlockType(pos.x, pos.y - 1, pos.z);
-        //   System.out.println("[SimTale-DEBUG] isStandable(" + pos.x + "," + pos.y + "," + pos.z + ") failed: below=" + (below != null ? below.getId() : "null"));
-        return below != null && below.getId() != null && !below.getId().equalsIgnoreCase("Empty");
+        return NPCMovementHelper.isStandable(pos, world);
     }
 
     private static boolean validateAndClaimBed(World world, BedPos bestBed, SimNPCComponent npc) {
-        HouseBlockPos houseBed = new HouseBlockPos(bestBed.x, bestBed.y, bestBed.z);
-        HouseManager.ScanReport report = HouseManager.scanAndClassify(world, houseBed, npc.entityId);
-        if (report.outcome == HouseManager.ScanOutcome.NEW_HOUSE_SINGLE_OWNER || 
-            report.outcome == HouseManager.ScanOutcome.NEW_HOUSE_MULTI_OWNER) {
-            
-            HouseData house = new HouseData(
-                UUID.randomUUID(), 
-                report.freshBedOwners, 
-                houseBed, 
-                report.raw.interiorBlocks, 
-                report.raw.doorBlocks, 
-                report.raw.chestBlocks
-            );
-            HouseManager.registerHouse(house);
-            
-            npc.bedLocation = bestBed;
-            npc.family.homeX = bestBed.x;
-            npc.family.homeY = bestBed.y;
-            npc.family.homeZ = bestBed.z;
-            npc.family.hasSharedHome = true;
-            SimNPCPersistence.saveNPC(npc);
-            LOGGER.info("[SimTale] NPC '{}' registrou e validou com sucesso sua casa na cama ({},{},{})!", npc.name, bestBed.x, bestBed.y, bestBed.z);
-            return true;
-        } else {
-            LOGGER.warn("[SimTale] Cama ({},{},{}) para o NPC '{}' foi rejeitada: a casa candidata e invalida ({})", 
-                        bestBed.x, bestBed.y, bestBed.z, npc.name, report.outcome);
-            return false;
-        }
+        return HouseManager.validateAndClaimBed(world, bestBed, npc);
     }
 }

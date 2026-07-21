@@ -448,4 +448,35 @@ public class HouseManager {
 
         return Message.translation("simtale.house.check.incomplete").insert(missingList);
     }
+
+    public static boolean validateAndClaimBed(World world, com.cookieukw.SimTale.db.SimBedData.BedPos bestBed, SimNPCComponent npc) {
+        HouseBlockPos houseBed = new HouseBlockPos(bestBed.x, bestBed.y, bestBed.z);
+        ScanReport report = scanAndClassify(world, houseBed, npc.entityId);
+        if (report.outcome == ScanOutcome.NEW_HOUSE_SINGLE_OWNER || 
+            report.outcome == ScanOutcome.NEW_HOUSE_MULTI_OWNER) {
+            
+            HouseData house = new HouseData(
+                UUID.randomUUID(), 
+                report.freshBedOwners, 
+                houseBed, 
+                report.raw.interiorBlocks, 
+                report.raw.doorBlocks, 
+                report.raw.chestBlocks
+            );
+            registerHouse(house);
+            
+            npc.bedLocation = bestBed;
+            npc.family.homeX = bestBed.x;
+            npc.family.homeY = bestBed.y;
+            npc.family.homeZ = bestBed.z;
+            npc.family.hasSharedHome = true;
+            com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
+            LOGGER.info("[SimTale] NPC '{}' registrou e validou com sucesso sua casa na cama ({},{},{})!", npc.name, bestBed.x, bestBed.y, bestBed.z);
+            return true;
+        } else {
+            LOGGER.warn("[SimTale] Cama ({},{},{}) para o NPC '{}' foi rejeitada: a casa candidata e invalida ({})", 
+                        bestBed.x, bestBed.y, bestBed.z, npc.name, report.outcome);
+            return false;
+        }
+    }
 }
