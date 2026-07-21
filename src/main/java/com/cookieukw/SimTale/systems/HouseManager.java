@@ -5,6 +5,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
 import org.slf4j.Logger;
@@ -313,10 +314,6 @@ public class HouseManager {
         return true;
     }
 
-    // ---------------------------------------------------------------------
-    // Terraria-style Furniture and Comfort Requirements
-    // ---------------------------------------------------------------------
-
     public enum FurnitureRequirement {
         LIGHT_SOURCE("torch", "lantern", "candle", "campfire", "glow"),
         SEATING("chair", "stool", "bench", "seat"),
@@ -470,7 +467,7 @@ public class HouseManager {
             npc.family.homeY = bestBed.y;
             npc.family.homeZ = bestBed.z;
             npc.family.hasSharedHome = true;
-            com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
+            SimNPCPersistence.saveNPC(npc);
             LOGGER.info("[SimTale] NPC '{}' registrou e validou com sucesso sua casa na cama ({},{},{})!", npc.name, bestBed.x, bestBed.y, bestBed.z);
             return true;
         } else {

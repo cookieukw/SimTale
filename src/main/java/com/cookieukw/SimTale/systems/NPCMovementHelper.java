@@ -5,6 +5,7 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.AnimationSlot;
+import com.hypixel.hytale.protocol.MovementStates;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
@@ -76,7 +77,7 @@ public class NPCMovementHelper {
     public static void setSleepingState(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, boolean sleeping) {
         MovementStatesComponent msc = store.getComponent(ref, MovementStatesComponent.getComponentType());
         if (msc == null) return;
-        com.hypixel.hytale.protocol.MovementStates ms = msc.getMovementStates();
+        MovementStates ms = msc.getMovementStates();
         ms.idle = true;
         ms.horizontalIdle = true;
         ms.walking = false;
