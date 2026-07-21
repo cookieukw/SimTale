@@ -45,6 +45,11 @@ Após validar a integridade física estrutural, a casa passa pelo crivo de mobí
 
 Se qualquer um desses itens obrigatórios não for detectado na varredura do interior, a casa é classificada como incompleta (`ScanOutcome.INCOMPLETE`).
 
+### Abertura Automática de Portas (Estilo Villagers)
+Para que os NPCs consigam navegar livremente até suas camas ou baús de comida sem ficarem travados por portas fechadas, o sistema possui um mecanismo gerenciado por `HouseDoorManager.java` que é chamado na rotina ativa do NPC:
+*   **Abertura (Otimizada)**: Para evitar o gargalo de performance de varrer blocos físicos ao redor de múltiplos NPCs (evitando loops com `world.getBlockType`), o NPC consulta a lista de portas pré-cadastradas de sua própria residência em `HouseData.doors`. Ele calcula apenas a distância simples 3D e, se estiver a menos de 2.0 blocos de alguma porta registrada, checa se ela está fechada (ID contendo `_closed`). Em caso positivo, abre a porta no mundo (trocando o ID do bloco para `_open`, preservando a rotação indexada) e a registra no mapa global `OPENED_DOORS_COOLDOWN` com limite de 40 ticks (2 segundos).
+*   **Fechamento**: A cada tick global do mundo, o cooldown das portas abertas é decrementado. Ao expirar o tempo, a porta é fechada (ID retornado para `_closed`) desde que não haja nenhum outro NPC ativo a menos de 2 blocos de distância da porta.
+
 ---
 
 ## 3. Decisões de Design e Por Quê

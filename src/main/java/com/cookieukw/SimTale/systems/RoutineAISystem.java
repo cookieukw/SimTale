@@ -30,6 +30,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
 import com.cookieukw.SimTale.SimTale;
@@ -114,6 +115,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         World world = Universe.get().getWorlds().values().stream().findFirst().orElse(null);
         if (world == null) return;
+
+        // --- NPC Door Interaction (Delegado ao HouseDoorManager) ---
+        HouseDoorManager.handleNpcDoors(world, npc, transform);
 
         // Ensure Frozen component is cleared if task changes externally and dialogue is inactive
         boolean hasFrozen = store.getComponent(ref, Frozen.getComponentType()) != null;
