@@ -19,9 +19,9 @@ SimTaleEventHandler intercepta o descarregamento da entidade NPC
    ↓
 Extrai os dados de SimNPCComponent para SimNPCData (estrutura POJO)
    ↓
-Chama Caskara.save(npcUuid.toString(), npcData)
+Chama SimNPCPersistence.DB_SHELL.core(SimNPCData.class).preserve(id, data)
    ↓
-Caskara grava o arquivo JSON correspondente na pasta de dados do mod
+O core do Caskara no Shell 'simtale' salva no arquivo SQLite dedicado (simtale.db)
 ```
 
 *   **`SimNPCData`**: Objeto estruturado serializável contendo a cópia das variáveis de humor, necessidades, família, memórias e preferências.
@@ -58,7 +58,7 @@ Caskara grava o arquivo JSON correspondente na pasta de dados do mod
 ## 7. Perguntas Frequentes (FAQ)
 
 ### Onde os arquivos do Caskara ficam salvos fisicamente?
-Os arquivos ficam armazenados no diretório do servidor local sob a pasta de dados do mod (geralmente sob `/data/caskara/` ou similar configurado pelo Hytale), salvos em formato de arquivos estruturados em JSON legíveis.
+Como migramos para uma Shell dedicada do SimTale, todos os dados ficam salvos em um único arquivo de banco de dados SQLite em `/data/caskara/global/simtale.db`.
 
-### O que acontece se eu apagar os arquivos JSON do Caskara com o servidor desligado?
-Todos os NPCs do SimTale serão resetados. Suas memórias, casamentos, filhos e afinidades com os jogadores voltarão ao estado padrão de desconhecido na próxima vez que o servidor for ligado e as entidades spawnarem.
+### O que acontece se eu apagar o arquivo simtale.db com o servidor desligado?
+Todos os NPCs do SimTale, camas registradas e casas serão resetados. Suas memórias, casamentos, filhos e afinidades com os jogadores voltarão ao estado padrão de desconhecido na próxima vez que o servidor for ligado.

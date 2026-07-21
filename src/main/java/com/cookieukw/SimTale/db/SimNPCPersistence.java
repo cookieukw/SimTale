@@ -6,6 +6,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookie.caskara.Caskara;
+import com.cookie.caskara.db.Shell;
 import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -24,6 +25,7 @@ import java.util.UUID;
  * Handles persistence for SimTale NPCs using the Caskara database.
  */
 public class SimNPCPersistence {
+    public static final Shell DB_SHELL = Caskara.shell("simtale");
 
     public static void saveNPC(SimNPCComponent component) {
         if (component.entityId == null)
@@ -53,14 +55,14 @@ public class SimNPCPersistence {
         data.emotionSource = component.emotionSource;
         data.lastEmotionChangeTick = component.lastEmotionChangeTick;
 
-        Caskara.save(component.entityId.toString(), data);
+        DB_SHELL.core(SimNPCData.class).preserve(component.entityId.toString(), data);
     }
 
     public static void loadNPC(SimNPCComponent component) {
         if (component.entityId == null)
             return;
 
-        SimNPCData data = Caskara.load(component.entityId.toString(), SimNPCData.class);
+        SimNPCData data = DB_SHELL.core(SimNPCData.class).extract(component.entityId.toString()).sync().orElse(null);
         if (data != null) {
             component.name = data.name;
             component.personality = data.personality;
@@ -118,7 +120,7 @@ public class SimNPCPersistence {
     public static List<SimNPCComponent> loadAllNPCs() {
         List<SimNPCComponent> result = new ArrayList<>();
         try {
-            List<SimNPCData> allData = Caskara.list(SimNPCData.class);
+            List<SimNPCData> allData = DB_SHELL.core(SimNPCData.class).extractAll();
             if (allData != null) {
                 for (SimNPCData data : allData) {
                     if (data.id == null) continue;

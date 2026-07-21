@@ -15,7 +15,7 @@ public class SimPlayerPersistence {
     public static void savePlayer(SimPlayerComponent component) {
         if (component == null || component.playerUuid == null) return;
         try {
-            Caskara.save("player_" + component.playerUuid.toString(), component);
+            SimNPCPersistence.DB_SHELL.core(SimPlayerComponent.class).preserve("player_" + component.playerUuid.toString(), component);
         } catch (Exception e) {
             LOGGER.atWarning().log("SimTale: Failed to save player data: " + e.getMessage());
         }
@@ -24,7 +24,7 @@ public class SimPlayerPersistence {
     public static SimPlayerComponent loadPlayer(UUID playerUuid) {
         if (playerUuid == null) return null;
         try {
-            SimPlayerComponent comp = Caskara.load("player_" + playerUuid.toString(), SimPlayerComponent.class);
+            SimPlayerComponent comp = SimNPCPersistence.DB_SHELL.core(SimPlayerComponent.class).extract("player_" + playerUuid.toString()).sync().orElse(null);
             if (comp != null) {
                 comp.playerUuid = playerUuid;
                 return comp;

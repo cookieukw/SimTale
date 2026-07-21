@@ -71,7 +71,7 @@ public class HouseManager {
         OWNER_TO_HOUSE_ID.clear();
 
         try {
-            List<HouseData> list = Caskara.list(HouseData.class);
+            List<HouseData> list = SimNPCPersistence.DB_SHELL.core(HouseData.class).extractAll();
             if (list != null) {
                 for (HouseData house : list) {
                     if (house.houseId == null) continue;
@@ -97,7 +97,7 @@ public class HouseManager {
 
     public static void saveHouse(HouseData house) {
         if (house == null || house.houseId == null) return;
-        Caskara.save("house_" + house.houseId, house);
+        SimNPCPersistence.DB_SHELL.core(HouseData.class).preserve("house_" + house.houseId, house);
     }
 
     public static void deleteHouse(UUID houseId) {
@@ -112,7 +112,7 @@ public class HouseManager {
                     OWNER_TO_HOUSE_ID.remove(ownerId);
                 } catch (Exception ignored) {}
             }
-            Caskara.delete("house_" + houseId.toString(), HouseData.class);
+            SimNPCPersistence.DB_SHELL.core(HouseData.class).discard("house_" + houseId.toString());
             LOGGER.info("[SimTale] Casa {} deletada.", houseId);
         }
     }
