@@ -7,7 +7,8 @@ import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
-
+import com.cookieukw.SimTale.db.SimNPCData;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareData;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
 
@@ -56,27 +57,27 @@ public class SimTaleTests {
         com.cookie.caskara.Caskara.init(testFolder);
         
         // Valida instanciamento do Shell do SimTale
-        assertEqual(com.cookieukw.SimTale.db.SimNPCPersistence.DB_SHELL != null, true, "DB_SHELL deve estar instanciado");
-        assertEqual(com.cookieukw.SimTale.db.SimNPCPersistence.DB_SHELL.getFile().getName(), "simtale.db", "Nome do banco");
+        assertEqual(SimNPCPersistence.DB_SHELL != null, true, "DB_SHELL deve estar instanciado");
+        assertEqual(SimNPCPersistence.DB_SHELL.getFile().getName(), "simtale.db", "Nome do banco");
 
         // Prepara dados fictícios
         UUID npcId = UUID.randomUUID();
-        com.cookieukw.SimTale.db.SimNPCData npcData = new com.cookieukw.SimTale.db.SimNPCData();
+        SimNPCData npcData = new SimNPCData();
         npcData.id = npcId.toString();
         npcData.name = "Test NPC Name";
 
         // Grava no Core de SimNPCData do DB_SHELL
-        String savedId = com.cookieukw.SimTale.db.SimNPCPersistence.DB_SHELL.core(com.cookieukw.SimTale.db.SimNPCData.class).preserve(npcId.toString(), npcData);
+        String savedId = SimNPCPersistence.DB_SHELL.core(SimNPCData.class).preserve(npcId.toString(), npcData);
         assertEqual(savedId, npcId.toString(), "ID retornado pelo salvamento");
 
         // Carrega do Core
-        com.cookieukw.SimTale.db.SimNPCData loaded = com.cookieukw.SimTale.db.SimNPCPersistence.DB_SHELL.core(com.cookieukw.SimTale.db.SimNPCData.class).extract(npcId.toString()).sync().orElse(null);
+        SimNPCData loaded = SimNPCPersistence.DB_SHELL.core(SimNPCData.class).extract(npcId.toString()).sync().orElse(null);
         assertEqual(loaded != null, true, "NPC carregado");
         assertEqual(loaded.name, "Test NPC Name", "Validação do nome gravado");
 
         // Deleta
-        com.cookieukw.SimTale.db.SimNPCPersistence.DB_SHELL.core(com.cookieukw.SimTale.db.SimNPCData.class).discard(npcId.toString());
-        com.cookieukw.SimTale.db.SimNPCData deleted = com.cookieukw.SimTale.db.SimNPCPersistence.DB_SHELL.core(com.cookieukw.SimTale.db.SimNPCData.class).extract(npcId.toString()).sync().orElse(null);
+        SimNPCPersistence.DB_SHELL.core(SimNPCData.class).discard(npcId.toString());
+        SimNPCData deleted = SimNPCPersistence.DB_SHELL.core(SimNPCData.class).extract(npcId.toString()).sync().orElse(null);
         assertEqual(deleted == null, true, "NPC removido do banco");
 
         System.out.println("OK");
