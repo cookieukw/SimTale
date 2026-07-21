@@ -19,17 +19,18 @@ Bem-vindo à documentação oficial do mod **SimTale** em formato de monografia 
 8.  **[InteractionManager e IA Generativa](sistemas/interacoes-jogador-npc.md)**: Interações sociais baseadas em cadeias funcionais de regras (Rules Engine) e chamadas assíncronas para LLMs.
 9.  **[ConstructionHelper e Previews](sistemas/construction-helper.md)**: Renderização de ghosts de construções, compressão de coordenadas em longs e a prova matemática de otimização de cantos (8 ➔ 4).
 10. **[Persistência Caskara](sistemas/persistencia-db.md)**: Como os dados estruturados em JSON são gravados e restaurados de forma transparente.
+11. **[Reconhecimento de Casas](sistemas/reconhecimento-casas.md)**: Algoritmo de flood fill 3D, verificação de mobílias (Terraria-style) e segurança de baús.
 
 ---
 
 ## 🎨 Assets e Scripts Auxiliares
-11. **[Modelo do Bebê Swaddle](assets/baby-swaddle.md)**: Otimização de caixas 3D e atlas de textura no Blockbench.
-12. **[Redimensionamento de Nodes (Python)](assets/cosmeticos-node-scales.md)**: Como deformamos acessórios e roupas de adultos para proporções de crianças.
+12. **[Modelo do Bebê Swaddle](assets/baby-swaddle.md)**: Otimização de caixas 3D e atlas de textura no Blockbench.
+13. **[Redimensionamento de Nodes (Python)](assets/cosmeticos-node-scales.md)**: Como deformamos acessórios e roupas de adultos para proporções de crianças.
 
 ---
 
 ## 📜 Histórico e Referências Rápidas
-13. **[FAQ e Perguntas Rápidas](perguntas-rapidas.md)**: O principal guia de respostas curtas sobre o funcionamento geral do mod.
-14. **[Bugs Históricos Resolvidos](historico/bugs-resolvidos.md)**: Changelog com problemas graves de performance, duplicação e navegação corrigidos no projeto.
-15. **[Decisões de Design (ADRs)](historico/decisoes-arquiteturais.md)**: Justificativa de escolhas arquiteturais fundamentais do projeto.
-16. **[Glossário de Termos](glossario.md)**: Lista de definições rápidas para conceitos do mod (ex: Leash Point, Plumbob, etc.).
+14. **[FAQ e Perguntas Rápidas](perguntas-rapidas.md)**: O principal guia de respostas curtas sobre o funcionamento geral do mod.
+15. **[Bugs Históricos Resolvidos](historico/bugs-resolvidos.md)**: Changelog com problemas graves de performance, duplicação e navegação corrigidos no projeto.
+16. **[Decisões de Design (ADRs)](historico/decisoes-arquiteturais.md)**: Justificativa de escolhas arquiteturais fundamentais do projeto.
+17. **[Glossário de Termos](glossario.md)**: Lista de definições rápidas para conceitos do mod (ex: Leash Point, Plumbob, etc.).

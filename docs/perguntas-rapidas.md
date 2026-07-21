@@ -55,3 +55,13 @@
 
 ### 15. Como o sistema de relacionamento gerencia casamentos?
 **Resposta**: Quando a afinidade e o romance estão altos (afinidade >= 500, romance >= 80) e o jogador presenteia a aliança (`simtale:wedding_ring`), o casamento é aceito. O NPC cônjuge passa a morar com o jogador (compartilha a coordenada da cama de casal), altera suas falas de boas-vindas para românticas e ajuda ativamente a carregar e cuidar do bebê.
+
+### 16. Como funciona a checklist de mobília (estilo Terraria) para validar a casa?
+**Resposta**: Após a validação estrutural (paredes e tetos fechados), o mod varre os blocos internos de ar buscando mobílias específicas. Para ser habitável, a casa deve conter pelo menos uma **fonte de luz** (tochas, lanternas, velas), um **assento** (cadeiras, banquetas) e uma **superfície** (mesas, bancadas de trabalho). Também exige-se um volume livre interno de no mínimo 15 blocos.
+
+### 17. O que acontece se uma cama for reivindicada em uma casa considerada incompleta ou inválida?
+**Resposta**: O `RoutineAISystem` rejeita o registro da cama se a casa falhar em requisitos estruturais (como brechas na parede ou conflitos de espaço com vizinhos). O NPC libera a cama, volta a procurar outro abrigo válido e dispara logs de aviso informando que a cama candidata foi rejeitada.
+
+### 18. Como posso testar se uma casa é considerada válida in-game?
+**Resposta**: Os jogadores e administradores podem usar o comando de console `/simtale housecheck`. O sistema localiza a cama registrada mais próxima do executor da mensagem (raio de 16 blocos) e retorna no chat do jogo um relatório localizado em tempo real listando as pendências estruturais ou o que falta de mobília.
+
