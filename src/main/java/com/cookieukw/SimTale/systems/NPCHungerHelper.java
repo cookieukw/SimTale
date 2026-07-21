@@ -31,17 +31,26 @@ public class NPCHungerHelper {
             Store<EntityStore> store, 
             CommandBuffer<EntityStore> commandBuffer
     ) {
-        // --- FINDING_FOOD (Otimizado por Registro da Própria Casa) ---
+        // --- FINDING_FOOD (Otimizado por ChestRegistry) ---
         if (ai.currentTask == TaskType.FINDING_FOOD && world.getTick() - ai.taskStartTime >= FOOD_SEARCH_COOLDOWN_TICKS) {
             ai.taskStartTime = world.getTick();
+            Vector3d pos = transform.getPosition();
             
             HouseBlockPos closestChest = null;
-            UUID houseId = HouseManager.OWNER_TO_HOUSE_ID.get(npc.entityId);
-            if (houseId != null) {
-                HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
-                if (house != null && house.chests != null && !house.chests.isEmpty()) {
-                    // Pega o primeiro baú cadastrado da própria casa do NPC
-                    closestChest = house.chests.iterator().next();
+            double minChestDistSq = Double.MAX_VALUE;
+
+            synchronized (ChestRegistry.CHESTS) {
+                for (HouseBlockPos chestPos : ChestRegistry.CHESTS) {
+                    double dx = pos.x - (chestPos.x + 0.5);
+                    double dy = pos.y - (chestPos.y + 0.5);
+                    double dz = pos.z - (chestPos.z + 0.5);
+                    double distSq = dx*dx + dy*dy + dz*dz;
+                    if (distSq <= 10.0 * 10.0 && distSq < minChestDistSq) {
+                        if (HouseManager.canOpenChest(npc.entityId, chestPos)) {
+                            minChestDistSq = distSq;
+                            closestChest = chestPos;
+                        }
+                    }
                 }
             }
 
@@ -69,7 +78,6 @@ public class NPCHungerHelper {
             }
         }
 
-        // --- EATING ---
         if (ai.currentTask == TaskType.EATING) {
             if (world.getTick() - ai.taskStartTime == 1) {
                 NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Eat.blockyanim", "Eat", store);
