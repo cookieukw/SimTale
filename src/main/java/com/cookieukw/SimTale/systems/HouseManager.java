@@ -75,18 +75,8 @@ public class HouseManager {
             if (list != null) {
                 for (HouseData house : list) {
                     if (house.houseId == null) continue;
-                    UUID houseId = UUID.fromString(house.houseId);
-                    HOUSES_BY_ID.put(houseId, house);
-
-                    for (HouseBlockPos pos : house.interior) {
-                        BLOCK_TO_HOUSE_ID.put(pos, houseId);
-                    }
-                    for (String ownerStr : house.owners) {
-                        try {
-                            UUID ownerId = UUID.fromString(ownerStr);
-                            OWNER_TO_HOUSE_ID.put(ownerId, houseId);
-                        } catch (Exception ignored) {}
-                    }
+                    HOUSES_BY_ID.put(UUID.fromString(house.houseId), house);
+                    indexHouse(house);
                 }
                 LOGGER.info("[SimTale] Carregadas {} casas com sucesso da persistência Caskara", HOUSES_BY_ID.size());
             }
@@ -103,15 +93,7 @@ public class HouseManager {
     public static void deleteHouse(UUID houseId) {
         HouseData house = HOUSES_BY_ID.remove(houseId);
         if (house != null) {
-            for (HouseBlockPos pos : house.interior) {
-                BLOCK_TO_HOUSE_ID.remove(pos);
-            }
-            for (String ownerStr : house.owners) {
-                try {
-                    UUID ownerId = UUID.fromString(ownerStr);
-                    OWNER_TO_HOUSE_ID.remove(ownerId);
-                } catch (Exception ignored) {}
-            }
+            unindexHouse(house);
             SimNPCPersistence.DB_SHELL.core(HouseData.class).discard("house_" + houseId.toString());
             LOGGER.info("[SimTale] Casa {} deletada.", houseId);
         }
@@ -120,16 +102,33 @@ public class HouseManager {
     public static void registerHouse(HouseData house) {
         UUID houseId = UUID.fromString(house.houseId);
         HOUSES_BY_ID.put(houseId, house);
+        indexHouse(house);
+        saveHouse(house);
+    }
+
+    /** Populates BLOCK_TO_HOUSE_ID and OWNER_TO_HOUSE_ID from a house's interior/owners. */
+    private static void indexHouse(HouseData house) {
+        UUID houseId = UUID.fromString(house.houseId);
         for (HouseBlockPos pos : house.interior) {
             BLOCK_TO_HOUSE_ID.put(pos, houseId);
         }
         for (String ownerStr : house.owners) {
             try {
-                UUID ownerId = UUID.fromString(ownerStr);
-                OWNER_TO_HOUSE_ID.put(ownerId, houseId);
+                OWNER_TO_HOUSE_ID.put(UUID.fromString(ownerStr), houseId);
             } catch (Exception ignored) {}
         }
-        saveHouse(house);
+    }
+
+    /** Reverses {@link #indexHouse}: removes a house's interior/owners from the lookup maps. */
+    private static void unindexHouse(HouseData house) {
+        for (HouseBlockPos pos : house.interior) {
+            BLOCK_TO_HOUSE_ID.remove(pos);
+        }
+        for (String ownerStr : house.owners) {
+            try {
+                OWNER_TO_HOUSE_ID.remove(UUID.fromString(ownerStr));
+            } catch (Exception ignored) {}
+        }
     }
 
     public static HouseScanResult scanHouseFromBed(World world, HouseBlockPos bedPos) {
@@ -219,7 +218,7 @@ public class HouseManager {
                     freshOwners.add(bedOwner);
                 }
             } else {
-                UUID myHouseId = getHouseIdForBed(bedPos);
+                UUID myHouseId = getHouseIdByBedPos(bedPos);
                 if (myHouseId == null || !existingHouseId.equals(myHouseId)) {
                     return new ScanReport(ScanOutcome.MERGED_INTO_EXISTING, Set.of(), existingHouseId, raw);
                 }
@@ -266,10 +265,6 @@ public class HouseManager {
             }
         }
         return null;
-    }
-
-    private static UUID getHouseIdForBed(HouseBlockPos pos) {
-        return getHouseIdByBedPos(pos);
     }
 
     private static List<HouseBlockPos> get6Neighbors(HouseBlockPos pos) {
