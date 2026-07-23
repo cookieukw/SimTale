@@ -26,14 +26,50 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.component.RemoveReason;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 
 public class NPCWorkHelper {
 
     private static final int GATHER_WORK_DURATION_TICKS = 40; // 2 seconds
+    private static final double WORK_REACH_DISTANCE_SQ = 2.5 * 2.5;
+
+    private static final String ANIM_WALK = "Characters/Animations/Actions/Walk.blockyanim";
+    private static final String ANIM_SMITH = "Characters/Animations/Actions/Smith.blockyanim";
+    private static final String ANIM_IDLE = "Characters/Animations/Actions/Idle.blockyanim";
+
+    // keyword -> value, checked in insertion order; falls back to the first entry's value if nothing matches
+    private static final Map<String, String> CROP_TO_FOOD = orderedMap(
+            "carrot", "hytale:food_carrot",
+            "wheat", "hytale:food_bread",
+            "tomato", "hytale:food_tomato",
+            "corn", "hytale:food_corn"
+    );
+
+    private static final Map<String, String> CROP_TO_SEED = orderedMap(
+            "carrot", "hytale:Plant_Seeds_Carrot",
+            "wheat", "hytale:Plant_Seeds_Wheat",
+            "tomato", "hytale:Plant_Seeds_Tomato",
+            "corn", "hytale:Plant_Seeds_Corn"
+    );
+
+    private static final Map<String, String> SEED_TO_CROP_BLOCK = orderedMap(
+            "carrot", "hytale:Plant_Crop_Carrot_Block",
+            "wheat", "hytale:Plant_Crop_Wheat_Block",
+            "tomato", "hytale:Plant_Crop_Tomato_Block",
+            "corn", "hytale:Plant_Crop_Corn_Block"
+    );
+
+    private static final Map<String, String> ANIMAL_TO_MEAT = orderedMap(
+            "pig", "hytale:food_pork_raw",
+            "cow", "hytale:food_beef_raw",
+            "bull", "hytale:food_beef_raw",
+            "chicken", "hytale:food_chicken_raw",
+            "hen", "hytale:food_chicken_raw"
+    );
 
     public static void handleWorkLogic(
             Ref<EntityStore> ref,
@@ -46,19 +82,8 @@ public class NPCWorkHelper {
     ) {
         // Evaluate Transition to Work/Deposit from IDLE
         if (ai.currentTask == TaskType.IDLE && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER)) {
-            // Check if NPC has items to deposit
-            InventoryComponent.Storage storage = store.getComponent(ref, InventoryComponent.Storage.getComponentType());
-            boolean hasItemsToDeposit = false;
-            if (storage != null && storage.getInventory() != null) {
-                ItemContainer container = storage.getInventory();
-                for (short slot = 0; slot < container.getCapacity(); slot++) {
-                    ItemStack item = container.getItemStack(slot);
-                    if (item != null && !item.isEmpty()) {
-                        hasItemsToDeposit = true;
-                        break;
-                    }
-                }
-            }
+            ItemContainer inventory = getInventory(store, ref);
+            boolean hasItemsToDeposit = hasAnyItem(inventory);
 
             if (hasItemsToDeposit) {
                 // Find a chest owned by NPC to deposit items
@@ -66,7 +91,7 @@ public class NPCWorkHelper {
                 if (depositChest != null) {
                     ai.targetBlockPosition = new Vector3i(depositChest.x, depositChest.y, depositChest.z);
                     ai.currentTask = TaskType.MOVING_TO_DEPOSIT;
-                    NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                    playWalk(ref, store);
                     return;
                 }
             }
@@ -80,17 +105,15 @@ public class NPCWorkHelper {
                     if (cropPos != null) {
                         ai.targetBlockPosition = cropPos;
                         ai.currentTask = TaskType.MOVING_TO_WORK;
-                        NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                        playWalk(ref, store);
                     } else {
-                        if (storage != null && storage.getInventory() != null) {
-                            String seed = findSeedInInventory(storage.getInventory());
-                            if (seed != null) {
-                                Vector3i farmPos = scanForFarmland(transform.getPosition(), world);
-                                if (farmPos != null) {
-                                    ai.targetBlockPosition = farmPos;
-                                    ai.currentTask = TaskType.MOVING_TO_WORK;
-                                    NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
-                                }
+                        String seed = findSeedInInventory(inventory);
+                        if (seed != null) {
+                            Vector3i farmPos = scanForFarmland(transform.getPosition(), world);
+                            if (farmPos != null) {
+                                ai.targetBlockPosition = farmPos;
+                                ai.currentTask = TaskType.MOVING_TO_WORK;
+                                playWalk(ref, store);
                             }
                         }
                     }
@@ -98,12 +121,12 @@ public class NPCWorkHelper {
                     // Scan for animals
                     Ref<EntityStore> animalRef = scanForAnimals(transform.getPosition(), store);
                     if (animalRef != null && animalRef.isValid()) {
-                        UUIDComponent uuidComp = 
+                        UUIDComponent uuidComp =
                             animalRef.getStore().getComponent(animalRef, com.hypixel.hytale.server.core.entity.UUIDComponent.getComponentType());
                         if (uuidComp != null) {
                             ai.workTargetEntityId = uuidComp.getUuid();
                             ai.currentTask = TaskType.MOVING_TO_WORK;
-                            NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                            playWalk(ref, store);
                         }
                     }
                 }
@@ -115,9 +138,7 @@ public class NPCWorkHelper {
             Vector3d npcPos = transform.getPosition();
             if (npc.profession == Profession.FARMER) {
                 if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
-                double dx = (ai.targetBlockPosition.x + 0.5) - npcPos.x;
-                double dz = (ai.targetBlockPosition.z + 0.5) - npcPos.z;
-                if (dx*dx + dz*dz < 2.5 * 2.5) {
+                if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5, WORK_REACH_DISTANCE_SQ)) {
                     NPCMovementHelper.clearMoveTarget(ref, ai);
                     // Determine if harvesting or planting
                     BlockType blockType = world.getBlockType(ai.targetBlockPosition.x, ai.targetBlockPosition.y, ai.targetBlockPosition.z);
@@ -141,9 +162,7 @@ public class NPCWorkHelper {
                 if (animalTrans == null) { ai.currentTask = TaskType.IDLE; return; }
                 Vector3d animalPos = animalTrans.getPosition();
 
-                double dx = animalPos.x - npcPos.x;
-                double dz = animalPos.z - npcPos.z;
-                if (dx*dx + dz*dz < 2.5 * 2.5) {
+                if (isNear(npcPos, animalPos.x, animalPos.z, WORK_REACH_DISTANCE_SQ)) {
                     NPCMovementHelper.clearMoveTarget(ref, ai);
                     ai.currentTask = TaskType.HUNTING;
                     ai.taskStartTime = world.getTick();
@@ -157,7 +176,7 @@ public class NPCWorkHelper {
         if (ai.currentTask == TaskType.FARMING) {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
             if (world.getTick() - ai.taskStartTime == 1) {
-                NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Smith.blockyanim", "Smith", store);
+                playSmith(ref, store);
             }
 
             if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
@@ -170,22 +189,21 @@ public class NPCWorkHelper {
                     CropRegistry.removeAt(cropPos.x, cropPos.y, cropPos.z);
 
                     // Map to food item & seed item
-                    String meatOrVeg = getCropItem(cropId);
-                    String seedItem = getSeedItem(cropId);
-                    InventoryComponent.Storage storage = store.getComponent(ref, InventoryComponent.Storage.getComponentType());
-                    if (storage != null && storage.getInventory() != null) {
-                        ItemContainer inv = storage.getInventory();
+                    String meatOrVeg = lookup(CROP_TO_FOOD, cropId, "hytale:food_carrot");
+                    String seedItem = lookup(CROP_TO_SEED, cropId, "hytale:Plant_Seeds_Carrot");
+                    ItemContainer inv = getInventory(store, ref);
+                    if (inv != null) {
                         inv.addItemStack(new ItemStack(meatOrVeg, 1));
-                        
+
                         // 100% chance to drop 1-2 seeds
                         int seedAmount = 1 + (int)(Math.random() * 2);
                         inv.addItemStack(new ItemStack(seedItem, seedAmount));
-                        
+
                         System.out.println("[SimTale] Farmer NPC " + npc.name + " harvested crop: " + cropId + " (gained " + seedAmount + " seeds)");
                     }
                 }
                 ai.currentTask = TaskType.IDLE;
-                NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                playIdleAnim(ref, store);
             }
         }
 
@@ -193,14 +211,13 @@ public class NPCWorkHelper {
         if (ai.currentTask == TaskType.PLANTING) {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
             if (world.getTick() - ai.taskStartTime == 1) {
-                NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Smith.blockyanim", "Smith", store);
+                playSmith(ref, store);
             }
 
             if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
                 Vector3i plantPos = ai.targetBlockPosition;
-                InventoryComponent.Storage storage = store.getComponent(ref, InventoryComponent.Storage.getComponentType());
-                if (storage != null && storage.getInventory() != null) {
-                    ItemContainer inv = storage.getInventory();
+                ItemContainer inv = getInventory(store, ref);
+                if (inv != null) {
                     String seed = findSeedInInventory(inv);
                     if (seed != null) {
                         short slot = findSeedSlot(inv, seed);
@@ -213,7 +230,7 @@ public class NPCWorkHelper {
                     }
                 }
                 ai.currentTask = TaskType.IDLE;
-                NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                playIdleAnim(ref, store);
             }
         }
 
@@ -221,7 +238,7 @@ public class NPCWorkHelper {
         if (ai.currentTask == TaskType.HUNTING) {
             if (ai.workTargetEntityId == null) { ai.currentTask = TaskType.IDLE; return; }
             if (world.getTick() - ai.taskStartTime == 1) {
-                NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Smith.blockyanim", "Smith", store);
+                playSmith(ref, store);
             }
 
             if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
@@ -230,22 +247,22 @@ public class NPCWorkHelper {
                     PersistentModel pm = animalRef.getStore().getComponent(animalRef, PersistentModel.getComponentType());
                     if (pm != null && pm.getModelReference() != null) {
                         String modelId = pm.getModelReference().getModelAssetId();
-                        String meatId = getAnimalMeat(modelId);
-                        
+                        String meatId = lookup(ANIMAL_TO_MEAT, modelId, "hytale:food_wildmeat_raw");
+
                         // Destroy animal
                         animalRef.getStore().removeEntity(animalRef, RemoveReason.REMOVE);
 
                         // Put meat in storage
-                        InventoryComponent.Storage storage = store.getComponent(ref, InventoryComponent.Storage.getComponentType());
-                        if (storage != null && storage.getInventory() != null) {
-                            storage.getInventory().addItemStack(new ItemStack(meatId, 1));
+                        ItemContainer inv = getInventory(store, ref);
+                        if (inv != null) {
+                            inv.addItemStack(new ItemStack(meatId, 1));
                         }
                         System.out.println("[SimTale] Hunter NPC " + npc.name + " hunted animal: " + modelId);
                     }
                 }
                 ai.workTargetEntityId = null;
                 ai.currentTask = TaskType.IDLE;
-                NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                playIdleAnim(ref, store);
             }
         }
 
@@ -253,19 +270,16 @@ public class NPCWorkHelper {
         if (ai.currentTask == TaskType.MOVING_TO_DEPOSIT) {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
             Vector3d npcPos = transform.getPosition();
-            double dx = (ai.targetBlockPosition.x + 0.5) - npcPos.x;
-            double dz = (ai.targetBlockPosition.z + 0.5) - npcPos.z;
-            if (dx*dx + dz*dz < 2.5 * 2.5) {
+            if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5, WORK_REACH_DISTANCE_SQ)) {
                 NPCMovementHelper.clearMoveTarget(ref, ai);
-                
+
                 // Deposit items to chest
                 Vector3i chestPos = ai.targetBlockPosition;
                 ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, chestPos.x, chestPos.y, chestPos.z);
                 if (cb != null && cb.getItemContainer() != null) {
                     ItemContainer chestInv = cb.getItemContainer();
-                    InventoryComponent.Storage storage = store.getComponent(ref, InventoryComponent.Storage.getComponentType());
-                    if (storage != null && storage.getInventory() != null) {
-                        ItemContainer npcInv = storage.getInventory();
+                    ItemContainer npcInv = getInventory(store, ref);
+                    if (npcInv != null) {
                         for (short slot = 0; slot < npcInv.getCapacity(); slot++) {
                             ItemStack item = npcInv.getItemStack(slot);
                             if (item != null && !item.isEmpty()) {
@@ -282,6 +296,64 @@ public class NPCWorkHelper {
             }
         }
     }
+
+    // ── Animation shortcuts ──────────────────────────────────────────────────
+
+    private static void playWalk(Ref<EntityStore> ref, Store<EntityStore> store) {
+        NPCMovementHelper.playAnim(ref, ANIM_WALK, "Walk", store);
+    }
+
+    private static void playSmith(Ref<EntityStore> ref, Store<EntityStore> store) {
+        NPCMovementHelper.playAnim(ref, ANIM_SMITH, "Smith", store);
+    }
+
+    private static void playIdleAnim(Ref<EntityStore> ref, Store<EntityStore> store) {
+        NPCMovementHelper.playAnim(ref, ANIM_IDLE, "Idle", store);
+    }
+
+    // ── Inventory / proximity helpers ────────────────────────────────────────
+
+    private static ItemContainer getInventory(Store<EntityStore> store, Ref<EntityStore> ref) {
+        InventoryComponent.Storage storage = store.getComponent(ref, InventoryComponent.Storage.getComponentType());
+        return (storage != null) ? storage.getInventory() : null;
+    }
+
+    private static boolean hasAnyItem(ItemContainer container) {
+        if (container == null) return false;
+        for (short slot = 0; slot < container.getCapacity(); slot++) {
+            ItemStack item = container.getItemStack(slot);
+            if (item != null && !item.isEmpty()) return true;
+        }
+        return false;
+    }
+
+    /** @param maxDistSq already squared (e.g. reach*reach) — kept this way to match call-site constants. */
+    private static boolean isNear(Vector3d pos, double targetX, double targetZ, double maxDistSq) {
+        double dx = targetX - pos.x;
+        double dz = targetZ - pos.z;
+        return dx * dx + dz * dz < maxDistSq;
+    }
+
+    // ── Crop / seed / animal keyword lookups ─────────────────────────────────
+
+    private static Map<String, String> orderedMap(String... pairs) {
+        Map<String, String> map = new LinkedHashMap<>();
+        for (int i = 0; i < pairs.length; i += 2) {
+            map.put(pairs[i], pairs[i + 1]);
+        }
+        return map;
+    }
+
+    /** Returns the value of the first entry whose key is contained in {@code id} (case-insensitive), or {@code fallback}. */
+    private static String lookup(Map<String, String> table, String id, String fallback) {
+        String lower = id.toLowerCase();
+        for (Map.Entry<String, String> entry : table.entrySet()) {
+            if (lower.contains(entry.getKey())) return entry.getValue();
+        }
+        return fallback;
+    }
+
+    // ── Scanning helpers ──────────────────────────────────────────────────────
 
     private static HouseBlockPos findHomeChest(SimNPCComponent npc, World world) {
         synchronized (ChestRegistry.CHESTS) {
@@ -314,7 +386,7 @@ public class NPCWorkHelper {
 
     private static Ref<EntityStore> scanForAnimals(Vector3d center, Store<EntityStore> store) {
         try {
-            SpatialResource<Ref<EntityStore>, EntityStore> spatial = 
+            SpatialResource<Ref<EntityStore>, EntityStore> spatial =
                 store.getResource(EntityModule.get().getEntitySpatialResourceType());
             if (spatial == null || spatial.getSpatialStructure() == null) return null;
 
@@ -326,7 +398,7 @@ public class NPCWorkHelper {
                 PersistentModel pm = target.getStore().getComponent(target, PersistentModel.getComponentType());
                 if (pm != null && pm.getModelReference() != null) {
                     String modelId = pm.getModelReference().getModelAssetId().toLowerCase();
-                    if (modelId.contains("creature") && 
+                    if (modelId.contains("creature") &&
                         (modelId.contains("pig") || modelId.contains("sheep") || modelId.contains("cow") || modelId.contains("chicken") || modelId.contains("hen") || modelId.contains("goat"))) {
                         return target;
                     }
@@ -336,23 +408,6 @@ public class NPCWorkHelper {
             // Ignore spatial scanning race condition errors safely
         }
         return null;
-    }
-
-    private static String getCropItem(String blockId) {
-        String lower = blockId.toLowerCase();
-        if (lower.contains("carrot")) return "hytale:food_carrot";
-        if (lower.contains("wheat")) return "hytale:food_bread";
-        if (lower.contains("tomato")) return "hytale:food_tomato";
-        if (lower.contains("corn")) return "hytale:food_corn";
-        return "hytale:food_carrot";
-    }
-
-    private static String getAnimalMeat(String modelAssetId) {
-        String lower = modelAssetId.toLowerCase();
-        if (lower.contains("pig")) return "hytale:food_pork_raw";
-        if (lower.contains("cow") || lower.contains("bull")) return "hytale:food_beef_raw";
-        if (lower.contains("chicken") || lower.contains("hen")) return "hytale:food_chicken_raw";
-        return "hytale:food_wildmeat_raw";
     }
 
     public static Vector3i scanForFarmland(Vector3d center, World world) {
@@ -403,21 +458,8 @@ public class NPCWorkHelper {
         return -1;
     }
 
+    /** Kept public: called from outside this class. */
     public static String getCropBlockFromSeed(String seedId) {
-        String lower = seedId.toLowerCase();
-        if (lower.contains("carrot")) return "hytale:Plant_Crop_Carrot_Block";
-        if (lower.contains("wheat")) return "hytale:Plant_Crop_Wheat_Block";
-        if (lower.contains("tomato")) return "hytale:Plant_Crop_Tomato_Block";
-        if (lower.contains("corn")) return "hytale:Plant_Crop_Corn_Block";
-        return "hytale:Plant_Crop_Carrot_Block";
-    }
-
-    private static String getSeedItem(String blockId) {
-        String lower = blockId.toLowerCase();
-        if (lower.contains("carrot")) return "hytale:Plant_Seeds_Carrot";
-        if (lower.contains("wheat")) return "hytale:Plant_Seeds_Wheat";
-        if (lower.contains("tomato")) return "hytale:Plant_Seeds_Tomato";
-        if (lower.contains("corn")) return "hytale:Plant_Seeds_Corn";
-        return "hytale:Plant_Seeds_Carrot";
+        return lookup(SEED_TO_CROP_BLOCK, seedId, "hytale:Plant_Crop_Carrot_Block");
     }
 }
