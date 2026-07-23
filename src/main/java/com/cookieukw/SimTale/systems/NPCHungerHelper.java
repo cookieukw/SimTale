@@ -4,17 +4,18 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.HouseBlockPos;
-import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
+import com.hypixel.hytale.server.core.modules.block.BlockModule;
+import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
-import java.util.UUID;
 
 import org.joml.Vector3d;
 import org.joml.Vector3i;
@@ -31,7 +32,6 @@ public class NPCHungerHelper {
             Store<EntityStore> store, 
             CommandBuffer<EntityStore> commandBuffer
     ) {
-        // --- FINDING_FOOD (Otimizado por ChestRegistry) ---
         if (ai.currentTask == TaskType.FINDING_FOOD && world.getTick() - ai.taskStartTime >= FOOD_SEARCH_COOLDOWN_TICKS) {
             ai.taskStartTime = world.getTick();
             Vector3d pos = transform.getPosition();
@@ -47,8 +47,28 @@ public class NPCHungerHelper {
                     double distSq = dx*dx + dy*dy + dz*dz;
                     if (distSq <= 10.0 * 10.0 && distSq < minChestDistSq) {
                         if (HouseManager.canOpenChest(npc.entityId, chestPos)) {
-                            minChestDistSq = distSq;
-                            closestChest = chestPos;
+                            // Check if chest contains food
+                            ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, chestPos.x, chestPos.y, chestPos.z);
+                            boolean hasFood = false;
+                            if (cb != null) {
+                                ItemContainer container = cb.getItemContainer();
+                                if (container != null) {
+                                    for (short slot = 0; slot < container.getCapacity(); slot++) {
+                                        ItemStack item = container.getItemStack(slot);
+                                        if (item != null && !item.isEmpty()) {
+                                            String id = item.getItemId().toLowerCase();
+                                            if (id.contains("food_") || id.contains("_food") || id.startsWith("food")) {
+                                                hasFood = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (hasFood) {
+                                minChestDistSq = distSq;
+                                closestChest = chestPos;
+                            }
                         }
                     }
                 }
@@ -71,8 +91,36 @@ public class NPCHungerHelper {
             double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
             if (dx*dx + dz*dz < 2.0 * 2.0) {
                 NPCMovementHelper.clearMoveTarget(ref, ai);
-                ai.currentTask = TaskType.EATING;
-                ai.taskStartTime = world.getTick();
+                
+                // Try to consume 1 food item from the chest
+                boolean foodConsumed = false;
+                Vector3i chestPos = ai.targetBlockPosition;
+                ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, chestPos.x, chestPos.y, chestPos.z);
+                if (cb != null) {
+                    ItemContainer container = cb.getItemContainer();
+                    if (container != null) {
+                        for (short slot = 0; slot < container.getCapacity(); slot++) {
+                            ItemStack item = container.getItemStack(slot);
+                            if (item != null && !item.isEmpty()) {
+                                String id = item.getItemId().toLowerCase();
+                                if (id.contains("food_") || id.contains("_food") || id.startsWith("food")) {
+                                    container.removeItemStackFromSlot(slot, 1);
+                                    foodConsumed = true;
+                                    System.out.println("[SimTale] NPC " + npc.name + " consumed 1x " + item.getItemId() + " from chest at " + chestPos);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (foodConsumed) {
+                    ai.currentTask = TaskType.EATING;
+                    ai.taskStartTime = world.getTick();
+                } else {
+                    // No food left (or chunk unloaded/chest broken)
+                    ai.currentTask = TaskType.IDLE;
+                }
             } else {
                 NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
             }

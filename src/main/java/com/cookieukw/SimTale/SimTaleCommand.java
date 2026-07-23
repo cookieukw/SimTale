@@ -79,6 +79,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ToggleAiSubCommand());
         this.addSubCommand(new HouseCheckSubCommand());
         this.addSubCommand(new ChestCheckSubCommand());
+        this.addSubCommand(new ForceEatSubCommand());
     }
 
     @Override
@@ -89,7 +90,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -872,6 +873,50 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             ctx.sendMessage(Message.raw(msg));
+        }
+    }
+
+    private static class ForceEatSubCommand extends AbstractPlayerCommand {
+        public ForceEatSubCommand() {
+            super("forceeat", "Força o NPC mais próximo a ir comer de um baú");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
+                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (playerTransform != null && npcTransform != null) {
+                        Vector3d pPos = playerTransform.getPosition();
+                        Vector3d nPos = npcTransform.getPosition();
+                        double distSq = pPos.distanceSquared(nPos);
+                        if (distSq < minDistance) {
+                            minDistance = distSq;
+                            nearestNPC = npc;
+                        }
+                    }
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("Nenhum NPC por perto."));
+                return;
+            }
+
+            nearestNPC.needs.hunger = 0f;
+            com.cookieukw.SimTale.ai.RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (ai != null) {
+                ai.currentTask = com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType.FINDING_FOOD;
+                ai.taskStartTime = world.getTick();
+                store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
+            }
+            
+            ctx.sendMessage(Message.raw("Forçando " + nearestNPC.name + " a ir comer! Fome definida para 0."));
         }
     }
 }
