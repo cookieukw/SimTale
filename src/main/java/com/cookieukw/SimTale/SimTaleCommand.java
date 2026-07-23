@@ -24,6 +24,10 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.component.RemoveReason;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
+import org.joml.Vector3i;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ArrayList;
@@ -82,6 +86,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ChestCheckSubCommand());
         this.addSubCommand(new ForceEatSubCommand());
         this.addSubCommand(new ForceWorkSubCommand());
+        this.addSubCommand(new ForcePlantSubCommand());
     }
 
     @Override
@@ -92,7 +97,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -963,6 +968,70 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("Forçando " + nearestNPC.name + " a ir trabalhar! Profissão: " + nearestNPC.profession.ptName));
             } else {
                 ctx.sendMessage(Message.raw("IA do NPC não ativa."));
+            }
+        }
+    }
+
+    private static class ForcePlantSubCommand extends AbstractPlayerCommand {
+        public ForcePlantSubCommand() {
+            super("forceplant", "Força o NPC Fazendeiro mais próximo a plantar em terras aradas próximas");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null && npc.entityRef.isValid() && npc.profession == com.cookieukw.SimTale.core.Profession.FARMER) {
+                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (playerTransform != null && npcTransform != null) {
+                        Vector3d pPos = playerTransform.getPosition();
+                        Vector3d nPos = npcTransform.getPosition();
+                        double distSq = pPos.distanceSquared(nPos);
+                        if (distSq < minDistance) {
+                            minDistance = distSq;
+                            nearestNPC = npc;
+                        }
+                    }
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.translation("cmd.forceplant.not_farmer"));
+                return;
+            }
+
+            // Ensure they have seeds
+            InventoryComponent.Storage storage = store.getComponent(nearestNPC.entityRef, InventoryComponent.Storage.getComponentType());
+            if (storage != null && storage.getInventory() != null) {
+                ItemContainer inv = storage.getInventory();
+                String seed = com.cookieukw.SimTale.systems.NPCWorkHelper.findSeedInInventory(inv);
+                if (seed == null) {
+                    // Give them 5 carrot seeds to start
+                    inv.addItemStack(new ItemStack("hytale:Plant_Seeds_Carrot", 5));
+                    ctx.sendMessage(Message.translation("cmd.forceplant.seeds_added").param("name", nearestNPC.name));
+                }
+            }
+
+            RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (ai != null) {
+                TransformComponent npcTransform = store.getComponent(nearestNPC.entityRef, TransformComponent.getComponentType());
+                Vector3i farmPos = com.cookieukw.SimTale.systems.NPCWorkHelper.scanForFarmland(npcTransform.getPosition(), world);
+                if (farmPos != null) {
+                    ai.targetBlockPosition = farmPos;
+                    ai.currentTask = RoutineAIComponent.TaskType.MOVING_TO_WORK;
+                    ai.forcedByDebug = true;
+                    ai.taskStartTime = world.getTick();
+                    store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
+                    ctx.sendMessage(Message.translation("cmd.forceplant.success").param("name", nearestNPC.name).param("pos", farmPos.toString()));
+                } else {
+                    ctx.sendMessage(Message.translation("cmd.forceplant.farmland_not_found").param("name", nearestNPC.name));
+                }
+            } else {
+                ctx.sendMessage(Message.translation("cmd.forceplant.ai_inactive"));
             }
         }
     }

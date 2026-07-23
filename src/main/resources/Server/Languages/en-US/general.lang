@@ -57,3 +57,9 @@ simtale.house.requirement.light_source = a light source
 simtale.house.requirement.seating = a seating
 simtale.house.requirement.surface = a table surface
 simtale.house.requirement.storage_optional = a container (optional)
+
+cmd.forceplant.success = Forcing {name} to plant at {pos}
+cmd.forceplant.farmland_not_found = No empty farmland found near farmer {name}
+cmd.forceplant.not_farmer = No Farmer NPC nearby.
+cmd.forceplant.seeds_added = Added 5x Carrot Seeds to {name}'s inventory
+cmd.forceplant.ai_inactive = NPC AI not active.

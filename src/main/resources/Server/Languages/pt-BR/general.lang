@@ -57,3 +57,9 @@ simtale.house.requirement.light_source = uma fonte de luz
 simtale.house.requirement.seating = um assento
 simtale.house.requirement.surface = uma superfície de mesa
 simtale.house.requirement.storage_optional = um contêiner (opcional)
+
+cmd.forceplant.success = Forçando {name} a plantar em {pos}
+cmd.forceplant.farmland_not_found = Nenhuma terra arada vazia encontrada por perto do fazendeiro {name}
+cmd.forceplant.not_farmer = Nenhum NPC Fazendeiro por perto.
+cmd.forceplant.seeds_added = Adicionado 5x Sementes de Cenoura ao inventário de {name}
+cmd.forceplant.ai_inactive = IA do NPC não ativa.
