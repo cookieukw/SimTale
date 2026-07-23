@@ -34,5 +34,9 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
         if (ChestRegistry.isChestId(type.getId())) {
             ChestRegistry.add(pos.x, pos.y, pos.z);
         }
+
+        if (CropRegistry.isCropId(type.getId())) {
+            CropRegistry.add(pos.x, pos.y, pos.z);
+        }
     }
 }

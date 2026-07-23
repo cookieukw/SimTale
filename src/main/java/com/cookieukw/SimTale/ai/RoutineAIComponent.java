@@ -31,7 +31,11 @@ public class RoutineAIComponent implements Component<EntityStore> {
         WANDERING,
         MOVING_TO_WANDER,
         SOCIALIZING,
-        MOVING_TO_SOCIALIZE
+        MOVING_TO_SOCIALIZE,
+        MOVING_TO_WORK,
+        FARMING,
+        HUNTING,
+        MOVING_TO_DEPOSIT
     }
 
     public TaskType currentTask = TaskType.IDLE;
@@ -43,6 +47,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
     public UUID dyingEntityId = null;
     public UUID reaperEntityId = null;
     public long reapTimer = 0;
+    public UUID workTargetEntityId = null;
     
     // Autonomy fields
     public UUID socializeTargetId = null;
@@ -65,6 +70,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.dyingEntityId = this.dyingEntityId;
         comp.reaperEntityId = this.reaperEntityId;
         comp.reapTimer = this.reapTimer;
+        comp.workTargetEntityId = this.workTargetEntityId;
         comp.socializeTargetId = this.socializeTargetId;
         comp.wanderTimer = this.wanderTimer;
         comp.lastLeashPos = this.lastLeashPos;

@@ -116,7 +116,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         World world = Universe.get().getWorlds().values().stream().findFirst().orElse(null);
         if (world == null) return;
 
-        // --- NPC Door Interaction (Delegado ao HouseDoorManager) ---
         HouseDoorManager.handleNpcDoors(world, npc, transform);
 
         // Ensure Frozen component is cleared if task changes externally and dialogue is inactive
@@ -458,6 +457,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // --- Chest Interaction & Feeding Logic (Delegado ao NPCHungerHelper) ---
         NPCHungerHelper.handleHungerLogic(ref, npc, ai, transform, world, store, commandBuffer);
+
+        // --- Crop Harvesting & Hunting Logic (Delegado ao NPCWorkHelper) ---
+        NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store, commandBuffer);
 
         // --- FINDING_BATH (OPTIMIZATION) ---
         if (ai.currentTask == TaskType.FINDING_BATH && world.getTick() - ai.taskStartTime >= BATH_SEARCH_COOLDOWN_TICKS) {

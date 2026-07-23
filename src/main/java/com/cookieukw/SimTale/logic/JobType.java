@@ -10,7 +10,8 @@ public enum JobType {
     GATHER(15, "coletar"),
     FISH(15, "pescar"),
     EXPLORE(15, "explorar"),
-    BUILD(15, "construir");
+    BUILD(15, "construir"),
+    HUNT(15, "caçar");
 
     private final int durationSeconds;
     private final String portugueseName;

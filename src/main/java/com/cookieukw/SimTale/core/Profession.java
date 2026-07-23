@@ -11,7 +11,8 @@ public enum Profession {
     LUMBERJACK("Lenhador", EnumSet.of(JobType.GATHER), "hatchet"),
     GUARD("Guarda", EnumSet.noneOf(JobType.class), "sword"),
     EXPLORER("Explorador", EnumSet.of(JobType.EXPLORE), "map"),
-    BUILDER("Construtor", EnumSet.of(JobType.BUILD), "hammer");
+    BUILDER("Construtor", EnumSet.of(JobType.BUILD), "hammer"),
+    HUNTER("Caçador", EnumSet.of(JobType.HUNT), "bow");
 
     public final String ptName;
     private final EnumSet<JobType> allowedJobs;

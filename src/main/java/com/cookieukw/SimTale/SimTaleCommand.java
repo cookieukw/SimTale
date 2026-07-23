@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.db.SimNPCData;
+import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
@@ -80,6 +81,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new HouseCheckSubCommand());
         this.addSubCommand(new ChestCheckSubCommand());
         this.addSubCommand(new ForceEatSubCommand());
+        this.addSubCommand(new ForceWorkSubCommand());
     }
 
     @Override
@@ -90,7 +92,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -857,19 +859,19 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
-            String msg = "§e[ChestCheck] Baú localizado em (" + nearestChest.x + ", " + nearestChest.y + ", " + nearestChest.z + ")§f\n";
+            String msg = "[ChestCheck] Baú localizado em (" + nearestChest.x + ", " + nearestChest.y + ", " + nearestChest.z + ")\n";
 
             UUID houseId = HouseManager.BLOCK_TO_HOUSE_ID.get(nearestChest);
             if (houseId != null) {
                 HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
                 if (house != null) {
-                    msg += "§aResidência: §f" + houseId + "\n";
-                    msg += "§aProprietários: §f" + String.join(", ", house.owners);
+                    msg += "Residência: " + houseId + "\n";
+                    msg += "Proprietários: " + String.join(", ", house.owners);
                 } else {
-                    msg += "§cErro: Vinculado à casa " + houseId + " mas dados da casa não encontrados.";
+                    msg += "Erro: Vinculado à casa " + houseId + " mas dados da casa não encontrados.";
                 }
             } else {
-                msg += "§bTipo: §fBaú Público (Não pertence a nenhuma casa cadastrada)";
+                msg += "Tipo: Baú Público (Não pertence a nenhuma casa cadastrada)";
             }
 
             ctx.sendMessage(Message.raw(msg));
@@ -909,14 +911,59 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             nearestNPC.needs.hunger = 0f;
-            com.cookieukw.SimTale.ai.RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
             if (ai != null) {
-                ai.currentTask = com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType.FINDING_FOOD;
+                ai.currentTask = RoutineAIComponent.TaskType.FINDING_FOOD;
                 ai.taskStartTime = world.getTick();
                 store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
             }
             
             ctx.sendMessage(Message.raw("Forçando " + nearestNPC.name + " a ir comer! Fome definida para 0."));
+        }
+    }
+
+    private static class ForceWorkSubCommand extends AbstractPlayerCommand {
+        public ForceWorkSubCommand() {
+            super("forcework", "Força o NPC mais próximo a ir trabalhar (colher ou caçar)");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
+                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (playerTransform != null && npcTransform != null) {
+                        Vector3d pPos = playerTransform.getPosition();
+                        Vector3d nPos = npcTransform.getPosition();
+                        double distSq = pPos.distanceSquared(nPos);
+                        if (distSq < minDistance) {
+                            minDistance = distSq;
+                            nearestNPC = npc;
+                        }
+                    }
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("Nenhum NPC por perto."));
+                return;
+            }
+
+            RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (ai != null) {
+                ai.currentTask = RoutineAIComponent.TaskType.IDLE;
+                ai.forcedByDebug = true;
+                ai.taskStartTime = world.getTick();
+                store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
+                ctx.sendMessage(Message.raw("Forçando " + nearestNPC.name + " a ir trabalhar! Profissão: " + nearestNPC.profession.ptName));
+            } else {
+                ctx.sendMessage(Message.raw("IA do NPC não ativa."));
+            }
         }
     }
 }

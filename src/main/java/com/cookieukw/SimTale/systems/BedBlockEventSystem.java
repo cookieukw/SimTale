@@ -24,5 +24,6 @@ public class BedBlockEventSystem extends WorldEventSystem<EntityStore, BreakBloc
         BedRegistry.removeAt(pos.x, pos.y, pos.z + 1);
 
         ChestRegistry.removeAt(pos.x, pos.y, pos.z);
+        CropRegistry.removeAt(pos.x, pos.y, pos.z);
     }
 }
