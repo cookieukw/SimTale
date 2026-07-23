@@ -13,7 +13,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import com.hypixel.hytale.builtin.mounts.BlockMountAPI;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
-import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -30,7 +29,6 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
 import com.cookieukw.SimTale.SimTale;
@@ -40,10 +38,6 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
-import com.cookieukw.SimTale.core.HouseBlockPos;
-import com.cookieukw.SimTale.core.HouseData;
-import com.cookieukw.SimTale.systems.HouseManager;
-import java.util.UUID;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.server.core.Message;
@@ -456,10 +450,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         }
 
         // --- Chest Interaction & Feeding Logic (Delegado ao NPCHungerHelper) ---
-        NPCHungerHelper.handleHungerLogic(ref, npc, ai, transform, world, store, commandBuffer);
+        NPCHungerHelper.handleHungerLogic(ref, npc, ai, transform, world, store);
 
         // --- Crop Harvesting & Hunting Logic (Delegado ao NPCWorkHelper) ---
-        NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store, commandBuffer);
+        NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store);
 
         // --- FINDING_BATH (OPTIMIZATION) ---
         if (ai.currentTask == TaskType.FINDING_BATH && world.getTick() - ai.taskStartTime >= BATH_SEARCH_COOLDOWN_TICKS) {

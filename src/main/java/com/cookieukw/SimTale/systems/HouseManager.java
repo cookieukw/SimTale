@@ -34,35 +34,12 @@ public class HouseManager {
         NO_ENTRANCE
     }
 
-    public static class HouseScanResult {
-        public final Set<HouseBlockPos> interiorBlocks;
-        public final Set<HouseBlockPos> doorBlocks;
-        public final Set<HouseBlockPos> otherBeds;
-        public final Set<HouseBlockPos> chestBlocks;
-        public final boolean overflowed;
-
-        public HouseScanResult(Set<HouseBlockPos> interiorBlocks, Set<HouseBlockPos> doorBlocks,
-                               Set<HouseBlockPos> otherBeds, Set<HouseBlockPos> chestBlocks, boolean overflowed) {
-            this.interiorBlocks = interiorBlocks;
-            this.doorBlocks = doorBlocks;
-            this.otherBeds = otherBeds;
-            this.chestBlocks = chestBlocks;
-            this.overflowed = overflowed;
-        }
+    public record HouseScanResult(Set<HouseBlockPos> interiorBlocks, Set<HouseBlockPos> doorBlocks,
+                                  Set<HouseBlockPos> otherBeds, Set<HouseBlockPos> chestBlocks, boolean overflowed) {
     }
 
-    public static class ScanReport {
-        public final ScanOutcome outcome;
-        public final Set<UUID> freshBedOwners;
-        public final UUID conflictingHouseId;
-        public final HouseScanResult raw;
-
-        public ScanReport(ScanOutcome outcome, Set<UUID> freshBedOwners, UUID conflictingHouseId, HouseScanResult raw) {
-            this.outcome = outcome;
-            this.freshBedOwners = freshBedOwners;
-            this.conflictingHouseId = conflictingHouseId;
-            this.raw = raw;
-        }
+    public record ScanReport(ScanOutcome outcome, Set<UUID> freshBedOwners, UUID conflictingHouseId,
+                             HouseScanResult raw) {
     }
 
     public static void loadAllHouses() {
@@ -219,7 +196,7 @@ public class HouseManager {
                 }
             } else {
                 UUID myHouseId = getHouseIdByBedPos(bedPos);
-                if (myHouseId == null || !existingHouseId.equals(myHouseId)) {
+                if (!existingHouseId.equals(myHouseId)) {
                     return new ScanReport(ScanOutcome.MERGED_INTO_EXISTING, Set.of(), existingHouseId, raw);
                 }
             }
@@ -298,15 +275,12 @@ public class HouseManager {
         if (type == null || type.getId() == null) return false;
         String id = type.getId().toLowerCase();
         if (id.equalsIgnoreCase("empty") || id.equalsIgnoreCase("air")) return false;
-        
-        if (id.contains("torch") || id.contains("flower") || id.contains("grass") ||
-            id.contains("carpet") || id.contains("banner") || id.contains("lantern") ||
-            id.contains("chain") || id.contains("painting") || id.contains("mushroom") ||
-            id.contains("water") || id.contains("lava") || id.contains("liquid") ||
-            id.contains("vine") || id.contains("ladder")) {
-            return false;
-        }
-        return true;
+
+        return !id.contains("torch") && !id.contains("flower") && !id.contains("grass") &&
+                !id.contains("carpet") && !id.contains("banner") && !id.contains("lantern") &&
+                !id.contains("chain") && !id.contains("painting") && !id.contains("mushroom") &&
+                !id.contains("water") && !id.contains("lava") && !id.contains("liquid") &&
+                !id.contains("vine") && !id.contains("ladder");
     }
 
     public enum FurnitureRequirement {
@@ -330,55 +304,19 @@ public class HouseManager {
         }
     }
 
-    public static class HouseRequirementSet {
-        private final Set<FurnitureRequirement> mandatory;
-        private final Set<FurnitureRequirement> bonus;
-
-        public HouseRequirementSet(Set<FurnitureRequirement> mandatory, Set<FurnitureRequirement> bonus) {
-            this.mandatory = mandatory;
-            this.bonus = bonus;
-        }
-
-        public Set<FurnitureRequirement> mandatory() { return mandatory; }
-        public Set<FurnitureRequirement> bonus() { return bonus; }
+    public record HouseRequirementSet(Set<FurnitureRequirement> mandatory) {
 
         public static final HouseRequirementSet DEFAULT = new HouseRequirementSet(
-            Set.of(FurnitureRequirement.LIGHT_SOURCE, FurnitureRequirement.SEATING, FurnitureRequirement.SURFACE),
-            Set.of(FurnitureRequirement.STORAGE_OPTIONAL)
-        );
-    }
-
-    public static class FurnitureScanResult {
-        private final Map<FurnitureRequirement, Integer> foundCounts;
-        private final Set<FurnitureRequirement> missingMandatory;
-        private final boolean compatible;
-
-        public FurnitureScanResult(Map<FurnitureRequirement, Integer> foundCounts,
-                                   Set<FurnitureRequirement> missingMandatory, boolean compatible) {
-            this.foundCounts = foundCounts;
-            this.missingMandatory = missingMandatory;
-            this.compatible = compatible;
+                Set.of(FurnitureRequirement.LIGHT_SOURCE, FurnitureRequirement.SEATING, FurnitureRequirement.SURFACE)
+            );
         }
 
-        public Map<FurnitureRequirement, Integer> foundCounts() { return foundCounts; }
-        public Set<FurnitureRequirement> missingMandatory() { return missingMandatory; }
-        public boolean compatible() { return compatible; }
+    public record FurnitureScanResult(Map<FurnitureRequirement, Integer> foundCounts,
+                                      Set<FurnitureRequirement> missingMandatory, boolean compatible) {
     }
 
-    public static class HouseCompatibilityResult {
-        private final ScanOutcome structuralOutcome;
-        private final FurnitureScanResult furniture;
-        private final boolean fullyCompatible;
-
-        public HouseCompatibilityResult(ScanOutcome structuralOutcome, FurnitureScanResult furniture, boolean fullyCompatible) {
-            this.structuralOutcome = structuralOutcome;
-            this.furniture = furniture;
-            this.fullyCompatible = fullyCompatible;
-        }
-
-        public ScanOutcome structuralOutcome() { return structuralOutcome; }
-        public FurnitureScanResult furniture() { return furniture; }
-        public boolean fullyCompatible() { return fullyCompatible; }
+    public record HouseCompatibilityResult(ScanOutcome structuralOutcome, FurnitureScanResult furniture,
+                                           boolean fullyCompatible) {
     }
 
     public static FurnitureScanResult scanFurniture(World world, Set<HouseBlockPos> interiorBlocks, HouseRequirementSet requirements) {

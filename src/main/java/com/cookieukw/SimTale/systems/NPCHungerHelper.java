@@ -1,11 +1,9 @@
 package com.cookieukw.SimTale.systems;
 
-import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
@@ -29,8 +27,7 @@ public class NPCHungerHelper {
             RoutineAIComponent ai, 
             TransformComponent transform, 
             World world, 
-            Store<EntityStore> store, 
-            CommandBuffer<EntityStore> commandBuffer
+            Store<EntityStore> store
     ) {
         if (ai.currentTask == TaskType.FINDING_FOOD && world.getTick() - ai.taskStartTime >= FOOD_SEARCH_COOLDOWN_TICKS) {
             ai.taskStartTime = world.getTick();
@@ -52,15 +49,13 @@ public class NPCHungerHelper {
                             boolean hasFood = false;
                             if (cb != null) {
                                 ItemContainer container = cb.getItemContainer();
-                                if (container != null) {
-                                    for (short slot = 0; slot < container.getCapacity(); slot++) {
-                                        ItemStack item = container.getItemStack(slot);
-                                        if (item != null && !item.isEmpty()) {
-                                            String id = item.getItemId().toLowerCase();
-                                            if (id.contains("food_") || id.contains("_food") || id.startsWith("food")) {
-                                                hasFood = true;
-                                                break;
-                                            }
+                                for (short slot = 0; slot < container.getCapacity(); slot++) {
+                                    ItemStack item = container.getItemStack(slot);
+                                    if (item != null && !item.isEmpty()) {
+                                        String id = item.getItemId().toLowerCase();
+                                        if (id.contains("food_") || id.contains("_food") || id.startsWith("food")) {
+                                            hasFood = true;
+                                            break;
                                         }
                                     }
                                 }
@@ -98,17 +93,15 @@ public class NPCHungerHelper {
                 ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, chestPos.x, chestPos.y, chestPos.z);
                 if (cb != null) {
                     ItemContainer container = cb.getItemContainer();
-                    if (container != null) {
-                        for (short slot = 0; slot < container.getCapacity(); slot++) {
-                            ItemStack item = container.getItemStack(slot);
-                            if (item != null && !item.isEmpty()) {
-                                String id = item.getItemId().toLowerCase();
-                                if (id.contains("food_") || id.contains("_food") || id.startsWith("food")) {
-                                    container.removeItemStackFromSlot(slot, 1);
-                                    foodConsumed = true;
-                                    System.out.println("[SimTale] NPC " + npc.name + " consumed 1x " + item.getItemId() + " from chest at " + chestPos);
-                                    break;
-                                }
+                    for (short slot = 0; slot < container.getCapacity(); slot++) {
+                        ItemStack item = container.getItemStack(slot);
+                        if (item != null && !item.isEmpty()) {
+                            String id = item.getItemId().toLowerCase();
+                            if (id.contains("food_") || id.contains("_food") || id.startsWith("food")) {
+                                container.removeItemStackFromSlot(slot, 1);
+                                foodConsumed = true;
+                                System.out.println("[SimTale] NPC " + npc.name + " consumed 1x " + item.getItemId() + " from chest at " + chestPos);
+                                break;
                             }
                         }
                     }

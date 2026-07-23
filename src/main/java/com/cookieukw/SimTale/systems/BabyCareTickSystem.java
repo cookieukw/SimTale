@@ -77,7 +77,6 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
                 if (item != null && item.getItemId().equals("simtale:Baby")) {
                     String childIdStr = item.getFromMetadataOrNull("childId", Codec.STRING);
                     if (childIdStr != null) {
-                        UUID.fromString(childIdStr);
                         break;
                     }
                 }

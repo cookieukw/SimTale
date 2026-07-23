@@ -1,13 +1,10 @@
 package com.cookieukw.SimTale.systems;
 
-import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.HouseBlockPos;
-import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.spatial.SpatialResource;
@@ -77,8 +74,7 @@ public class NPCWorkHelper {
             RoutineAIComponent ai,
             TransformComponent transform,
             World world,
-            Store<EntityStore> store,
-            CommandBuffer<EntityStore> commandBuffer
+            Store<EntityStore> store
     ) {
         // Evaluate Transition to Work/Deposit from IDLE
         if (ai.currentTask == TaskType.IDLE && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER)) {
@@ -87,7 +83,7 @@ public class NPCWorkHelper {
 
             if (hasItemsToDeposit) {
                 // Find a chest owned by NPC to deposit items
-                HouseBlockPos depositChest = findHomeChest(npc, world);
+                HouseBlockPos depositChest = findHomeChest(npc);
                 if (depositChest != null) {
                     ai.targetBlockPosition = new Vector3i(depositChest.x, depositChest.y, depositChest.z);
                     ai.currentTask = TaskType.MOVING_TO_DEPOSIT;
@@ -101,7 +97,7 @@ public class NPCWorkHelper {
                 ai.forcedByDebug = false;
                 if (npc.profession == Profession.FARMER) {
                     // Try to harvest first
-                    Vector3i cropPos = scanForCrops(transform.getPosition(), world);
+                    Vector3i cropPos = scanForCrops(transform.getPosition());
                     if (cropPos != null) {
                         ai.targetBlockPosition = cropPos;
                         ai.currentTask = TaskType.MOVING_TO_WORK;
@@ -138,7 +134,7 @@ public class NPCWorkHelper {
             Vector3d npcPos = transform.getPosition();
             if (npc.profession == Profession.FARMER) {
                 if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
-                if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5, WORK_REACH_DISTANCE_SQ)) {
+                if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5)) {
                     NPCMovementHelper.clearMoveTarget(ref, ai);
                     // Determine if harvesting or planting
                     BlockType blockType = world.getBlockType(ai.targetBlockPosition.x, ai.targetBlockPosition.y, ai.targetBlockPosition.z);
@@ -162,7 +158,7 @@ public class NPCWorkHelper {
                 if (animalTrans == null) { ai.currentTask = TaskType.IDLE; return; }
                 Vector3d animalPos = animalTrans.getPosition();
 
-                if (isNear(npcPos, animalPos.x, animalPos.z, WORK_REACH_DISTANCE_SQ)) {
+                if (isNear(npcPos, animalPos.x, animalPos.z)) {
                     NPCMovementHelper.clearMoveTarget(ref, ai);
                     ai.currentTask = TaskType.HUNTING;
                     ai.taskStartTime = world.getTick();
@@ -245,7 +241,7 @@ public class NPCWorkHelper {
                 Ref<EntityStore> animalRef = world.getEntityStore().getRefFromUUID(ai.workTargetEntityId);
                 if (animalRef != null && animalRef.isValid()) {
                     PersistentModel pm = animalRef.getStore().getComponent(animalRef, PersistentModel.getComponentType());
-                    if (pm != null && pm.getModelReference() != null) {
+                    if (pm != null) {
                         String modelId = pm.getModelReference().getModelAssetId();
                         String meatId = lookup(ANIMAL_TO_MEAT, modelId, "hytale:food_wildmeat_raw");
 
@@ -270,13 +266,14 @@ public class NPCWorkHelper {
         if (ai.currentTask == TaskType.MOVING_TO_DEPOSIT) {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
             Vector3d npcPos = transform.getPosition();
-            if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5, WORK_REACH_DISTANCE_SQ)) {
+            if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5)) {
                 NPCMovementHelper.clearMoveTarget(ref, ai);
 
                 // Deposit items to chest
                 Vector3i chestPos = ai.targetBlockPosition;
                 ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, chestPos.x, chestPos.y, chestPos.z);
-                if (cb != null && cb.getItemContainer() != null) {
+                if (cb != null) {
+                    cb.getItemContainer();
                     ItemContainer chestInv = cb.getItemContainer();
                     ItemContainer npcInv = getInventory(store, ref);
                     if (npcInv != null) {
@@ -327,11 +324,13 @@ public class NPCWorkHelper {
         return false;
     }
 
-    /** @param maxDistSq already squared (e.g. reach*reach) — kept this way to match call-site constants. */
-    private static boolean isNear(Vector3d pos, double targetX, double targetZ, double maxDistSq) {
+    /**
+     *
+     */
+    private static boolean isNear(Vector3d pos, double targetX, double targetZ) {
         double dx = targetX - pos.x;
         double dz = targetZ - pos.z;
-        return dx * dx + dz * dz < maxDistSq;
+        return dx * dx + dz * dz < NPCWorkHelper.WORK_REACH_DISTANCE_SQ;
     }
 
     // ── Crop / seed / animal keyword lookups ─────────────────────────────────
@@ -355,7 +354,7 @@ public class NPCWorkHelper {
 
     // ── Scanning helpers ──────────────────────────────────────────────────────
 
-    private static HouseBlockPos findHomeChest(SimNPCComponent npc, World world) {
+    private static HouseBlockPos findHomeChest(SimNPCComponent npc) {
         synchronized (ChestRegistry.CHESTS) {
             for (HouseBlockPos cp : ChestRegistry.CHESTS) {
                 if (HouseManager.canOpenChest(npc.entityId, cp)) {
@@ -366,7 +365,7 @@ public class NPCWorkHelper {
         return null;
     }
 
-    private static Vector3i scanForCrops(Vector3d center, World world) {
+    private static Vector3i scanForCrops(Vector3d center) {
         Vector3i closest = null;
         double minDistSq = 15.0 * 15.0;
         synchronized (CropRegistry.CROPS) {
@@ -388,7 +387,6 @@ public class NPCWorkHelper {
         try {
             SpatialResource<Ref<EntityStore>, EntityStore> spatial =
                 store.getResource(EntityModule.get().getEntitySpatialResourceType());
-            if (spatial == null || spatial.getSpatialStructure() == null) return null;
 
             List<Ref<EntityStore>> results = new ArrayList<>();
             spatial.getSpatialStructure().collect(center, 15.0, results);
@@ -396,7 +394,7 @@ public class NPCWorkHelper {
             for (Ref<EntityStore> target : results) {
                 if (target == null || !target.isValid()) continue;
                 PersistentModel pm = target.getStore().getComponent(target, PersistentModel.getComponentType());
-                if (pm != null && pm.getModelReference() != null) {
+                if (pm != null) {
                     String modelId = pm.getModelReference().getModelAssetId().toLowerCase();
                     if (modelId.contains("creature") &&
                         (modelId.contains("pig") || modelId.contains("sheep") || modelId.contains("cow") || modelId.contains("chicken") || modelId.contains("hen") || modelId.contains("goat"))) {
