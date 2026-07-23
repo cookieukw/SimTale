@@ -1,10 +1,10 @@
 package com.cookieukw.SimTale.systems;
 
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.db.SimBedData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -285,7 +285,7 @@ public class HouseManager {
 
     private static boolean isBed(BlockType type) {
         if (type == null || type.getId() == null) return false;
-        return com.cookieukw.SimTale.systems.BedRegistry.isBedId(type.getId());
+        return BedRegistry.isBedId(type.getId());
     }
 
     private static boolean isChest(BlockType type) {
@@ -441,7 +441,7 @@ public class HouseManager {
         return Message.translation("simtale.house.check.incomplete").insert(missingList);
     }
 
-    public static boolean validateAndClaimBed(World world, com.cookieukw.SimTale.db.SimBedData.BedPos bestBed, SimNPCComponent npc) {
+    public static boolean validateAndClaimBed(World world, SimBedData.BedPos bestBed, SimNPCComponent npc) {
         HouseBlockPos houseBed = new HouseBlockPos(bestBed.x, bestBed.y, bestBed.z);
         ScanReport report = scanAndClassify(world, houseBed, npc.entityId);
         if (report.outcome == ScanOutcome.NEW_HOUSE_SINGLE_OWNER || 
