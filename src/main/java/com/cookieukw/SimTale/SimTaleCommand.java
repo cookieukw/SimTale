@@ -87,6 +87,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ForceEatSubCommand());
         this.addSubCommand(new ForceWorkSubCommand());
         this.addSubCommand(new ForcePlantSubCommand());
+        this.addSubCommand(new SetGenderSubCommand());
     }
 
     @Override
@@ -97,7 +98,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -1033,6 +1034,34 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             } else {
                 ctx.sendMessage(Message.translation("cmd.forceplant.ai_inactive"));
             }
+        }
+    }
+
+    private static class SetGenderSubCommand extends AbstractPlayerCommand {
+        public SetGenderSubCommand() {
+            super("setgender", "Abre a tela de seleção de gênero para o jogador");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            Player player = store.getComponent(ref, Player.getComponentType());
+            if (player == null) {
+                ctx.sendMessage(Message.raw("Erro: Jogador não encontrado."));
+                return;
+            }
+
+            SimPlayerComponent simPlayer = store.getComponent(ref, SimTale.SIM_PLAYER_COMPONENT_TYPE);
+            if (simPlayer == null) {
+                simPlayer = com.cookieukw.SimTale.db.SimPlayerPersistence.loadPlayer(playerRef.getUuid());
+                if (simPlayer == null) {
+                    simPlayer = new SimPlayerComponent(playerRef.getUuid());
+                }
+                store.addComponent(ref, SimTale.SIM_PLAYER_COMPONENT_TYPE, simPlayer);
+            }
+
+            player.getPageManager().openCustomPage(ref, store, new com.cookieukw.SimTale.logic.PlayerGenderPage(playerRef, player, simPlayer));
+            ctx.sendMessage(Message.raw("Abrindo painel de seleção de gênero..."));
         }
     }
 }
