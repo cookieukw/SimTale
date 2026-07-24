@@ -354,16 +354,16 @@ public class HouseManager {
     public static Message buildCompatibilityReport(HouseCompatibilityResult result) {
         if (result.furniture() == null) {
             return switch (result.structuralOutcome()) {
-                case TOO_LARGE_OR_UNENCLOSED -> Message.translation("simtale.house.check.unenclosed");
-                case TOO_SMALL -> Message.translation("simtale.house.check.too_small");
-                case NO_ENTRANCE -> Message.translation("simtale.house.check.no_entrance");
-                case MERGED_INTO_EXISTING, CONFLICT_WITH_EXISTING -> Message.translation("simtale.house.check.conflict");
-                default -> Message.translation("simtale.house.check.unknown_error");
+                case TOO_LARGE_OR_UNENCLOSED -> Message.translation("general.house.check.unenclosed");
+                case TOO_SMALL -> Message.translation("general.house.check.too_small");
+                case NO_ENTRANCE -> Message.translation("general.house.check.no_entrance");
+                case MERGED_INTO_EXISTING, CONFLICT_WITH_EXISTING -> Message.translation("general.house.check.conflict");
+                default -> Message.translation("general.house.check.unknown_error");
             };
         }
 
         if (result.fullyCompatible()) {
-            return Message.translation("simtale.house.check.valid");
+            return Message.translation("general.house.check.valid");
         }
 
         Message missingList = Message.raw("");
@@ -372,11 +372,11 @@ public class HouseManager {
             if (!first) {
                 missingList = missingList.insert(Message.raw(", "));
             }
-            missingList = missingList.insert(Message.translation("simtale.house.requirement." + missing.name().toLowerCase()));
+            missingList = missingList.insert(Message.translation("general.house.requirement." + missing.name().toLowerCase()));
             first = false;
         }
 
-        return Message.translation("simtale.house.check.incomplete").insert(missingList);
+        return Message.translation("general.house.check.incomplete").insert(missingList);
     }
 
     public static boolean validateAndClaimBed(World world, SimBedData.BedPos bestBed, SimNPCComponent npc) {
