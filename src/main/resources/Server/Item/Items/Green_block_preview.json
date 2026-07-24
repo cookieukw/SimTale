@@ -7,9 +7,11 @@
   ],
   "BlockType": {
     "DrawType": "Cube",
-    "Textures": {
-      "All": "BlockTextures/green_block_preview.png"
-    },
+    "Textures": [
+      {
+        "All": "BlockTextures/green_block_preview.png"
+      }
+    ],
     "Material": "Empty"
   },
   "MaxStack": 100
