@@ -88,7 +88,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         Message profMsg = npc.profession != null && npc.profession != Profession.UNEMPLOYED 
             ? Message.translation("ui.prof." + npc.profession.name().toLowerCase()) 
             : Message.translation("ui.prof.unemployed");
-        commandBuilder.set("#NpcProfession.TextSpans", Message.translation("ui.ui.job").insert(Message.raw(" ")).insert(profMsg));
+        commandBuilder.set("#NpcProfession.TextSpans", Message.translation("ui.job").insert(Message.raw(" ")).insert(profMsg));
         
         Mood currentMood = npc.getMood();
         String moodEmoji = switch (currentMood) {
@@ -110,14 +110,14 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         }
 
         // --- Info Panel Static UI Overrides ---
-        commandBuilder.set("#InfoHeader.TextSpans", Message.translation("ui.ui.info"));
-        commandBuilder.set("#ChatButtonText.TextSpans", Message.translation("ui.ui.button.chat"));
-        commandBuilder.set("#JokeButtonText.TextSpans", Message.translation("ui.ui.button.joke"));
-        commandBuilder.set("#FlirtButtonText.TextSpans", Message.translation("ui.ui.button.flirt"));
-        commandBuilder.set("#GiftButtonText.TextSpans", Message.translation("ui.ui.button.gift"));
-        commandBuilder.set("#InsultButtonText.TextSpans", Message.translation("ui.ui.button.insult"));
-        commandBuilder.set("#AssignProfessionButtonText.TextSpans", Message.translation("ui.ui.button.prof"));
-        commandBuilder.set("#PregnancyButtonText.TextSpans", Message.translation("ui.ui.button.pregnancy"));
+        commandBuilder.set("#InfoHeader.TextSpans", Message.translation("ui.info"));
+        commandBuilder.set("#ChatButtonText.TextSpans", Message.translation("ui.button.chat"));
+        commandBuilder.set("#JokeButtonText.TextSpans", Message.translation("ui.button.joke"));
+        commandBuilder.set("#FlirtButtonText.TextSpans", Message.translation("ui.button.flirt"));
+        commandBuilder.set("#GiftButtonText.TextSpans", Message.translation("ui.button.gift"));
+        commandBuilder.set("#InsultButtonText.TextSpans", Message.translation("ui.button.insult"));
+        commandBuilder.set("#AssignProfessionButtonText.TextSpans", Message.translation("ui.button.prof"));
+        commandBuilder.set("#PregnancyButtonText.TextSpans", Message.translation("ui.button.pregnancy"));
 
         // Traits
         if (npc.personality != null && npc.personality.traits != null && !npc.personality.traits.isEmpty()) {
@@ -130,7 +130,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                 traitsMsg = traitsMsg.insert(Message.translation("ui.trait." + t.name().toLowerCase()));
                 first = false;
             }
-            commandBuilder.set("#NpcTraits.TextSpans", Message.translation("ui.ui.traits").insert(Message.raw(" ")).insert(traitsMsg));
+            commandBuilder.set("#NpcTraits.TextSpans", Message.translation("ui.traits").insert(Message.raw(" ")).insert(traitsMsg));
         }
         
         // Preferences
@@ -147,7 +147,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                     likesMsg = likesMsg.insert(Message.raw(NPCPreferences.getFoodDisplayName(itemId)));
                     first = false;
                 }
-                commandBuilder.set("#NpcLikes.TextSpans", Message.translation("ui.ui.likes").insert(Message.raw(" ")).insert(likesMsg));
+                commandBuilder.set("#NpcLikes.TextSpans", Message.translation("ui.likes").insert(Message.raw(" ")).insert(likesMsg));
             }
 
             List<String> allHates = new ArrayList<>();
@@ -162,23 +162,23 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                     hatesMsg = hatesMsg.insert(Message.raw(NPCPreferences.getFoodDisplayName(itemId)));
                     first = false;
                 }
-                commandBuilder.set("#NpcHates.TextSpans", Message.translation("ui.ui.hates").insert(Message.raw(" ")).insert(hatesMsg));
+                commandBuilder.set("#NpcHates.TextSpans", Message.translation("ui.hates").insert(Message.raw(" ")).insert(hatesMsg));
             }
 
-            commandBuilder.set("#NpcHobby.TextSpans", Message.translation("ui.ui.hobby").insert(Message.raw(" " + npc.preferences.getHobby().displayName())));
+            commandBuilder.set("#NpcHobby.TextSpans", Message.translation("ui.hobby").insert(Message.raw(" " + npc.preferences.getHobby().displayName())));
             
             String seasonKey = "season." + (npc.preferences.getFavoriteSeason() != null ? npc.preferences.getFavoriteSeason().name().toLowerCase() : "spring");
-            commandBuilder.set("#NpcSeason.TextSpans", Message.translation("ui.ui.season").insert(Message.raw(" ")).insert(Message.translation("ui." + seasonKey)));
+            commandBuilder.set("#NpcSeason.TextSpans", Message.translation("ui.season").insert(Message.raw(" ")).insert(Message.translation("ui." + seasonKey)));
         }
         
         Relationship rel = npc.getRelationship(playerRefComp.getUuid());
         Message statusMsg = Message.translation("ui.rel." + rel.getStatusName().toLowerCase());
-        Message relValues = Message.translation("ui.ui.relationship.values")
+        Message relValues = Message.translation("ui.relationship.values")
             .param("status", statusMsg)
             .param("friendship", String.valueOf(rel.friendship))
             .param("affinity", String.valueOf(rel.affinity));
         commandBuilder.set("#NpcRelationship.TextSpans", 
-            Message.translation("ui.ui.relationship").insert(Message.raw(" ")).insert(relValues));
+            Message.translation("ui.relationship").insert(Message.raw(" ")).insert(relValues));
 
         // --- Family Info Panel Population ---
         String parentsText = "Pais: —";

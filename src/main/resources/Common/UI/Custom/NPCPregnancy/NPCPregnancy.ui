@@ -13,7 +13,7 @@ Group {
       Style: (FontSize: 32, TextColor: #E0E0FFFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
     }
     Label #SubTitle {
-      Text: %simtale.ui.pregnancy.subtitle;
+      Text: %ui.pregnancy.subtitle;
       Anchor: (Width: 520, Height: 30, Bottom: 24);
       Style: (FontSize: 20, TextColor: #FF88AAFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
     }
@@ -75,7 +75,7 @@ Group {
       Background: #334466FF;
       Visible: true;
       Label #BackButtonText {
-        Text: %simtale.ui.pregnancy.back;
+        Text: %ui.pregnancy.back;
         Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
         Style: (FontSize: 20, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center, RenderBold: true);
       }
@@ -85,7 +85,7 @@ Group {
       Background: #334466FF;
       Visible: false;
       Label #CloseButtonText {
-        Text: %simtale.ui.pregnancy.close;
+        Text: %ui.pregnancy.close;
         Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
         Style: (FontSize: 20, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center, RenderBold: true);
       }

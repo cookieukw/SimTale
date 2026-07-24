@@ -162,7 +162,7 @@ Group {
           Background: #772244FF;
           Visible: false;
           Label #PregnancyButtonText {
-            Text: %simtale.ui.button.pregnancy;
+            Text: %ui.button.pregnancy;
             Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
             Style: (FontSize: 20, TextColor: #FFCCCCFF, HorizontalAlignment: Center, VerticalAlignment: Center, RenderBold: true);
           }
