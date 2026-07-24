@@ -1001,7 +1001,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestNPC == null) {
-                ctx.sendMessage(Message.translation("cmd.forceplant.not_farmer"));
+                ctx.sendMessage(Message.translation("general.cmd.forceplant.not_farmer"));
                 return;
             }
 
@@ -1013,7 +1013,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 if (seed == null) {
                     // Give them 5 carrot seeds to start
                     inv.addItemStack(new ItemStack("hytale:Plant_Seeds_Carrot", 5));
-                    ctx.sendMessage(Message.translation("cmd.forceplant.seeds_added").param("name", nearestNPC.name));
+                    ctx.sendMessage(Message.translation("general.cmd.forceplant.seeds_added").param("name", nearestNPC.name));
                 }
             }
 
@@ -1027,12 +1027,12 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     ai.forcedByDebug = true;
                     ai.taskStartTime = world.getTick();
                     store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
-                    ctx.sendMessage(Message.translation("cmd.forceplant.success").param("name", nearestNPC.name).param("pos", farmPos.toString()));
+                    ctx.sendMessage(Message.translation("general.cmd.forceplant.success").param("name", nearestNPC.name).param("pos", farmPos.toString()));
                 } else {
-                    ctx.sendMessage(Message.translation("cmd.forceplant.farmland_not_found").param("name", nearestNPC.name));
+                    ctx.sendMessage(Message.translation("general.cmd.forceplant.farmland_not_found").param("name", nearestNPC.name));
                 }
             } else {
-                ctx.sendMessage(Message.translation("cmd.forceplant.ai_inactive"));
+                ctx.sendMessage(Message.translation("general.cmd.forceplant.ai_inactive"));
             }
         }
     }
