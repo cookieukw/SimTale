@@ -159,8 +159,9 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
                 holder.addComponent(TransformComponent.getComponentType(), new TransformComponent(new Vector3d(entityTransform.getPosition().x, entityTransform.getPosition().y + height, entityTransform.getPosition().z), new Rotation3f()));
                 holder.addComponent(PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
                 holder.addComponent(ModelComponent.getComponentType(), new ModelComponent(model));
-                assert model.getBoundingBox() != null;
-                holder.addComponent(BoundingBox.getComponentType(), new BoundingBox(model.getBoundingBox()));
+                if (model.getBoundingBox() != null) {
+                    holder.addComponent(BoundingBox.getComponentType(), new BoundingBox(model.getBoundingBox()));
+                }
                 holder.addComponent(NetworkId.getComponentType(), new NetworkId(store.getExternalData().takeNextNetworkId()));
                 holder.ensureComponent(UUIDComponent.getComponentType());
                 
