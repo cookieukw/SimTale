@@ -85,7 +85,15 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             if (targetBlock != null) {
                 String childIdStr = heldItem.getFromMetadataOrNull("childId", Codec.STRING);
                 if (childIdStr != null) {
-                    UUID childId = UUID.fromString(childIdStr);
+                    UUID childId;
+                    try {
+                        childId = UUID.fromString(childIdStr);
+                    } catch (IllegalArgumentException badId) {
+                        // Corrupt/hand-edited item metadata used to throw straight out of the
+                        // click handler instead of just ignoring the item.
+                        LOGGER.atWarning().log("SimTale: item de bebe com childId invalido: " + childIdStr);
+                        return;
+                    }
 
                     GrowthComponent childComp = null;
                     for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
@@ -209,8 +217,8 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
         Ref<EntityStore> targetRef = event.getTargetEntityRef();
         
-        LOGGER.atInfo().log("SimTale [DEBUG]: PlayerMouseButtonEvent (Right Click) DISPARADO. Alvo Ref: " + (targetRef != null ? targetRef.toString() : "null"));
-        
+        // This used to log at INFO on *every* right click by *every* player, flooding the
+        // server console. Nothing is logged until an NPC is actually involved.
         if (targetRef == null)
             return;
 
