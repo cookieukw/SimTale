@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 public final class CropRegistry {
@@ -12,7 +13,10 @@ public final class CropRegistry {
 
     public static boolean isCropId(String id) {
         if (id == null) return false;
-        return id.startsWith("Plant_Crop_") && id.endsWith("_Block") && !id.contains("Eternal");
+        // Case-insensitive, matching BedRegistry/ChestRegistry/FarmlandRegistry. This was the
+        // only registry that compared casing exactly.
+        String name = id.toLowerCase(Locale.ROOT);
+        return name.startsWith("plant_crop_") && name.endsWith("_block") && !name.contains("eternal");
     }
 
     public static void add(int x, int y, int z) {
