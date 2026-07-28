@@ -26,6 +26,13 @@ public class NPCHungerHelper {
     /** Shared with RoutineAISystem so the "search immediately" bypass actually bypasses the cooldown. */
     public static final int FOOD_SEARCH_COOLDOWN_TICKS = 100;
 
+    /**
+     * Give up walking to the chest after 30s. Without this the NPC kept re-issuing the same
+     * leash point forever whenever the chest was unreachable (walled in, on the far side of a
+     * ravine, chunk unloaded), and only the low-energy interrupt could ever free it.
+     */
+    private static final int MOVE_TIMEOUT_TICKS = 600;
+
     /** Single source of truth for "is this item edible?" heuristics. */
     private static boolean isFoodId(String itemIdLower) {
         return itemIdLower.contains("food_") || itemIdLower.contains("_food") || itemIdLower.startsWith("food");
@@ -88,6 +95,15 @@ public class NPCHungerHelper {
         // --- MOVING_TO_FOOD ---
         if (ai.currentTask == TaskType.MOVING_TO_FOOD) {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
+
+            if (world.getTick() - ai.taskStartTime > MOVE_TIMEOUT_TICKS) {
+                LOGGER.debug("[SimTale] NPC {} desistiu de chegar ao bau de comida", npc.name);
+                NPCMovementHelper.clearMoveTarget(ref, ai);
+                ai.targetBlockPosition = null;
+                ai.currentTask = TaskType.IDLE;
+                return;
+            }
+
             Vector3d pos = transform.getPosition();
             double dx = (ai.targetBlockPosition.x + 0.5) - pos.x;
             double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
