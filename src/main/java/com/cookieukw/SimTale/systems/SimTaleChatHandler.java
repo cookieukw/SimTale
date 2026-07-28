@@ -1,8 +1,12 @@
 package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.FriendshipTier;
+import com.cookieukw.SimTale.core.MemoryEvent;
+import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.engine.Animal;
@@ -230,6 +234,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             // --- NEW CONVERSATIONAL INTENTS ---
             case COMPLIMENT -> {
                 openConversation(npc, sender, currentTick);
+                applyChatSentiment(npc, sender, true, currentTick);
                 sendReply(sender, Message.translation(getRandomVariant("npc-interactions.compliment", tier, 5)).param("name", npc.name));
             }
             case PERSONAL_QUESTION -> {
@@ -251,6 +256,10 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             }
             case INSULT_CHAT -> {
                 openConversation(npc, sender, currentTick);
+                // Insulting an NPC through chat used to be free: it printed a hurt line and
+                // changed nothing, while the exact same insult through the interaction UI cost
+                // friendship and was remembered.
+                applyChatSentiment(npc, sender, false, currentTick);
                 sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.insult_chat", tier, 5)).param("name", npc.name));
             }
             case HELP_REQUEST -> {
@@ -270,6 +279,33 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
                 sendReply(sender, Message.translation(getRandomVariant("npc-interactions.chat.smalltalk", tier, 10)).param("name", npc.name));
             }
         }
+    }
+
+    /**
+     * Applies the relationship/memory/mood consequence of a compliment or an insult typed in
+     * chat, mirroring what {@code InteractionManager} already did for the UI interactions.
+     * Deliberately milder than the UI path, since chat has no cooldown of its own.
+     */
+    private void applyChatSentiment(SimNPCComponent npc, PlayerRef sender, boolean positive, long currentTick) {
+        Relationship rel = npc.getRelationship(sender.getUuid());
+
+        if (positive) {
+            rel.addFriendship(2);
+            rel.addAffinity(3);
+            rel.addTrust(1);
+            npc.memory.addMemory(MemoryEvent.CHATTED, sender.getUuid());
+            npc.setEmotion(Mood.HAPPY, 0.4f, "compliment", currentTick);
+        } else {
+            rel.addFriendship(-3);
+            rel.addAffinity(-5);
+            rel.addTrust(-3);
+            npc.memory.addMemory(MemoryEvent.INSULTED, sender.getUuid());
+            Mood reaction = npc.personality != null && npc.personality.traits != null
+                    && npc.personality.traits.contains(Trait.AGGRESSIVE) ? Mood.ANGRY : Mood.SAD;
+            npc.setEmotion(reaction, 0.6f, "insult", currentTick);
+        }
+
+        SimNPCPersistence.saveNPC(npc);
     }
 
     private void openConversation(SimNPCComponent npc, PlayerRef sender, long currentTick) {
@@ -504,6 +540,25 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         }
 
         /**
+         * True when some word in the message *starts with* one of the stems.
+         * <p>
+         * Portuguese inflects heavily ("bonito/bonita/bonitao"), so the original code matched
+         * stems with a bare {@code contains()}. That also matched the middle of unrelated
+         * words: "fei" fired INSULT on "feito", "feira" and "feijao"; "top" fired COMPLIMENT
+         * on "topo"; "gat" on "gatilho". Anchoring to the start of a word keeps the
+         * inflection families working without the false positives.
+         */
+        private static boolean hasStem(String message, String... stems) {
+            String[] words = SPACES.split(message.trim());
+            for (String word : words) {
+                for (String stem : stems) {
+                    if (word.startsWith(stem)) return true;
+                }
+            }
+            return false;
+        }
+
+        /**
          * Checks if any of the keywords appear as standalone words in the message.
          */
         private static boolean hasWord(String message, String... words) {
@@ -518,8 +573,8 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         static ChatIntent detect(String message, String npcName) {
             // --- CANCEL ---
-            if (message.equals("tchau") || message.equals("adeus") || message.equals("sair")
-                    || message.equals("cancelar") || hasPhrase(message, "deixa pra lá", "deixa pra la", "esquece", "falou")) {
+            if (hasWord(message, "tchau", "adeus", "sair", "cancelar", "esquece", "falou")
+                    || hasPhrase(message, "deixa pra lá", "deixa pra la")) {
                 return CANCEL;
             }
 
@@ -561,31 +616,40 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             }
 
             // --- COMPLIMENT ---
-            if (hasPhrase(message, "bonit", "lind", "gat", "massa", "top", "fod", "incrível", "incrivel",
-                    "maravilhos", "demais", "show", "gostei de você", "gostei de vc",
-                    "te adoro", "te admiro", "amo você", "amo voce", "te amo",
-                    "você é legal", "voce é legal", "vc é legal", "gosto de vc",
-                    "gosto de você", "gosto de voce")) {
+            if (hasStem(message, "bonit", "lind", "maravilhos", "incriv", "incrív")
+                    || hasWord(message, "massa", "top", "show", "demais", "foda",
+                            "gata", "gato", "gatinha", "gatinho", "fofo", "fofa")
+                    || hasPhrase(message, "gostei de você", "gostei de vc",
+                            "te adoro", "te admiro", "amo você", "amo voce", "te amo",
+                            "você é legal", "voce é legal", "vc é legal", "gosto de vc",
+                            "gosto de você", "gosto de voce")) {
                 return COMPLIMENT;
             }
 
             // --- INSULT ---
-            if (hasPhrase(message, "fei", "chato", "irritante", "idiota", "burro", "burra",
-                    "odeio", "nojent", "ridícul", "ridicul", "inútil", "inutil",
-                    "vai embora", "sai daqui", "some", "cala a boca", "cala boca",
-                    "ninguém te quer", "ninguem te quer", "lixo", "ruim")) {
+            // "fei" used to be a stem here and fired on "feito", "feira" and "feijao"; the
+            // explicit forms are listed instead.
+            if (hasStem(message, "nojent", "ridicul", "ridícul", "irritant")
+                    || hasWord(message, "feio", "feia", "feios", "feias", "chato", "chata",
+                            "idiota", "burro", "burra", "odeio", "inútil", "inutil",
+                            "lixo", "ruim", "some")
+                    || hasPhrase(message, "vai embora", "sai daqui", "cala a boca", "cala boca",
+                            "ninguém te quer", "ninguem te quer")) {
                 return INSULT_CHAT;
             }
 
             // --- GRATITUDE ---
-            if (hasPhrase(message, "obrigad", "valeu", "brigad", "thanks", "thank you",
-                    "muito obrigad", "vlw", "tmj")) {
+            if (hasStem(message, "obrigad", "brigad")
+                    || hasWord(message, "valeu", "vlw", "tmj", "thanks")
+                    || hasPhrase(message, "thank you")) {
                 return GRATITUDE;
             }
 
             // --- HUMOR / JOKE ---
-            if (hasPhrase(message, "piada", "conta uma", "faz rir", "joke", "engraçad", "engracad",
-                    "kk", "haha", "kkk", "risos", "lol", "hehe")) {
+            // Laughter is stem-matched so "kkkkkk" and "hahahaha" still land.
+            if (hasStem(message, "engraçad", "engracad", "kk", "haha", "hehe")
+                    || hasWord(message, "piada", "joke", "risos", "lol")
+                    || hasPhrase(message, "conta uma", "faz rir")) {
                 return HUMOR;
             }
 
