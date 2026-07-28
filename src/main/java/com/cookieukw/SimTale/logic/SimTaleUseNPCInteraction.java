@@ -40,7 +40,11 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
     protected void firstRun(@Nonnull InteractionType type, @Nonnull InteractionContext context, @Nonnull CooldownHandler cooldownHandler) {
         Ref<EntityStore> ref = context.getEntity();
         CommandBuffer<EntityStore> commandBuffer = context.getCommandBuffer();
-        assert commandBuffer != null;
+        // `assert` is disabled at runtime without -ea; fail the interaction explicitly instead.
+        if (commandBuffer == null) {
+            context.getState().state = InteractionState.Failed;
+            return;
+        }
         PlayerRef playerRefComponent = commandBuffer.getComponent(ref, PlayerRef.getComponentType());
         if (playerRefComponent == null) {
             HytaleLogger.getLogger().at(Level.INFO).log("UseNPCInteraction requires a Player but was used for: %s", ref);
@@ -87,8 +91,8 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
                 ref.getStore().getExternalData().getWorld().execute(() -> finalPlayer.getPageManager().openCustomPage(ref, ref.getStore(), new NPCInteractionPage(finalPlayerRefComp, finalPlayer, finalNpc)));
             }
 
-            assert npcComponent.getRole() != null;
-            if (!npcComponent.getRole().getStateSupport().willInteractWith(ref)) {
+            if (npcComponent.getRole() == null
+                    || !npcComponent.getRole().getStateSupport().willInteractWith(ref)) {
                 context.getState().state = InteractionState.Failed;
                 return;
             }
