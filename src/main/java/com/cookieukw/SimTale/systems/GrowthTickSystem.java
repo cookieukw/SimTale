@@ -92,9 +92,11 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
                 }
             }
 
-            // If became adult, remove from list (onBecameAdult has already been called)
+            // If they became an adult, drop them from the list. Remove by identity, not by
+            // index: onBecameAdult() already removed the child itself, so remove(i) was
+            // evicting a *different, still-growing* child that had shifted into that slot.
             if (child.isAdult()) {
-                LifecycleManager.ACTIVE_CHILDREN.remove(i);
+                LifecycleManager.ACTIVE_CHILDREN.remove(child);
             }
         }
 
