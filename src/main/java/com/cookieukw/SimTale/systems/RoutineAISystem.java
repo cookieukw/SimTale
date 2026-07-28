@@ -59,6 +59,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     private static final int SLEEP_DURATION_TICKS = 20 * 120;
     private static final int WAKE_ANIM_TICKS = 20;
     private static final double BED_REACH_DISTANCE_SQ = 2.5 * 2.5; // Increased to prevent getting stuck on bed collision
+    /** Look for a chat partner within 20 blocks. */
+    private static final double SOCIALIZE_SEARCH_RANGE_SQ = 20.0 * 20.0;
+    /** Max distance from home an idle stroll may take the NPC. */
+    private static final double WANDER_RADIUS = 8.0;
     private static final Logger LOGGER = LoggerFactory.getLogger(RoutineAISystem.class);
     @Override
     @Nonnull
@@ -76,7 +80,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // Skip routine AI for babies and toddlers (cared for by parents)
         for (GrowthComponent gc : LifecycleManager.ACTIVE_CHILDREN) {
             if (npc.entityId != null && npc.entityId.equals(gc.childId)) {
-                if (gc.stage == GrowthStage.BABY || gc.stage == com.cookieukw.SimTale.core.lifecycle.GrowthStage.TODDLER) {
+                if (gc.stage == GrowthStage.BABY || gc.stage == GrowthStage.TODDLER) {
                     return; 
                 }
                 // If they are CHILD or TEEN, inherit parent's bed
@@ -138,7 +142,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
                     if (other.entityRef == null) continue;
                     RoutineAIComponent otherAi = store.getComponent(other.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
-                    if (otherAi != null && otherAi.currentTask == TaskType.IDLE && other.name.contains("Reaper")) {
+                    if (otherAi != null && otherAi.currentTask == TaskType.IDLE && other.isReaper) {
                         otherAi.currentTask = TaskType.REAPING;
                         otherAi.dyingEntityId = npc.entityId;
                         otherAi.reapTimer = 100;
@@ -158,6 +162,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
             ai.taskStartTime = 0; // bypass cooldown
+            clearAutonomyState(ai);
             LOGGER.info("[SimTale] NPC '{}' is tired (energy={}), interrupting task to find bed immediately", npc.name, npc.needs.energy);
         }
 
@@ -167,6 +172,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
             ai.taskStartTime = 0; // bypass cooldown
+            clearAutonomyState(ai);
             LOGGER.info("[SimTale] Force sleep triggered for NPC '{}', entering FINDING_BED", npc.name);
         }
 
@@ -199,35 +205,51 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 ai.taskStartTime = world.getTick() - BATH_SEARCH_COOLDOWN_TICKS;
             } else if (ai.currentTask == TaskType.IDLE && npc.needs.social < 50 && Math.random() < 0.05) {
                 SimNPCComponent bestTarget = null;
-                double bestDist = 400.0;
+                double bestDist = SOCIALIZE_SEARCH_RANGE_SQ;
                 for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
-                    if (other != npc && other.entityRef != null) {
-                        TransformComponent ot = store.getComponent(other.entityRef, TransformComponent.getComponentType());
-                        if (ot != null) {
-                            double d2 = transform.getPosition().distanceSquared(ot.getPosition());
-                            if (d2 < bestDist) { bestDist = d2; bestTarget = other; }
-                        }
+                    if (other == npc || other.entityRef == null || other.entityId == null) continue;
+
+                    // Do not drag someone out of bed or off the job for a chat.
+                    RoutineAIComponent otherAi = store.getComponent(other.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (otherAi == null || !NPCSocialHelper.isAvailableToTalk(otherAi)) continue;
+
+                    TransformComponent ot = store.getComponent(other.entityRef, TransformComponent.getComponentType());
+                    if (ot == null) continue;
+
+                    double d2 = transform.getPosition().distanceSquared(ot.getPosition());
+                    if (d2 < bestDist) {
+                        bestDist = d2;
+                        bestTarget = other;
                     }
                 }
                 if (bestTarget != null) {
                     ai.currentTask = TaskType.MOVING_TO_SOCIALIZE;
-                    playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
                     ai.socializeTargetId = bestTarget.entityId;
+                    ai.socializeHost = true;
+                    ai.taskStartTime = world.getTick();
+                    playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
                 }
             } else if (ai.currentTask == TaskType.IDLE && Math.random() < 0.02) {
-                ai.currentTask = TaskType.WANDERING;
-                playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                // Anchor the stroll on the NPC's home so the village stays together;
+                // NPCs without a bed wander around wherever they happen to be.
                 double centerX = transform.getPosition().x;
                 double centerZ = transform.getPosition().z;
                 if (npc.bedLocation != null) {
                     centerX = npc.bedLocation.x;
                     centerZ = npc.bedLocation.z;
                 }
+
+                double angle = Math.random() * Math.PI * 2.0;
+                double radius = 2.0 + Math.random() * (WANDER_RADIUS - 2.0);
+
+                ai.currentTask = TaskType.WANDERING;
+                ai.wanderTimer = 0; // handler stamps the deadline on first tick
                 ai.targetBlockPosition = new Vector3i(
-                        (int)(centerX + (Math.random() - 0.5) * 16),
-                        (int)transform.getPosition().y,
-                        (int)(centerZ + (Math.random() - 0.5) * 16)
+                        (int) (centerX + Math.cos(angle) * radius),
+                        (int) transform.getPosition().y,
+                        (int) (centerZ + Math.sin(angle) * radius)
                 );
+                playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
             }
         }
 
@@ -295,7 +317,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                             }
                         }
                         if (!existsInRegistry) {
-                            System.out.println("[SimTale] Re-registering loaded bed at (" + bedPos.x + "," + bedPos.y + "," + bedPos.z + ") from NPC's memory");
+                            LOGGER.debug("[SimTale] Re-registering loaded bed at (" + bedPos.x + "," + bedPos.y + "," + bedPos.z + ") from NPC's memory");
                             BedRegistry.addOrReplace(bedPos.x, bedPos.y, bedPos.z, 0f);
                         }
                     }
@@ -462,6 +484,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // --- Crop Harvesting & Hunting Logic (Delegado ao NPCWorkHelper) ---
         NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store);
+
+        // --- Socializing & Wandering (Delegado ao NPCSocialHelper) ---
+        NPCSocialHelper.handleSocialLogic(ref, npc, ai, transform, world, store);
 
         // --- FINDING_BATH (OPTIMIZATION) ---
         if (ai.currentTask == TaskType.FINDING_BATH && world.getTick() - ai.taskStartTime >= BATH_SEARCH_COOLDOWN_TICKS) {
@@ -673,6 +698,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
     private Vector3i getBedApproachPosition(Vector3i bedPos, TransformComponent transform, World world) {
         return NPCMovementHelper.getBedApproachPosition(bedPos, transform, world);
+    }
+
+    /**
+     * Drops any pending socialize/wander bookkeeping so an interrupted task cannot leave
+     * stale target ids behind. The chat partner, if any, times out on its own side.
+     */
+    private static void clearAutonomyState(RoutineAIComponent ai) {
+        ai.socializeTargetId = null;
+        ai.socializeHost = false;
+        ai.wanderTimer = 0;
     }
 
     private static boolean validateAndClaimBed(World world, BedPos bestBed, SimNPCComponent npc) {
