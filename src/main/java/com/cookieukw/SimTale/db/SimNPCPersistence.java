@@ -74,10 +74,24 @@ public class SimNPCPersistence {
      * that had already drifted apart (loadAllNPCs silently dropped the profession).
      */
     private static void applyData(SimNPCComponent component, SimNPCData data) {
-        component.name = data.name;
-        component.personality = data.personality;
-        component.needs = data.needs;
-        component.stats = data.stats;
+        if (data.name != null) {
+            component.name = data.name;
+        }
+        // These three used to be assigned unconditionally: an older or partial record with a
+        // null personality wiped the live one, and every `npc.personality.traits` read
+        // downstream then threw NullPointerException.
+        if (data.personality != null) {
+            component.personality = data.personality;
+        }
+        if (component.personality != null && component.personality.traits == null) {
+            component.personality.traits = new java.util.HashSet<>();
+        }
+        if (data.needs != null) {
+            component.needs = data.needs;
+        }
+        if (data.stats != null) {
+            component.stats = data.stats;
+        }
         component.memory = data.memory != null ? data.memory : new MemoryManager();
         if (data.profession != null) {
             component.profession = data.profession;
