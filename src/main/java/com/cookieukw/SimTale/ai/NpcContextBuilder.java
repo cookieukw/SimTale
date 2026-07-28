@@ -60,7 +60,9 @@ public class NpcContextBuilder {
 
         // 3. Current Mood
         Mood mood = npc.getMood();
-        systemPrompt.append("Your current mood is ").append(mood.ptName);
+        // mood.name(), not mood.ptName: the rest of this prompt is English, and the reply
+        // language is dictated by the directive at the end instead.
+        systemPrompt.append("Your current mood is ").append(mood.name());
         if (npc.emotionIntensity > 0) {
             systemPrompt.append(" (intensity: ").append(String.format("%.1f", npc.emotionIntensity)).append("/1.0, cause: ").append(npc.emotionSource).append(")");
         }
@@ -68,10 +70,10 @@ public class NpcContextBuilder {
 
         // 4. Profession & Work Status
         if (npc.profession != null) {
-            systemPrompt.append("Your profession: ").append(npc.profession.ptName).append(".\n");
+            systemPrompt.append("Your profession: ").append(npc.profession.name()).append(".\n");
         }
         if (npc.currentJob != null && npc.currentJob != com.cookieukw.SimTale.logic.JobType.NONE) {
-            systemPrompt.append("Currently, you are working as: ").append(npc.currentJob.getPortugueseName()).append(".\n");
+            systemPrompt.append("Currently, you are working as: ").append(npc.currentJob.name()).append(".\n");
         }
 
         // 5. Needs
@@ -158,13 +160,13 @@ public class NpcContextBuilder {
             long now = System.currentTimeMillis();
             for (Memory mem : npc.memory.recentMemories) {
                 long ageSecs = (now - mem.timestamp) / 1000;
-                String sourceName = (mem.playerSource != null && mem.playerSource.equals(playerUuid.toString())) ? playerName : "Alguém";
+                String sourceName = (mem.playerSource != null && mem.playerSource.equals(playerUuid.toString())) ? playerName : "someone else";
                 systemPrompt.append("- Event [").append(mem.event.name()).append("] with ").append(sourceName)
-                        .append(" há ").append(ageSecs).append(" segundos atrás.\n");
+                        .append(", ").append(ageSecs).append(" seconds ago.\n");
             }
         }
         // 10. Directives
-        systemPrompt.append("\nRespond in the first person in a natural way, maintaining total consistency with your personality, mood, traits and feelings towards the player. Do not break character. Important: You must respond exclusively in ").append(language).append("’s native language.");
+        systemPrompt.append("\nRespond in the first person in a natural way, maintaining total consistency with your personality, mood, traits and feelings towards the player. Do not break character. Important: you must reply exclusively in the language with the locale code ").append(language).append(".");
 
         // Metadata Map construction for tracing/debug
         Map<String, Object> metadata = new HashMap<>();
