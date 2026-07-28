@@ -83,32 +83,27 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                         commandBuffer.addComponent(entityRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
                     }
                     
-                    final UUID targetId = uuid;
-                    SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(targetId));
-                    SimTale.ACTIVE_NPCS.add(npc);
+                    SimTale.trackNpc(npc);
                 }
             }
             return;
         }
 
-        SimNPCComponent activeMatch = null;
-        for (SimNPCComponent active : SimTale.ACTIVE_NPCS) {
-            if (active.entityId != null && active.entityId.equals(npc.entityId)) {
-                activeMatch = active;
-                break;
-            }
-        }
-        
+        // Was a linear scan of the whole roster, once per NPC per tick — O(n²) every tick.
+        SimNPCComponent activeMatch = SimTale.findNpc(npc.entityId);
+
         if (activeMatch == null) {
             SimNPCPersistence.loadNPC(npc);
-            SimTale.ACTIVE_NPCS.add(npc);
+            SimTale.trackNpc(npc);
         } else if (activeMatch != npc) {
             // Replace the chunk's component with our official tracked instance which holds command changes
             commandBuffer.replaceComponent(chunk.getReferenceTo(index), SimTale.SIM_NPC_COMPONENT_TYPE, activeMatch);
             npc = activeMatch;
         }
 
-        if (absoluteTick % 600 == 0) {
+        // Staggered by entity id: `absoluteTick % 600` made every NPC in the world write to
+        // disk on the very same tick, producing a periodic I/O spike proportional to the roster.
+        if (npc.entityId != null && Math.floorMod(absoluteTick + npc.entityId.hashCode(), 600) == 0) {
             SimNPCPersistence.saveNPC(npc);
         }
 
