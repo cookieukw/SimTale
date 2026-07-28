@@ -1,7 +1,12 @@
 # Auditoria SimTale
 
-Varredura completa de `src/main/java` (111 arquivos, ~13.9k linhas). Este documento lista
-o que foi **corrigido** e o que ficou **pendente** com arquivo e linha.
+Varredura completa de `src/main/java` (111 arquivos, ~13.9k linhas). Todos os itens
+levantados foram corrigidos — a seção 1 é a primeira rodada, a seção 2 são os grupos que
+dependiam de decisão e foram aplicados depois.
+
+Três achados da versão original deste documento estavam **errados** e ficaram anotados como
+tal (2.3, ids de bloco em 2.6, `OWNER_TO_HOUSE_ID` em 2.6). Investigar cada um levou a
+correções melhores que as propostas iniciais.
 
 Não foi possível compilar aqui (o projeto exige JDK 21+ e o ambiente só tem JRE 11).
 A verificação foi estática: balanceamento estrutural de todos os arquivos, checagem de que
@@ -117,9 +122,12 @@ até a próxima interação.
 
 ---
 
-## 2. Pendente — decisão sua
+## 2. Segunda rodada — tudo resolvido
 
-### 2.1 Performance dos ticks (o mais sério)
+Os seis grupos abaixo eram as pendências que exigiam decisão. Todos foram aplicados; o texto
+original de cada um fica registrado para contexto.
+
+### 2.1 Performance dos ticks — resolvido
 
 **`PlumbobSystem.getQuery()` devolve `UUIDComponent`** (`PlumbobSystem.java:50`). Isso é
 *toda entidade do mundo*, todo tick — cada item no chão, cada projétil. E para cada uma
@@ -144,7 +152,7 @@ registry, como já é feito com camas e plantações.
 `(absoluteTick + entityId.hashCode()) % 600`. E `InteractionManager` chama `saveNPC()` a
 cada interação.
 
-### 2.2 Concorrência
+### 2.2 Concorrência — resolvido
 
 `InteractionManager:158` e `SimTaleChatHandler.sendReply` mandam mensagem e leem
 componentes a partir de threads do `ForkJoinPool`. `SimTaleUseNPCInteraction` já mostra o
@@ -181,7 +189,7 @@ mantidas — `TransformComponent` e `MovementStatesComponent` têm consumidores 
 (índice espacial, replicação), e o `SimTaleTickSystem` substitui de fato o
 `SIM_NPC_COMPONENT_TYPE` por *outra* instância.
 
-### 2.4 Falsos positivos na classificação de intenção do chat
+### 2.4 Falsos positivos na classificação de intenção do chat — resolvido
 
 `ChatIntent.detect` usa `contains()` em fragmentos curtos:
 - `"fei"` → **INSULT** para "feito", "feira", "feijão", "confeitaria"
@@ -192,18 +200,24 @@ mantidas — `TransformComponent` e `MovementStatesComponent` têm consumidores 
 E `INSULT_CHAT` só devolve uma frase: não aplica penalidade de relacionamento nem grava
 memória, ao contrário do `InteractionManager`. Insultar pelo chat não tem consequência.
 
-### 2.5 Estados de tarefa sem timeout
+### 2.5 Estados de tarefa sem timeout — resolvido
 
 `WANDERING` e `MOVING_TO_SOCIALIZE` têm timeout. `MOVING_TO_BATH`, `MOVING_TO_WORK`,
 `MOVING_TO_DEPOSIT`, `MOVING_TO_CONSTRUCTION` e `BATHING` não têm. Se o destino for
 inalcançável, o NPC fica preso até a interrupção de energia baixa arrastá-lo para a cama.
 
-### 2.6 Inconsistências menores
+### 2.6 Inconsistências menores — resolvido
 
-- **Ids de bloco:** `NPCMovementHelper.isStandable` compara com `"Empty"`, `HouseManager.isSolid`
-  com `"empty"`/`"air"`, e `NPCWorkHelper` escreve `"hytale:empty"`. Se o id real tiver o
-  prefixo de namespace, `isStandable` sempre devolve false e o NPC tenta entrar na cama pela
-  posição da própria cama.
+Todos os itens abaixo foram corrigidos, salvo onde marcado. Dois deles eram diagnóstico meu
+errado e estão anotados como tal.
+
+- **Ids de bloco:** eu tinha invertido o diagnóstico. Conferindo `item_ids.txt` (3690 itens),
+  **nenhum id do Hytale usa prefixo de namespace** — `NPCMovementHelper.isStandable` e
+  `HouseManager.isSolid` estavam certos, e o `NPCWorkHelper` era o único fora do padrão.
+  Pior: os ids de comida dele nem existiam em casing nenhum (`food_carrot`), então **colher
+  entregava um item inexistente e plantar colocava um bloco inexistente** — a profissão de
+  fazendeiro estava quebrada de ponta a ponta. Corrigido para `Plant_Crop_<Nome>_Item`,
+  `Plant_Seeds_<Nome>`, `Plant_Crop_<Nome>_Block` e `Food_<Carne>_Raw`.
 - `CropRegistry.isCropId` é case-sensitive; os outros registries usam `toLowerCase`.
 - `NPCPreferences.PROFESSION_POOL` não inclui `HUNTER` — ninguém pode gostar ou desgostar de caçador.
 - `HouseManager.isSolid` devolve `false` para bloco nulo (chunk descarregado), então o
@@ -211,7 +225,8 @@ inalcançável, o NPC fica preso até a interrupção de energia baixa arrastá-
   `TOO_LARGE_OR_UNENCLOSED`.
 - `registerHouse` não desindexa a casa anterior nas mesmas posições → entradas obsoletas em
   `BLOCK_TO_HOUSE_ID`.
-- `OWNER_TO_HOUSE_ID` é preenchido e nunca lido.
+- ~~`OWNER_TO_HOUSE_ID` é preenchido e nunca lido.~~ **Errado:** é lido pelo
+  `HouseDoorManager:29`, para decidir se o NPC pode abrir aquela porta. Mantido.
 - `refreshDailyState` chama de "dia" um bloco de 20 minutos (`System.currentTimeMillis() / 1200000L`).
 - `InteractionManager:126` usa o formato dos dados como sentinela de erro (`memoryEvent == null
   && friendship == 0 && affinity == 0`). Qualquer interação legítima com efeito zero é
