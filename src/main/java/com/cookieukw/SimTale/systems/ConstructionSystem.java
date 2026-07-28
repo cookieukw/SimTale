@@ -19,6 +19,7 @@ import javax.annotation.Nonnull;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.WorldUtil;
 
 public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
 
@@ -46,7 +47,7 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
             SimTale.ACTIVE_SITES.add(site);
         }
 
-        World world = com.cookieukw.SimTale.core.WorldUtil.first();
+        World world = WorldUtil.first();
         if (world == null) return;
 
         if (!site.isBuilding) return;
