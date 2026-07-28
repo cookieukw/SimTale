@@ -12,6 +12,7 @@ import org.joml.Vector3i;
 import javax.annotation.Nonnull;
 
 public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, PlaceBlockEvent> {
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(BedPlaceBlockEventSystem.class);
 
     public BedPlaceBlockEventSystem() {
         super(PlaceBlockEvent.class);
@@ -25,7 +26,7 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
         BlockType type = world.getBlockType(pos.x, pos.y, pos.z);
         if (type == null || type.getId() == null) return;
 
-        System.out.println("[SimTale] Block placed: " + type.getId() + " isBed=" + BedRegistry.isBedId(type.getId()));
+        LOGGER.debug("[SimTale] Block placed: " + type.getId() + " isBed=" + BedRegistry.isBedId(type.getId()));
 
         if (BedRegistry.isBedId(type.getId())) {
             BedRegistry.addOrReplace(pos.x, pos.y, pos.z, 0f);
