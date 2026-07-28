@@ -81,7 +81,10 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
 
         commandBuilder.append("NPCInteraction/NPCInteraction.ui");
 
-        assert npc != null;
+        if (npc == null) {
+            // Was an `assert`, which is disabled at runtime; the page then NPE'd on the next line.
+            return;
+        }
         commandBuilder.set("#NpcName.Text", npc.name);
 
         
