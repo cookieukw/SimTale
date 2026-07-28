@@ -38,6 +38,12 @@ public class NPCWorkHelper {
     private static final int GATHER_WORK_DURATION_TICKS = 40; // 2 seconds
     private static final double WORK_REACH_DISTANCE_SQ = 2.5 * 2.5;
 
+    /**
+     * Give up walking to a crop/animal/chest after 30s. None of the MOVING_* states had a
+     * deadline, so an unreachable target parked the NPC permanently in that state.
+     */
+    private static final int MOVE_TIMEOUT_TICKS = 600;
+
     private static final String ANIM_WALK = "Characters/Animations/Actions/Walk.blockyanim";
     private static final String ANIM_SMITH = "Characters/Animations/Actions/Smith.blockyanim";
     private static final String ANIM_IDLE = "Characters/Animations/Actions/Idle.blockyanim";
@@ -91,6 +97,8 @@ public class NPCWorkHelper {
                 if (depositChest != null) {
                     ai.targetBlockPosition = new Vector3i(depositChest.x, depositChest.y, depositChest.z);
                     ai.currentTask = TaskType.MOVING_TO_DEPOSIT;
+                    // Stamp the entry tick; the state had no deadline of its own before.
+                    ai.taskStartTime = world.getTick();
                     playWalk(ref, store);
                     return;
                 }
@@ -105,6 +113,7 @@ public class NPCWorkHelper {
                     if (cropPos != null) {
                         ai.targetBlockPosition = cropPos;
                         ai.currentTask = TaskType.MOVING_TO_WORK;
+                        ai.taskStartTime = world.getTick();
                         playWalk(ref, store);
                     } else {
                         String seed = findSeedInInventory(inventory);
@@ -113,6 +122,7 @@ public class NPCWorkHelper {
                             if (farmPos != null) {
                                 ai.targetBlockPosition = farmPos;
                                 ai.currentTask = TaskType.MOVING_TO_WORK;
+                                ai.taskStartTime = world.getTick();
                                 playWalk(ref, store);
                             }
                         }
@@ -126,6 +136,7 @@ public class NPCWorkHelper {
                         if (uuidComp != null) {
                             ai.workTargetEntityId = uuidComp.getUuid();
                             ai.currentTask = TaskType.MOVING_TO_WORK;
+                            ai.taskStartTime = world.getTick();
                             playWalk(ref, store);
                         }
                     }
@@ -135,6 +146,11 @@ public class NPCWorkHelper {
 
         // MOVING_TO_WORK
         if (ai.currentTask == TaskType.MOVING_TO_WORK) {
+            if (world.getTick() - ai.taskStartTime > MOVE_TIMEOUT_TICKS) {
+                LOGGER.debug("[SimTale] NPC {} desistiu de chegar ao alvo de trabalho", npc.name);
+                abandonTask(ref, ai);
+                return;
+            }
             Vector3d npcPos = transform.getPosition();
             if (npc.profession == Profession.FARMER) {
                 if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
@@ -269,6 +285,11 @@ public class NPCWorkHelper {
         // MOVING_TO_DEPOSIT
         if (ai.currentTask == TaskType.MOVING_TO_DEPOSIT) {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
+            if (world.getTick() - ai.taskStartTime > MOVE_TIMEOUT_TICKS) {
+                LOGGER.debug("[SimTale] NPC {} desistiu de chegar ao bau de deposito", npc.name);
+                abandonTask(ref, ai);
+                return;
+            }
             Vector3d npcPos = transform.getPosition();
             if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5)) {
                 NPCMovementHelper.clearMoveTarget(ref, ai);
@@ -304,6 +325,14 @@ public class NPCWorkHelper {
                 NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, npcPos.y, ai.targetBlockPosition.z + 0.5));
             }
         }
+    }
+
+    /** Drops the current movement goal and returns the NPC to IDLE. */
+    private static void abandonTask(Ref<EntityStore> ref, RoutineAIComponent ai) {
+        NPCMovementHelper.clearMoveTarget(ref, ai);
+        ai.targetBlockPosition = null;
+        ai.workTargetEntityId = null;
+        ai.currentTask = TaskType.IDLE;
     }
 
     // ── Animation shortcuts ──────────────────────────────────────────────────
