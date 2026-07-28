@@ -54,7 +54,10 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
         // Execute only once per interval, at first index
         if (index != 0) return;
 
-        long nowTicks = Universe.get().getWorlds().values().iterator().next().getTick();
+        com.hypixel.hytale.server.core.universe.world.World world = com.cookieukw.SimTale.core.WorldUtil.first();
+        if (world == null) return;
+
+        long nowTicks = world.getTick();
         if (nowTicks - lastTick < TICK_INTERVAL) return;
         lastTick = nowTicks;
 
@@ -63,7 +66,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
         // Process each active player
         for (PlayerRef playerRef : Universe.get().getPlayers()) {
             UUID playerUuid = playerRef.getUuid();
-            Ref<EntityStore> entityRef = Universe.get().getWorlds().values().iterator().next().getEntityStore().getRefFromUUID(playerUuid);
+            Ref<EntityStore> entityRef = world.getEntityStore().getRefFromUUID(playerUuid);
             if (entityRef == null) continue;
 
             TransformComponent playerTransform = store.getComponent(entityRef, TransformComponent.getComponentType());
