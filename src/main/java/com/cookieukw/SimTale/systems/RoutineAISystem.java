@@ -55,6 +55,9 @@ import javax.annotation.Nonnull;
 public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
     private static final int BATH_SEARCH_COOLDOWN_TICKS = 40;
+    /** Horizontal/vertical half-extent of the water scan. 15x15x5 ≈ 10.500 blocos por varredura. */
+    private static final int BATH_SEARCH_RADIUS = 15;
+    private static final int BATH_SEARCH_HEIGHT = 5;
     private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 60;
     private static final int SLEEP_DURATION_TICKS = 20 * 120;
     private static final int WAKE_ANIM_TICKS = 20;
@@ -77,11 +80,15 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
         if (npc == null || npc.needs == null) return;
 
-        // Skip routine AI for babies and toddlers (cared for by parents)
-        for (GrowthComponent gc : LifecycleManager.ACTIVE_CHILDREN) {
-            if (npc.entityId != null && npc.entityId.equals(gc.childId)) {
+        // Skip routine AI for babies and toddlers (cared for by parents).
+        // The isEmpty() guard matters: without any children in the world this loop still ran
+        // once per NPC per tick for nothing.
+        if (npc.entityId != null && !LifecycleManager.ACTIVE_CHILDREN.isEmpty()) {
+            for (GrowthComponent gc : LifecycleManager.ACTIVE_CHILDREN) {
+                if (!npc.entityId.equals(gc.childId)) continue;
+
                 if (gc.stage == GrowthStage.BABY || gc.stage == GrowthStage.TODDLER) {
-                    return; 
+                    return;
                 }
                 // If they are CHILD or TEEN, inherit parent's bed
                 if (npc.bedLocation == null) {
@@ -495,27 +502,36 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             int sx = (int) pos.x; int sy = (int) pos.y; int sz = (int) pos.z;
             boolean found = false;
 
+            // This scan touches ~31x31x11 ≈ 10.500 blocos por NPC. It used to allocate a
+            // Vector3i *and* a lowercased String per block (≈21.000 objetos descartáveis por
+            // varredura, por NPC). The cursor below is reused and the id match is
+            // allocation-free. getChunkIfInMemory replaces getChunk so the scan never forces
+            // a chunk load from inside the tick loop.
+            Vector3i cursor = new Vector3i();
+
             bathSearch:
-            for (int cx = (sx - 15) >> 4; cx <= (sx + 15) >> 4; cx++) {
-                for (int cz = (sz - 15) >> 4; cz <= (sz + 15) >> 4; cz++) {
-                    WorldChunk chunkAt = world.getChunk(ChunkUtil.indexChunk(cx, cz));
+            for (int cx = (sx - BATH_SEARCH_RADIUS) >> 4; cx <= (sx + BATH_SEARCH_RADIUS) >> 4; cx++) {
+                for (int cz = (sz - BATH_SEARCH_RADIUS) >> 4; cz <= (sz + BATH_SEARCH_RADIUS) >> 4; cz++) {
+                    WorldChunk chunkAt = world.getChunkIfInMemory(ChunkUtil.indexChunk(cx, cz));
                     if (chunkAt == null) continue;
 
-                    int minX = Math.max(sx - 15, cx << 4);
-                    int maxX = Math.min(sx + 15, (cx << 4) + 15);
-                    int minZ = Math.max(sz - 15, cz << 4);
-                    int maxZ = Math.min(sz + 15, (cz << 4) + 15);
+                    int minX = Math.max(sx - BATH_SEARCH_RADIUS, cx << 4);
+                    int maxX = Math.min(sx + BATH_SEARCH_RADIUS, (cx << 4) + 15);
+                    int minZ = Math.max(sz - BATH_SEARCH_RADIUS, cz << 4);
+                    int maxZ = Math.min(sz + BATH_SEARCH_RADIUS, (cz << 4) + 15);
 
                     for (int x = minX; x <= maxX; x++) {
                         for (int z = minZ; z <= maxZ; z++) {
-                            for (int y = sy - 5; y <= sy + 5; y++) {
-                                BlockType bType = chunkAt.getBlockType(new Vector3i(x, y, z));
-                                if (bType != null && bType.getId() != null && bType.getId().toLowerCase().contains("water")) {
-                                    ai.targetBlockPosition = new Vector3i(x, y, z);
-                                    ai.currentTask = TaskType.MOVING_TO_BATH;
-                                    playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
-                                    found = true; break bathSearch;
-                                }
+                            for (int y = sy - BATH_SEARCH_HEIGHT; y <= sy + BATH_SEARCH_HEIGHT; y++) {
+                                BlockType bType = chunkAt.getBlockType(cursor.set(x, y, z));
+                                if (bType == null) continue;
+                                if (!containsIgnoreCase(bType.getId(), "water")) continue;
+
+                                ai.targetBlockPosition = new Vector3i(x, y, z);
+                                ai.currentTask = TaskType.MOVING_TO_BATH;
+                                playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                                found = true;
+                                break bathSearch;
                             }
                         }
                     }
@@ -643,18 +659,19 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         double closestDistSq = Double.MAX_VALUE;
         Vector3d myPos = transform.getPosition();
 
-        Set<String> claimedBedKeys = new HashSet<>();
+        // BedPos already implements equals/hashCode over x/y/z, so the set can hold the
+        // positions directly. Building "x,y,z" strings meant two throwaway allocations per
+        // bed per lookup, on a path that runs whenever an NPC goes looking for a bed.
+        Set<BedPos> claimedBeds = new HashSet<>();
         for (SimNPCComponent otherNpc : SimTale.ACTIVE_NPCS) {
             if (otherNpc.bedLocation != null) {
-                BedPos ob = otherNpc.bedLocation;
-                claimedBedKeys.add(ob.x + "," + ob.y + "," + ob.z);
+                claimedBeds.add(otherNpc.bedLocation);
             }
         }
-        
+
         synchronized (BedRegistry.BEDS) {
             for (BedPos bp : BedRegistry.BEDS) {
-                String key = bp.x + "," + bp.y + "," + bp.z;
-                if (claimedBedKeys.contains(key)) continue;
+                if (claimedBeds.contains(bp)) continue;
 
                 double dx = bp.x - myPos.x;
                 double dy = bp.y - myPos.y;
@@ -669,7 +686,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[SimTale] getBedPos: registry={}, claimed={}, chosen={}",
-                    BedRegistry.BEDS.size(), claimedBedKeys.size(),
+                    BedRegistry.BEDS.size(), claimedBeds.size(),
                     bestBed != null ? "(" + bestBed.x + "," + bestBed.y + "," + bestBed.z + ")" : "null");
         }
         return bestBed;
@@ -698,6 +715,23 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
     private Vector3i getBedApproachPosition(Vector3i bedPos, TransformComponent transform, World world) {
         return NPCMovementHelper.getBedApproachPosition(bedPos, transform, world);
+    }
+
+    /**
+     * Allocation-free {@code id.toLowerCase().contains(needle)}. The bath scan ran this on
+     * thousands of block ids per NPC; the lowercase copy alone was the bulk of the garbage.
+     *
+     * @param needle must already be lowercase.
+     */
+    private static boolean containsIgnoreCase(String haystack, String needle) {
+        if (haystack == null) return false;
+        int limit = haystack.length() - needle.length();
+        for (int i = 0; i <= limit; i++) {
+            if (haystack.regionMatches(true, i, needle, 0, needle.length())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
