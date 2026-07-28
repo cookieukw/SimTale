@@ -35,6 +35,11 @@ public class NPCHungerHelper {
 
     /** Single source of truth for "is this item edible?" heuristics. */
     private static boolean isFoodId(String itemIdLower) {
+        // Harvested crops (Plant_Crop_Carrot_Item, ...) are edible too. Without this a farmer
+        // could fill the house chest with produce that no hungry NPC would ever recognise.
+        if (itemIdLower.startsWith("plant_crop_") && itemIdLower.endsWith("_item")) {
+            return true;
+        }
         return itemIdLower.contains("food_") || itemIdLower.contains("_food") || itemIdLower.startsWith("food");
     }
 
