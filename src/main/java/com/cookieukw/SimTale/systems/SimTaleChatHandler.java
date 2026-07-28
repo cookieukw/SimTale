@@ -3,6 +3,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.FriendshipTier;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.engine.Animal;
 import com.cookieukw.SimTale.engine.MagicDataLoader;
@@ -17,7 +18,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.logger.HytaleLogger;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -34,6 +35,8 @@ import javax.annotation.Nonnull;
 public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
     private static final int CONVERSATION_TIMEOUT_TICKS = 1200; // 20 seconds (was 10s)
+    /** Delay before the NPC answers, so the player's own line renders first. */
+    private static final long REPLY_DELAY_MS = 150L;
 
     // Precompiled: these were being recompiled twice per NPC, for every chat message sent.
     private static final Pattern PUNCTUATION = Pattern.compile("[.,!?;:]");
@@ -42,7 +45,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
     /** Lowercases, strips light punctuation and collapses whitespace. */
     @Nonnull
     private static String normalize(@Nonnull String value) {
-        String lowered = value.toLowerCase(java.util.Locale.ROOT);
+        String lowered = value.toLowerCase(Locale.ROOT);
         return SPACES.matcher(PUNCTUATION.matcher(lowered).replaceAll(" ")).replaceAll(" ").trim();
     }
 
@@ -65,29 +68,33 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             return;
         }
 
-        message = message.toLowerCase(java.util.Locale.ROOT);
+        message = message.toLowerCase(Locale.ROOT);
 
-        World world = null;
-        for (World w : Universe.get().getWorlds().values()) {
-            world = w;
-            break;
+        final World world = WorldUtil.first();
+        if (world == null) {
+            return;
         }
 
         // Fallback: If the list is empty after reloading the server, try to reassemble the NPCs
-        if (world != null && SimTale.ACTIVE_NPCS.isEmpty()) {
+        if (SimTale.ACTIVE_NPCS.isEmpty()) {
             SimNPCPersistence.reassembleActiveNPCs(world);
         }
 
-        SimNPCComponent targetNpc = findTargetNpc(sender, message);
+        final SimNPCComponent targetNpc = findTargetNpc(sender, message);
+        if (targetNpc == null) {
+            return;
+        }
 
         // Only log when we actually routed the message to an NPC — logging every single
         // chat line (plus the full NPC roster) floods the server console.
-        if (targetNpc != null) {
-            HytaleLogger.forEnclosingClass().atInfo()
-                    .log("SimTale [CHAT]: '" + message + "' -> " + targetNpc.name);
-        }
+        final String routedMessage = message;
+        HytaleLogger.forEnclosingClass().atFine()
+                .log("SimTale [CHAT]: '" + routedMessage + "' -> " + targetNpc.name);
 
-        if (targetNpc != null && world != null) {
+        // Everything below mutates NPC state (conversation partner, profession, current job,
+        // the magic game) that the tick systems read concurrently. The chat event fires on the
+        // networking thread, so the whole handler is marshalled onto the world thread.
+        WorldUtil.execute(() -> {
             if (targetNpc.currentConversationPartner != null && world.getTick() >= targetNpc.conversationTimeoutTick) {
                 targetNpc.currentConversationPartner = null;
             }
@@ -98,8 +105,8 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
                 return;
             }
 
-            handleNpcCommand(sender, message, targetNpc, world);
-        }
+            handleNpcCommand(sender, routedMessage, targetNpc, world);
+        });
     }
 
     /** Uses the tracking list to find the NPC (exact name, or fuzzy match by Levenshtein). */
@@ -425,18 +432,15 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         return "outra profissão";
     }
 
+    /**
+     * Replies after a short delay so the player's own chat line prints first.
+     * <p>
+     * This used to be {@code CompletableFuture.runAsync} + {@code Thread.sleep(150)}, which
+     * (a) parked a shared common-pool worker for the whole delay and (b) called
+     * {@code sendMessage} from that pool thread. The send now happens on the world thread.
+     */
     private void sendReply(PlayerRef sender, Message text) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                Thread.sleep(150); // 150ms delay so the player's own chat line prints first
-            } catch (InterruptedException e) {
-                // Swallowing the interrupt left the pool thread's interrupt flag cleared, so
-                // nothing downstream could ever observe the cancellation. Restore and bail out.
-                Thread.currentThread().interrupt();
-                return;
-            }
-            sender.sendMessage(text);
-        });
+        WorldUtil.executeLater(() -> sender.sendMessage(text), REPLY_DELAY_MS);
     }
 
     private int getLevenshteinDistance(String a, String b) {
