@@ -143,53 +143,7 @@ public class SimNPCPersistence {
                     if (data.id == null) continue;
                     UUID entityId = UUID.fromString(data.id);
                     SimNPCComponent comp = new SimNPCComponent(entityId, data.name);
-                    comp.personality = data.personality;
-                    comp.needs = data.needs;
-                    comp.stats = data.stats;
-                    comp.memory = data.memory != null ? data.memory : new MemoryManager();
-                    if (data.profession != null) {
-                        // Without this the SimNPCComponent constructor's random profession sticks.
-                        comp.profession = data.profession;
-                    }
-                    if (data.preferences != null) {
-                        comp.preferences = data.preferences;
-                    }
-                    if (data.family != null) {
-                        comp.family = data.family;
-                    }
-                    if (data.gender != null) {
-                        comp.gender = data.gender;
-                    }
-                    if (data.bedLocation != null) {
-                        comp.bedLocation = new SimBedData.BedPos(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
-                        BedRegistry.addOrReplace(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
-                    }
-                    
-                    if (data.relationships != null) {
-                        for (Map.Entry<String, Relationship> entry : data.relationships.entrySet()) {
-                            comp.relationships.put(UUID.fromString(entry.getKey()), entry.getValue());
-                        }
-                    }
-                    
-                    // Restore pregnancy
-                    if (data.pregnancy != null) {
-                        comp.pregnancy = data.pregnancy;
-                    }
-
-                    // Restore emotion state
-                    if (data.activeEmotion != null) {
-                        try {
-                            comp.activeEmotion = Mood.valueOf(data.activeEmotion);
-                        } catch (IllegalArgumentException e) {
-                            comp.activeEmotion = Mood.NEUTRAL;
-                        }
-                    }
-                    comp.emotionIntensity = data.emotionIntensity;
-                    if (data.emotionSource != null) {
-                        comp.emotionSource = data.emotionSource;
-                    }
-                    comp.lastEmotionChangeTick = data.lastEmotionChangeTick;
-
+                    applyData(comp, data);
                     result.add(comp);
                 }
             }
