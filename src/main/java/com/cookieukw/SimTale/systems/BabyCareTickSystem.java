@@ -6,6 +6,7 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareData;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
@@ -20,6 +21,7 @@ import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.codec.Codec;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
@@ -54,7 +56,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
         // Execute only once per interval, at first index
         if (index != 0) return;
 
-        com.hypixel.hytale.server.core.universe.world.World world = com.cookieukw.SimTale.core.WorldUtil.first();
+        World world = WorldUtil.first();
         if (world == null) return;
 
         long nowTicks = world.getTick();
