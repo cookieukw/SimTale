@@ -16,6 +16,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.cookieukw.SimTale.systems.BedRegistry;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -84,7 +85,7 @@ public class SimNPCPersistence {
             component.personality = data.personality;
         }
         if (component.personality != null && component.personality.traits == null) {
-            component.personality.traits = new java.util.HashSet<>();
+            component.personality.traits = new HashSet<>();
         }
         if (data.needs != null) {
             component.needs = data.needs;
