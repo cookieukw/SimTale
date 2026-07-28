@@ -10,6 +10,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 
@@ -88,7 +89,7 @@ public class SimNPCComponent implements Component<EntityStore> {
         // Traits are the whole point of Personality — without this the clone silently lost
         // GREEDY/SHY/LAZY/... and behaved like a blank NPC.
         if (personality.traits != null) {
-            clone.personality.traits = new java.util.HashSet<>(personality.traits);
+            clone.personality.traits = new HashSet<>(personality.traits);
         }
         clone.needs = new Needs();
         clone.needs.hunger = needs.hunger;
