@@ -65,7 +65,9 @@ public class LifecycleUtils {
     }
 
     public static void removeBabyItemFromPlayer(PlayerRef playerRef, UUID oldChildId) {
-        Ref<EntityStore> pRef = Universe.get().getWorlds().values().iterator().next().getEntityStore().getRefFromUUID(playerRef.getUuid());
+        World world = com.cookieukw.SimTale.core.WorldUtil.first();
+        if (world == null) return;
+        Ref<EntityStore> pRef = world.getEntityStore().getRefFromUUID(playerRef.getUuid());
         if (pRef == null) return;
         CombinedItemContainer combinedInventory = InventoryComponent.getCombined(pRef.getStore(), pRef, InventoryComponent.HOTBAR_FIRST);
         for (short slot = 0; slot < combinedInventory.getCapacity(); slot++) {
