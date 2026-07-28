@@ -13,8 +13,11 @@ public class Needs {
     public float hygiene = 100f;
 
     public void tickDecay(Set<Trait> traits) {
-        float energyDecay = traits.contains(Trait.LAZY) ? 0.0004f : 0.0002f;
-        float funDecay = traits.contains(Trait.FUNNY) ? 0.00005f : 0.0001f;
+        // traits comes straight off a deserialized Personality and can legitimately be null.
+        boolean lazy = traits != null && traits.contains(Trait.LAZY);
+        boolean funny = traits != null && traits.contains(Trait.FUNNY);
+        float energyDecay = lazy ? 0.0004f : 0.0002f;
+        float funDecay = funny ? 0.00005f : 0.0001f;
         
         this.hunger = Math.max(0, this.hunger - 0.0001f);
         this.energy = Math.max(0, this.energy - energyDecay);
