@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Child;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -65,7 +66,7 @@ public class LifecycleUtils {
     }
 
     public static void removeBabyItemFromPlayer(PlayerRef playerRef, UUID oldChildId) {
-        World world = com.cookieukw.SimTale.core.WorldUtil.first();
+        World world = WorldUtil.first();
         if (world == null) return;
         Ref<EntityStore> pRef = world.getEntityStore().getRefFromUUID(playerRef.getUuid());
         if (pRef == null) return;
