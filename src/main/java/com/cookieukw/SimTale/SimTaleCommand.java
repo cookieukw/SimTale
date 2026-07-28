@@ -235,7 +235,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 PlumbobSystem.removePlumbob(npc.entityId);
                 Caskara.delete(npc.entityId.toString(), SimNPCData.class);
             }
-            SimTale.ACTIVE_NPCS.clear();
+            SimTale.clearActiveNpcs();
             ctx.sendMessage(Message.raw("Removidos permanentemente " + count + " NPCs do Hytale e banco de dados."));
         }
     }
