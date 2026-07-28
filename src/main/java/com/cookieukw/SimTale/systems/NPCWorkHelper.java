@@ -48,35 +48,46 @@ public class NPCWorkHelper {
     private static final String ANIM_SMITH = "Characters/Animations/Actions/Smith.blockyanim";
     private static final String ANIM_IDLE = "Characters/Animations/Actions/Idle.blockyanim";
 
-    // keyword -> value, checked in insertion order; falls back to the first entry's value if nothing matches
+    // keyword -> value, checked in insertion order; falls back to the first entry's value if nothing matches.
+    //
+    // NOTE: Hytale item ids carry no namespace — `item_ids.txt` lists 3690 entries and not one
+    // uses a "hytale:" prefix. Every id below used to be prefixed, so none of them resolved:
+    // harvesting handed out a nonexistent item and planting placed a nonexistent block. The
+    // food ids were doubly wrong ("food_carrot" does not exist in any casing); the real
+    // harvested crop is `Plant_Crop_<Name>_Item`.
     private static final Map<String, String> CROP_TO_FOOD = orderedMap(
-            "carrot", "hytale:food_carrot",
-            "wheat", "hytale:food_bread",
-            "tomato", "hytale:food_tomato",
-            "corn", "hytale:food_corn"
+            "carrot", "Plant_Crop_Carrot_Item",
+            "wheat", "Plant_Crop_Wheat_Item",
+            "tomato", "Plant_Crop_Tomato_Item",
+            "corn", "Plant_Crop_Corn_Item"
     );
 
     private static final Map<String, String> CROP_TO_SEED = orderedMap(
-            "carrot", "hytale:Plant_Seeds_Carrot",
-            "wheat", "hytale:Plant_Seeds_Wheat",
-            "tomato", "hytale:Plant_Seeds_Tomato",
-            "corn", "hytale:Plant_Seeds_Corn"
+            "carrot", "Plant_Seeds_Carrot",
+            "wheat", "Plant_Seeds_Wheat",
+            "tomato", "Plant_Seeds_Tomato",
+            "corn", "Plant_Seeds_Corn"
     );
 
     private static final Map<String, String> SEED_TO_CROP_BLOCK = orderedMap(
-            "carrot", "hytale:Plant_Crop_Carrot_Block",
-            "wheat", "hytale:Plant_Crop_Wheat_Block",
-            "tomato", "hytale:Plant_Crop_Tomato_Block",
-            "corn", "hytale:Plant_Crop_Corn_Block"
+            "carrot", "Plant_Crop_Carrot_Block",
+            "wheat", "Plant_Crop_Wheat_Block",
+            "tomato", "Plant_Crop_Tomato_Block",
+            "corn", "Plant_Crop_Corn_Block"
     );
 
     private static final Map<String, String> ANIMAL_TO_MEAT = orderedMap(
-            "pig", "hytale:food_pork_raw",
-            "cow", "hytale:food_beef_raw",
-            "bull", "hytale:food_beef_raw",
-            "chicken", "hytale:food_chicken_raw",
-            "hen", "hytale:food_chicken_raw"
+            "pig", "Food_Pork_Raw",
+            "cow", "Food_Beef_Raw",
+            "bull", "Food_Beef_Raw",
+            "chicken", "Food_Chicken_Raw",
+            "hen", "Food_Chicken_Raw",
+            "sheep", "Food_Wildmeat_Raw",
+            "goat", "Food_Wildmeat_Raw"
     );
+
+    /** Block id used to clear a position, matching the convention in ConstructionSystem. */
+    private static final String EMPTY_BLOCK = "Empty";
 
     public static void handleWorkLogic(
             Ref<EntityStore> ref,
@@ -201,12 +212,12 @@ public class NPCWorkHelper {
                 if (blockType != null && blockType.getId() != null && blockType.getId().toLowerCase().contains("crop")) {
                     String cropId = blockType.getId();
                     // Replace with empty
-                    world.setBlock(cropPos.x, cropPos.y, cropPos.z, "hytale:empty");
+                    world.setBlock(cropPos.x, cropPos.y, cropPos.z, EMPTY_BLOCK);
                     CropRegistry.removeAt(cropPos.x, cropPos.y, cropPos.z);
 
                     // Map to food item & seed item
-                    String meatOrVeg = lookup(CROP_TO_FOOD, cropId, "hytale:food_carrot");
-                    String seedItem = lookup(CROP_TO_SEED, cropId, "hytale:Plant_Seeds_Carrot");
+                    String meatOrVeg = lookup(CROP_TO_FOOD, cropId, "Plant_Crop_Carrot_Item");
+                    String seedItem = lookup(CROP_TO_SEED, cropId, "Plant_Seeds_Carrot");
                     ItemContainer inv = getInventory(store, ref);
                     if (inv != null) {
                         inv.addItemStack(new ItemStack(meatOrVeg, 1));
@@ -263,7 +274,7 @@ public class NPCWorkHelper {
                     PersistentModel pm = animalRef.getStore().getComponent(animalRef, PersistentModel.getComponentType());
                     if (pm != null) {
                         String modelId = pm.getModelReference().getModelAssetId();
-                        String meatId = lookup(ANIMAL_TO_MEAT, modelId, "hytale:food_wildmeat_raw");
+                        String meatId = lookup(ANIMAL_TO_MEAT, modelId, "Food_Wildmeat_Raw");
 
                         // Destroy animal
                         animalRef.getStore().removeEntity(animalRef, RemoveReason.REMOVE);
@@ -459,7 +470,7 @@ public class NPCWorkHelper {
             for (HouseBlockPos fp : FarmlandRegistry.FARMLAND) {
                 // Check if block above is empty (so we can plant something)
                 BlockType above = world.getBlockType(fp.x, fp.y + 1, fp.z);
-                if (above == null || above.getId() == null || above.getId().equalsIgnoreCase("hytale:empty") || above.getId().equalsIgnoreCase("empty")) {
+                if (above == null || above.getId() == null || above.getId().equalsIgnoreCase(EMPTY_BLOCK)) {
                     double dx = fp.x + 0.5 - center.x;
                     double dy = fp.y + 1.5 - center.y;
                     double dz = fp.z + 0.5 - center.z;
@@ -480,7 +491,7 @@ public class NPCWorkHelper {
             ItemStack item = container.getItemStack(slot);
             if (item != null && !item.isEmpty()) {
                 String id = item.getItemId();
-                if (id.startsWith("hytale:Plant_Seeds_") || id.startsWith("Plant_Seeds_") || id.toLowerCase().contains("seeds_")) {
+                if (id.toLowerCase(java.util.Locale.ROOT).contains("plant_seeds_")) {
                     return id;
                 }
             }
@@ -501,6 +512,6 @@ public class NPCWorkHelper {
 
     /** Kept public: called from outside this class. */
     public static String getCropBlockFromSeed(String seedId) {
-        return lookup(SEED_TO_CROP_BLOCK, seedId, "hytale:Plant_Crop_Carrot_Block");
+        return lookup(SEED_TO_CROP_BLOCK, seedId, "Plant_Crop_Carrot_Block");
     }
 }
