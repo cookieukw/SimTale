@@ -124,15 +124,20 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
-            assert transform != null;
+            // `assert` is stripped at runtime without -ea, so these were not real checks.
+            if (transform == null) {
+                ctx.sendMessage(Message.raw("Nao foi possivel obter sua posicao."));
+                return;
+            }
             Vector3d pos = transform.getPosition().add(2, 0, 2);
 
             Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
             SimNPCComponent comp = store.getComponent(npcRef, SimTale.SIM_NPC_COMPONENT_TYPE);
 
             // Save initial state to DB
-            assert comp != null;
-            SimNPCPersistence.saveNPC(comp);
+            if (comp != null) {
+                SimNPCPersistence.saveNPC(comp);
+            }
 
             ctx.sendMessage(Message.translation("general.cmd.spawn.success").param("type", type.name()));
         }
@@ -177,7 +182,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             Player player = store.getComponent(ref, Player.getComponentType());
-            assert player != null;
+            if (player == null) {
+                ctx.sendMessage(Message.raw("Componente de jogador indisponivel."));
+                return;
+            }
             player.getPageManager().openCustomPage(ref, store, new NPCInteractionPage(playerRef, player, nearestNPC));
             ctx.sendMessage(Message.translation("general.cmd.interact.success").param("name", nearestNPC.name));
         }
@@ -257,14 +265,18 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
-            assert transform != null;
+            if (transform == null) {
+                ctx.sendMessage(Message.raw("Nao foi possivel obter sua posicao."));
+                return;
+            }
             Vector3d pos = transform.getPosition().add(2, 0, 2);
 
             Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
             SimNPCComponent comp = store.getComponent(npcRef, SimTale.SIM_NPC_COMPONENT_TYPE);
 
-            assert comp != null;
-            SimNPCPersistence.saveNPC(comp);
+            if (comp != null) {
+                SimNPCPersistence.saveNPC(comp);
+            }
 
             ctx.sendMessage(Message.raw("Forcado spawn de NPC de debug do tipo: " + type.name()));
         }
