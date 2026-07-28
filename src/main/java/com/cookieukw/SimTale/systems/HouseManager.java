@@ -35,7 +35,8 @@ public class HouseManager {
     }
 
     public record HouseScanResult(Set<HouseBlockPos> interiorBlocks, Set<HouseBlockPos> doorBlocks,
-                                  Set<HouseBlockPos> otherBeds, Set<HouseBlockPos> chestBlocks, boolean overflowed) {
+                                  Set<HouseBlockPos> otherBeds, Set<HouseBlockPos> chestBlocks, boolean overflowed,
+                                  boolean hitUnloaded) {
     }
 
     public record ScanReport(ScanOutcome outcome, Set<UUID> freshBedOwners, UUID conflictingHouseId,
@@ -78,7 +79,14 @@ public class HouseManager {
 
     public static void registerHouse(HouseData house) {
         UUID houseId = UUID.fromString(house.houseId);
-        HOUSES_BY_ID.put(houseId, house);
+        // Un-index whatever was registered under this id first; re-registering a house whose
+        // footprint shrank used to leave the dropped blocks pointing at it in
+        // BLOCK_TO_HOUSE_ID forever, so chest permissions kept honouring walls that no longer
+        // existed.
+        HouseData previous = HOUSES_BY_ID.put(houseId, house);
+        if (previous != null) {
+            unindexHouse(previous);
+        }
         indexHouse(house);
         saveHouse(house);
     }
@@ -117,10 +125,11 @@ public class HouseManager {
 
         queue.add(bedPos);
         visited.add(bedPos);
+        boolean hitUnloaded = false;
 
         while (!queue.isEmpty()) {
             if (visited.size() > MAX_INTERIOR_BLOCKS) {
-                return new HouseScanResult(visited, doors, otherBeds, chestBlocks, true);
+                return new HouseScanResult(visited, doors, otherBeds, chestBlocks, true, hitUnloaded);
             }
 
             HouseBlockPos current = queue.poll();
@@ -129,6 +138,15 @@ public class HouseManager {
                 if (visited.contains(neighbor)) continue;
 
                 BlockType type = world.getBlockType(neighbor.x, neighbor.y, neighbor.z);
+
+                // A null type means "not loaded", not "air". isSolid() reported false for it,
+                // so the fill poured out through unloaded chunks until it hit the 512-block cap
+                // and the house was rejected as unenclosed. Treat it as a boundary and flag the
+                // scan as incomplete instead of burning the whole budget.
+                if (type == null) {
+                    hitUnloaded = true;
+                    continue;
+                }
 
                 if (isDoor(type)) {
                     doors.add(neighbor);
@@ -156,13 +174,15 @@ public class HouseManager {
             }
         }
 
-        return new HouseScanResult(visited, doors, otherBeds, chestBlocks, false);
+        return new HouseScanResult(visited, doors, otherBeds, chestBlocks, false, hitUnloaded);
     }
 
     public static ScanReport scanAndClassify(World world, HouseBlockPos bedPos, UUID scanningOwner) {
         HouseScanResult raw = scanHouseFromBed(world, bedPos);
 
-        if (raw.overflowed) return new ScanReport(ScanOutcome.TOO_LARGE_OR_UNENCLOSED, Set.of(), null, raw);
+        if (raw.overflowed || raw.hitUnloaded) {
+            return new ScanReport(ScanOutcome.TOO_LARGE_OR_UNENCLOSED, Set.of(), null, raw);
+        }
         if (raw.interiorBlocks.size() < 15) return new ScanReport(ScanOutcome.TOO_SMALL, Set.of(), null, raw);
         if (raw.doorBlocks.isEmpty()) return new ScanReport(ScanOutcome.NO_ENTRANCE, Set.of(), null, raw);
 
