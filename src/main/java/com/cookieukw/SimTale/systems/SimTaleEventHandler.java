@@ -6,6 +6,7 @@ import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Rotation4;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.PrefabManager;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
@@ -168,7 +169,16 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         if (event.getItemInHand() != null && event.getItemInHand().getId() != null &&
             event.getItemInHand().getId().toLowerCase().contains("blueprint")) {
             
-            String prefabName = "TavernHouse";
+            // Derived from the blueprint item instead of hardcoded: every blueprint used to
+            // build a tavern. "Blueprint_TavernHouse" -> "TavernHouse".
+            String itemId = event.getItemInHand().getId();
+            int separator = itemId.lastIndexOf('_');
+            String prefabName = separator >= 0 && separator < itemId.length() - 1
+                    ? itemId.substring(separator + 1)
+                    : "TavernHouse";
+            if (PrefabManager.getPrefab(prefabName) == null) {
+                prefabName = "TavernHouse";
+            }
             Vector3i targetBlock = event.getTargetBlock();
             if (targetBlock != null) {
                 PlayerRef pRef = event.getPlayerRefComponent();
