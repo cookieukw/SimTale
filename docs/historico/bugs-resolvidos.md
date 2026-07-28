@@ -136,3 +136,35 @@ A fase de decisão do `RoutineAISystem` atribuía os estados `WANDERING` e `MOVI
 
 ### Resolução
 Criado o `NPCSocialHelper`, implementando `MOVING_TO_SOCIALIZE`, `SOCIALIZING` e `WANDERING` com condição de saída e timeout em todos os estados. O `MOVING_TO_WANDER`, redundante com `WANDERING` e sem nenhuma referência no código, foi removido do enum.
+
+---
+
+## 9. Um Terço dos Diálogos Exibindo Chave Crua (Rename pela Metade)
+
+### Sintoma
+Boa parte das respostas por chat não exibia texto: conversa fiada, gratidão, pedido de ajuda, "o que você sabe fazer", todo o minigame de adivinhação, aceite/recusa de trabalho, troca de profissão e as falas de cuidado com bebê.
+
+### Diagnóstico (Causa Raiz)
+Uma chave de tradução no Hytale é `<nome-do-arquivo>.<chave-interna>` — `npc-interactions.lang` contendo `gratitude.friend.1` responde por `npc-interactions.gratitude.friend.1`.
+
+Em algum momento um subconjunto de famílias ganhou um segmento de agrupamento `chat.` **apenas do lado Java**, sem o rename correspondente nos arquivos `.lang`. O resultado é visível dentro do mesmo `switch`, no mesmo arquivo:
+
+```java
+case GREETING  -> getRandomVariant("npc-interactions.greeting",       tier, 5)  // ✅ existe
+case GRATITUDE -> getRandomVariant("npc-interactions.chat.gratitude", tier, 5)  // ❌ arquivo tem "gratitude.*"
+```
+
+Uma auditoria estática cruzando as chaves referenciadas no Java (expandindo as duas sobrecargas de `getRandomVariant` para todas as 5 tiers × N variantes) contra as definidas nos `.lang` apontou **332 chaves inexistentes**, em 26 famílias.
+
+Duas evidências descartaram a hipótese de "traduções incompletas": pt-BR e en-US estavam perfeitamente sincronizados (817 chaves cada, zero divergência), e **toda família existente tinha exatamente o número de variantes que o código sorteia** — nenhum caso de código pedindo 5 quando o arquivo tem 3, nem variantes escritas que o código nunca alcança. Os arquivos estavam certos; o lado Java é que havia derivado.
+
+### Resolução
+Removido o segmento `chat.` dos 25 literais afetados em `SimTaleChatHandler` e `MotherAIManager` — corrigir pelo código são 25 strings, contra 664 linhas se fosse pelos `.lang` nos dois idiomas.
+
+O insulto exigiu tratamento distinto: é a única família que embute a tier no **nome** da chave (`insult_hostile.1`, `insult_friend.1`) em vez de recebê-la como segmento separado. Passou a usar a sobrecarga de 2 argumentos com a tier concatenada na base:
+
+```java
+getRandomVariant("npc-interactions.insult_" + tier.translationKey, 5)
+```
+
+Após a correção a auditoria acusa zero chaves quebradas. A única referência restante, `server.npc.npc.isBusy`, é nativa do Hytale (definida no `server.lang` do `HytaleServer.jar`).
