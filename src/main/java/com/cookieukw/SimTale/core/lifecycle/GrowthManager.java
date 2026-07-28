@@ -7,6 +7,7 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.component.Store;
@@ -108,7 +109,7 @@ public class GrowthManager {
                 ? SimNPCFactory.NPCType.CHILD_MALE 
                 : SimNPCFactory.NPCType.CHILD_FEMALE;
                 
-            World world = com.cookieukw.SimTale.core.WorldUtil.first();
+            World world = WorldUtil.first();
             if (world == null) {
                 LOGGER.atWarning().log("SimTale: nenhum mundo carregado; promocao para TODDLER adiada.");
                 return;
@@ -152,7 +153,7 @@ public class GrowthManager {
             }
         } 
         else if (child.stage == GrowthStage.TEEN) {
-            World world = com.cookieukw.SimTale.core.WorldUtil.first();
+            World world = WorldUtil.first();
             if (world == null) {
                 LOGGER.atWarning().log("SimTale: nenhum mundo carregado; promocao para TEEN adiada.");
                 return;
