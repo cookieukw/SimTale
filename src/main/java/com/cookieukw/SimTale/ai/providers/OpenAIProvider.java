@@ -16,8 +16,17 @@ public class OpenAIProvider implements NpcAiProvider {
     private final GenericHttpAiProvider delegate;
 
     public OpenAIProvider(String baseUrl, String apiKey, String model) {
+        this("openai", baseUrl, apiKey, model);
+    }
+
+    /**
+     * OpenAI-compatible provider registered under a custom id. Needed because OpenRouter
+     * also speaks the OpenAI protocol — without a distinct id it would overwrite the
+     * "openai" entry in NpcAiManager and could never be selected from the config.
+     */
+    public OpenAIProvider(String providerId, String baseUrl, String apiKey, String model) {
         AiProviderConfig config = new AiProviderConfig();
-        config.providerId = "openai";
+        config.providerId = providerId;
         config.baseUrl = baseUrl != null ? baseUrl : "https://api.openai.com";
         config.endpoint = "/v1/chat/completions";
         config.method = "POST";
