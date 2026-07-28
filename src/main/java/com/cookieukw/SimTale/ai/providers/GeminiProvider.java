@@ -1,17 +1,29 @@
 package com.cookieukw.SimTale.ai.providers;
 
-import com.cookieukw.SimTale.ai.AiMessage;
 import com.cookieukw.SimTale.ai.AiProviderConfig;
 import com.cookieukw.SimTale.ai.AiRequest;
 import com.cookieukw.SimTale.ai.AiResponse;
 import com.cookieukw.SimTale.ai.GenericHttpAiProvider;
 import com.cookieukw.SimTale.ai.NpcAiProvider;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Gemini {@code generateContent} adapter.
+ * <p>
+ * Expected body:
+ * <pre>
+ * {
+ *   "contents": [ { "parts": [ { "text": "..." } ] } ]
+ * }
+ * </pre>
+ * The previous implementation built a throwaway {@code AiProviderConfig} that was never
+ * used, blanked the system prompt and the message list, and stuffed the real {@code contents}
+ * into the metadata map. The body that actually went out was {@code {"contents": ""}} plus a
+ * bogus {@code metadata} field, which Gemini always rejected — the provider could never
+ * work. The prompt shape is now declared once, in the config, via {@code promptStructurer}.
+ */
 public class GeminiProvider implements NpcAiProvider {
 
     private final GenericHttpAiProvider delegate;
@@ -25,10 +37,13 @@ public class GeminiProvider implements NpcAiProvider {
         config.apiKey = apiKey;
         config.authHeader = "x-goog-api-key";
         config.authPrefix = "";
-        config.model = model;
-        
+        // The model is part of the URL for generateContent; sending it in the body as well
+        // would be an unknown field.
+        config.model = null;
+
         config.sendMessages = false;
         config.promptField = "contents";
+        config.promptStructurer = text -> List.of(Map.of("parts", List.of(Map.of("text", text))));
         config.responsePath = "candidates.0.content.parts.0.text";
         config.extraPayload = Map.of();
 
@@ -42,58 +57,8 @@ public class GeminiProvider implements NpcAiProvider {
 
     @Override
     public AiResponse generate(AiRequest request) {
-        return delegate.generate(transform(request));
-    }
-
-    /**
-     * Gemini generateContent expects:
-     * {
-     *   "contents": [
-     *     { "parts": [ { "text": "..." } ] }
-     *   ],
-     *   "systemInstruction": {
-     *     "parts": [ { "text": "..." } ]
-     *   }
-     * }
-     * We map this dynamically into extraPayload/custom structure mapping.
-     */
-    private AiRequest transform(AiRequest request) {
-        // Flatten system prompt + chat history into Gemini format payload config
-        StringBuilder prompt = new StringBuilder();
-        if (request.systemPrompt() != null) {
-            prompt.append(request.systemPrompt()).append("\n\n");
-        }
-        if (request.messages() != null) {
-            for (AiMessage m : request.messages()) {
-                prompt.append(m.role()).append(": ").append(m.content()).append("\n");
-            }
-        }
-
-        // We wrap this inside the "contents" expected structure using extraPayload
-        List<Map<String, Object>> contents = new ArrayList<>();
-        Map<String, Object> contentMap = new HashMap<>();
-        List<Map<String, String>> parts = new ArrayList<>();
-        parts.add(Map.of("text", prompt.toString()));
-        contentMap.put("parts", parts);
-        contents.add(contentMap);
-
-        // We bypass sendMessages, promptField contains contents object list
-        AiProviderConfig customConfig = new AiProviderConfig();
-        customConfig.providerId = "gemini";
-        customConfig.baseUrl = "https://generativelanguage.googleapis.com";
-        customConfig.endpoint = delegate.id(); // Not strictly needed
-        
-        // Return structured format
-        Map<String, Object> metadata = new HashMap<>(request.metadata());
-        metadata.put("contents", contents);
-
-        return new AiRequest(
-                request.npcName(),
-                request.playerName(),
-                null,
-                List.of(),
-                metadata,
-                request.playerUuid()
-        );
+        // The generic provider already merges systemPrompt + messages into a single prompt
+        // string and wraps it via promptStructurer, so no request rewriting is needed here.
+        return delegate.generate(request);
     }
 }
