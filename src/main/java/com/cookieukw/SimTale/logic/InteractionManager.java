@@ -41,6 +41,10 @@ public class InteractionManager {
 
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
+    /**
+      * @param rejected the interaction did not happen (no item held, wrong tool, already
+      *                 married, ...). Only the message is delivered; nothing is applied.
+      */
     private record InteractionOutcome(
         int friendship,
         int romance,
@@ -48,18 +52,19 @@ public class InteractionManager {
         int affinity,
         Message response,
         MemoryEvent memoryEvent,
-        boolean consumeItem
+        boolean consumeItem,
+        boolean rejected
     ) {
         public static InteractionOutcome of(int f, int r, int t, int a, Message msg, MemoryEvent event) {
-            return new InteractionOutcome(f, r, t, a, msg, event, false);
+            return new InteractionOutcome(f, r, t, a, msg, event, false, false);
         }
         
         public static InteractionOutcome ofItem(int f, int r, int t, int a, Message msg, MemoryEvent event, boolean consume) {
-            return new InteractionOutcome(f, r, t, a, msg, event, consume);
+            return new InteractionOutcome(f, r, t, a, msg, event, consume, false);
         }
 
         public static InteractionOutcome error(Message msg) {
-            return new InteractionOutcome(0, 0, 0, 0, msg, null, false);
+            return new InteractionOutcome(0, 0, 0, 0, msg, null, false, true);
         }
     }
 
@@ -127,7 +132,10 @@ public class InteractionManager {
             case ASSIGN_PROFESSION -> handleProfession(npc, playerRef, rel);
         };
 
-        if (outcome.memoryEvent() == null && outcome.friendship() == 0 && outcome.affinity() == 0) {
+        // Explicit flag instead of inferring rejection from the data shape. The old check was
+        // `memoryEvent == null && friendship == 0 && affinity == 0`, which silently threw away
+        // any legitimate outcome that happened to have no friendship/affinity delta.
+        if (outcome.rejected()) {
             return outcome.response();
         }
 
@@ -509,19 +517,29 @@ public class InteractionManager {
         }
     }
 
+    /**
+     * Length of an interaction "day". Despite the name this is 20 real minutes, not a game
+     * day — the interaction budget and the "haven't seen you in ages" greeting both key off it.
+     */
+    private static final long INTERACTION_DAY_MILLIS = 20L * 60L * 1000L;
+    /** Interactions allowed per player per interaction-day before the NPC starts declining. */
+    private static final int INTERACTIONS_PER_DAY = 3;
+    /** Days apart before the NPC greets the player with "long time no see". */
+    private static final int MISSED_DAYS_THRESHOLD = 3;
+
     private static DailyState refreshDailyState(Relationship rel) {
-        long currentDayIndex = System.currentTimeMillis() / 1200000L;
+        long currentDayIndex = System.currentTimeMillis() / INTERACTION_DAY_MILLIS;
         boolean missedLongTime = false;
 
         if (rel.lastInteractionDayIndex > 0 && rel.lastInteractionDayIndex < currentDayIndex) {
-            missedLongTime = (currentDayIndex - rel.lastInteractionDayIndex) >= 3;
+            missedLongTime = (currentDayIndex - rel.lastInteractionDayIndex) >= MISSED_DAYS_THRESHOLD;
             rel.interactionsToday = 0;
         } else if (rel.lastInteractionDayIndex == 0) {
             rel.interactionsToday = 0;
         }
         rel.lastInteractionDayIndex = currentDayIndex;
 
-        return new DailyState(rel.interactionsToday >= 3, missedLongTime);
+        return new DailyState(rel.interactionsToday >= INTERACTIONS_PER_DAY, missedLongTime);
     }
 
     private static boolean isNpcAChild(SimNPCComponent npc) {
