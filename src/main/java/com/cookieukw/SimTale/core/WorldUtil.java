@@ -3,6 +3,10 @@ package com.cookieukw.SimTale.core;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Single source of truth for "give me the world".
  * <p>
@@ -32,4 +36,51 @@ public final class WorldUtil {
         World world = first();
         return world != null ? world.getTick() : 0L;
     }
+
+    /**
+     * Runs {@code task} on the world thread.
+     * <p>
+     * Anything that touches entity components, sends a {@code Message} or mutates NPC state
+     * has to go through here when it originates off-thread — async AI callbacks, chat event
+     * handlers, delayed replies. Those paths previously ran straight on a
+     * {@code ForkJoinPool.commonPool()} worker, racing the tick systems that read the very
+     * same fields.
+     * <p>
+     * If no world is loaded the task is dropped rather than executed on the calling thread:
+     * without a world there is nothing valid to act on anyway.
+     *
+     * @return true if the task was handed to the world thread
+     */
+    public static boolean execute(Runnable task) {
+        if (task == null) return false;
+        World world = first();
+        if (world == null) return false;
+        world.execute(task);
+        return true;
+    }
+
+    /**
+     * Runs {@code task} on the world thread after {@code delayMs}, without blocking a pooled
+     * thread while waiting.
+     */
+    public static void executeLater(Runnable task, long delayMs) {
+        if (task == null) return;
+        if (delayMs <= 0) {
+            execute(task);
+            return;
+        }
+        SCHEDULER.schedule(() -> execute(task), delayMs, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Single daemon timer for deferred work. Replaces {@code CompletableFuture.runAsync} +
+     * {@code Thread.sleep}, which parked a common-pool worker for the whole delay — the common
+     * pool is shared process-wide, so sleeping in it can starve unrelated tasks.
+     */
+    private static final ScheduledExecutorService SCHEDULER =
+            Executors.newSingleThreadScheduledExecutor(runnable -> {
+                Thread thread = new Thread(runnable, "SimTale-Scheduler");
+                thread.setDaemon(true);
+                return thread;
+            });
 }
