@@ -1,10 +1,13 @@
 package com.cookieukw.SimTale.ai;
 
+import com.hypixel.hytale.logger.HytaleLogger;
+
 import java.io.File;
 import java.nio.file.Files;
 
 public class AiConfigManager {
 
+    private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
     private static final File CONFIG_FILE = new File("simtale-ai.json");
     private static AiConfig currentConfig = new AiConfig();
 
@@ -47,7 +50,8 @@ public class AiConfigManager {
 
             currentConfig = config;
         } catch (Exception e) {
-            e.printStackTrace();
+            // printStackTrace() bypasses the server log; a bad config was effectively invisible.
+            LOGGER.atWarning().log("SimTale: falha ao ler simtale-ai.json, usando a configuracao padrao: " + e);
         }
     }
 
@@ -65,7 +69,7 @@ public class AiConfigManager {
 
             Files.writeString(CONFIG_FILE.toPath(), json);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.atWarning().log("SimTale: falha ao gravar simtale-ai.json: " + e);
         }
     }
 }
