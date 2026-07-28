@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.SimNPCFactory.NPCType;
 import com.cookieukw.SimTale.db.SimNPCData;
@@ -55,7 +56,11 @@ public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
         }
 
         // Clean up dead/despawned NPCs from the list
-        SimTale.ACTIVE_NPCS.removeIf(npc -> npc.entityRef == null);
+        for (SimNPCComponent stale : new java.util.ArrayList<>(SimTale.ACTIVE_NPCS)) {
+            if (stale.entityRef == null) {
+                SimTale.untrackNpc(stale);
+            }
+        }
 
         // Maximum of 10 active NPCs
         if (SimTale.ACTIVE_NPCS.size() >= 10) {
