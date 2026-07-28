@@ -238,14 +238,15 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                             try {
                                 CommandManager.get().handleCommand(pr, "give " + pr.getUsername() + " " + loot.itemId() + " --quantity=" + qty);
                             } catch (Exception cmdEx) {
-                                cmdEx.printStackTrace();
+                                HytaleLogger.forEnclosingClass().atWarning()
+                                        .log("SimTale: falha ao entregar loot '" + loot.itemId() + "': " + cmdEx);
                             }
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            HytaleLogger.forEnclosingClass().atWarning().log("SimTale: falha ao entregar o loot do trabalho: " + e);
         }
     }
 }
