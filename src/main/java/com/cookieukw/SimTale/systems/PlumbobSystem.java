@@ -42,13 +42,27 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
 
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
-    // Maps Player UUID to Plumbob Entity Ref
+    // Maps Player/NPC UUID to Plumbob Entity Ref
     private static final Map<UUID, Ref<EntityStore>> playerPlumbobs = Collections.synchronizedMap(new HashMap<>());
+    /**
+     * Reverse index of {@link #playerPlumbobs}. The orphan check used
+     * {@code playerPlumbobs.containsValue(ref)}, which scans the entire map under its lock for
+     * every plumbob on every tick.
+     */
+    private static final Set<Ref<EntityStore>> trackedPlumbobRefs =
+            java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
-        return UUIDComponent.getComponentType();
+        // Was UUIDComponent, i.e. *every entity in the world*, every tick — dropped items,
+        // projectiles, the lot. Only three archetypes matter here: the NPCs and players that
+        // own a plumbob, plus modelled entities so orphaned plumbobs can still be reaped.
+        return Query.or(
+                SimTale.SIM_NPC_COMPONENT_TYPE,
+                Player.getComponentType(),
+                PersistentModel.getComponentType()
+        );
     }
 
    @Override
@@ -68,15 +82,9 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         PersistentModel pm = chunk.getComponent(index, PersistentModel.getComponentType());
         if (pm != null && pm.getModelReference().getModelAssetId() != null && pm.getModelReference().getModelAssetId().startsWith("Plumbob")) {
             Ref<EntityStore> thisRef = chunk.getReferenceTo(index);
-            boolean tracked;
-            synchronized (playerPlumbobs) {
-                // containsValue() iterates the backing map. Collections.synchronizedMap does not
-                // guard iteration, so it has to happen under the map's own lock.
-                tracked = playerPlumbobs.containsValue(thisRef);
-            }
-            if (!tracked) {
+            if (!trackedPlumbobRefs.contains(thisRef)) {
                 commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
-                LOGGER.atInfo().log("[SimTale] Limpando Plumbob orfão do mundo: " + uuidComp.getUuid());
+                LOGGER.atFine().log("[SimTale] Limpando Plumbob orfao do mundo: " + uuidComp.getUuid());
             }
             return;
         }
@@ -90,11 +98,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         TransformComponent entityTransform = chunk.getComponent(index, TransformComponent.getComponentType());
         if (entityTransform == null) return;
         
-        World world = null;
-        for (World w : Universe.get().getWorlds().values()) {
-            world = w;
-            break;
-        }
+        World world = com.cookieukw.SimTale.core.WorldUtil.first();
         if (world == null) return;
 
         Ref<EntityStore> plumbobRef = playerPlumbobs.get(entityUuid);
@@ -166,8 +170,12 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
                 holder.ensureComponent(UUIDComponent.getComponentType());
                 
                 Ref<EntityStore> newPlumbob = commandBuffer.addEntity(holder, AddReason.SPAWN);
-                playerPlumbobs.put(entityUuid, newPlumbob);
-                LOGGER.atInfo().log("[SimTale] Spawned Plumbob for entity " + entityUuid);
+                Ref<EntityStore> replaced = playerPlumbobs.put(entityUuid, newPlumbob);
+                if (replaced != null) {
+                    trackedPlumbobRefs.remove(replaced);
+                }
+                trackedPlumbobRefs.add(newPlumbob);
+                LOGGER.atFine().log("[SimTale] Spawned Plumbob for entity " + entityUuid);
             } else {
                 LOGGER.atWarning().log("[SimTale-ERROR] Plumbob ModelAsset not found!");
             }
@@ -175,7 +183,10 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
     }
 
     public static void removePlumbob(UUID entityUuid) {
-        playerPlumbobs.remove(entityUuid);
-        LOGGER.atInfo().log("[SimTale] Plumbob untracked para a entidade: " + entityUuid);
+        Ref<EntityStore> removed = playerPlumbobs.remove(entityUuid);
+        if (removed != null) {
+            trackedPlumbobRefs.remove(removed);
+        }
+        LOGGER.atFine().log("[SimTale] Plumbob untracked para a entidade: " + entityUuid);
     }
 }
