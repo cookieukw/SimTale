@@ -17,6 +17,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
@@ -56,7 +57,7 @@ public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
         }
 
         // Clean up dead/despawned NPCs from the list
-        for (SimNPCComponent stale : new java.util.ArrayList<>(SimTale.ACTIVE_NPCS)) {
+        for (SimNPCComponent stale : new ArrayList<>(SimTale.ACTIVE_NPCS)) {
             if (stale.entityRef == null) {
                 SimTale.untrackNpc(stale);
             }
