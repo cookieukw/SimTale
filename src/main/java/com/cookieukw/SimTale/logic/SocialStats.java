@@ -8,8 +8,11 @@ public class SocialStats {
     public int xp = 0;
 
     public void addXP(int amount) {
+        if (amount <= 0) return;
         this.xp += amount;
-        if (this.xp >= level * 100) {
+        // `while`, not `if`: a single large gain used to grant only one level and leave the
+        // NPC parked above the threshold until the next interaction.
+        while (this.xp >= level * 100) {
             this.xp -= level * 100;
             this.level++;
         }
