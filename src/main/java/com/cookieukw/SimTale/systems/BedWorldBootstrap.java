@@ -6,6 +6,7 @@ import org.joml.Vector3d;
 
 
 public final class BedWorldBootstrap {
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(BedWorldBootstrap.class);
     private BedWorldBootstrap() {
     }
 
@@ -15,7 +16,7 @@ public final class BedWorldBootstrap {
         int pz = (int) Math.floor(center.z);
         
         int bedsFound = BedRegistry.size();
-        System.out.println("[SimTale-DEBUG] Starting simple radius scan around (" + px + "," + py + "," + pz + ") with radius " + radius);
+        LOGGER.debug("[SimTale-DEBUG] Starting simple radius scan around (" + px + "," + py + "," + pz + ") with radius " + radius);
         
         // Scan a cube around the player position
         for (int x = px - radius; x <= px + radius; x++) {
@@ -26,7 +27,7 @@ public final class BedWorldBootstrap {
                     if (!BedRegistry.isBedId(type.getId())) continue;
                     
                     boolean isPrimary = isPrimaryBedBlock(world, x, y, z);
-                    System.out.println("[SimTale-DEBUG] Block scan found bed-like block: '" + type.getId() + "' at (" + x + "," + y + "," + z + ") isPrimary=" + isPrimary);
+                    LOGGER.debug("[SimTale-DEBUG] Block scan found bed-like block: '" + type.getId() + "' at (" + x + "," + y + "," + z + ") isPrimary=" + isPrimary);
                     if (isPrimary) continue;
                     
                     // Estimate yaw based on the neighboring bed block orientation
@@ -43,7 +44,7 @@ public final class BedWorldBootstrap {
         }
         
         int newBeds = BedRegistry.size() - bedsFound;
-        System.out.println("[SimTale-DEBUG] Simple scan finished: found " + newBeds + " new beds. Total beds: " + BedRegistry.size());
+        LOGGER.debug("[SimTale-DEBUG] Simple scan finished: found " + newBeds + " new beds. Total beds: " + BedRegistry.size());
     }
 
     public static boolean isPrimaryBedBlock(World world, int x, int y, int z) {
