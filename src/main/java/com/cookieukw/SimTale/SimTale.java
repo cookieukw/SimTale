@@ -75,28 +75,33 @@ public class SimTale extends JavaPlugin {
         // Initialize AI manager
         aiManager = new NpcAiManager();
 
+        // customModel/customUrl override only the provider actually selected in the config.
+        // Applying them to every provider meant that setting, say, an OpenRouter model also
+        // sent that model id to Gemini and OpenAI, breaking both.
+        String selected = config.provider != null ? config.provider.trim().toLowerCase(java.util.Locale.ROOT) : "";
+
         // 1. Setup Gemini
-        String geminiKey = !config.geminiKey.isBlank() ? config.geminiKey : System.getenv("GEMINI_API_KEY");
-        if (geminiKey != null && !geminiKey.isBlank()) {
-            String model = !config.customModel.isBlank() ? config.customModel : "gemini-2.5-flash";
+        String geminiKey = firstNonBlank(config.geminiKey, System.getenv("GEMINI_API_KEY"));
+        if (geminiKey != null) {
+            String model = overrideFor(selected, "gemini", config.customModel, "gemini-2.5-flash");
             aiManager.register(new GeminiProvider(geminiKey, model));
             LOGGER.atInfo().log("Registered Gemini AI Provider.");
         }
 
         // 2. Setup OpenAI
-        String openAiKey = !config.openaiKey.isBlank() ? config.openaiKey : System.getenv("OPENAI_API_KEY");
-        if (openAiKey != null && !openAiKey.isBlank()) {
-            String model = !config.customModel.isBlank() ? config.customModel : "gpt-4o-mini";
-            String url = !config.customUrl.isBlank() ? config.customUrl : "https://api.openai.com";
+        String openAiKey = firstNonBlank(config.openaiKey, System.getenv("OPENAI_API_KEY"));
+        if (openAiKey != null) {
+            String model = overrideFor(selected, "openai", config.customModel, "gpt-4o-mini");
+            String url = overrideFor(selected, "openai", config.customUrl, "https://api.openai.com");
             aiManager.register(new OpenAIProvider(url, openAiKey, model));
             LOGGER.atInfo().log("Registered OpenAI Provider.");
         }
 
-        // 3. Setup OpenRouter (Fallback to custom if configured, else default)
-        String openRouterKey = !config.openrouterKey.isBlank() ? config.openrouterKey : System.getenv("OPENROUTER_API_KEY");
-        if (openRouterKey != null && !openRouterKey.isBlank()) {
-            String model = !config.customModel.isBlank() ? config.customModel : "google/gemini-2.5-flash";
-            String url = !config.customUrl.isBlank() ? config.customUrl : "https://openrouter.ai";
+        // 3. Setup OpenRouter (OpenAI-compatible, registered under its own id)
+        String openRouterKey = firstNonBlank(config.openrouterKey, System.getenv("OPENROUTER_API_KEY"));
+        if (openRouterKey != null) {
+            String model = overrideFor(selected, "openrouter", config.customModel, "google/gemini-2.5-flash");
+            String url = overrideFor(selected, "openrouter", config.customUrl, "https://openrouter.ai");
             aiManager.register(new OpenAIProvider("openrouter", url, openRouterKey, model));
             LOGGER.atInfo().log("Registered OpenRouter AI Provider.");
         }
@@ -157,5 +162,20 @@ public class SimTale extends JavaPlugin {
         Interaction.getAssetStore().loadAssets(DefaultAssetMap.DEFAULT_PACK_KEY, List.of(
             new SimTaleUseNPCInteraction(UseNPCInteraction.DEFAULT_ID)
         ));
+    }
+
+    /** @return the first non-blank value, or {@code null} when both are blank/absent. */
+    private static String firstNonBlank(String primary, String fallback) {
+        if (primary != null && !primary.isBlank()) return primary;
+        if (fallback != null && !fallback.isBlank()) return fallback;
+        return null;
+    }
+
+    /** Applies {@code custom} only when {@code providerId} is the provider chosen in the config. */
+    private static String overrideFor(String selectedProvider, String providerId, String custom, String defaultValue) {
+        if (providerId.equals(selectedProvider) && custom != null && !custom.isBlank()) {
+            return custom;
+        }
+        return defaultValue;
     }
 }
