@@ -41,7 +41,12 @@ public class SimDebugCommand extends AbstractPlayerCommand {
         }
 
         Player player = store.getComponent(ref, Player.getComponentType());
-        assert player != null;
+        // `assert` is stripped at runtime unless the JVM is started with -ea, so this was
+        // effectively no check at all — a null here just became an NPE inside the command.
+        if (player == null) {
+            ctx.sendMessage(Message.raw("[SimDebug] Componente de jogador indisponivel."));
+            return;
+        }
         player.getPageManager().openCustomPage(ref, store, new SimDebugPage(playerRef, player));
         ctx.sendMessage(Message.raw("[SimDebug] Painel aberto! (" + SimTale.ACTIVE_NPCS.size() + " NPCs ativos)"));
     }
