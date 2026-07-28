@@ -97,7 +97,7 @@ public class SimTale extends JavaPlugin {
         if (openRouterKey != null && !openRouterKey.isBlank()) {
             String model = !config.customModel.isBlank() ? config.customModel : "google/gemini-2.5-flash";
             String url = !config.customUrl.isBlank() ? config.customUrl : "https://openrouter.ai";
-            aiManager.register(new OpenAIProvider(url, openRouterKey, model));
+            aiManager.register(new OpenAIProvider("openrouter", url, openRouterKey, model));
             LOGGER.atInfo().log("Registered OpenRouter AI Provider.");
         }
 

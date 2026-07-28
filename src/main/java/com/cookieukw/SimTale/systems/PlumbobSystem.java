@@ -69,7 +69,13 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         PersistentModel pm = chunk.getComponent(index, PersistentModel.getComponentType());
         if (pm != null && pm.getModelReference().getModelAssetId() != null && pm.getModelReference().getModelAssetId().startsWith("Plumbob")) {
             Ref<EntityStore> thisRef = chunk.getReferenceTo(index);
-            if (!playerPlumbobs.containsValue(thisRef)) {
+            boolean tracked;
+            synchronized (playerPlumbobs) {
+                // containsValue() iterates the backing map. Collections.synchronizedMap does not
+                // guard iteration, so it has to happen under the map's own lock.
+                tracked = playerPlumbobs.containsValue(thisRef);
+            }
+            if (!tracked) {
                 commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
                 LOGGER.atInfo().log("[SimTale] Limpando Plumbob orfão do mundo: " + uuidComp.getUuid());
             }
@@ -95,12 +101,10 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         Ref<EntityStore> plumbobRef = playerPlumbobs.get(entityUuid);
         // Get Mood
         String moodModelName = "Plumbob"; // Default fallback
-        Mood currentMood;
         if (isNpc) {
             SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
             if (npc != null && npc.getMood() != null) {
-                currentMood = npc.getMood();
-                moodModelName = "Plumbob_" + currentMood.name();
+                moodModelName = "Plumbob_" + npc.getMood().name();
             }
         }
 

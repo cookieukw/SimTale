@@ -123,6 +123,8 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
+        if (npc.needs == null || npc.personality == null) return;
+
         npc.needs.tickDecay(npc.personality.traits);
 
         // Decay emotion intensity over time
@@ -136,29 +138,27 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         }
 
         // Apply needs-based passive emotion triggers
-        if (npc.needs != null) {
-            if (npc.memory.remembers(com.cookieukw.SimTale.core.MemoryEvent.ATTACKED, null, 30000)) {
-                npc.setEmotion(Mood.SCARED, 0.9f, "damage", absoluteTick);
-            } else if (npc.memory.remembers(com.cookieukw.SimTale.core.MemoryEvent.INSULTED, null, 30000)) {
-                npc.setEmotion(Mood.ANGRY, 0.8f, "insult", absoluteTick);
+        if (npc.memory.remembers(com.cookieukw.SimTale.core.MemoryEvent.ATTACKED, null, 30000)) {
+            npc.setEmotion(Mood.SCARED, 0.9f, "damage", absoluteTick);
+        } else if (npc.memory.remembers(com.cookieukw.SimTale.core.MemoryEvent.INSULTED, null, 30000)) {
+            npc.setEmotion(Mood.ANGRY, 0.8f, "insult", absoluteTick);
+        } else {
+            if (npc.personality.traits.contains(com.cookieukw.SimTale.core.Trait.AGGRESSIVE) && (npc.needs.hunger < 50 || npc.needs.energy < 50)) {
+                npc.setEmotion(Mood.ANGRY, 0.7f, "needs", absoluteTick);
+            } else if (npc.needs.energy < 20) {
+                npc.setEmotion(Mood.SLEEPY, 0.8f, "tiredness", absoluteTick);
+            } else if (npc.needs.isMiserable()) {
+                npc.setEmotion(Mood.SAD, 0.6f, "misery", absoluteTick);
             } else {
-                if (npc.personality.traits.contains(com.cookieukw.SimTale.core.Trait.AGGRESSIVE) && (npc.needs.hunger < 50 || npc.needs.energy < 50)) {
-                    npc.setEmotion(Mood.ANGRY, 0.7f, "needs", absoluteTick);
-                } else if (npc.needs.energy < 20) {
-                    npc.setEmotion(Mood.SLEEPY, 0.8f, "tiredness", absoluteTick);
-                } else if (npc.needs.isMiserable()) {
-                    npc.setEmotion(Mood.SAD, 0.6f, "misery", absoluteTick);
-                } else {
-                    Ref<EntityStore> entityRef = world.getEntityStore().getRefFromUUID(npc.entityId);
-                    if (entityRef != null) {
-                        RoutineAIComponent aiComp = store.getComponent(entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
-                        if (aiComp != null && (aiComp.currentTask == RoutineAIComponent.TaskType.IDLE || aiComp.currentTask == RoutineAIComponent.TaskType.WANDERING)) {
-                            if (Math.random() < 0.005) {
-                                npc.setEmotion(Mood.BORED, 0.4f, "idleness", absoluteTick);
-                            }
-                        } else if (npc.needs.hunger > 60 && npc.needs.energy > 60 && npc.needs.social > 60) {
-                            npc.setEmotion(Mood.HAPPY, 0.3f, "wellness", absoluteTick);
+                Ref<EntityStore> entityRef = world.getEntityStore().getRefFromUUID(npc.entityId);
+                if (entityRef != null) {
+                    RoutineAIComponent aiComp = store.getComponent(entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (aiComp != null && (aiComp.currentTask == RoutineAIComponent.TaskType.IDLE || aiComp.currentTask == RoutineAIComponent.TaskType.WANDERING)) {
+                        if (Math.random() < 0.005) {
+                            npc.setEmotion(Mood.BORED, 0.4f, "idleness", absoluteTick);
                         }
+                    } else if (npc.needs.hunger > 60 && npc.needs.energy > 60 && npc.needs.social > 60) {
+                        npc.setEmotion(Mood.HAPPY, 0.3f, "wellness", absoluteTick);
                     }
                 }
             }
@@ -217,10 +217,10 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                 npc.jobEmployer = null;
                 npc.isAway = false;
             }
-        } else {
-            if (Math.random() < 0.05) {
-                InteractionManager.performInteraction(npc, npc.entityId, null, InteractionType.RANDOM);
-            }
+        } else if (absoluteTick % 200 == 0 && Math.random() < 0.05) {
+            // Previously this rolled every single tick, which meant roughly one interaction
+            // per second per NPC — each of those writes the NPC to disk via saveNPC().
+            InteractionManager.performInteraction(npc, npc.entityId, null, InteractionType.RANDOM);
         }
     }
 

@@ -264,10 +264,11 @@ public class InteractionManager {
         boolean isFood = FOOD_KEYWORDS.stream().anyMatch(itemId::contains);
         if (isFood) {
             GrowthComponent childComp = Caskara.load("child_" + npc.entityId.toString(), GrowthComponent.class);
-            if (childComp != null) {
+            World world = firstWorld();
+            if (childComp != null && world != null) {
                 childComp.birthTick -= 24000;
                 Caskara.save("child_" + npc.entityId.toString(), childComp);
-                LifecycleManager.tickGrowth(childComp, Universe.get().getWorlds().values().iterator().next().getTick());
+                LifecycleManager.tickGrowth(childComp, world.getTick());
             }
             return InteractionOutcome.ofItem(0, 0, 0, 0, 
                 Message.translation("npc-dialogues.gift.accelerated").param("name", npc.name).param("item", itemName), 
@@ -456,7 +457,7 @@ public class InteractionManager {
 
         // Dynamic emotion trigger based on interaction outcome
         long tick = 0;
-        World world = Universe.get().getWorlds().values().stream().findFirst().orElse(null);
+        World world = firstWorld();
         if (world != null) {
             tick = world.getTick();
         }
@@ -561,7 +562,7 @@ public class InteractionManager {
                 }
             } catch (Throwable ignored) {}
 
-            World world = Universe.get().getWorlds().values().stream().findFirst().orElse(null);
+            World world = firstWorld();
             if (world != null) {
                 WorldTimeResource timeResource = world.getEntityStore().getStore().getResource(WorldTimeResource.getResourceType());
                 float dayProgress = timeResource.getDayProgress();
@@ -605,6 +606,14 @@ public class InteractionManager {
         if (type == InteractionType.FRIENDLY) return Message.translation("npc-dialogues.cooldown.friendly").param("name", npcName);
         if (type == InteractionType.GIFT) return Message.translation("npc-dialogues.cooldown.gift").param("name", npcName);
         return Message.translation("npc-dialogues.cooldown.general").param("name", npcName);
+    }
+
+    /** The mod is single-world; returns null instead of throwing when no world is loaded yet. */
+    private static World firstWorld() {
+        for (World w : Universe.get().getWorlds().values()) {
+            return w;
+        }
+        return null;
     }
 
     private static Message pickRandomTranslation(String baseKey, int optionsCount, String npcName) {
