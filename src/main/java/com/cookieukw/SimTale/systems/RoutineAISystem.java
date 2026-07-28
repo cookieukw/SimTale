@@ -650,7 +650,18 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        commandBuffer.replaceComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
+        // No replaceComponent here on purpose.
+        //
+        // ArchetypeChunk.getComponent() hands back the instance stored in the chunk itself —
+        // it does not clone — so every `ai.currentTask = ...` above is already visible to
+        // every other reader. Re-submitting the same instance only mattered if
+        // Store.replaceComponent had side effects, and its only one is notifying a
+        // RefChangeSystem registered for the component type; the mod's single RefChangeSystem
+        // (BedEntityRegistrySystem) is bound to PersistentModel, not to RoutineAIComponent.
+        //
+        // So the call was a per-NPC, per-tick no-op that still allocated a lambda and queued
+        // an entry on the command buffer. Dropping it also settles the question of the ~10
+        // early `return`s in this method: they never lost state to begin with.
     }
 
     @NullableDecl
