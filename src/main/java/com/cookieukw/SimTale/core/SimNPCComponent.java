@@ -84,6 +84,7 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.needs.energy = needs.energy;
         clone.needs.social = needs.social;
         clone.needs.fun = needs.fun;
+        clone.needs.hygiene = needs.hygiene;
         clone.stats = new SocialStats();
         clone.stats.level = stats.level;
         clone.stats.xp = stats.xp;
@@ -103,9 +104,15 @@ public class SimNPCComponent implements Component<EntityStore> {
         );
 
         if (bedLocation != null) {
-            clone.bedLocation = new BedPos(bedLocation.x, bedLocation.y, bedLocation.z);
+            clone.bedLocation = new BedPos(bedLocation.x, bedLocation.y, bedLocation.z, bedLocation.yaw);
         }
-        
+
+        // Identity/family state — must be copied explicitly, otherwise the
+        // default constructor's random profession would leak into the clone.
+        clone.profession = profession;
+        clone.gender = gender;
+        clone.family = family;
+
         // Clone new states
         clone.currentConversationPartner = currentConversationPartner;
         clone.conversationTimeoutTick = conversationTimeoutTick;

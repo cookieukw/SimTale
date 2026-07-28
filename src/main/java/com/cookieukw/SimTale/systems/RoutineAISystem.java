@@ -54,13 +54,11 @@ import javax.annotation.Nonnull;
 
 public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
-    private static final int FOOD_SEARCH_COOLDOWN_TICKS = 40;
     private static final int BATH_SEARCH_COOLDOWN_TICKS = 40;
     private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 60;
     private static final int SLEEP_DURATION_TICKS = 20 * 120;
     private static final int WAKE_ANIM_TICKS = 20;
     private static final double BED_REACH_DISTANCE_SQ = 2.5 * 2.5; // Increased to prevent getting stuck on bed collision
-    private static final double LEASH_UPDATE_THRESHOLD_SQ = 0.25;
     private static final Logger LOGGER = LoggerFactory.getLogger(RoutineAISystem.class);
     @Override
     @Nonnull
@@ -194,7 +192,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
                 ai.currentTask = TaskType.FINDING_FOOD;
                 ai.targetBlockPosition = null;
-                ai.taskStartTime = world.getTick() - FOOD_SEARCH_COOLDOWN_TICKS;
+                ai.taskStartTime = world.getTick() - NPCHungerHelper.FOOD_SEARCH_COOLDOWN_TICKS;
             } else if (ai.currentTask == TaskType.IDLE && npc.needs.hygiene < 40) {
                 ai.currentTask = TaskType.FINDING_BATH;
                 ai.targetBlockPosition = null;
@@ -330,7 +328,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
             Vector3i bedPos = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
             if (ai.targetBlockPosition == null) {
-                getBedApproachPosition(bedPos, transform, world);
+                ai.targetBlockPosition = getBedApproachPosition(bedPos, transform, world);
             }
 
             Vector3d interactPos = new Vector3d(
@@ -341,7 +339,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
             BlockMountAPI.BlockMountResult result = BlockMountAPI.mountOnBlock(ref, commandBuffer, bedPos, interactPos);
 
-            if (result instanceof BlockMountAPI.Mounted || result.getClass().getSimpleName().equals("Mounted")) {
+            if (result instanceof BlockMountAPI.Mounted) {
                 LOGGER.info("[SimTale] NPC '{}' successfully mounted bed at ({},{},{})", npc.name, bedPos.x, bedPos.y, bedPos.z);
                 
                 // Teleport the NPC onto the bed block mattress using Hytale's official Teleport component
@@ -395,6 +393,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // --- SLEEPING: maintain sleep state and recover energy ---
         if (ai.currentTask == TaskType.SLEEPING) {
+            if (npc.bedLocation == null) {
+                // Bed was released elsewhere (e.g. destroyed by another system) — wake up cleanly
+                setSleepingState(ref, store, commandBuffer, false);
+                commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
+                playAnim(ref, "Characters/Animations/Default/Idle.blockyanim", "Idle", store);
+                ai.currentTask = TaskType.IDLE;
+                ai.taskStartTime = world.getTick();
+                return;
+            }
+
             npc.needs.healEnergy(0.045f);
 
             // Verify bed still exists periodically
@@ -618,25 +626,27 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
         
-        System.out.println("[SimTale-DEBUG] getBedPos: claimedBedKeys=" + claimedBedKeys);
-
         synchronized (BedRegistry.BEDS) {
-            System.out.println("[SimTale-DEBUG] getBedPos: BedRegistry.BEDS size=" + BedRegistry.BEDS.size());
             for (BedPos bp : BedRegistry.BEDS) {
+                String key = bp.x + "," + bp.y + "," + bp.z;
+                if (claimedBedKeys.contains(key)) continue;
+
                 double dx = bp.x - myPos.x;
                 double dy = bp.y - myPos.y;
                 double dz = bp.z - myPos.z;
-                double d2 = dx*dx + dy*dy + dz*dz;
-                String key = bp.x + "," + bp.y + "," + bp.z;
-                boolean claimed = claimedBedKeys.contains(key);
-                System.out.println("[SimTale-DEBUG] Checking bed at (" + bp.x + "," + bp.y + "," + bp.z + ") - claimed=" + claimed + ", distSq=" + d2);
-                if (!claimed && d2 < closestDistSq) {
+                double d2 = dx * dx + dy * dy + dz * dz;
+                if (d2 < closestDistSq) {
                     closestDistSq = d2;
                     bestBed = bp;
                 }
             }
         }
-        System.out.println("[SimTale-DEBUG] getBedPos returning: " + (bestBed != null ? "(" + bestBed.x + "," + bestBed.y + "," + bestBed.z + ")" : "null"));
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[SimTale] getBedPos: registry={}, claimed={}, chosen={}",
+                    BedRegistry.BEDS.size(), claimedBedKeys.size(),
+                    bestBed != null ? "(" + bestBed.x + "," + bestBed.y + "," + bestBed.z + ")" : "null");
+        }
         return bestBed;
     }
 
@@ -663,10 +673,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
     private Vector3i getBedApproachPosition(Vector3i bedPos, TransformComponent transform, World world) {
         return NPCMovementHelper.getBedApproachPosition(bedPos, transform, world);
-    }
-
-    private boolean isStandable(Vector3i pos, World world) {
-        return NPCMovementHelper.isStandable(pos, world);
     }
 
     private static boolean validateAndClaimBed(World world, BedPos bestBed, SimNPCComponent npc) {

@@ -17,9 +17,19 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import org.joml.Vector3d;
 import org.joml.Vector3i;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NPCHungerHelper {
-    private static final int FOOD_SEARCH_COOLDOWN_TICKS = 100;
+    private static final Logger LOGGER = LoggerFactory.getLogger(NPCHungerHelper.class);
+
+    /** Shared with RoutineAISystem so the "search immediately" bypass actually bypasses the cooldown. */
+    public static final int FOOD_SEARCH_COOLDOWN_TICKS = 100;
+
+    /** Single source of truth for "is this item edible?" heuristics. */
+    private static boolean isFoodId(String itemIdLower) {
+        return itemIdLower.contains("food_") || itemIdLower.contains("_food") || itemIdLower.startsWith("food");
+    }
 
     public static void handleHungerLogic(
             Ref<EntityStore> ref, 
@@ -51,12 +61,9 @@ public class NPCHungerHelper {
                                 ItemContainer container = cb.getItemContainer();
                                 for (short slot = 0; slot < container.getCapacity(); slot++) {
                                     ItemStack item = container.getItemStack(slot);
-                                    if (item != null && !item.isEmpty()) {
-                                        String id = item.getItemId().toLowerCase();
-                                        if (id.contains("food_") || id.contains("_food") || id.startsWith("food")) {
-                                            hasFood = true;
-                                            break;
-                                        }
+                                    if (item != null && !item.isEmpty() && isFoodId(item.getItemId().toLowerCase())) {
+                                        hasFood = true;
+                                        break;
                                     }
                                 }
                             }
@@ -95,14 +102,11 @@ public class NPCHungerHelper {
                     ItemContainer container = cb.getItemContainer();
                     for (short slot = 0; slot < container.getCapacity(); slot++) {
                         ItemStack item = container.getItemStack(slot);
-                        if (item != null && !item.isEmpty()) {
-                            String id = item.getItemId().toLowerCase();
-                            if (id.contains("food_") || id.contains("_food") || id.startsWith("food")) {
-                                container.removeItemStackFromSlot(slot, 1);
-                                foodConsumed = true;
-                                System.out.println("[SimTale] NPC " + npc.name + " consumed 1x " + item.getItemId() + " from chest at " + chestPos);
-                                break;
-                            }
+                        if (item != null && !item.isEmpty() && isFoodId(item.getItemId().toLowerCase())) {
+                            container.removeItemStackFromSlot(slot, 1);
+                            foodConsumed = true;
+                            LOGGER.debug("[SimTale] NPC {} consumed 1x {} from chest at {}", npc.name, item.getItemId(), chestPos);
+                            break;
                         }
                     }
                 }

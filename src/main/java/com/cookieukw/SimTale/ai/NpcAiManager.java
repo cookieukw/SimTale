@@ -16,8 +16,20 @@ public class NpcAiManager {
         }
     }
 
-    public void setDefaultProvider(String id) {
-        this.defaultProvider = providers.get(id);
+    /**
+     * Selects the default provider by id. If the id is unknown (e.g. it is set in
+     * simtale-ai.json but no API key was supplied, so the provider was never registered),
+     * the previously registered default is kept instead of being wiped out.
+     *
+     * @return true if the provider existed and became the default
+     */
+    public boolean setDefaultProvider(String id) {
+        NpcAiProvider provider = providers.get(id);
+        if (provider == null) {
+            return false;
+        }
+        this.defaultProvider = provider;
+        return true;
     }
 
     public AiResponse generate(String providerId, AiRequest request) {

@@ -36,7 +36,7 @@ public class NPCMovementHelper {
         }
 
         if (needsUpdate) {
-            LOGGER.info("[SimTale-DEBUG] moveTo updating leash point to ({},{},{}) for NPC", targetPos.x, targetPos.y, targetPos.z);
+            LOGGER.debug("[SimTale] moveTo updating leash point to ({},{},{})", targetPos.x, targetPos.y, targetPos.z);
             ai.lastLeashPos = new Vector3d(targetPos);
             ai.lastLeashTick = world.getTick();
             

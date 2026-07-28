@@ -19,7 +19,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 /**
@@ -53,7 +52,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             return;
         }
 
-        message = message.toLowerCase();
+        message = message.toLowerCase(java.util.Locale.ROOT);
 
         World world = null;
         for (World w : Universe.get().getWorlds().values()) {
@@ -68,8 +67,12 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         SimNPCComponent targetNpc = findTargetNpc(sender, message);
 
-        HytaleLogger.forEnclosingClass().atInfo().log("SimTale [CHAT DEBUG]: message='" + message + "', foundNPC=" + (targetNpc != null ? targetNpc.name : "null") + ", activeNPCs=" + 
-            SimTale.ACTIVE_NPCS.stream().map(n -> n.name).collect(Collectors.joining(", ")));
+        // Only log when we actually routed the message to an NPC — logging every single
+        // chat line (plus the full NPC roster) floods the server console.
+        if (targetNpc != null) {
+            HytaleLogger.forEnclosingClass().atInfo()
+                    .log("SimTale [CHAT]: '" + message + "' -> " + targetNpc.name);
+        }
 
         if (targetNpc != null && world != null) {
             if (targetNpc.currentConversationPartner != null && world.getTick() >= targetNpc.conversationTimeoutTick) {
@@ -363,6 +366,9 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
     }
 
     private void assignJob(PlayerRef sender, SimNPCComponent npc, long currentTick, JobType job, FriendshipTier tier) {
+        if (npc.profession == null) {
+            npc.profession = Profession.UNEMPLOYED;
+        }
         if (!npc.profession.canDoJob(job)) {
             // Find which profession CAN do this job, and suggest it
             String neededProf = findProfessionForJob(job);
@@ -574,8 +580,11 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             }
 
             // --- GREETING ---
+            // hasWord() splits on whitespace, so multi-word greetings can never match there —
+            // they have to go through hasPhrase().
             boolean isGreeting = hasWord(message, "olá", "ola", "hello", "hi", "oi", "eae", "eai",
-                    "fala", "salve", "bom dia", "boa tarde", "boa noite", "e aí", "e ai");
+                    "fala", "salve")
+                    || hasPhrase(message, "bom dia", "boa tarde", "boa noite", "e aí", "e ai");
             boolean justCalledName = message.trim().equalsIgnoreCase(npcName) || message.trim().equalsIgnoreCase(npcName + "!");
             if (isGreeting || justCalledName) return GREETING;
 
