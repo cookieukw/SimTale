@@ -37,6 +37,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class InteractionManager {
 
+    private static final com.hypixel.hytale.logger.HytaleLogger LOGGER =
+            com.hypixel.hytale.logger.HytaleLogger.forEnclosingClass();
+
     private record InteractionOutcome(
         int friendship,
         int romance,
@@ -155,11 +158,20 @@ public class InteractionManager {
                     playerRef != null ? playerRef.getUsername() : "Player",
                     List.of(new AiMessage("user", "The player is starting a friendly conversation with you. Say hello or reply to them."))
             );
-            SimTale.aiManager.generateAsync(aiRequest).thenAccept(aiRes -> {
-                if (aiRes.success() && playerRef != null) {
-                    playerRef.sendMessage(Message.raw("[" + npc.name + "] " + aiRes.text()));
-                }
-            });
+            SimTale.aiManager.generateAsync(aiRequest)
+                .thenAccept(aiRes -> {
+                    if (aiRes.success() && playerRef != null) {
+                        playerRef.sendMessage(Message.raw("[" + npc.name + "] " + aiRes.text()));
+                    } else if (!aiRes.success()) {
+                        LOGGER.atWarning().log("SimTale: provedor de IA falhou: " + aiRes.errorMessage());
+                    }
+                })
+                // Without this, any exception inside the callback (or the HTTP call) vanished
+                // into the CompletableFuture with no trace at all.
+                .exceptionally(ex -> {
+                    LOGGER.atWarning().log("SimTale: erro na resposta assincrona da IA: " + ex);
+                    return null;
+                });
         }
         
         return InteractionOutcome.of(fGain, 0, 1, aGain, response, MemoryEvent.CHATTED);
@@ -560,7 +572,10 @@ public class InteractionManager {
                         }
                     }
                 }
-            } catch (Throwable ignored) {}
+            } catch (RuntimeException ignored) {
+                // Stat lookup is best-effort; catching Throwable here also swallowed
+                // OutOfMemoryError/StackOverflowError and any Error thrown by the engine.
+            }
 
             World world = firstWorld();
             if (world != null) {
