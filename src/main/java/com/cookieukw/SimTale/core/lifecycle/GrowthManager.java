@@ -108,7 +108,11 @@ public class GrowthManager {
                 ? SimNPCFactory.NPCType.CHILD_MALE 
                 : SimNPCFactory.NPCType.CHILD_FEMALE;
                 
-            World world = Universe.get().getWorlds().values().iterator().next();
+            World world = com.cookieukw.SimTale.core.WorldUtil.first();
+            if (world == null) {
+                LOGGER.atWarning().log("SimTale: nenhum mundo carregado; promocao para TODDLER adiada.");
+                return;
+            }
             Store<EntityStore> store = world.getEntityStore().getStore();
             Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, type);
             
@@ -148,14 +152,20 @@ public class GrowthManager {
             }
         } 
         else if (child.stage == GrowthStage.TEEN) {
+            World world = com.cookieukw.SimTale.core.WorldUtil.first();
+            if (world == null) {
+                LOGGER.atWarning().log("SimTale: nenhum mundo carregado; promocao para TEEN adiada.");
+                return;
+            }
+
             Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
             Vector3d spawnPos = new Vector3d(0, 100, 0);
             if (childRef != null && childRef.isValid()) {
                 TransformComponent t = childRef.getStore().getComponent(childRef, TransformComponent.getComponentType());
                 if (t != null) spawnPos = new Vector3d(t.getPosition());
-                Universe.get().getWorlds().values().iterator().next().getEntityStore().getStore().removeEntity(childRef, RemoveReason.REMOVE);
+                world.getEntityStore().getStore().removeEntity(childRef, RemoveReason.REMOVE);
             }
-            
+
             SimNPCComponent oldNpc = null;
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityId != null && npc.entityId.equals(child.childId)) {
@@ -169,7 +179,6 @@ public class GrowthManager {
                 ? SimNPCFactory.NPCType.HUMAN_MALE 
                 : SimNPCFactory.NPCType.HUMAN_FEMALE;
                 
-            World world = Universe.get().getWorlds().values().iterator().next();
             Store<EntityStore> store = world.getEntityStore().getStore();
             Ref<EntityStore> teenRef = SimNPCFactory.spawnNPC(store, spawnPos, type);
             
