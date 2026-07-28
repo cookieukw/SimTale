@@ -20,21 +20,17 @@ public class NpcContextBuilder {
 
     public static AiRequest build(SimNPCComponent npc, UUID playerUuid, String playerName, List<AiMessage> conversationHistory) {
        
-       UUID uuid = UUID.fromString(playerUuid.toString());
-
-       PlayerRef player = Universe.get().getPlayer(uuid);
+        // `UUID.fromString(playerUuid.toString())` was a no-op round-trip, and the null check
+        // was an `assert`, which the JVM disables by default — so on a real server the NPE
+        // fell straight through to `catch (Throwable)` and was silently swallowed.
         String language = "en-US";
-        try {
-           /*
-            for (PlayerRef pRef : Universe.get().getPlayers()) {
-                if (pRef.getUuid().equals(playerUuid)) {
-                    language = pRef.getLanguage();
-                    break;
-                }
-            } */
-            assert player != null;
-            language = player.getLanguage();
-        } catch (Throwable ignored) {}
+        PlayerRef player = Universe.get().getPlayer(playerUuid);
+        if (player != null) {
+            String playerLanguage = player.getLanguage();
+            if (playerLanguage != null && !playerLanguage.isBlank()) {
+                language = playerLanguage;
+            }
+        }
 
         StringBuilder systemPrompt = new StringBuilder();
         
