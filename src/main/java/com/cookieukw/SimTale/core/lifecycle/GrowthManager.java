@@ -170,7 +170,7 @@ public class GrowthManager {
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityId != null && npc.entityId.equals(child.childId)) {
                     oldNpc = npc;
-                    SimTale.ACTIVE_NPCS.remove(npc);
+                    SimTale.untrackNpc(npc);
                     break;
                 }
             }
