@@ -53,7 +53,9 @@ private static final List<Profession> PROFESSION_POOL = List.of(
         Profession.LUMBERJACK,
         Profession.GUARD,
         Profession.EXPLORER,
-        Profession.BUILDER
+        Profession.BUILDER,
+        // HUNTER was missing, so no NPC could ever like or dislike a hunter.
+        Profession.HUNTER
 );
 
 private static final Map<String, String> ITEM_DISPLAY_NAMES = Map.ofEntries(
