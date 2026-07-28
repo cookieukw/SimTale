@@ -48,3 +48,91 @@ A lógica original de verificação de custódia do `BabyCareTickSystem` buscava
 
 ### Resolução
 Refatorada a detecção no `BabyCareTickSystem.java` para varrer os inventários de forma robusta e persistir a perda/descarte. O sistema sincroniza de forma transacional a custódia. Se o item bebê sai do inventário e é colocado em um baú, a custódia muda para o contêiner ou retorna para o NPC cônjuge de forma segura, destruindo duplicatas flutuantes no mundo.
+
+---
+
+## 4. Profissão e Gênero Perdidos em Clonagens e Recarga
+
+### Sintoma
+NPCs trocavam de profissão sozinhos e perdiam o gênero (com efeito colateral em diálogos flexionados e na elegibilidade para gravidez), tipicamente após transições de chunk ou reinício do servidor.
+
+### Diagnóstico (Causa Raiz)
+Dois caminhos independentes reintroduziam o mesmo defeito:
+
+*   **`SimNPCComponent.clone()`** delega para o construtor `SimNPCComponent(entityId, name)`, que chama `assignRandomProfession()`. O método então copiava explicitamente personalidade, necessidades e relacionamentos, mas **não** copiava `profession`, `gender`, `family` nem `needs.hygiene` — logo, toda cópia de componente feita pelo ECS sorteava uma profissão nova e zerava o gênero.
+*   **`SimNPCPersistence.loadAllNPCs()`** restaurava todos os campos salvos **exceto** `profession`, enquanto o `loadNPC()` (caminho paralelo, quase idêntico) restaurava. Como o `reassembleActiveNPCs()` usado após reinício passa pelo `loadAllNPCs()`, a profissão gravada no banco era descartada.
+
+### Resolução
+*   `clone()` passou a copiar explicitamente `profession`, `gender`, `family` e `needs.hygiene`, além de preservar o `yaw` da cama (perdido pelo construtor de 3 argumentos do `BedPos`).
+*   Os dois caminhos de carga foram unificados em um único `applyData(component, data)` privado, eliminando a duplicação de ~45 linhas que permitiu a divergência. A reconstrução de relacionamentos passou a tolerar chaves UUID malformadas individualmente, em vez de abortar a carga inteira do NPC.
+
+---
+
+## 5. Gravação em Disco a Cada Segundo por NPC
+
+### Sintoma
+Degradação de performance proporcional ao número de NPCs ativos, com I/O de disco constante mesmo com o servidor ocioso.
+
+### Diagnóstico (Causa Raiz)
+No `SimTaleTickSystem`, o ramo de interação espontânea era avaliado a **cada tick** para todo NPC sem trabalho ativo:
+
+```java
+} else {
+    if (Math.random() < 0.05) {
+        InteractionManager.performInteraction(npc, npc.entityId, null, InteractionType.RANDOM);
+    }
+}
+```
+
+Com 20 ticks por segundo e 5% de chance, cada NPC disparava aproximadamente uma interação por segundo — e `performInteraction()` termina chamando `SimNPCPersistence.saveNPC()`. Como efeito colateral, o `playerUuid` passado era o próprio `entityId` do NPC, poluindo o mapa de relacionamentos com uma relação do NPC consigo mesmo.
+
+### Resolução
+A avaliação foi restringida a uma janela periódica (`absoluteTick % 200 == 0`), reduzindo a frequência em duas ordens de grandeza sem alterar o comportamento observável.
+
+---
+
+## 6. Provider de IA Sobrescrito e Padrão Apagado
+
+### Sintoma
+Configurar `"provider": "openrouter"` no `simtale-ai.json` desativava a IA por completo, sem erro visível.
+
+### Diagnóstico (Causa Raiz)
+Duas falhas somadas no registro de provedores:
+
+*   O OpenRouter era registrado como `new OpenAIProvider(url, key, model)`, e o `OpenAIProvider` fixava `config.providerId = "openai"`. Como o `NpcAiManager` indexa por id num `Map`, registrar ambos fazia um sobrescrever o outro, e o id `"openrouter"` nunca chegava a existir.
+*   `setDefaultProvider(String id)` fazia `this.defaultProvider = providers.get(id)` sem verificação. Um id inexistente atribuía `null`, apagando o provedor padrão válido já registrado.
+
+### Resolução
+Adicionado ao `OpenAIProvider` um construtor que aceita `providerId` explícito (o OpenRouter agora registra como `"openrouter"`), e `setDefaultProvider` passou a retornar `boolean`, preservando o padrão anterior e emitindo aviso no log quando o provedor configurado não está disponível.
+
+---
+
+## 7. Saudações Multipalavra Nunca Reconhecidas no Chat
+
+### Sintoma
+Dizer "bom dia" ou "boa noite" para um NPC caía no diálogo genérico de conversa fiada em vez da saudação apropriada.
+
+### Diagnóstico (Causa Raiz)
+Em `SimTaleChatHandler.ChatIntent.detect()`, as saudações eram testadas com `hasWord()`, que divide a mensagem por espaços e compara token a token:
+
+```java
+hasWord(message, "olá", "ola", "hi", "oi", "bom dia", "boa tarde", "boa noite", "e aí")
+```
+
+Nenhum token resultante de `split("\\s+")` pode conter espaço, então as entradas multipalavra eram inalcançáveis por construção.
+
+### Resolução
+As saudações compostas foram movidas para `hasPhrase()` (que usa `contains`), mantendo as de palavra única em `hasWord()` para preservar a checagem de fronteira de palavra.
+
+---
+
+## 8. NPCs Congelados em Estados sem Tratador
+
+### Sintoma
+NPCs ociosos paravam de agir por longos períodos e só voltavam a se mexer quando ficavam com sono.
+
+### Diagnóstico (Causa Raiz)
+A fase de decisão do `RoutineAISystem` atribuía os estados `WANDERING` e `MOVING_TO_SOCIALIZE`, mas nenhum bloco do sistema os tratava. Nada chamava `moveTo()` nem devolvia o NPC para `IDLE`, então ele permanecia parado até que o *interrupt* de energia baixa o levasse para `FINDING_BED`. Como a transição para `WANDERING` tinha chance por tick, na prática os NPCs passavam boa parte do tempo travados.
+
+### Resolução
+Criado o `NPCSocialHelper`, implementando `MOVING_TO_SOCIALIZE`, `SOCIALIZING` e `WANDERING` com condição de saída e timeout em todos os estados. O `MOVING_TO_WANDER`, redundante com `WANDERING` e sem nenhuma referência no código, foi removido do enum.
