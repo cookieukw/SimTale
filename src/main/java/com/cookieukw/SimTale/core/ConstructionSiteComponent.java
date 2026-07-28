@@ -33,6 +33,8 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
     public boolean forceBuild;
     public int simulatedBuilders;
     public transient int activeBuilders;
+    /** Tick of the last nearby-builder census; the count is refreshed periodically, not per tick. */
+    public transient long lastBuilderCountTick;
     public boolean isClear = true;
 
     public Rotation4 facing = Rotation4.NORTH;
@@ -53,6 +55,7 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         this.forceBuild = false;
         this.simulatedBuilders = 0;
         this.activeBuilders = 0;
+        this.lastBuilderCountTick = 0L;
     }
 
     public static final BuilderCodec<ConstructionSiteComponent> CODEC = BuilderCodec
@@ -85,6 +88,7 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         clone.forceBuild = this.forceBuild;
         clone.simulatedBuilders = this.simulatedBuilders;
         clone.activeBuilders = this.activeBuilders;
+        clone.lastBuilderCountTick = this.lastBuilderCountTick;
         clone.facing = this.facing;
         clone.roofFacing = this.roofFacing;
         clone.isClear = this.isClear;
