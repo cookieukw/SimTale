@@ -11,6 +11,10 @@ import java.util.Set;
  * Defines the personality traits of a SimNPC.
  */
 public class Personality {
+
+    /** How many random traits a freshly generated NPC gets. */
+    private static final int TRAITS_PER_NPC = 3;
+
     public int kindness;
     public int humor;
     public int aggression;
@@ -35,12 +39,14 @@ public class Personality {
      */
     public static Personality createDefault() {
         Personality p = new Personality(50, 50, 20, 50);
-        Trait[] allTraits = Trait.values();
-        List<Trait> traitList = new ArrayList<>(Arrays.asList(allTraits));
+        List<Trait> traitList = new ArrayList<>(Arrays.asList(Trait.values()));
         Collections.shuffle(traitList);
-        p.traits.add(traitList.get(0));
-        p.traits.add(traitList.get(1));
-        p.traits.add(traitList.get(2));
+        // Bounded by the enum size: the old code indexed 0/1/2 unconditionally and would throw
+        // IndexOutOfBounds if Trait ever dropped below three constants.
+        int count = Math.min(TRAITS_PER_NPC, traitList.size());
+        for (int i = 0; i < count; i++) {
+            p.traits.add(traitList.get(i));
+        }
         return p;
     }
 }
