@@ -25,6 +25,10 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
     // Speed of construction
     public static int GLOBAL_SPEED = 1;
 
+    /** How often the nearby-builder census is refreshed. */
+    private static final int BUILDER_RECOUNT_INTERVAL_TICKS = 20;
+    private static final double BUILDER_RANGE_SQ = 16.0 * 16.0;
+
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
@@ -42,11 +46,7 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
             SimTale.ACTIVE_SITES.add(site);
         }
 
-        World world = null;
-        for (World w : Universe.get().getWorlds().values()) {
-            world = w;
-            break;
-        }
+        World world = com.cookieukw.SimTale.core.WorldUtil.first();
         if (world == null) return;
 
         if (!site.isBuilding) return;
@@ -58,25 +58,35 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
             return;
         }
 
-        // Count nearby active builders
-        int builderCount = 0;
-        for (SimNPCComponent builderNpc : SimTale.ACTIVE_NPCS) {
-            if (builderNpc.entityRef != null && builderNpc.entityRef.isValid()) {
+        // Recount nearby builders periodically instead of every tick. This walks the entire
+        // NPC roster and reads two components per NPC, for every construction site — O(sites ×
+        // npcs) per tick. The count only feeds the build speed, so it does not need per-tick
+        // precision.
+        if (site.anchor != null
+                && world.getTick() - site.lastBuilderCountTick >= BUILDER_RECOUNT_INTERVAL_TICKS) {
+            site.lastBuilderCountTick = world.getTick();
+
+            int builderCount = 0;
+            for (SimNPCComponent builderNpc : SimTale.ACTIVE_NPCS) {
+                if (builderNpc.entityRef == null || !builderNpc.entityRef.isValid()) continue;
+
                 RoutineAIComponent ai = store.getComponent(builderNpc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                if (ai == null || ai.currentTask != RoutineAIComponent.TaskType.BUILDING) continue;
+
                 TransformComponent tComp = store.getComponent(builderNpc.entityRef, TransformComponent.getComponentType());
-                if (ai != null && ai.currentTask == RoutineAIComponent.TaskType.BUILDING && tComp != null) {
-                    Vector3d pos = tComp.getPosition();
-                    double dx = site.anchor.x - pos.x;
-                    double dz = site.anchor.z - pos.z;
-                    if ((dx*dx + dz*dz) < 16.0 * 16.0) {
-                        builderCount++;
-                    }
+                if (tComp == null) continue;
+
+                Vector3d pos = tComp.getPosition();
+                double dx = site.anchor.x - pos.x;
+                double dz = site.anchor.z - pos.z;
+                if ((dx * dx + dz * dz) < BUILDER_RANGE_SQ) {
+                    builderCount++;
                 }
             }
+            site.activeBuilders = builderCount;
         }
 
-        site.activeBuilders = builderCount;
-        int effectiveBuilders = builderCount + site.simulatedBuilders;
+        int effectiveBuilders = site.activeBuilders + site.simulatedBuilders;
 
         if (effectiveBuilders == 0 && !site.forceBuild) {
             return; // Paused, no builders and not forced
