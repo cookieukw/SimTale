@@ -12,6 +12,8 @@ import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.UUID;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
 /**
@@ -19,6 +21,7 @@ import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
  * Loads their SimTale data (gender) and opens the selection screen if they haven't selected one.
  */
 public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PlayerJoinHandler.class);
 
     @Override
     public void accept(PlayerReadyEvent event) {
@@ -65,7 +68,7 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
         try {
             HouseManager.loadAllHouses();
         } catch (Exception e) {
-            System.out.println("[SimTale] Error loading houses: " + e.getMessage());
+            LOGGER.debug("[SimTale] Error loading houses: " + e.getMessage());
         }
 
         // Bootstrap bed scan around the player
@@ -76,7 +79,7 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
                 BedWorldBootstrap.bootstrapLoadedRadius(player.getWorld(), tc.getPosition(), 96);
             }
         } catch (Exception e) {
-            System.out.println("[SimTale] Error bootstrapping beds on player join: " + e.getMessage());
+            LOGGER.debug("[SimTale] Error bootstrapping beds on player join: " + e.getMessage());
         }
     }
 }
