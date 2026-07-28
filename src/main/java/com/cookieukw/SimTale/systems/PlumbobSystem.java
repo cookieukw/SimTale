@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -36,6 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 
 public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
@@ -50,7 +52,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
      * every plumbob on every tick.
      */
     private static final Set<Ref<EntityStore>> trackedPlumbobRefs =
-            java.util.concurrent.ConcurrentHashMap.newKeySet();
+            ConcurrentHashMap.newKeySet();
 
     @Override
     @Nonnull
@@ -98,7 +100,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         TransformComponent entityTransform = chunk.getComponent(index, TransformComponent.getComponentType());
         if (entityTransform == null) return;
         
-        World world = com.cookieukw.SimTale.core.WorldUtil.first();
+        World world = WorldUtil.first();
         if (world == null) return;
 
         Ref<EntityStore> plumbobRef = playerPlumbobs.get(entityUuid);
