@@ -77,9 +77,7 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
                         SimNPCPersistence.loadNPC(npc);
                         targetRef.getStore().addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
                         
-                        final UUID targetId = uuidComp.getUuid();
-                        SimTale.ACTIVE_NPCS.removeIf(active -> active.entityId != null && active.entityId.equals(targetId));
-                        SimTale.ACTIVE_NPCS.add(npc);
+                        SimTale.trackNpc(npc);
                     }
                 }
             }
