@@ -219,7 +219,10 @@ public class HouseManager {
         }
         HouseData house = HOUSES_BY_ID.get(houseId);
         if (house == null) return true;
-        
+
+        // npcId is null for NPCs that have not been persisted yet; it used to NPE here,
+        // aborting the whole hunger/deposit scan for that NPC.
+        if (npcId == null) return false;
         return house.owners.contains(npcId.toString());
     }
 
@@ -266,9 +269,10 @@ public class HouseManager {
     }
 
     private static boolean isChest(BlockType type) {
-        if (type == null || type.getId() == null) return false;
-        String id = type.getId().toLowerCase();
-        return id.contains("chest") || id.contains("barrel") || id.contains("cupboard") || id.contains("cabinet");
+        if (type == null) return false;
+        // Delegates instead of duplicating the keyword list, which had already been copied
+        // into ChestRegistry.isChestId — two copies that could silently drift apart.
+        return ChestRegistry.isChestId(type.getId());
     }
 
     private static boolean isSolid(BlockType type) {
