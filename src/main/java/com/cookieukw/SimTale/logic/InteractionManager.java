@@ -13,10 +13,12 @@ import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Trait;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
@@ -37,8 +39,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class InteractionManager {
 
-    private static final com.hypixel.hytale.logger.HytaleLogger LOGGER =
-            com.hypixel.hytale.logger.HytaleLogger.forEnclosingClass();
+    private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
     private record InteractionOutcome(
         int friendship,
@@ -160,11 +161,16 @@ public class InteractionManager {
             );
             SimTale.aiManager.generateAsync(aiRequest)
                 .thenAccept(aiRes -> {
-                    if (aiRes.success() && playerRef != null) {
-                        playerRef.sendMessage(Message.raw("[" + npc.name + "] " + aiRes.text()));
-                    } else if (!aiRes.success()) {
+                    if (!aiRes.success()) {
                         LOGGER.atWarning().log("SimTale: provedor de IA falhou: " + aiRes.errorMessage());
+                        return;
                     }
+                    if (playerRef == null) return;
+
+                    // The callback runs on a CompletableFuture worker. sendMessage touches
+                    // engine state, so it has to be handed back to the world thread.
+                    WorldUtil.execute(() ->
+                            playerRef.sendMessage(Message.raw("[" + npc.name + "] " + aiRes.text())));
                 })
                 // Without this, any exception inside the callback (or the HTTP call) vanished
                 // into the CompletableFuture with no trace at all.
@@ -276,7 +282,7 @@ public class InteractionManager {
         boolean isFood = FOOD_KEYWORDS.stream().anyMatch(itemId::contains);
         if (isFood) {
             GrowthComponent childComp = Caskara.load("child_" + npc.entityId.toString(), GrowthComponent.class);
-            World world = firstWorld();
+            World world = WorldUtil.first();
             if (childComp != null && world != null) {
                 childComp.birthTick -= 24000;
                 Caskara.save("child_" + npc.entityId.toString(), childComp);
@@ -469,7 +475,7 @@ public class InteractionManager {
 
         // Dynamic emotion trigger based on interaction outcome
         long tick = 0;
-        World world = firstWorld();
+        World world = WorldUtil.first();
         if (world != null) {
             tick = world.getTick();
         }
@@ -577,7 +583,7 @@ public class InteractionManager {
                 // OutOfMemoryError/StackOverflowError and any Error thrown by the engine.
             }
 
-            World world = firstWorld();
+            World world = WorldUtil.first();
             if (world != null) {
                 WorldTimeResource timeResource = world.getEntityStore().getStore().getResource(WorldTimeResource.getResourceType());
                 float dayProgress = timeResource.getDayProgress();
@@ -621,14 +627,6 @@ public class InteractionManager {
         if (type == InteractionType.FRIENDLY) return Message.translation("npc-dialogues.cooldown.friendly").param("name", npcName);
         if (type == InteractionType.GIFT) return Message.translation("npc-dialogues.cooldown.gift").param("name", npcName);
         return Message.translation("npc-dialogues.cooldown.general").param("name", npcName);
-    }
-
-    /** The mod is single-world; returns null instead of throwing when no world is loaded yet. */
-    private static World firstWorld() {
-        for (World w : Universe.get().getWorlds().values()) {
-            return w;
-        }
-        return null;
     }
 
     private static Message pickRandomTranslation(String baseKey, int optionsCount, String npcName) {
