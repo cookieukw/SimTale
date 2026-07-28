@@ -47,6 +47,12 @@ public class SimNPCComponent implements Component<EntityStore> {
     public long jobCompletionTick;
     public UUID jobEmployer;
     public boolean isAway = false;
+    /**
+     * Marks the Grim Reaper NPC. This used to be inferred with {@code name.contains("Reaper")},
+     * which never matched because the factory names it "Dona Morte" — meaning no reaper was
+     * ever dispatched to collect a dying NPC.
+     */
+    public boolean isReaper = false;
     public transient MagicEngine activeMagicGame;
     public transient boolean isInteractingViaUI = false;
     public transient boolean forceSleep = false;
@@ -79,6 +85,11 @@ public class SimNPCComponent implements Component<EntityStore> {
         SimNPCComponent clone = new SimNPCComponent(entityId, name);
         clone.personality = new Personality(personality.kindness, personality.humor, personality.aggression,
                 personality.charisma);
+        // Traits are the whole point of Personality — without this the clone silently lost
+        // GREEDY/SHY/LAZY/... and behaved like a blank NPC.
+        if (personality.traits != null) {
+            clone.personality.traits = new java.util.HashSet<>(personality.traits);
+        }
         clone.needs = new Needs();
         clone.needs.hunger = needs.hunger;
         clone.needs.energy = needs.energy;
@@ -90,7 +101,22 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.stats.xp = stats.xp;
         clone.memory = new MemoryManager();
         clone.memory.recentMemories.addAll(memory.recentMemories);
-        clone.relationships = new HashMap<>(relationships);
+        // Deep copy: a shallow HashMap copy shares the Relationship objects, so mutating the
+        // clone's affinity/romance also mutated the original's.
+        clone.relationships = new HashMap<>();
+        for (Map.Entry<UUID, Relationship> entry : relationships.entrySet()) {
+            Relationship source = entry.getValue();
+            if (source == null) continue;
+            Relationship copy = new Relationship(entry.getKey());
+            copy.affinity = source.affinity;
+            copy.friendship = source.friendship;
+            copy.romance = source.romance;
+            copy.trust = source.trust;
+            copy.interactionsToday = source.interactionsToday;
+            copy.lastInteractionDayIndex = source.lastInteractionDayIndex;
+            copy.status = source.status;
+            clone.relationships.put(entry.getKey(), copy);
+        }
         clone.preferences = new NPCPreferences(
             preferences.getFavoriteFoods(),
             preferences.getHatedFoods(),
@@ -121,6 +147,7 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.jobCompletionTick = jobCompletionTick;
         clone.jobEmployer = jobEmployer;
         clone.isAway = isAway;
+        clone.isReaper = isReaper;
         
         // Clone emotion state
         clone.activeEmotion = activeEmotion;
