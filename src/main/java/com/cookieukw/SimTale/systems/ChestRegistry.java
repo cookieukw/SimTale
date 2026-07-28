@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class ChestRegistry {
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ChestRegistry.class);
     private ChestRegistry() {}
 
     public static final Set<HouseBlockPos> CHESTS = Collections.synchronizedSet(new HashSet<>());
@@ -18,7 +19,7 @@ public final class ChestRegistry {
 
     public static void add(int x, int y, int z) {
         CHESTS.add(new HouseBlockPos(x, y, z));
-        System.out.println("[SimTale] Chest registered at (" + x + ", " + y + ", " + z + "). Total: " + CHESTS.size());
+        LOGGER.debug("[SimTale] Chest registered at (" + x + ", " + y + ", " + z + "). Total: " + CHESTS.size());
     }
 
     public static void removeAt(int x, int y, int z) {
