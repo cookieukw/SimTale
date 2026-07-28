@@ -19,6 +19,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -32,6 +34,17 @@ import javax.annotation.Nonnull;
 public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
     private static final int CONVERSATION_TIMEOUT_TICKS = 1200; // 20 seconds (was 10s)
+
+    // Precompiled: these were being recompiled twice per NPC, for every chat message sent.
+    private static final Pattern PUNCTUATION = Pattern.compile("[.,!?;:]");
+    private static final Pattern SPACES = Pattern.compile("\\s+");
+
+    /** Lowercases, strips light punctuation and collapses whitespace. */
+    @Nonnull
+    private static String normalize(@Nonnull String value) {
+        String lowered = value.toLowerCase(java.util.Locale.ROOT);
+        return SPACES.matcher(PUNCTUATION.matcher(lowered).replaceAll(" ")).replaceAll(" ").trim();
+    }
 
     @Nonnull
     public static String getRandomVariant(String baseKey, int variants) {
@@ -94,11 +107,16 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
     private SimNPCComponent findTargetNpc(PlayerRef sender, String message) {
         if (message == null) return null;
 
-        // Clean message: lowercase, remove color codes, strip basic punctuation, normalize spaces
-        String cleanMessage = message.toLowerCase().replaceAll("[.,!?;:]", " ").replaceAll("\\s+", " ").trim();
+        // Clean message: lowercase, strip basic punctuation, normalize spaces.
+        // `message` already arrives lowercased from accept().
+        String cleanMessage = normalize(message);
 
         SimNPCComponent approximateNpc = null;
         int bestDistance = Integer.MAX_VALUE;
+
+        // Split the message once instead of once per NPC — this loop runs for every chat line
+        // on the server, times the whole NPC roster.
+        String[] messageWords = SPACES.split(cleanMessage);
 
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (sender.getUuid().equals(npc.currentConversationPartner)) {
@@ -108,15 +126,14 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             if (npc.name == null) continue;
 
             // Clean NPC name in same way
-            String cleanNpcName = npc.name.toLowerCase().replaceAll("[.,!?;:]", " ").replaceAll("\\s+", " ").trim();
+            String cleanNpcName = normalize(npc.name);
 
             // 1. Exact full-name substring match
             if (cleanMessage.contains(cleanNpcName)) {
                 return npc;
             }
 
-            String[] nameWords = cleanNpcName.split("\\s+");
-            String[] messageWords = cleanMessage.split("\\s+");
+            String[] nameWords = SPACES.split(cleanNpcName);
 
             // 2. Standalone exact word match (e.g. typing first name or last name exactly)
             for (String nWord : nameWords) {
@@ -362,6 +379,10 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         else if (message.contains("lenhador")) newProf = Profession.LUMBERJACK;
         else if (message.contains("guarda") || message.contains("soldado")) newProf = Profession.GUARD;
         else if (message.contains("explorador") || message.contains("aventureiro")) newProf = Profession.EXPLORER;
+        // BUILDER and HUNTER exist in the Profession enum and are fully implemented in
+        // NPCWorkHelper, but were unreachable through chat.
+        else if (message.contains("construtor") || message.contains("pedreiro")) newProf = Profession.BUILDER;
+        else if (message.contains("caçador") || message.contains("cacador")) newProf = Profession.HUNTER;
         return newProf;
     }
 
@@ -407,9 +428,12 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
     private void sendReply(PlayerRef sender, Message text) {
         CompletableFuture.runAsync(() -> {
             try {
-                Thread.sleep(150); // 150ms delay to ensure player's chat message is printed first
+                Thread.sleep(150); // 150ms delay so the player's own chat line prints first
             } catch (InterruptedException e) {
-                // Ignore
+                // Swallowing the interrupt left the pool thread's interrupt flag cleared, so
+                // nothing downstream could ever observe the cancellation. Restore and bail out.
+                Thread.currentThread().interrupt();
+                return;
             }
             sender.sendMessage(text);
         });
