@@ -28,8 +28,12 @@ import java.util.List;
 import java.util.Map;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NPCWorkHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NPCWorkHelper.class);
 
     private static final int GATHER_WORK_DURATION_TICKS = 40; // 2 seconds
     private static final double WORK_REACH_DISTANCE_SQ = 2.5 * 2.5;
@@ -195,7 +199,7 @@ public class NPCWorkHelper {
                         int seedAmount = 1 + (int)(Math.random() * 2);
                         inv.addItemStack(new ItemStack(seedItem, seedAmount));
 
-                        System.out.println("[SimTale] Farmer NPC " + npc.name + " harvested crop: " + cropId + " (gained " + seedAmount + " seeds)");
+                        LOGGER.debug("[SimTale] Farmer NPC {} harvested crop {} (gained {} seeds)", npc.name, cropId, seedAmount);
                     }
                 }
                 ai.currentTask = TaskType.IDLE;
@@ -221,7 +225,7 @@ public class NPCWorkHelper {
                             inv.removeItemStackFromSlot(slot, 1);
                             String cropBlock = getCropBlockFromSeed(seed);
                             world.setBlock(plantPos.x, plantPos.y, plantPos.z, cropBlock);
-                            System.out.println("[SimTale] Farmer NPC " + npc.name + " planted: " + cropBlock + " at " + plantPos);
+                            LOGGER.debug("[SimTale] Farmer NPC {} planted {} at {}", npc.name, cropBlock, plantPos);
                         }
                     }
                 }
@@ -253,7 +257,7 @@ public class NPCWorkHelper {
                         if (inv != null) {
                             inv.addItemStack(new ItemStack(meatId, 1));
                         }
-                        System.out.println("[SimTale] Hunter NPC " + npc.name + " hunted animal: " + modelId);
+                        LOGGER.debug("[SimTale] Hunter NPC {} hunted animal {}", npc.name, modelId);
                     }
                 }
                 ai.workTargetEntityId = null;
@@ -273,18 +277,26 @@ public class NPCWorkHelper {
                 Vector3i chestPos = ai.targetBlockPosition;
                 ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, chestPos.x, chestPos.y, chestPos.z);
                 if (cb != null) {
-                    cb.getItemContainer();
                     ItemContainer chestInv = cb.getItemContainer();
                     ItemContainer npcInv = getInventory(store, ref);
-                    if (npcInv != null) {
+                    if (chestInv != null && npcInv != null) {
+                        int moved = 0;
                         for (short slot = 0; slot < npcInv.getCapacity(); slot++) {
                             ItemStack item = npcInv.getItemStack(slot);
-                            if (item != null && !item.isEmpty()) {
-                                npcInv.removeItemStackFromSlot(slot, item.getQuantity());
-                                chestInv.addItemStack(item);
-                            }
+                            if (item == null || item.isEmpty()) continue;
+
+                            // Copy first and check the chest has room, then clear the NPC slot.
+                            // The old order removed the item from the NPC and handed the
+                            // now-emptied reference to the chest, destroying the loot whenever
+                            // the chest was full.
+                            ItemStack toDeposit = new ItemStack(item.getItemId(), item.getQuantity());
+                            if (!chestInv.canAddItemStack(toDeposit)) continue;
+
+                            chestInv.addItemStack(toDeposit);
+                            npcInv.removeItemStackFromSlot(slot, item.getQuantity());
+                            moved++;
                         }
-                        System.out.println("[SimTale] NPC " + npc.name + " deposited all items to chest at " + chestPos);
+                        LOGGER.debug("[SimTale] NPC {} deposited {} stack(s) into chest at {}", npc.name, moved, chestPos);
                     }
                 }
                 ai.currentTask = TaskType.IDLE;
@@ -403,7 +415,9 @@ public class NPCWorkHelper {
                 }
             }
         } catch (Exception e) {
-            // Ignore spatial scanning race condition errors safely
+            // The spatial index can be mutated concurrently mid-scan; that is expected and
+            // recoverable, but swallowing it silently hid real errors here for a long time.
+            LOGGER.debug("[SimTale] Falha ao varrer animais proximos (ignorada)", e);
         }
         return null;
     }
