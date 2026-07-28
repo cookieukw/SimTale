@@ -29,7 +29,6 @@ public class RoutineAIComponent implements Component<EntityStore> {
         MOVING_TO_CONSTRUCTION,
         BUILDING,
         WANDERING,
-        MOVING_TO_WANDER,
         SOCIALIZING,
         MOVING_TO_SOCIALIZE,
         MOVING_TO_WORK,
@@ -52,6 +51,12 @@ public class RoutineAIComponent implements Component<EntityStore> {
     
     // Autonomy fields
     public UUID socializeTargetId = null;
+    /**
+     * True for the NPC that started the conversation. Only the host applies the social,
+     * relationship and mood rewards, so a chat is not counted twice.
+     */
+    public boolean socializeHost = false;
+    /** Tick at which the current wander destination is abandoned. 0 = not started. */
     public long wanderTimer = 0;
     
     // Debug
@@ -73,6 +78,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.reapTimer = this.reapTimer;
         comp.workTargetEntityId = this.workTargetEntityId;
         comp.socializeTargetId = this.socializeTargetId;
+        comp.socializeHost = this.socializeHost;
         comp.wanderTimer = this.wanderTimer;
         comp.lastLeashPos = this.lastLeashPos;
         comp.lastLeashTick = this.lastLeashTick;
