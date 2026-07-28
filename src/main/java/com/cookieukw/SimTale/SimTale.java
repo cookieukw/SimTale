@@ -103,7 +103,10 @@ public class SimTale extends JavaPlugin {
 
         // Set default active provider according to config selection
         if (config.provider != null && !config.provider.isBlank()) {
-            aiManager.setDefaultProvider(config.provider);
+            if (!aiManager.setDefaultProvider(config.provider)) {
+                LOGGER.atWarning().log("Configured AI provider '" + config.provider
+                        + "' is not registered (missing API key?). Keeping the first available provider.");
+            }
         }
 
         // Register data components
