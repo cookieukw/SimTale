@@ -39,8 +39,14 @@ import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.interactions.UseNPCInteraction;
 
-import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.annotation.Nonnull;
 
 
 /**
@@ -54,10 +60,68 @@ public class SimTale extends JavaPlugin {
     public static ComponentType<EntityStore, RoutineAIComponent> ROUTINE_AI_COMPONENT_TYPE;
     public static ComponentType<EntityStore, ConstructionSiteComponent> CONSTRUCTION_COMPONENT_TYPE;
     public static ComponentType<EntityStore, SimPlayerComponent> SIM_PLAYER_COMPONENT_TYPE;
-    public static final List<SimNPCComponent> ACTIVE_NPCS = new java.util.concurrent.CopyOnWriteArrayList<>();
-    public static final List<ConstructionSiteComponent> ACTIVE_SITES = new java.util.concurrent.CopyOnWriteArrayList<>();
+    /**
+     * Iteration view of the tracked NPCs. Mutate it only through {@link #trackNpc},
+     * {@link #untrackNpc}, {@link #untrackNpcById} and {@link #clearActiveNpcs} — direct
+     * add/remove desynchronizes {@link #NPCS_BY_ID}.
+     */
+    public static final List<SimNPCComponent> ACTIVE_NPCS = new CopyOnWriteArrayList<>();
+
+    /**
+     * UUID index over {@link #ACTIVE_NPCS}. Several tick systems needed "find the NPC with
+     * this id" once per NPC per tick, which was a linear scan of the whole roster — O(n²)
+     * every tick. This makes those lookups O(1).
+     */
+    private static final Map<UUID, SimNPCComponent> NPCS_BY_ID =
+            new ConcurrentHashMap<>();
+
+    public static final List<ConstructionSiteComponent> ACTIVE_SITES = new CopyOnWriteArrayList<>();
     public static boolean debugForceSpawning = false;
     public static NpcAiManager aiManager;
+
+    /**
+     * Starts tracking an NPC, replacing any previously tracked instance with the same id.
+     * Replaces the {@code removeIf(...)} + {@code add(...)} pair that was copy-pasted across
+     * four call sites.
+     */
+    public static void trackNpc(SimNPCComponent npc) {
+        if (npc == null) return;
+        if (npc.entityId != null) {
+            SimNPCComponent previous = NPCS_BY_ID.put(npc.entityId, npc);
+            if (previous != null && previous != npc) {
+                ACTIVE_NPCS.remove(previous);
+            }
+        }
+        if (!ACTIVE_NPCS.contains(npc)) {
+            ACTIVE_NPCS.add(npc);
+        }
+    }
+
+    public static void untrackNpc(SimNPCComponent npc) {
+        if (npc == null) return;
+        ACTIVE_NPCS.remove(npc);
+        if (npc.entityId != null) {
+            NPCS_BY_ID.remove(npc.entityId, npc);
+        }
+    }
+
+    public static void untrackNpcById(UUID entityId) {
+        if (entityId == null) return;
+        SimNPCComponent existing = NPCS_BY_ID.remove(entityId);
+        if (existing != null) {
+            ACTIVE_NPCS.remove(existing);
+        }
+    }
+
+    /** O(1) replacement for scanning {@link #ACTIVE_NPCS} looking for a matching entityId. */
+    public static SimNPCComponent findNpc(UUID entityId) {
+        return entityId != null ? NPCS_BY_ID.get(entityId) : null;
+    }
+
+    public static void clearActiveNpcs() {
+        ACTIVE_NPCS.clear();
+        NPCS_BY_ID.clear();
+    }
 
     public SimTale(@Nonnull JavaPluginInit init) {
         super(init);
@@ -78,7 +142,7 @@ public class SimTale extends JavaPlugin {
         // customModel/customUrl override only the provider actually selected in the config.
         // Applying them to every provider meant that setting, say, an OpenRouter model also
         // sent that model id to Gemini and OpenAI, breaking both.
-        String selected = config.provider != null ? config.provider.trim().toLowerCase(java.util.Locale.ROOT) : "";
+        String selected = config.provider != null ? config.provider.trim().toLowerCase(Locale.ROOT) : "";
 
         // 1. Setup Gemini
         String geminiKey = firstNonBlank(config.geminiKey, System.getenv("GEMINI_API_KEY"));
