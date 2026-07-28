@@ -130,6 +130,10 @@ public class SimNPCPersistence {
                     comp.needs = data.needs;
                     comp.stats = data.stats;
                     comp.memory = data.memory != null ? data.memory : new MemoryManager();
+                    if (data.profession != null) {
+                        // Without this the SimNPCComponent constructor's random profession sticks.
+                        comp.profession = data.profession;
+                    }
                     if (data.preferences != null) {
                         comp.preferences = data.preferences;
                     }
