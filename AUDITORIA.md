@@ -155,13 +155,31 @@ O `SimTaleChatHandler` também escreve em `npc.currentConversationPartner`, `npc
 e `npc.currentJob` a partir da thread de evento, enquanto os tick systems leem os mesmos
 campos.
 
-### 2.3 Persistência de estado no `RoutineAISystem`
+### 2.3 Persistência de estado no `RoutineAISystem` — ~~pendente~~ investigado, era alarme falso
 
-O método termina com `commandBuffer.replaceComponent(ref, ROUTINE_AI_COMPONENT_TYPE, ai)`
-(linha 637), mas há **10 `return` antecipados** que pulam essa linha (127, 153, 156, 292,
-308, 348, 425, 444, 530, 559, 599). Ou a chamada final é desnecessária (mutação já é
-in-place) ou essas saídas perdem a mudança de estado. Não dá para as duas coisas serem
-verdade — vale definir e padronizar.
+A dúvida original: o método terminava com
+`commandBuffer.replaceComponent(ref, ROUTINE_AI_COMPONENT_TYPE, ai)` mas tinha ~10 `return`
+antecipados que pulavam essa linha. Ou a chamada era desnecessária, ou essas saídas perdiam
+estado.
+
+Resolvido lendo o bytecode do `HytaleServer.jar`:
+
+1. `ArchetypeChunk.getComponent()` delega para `__internal_getComponent()`, que indexa o
+   array do arquétipo e devolve **a instância armazenada — sem clone**. Toda mutação em `ai`
+   já é visível para qualquer outro leitor no mesmo instante.
+2. `CommandBuffer.replaceComponent()` só enfileira um `Store.replaceComponent` diferido.
+3. `Store.replaceComponent()` faz `setComponent` e então notifica os `RefChangeSystem`
+   registrados para aquele `ComponentType`. O único `RefChangeSystem` do mod
+   (`BedEntityRegistrySystem`) é de `PersistentModel`, não de `RoutineAIComponent`.
+
+Ou seja: **os `return` antecipados nunca perderam estado**, e a chamada final era um no-op
+por NPC por tick que ainda assim alocava uma lambda e ocupava uma entrada do command buffer.
+A chamada foi removida e o motivo documentado no próprio método.
+
+Nota: as outras chamadas de `replaceComponent` do mod **não** são redundantes e foram
+mantidas — `TransformComponent` e `MovementStatesComponent` têm consumidores de mudança
+(índice espacial, replicação), e o `SimTaleTickSystem` substitui de fato o
+`SIM_NPC_COMPONENT_TYPE` por *outra* instância.
 
 ### 2.4 Falsos positivos na classificação de intenção do chat
 
