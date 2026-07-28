@@ -1,7 +1,6 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
-import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.component.ArchetypeChunk;
