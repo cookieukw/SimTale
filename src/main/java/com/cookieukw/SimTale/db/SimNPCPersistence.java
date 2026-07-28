@@ -184,10 +184,8 @@ public class SimNPCPersistence {
         for (SimNPCComponent comp : savedNPCs) {
             if (comp.entityId == null) continue;
 
-            // Check if already tracked
-            boolean alreadyTracked = SimTale.ACTIVE_NPCS.stream()
-                .anyMatch(a -> a.entityId != null && a.entityId.equals(comp.entityId));
-            if (alreadyTracked) continue;
+            // O(1) index lookup instead of streaming the whole roster per saved NPC.
+            if (SimTale.findNpc(comp.entityId) != null) continue;
 
             // Try to find the entity in the world
             Ref<EntityStore> entityRef = 
@@ -205,7 +203,7 @@ public class SimNPCPersistence {
                     } catch (Exception ignored) {}
                 }
                 
-                SimTale.ACTIVE_NPCS.add(comp);
+                SimTale.trackNpc(comp);
             }
         }
     }
