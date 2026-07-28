@@ -19,7 +19,8 @@ import java.util.Map;
 
 public class BedEntityRegistrySystem extends RefChangeSystem<EntityStore, PersistentModel> {
 
-  //  private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+    private static final org.slf4j.Logger LOGGER =
+            org.slf4j.LoggerFactory.getLogger(BedEntityRegistrySystem.class);
     private final Map<Ref<EntityStore>, BedPos> trackedBeds = new HashMap<>();
 
     @Override
@@ -40,13 +41,13 @@ public class BedEntityRegistrySystem extends RefChangeSystem<EntityStore, Persis
         String id = pm.getModelReference().getModelAssetId();
         
         // DEBUG: Log ALL entity model IDs to find the real bed ID
-        System.out.println("[SimTale-DEBUG] PersistentModel entity spawned: '" + id + "' isBed=" + BedRegistry.isBedId(id));
+        LOGGER.debug("[SimTale-DEBUG] PersistentModel entity spawned: '" + id + "' isBed=" + BedRegistry.isBedId(id));
         
         if (!BedRegistry.isBedId(id)) return;
 
         TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
         if (tc == null) {
-            System.out.println("[SimTale-DEBUG] Bed entity has NO TransformComponent, skipping!");
+            LOGGER.debug("[SimTale-DEBUG] Bed entity has NO TransformComponent, skipping!");
             return;
         }
 
@@ -57,7 +58,7 @@ public class BedEntityRegistrySystem extends RefChangeSystem<EntityStore, Persis
         BedPos bedPos = new BedPos((int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z), yaw);
         trackedBeds.put(ref, bedPos);
         BedRegistry.addOrReplace(bedPos.x, bedPos.y, bedPos.z, yaw);
-        System.out.println("[SimTale] Bed entity registered: " + id + " at (" + bedPos.x + "," + bedPos.y + "," + bedPos.z + ") total=" + BedRegistry.size());
+        LOGGER.debug("[SimTale] Bed entity registered: " + id + " at (" + bedPos.x + "," + bedPos.y + "," + bedPos.z + ") total=" + BedRegistry.size());
     }
 
     @Override
@@ -76,7 +77,7 @@ public class BedEntityRegistrySystem extends RefChangeSystem<EntityStore, Persis
         BedPos cachedPos = trackedBeds.remove(ref);
         if (cachedPos != null) {
             BedRegistry.removeAt(cachedPos.x, cachedPos.y, cachedPos.z);
-            System.out.println("[SimTale] Bed entity removed (from cache): " + id + " at (" + cachedPos.x + "," + cachedPos.y + "," + cachedPos.z + ") total=" + BedRegistry.size());
+            LOGGER.debug("[SimTale] Bed entity removed (from cache): " + id + " at (" + cachedPos.x + "," + cachedPos.y + "," + cachedPos.z + ") total=" + BedRegistry.size());
             return;
         }
 
@@ -84,7 +85,7 @@ public class BedEntityRegistrySystem extends RefChangeSystem<EntityStore, Persis
         if (tc != null) {
             Vector3d pos = tc.getPosition();
             BedRegistry.removeAt((int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z));
-            System.out.println("[SimTale] Bed entity removed (fallback): " + id + " total=" + BedRegistry.size());
+            LOGGER.debug("[SimTale] Bed entity removed (fallback): " + id + " total=" + BedRegistry.size());
         }
     }
 }
