@@ -36,6 +36,7 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Trait;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
@@ -55,6 +56,14 @@ import javax.annotation.Nonnull;
 public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
     private static final int BATH_SEARCH_COOLDOWN_TICKS = 40;
+    /**
+     * Deadlines for the "walk somewhere" states. Without them an unreachable target (walled
+     * off, across a ravine, chunk unloaded) parked the NPC in that state indefinitely — only
+     * the low-energy interrupt could ever drag it out.
+     */
+    private static final int MOVE_TIMEOUT_TICKS = 600;
+    /** Bathing restores 1 hygiene per tick, so 100 ticks is already the worst case. */
+    private static final int BATH_DURATION_LIMIT_TICKS = 200;
     /** Horizontal/vertical half-extent of the water scan. 15x15x5 ≈ 10.500 blocos por varredura. */
     private static final int BATH_SEARCH_RADIUS = 15;
     private static final int BATH_SEARCH_HEIGHT = 5;
@@ -116,7 +125,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         TransformComponent transform = chunk.getComponent(index, TransformComponent.getComponentType());
         if (transform == null) return;
 
-        World world = Universe.get().getWorlds().values().stream().findFirst().orElse(null);
+        // Was `getWorlds().values().stream().findFirst()`, which allocated a stream per NPC
+        // per tick.
+        World world = WorldUtil.first();
         if (world == null) return;
 
         HouseDoorManager.handleNpcDoors(world, npc, transform);
@@ -195,6 +206,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
                     if (site.isBuilding) {
                         ai.currentTask = TaskType.MOVING_TO_CONSTRUCTION;
+                        ai.taskStartTime = world.getTick();
                         playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
                         ai.targetBlockPosition = new Vector3i(site.anchor);
                         break;
@@ -529,6 +541,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
                                 ai.targetBlockPosition = new Vector3i(x, y, z);
                                 ai.currentTask = TaskType.MOVING_TO_BATH;
+                                ai.taskStartTime = world.getTick();
                                 playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
                                 found = true;
                                 break bathSearch;
@@ -543,6 +556,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         if (ai.currentTask == TaskType.MOVING_TO_BATH) {
             if (ai.targetBlockPosition == null) {
                 ai.currentTask = TaskType.IDLE; 
+                return;
+            }
+            if (world.getTick() - ai.taskStartTime > MOVE_TIMEOUT_TICKS) {
+                LOGGER.debug("[SimTale] NPC '{}' desistiu de chegar na agua", npc.name);
+                clearMoveTarget(ref, ai);
+                ai.targetBlockPosition = null;
+                ai.currentTask = TaskType.IDLE;
                 return;
             }
             Vector3d pos = transform.getPosition();
@@ -560,7 +580,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         if (ai.currentTask == TaskType.BATHING) {
             npc.needs.hygiene = Math.min(100f, npc.needs.hygiene + 1.0f);
-            if (npc.needs.hygiene >= 100f) {
+            // The hygiene check alone was the only exit; if anything else clamped hygiene the
+            // NPC would swim forever.
+            if (npc.needs.hygiene >= 100f
+                    || world.getTick() - ai.taskStartTime > BATH_DURATION_LIMIT_TICKS) {
                 ai.currentTask = TaskType.IDLE;
                 playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             }
@@ -611,6 +634,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         if (ai.currentTask == TaskType.MOVING_TO_CONSTRUCTION) {
             if (ai.targetBlockPosition == null) {
+                ai.currentTask = TaskType.IDLE;
+                return;
+            }
+            if (world.getTick() - ai.taskStartTime > MOVE_TIMEOUT_TICKS) {
+                LOGGER.debug("[SimTale] NPC '{}' desistiu de chegar ao canteiro de obras", npc.name);
+                clearMoveTarget(ref, ai);
+                ai.targetBlockPosition = null;
                 ai.currentTask = TaskType.IDLE;
                 return;
             }
