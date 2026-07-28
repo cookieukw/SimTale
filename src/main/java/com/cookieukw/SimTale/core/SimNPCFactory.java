@@ -129,7 +129,7 @@ public class SimNPCFactory {
         NewSpawnStartTickingSystem.queueNewSpawn(ref, store);
         
         // 5. Track for chat system
-        SimTale.ACTIVE_NPCS.add(simComponent);
+        SimTale.trackNpc(simComponent);
 
         return ref;
     }
