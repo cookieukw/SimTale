@@ -64,52 +64,69 @@ public class SimNPCPersistence {
 
         SimNPCData data = DB_SHELL.core(SimNPCData.class).extract(component.entityId.toString()).sync().orElse(null);
         if (data != null) {
-            component.name = data.name;
-            component.personality = data.personality;
-            component.needs = data.needs;
-            component.stats = data.stats;
-            component.memory = data.memory != null ? data.memory : new MemoryManager();
-            if (data.profession != null) {
-                component.profession = data.profession;
-            }
-            if (data.preferences != null) {
-                component.preferences = data.preferences;
-            }
-            if (data.family != null) {
-                component.family = data.family;
-            }
-            if (data.gender != null) {
-                component.gender = data.gender;
-            }
-            if (data.bedLocation != null) {
-                component.bedLocation = new com.cookieukw.SimTale.db.SimBedData.BedPos(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
-                com.cookieukw.SimTale.systems.BedRegistry.addOrReplace(data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
-            }
+            applyData(component, data);
+        }
+    }
 
-            // Reconstruct relationships
+    /**
+     * Copies a persisted record onto a live component. Single source of truth shared by
+     * {@link #loadNPC} and {@link #loadAllNPCs} — previously these two were separate copies
+     * that had already drifted apart (loadAllNPCs silently dropped the profession).
+     */
+    private static void applyData(SimNPCComponent component, SimNPCData data) {
+        component.name = data.name;
+        component.personality = data.personality;
+        component.needs = data.needs;
+        component.stats = data.stats;
+        component.memory = data.memory != null ? data.memory : new MemoryManager();
+        if (data.profession != null) {
+            component.profession = data.profession;
+        }
+        if (data.preferences != null) {
+            component.preferences = data.preferences;
+        }
+        if (data.family != null) {
+            component.family = data.family;
+        }
+        if (data.gender != null) {
+            component.gender = data.gender;
+        }
+        if (data.bedLocation != null) {
+            component.bedLocation = new SimBedData.BedPos(
+                    data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
+            BedRegistry.addOrReplace(
+                    data.bedLocation.x, data.bedLocation.y, data.bedLocation.z, data.bedLocation.yaw);
+        }
+
+        // Reconstruct relationships. One malformed key must not abort the whole load.
+        if (data.relationships != null) {
             for (Map.Entry<String, Relationship> entry : data.relationships.entrySet()) {
-                component.relationships.put(UUID.fromString(entry.getKey()), entry.getValue());
-            }
-            
-            // Restore pregnancy
-            if (data.pregnancy != null) {
-                component.pregnancy = data.pregnancy;
-            }
-
-            // Restore emotion state
-            if (data.activeEmotion != null) {
                 try {
-                    component.activeEmotion = Mood.valueOf(data.activeEmotion);
+                    component.relationships.put(UUID.fromString(entry.getKey()), entry.getValue());
                 } catch (IllegalArgumentException e) {
-                    component.activeEmotion = Mood.NEUTRAL;
+                    HytaleLogger.forEnclosingClass().atWarning()
+                            .log("SimTale: chave de relacionamento inválida ignorada: " + entry.getKey());
                 }
             }
-            component.emotionIntensity = data.emotionIntensity;
-            if (data.emotionSource != null) {
-                component.emotionSource = data.emotionSource;
-            }
-            component.lastEmotionChangeTick = data.lastEmotionChangeTick;
         }
+
+        if (data.pregnancy != null) {
+            component.pregnancy = data.pregnancy;
+        }
+
+        // Restore emotion state
+        if (data.activeEmotion != null) {
+            try {
+                component.activeEmotion = Mood.valueOf(data.activeEmotion);
+            } catch (IllegalArgumentException e) {
+                component.activeEmotion = Mood.NEUTRAL;
+            }
+        }
+        component.emotionIntensity = data.emotionIntensity;
+        if (data.emotionSource != null) {
+            component.emotionSource = data.emotionSource;
+        }
+        component.lastEmotionChangeTick = data.lastEmotionChangeTick;
     }
 
     /**
