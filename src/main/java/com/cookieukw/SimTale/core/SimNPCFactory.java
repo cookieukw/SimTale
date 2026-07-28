@@ -102,6 +102,7 @@ public class SimNPCFactory {
 
         SimNPCComponent simComponent = new SimNPCComponent(entityId, name);
         simComponent.entityRef = ref;
+        simComponent.isReaper = (type == NPCType.REAPER);
         
         if (type == NPCType.HUMAN_MALE || type == NPCType.CHILD_MALE) {
             simComponent.gender = Gender.MALE;
