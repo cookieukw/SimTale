@@ -64,6 +64,7 @@ public void attemptFlirt(SimNPCComponent npc, Player player) {
 
 ## 3. O Mundo Vivo (Sistemas Emergentes)
 - [x] **Traits de Personalidade Exclusivos:** `Tímido`, `Agressivo`, `Ganancioso`. (Ex: Gananciosos cobram mais caro se afinidade for baixa).
+- [x] **Lazer e Hobby:** NPC entediado vai fazer o hobby dele; o hobby ainda afeta presente, conversa e satisfação no trabalho. (`NPCLeisureHelper`)
 - [x] **Convívio entre NPCs:** NPCs carentes procuram um parceiro disponível, caminham até ele e conversam. A conversa restaura `social` dos dois, constrói relação NPC↔NPC e contagia humor. (`NPCSocialHelper`)
 - [ ] **Sistema de Fofoca (Gossip):** Se o Player bater em um NPC, os NPCs próximos salvam essa memória e espalham pro resto da vila.
   - ⚠️ *Estava marcado como concluído, mas não existe no código.* Bloqueado por duas peças ausentes: (1) nenhum handler de dano grava `MemoryEvent.ATTACKED` — só o `InteractionManager` escreve memórias, então o evento nunca chega a ser registrado; (2) não há propagação de memória entre NPCs. O estado `SOCIALIZING` do `NPCSocialHelper` é o ponto natural para plugar a transmissão.

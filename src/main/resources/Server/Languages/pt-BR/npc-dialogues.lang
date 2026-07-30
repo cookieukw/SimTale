@@ -69,6 +69,7 @@ gift.greedy = {name} arregala os olhos: Pra mim?! Haha, {itemName}! Finalmente a
 gift.paranoid = {name} olha pro presente ({itemName}) com desconfiança: Isso não tá envenenado, né?
 gift.normal = {name} sorri: Uau, {itemName}! Muito obrigado pelo presente.
 gift.basic = {name} agradece educadamente: Obrigado por isso, é algo simples mas vai ser útil!
+gift.hobby = {name} se anima de verdade: {itemName}! Como você sabia? Isso é exatamente a minha praia.
 prof.assign.unknown = {name} olha confuso pro {itemName}: ...e o que eu faço com isso? Isso não é ferramenta de trabalho!
 prof.assign.already = {name}: Eu já sou um {profName}, esqueceu? Tô trampando nisso todo dia!
 prof.assign.dislike.1 = {name} faz cara de nojo: {profName}?! Nem morto! Eu detesto esse tipo de trabalho!

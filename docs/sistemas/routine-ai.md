@@ -19,7 +19,8 @@ RoutineAISystem (Tick per NPC)
 └── Action Phase: Executa a ação no mundo físico
     ├── NPCHungerHelper  → FINDING_FOOD, MOVING_TO_FOOD, EATING
     ├── NPCWorkHelper    → MOVING_TO_WORK, FARMING, HUNTING, PLANTING, MOVING_TO_DEPOSIT
-    └── NPCSocialHelper  → MOVING_TO_SOCIALIZE, SOCIALIZING, WANDERING
+    ├── NPCSocialHelper  → MOVING_TO_SOCIALIZE, SOCIALIZING, WANDERING
+    └── NPCLeisureHelper → FINDING_LEISURE, MOVING_TO_LEISURE, DOING_HOBBY
 ```
 
 O `RoutineAISystem` concentra a **decisão** (qual tarefa assumir a partir de `IDLE`) e o fluxo de sono; a **execução** dos demais fluxos é delegada a helpers estáticos, mantendo o arquivo principal navegável.
@@ -43,6 +44,27 @@ O resultado é sensível ao contexto social: se qualquer um dos dois estiver com
 
 ### O Fluxo de Perambulação (`WANDERING`)
 NPCs ociosos têm uma pequena chance por tick de dar uma volta. O destino é sorteado por ângulo e raio (até 8 blocos) **ancorado na cama do NPC**, não na posição atual — isso mantém a vila coesa em vez de espalhar os moradores pelo mapa. NPCs sem cama perambulam em torno de onde estiverem. Um timeout de 300 ticks (`wanderTimer`) devolve o NPC a `IDLE` caso o destino sorteado seja inalcançável.
+
+### O Fluxo de Lazer (`NPCLeisureHelper`)
+Quando a necessidade `fun` cai abaixo de 40, o NPC ocioso vai fazer o próprio hobby — a **única** fonte de reposição de `fun` no mod.
+
+O destino depende do `Hobby` sorteado em `NPCPreferences`:
+
+| Hobby | Destino | Animação |
+| :--- | :--- | :--- |
+| `FISHING` | bloco de água num raio de 15 | `Idle` |
+| `MINING` | bloco de pedra | `Smith` |
+| `GARDENING` | bloco de plantação | `Smith` |
+| `READING`, `SLEEPING` | a própria cama (ou onde estiver, se não tiver casa) | `Idle` |
+
+A varredura de blocos reusa o padrão do banho: cursor `Vector3i` reaproveitado, comparação de id sem alocação e `getChunkIfInMemory`, de modo que nunca força carregamento de chunk de dentro do tick. Não achando nada por perto, o NPC não fica preso — cai no fallback de relaxar em casa, com ganho de `fun` reduzido (0,15/tick contra 0,25/tick no local adequado). Ao terminar, ganha humor `HAPPY`.
+
+### Ligações do Hobby com os Outros Sistemas
+O hobby, que antes só aparecia na UI e no prompt da IA, hoje influencia três pontos:
+
+*   **Presente** (`InteractionManager`): item relacionado ao hobby rende afinidade alta. A regra fica abaixo das listas explícitas de favoritos/odiados — preferência pessoal ganha de interesse genérico — e acima de `trash`/`basic`, para que um jardineiro leia sementes como presente atencioso em vez de item comum.
+*   **Conversa** (`NPCSocialHelper`): dois NPCs com o mesmo hobby ganham amizade e afinidade extras ao conversar. Só vale em conversa amigável — hobby em comum não melhora discussão.
+*   **Trabalho** (`NPCWorkHelper`): ao concluir uma tarefa, o NPC cujo hobby combina com a profissão (`MINING`+Minerador, `FISHING`+Pescador, `GARDENING`+Fazendeiro) ganha `fun` e humor; quem trabalha em algo alheio ao próprio gosto perde um pouco de `fun`.
 
 ### Throttling de Movimentação (`moveTo()`)
 Para evitar sobrecarga de processamento no servidor Hytale, a IA não recalcula caminhos a cada tick. O método `moveTo()` implementa um controle de vazão (throttling):
@@ -104,7 +126,6 @@ A rota física do NPC (sua `LeashPoint` no Hytale) só é atualizada se a coorde
 ---
 
 ## 6. Pontos em Aberto / Dívida Técnica
-*   **Necessidade `fun` sem fonte de reposição**: `Needs.fun` decai a cada tick mas nenhum sistema de jogo a restaura (apenas o `SimDebugPage`). Como `isMiserable()` a consulta, todo NPC acaba permanentemente `SAD` no longo prazo. O campo `NPCPreferences.getHobby()` já é sorteado por NPC e nunca lido — ligar hobby a uma atividade de lazer fecharia esse ciclo.
 *   **`MemoryEvent.ATTACKED` nunca é gravado**: só o `InteractionManager` escreve memórias. O trecho do `SimTaleTickSystem` que deixa o NPC `SCARED` ao apanhar é, portanto, código inalcançável — falta um *handler* de dano que registre o evento.
 *   **Inconsistência de caminho de animação**: convivem `Characters/Animations/Default/Idle.blockyanim` (fluxo de sono) e `Characters/Animations/Actions/Idle.blockyanim` (demais fluxos). Um dos dois provavelmente falha em silêncio.
 *   **Conversa sem retorno visível**: a socialização altera estado interno (necessidades, relacionamento, humor) mas não emite fala nem indicação visual. Para o jogador que observa, dois NPCs parados de frente um para o outro são indistinguíveis de dois NPCs travados.
