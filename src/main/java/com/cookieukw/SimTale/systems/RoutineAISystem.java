@@ -222,6 +222,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 ai.currentTask = TaskType.FINDING_BATH;
                 ai.targetBlockPosition = null;
                 ai.taskStartTime = world.getTick() - BATH_SEARCH_COOLDOWN_TICKS;
+            } else if (ai.currentTask == TaskType.IDLE && npc.needs.fun < NPCLeisureHelper.FUN_THRESHOLD) {
+                ai.currentTask = TaskType.FINDING_LEISURE;
+                ai.targetBlockPosition = null;
+                ai.taskStartTime = world.getTick() - NPCLeisureHelper.LEISURE_SEARCH_COOLDOWN_TICKS;
             } else if (ai.currentTask == TaskType.IDLE && npc.needs.social < 50 && Math.random() < 0.05) {
                 SimNPCComponent bestTarget = null;
                 double bestDist = SOCIALIZE_SEARCH_RANGE_SQ;
@@ -506,6 +510,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // --- Socializing & Wandering (Delegado ao NPCSocialHelper) ---
         NPCSocialHelper.handleSocialLogic(ref, npc, ai, transform, world, store);
+
+        // --- Leisure / Hobby (Delegado ao NPCLeisureHelper) ---
+        NPCLeisureHelper.handleLeisureLogic(ref, npc, ai, transform, world, store);
 
         // --- FINDING_BATH (OPTIMIZATION) ---
         if (ai.currentTask == TaskType.FINDING_BATH && world.getTick() - ai.taskStartTime >= BATH_SEARCH_COOLDOWN_TICKS) {

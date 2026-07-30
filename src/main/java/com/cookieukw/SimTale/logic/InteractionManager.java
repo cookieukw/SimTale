@@ -17,6 +17,7 @@ import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.systems.NPCLeisureHelper;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.Message;
@@ -326,6 +327,10 @@ public class InteractionManager {
     private static final List<GiftRule> GIFT_RULES = List.of(
         new GiftRule(ctx -> isLoved(ctx), ctx -> giftOutcome(20, 12, 30, "loves", ctx)),
         new GiftRule(ctx -> isHated(ctx), ctx -> giftOutcome(-20, -15, -25, "hates", ctx)),
+        // Ranked below the explicit favorite/hated lists (those are personal and beat a generic
+        // interest) but above trash/basic, so a gardener reads seeds as a thoughtful gift
+        // instead of as filler.
+        new GiftRule(ctx -> isHobbyRelated(ctx), ctx -> giftOutcome(14, 8, 22, "hobby", ctx)),
         new GiftRule(ctx -> isTrash(ctx), ctx -> giftOutcomeFlat(-15, -10, -20, "trash", ctx)),
         new GiftRule(ctx -> ctx.npc().personality.traits.contains(Trait.GREEDY),
                      ctx -> giftOutcome(15, 5, 25, "greedy", ctx)),
@@ -339,6 +344,18 @@ public class InteractionManager {
             (ctx.npc().preferences.getFavoriteFoods() != null && ctx.npc().preferences.getFavoriteFoods().stream().anyMatch(f -> f.equalsIgnoreCase(ctx.itemName()) || f.equalsIgnoreCase(ctx.itemId()))) ||
             (ctx.npc().preferences.getFavoriteItems() != null && ctx.npc().preferences.getFavoriteItems().stream().anyMatch(i -> i.equalsIgnoreCase(ctx.itemName()) || i.equalsIgnoreCase(ctx.itemId())))
         );
+    }
+
+    /** Gift that lines up with whatever the NPC does for fun. */
+    private static boolean isHobbyRelated(GiftContext ctx) {
+        if (ctx.npc().preferences == null) {
+            return false;
+        }
+        String idLower = ctx.itemId().toLowerCase(Locale.ROOT);
+        String nameLower = ctx.itemName().toLowerCase(Locale.ROOT);
+        var hobby = NPCLeisureHelper.hobbyOf(ctx.npc());
+        return NPCLeisureHelper.isHobbyItem(hobby, idLower)
+                || NPCLeisureHelper.isHobbyItem(hobby, nameLower);
     }
 
     private static boolean isHated(GiftContext ctx) {

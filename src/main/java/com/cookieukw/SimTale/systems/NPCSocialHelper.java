@@ -197,6 +197,13 @@ public class NPCSocialHelper {
         int affinity = hostile ? -3 : 4;
         int trust = hostile ? -1 : 1;
 
+        // Shared interests give people more to talk about. Only applies to a friendly chat —
+        // a common hobby does not make an argument go any better.
+        if (!hostile && NPCLeisureHelper.hobbyOf(host) == NPCLeisureHelper.hobbyOf(guest)) {
+            friendship += 2;
+            affinity += 3;
+        }
+
         hostView.addFriendship(friendship);
         hostView.addAffinity(affinity);
         hostView.addTrust(trust);

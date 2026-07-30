@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -88,6 +89,27 @@ public class NPCWorkHelper {
 
     /** Block id used to clear a position, matching the convention in ConstructionSystem. */
     private static final String EMPTY_BLOCK = "Empty";
+
+    /**
+     * Mood payoff for finishing a task. An NPC whose hobby lines up with its profession
+     * genuinely enjoys the work and gets a little {@code fun} out of it; one whose hobby has
+     * nothing to do with the job just gets it over with.
+     * <p>
+     * This is the only place where the two systems meet — before it, an NPC could spend its
+     * whole life farming while its rolled hobby said it would rather be fishing, and nothing
+     * in the simulation noticed.
+     */
+    private static void applyWorkSatisfaction(SimNPCComponent npc, long tick) {
+        if (npc.needs == null) {
+            return;
+        }
+        if (NPCLeisureHelper.matchesProfession(NPCLeisureHelper.hobbyOf(npc), npc.profession)) {
+            npc.needs.fun = Math.min(100f, npc.needs.fun + 6f);
+            npc.setEmotion(Mood.HAPPY, 0.45f, "loves_the_job", tick);
+        } else {
+            npc.needs.fun = Math.max(0f, npc.needs.fun - 1.5f);
+        }
+    }
 
     public static void handleWorkLogic(
             Ref<EntityStore> ref,
@@ -229,6 +251,7 @@ public class NPCWorkHelper {
                         LOGGER.debug("[SimTale] Farmer NPC {} harvested crop {} (gained {} seeds)", npc.name, cropId, seedAmount);
                     }
                 }
+                applyWorkSatisfaction(npc, world.getTick());
                 ai.currentTask = TaskType.IDLE;
                 playIdleAnim(ref, store);
             }
@@ -287,6 +310,7 @@ public class NPCWorkHelper {
                         LOGGER.debug("[SimTale] Hunter NPC {} hunted animal {}", npc.name, modelId);
                     }
                 }
+                applyWorkSatisfaction(npc, world.getTick());
                 ai.workTargetEntityId = null;
                 ai.currentTask = TaskType.IDLE;
                 playIdleAnim(ref, store);
