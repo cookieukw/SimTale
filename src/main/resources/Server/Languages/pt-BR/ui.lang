@@ -83,3 +83,49 @@ pregnancy.symptoms_npc_t2 = Sintomas: Fome e energia aumentadas, lentidão moder
 pregnancy.symptoms_npc_t3 = Sintomas: Fome e energia intensas, lentidão severa
 pregnancy.children = Total de Filhos: {count}
 button.pregnancy = Ver Gestação
+
+parents = Pais:
+children = Filhos:
+mood = Humor:
+
+stage.baby = Bebê
+stage.toddler = Criancinha
+stage.child = Criança
+stage.teen = Adolescente
+stage.adult = Adulto
+
+hobby.fishing = Pescaria
+hobby.mining = Mineração
+hobby.gardening = Jardinagem
+hobby.reading = Leitura
+hobby.sleeping = Dormir
+
+mood.neutral = Neutro
+mood.happy = Feliz
+mood.angry = Bravo
+mood.sad = Triste
+mood.scared = Assustado
+mood.sleepy = Sonolento
+mood.excited = Eufórico
+mood.bored = Entediado
+
+Food_Cheese = Queijo
+Food_Candy_Cane = Bengala Doce
+Food_Popcorn = Pipoca
+Food_Salad_Berry = Salada de Frutas
+Food_Pie_Pumpkin = Torta de Abóbora
+Food_Kebab_Fruit = Espetinho de Frutas
+Food_Kebab_Meat = Espetinho de Carne
+Ingredient_Bar_Gold = Barra de Ouro
+Ore_Gold = Minério de Ouro
+Deco_Treasure_Pile_Small = Pilha de Tesouro
+Plant_Leaves_Goldentree = Folhas de Árvore Dourada
+Alchemy_Cauldron = Caldeirão de Alquimia
+Deco_Lantern = Lanterna
+Blueprint_TavernHouse = Projeto de Taverna
+simtale:wedding_ring = Aliança de Casamento
+Deco_Trash = Lixo
+Deco_Trash_Pile_Small = Pilha de Lixo
+Deco_Bone_Pile = Pilha de Ossos
+Deco_SpiderWeb = Teia de Aranha
+Fluid_Poison = Veneno

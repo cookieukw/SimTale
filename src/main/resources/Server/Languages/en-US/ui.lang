@@ -83,3 +83,49 @@ pregnancy.symptoms_npc_t2 = Symptoms: Increased hunger and energy drain, moderat
 pregnancy.symptoms_npc_t3 = Symptoms: Intense hunger and energy drain, severe slowness
 pregnancy.children = Total Children: {count}
 button.pregnancy = View Pregnancy
+
+parents = Parents:
+children = Children:
+mood = Mood:
+
+stage.baby = Baby
+stage.toddler = Toddler
+stage.child = Child
+stage.teen = Teenager
+stage.adult = Adult
+
+hobby.fishing = Fishing
+hobby.mining = Mining
+hobby.gardening = Gardening
+hobby.reading = Reading
+hobby.sleeping = Sleeping
+
+mood.neutral = Neutral
+mood.happy = Happy
+mood.angry = Angry
+mood.sad = Sad
+mood.scared = Scared
+mood.sleepy = Sleepy
+mood.excited = Excited
+mood.bored = Bored
+
+Food_Cheese = Cheese
+Food_Candy_Cane = Candy Cane
+Food_Popcorn = Popcorn
+Food_Salad_Berry = Fruit Salad
+Food_Pie_Pumpkin = Pumpkin Pie
+Food_Kebab_Fruit = Fruit Kebab
+Food_Kebab_Meat = Meat Kebab
+Ingredient_Bar_Gold = Gold Bar
+Ore_Gold = Gold Ore
+Deco_Treasure_Pile_Small = Treasure Pile
+Plant_Leaves_Goldentree = Golden Tree Leaves
+Alchemy_Cauldron = Alchemy Cauldron
+Deco_Lantern = Lantern
+Blueprint_TavernHouse = Tavern Blueprint
+simtale:wedding_ring = Wedding Ring
+Deco_Trash = Trash
+Deco_Trash_Pile_Small = Trash Pile
+Deco_Bone_Pile = Bone Pile
+Deco_SpiderWeb = Spider Web
+Fluid_Poison = Poison
