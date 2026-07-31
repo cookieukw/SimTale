@@ -85,7 +85,9 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
                                     npcEntity.setLeashPoint(new Vector3d(parentT.getPosition().x, parentT.getPosition().y, parentT.getPosition().z));
                                     StateSupport stateSupport = StateSupport.get(childRef, store);
                                     if (stateSupport != null) {
-                                        stateSupport.setState(childRef, "Moving", null, store);
+                                        // "Moving" does not exist in the SimTale roles; reuse the
+                                        // same state the movement helper drives.
+                                        stateSupport.setState(childRef, NPCMovementHelper.STATE_MOVING, null, store);
                                     }
                                 }
                             }

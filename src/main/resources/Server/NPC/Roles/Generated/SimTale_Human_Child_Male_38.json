@@ -52,6 +52,47 @@
               }
             ]
           }
+        },
+        {
+          "$Comment": "Injected by scripts/add_returnhome_state.py - walk to the leash point set by SimTale.",
+          "Sensor": {
+            "Type": "State",
+            "State": "ReturnHome"
+          },
+          "Instructions": [
+            {
+              "Sensor": {
+                "Type": "Leash",
+                "Range": 1.0
+              },
+              "BodyMotion": {
+                "Type": "Seek",
+                "SlowDownDistance": 2,
+                "StopDistance": 0.5,
+                "RelativeSpeed": 0.6,
+                "UsePathfinder": true
+              }
+            },
+            {
+              "$Comment": "Arrived (the Leash sensor stopped firing) - hand control back to Idle.",
+              "Actions": [
+                {
+                  "Type": "State",
+                  "State": "Idle"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "$Comment": "Injected by scripts/add_returnhome_state.py - stay put while SimTale handles sleeping.",
+          "Sensor": {
+            "Type": "State",
+            "State": "Sleep"
+          },
+          "BodyMotion": {
+            "Type": "Nothing"
+          }
         }
       ]
     }

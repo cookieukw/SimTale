@@ -1,8 +1,8 @@
 Group {
-  LayoutMode: MiddleLeft;
-  Background: #00000044;
+  LayoutMode: Right;
+  Background: #00000000;
   Group #MainPanel {
-    Anchor: (Left: 80, Width: 580, Height: 952);
+    Anchor: (Right: 80, Width: 580, Height: 952);
     LayoutMode: Top;
     Background: #1A1A2EDD;
     Padding: (Top: 24, Bottom: 20, Horizontal: 24);

@@ -53,6 +53,8 @@ import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.hypixel.hytale.server.core.entity.Frozen;
+import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import java.util.HashMap;
 
@@ -88,6 +90,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ForceWorkSubCommand());
         this.addSubCommand(new ForcePlantSubCommand());
         this.addSubCommand(new SetGenderSubCommand());
+        this.addSubCommand(new CamDebugSubCommand());
+        this.addSubCommand(new UnstickSubCommand());
     }
 
     @Override
@@ -98,7 +102,83 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick>"));
+    }
+
+    /** Toggles the verbose camera dump printed when the NPC interaction page opens. */
+    private static class CamDebugSubCommand extends AbstractPlayerCommand {
+        private final OptionalArg<String> stateArg;
+
+        public CamDebugSubCommand() {
+            super("camdebug", "Liga/desliga o debug da camera de interacao");
+            this.stateArg = this.withOptionalArg("state", "on|off", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            String state = ctx.get(this.stateArg);
+            if (state == null || state.isBlank()) {
+                NPCInteractionPage.CAMERA_DEBUG = !NPCInteractionPage.CAMERA_DEBUG;
+            } else {
+                NPCInteractionPage.CAMERA_DEBUG = state.equalsIgnoreCase("on") || state.equalsIgnoreCase("true");
+            }
+            ctx.sendMessage(Message.raw("[SimTale] Debug de camera: "
+                    + (NPCInteractionPage.CAMERA_DEBUG ? "LIGADO" : "DESLIGADO")
+                    + ". Abra o menu de um NPC para ver o dump."));
+        }
+    }
+
+    /**
+     * Releases NPCs stuck in the "interacting via UI" state.
+     * <p>
+     * If the interaction page ever fails to run its cleanup, the NPC keeps {@code Frozen} and
+     * {@code isInteractingViaUI = true}. RoutineAISystem's self-heal only strips Frozen when
+     * that flag is false, so the NPC can never recover on its own — it just glides around
+     * frozen. This is the manual escape hatch.
+     */
+    private static class UnstickSubCommand extends AbstractPlayerCommand {
+
+        public UnstickSubCommand() {
+            super("unstick", "Destrava NPCs presos no estado de interacao (congelados/deslizando)");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            int fixed = 0;
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                boolean touched = false;
+
+                if (npc.isInteractingViaUI) {
+                    npc.isInteractingViaUI = false;
+                    touched = true;
+                }
+                npc.currentConversationPartner = null;
+
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
+                    if (store.getComponent(npc.entityRef, Frozen.getComponentType()) != null) {
+                        store.tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
+                        touched = true;
+                    }
+                    RoutineAIComponent ai = store.getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (ai != null) {
+                        // Drops the stale leash so the next moveTo re-issues the "Moving" state
+                        // and the walk animation comes back.
+                        NPCMovementHelper.clearMoveTarget(npc.entityRef, ai);
+                        ai.currentTask = RoutineAIComponent.TaskType.IDLE;
+                        ai.targetBlockPosition = null;
+                        ai.socializeTargetId = null;
+                        ai.socializeHost = false;
+                        ai.wanderTimer = 0;
+                    }
+                }
+
+                if (touched) fixed++;
+            }
+            ctx.sendMessage(Message.raw("[SimTale] Destravados " + fixed + " de "
+                    + SimTale.ACTIVE_NPCS.size() + " NPCs ativos."));
+        }
     }
 
     // --- SUBCOMMANDS ---

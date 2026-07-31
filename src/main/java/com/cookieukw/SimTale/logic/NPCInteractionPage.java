@@ -13,6 +13,7 @@ import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -23,9 +24,10 @@ import com.hypixel.hytale.protocol.packets.interface_.Page;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
-import com.hypixel.hytale.server.core.entity.Frozen;
+import com.cookieukw.SimTale.core.NpcFreezeUtil;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
+import com.hypixel.hytale.server.core.modules.entity.component.BoundingBox;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
@@ -42,6 +44,20 @@ import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
 import com.cookieukw.SimTale.core.RelationshipStatus;
+import com.hypixel.hytale.protocol.AttachedToType;
+import com.hypixel.hytale.protocol.ApplyLookType;
+import com.hypixel.hytale.protocol.CanMoveType;
+import com.hypixel.hytale.protocol.ClientCameraView;
+import com.hypixel.hytale.protocol.Direction;
+import com.hypixel.hytale.protocol.MouseInputTargetType;
+import com.hypixel.hytale.protocol.MouseInputType;
+import com.hypixel.hytale.protocol.Position;
+import com.hypixel.hytale.protocol.PositionDistanceOffsetType;
+import com.hypixel.hytale.protocol.RotationType;
+import com.hypixel.hytale.protocol.ServerCameraSettings;
+import com.hypixel.hytale.protocol.ApplyMovementType;
+import com.hypixel.hytale.protocol.PositionType;
+import com.hypixel.hytale.protocol.packets.camera.SetServerCamera;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -55,6 +71,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     private final SimNPCComponent npc;
     private final Player player;
     private final PlayerRef playerRefComp;
+    private com.hypixel.hytale.math.vector.Rotation3f originalRotation;
 
     public NPCInteractionPage(@Nonnull PlayerRef playerRefComp, Player player, SimNPCComponent npc) {
         BuilderCodec<String> codec = BuilderCodec.builder(String.class, String::new).build();
@@ -64,13 +81,244 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         this.playerRefComp = playerRefComp;
     }
 
+    /**
+     * Toggled at runtime with {@code /simtale camdebug}. When on, every camera setup dumps its
+     * inputs and computed values to the player's chat and to the server console.
+     */
+    public static boolean CAMERA_DEBUG = false;
+
+    /** Sends a debug line to the player and mirrors it to the console. */
+    private void debug(String line) {
+        if (!CAMERA_DEBUG) return;
+        playerRefComp.sendMessage(Message.raw("§b[cam]§r " + line));
+        HytaleLogger.forEnclosingClass().atInfo().log("[SimTale-CAM] " + line);
+    }
+
+    private static String fmt(double v) {
+        return String.format(java.util.Locale.ROOT, "%.2f", v);
+    }
+
+    private void applyNpcCloseUpCamera(Ref<EntityStore> playerRef, Store<EntityStore> store) {
+        if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) {
+            debug("ABORTOU: npc/entityRef nulo ou invalido");
+            return;
+        }
+
+        TransformComponent pTrans = store.getComponent(playerRef, TransformComponent.getComponentType());
+        TransformComponent nTrans = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+
+        if (pTrans == null || nTrans == null) {
+            debug("ABORTOU: transform nulo (player=" + (pTrans != null) + " npc=" + (nTrans != null) + ")");
+            return;
+        }
+
+        // Save original player rotation to restore it later
+        this.originalRotation = new com.hypixel.hytale.math.vector.Rotation3f(pTrans.getRotation());
+
+        Vector3d pPos = pTrans.getPosition();
+        Vector3d nPos = nTrans.getPosition();
+
+        // Vector from NPC to player
+        double dx = pPos.x - nPos.x;
+        double dz = pPos.z - nPos.z;
+        double length = Math.sqrt(dx * dx + dz * dz);
+        if (length < 0.01) {
+            dx = 0.0;
+            dz = 1.0;
+            length = 1.0;
+        }
+
+        // Normalized vector from NPC to player
+        double ux = dx / length;
+        double uz = dz / length;
+
+        // Perpendicular vector (pointing to the right of the NPC-to-player vector)
+        double rx = -uz;
+        double rz = ux;
+
+        // Head height read from the actual bounding box instead of a hardcoded 1.45. The mod
+        // spawns babies, toddlers and children at reduced scale, and on those the fixed value
+        // aimed the camera well above the head. Same source PlumbobSystem already uses.
+        double headHeight = 1.45;
+        BoundingBox npcBox = store.getComponent(npc.entityRef, BoundingBox.getComponentType());
+        if (npcBox != null && npcBox.getBoundingBox() != null) {
+            headHeight = npcBox.getBoundingBox().height() * 0.8;
+        }
+
+        // Camera position: 2.0 meters from NPC towards player, offset by 0.55 meters to the right
+        // This shifts the NPC to the left side of the player's screen
+        double camX = nPos.x + ux * 2.0 + rx * 0.55;
+        double camZ = nPos.z + uz * 2.0 + rz * 0.55;
+        double camY = nPos.y + headHeight;
+
+        // Target (where the camera is looking): NPC's head
+        double targetX = nPos.x;
+        double targetY = nPos.y + headHeight;
+        double targetZ = nPos.z;
+
+        // Direction vector from camera to NPC head
+        double dirX = targetX - camX;
+        double dirY = targetY - camY;
+        double dirZ = targetZ - camZ;
+        double distH = Math.sqrt(dirX * dirX + dirZ * dirZ);
+
+        // Yaw and Pitch in RADIANS.
+        //
+        // protocol.Direction is radians, not degrees: PlayerInput$SetHead reads Direction's
+        // yaw/pitch/roll straight into Rotation3f.set(f,f,f) with no unit conversion, and
+        // Rotation3f is radians everywhere in this codebase. Of the 55 server classes that
+        // touch Direction, only 3 convert units, and none of those are rotation-related.
+        //
+        // This used to call Math.toDegrees(), so a yaw of 1.5 rad was sent as 85.9 — read back
+        // as 85.9 radians, i.e. ~13.7 full turns. That is why the camera never pointed at the NPC.
+        // Hytale's forward axis is -Z, so to look along (dirX, dirZ) the yaw is atan2 of the
+        // NEGATED direction. With atan2(dirX, dirZ) the camera was aimed exactly 180° away —
+        // which is why the shot was an empty field with the NPC behind the lens.
+        //
+        // Two independent symptoms pinned this down: the camera never framed the NPC, and the
+        // NPC-facing code below (same convention) left the NPC with its back to the player.
+        // A self-consistency check on atan2 alone cannot catch this: inverting the angle
+        // reproduces the input vector either way. Only the engine's axis convention decides.
+        double yaw = Math.atan2(-dirX, -dirZ);
+        double pitch = Math.atan2(dirY, distH);
+
+        ServerCameraSettings settings = new ServerCameraSettings();
+        settings.isFirstPerson = false;
+        
+        // Use custom camera position and rotation in the world (not attached to any entity)
+        settings.attachedToType = AttachedToType.None;
+        settings.positionType = PositionType.Custom;
+        settings.position = new Position(camX, camY, camZ);
+        
+        settings.rotationType = RotationType.Custom;
+        settings.rotation = new Direction((float) yaw, (float) pitch, 0f);
+
+        // Smooth cinematic transition
+        settings.positionLerpSpeed = 0.15f;
+        settings.rotationLerpSpeed = 0.15f;
+
+        // UI mode camera settings: lock orientation to the server-defined rotation
+        settings.applyLookType = ApplyLookType.Rotation;
+        settings.canMoveType = CanMoveType.AttachedToLocalPlayer;
+        settings.applyMovementType = ApplyMovementType.CharacterController;
+
+        // Pitch input is disabled because applyLookType already pins the orientation to the
+        // server-sent rotation; leaving it on just lets the client fight that.
+        //
+        // NOTE: do NOT set skipCharacterPhysics here. It was tried once to stop the camera
+        // drifting and it dropped the player through the world — the resulting void death
+        // opened the death screen, which dismissed this page from inside Store.tick. The drift
+        // it was meant to fix was really the degrees/radians bug above.
+        settings.allowPitchControls = false;
+
+        // Hide default UI overlays
+        settings.displayCursor = false;
+        settings.displayReticle = false;
+        settings.hideHeldItem = true;
+
+        if (CAMERA_DEBUG) {
+            debug("NPC  pos=(" + fmt(nPos.x) + ", " + fmt(nPos.y) + ", " + fmt(nPos.z) + ")  head=+" + fmt(headHeight));
+            debug("PLR  pos=(" + fmt(pPos.x) + ", " + fmt(pPos.y) + ", " + fmt(pPos.z) + ")  dist=" + fmt(length));
+            debug("CAM  pos=(" + fmt(camX) + ", " + fmt(camY) + ", " + fmt(camZ) + ")");
+            debug("ALVO pos=(" + fmt(targetX) + ", " + fmt(targetY) + ", " + fmt(targetZ) + ")");
+            debug("DIR  (" + fmt(dirX) + ", " + fmt(dirY) + ", " + fmt(dirZ) + ")  distH=" + fmt(distH));
+            debug("YAW  " + fmt(yaw) + " rad  =  " + fmt(Math.toDegrees(yaw)) + " graus");
+            debug("PIT  " + fmt(pitch) + " rad  =  " + fmt(Math.toDegrees(pitch)) + " graus");
+            // Both axis conventions are printed because a self-consistency check cannot tell
+            // them apart — inverting atan2 reproduces the input vector for either one. Look at
+            // the game: whichever line matches what you actually see is the engine's.
+            double nlen = Math.sqrt(dirX * dirX + dirZ * dirZ);
+            double fxA = Math.sin(yaw), fzA = Math.cos(yaw);
+            double dotA = nlen < 1e-6 ? 0 : (fxA * dirX + fzA * dirZ) / nlen;
+            debug("CONV +Z: forward=(" + fmt(fxA) + ", " + fmt(fzA) + ")  dot=" + fmt(dotA));
+            debug("CONV -Z: forward=(" + fmt(-fxA) + ", " + fmt(-fzA) + ")  dot=" + fmt(-dotA)
+                    + "   <- convencao em uso agora");
+        }
+
+        playerRefComp.getPacketHandler().writeNoCache(
+            new SetServerCamera(ClientCameraView.Custom, true, settings)
+        );
+        debug("pacote SetServerCamera enviado (Custom, enabled=true)");
+    }
+
+    private void resetNpcCamera() {
+        playerRefComp.getPacketHandler().writeNoCache(
+            new SetServerCamera(ClientCameraView.Custom, false, null)
+        );
+    }
+
+    /**
+     * Puts the player's own rotation back where it was before the close-up.
+     * <p>
+     * {@code originalRotation} was being captured in {@link #applyNpcCloseUpCamera} and then
+     * never read — the field was dead and the player was left facing wherever the dialogue
+     * had turned them.
+     */
+    private void restorePlayerRotation(Ref<EntityStore> playerRef, Store<EntityStore> store) {
+        if (originalRotation == null) return;
+
+        TransformComponent pTrans = store.getComponent(playerRef, TransformComponent.getComponentType());
+        if (pTrans == null) return;
+
+        // teleportRotation mutates the live component in place and flags it for sync.
+        // store.putComponent() must NOT be used here: onDismiss can fire from inside a system
+        // tick (the death screen opens a page over this one), and any structural store write
+        // during processing throws "Store is currently processing!".
+        pTrans.teleportRotation(originalRotation);
+        originalRotation = null;
+    }
+
+    private void freezeNpc(Store<EntityStore> store) {
+        if (npc != null) NpcFreezeUtil.freeze(store, npc.entityRef);
+    }
+
+    private void unfreezeNpc(Store<EntityStore> store) {
+        if (npc != null) NpcFreezeUtil.unfreeze(store, npc.entityRef);
+    }
+
     @Override
     public void build(@Nonnull Ref<EntityStore> playerRef, @Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
         if (npc != null) {
             npc.isInteractingViaUI = true;
             if (npc.entityRef != null && npc.entityRef.isValid()) {
-                store.ensureComponent(npc.entityRef, Frozen.getComponentType());
+                // 1. Rotate NPC to face the player
+                TransformComponent pTrans = store.getComponent(playerRef, TransformComponent.getComponentType());
+                TransformComponent nTrans = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                if (pTrans != null && nTrans != null) {
+                    Vector3d pPos = pTrans.getPosition();
+                    Vector3d nPos = nTrans.getPosition();
+                    double dx = pPos.x - nPos.x;
+                    double dz = pPos.z - nPos.z;
+                    // Same -Z forward convention as the camera: without the negation the NPC
+                    // turned its back on the player instead of facing them.
+                    double yaw = Math.atan2(-dx, -dz);
+                    // In-place mutation, no store.putComponent(): build() also runs inside a
+                    // system tick when a page is opened from one (see unfreezeNpc).
+                    nTrans.teleportRotation(new com.hypixel.hytale.math.vector.Rotation3f(0f, (float) yaw, 0f));
+                }
+                
+                // 2. Reset NPC movement animation to Idle
+                AnimationUtils.playAnimation(npc.entityRef, com.hypixel.hytale.protocol.AnimationSlot.Movement, "Idle", store);
+
+                // 3. Cancel any pending movement BEFORE freezing.
+                // The NPC keeps its leash point (its walk destination) while frozen. On
+                // unfreeze the engine resumes gliding toward that stale point, but the walk
+                // animation has been replaced by Idle above — which reads in-game as the NPC
+                // sliding around on ice. clearMoveTarget pins the leash to where it is standing.
+                RoutineAIComponent ai = store.getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                if (ai != null) {
+                    NPCMovementHelper.clearMoveTarget(npc.entityRef, ai);
+                    ai.currentTask = RoutineAIComponent.TaskType.IDLE;
+                    ai.targetBlockPosition = null;
+                    ai.socializeTargetId = null;
+                    ai.socializeHost = false;
+                    ai.wanderTimer = 0;
+                }
+
+                // 4. Freeze NPC visually and logically
+                freezeNpc(store);
             }
+            applyNpcCloseUpCamera(playerRef, store);
         }
 
         // Clear any active chat conversation so the timeout system doesn't
@@ -356,11 +604,23 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     @Override
     public void onDismiss(@Nonnull Ref<EntityStore> playerRef, @Nonnull Store<EntityStore> store) {
         super.onDismiss(playerRef, store);
-        if (npc != null) {
-            npc.isInteractingViaUI = false;
-            if (npc.entityRef != null && npc.entityRef.isValid()) {
-                store.tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
+
+        // NPC state is released FIRST, and in a finally, so that nothing below can strand it.
+        //
+        // This ordering is not cosmetic. Previously the camera/rotation work ran first; when
+        // restorePlayerRotation threw (illegal store write mid-tick), the lines that clear
+        // isInteractingViaUI and remove Frozen never executed. That leaves the NPC permanently
+        // frozen — and because RoutineAISystem's self-heal only strips Frozen when
+        // !isInteractingViaUI, the AI could not recover it either. The NPC kept receiving leash
+        // updates while frozen, which is what "sliding on ice" looks like.
+        try {
+            if (npc != null) {
+                npc.isInteractingViaUI = false;
+                unfreezeNpc(store);
             }
+        } finally {
+            resetNpcCamera();
+            restorePlayerRotation(playerRef, store);
         }
     }
 

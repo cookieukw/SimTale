@@ -15,7 +15,7 @@ import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.server.core.entity.Frozen;
+import com.cookieukw.SimTale.core.NpcFreezeUtil;
 
 import javax.annotation.Nonnull;
 
@@ -37,9 +37,7 @@ public class NPCPregnancyPage extends InteractiveCustomUIPage<String> {
     public void build(@Nonnull Ref<EntityStore> playerRef, @Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
         if (npc != null) {
             npc.isInteractingViaUI = true;
-            if (npc.entityRef != null && npc.entityRef.isValid()) {
-                store.ensureComponent(npc.entityRef, Frozen.getComponentType());
-            }
+            NpcFreezeUtil.freeze(store, npc.entityRef);
         }
 
         commandBuilder.append("NPCPregnancy/NPCPregnancy.ui");
@@ -73,9 +71,7 @@ public class NPCPregnancyPage extends InteractiveCustomUIPage<String> {
         super.onDismiss(playerRef, store);
         if (npc != null) {
             npc.isInteractingViaUI = false;
-            if (npc.entityRef != null && npc.entityRef.isValid()) {
-                store.tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
-            }
+            NpcFreezeUtil.unfreeze(store, npc.entityRef);
         }
     }
 }

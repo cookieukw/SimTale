@@ -25,6 +25,21 @@ import java.util.Objects;
 public class NPCMovementHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(NPCMovementHelper.class);
     private static final double LEASH_UPDATE_THRESHOLD_SQ = 0.5 * 0.5;
+    /**
+     * State the NPC roles enter to walk to their leash point.
+     * <p>
+     * This must match a state the role actually declares. It used to be {@code "Moving"},
+     * which no SimTale role defined — every call logged
+     * {@code "State 'Moving.null' ... does not exist and was set by an external call"} and the
+     * NPC kept its idle animation while the leash dragged it around ("sliding on ice").
+     * <p>
+     * {@code ReturnHome} is vanilla Hytale's own name for this behaviour — see the state of the
+     * same name in {@code _Core/Templates/Template_Intelligent.json}, which pairs a
+     * {@code Leash} sensor with a pathfinding {@code Seek}. The SimTale roles gained an
+     * equivalent block via {@code scripts/add_returnhome_state.py}; renaming this constant
+     * without re-running that script will break NPC movement again.
+     */
+    public static final String STATE_MOVING = "ReturnHome";
 
     public static void moveTo(Ref<EntityStore> ref, RoutineAIComponent ai, World world, Vector3d targetPos) {
         boolean needsUpdate;
@@ -46,7 +61,7 @@ public class NPCMovementHelper {
                 npcEntity.setLeashPoint(new Vector3d(targetPos.x, targetPos.y, targetPos.z));
                 StateSupport stateSupport = StateSupport.get(ref, ref.getStore());
                 if (stateSupport != null) {
-                    stateSupport.setState(ref, "Moving", null, ref.getStore());
+                    stateSupport.setState(ref, STATE_MOVING, null, ref.getStore());
                 }
             }
         }
