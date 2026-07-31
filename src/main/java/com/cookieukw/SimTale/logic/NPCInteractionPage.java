@@ -27,6 +27,7 @@ import com.hypixel.hytale.protocol.AnimationSlot;
 import com.cookieukw.SimTale.core.NpcFreezeUtil;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
+import com.hypixel.hytale.server.core.modules.entity.component.ActiveAnimationComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.BoundingBox;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
@@ -268,6 +269,34 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         originalRotation = null;
     }
 
+    /**
+     * Hands the Movement animation slot back to the engine.
+     * <p>
+     * {@code build()} pins that slot to "Idle" so the NPC stops its walk cycle while the
+     * dialogue is open. The Movement slot is what drives locomotion animation, so leaving it
+     * pinned meant that from the first interaction onward the NPC's body kept being moved by
+     * the AI while its legs stayed frozen in the idle pose — the "sliding on ice" bug, which
+     * is exactly why it only ever affected NPCs that had been talked to at least once.
+     */
+    private void releaseMovementAnimation(Store<EntityStore> store) {
+        if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) return;
+
+        // stopAnimation() alone is not enough: it stops playback but leaves the slot's entry in
+        // ActiveAnimationComponent still pointing at "Idle", so the NPC's legs stayed in the
+        // idle pose while the AI kept moving its body. That component is pure runtime state,
+        // which is why leaving and re-entering the world "fixed" the NPC.
+        //
+        // This is the same clearing sequence MoodAnimationSystem uses for the Face slot, minus
+        // the commandBuffer write: store.getComponent returns the live instance, so nulling the
+        // entry mutates it directly (and onDismiss cannot do structural store writes anyway).
+        ActiveAnimationComponent animComp =
+                store.getComponent(npc.entityRef, ActiveAnimationComponent.getComponentType());
+        if (animComp != null) {
+            animComp.getActiveAnimations()[AnimationSlot.Movement.ordinal()] = null;
+        }
+        AnimationUtils.playAnimation(npc.entityRef, AnimationSlot.Movement, null, store);
+    }
+
     private void freezeNpc(Store<EntityStore> store) {
         if (npc != null) NpcFreezeUtil.freeze(store, npc.entityRef);
     }
@@ -280,6 +309,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     public void build(@Nonnull Ref<EntityStore> playerRef, @Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
         if (npc != null) {
             npc.isInteractingViaUI = true;
+            // RoutineAISystem re-applies the facing every tick from this; a one-shot rotation
+            // gets steered away by the role's own Idle motion.
+            npc.uiInteractionPlayer = playerRefComp.getUuid();
             if (npc.entityRef != null && npc.entityRef.isValid()) {
                 // 1. Rotate NPC to face the player
                 TransformComponent pTrans = store.getComponent(playerRef, TransformComponent.getComponentType());
@@ -616,6 +648,8 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         try {
             if (npc != null) {
                 npc.isInteractingViaUI = false;
+                npc.uiInteractionPlayer = null;
+                releaseMovementAnimation(store);
                 unfreezeNpc(store);
             }
         } finally {

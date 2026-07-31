@@ -55,6 +55,14 @@ import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
+import com.hypixel.hytale.server.npc.role.support.StateSupport;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
+import com.hypixel.hytale.server.core.modules.entity.component.ActiveAnimationComponent;
+import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
+import com.hypixel.hytale.protocol.MovementStates;
+import com.hypixel.hytale.protocol.AnimationSlot;
+import com.hypixel.hytale.logger.HytaleLogger;
+import java.util.Objects;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import java.util.HashMap;
 
@@ -92,6 +100,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new SetGenderSubCommand());
         this.addSubCommand(new CamDebugSubCommand());
         this.addSubCommand(new UnstickSubCommand());
+        this.addSubCommand(new NpcStateSubCommand());
     }
 
     @Override
@@ -102,7 +111,95 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate>"));
+    }
+
+    /**
+     * Dumps the runtime state of the nearest NPC: role state, animation slots, movement flags,
+     * Frozen, leash and AI task.
+     * <p>
+     * Built for the "sliding on ice after interacting" bug. Run it on a fresh NPC and on one
+     * that has been talked to, and diff the two — whatever differs is the culprit, instead of
+     * guessing which subsystem is stuck.
+     */
+    private static class NpcStateSubCommand extends AbstractPlayerCommand {
+
+        public NpcStateSubCommand() {
+            super("npcstate", "Mostra o estado interno do NPC mais proximo");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+
+            TransformComponent pt = store.getComponent(ref, TransformComponent.getComponentType());
+            if (pt == null) {
+                ctx.sendMessage(Message.raw("[SimTale] Sem transform do jogador."));
+                return;
+            }
+
+            SimNPCComponent best = null;
+            double bestDist = Double.MAX_VALUE;
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef == null || !npc.entityRef.isValid()) continue;
+                TransformComponent nt = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                if (nt == null) continue;
+                double d = pt.getPosition().distanceSquared(nt.getPosition());
+                if (d < bestDist) { bestDist = d; best = npc; }
+            }
+
+            if (best == null) {
+                ctx.sendMessage(Message.raw("[SimTale] Nenhum NPC ativo por perto."));
+                return;
+            }
+
+            Ref<EntityStore> nref = best.entityRef;
+            StringBuilder sb = new StringBuilder();
+            sb.append("=== ").append(best.name).append(" (").append(String.format("%.1f", Math.sqrt(bestDist))).append("m) ===");
+
+            StateSupport ss = StateSupport.get(nref, store);
+            sb.append("\n  role state: ").append(ss != null ? ss.getStateName() : "<sem StateSupport>");
+            if (ss != null) sb.append("  busy=").append(ss.isInBusyState());
+
+            ActiveAnimationComponent anim = store.getComponent(nref, ActiveAnimationComponent.getComponentType());
+            if (anim != null) {
+                String[] slots = anim.getActiveAnimations();
+                sb.append("\n  anim slots:");
+                for (AnimationSlot s : AnimationSlot.values()) {
+                    int i = s.ordinal();
+                    if (i < slots.length && slots[i] != null) sb.append(" ").append(s).append("=").append(slots[i]);
+                }
+            } else {
+                sb.append("\n  anim: <sem ActiveAnimationComponent>");
+            }
+
+            MovementStatesComponent msc = store.getComponent(nref, MovementStatesComponent.getComponentType());
+            if (msc != null) {
+                MovementStates m = msc.getMovementStates();
+                sb.append("\n  movement: idle=").append(m.idle)
+                  .append(" walking=").append(m.walking)
+                  .append(" running=").append(m.running)
+                  .append(" onGround=").append(m.onGround)
+                  .append(" sleeping=").append(m.sleeping)
+                  .append(" mounting=").append(m.mounting);
+            }
+
+            sb.append("\n  frozen=").append(store.getComponent(nref, Frozen.getComponentType()) != null)
+              .append("  interagindoUI=").append(best.isInteractingViaUI);
+
+            NPCEntity ne = store.getComponent(nref, Objects.requireNonNull(NPCEntity.getComponentType()));
+            if (ne != null) sb.append("\n  leash=").append(ne.getLeashPoint());
+
+            RoutineAIComponent ai = store.getComponent(nref, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (ai != null) {
+                sb.append("\n  ai task=").append(ai.currentTask)
+                  .append("  alvo=").append(ai.targetBlockPosition)
+                  .append("  lastLeash=").append(ai.lastLeashPos);
+            }
+
+            ctx.sendMessage(Message.raw(sb.toString()));
+            HytaleLogger.forEnclosingClass().atInfo().log(sb.toString());
+        }
     }
 
     /** Toggles the verbose camera dump printed when the NPC interaction page opens. */
@@ -154,6 +251,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     npc.isInteractingViaUI = false;
                     touched = true;
                 }
+                npc.uiInteractionPlayer = null;
                 npc.currentConversationPartner = null;
 
                 if (npc.entityRef != null && npc.entityRef.isValid()) {

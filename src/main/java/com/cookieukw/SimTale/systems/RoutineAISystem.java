@@ -133,6 +133,20 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         HouseDoorManager.handleNpcDoors(world, npc, transform);
 
+        // --- Dialogue lock ---
+        // While an interaction page is open the mod's AI stands down entirely and the NPC is
+        // pinned facing the player, re-applied every tick.
+        //
+        // A single teleportRotation when the page opens is not enough: the Hytale role keeps
+        // running its own Idle instructions underneath (WanderInCircle, and now the Seek that
+        // walks to the leash point), and those steer the body continuously. The NPC therefore
+        // drifted to face wherever the role was taking it — which is why it ended up looking
+        // off to the side and why the camera framed something different every time.
+        if (npc.isInteractingViaUI) {
+            faceConversationPartner(ref, npc, transform, world, store);
+            return;
+        }
+
         // Ensure Frozen component is cleared if task changes externally and dialogue is inactive
         boolean hasFrozen = store.getComponent(ref, Frozen.getComponentType()) != null;
         if (ai.currentTask != TaskType.SLEEPING && ai.currentTask != TaskType.ENTERING_BED
@@ -787,6 +801,43 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
         return false;
+    }
+
+    /**
+     * Keeps the NPC turned toward whoever opened its dialogue, and keeps its leash pinned to
+     * where it stands so the role's own Seek does not try to walk it away mid-conversation.
+     * <p>
+     * The yaw formula is the engine's own: {@code PhysicsMath.headingFromDirection} computes
+     * {@code atan2(-dx, -dz)}, and {@code Rotation3f(x, y, z)} maps to {@code (pitch, yaw,
+     * roll)} — so the heading goes in the second slot.
+     */
+    private static void faceConversationPartner(Ref<EntityStore> ref, SimNPCComponent npc,
+                                                TransformComponent transform, World world,
+                                                Store<EntityStore> store) {
+        Vector3d myPos = transform.getPosition();
+
+        // Pin the leash to where the NPC stands, so the injected Idle -> ReturnHome transition
+        // cannot fire and try to walk it off mid-conversation.
+        NPCEntity npcEntity = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
+        if (npcEntity != null) {
+            npcEntity.setLeashPoint(new Vector3d(myPos.x, myPos.y, myPos.z));
+        }
+
+        UUID partnerId = npc.uiInteractionPlayer;
+        if (partnerId == null) return;
+
+        Ref<EntityStore> partnerRef = world.getEntityStore().getRefFromUUID(partnerId);
+        if (partnerRef == null || !partnerRef.isValid()) return;
+
+        TransformComponent partnerTransform = store.getComponent(partnerRef, TransformComponent.getComponentType());
+        if (partnerTransform == null) return;
+
+        Vector3d target = partnerTransform.getPosition();
+        double dx = target.x - myPos.x;
+        double dz = target.z - myPos.z;
+        if (dx * dx + dz * dz < 1e-6) return;
+
+        transform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
     }
 
     /**

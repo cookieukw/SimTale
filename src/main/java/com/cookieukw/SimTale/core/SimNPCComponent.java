@@ -56,6 +56,12 @@ public class SimNPCComponent implements Component<EntityStore> {
     public boolean isReaper = false;
     public transient MagicEngine activeMagicGame;
     public transient boolean isInteractingViaUI = false;
+    /**
+     * Player whose interaction page is currently open, so the AI can keep the NPC turned
+     * toward them. Separate from {@link #currentConversationPartner}, which the page clears on
+     * open to stop the chat timeout from firing during the dialogue.
+     */
+    public transient UUID uiInteractionPlayer;
     public transient boolean forceSleep = false;
     public transient Mood lastPlayedEmotion = null;
 
