@@ -19,6 +19,7 @@ import org.joml.Vector3i;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hypixel.hytale.server.npc.role.support.StateSupport;
 import java.util.Objects;
 
 public class NPCMovementHelper {
@@ -43,8 +44,9 @@ public class NPCMovementHelper {
             NPCEntity npcEntity = ref.getStore().getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
             if (npcEntity != null) {
                 npcEntity.setLeashPoint(new Vector3d(targetPos.x, targetPos.y, targetPos.z));
-                if (npcEntity.getRole() != null) {
-                    npcEntity.getRole().getStateSupport().setState(ref, "Moving", null, ref.getStore());
+                StateSupport stateSupport = StateSupport.get(ref, ref.getStore());
+                if (stateSupport != null) {
+                    stateSupport.setState(ref, "Moving", null, ref.getStore());
                 }
             }
         }
@@ -60,8 +62,9 @@ public class NPCMovementHelper {
             if (transform != null) {
                 npcEntity.setLeashPoint(new Vector3d(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z));
             }
-            if (npcEntity.getRole() != null) {
-                npcEntity.getRole().getStateSupport().setState(npcRef, "Idle", null, npcRef.getStore());
+            StateSupport stateSupport = StateSupport.get(npcRef, npcRef.getStore());
+            if (stateSupport != null) {
+                stateSupport.setState(npcRef, "Idle", null, npcRef.getStore());
             }
         }
     }

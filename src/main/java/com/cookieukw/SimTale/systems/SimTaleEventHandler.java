@@ -242,15 +242,25 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             UUIDComponent uuidComp = store.getComponent(targetRef, UUIDComponent.getComponentType());
             if (uuidComp != null) {
                 SimNPCData data = Caskara.load(uuidComp.getUuid().toString(), SimNPCData.class);
+                String name = null;
                 if (data != null) {
                     LOGGER.atInfo().log("SimTale: NPC " + data.name + " remontado apos carregamento do mundo!");
-                    npc = new SimNPCComponent(uuidComp.getUuid(), data.name);
-                    npc.entityRef = targetRef;
-                    SimNPCPersistence.loadNPC(npc);
-                    store.addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
-                    
-                    SimTale.trackNpc(npc);
+                    name = data.name;
+                } else {
+                    PersistentDisplayName displayName = store.getComponent(targetRef, PersistentDisplayName.getComponentType());
+                    if (displayName != null && displayName.getDisplayName() != null) {
+                        name = displayName.getDisplayName().toString();
+                    }
+                    if (name == null || name.isEmpty()) {
+                        name = com.cookieukw.SimTale.core.SimNPCNameGenerator.generate();
+                    }
                 }
+                npc = new SimNPCComponent(uuidComp.getUuid(), name);
+                npc.entityRef = targetRef;
+                SimNPCPersistence.loadNPC(npc);
+                store.addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
+                
+                SimTale.trackNpc(npc);
             }
         }
 

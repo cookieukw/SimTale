@@ -1,10 +1,10 @@
 Group {
-  LayoutMode: MiddleCenter;
-  Background: #00000099;
+  LayoutMode: MiddleLeft;
+  Background: #00000044;
   Group #MainPanel {
-    Anchor: (Width: 580, Height: 952);
+    Anchor: (Left: 80, Width: 580, Height: 952);
     LayoutMode: Top;
-    Background: #1A1A2EFF;
+    Background: #1A1A2EDD;
     Padding: (Top: 24, Bottom: 20, Horizontal: 24);
 
     Label #NpcName {
@@ -21,11 +21,6 @@ Group {
       Text: "Humor: Feliz";
       Anchor: (Width: 520, Height: 26, Bottom: 12);
       Style: (FontSize: 18, TextColor: #AAAACCFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
-    }
-
-    AssetImage #NpcPortrait {
-      Anchor: (Width: 150, Height: 150, Bottom: 12);
-      AssetPath: "Textures/npc_portrait.png";
     }
 
     Group #InfoPanel {

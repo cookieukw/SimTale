@@ -104,7 +104,8 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             default -> "";
         };
         // Mood isn't fully translated yet, fallback to raw text but we can add it later
-        commandBuilder.set("#NpcMood.Text", "Humor: " + currentMood.ptName + moodEmoji);
+        Message moodMsg = Message.translation("ui.mood." + currentMood.name().toLowerCase());
+        commandBuilder.set("#NpcMood.TextSpans", Message.translation("ui.mood").insert(Message.raw(" ")).insert(moodMsg).insert(Message.raw(moodEmoji)));
 
         if (currentMood == Mood.ANGRY) {
             commandBuilder.set("#NpcName.Style.TextColor", "#FF6666");
@@ -147,7 +148,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                 boolean first = true;
                 for (String itemId : allLikes) {
                     if (!first) likesMsg = likesMsg.insert(Message.raw(", "));
-                    likesMsg = likesMsg.insert(Message.raw(NPCPreferences.getFoodDisplayName(itemId)));
+                    likesMsg = likesMsg.insert(Message.translation("ui." + itemId));
                     first = false;
                 }
                 commandBuilder.set("#NpcLikes.TextSpans", Message.translation("ui.likes").insert(Message.raw(" ")).insert(likesMsg));
@@ -162,13 +163,14 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                 boolean first = true;
                 for (String itemId : allHates) {
                     if (!first) hatesMsg = hatesMsg.insert(Message.raw(", "));
-                    hatesMsg = hatesMsg.insert(Message.raw(NPCPreferences.getFoodDisplayName(itemId)));
+                    hatesMsg = hatesMsg.insert(Message.translation("ui." + itemId));
                     first = false;
                 }
                 commandBuilder.set("#NpcHates.TextSpans", Message.translation("ui.hates").insert(Message.raw(" ")).insert(hatesMsg));
             }
 
-            commandBuilder.set("#NpcHobby.TextSpans", Message.translation("ui.hobby").insert(Message.raw(" " + npc.preferences.getHobby().displayName())));
+            Message hobbyMsg = Message.translation("ui.hobby." + npc.preferences.getHobby().name().toLowerCase());
+            commandBuilder.set("#NpcHobby.TextSpans", Message.translation("ui.hobby").insert(Message.raw(" ")).insert(hobbyMsg));
             
             String seasonKey = "season." + (npc.preferences.getFavoriteSeason() != null ? npc.preferences.getFavoriteSeason().name().toLowerCase() : "spring");
             commandBuilder.set("#NpcSeason.TextSpans", Message.translation("ui.season").insert(Message.raw(" ")).insert(Message.translation("ui." + seasonKey)));
@@ -184,31 +186,35 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             Message.translation("ui.relationship").insert(Message.raw(" ")).insert(relValues));
 
         // --- Family Info Panel Population ---
-        String parentsText = "Pais: —";
+        Message parentsMsg;
         GrowthComponent npcGrowth = Caskara.load("child_" + npc.entityId.toString(), GrowthComponent.class);
         if (npcGrowth != null) {
             String motherName = getParentName(npcGrowth.motherId);
             String fatherName = getParentName(npcGrowth.fatherId);
-            parentsText = "Pais: " + motherName + " & " + fatherName;
+            parentsMsg = Message.translation("ui.parents").insert(Message.raw(" " + motherName + " & " + fatherName));
+        } else {
+            parentsMsg = Message.translation("ui.parents").insert(Message.raw(" —"));
         }
-        commandBuilder.set("#NpcFamilyParents.Text", parentsText);
+        commandBuilder.set("#NpcFamilyParents.TextSpans", parentsMsg);
 
-        StringBuilder childrenBuilder = new StringBuilder("Filhos: ");
+        Message childrenMsg = Message.translation("ui.children").insert(Message.raw(" "));
         if (npc.family.children == null || npc.family.children.isEmpty()) {
-            childrenBuilder.append("—");
+            childrenMsg = childrenMsg.insert(Message.raw("—"));
         } else {
             boolean first = true;
             for (Child c : npc.family.children) {
                 if (c.id == null) continue;
-                if (!first) childrenBuilder.append(", ");
+                if (!first) childrenMsg = childrenMsg.insert(Message.raw(", "));
                 GrowthComponent gc = Caskara.load("child_" + c.id, GrowthComponent.class);
-                String stageName = gc != null ? gc.stage.getDisplayName() : "Adulto";
-                childrenBuilder.append(c.name).append(" (").append(stageName).append(")");
+                Message stageName = gc != null 
+                    ? Message.translation("ui.stage." + gc.stage.name().toLowerCase()) 
+                    : Message.translation("ui.stage.adult");
+                childrenMsg = childrenMsg.insert(Message.raw(c.name + " (")).insert(stageName).insert(Message.raw(")"));
                 first = false;
             }
-            if (first) childrenBuilder.append("—");
+            if (first) childrenMsg = childrenMsg.insert(Message.raw("—"));
         }
-        commandBuilder.set("#NpcFamilyChildren.Text", childrenBuilder.toString());
+        commandBuilder.set("#NpcFamilyChildren.TextSpans", childrenMsg);
 
         // --- Child Verification to Hide Flirt Button ---
         boolean isChild = false;

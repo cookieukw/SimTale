@@ -51,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 
+import com.hypixel.hytale.server.npc.role.support.StateSupport;
 import javax.annotation.Nonnull;
 
 public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
@@ -421,8 +422,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 setSleepingState(ref, store, commandBuffer, true);
                 
                 NPCEntity npcEntityComponent = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
-                if (npcEntityComponent != null && npcEntityComponent.getRole() != null) {
-                    npcEntityComponent.getRole().getStateSupport().setState(ref, "Sleep", null, store);
+                if (npcEntityComponent != null) {
+                    StateSupport stateSupport = StateSupport.get(ref, store);
+                    if (stateSupport != null) {
+                        stateSupport.setState(ref, "Sleep", null, store);
+                    }
                 }
                 
                 playAnim(ref, AnimationSlot.Status, "Characters/Animations/Flavor/Sleep.blockyanim", "Sleep", store);
@@ -482,8 +486,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 setSleepingState(ref, store, commandBuffer, false);
                 
                 NPCEntity npcEntityComponent = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
-                if (npcEntityComponent != null && npcEntityComponent.getRole() != null) {
-                    npcEntityComponent.getRole().getStateSupport().setState(ref, "Idle", null, store);
+                if (npcEntityComponent != null) {
+                    StateSupport stateSupport = StateSupport.get(ref, store);
+                    if (stateSupport != null) {
+                        stateSupport.setState(ref, "Idle", null, store);
+                    }
                 }
                 
                 AnimationUtils.stopAnimation(ref, AnimationSlot.Status, true, store);

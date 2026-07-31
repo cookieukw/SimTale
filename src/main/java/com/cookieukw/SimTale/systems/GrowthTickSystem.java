@@ -17,6 +17,7 @@ import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
+import com.hypixel.hytale.server.npc.role.support.StateSupport;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.joml.Vector3d;
 
@@ -82,8 +83,9 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
                                 NPCEntity npcEntity = store.getComponent(childRef, Objects.requireNonNull(NPCEntity.getComponentType()));
                                 if (npcEntity != null) {
                                     npcEntity.setLeashPoint(new Vector3d(parentT.getPosition().x, parentT.getPosition().y, parentT.getPosition().z));
-                                    if (npcEntity.getRole() != null) {
-                                        npcEntity.getRole().getStateSupport().setState(childRef, "Moving", null, store);
+                                    StateSupport stateSupport = StateSupport.get(childRef, store);
+                                    if (stateSupport != null) {
+                                        stateSupport.setState(childRef, "Moving", null, store);
                                     }
                                 }
                             }
