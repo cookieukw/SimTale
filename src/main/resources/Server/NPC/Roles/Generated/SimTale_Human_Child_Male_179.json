@@ -23,38 +23,30 @@
             "Type": "State",
             "State": "Idle"
           },
-          "BodyMotion": {
-            "Type": "Sequence",
-            "Looped": true,
-            "Motions": [
-              {
-                "Type": "Timer",
-                "Time": [
-                  4,
-                  8
-                ],
-                "Motion": {
-                  "Type": "WanderInCircle",
-                  "Radius": 8,
-                  "MaxHeadingChange": 60,
-                  "RelativeSpeed": 0.5
-                }
+          "Instructions": [
+            {
+              "$Comment": "Injected by add_returnhome_state.py - leave Idle when SimTale moves our leash point away. Also the link that makes ReturnHome reachable, without which the role fails to validate.",
+              "Sensor": {
+                "Type": "Leash",
+                "Range": 2
               },
-              {
-                "Type": "Timer",
-                "Time": [
-                  3,
-                  7
-                ],
-                "Motion": {
-                  "Type": "Nothing"
+              "Actions": [
+                {
+                  "Type": "State",
+                  "State": "ReturnHome"
                 }
+              ]
+            },
+            {
+              "$Comment": "Original Idle motion, nested by add_returnhome_state.py.",
+              "BodyMotion": {
+                "Type": "Nothing"
               }
-            ]
-          }
+            }
+          ]
         },
         {
-          "$Comment": "Injected by scripts/add_returnhome_state.py - walk to the leash point set by SimTale.",
+          "$Comment": "Injected by add_returnhome_state.py - walk to the leash point set by SimTale.",
           "Sensor": {
             "Type": "State",
             "State": "ReturnHome"
@@ -63,7 +55,7 @@
             {
               "Sensor": {
                 "Type": "Leash",
-                "Range": 1.0
+                "Range": 1
               },
               "BodyMotion": {
                 "Type": "Seek",
@@ -83,16 +75,6 @@
               ]
             }
           ]
-        },
-        {
-          "$Comment": "Injected by scripts/add_returnhome_state.py - stay put while SimTale handles sleeping.",
-          "Sensor": {
-            "Type": "State",
-            "State": "Sleep"
-          },
-          "BodyMotion": {
-            "Type": "Nothing"
-          }
         }
       ]
     }
