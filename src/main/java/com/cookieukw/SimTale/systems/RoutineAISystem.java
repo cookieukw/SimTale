@@ -130,7 +130,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         World world = WorldUtil.first();
         if (world == null) return;
 
-        HouseDoorManager.handleNpcDoors(world, npc, transform);
+        NPCDoorHelper.handleNpcDoors(world, npc, transform);
 
         // --- Dialogue lock ---
         // While an interaction page is open the mod's AI stands down entirely and the NPC is

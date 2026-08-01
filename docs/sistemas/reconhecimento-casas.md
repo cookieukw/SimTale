@@ -46,9 +46,11 @@ Após validar a integridade física estrutural, a casa passa pelo crivo de mobí
 Se qualquer um desses itens obrigatórios não for detectado na varredura do interior, a casa é classificada como incompleta (`ScanOutcome.INCOMPLETE`).
 
 ### Abertura Automática de Portas (Estilo Villagers)
-Para que os NPCs consigam navegar livremente até suas camas ou baús de comida sem ficarem travados por portas fechadas, o sistema possui um mecanismo gerenciado por `HouseDoorManager.java` que é chamado na rotina ativa do NPC:
-*   **Abertura (Otimizada)**: Para evitar o gargalo de performance de varrer blocos físicos ao redor de múltiplos NPCs (evitando loops com `world.getBlockType`), o NPC consulta a lista de portas pré-cadastradas de sua própria residência em `HouseData.doors`. Ele calcula apenas a distância simples 3D e, se estiver a menos de 2.0 blocos de alguma porta registrada, checa se ela está fechada (ID contendo `_closed`). Em caso positivo, abre a porta no mundo (trocando o ID do bloco para `_open`, preservando a rotação indexada) e a registra no mapa global `OPENED_DOORS_COOLDOWN` com limite de 40 ticks (2 segundos).
-*   **Fechamento**: A cada tick global do mundo, o cooldown das portas abertas é decrementado. Ao expirar o tempo, a porta é fechada (ID retornado para `_closed`) desde que não haja nenhum outro NPC ativo a menos de 2 blocos de distância da porta.
+Gerenciada por `NPCDoorHelper.java`, chamada na rotina ativa do NPC. **Não depende de casa registrada** — ver a seção de dificuldades abaixo para o porquê.
+
+*   **Detecção**: varredura 3×3×3 de blocos ao redor do NPC, usando a flag `BlockType.isDoor()` do próprio motor. `DoorInteraction.getDoorAtPosition()` normaliza a posição (uma porta de duas alturas aparece em várias células da varredura, e todas convergem para a mesma posição canônica).
+*   **Abertura**: o estado é calculado por `DoorBlockUtils.getInteractionState(estadoAtual, estadoDesejado)`. O lado da abertura segue a mesma regra do jogo (`DoorBlockUtils.isInFrontOfDoor`): quem está **na frente** faz a porta abrir **para fora**, de modo que a folha nunca gire por cima de quem abriu. `canOpenDoor()` cobre o caso `DoorBlocked`.
+*   **Fechamento**: cooldown de 40 ticks (2 segundos) no mapa `OPENED_DOORS`. Ao expirar, a porta fecha, a menos que ainda haja NPC a menos de 2 blocos — nesse caso o prazo é renovado em vez de fechar na cara de quem está passando.
 
 ---
 
@@ -71,6 +73,23 @@ Para que os NPCs consigam navegar livremente até suas camas ou baús de comida 
 *   **Sintoma**: Camas adicionais e baús de armazenamento nunca eram detectados nas varreduras das casas, permitindo que NPCs abrissem qualquer baú (livre acesso).
 *   **Causa Raiz**: O método `isSolid()` retornava `true` para camas e baús, disparando o comando `continue` antes que o código chegasse nos ifs específicos de checagem de camas/baús.
 *   **Correção**: O loop de vizinhos foi reordenado para rodar os testes específicos de Porta, Cama e Baú em primeiro lugar, coletando-os nos respectivos conjuntos de dados antes de aplicar a checagem genérica de blocos sólidos.
+
+### Nenhuma porta abria — para NPC nenhum
+O antigo `HouseDoorManager` tinha **dois** defeitos independentes, e qualquer um deles sozinho já anulava o sistema inteiro.
+
+**Defeito 1 — o estado "aberto" era idêntico ao "fechado".** O novo estado era montado por manipulação de texto:
+
+```java
+if (state.toLowerCase().contains("closed"))            // testava em minúsculas
+    openState = state.replace("closed", "open")        // mas trocava na string original
+                     .replace("CLOSED", "OPEN");
+```
+
+Os estados reais de porta no Hytale são `CloseDoorIn`, `CloseDoorOut`, `OpenDoorIn`, `OpenDoorOut` e `DoorBlocked` — não existe "closed". O `if` passava **por acidente**: `"CloseDoorIn"` em minúsculas vira `"closedoorin"`, que contém `"closed"`. Mas a string original não contém nem `"closed"` nem `"CLOSED"`, então nenhum dos dois `replace` trocava coisa alguma. A porta era "aberta" para exatamente o estado que já tinha. O fechamento automático tinha o mesmo defeito espelhado.
+
+**Defeito 2 — só considerava as portas da casa registrada do próprio NPC.** A busca partia de `OWNER_TO_HOUSE_ID.get(npc.entityId)`. NPC sem casa, NPC visitando outra casa, portão de vila ou porta de oficina nunca eram sequer avaliados.
+
+**Correção**: `NPCDoorHelper` varre os blocos ao redor do NPC e delega toda a decisão para a API do próprio motor (`DoorBlockUtils` + `DoorInteraction.getDoorAtPosition`), em vez de reimplementar lógica de porta com texto. A detecção usa a flag `BlockType.isDoor()` — o `getId().contains("door")` anterior também pegaria trapdoor, doorframe e decoração com "door" no nome.
 
 ## 6. Os Comandos de Debug e Verificação
 
