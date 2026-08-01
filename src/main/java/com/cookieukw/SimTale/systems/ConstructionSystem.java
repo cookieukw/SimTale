@@ -18,6 +18,7 @@ import com.hypixel.hytale.server.core.universe.world.accessor.BlockAccessor;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import org.joml.Vector3d;
+import org.joml.Vector3i;
 import javax.annotation.Nonnull;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
@@ -113,16 +114,23 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
                 return;
             }
 
+            ConstructionHelper.OffsetMapper mapper =
+                    ConstructionHelper.mapperFor(prefab, site.facing);
+
             // Build multiple blocks per tick if we want to speed it up, or just 1
             int blocksToBuild = site.forceBuild ? (10 * GLOBAL_SPEED) : (GLOBAL_SPEED);
             for (int i = 0; i < blocksToBuild; i++) {
                 if (site.currentIndex >= prefab.getBlocks().size()) break;
 
                 PrefabBlock blockInfo = prefab.getBlocks().get(site.currentIndex);
-                
-                int worldX = site.anchor.x + blockInfo.getX();
-                int worldY = site.anchor.y + blockInfo.getY();
-                int worldZ = site.anchor.z + blockInfo.getZ();
+
+                // Rotation goes through the same mapper the preview uses. This used to be a bare
+                // anchor + local, which ignored site.facing outright: the player could rotate the
+                // preview all they liked and the NPCs would still build it facing north.
+                Vector3i offset = mapper.offset(blockInfo.getX(), blockInfo.getY(), blockInfo.getZ());
+                int worldX = site.anchor.x + offset.x;
+                int worldY = site.anchor.y + offset.y;
+                int worldZ = site.anchor.z + offset.z;
 
                 String type = blockInfo.getName();
                 if (type == null) {

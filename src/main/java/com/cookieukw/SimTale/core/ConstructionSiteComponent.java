@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.core;
 
 import com.hypixel.hytale.component.Component;
+import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.Codec;
@@ -39,6 +40,21 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
 
     public Rotation4 facing = Rotation4.NORTH;
     public Rotation4 roofFacing = Rotation4.NORTH;
+    /**
+     * The engine-side hologram entity showing this site's preview, or null when nothing is shown.
+     * <p>
+     * Transient on purpose: it is a live entity reference, meaningless once the server restarts,
+     * and the preview itself is session-scoped anyway (ConstructionPreviewManager keeps sessions
+     * in memory). Persisting it would only resurrect a dangling ref.
+     */
+    public transient Ref<EntityStore> previewGhost;
+
+    /**
+     * Legacy marker-block bookkeeping, kept only so a preview placed before the hologram
+     * migration can still be cleaned up within the same session. Nothing writes to these
+     * any more — see PrefabGhostHelper for why painting blocks into the world was the wrong
+     * mechanism for a preview.
+     */
     public final Set<Long> previewBody = ConcurrentHashMap.newKeySet();
     public final Set<Long> previewRoof = ConcurrentHashMap.newKeySet();
     public final transient Map<Long, OriginalBlockState> originalBlocks = new ConcurrentHashMap<>();
@@ -92,6 +108,9 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         clone.facing = this.facing;
         clone.roofFacing = this.roofFacing;
         clone.isClear = this.isClear;
+        // previewGhost is deliberately not copied. It is a handle to one live hologram entity,
+        // and two components both believing they own it means either a double despawn or a
+        // hologram that nobody removes. The clone simply has no preview.
         return clone;
     }
 }

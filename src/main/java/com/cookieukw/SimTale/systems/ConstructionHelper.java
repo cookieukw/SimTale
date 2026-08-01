@@ -7,16 +7,14 @@ import com.cookieukw.SimTale.core.PrefabManager;
 import com.cookieukw.SimTale.core.Rotation4;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import org.joml.Vector3i;
-import org.joml.Vector3d;
 
 /**
- * Handles the ghost/wireframe preview for a construction site: scanning the
- * target volume for obstructions, painting an edge-only wireframe box in the
- * world, and restoring whatever blocks were temporarily replaced.
+ * Handles the preview for a construction site: scanning the target volume for obstructions and
+ * driving the engine hologram that shows the player what will be built.
+ *
+ * <p>Also owns the local-to-world coordinate maths ({@link #mapperFor}) that both the hologram
+ * and the NPC builders go through, so the preview and the finished building cannot disagree.
  */
 public final class ConstructionHelper {
 
@@ -25,12 +23,6 @@ public final class ConstructionHelper {
     }
 
     private static final String EMPTY_BLOCK_ID = "Empty";
-    private static final String PREVIEW_MARKER_CLEAR = "simtale:Green_block_preview";
-    private static final String PREVIEW_MARKER_BLOCKED = "simtale:Red_block_preview";
-
-    /** Cells within this radius of the owning player are skipped so the preview never traps them. */
-    private static final double PLAYER_CLEARANCE_RADIUS = 3.5;
-    private static final double PLAYER_CLEARANCE_RADIUS_SQ = PLAYER_CLEARANCE_RADIUS * PLAYER_CLEARANCE_RADIUS;
 
     // Coordinate packing: 3 signed ints -> 1 long key, 21 bits per axis (+/-1,048,576 range).
     private static final int COORD_BITS = 21;
@@ -41,10 +33,14 @@ public final class ConstructionHelper {
     // Public API
     // ---------------------------------------------------------------------
 
-    /** Removes any preview blocks currently placed for this site and restores what was underneath them. */
+    /** Removes the site's hologram, plus any leftover marker blocks from a pre-migration preview. */
     public static void clearPreview(World world, ConstructionSiteComponent site) {
         if (site == null) return;
 
+        PrefabGhostHelper.hide(world, site);
+
+        // Everything below only ever finds something for a preview that was placed by the old
+        // marker-block code earlier in this same session. New previews touch no blocks at all.
         for (long packed : site.previewBody) {
             int[] pos = unpack(packed);
             restoreBlock(world, site, pos[0], pos[1], pos[2], packed);
@@ -60,9 +56,13 @@ public final class ConstructionHelper {
     }
 
     /**
-     * Recomputes and paints the wireframe preview for {@code site}: clears the old preview,
-     * checks whether the target volume is obstructed, then paints an edge-only box
-     * (green if clear, red if blocked), skipping any cell too close to the owning player.
+     * Recomputes and shows the preview for {@code site}: clears the old one, checks whether the
+     * target volume is obstructed, then displays the prefab as an engine hologram.
+     *
+     * <p>Previously this painted an edge-only wireframe box out of coloured marker blocks, which
+     * meant the "preview" was a real, destructive edit to the world and could only ever suggest
+     * the building's bounding box. The hologram shows the actual prefab and leaves the terrain
+     * untouched — see {@link PrefabGhostHelper}.
      */
     public static void placePreview(World world, ConstructionSiteComponent site) {
         if (site == null) return;
@@ -74,16 +74,36 @@ public final class ConstructionHelper {
 
         clearPreview(world, site);
 
+        site.isClear = !hasObstruction(world, site, prefab);
+
+        PrefabGhostHelper.show(world, site, prefab, site.isClear);
+    }
+
+    /**
+     * Maps prefab-local coordinates to offsets from the site anchor, applying a facing.
+     *
+     * <p>Shared on purpose. The preview and the builders used to derive positions independently:
+     * the preview rotated through {@link #rotate}, while ConstructionSystem placed blocks at a
+     * plain {@code anchor + local}, ignoring facing entirely. With a wireframe box the mismatch
+     * was invisible; with a hologram of the real prefab, a rotated preview that builds unrotated
+     * would be obvious and infuriating. One mapper now feeds both.
+     *
+     * <p>Built once per prefab rather than per block: the rotation offset depends only on the
+     * prefab's bounds and the facing, so recomputing it inside the loop would rescan every block
+     * for every block.
+     */
+    public record OffsetMapper(Rotation4 facing, int minRotX, int minRotZ) {
+        public Vector3i offset(int lx, int ly, int lz) {
+            Vector3i rotated = rotate(new Vector3i(lx, ly, lz), facing);
+            return new Vector3i(rotated.x - minRotX, rotated.y, rotated.z - minRotZ);
+        }
+    }
+
+    /** Builds the {@link OffsetMapper} for a prefab rotated to {@code facing}. */
+    public static OffsetMapper mapperFor(Prefab prefab, Rotation4 facing) {
         BoxSize size = computeBoxSize(prefab);
-        RotationOffset offset = computeRotationOffset(size.sizeX(), size.sizeZ(), site.facing);
-
-        boolean isClear = !hasObstruction(world, site, size, offset);
-        site.isClear = isClear;
-
-        Vector3d playerPos = resolvePlayerPosition(world, site);
-        String markerBlockId = isClear ? PREVIEW_MARKER_CLEAR : PREVIEW_MARKER_BLOCKED;
-
-        placeWireframeBlocks(world, site, size, offset, playerPos, markerBlockId);
+        RotationOffset offset = computeRotationOffset(size.sizeX(), size.sizeZ(), facing);
+        return new OffsetMapper(facing, offset.minRotX(), offset.minRotZ());
     }
 
     /** Rotates a local offset around the Y axis to match one of the four cardinal facings. */
@@ -140,25 +160,21 @@ public final class ConstructionHelper {
         return new RotationOffset(minRotX, minRotZ);
     }
 
-    private static Vector3i toWorldPos(int lx, int ly, int lz, ConstructionSiteComponent site, RotationOffset offset) {
-        Vector3i rotated = rotate(new Vector3i(lx, ly, lz), site.facing);
-        return new Vector3i(
-            site.anchor.x + (rotated.x - offset.minRotX()),
-            site.anchor.y + rotated.y,
-            site.anchor.z + (rotated.z - offset.minRotZ())
-        );
-    }
-
     // ---------------------------------------------------------------------
     // Obstruction scan
     // ---------------------------------------------------------------------
 
-    private static boolean hasObstruction(World world, ConstructionSiteComponent site, BoxSize size, RotationOffset offset) {
+    private static boolean hasObstruction(World world, ConstructionSiteComponent site, Prefab prefab) {
+        BoxSize size = computeBoxSize(prefab);
+        OffsetMapper mapper = mapperFor(prefab, site.facing);
+
         for (int lx = 0; lx < size.sizeX(); lx++) {
             for (int ly = 0; ly < size.sizeY(); ly++) {
                 for (int lz = 0; lz < size.sizeZ(); lz++) {
-                    Vector3i pos = toWorldPos(lx, ly, lz, site, offset);
-                    if (isObstructed(world, pos.x, pos.y, pos.z)) {
+                    Vector3i offset = mapper.offset(lx, ly, lz);
+                    if (isOccupied(world, site.anchor.x + offset.x,
+                                          site.anchor.y + offset.y,
+                                          site.anchor.z + offset.z)) {
                         return true;
                     }
                 }
@@ -167,64 +183,23 @@ public final class ConstructionHelper {
         return false;
     }
 
-    private static boolean isObstructed(World world, int x, int y, int z) {
-        return isEmptyBlock(world.getBlockType(x, y, z));
+    private static boolean isOccupied(World world, int x, int y, int z) {
+        return isOccupied(world.getBlockType(x, y, z));
     }
 
-    private static boolean isEmptyBlock(BlockType type) {
+    /**
+     * True when the cell holds a real block rather than air.
+     * <p>
+     * This was called {@code isEmptyBlock} while returning the exact opposite, so every call site
+     * read as a negation of what it did. It happened to be used correctly, but only barely.
+     */
+    private static boolean isOccupied(BlockType type) {
         return type != null && !type.getId().equalsIgnoreCase(EMPTY_BLOCK_ID);
     }
 
     // ---------------------------------------------------------------------
-    // Wireframe placement
+    // Legacy marker cleanup
     // ---------------------------------------------------------------------
-
-    private static void placeWireframeBlocks(World world, ConstructionSiteComponent site, BoxSize size,
-                                               RotationOffset offset, Vector3d playerPos, String markerBlockId) {
-        for (int lx = 0; lx < size.sizeX(); lx++) {
-            for (int ly = 0; ly < size.sizeY(); ly++) {
-                for (int lz = 0; lz < size.sizeZ(); lz++) {
-                    if (!isEdge(lx, ly, lz, size.sizeX(), size.sizeY(), size.sizeZ())) continue;
-
-                    Vector3i pos = toWorldPos(lx, ly, lz, site, offset);
-                    if (isTooCloseToPlayer(pos, playerPos)) continue;
-
-                    tryPlaceMarker(world, site, pos, markerBlockId);
-                }
-            }
-        }
-    }
-
-    /** True for cells on at least two axes of the bounding box, i.e. the box's edges/corners. */
-    private static boolean isEdge(int lx, int ly, int lz, int sizeX, int sizeY, int sizeZ) {
-        int edgesOnAxes = 0;
-        if (lx == 0 || lx == sizeX - 1) edgesOnAxes++;
-        if (ly == 0 || ly == sizeY - 1) edgesOnAxes++;
-        if (lz == 0 || lz == sizeZ - 1) edgesOnAxes++;
-        return edgesOnAxes >= 2;
-    }
-
-    private static boolean isTooCloseToPlayer(Vector3i pos, Vector3d playerPos) {
-        if (playerPos == null) return false;
-
-        double dx = pos.x - playerPos.x;
-        double dy = pos.y - playerPos.y;
-        double dz = pos.z - playerPos.z;
-        return (dx * dx + dy * dy + dz * dz) < PLAYER_CLEARANCE_RADIUS_SQ;
-    }
-
-    /** Places the marker block only if the target cell is empty, saving what was there for later restoration. */
-    private static void tryPlaceMarker(World world, ConstructionSiteComponent site, Vector3i pos, String markerBlockId) {
-        BlockType originalType = world.getBlockType(pos.x, pos.y, pos.z);
-        if (isEmptyBlock(originalType)) return;
-
-        int originalRotation = world.getBlockRotationIndex(pos.x, pos.y, pos.z);
-        long packed = pack(pos.x, pos.y, pos.z);
-        site.originalBlocks.putIfAbsent(packed, new ConstructionSiteComponent.OriginalBlockState(originalType, originalRotation));
-
-        world.setBlock(pos.x, pos.y, pos.z, markerBlockId);
-        site.previewBody.add(packed);
-    }
 
     private static void restoreBlock(World world, ConstructionSiteComponent site, int x, int y, int z, long packed) {
         ConstructionSiteComponent.OriginalBlockState original = site.originalBlocks.remove(packed);
@@ -239,13 +214,6 @@ public final class ConstructionHelper {
     // Coordinate packing (x, y, z -> single long key for map storage)
     // ---------------------------------------------------------------------
 
-    private static long pack(int x, int y, int z) {
-        long bx = x + COORD_OFFSET;
-        long by = y + COORD_OFFSET;
-        long bz = z + COORD_OFFSET;
-        return (bx << (COORD_BITS * 2)) | (by << COORD_BITS) | bz;
-    }
-
     private static int[] unpack(long packed) {
         long bz = packed & COORD_MASK;
         long by = (packed >> COORD_BITS) & COORD_MASK;
@@ -255,19 +223,5 @@ public final class ConstructionHelper {
             (int) (by - COORD_OFFSET),
             (int) (bz - COORD_OFFSET)
         };
-    }
-
-    // ---------------------------------------------------------------------
-    // Player context
-    // ---------------------------------------------------------------------
-
-    private static Vector3d resolvePlayerPosition(World world, ConstructionSiteComponent site) {
-        if (site.ownerId == null) return null;
-
-        Ref<EntityStore> playerRef = world.getEntityStore().getRefFromUUID(site.ownerId);
-        if (playerRef == null || !playerRef.isValid()) return null;
-
-        TransformComponent transform = world.getEntityStore().getStore().getComponent(playerRef, TransformComponent.getComponentType());
-        return transform != null ? transform.getPosition() : null;
     }
 }

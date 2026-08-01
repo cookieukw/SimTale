@@ -48,7 +48,8 @@ public class BuildCommand extends AbstractPlayerCommand {
         if (prefabName.equalsIgnoreCase("start")) {
             ConstructionSiteComponent activePreview = ConstructionPreviewManager.get(playerRef.getUuid());
             if (activePreview != null && !activePreview.isClear) {
-                ctx.sendMessage(Message.raw("Construction denied! The area is obstructed (marked red)."));
+                ctx.sendMessage(Message.raw(
+                        "Construction denied! The area is obstructed. Move the preview or clear the blocks in the way."));
                 return;
             }
             ConstructionSiteComponent site = ConstructionPreviewManager.commit(playerRef.getUuid(), world);
