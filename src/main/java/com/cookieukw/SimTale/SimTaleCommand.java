@@ -986,7 +986,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
             if (tc == null) {
-                ctx.sendMessage(Message.raw("Erro: TransformComponent nulo."));
+                ctx.sendMessage(Message.raw("Error: TransformComponent is null."));
                 return;
             }
             Vector3d pos = tc.getPosition();
@@ -1010,12 +1010,12 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
             
             if (nearestBed == null) {
-                ctx.sendMessage(Message.raw("Nenhuma cama registrada encontrada proxima!"));
+                ctx.sendMessage(Message.raw("No registered beds found nearby!"));
                 return;
             }
             
             if (minDist > 16 * 16) {
-                ctx.sendMessage(Message.raw("Nenhuma cama registrada em um raio de 16 blocos!"));
+                ctx.sendMessage(Message.raw("No registered beds within a 16-block radius!"));
                 return;
             }
             
@@ -1036,6 +1036,20 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             HouseManager.HouseCompatibilityResult result = HouseManager.checkFullCompatibility(world, houseBed, playerRef.getUuid());
             ctx.sendMessage(HouseManager.buildCompatibilityReport(result));
+
+            // Update existing house's structure dynamically if the house is registered
+            HouseData existingHouse = HouseManager.HOUSES_BY_ID.values().stream()
+                .filter(h -> h.bedPos != null && h.bedPos.equals(houseBed))
+                .findFirst()
+                .orElse(null);
+            if (existingHouse != null) {
+                existingHouse.interior = rawScan.interiorBlocks();
+                existingHouse.doors = rawScan.doorBlocks();
+                existingHouse.chests = rawScan.chestBlocks();
+                HouseManager.registerHouse(existingHouse);
+                ctx.sendMessage(Message.raw("[House Debug] Registered house updated in persistence with " 
+                    + rawScan.doorBlocks().size() + " door(s) and " + rawScan.chestBlocks().size() + " chest(s).").color("green"));
+            }
         }
     }
 

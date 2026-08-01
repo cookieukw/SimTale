@@ -150,7 +150,11 @@ public class HouseManager {
                 }
 
                 if (isDoor(type)) {
-                    doors.add(neighbor);
+                    // Only register the bottom block of the door as the door coordinate to avoid double counting
+                    BlockType below = world.getBlockType(neighbor.x, neighbor.y - 1, neighbor.z);
+                    if (!isDoor(below)) {
+                        doors.add(neighbor);
+                    }
                     visited.add(neighbor);
                     continue; 
                 }

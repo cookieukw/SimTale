@@ -7,7 +7,10 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.accessor.BlockAccessor;
 import org.joml.Vector3d;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -15,6 +18,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HouseDoorManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HouseDoorManager.class);
     private static long lastProcessedDoorsTick = 0;
     public static final Map<HouseBlockPos, Integer> OPENED_DOORS_COOLDOWN = new ConcurrentHashMap<>();
 
@@ -40,6 +44,7 @@ public class HouseDoorManager {
                             String openId = bType.getId().replace("_closed", "_open").replace("_CLOSED", "_OPEN");
                             int rot = world.getBlockRotationIndex(doorPos.x, doorPos.y, doorPos.z);
                             world.setBlock(doorPos.x, doorPos.y, doorPos.z, openId, rot);
+                            LOGGER.info("[SimTale] NPC '{}' abriu a porta registrada da casa em ({}, {}, {})", npc.name, doorPos.x, doorPos.y, doorPos.z);
                             OPENED_DOORS_COOLDOWN.put(doorPos, 40); // 2 segundos abertas
                         }
                     }
@@ -76,6 +81,7 @@ public class HouseDoorManager {
                         String closedId = type.getId().replace("_open", "_closed").replace("_OPEN", "_CLOSED");
                         int rot = world.getBlockRotationIndex(pos.x, pos.y, pos.z);
                         world.setBlock(pos.x, pos.y, pos.z, closedId, rot);
+                        LOGGER.info("[SimTale] Porta registrada em ({}, {}, {}) fechou automaticamente.", pos.x, pos.y, pos.z);
                     }
                     iterator.remove();
                 } else {
