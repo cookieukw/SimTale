@@ -32,8 +32,7 @@
       "Model": "Cosmetics/Undertops/LongSleeveShirt.blockymodel",
       "Texture": "Cosmetics/Undertops/LongSleeveShirt_Textures/Flowy_Shirt_Greyscale.png",
       "GradientSet": "Pastel_Cotton",
-      "GradientId": "Blue",
-      "$SimTale": "fix_npc_appearance"
+      "GradientId": "Blue"
     },
     {
       "Model": "Cosmetics/Overtops/Straps_Wasteland_Marauder.blockymodel",

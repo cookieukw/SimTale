@@ -31,8 +31,7 @@
       "Model": "NPC/Player_Child/Cosmetics/Undertops/Tshirt_Child.blockymodel",
       "Texture": "Cosmetics/Undertops/Tshirt_Textures/Dipcut_Greyscale.png",
       "GradientSet": "Colored_Cotton",
-      "GradientId": "Purple",
-      "$SimTale": "fix_npc_appearance"
+      "GradientId": "Purple"
     },
     {
       "Model": "NPC/Player_Child/Cosmetics/Overtops/Overtops_Belt_Large_Child.blockymodel",

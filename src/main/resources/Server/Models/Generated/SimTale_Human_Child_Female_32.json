@@ -33,8 +33,7 @@
       "Model": "NPC/Player_Child/Cosmetics/Undertops/BasicUndertop_Child.blockymodel",
       "Texture": "Cosmetics/Undertops/BasicTop_Textures/FrostyF_Top_Texture.png",
       "GradientSet": "Colored_Cotton",
-      "GradientId": "Purple",
-      "$SimTale": "fix_npc_appearance"
+      "GradientId": "Purple"
     },
     {
       "Model": "NPC/Player_Child/Cosmetics/Overtops/Arm_Bandage_Child.blockymodel",

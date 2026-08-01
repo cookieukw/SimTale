@@ -46,7 +46,14 @@ ROOT = Path(__file__).resolve().parent.parent
 MODELS_DIR = ROOT / "src/main/resources/Server/Models/Generated"
 BACKUP = Path(__file__).resolve().parent / "appearance_backup.json"
 
-MARKER = "fix_npc_appearance"
+# Nao adicione chaves proprias (tipo "$SimTale") dentro de um attachment. O carregador de
+# assets do Hytale valida as chaves e reclama de qualquer uma que nao conheca:
+#
+#   WARN [AssetStore|ModelAsset] Unused key(s) in 'SimTale_Human_Child_Female_167'
+#   file /Server/Models/Generated/...json: DefaultAttachments.4.$SimTale
+#
+# Uma versao anterior gravava um marcador assim em cada peca que adicionava, o que rendeu 250
+# avisos no boot sem servir para nada: o --revert usa o arquivo de backup, nunca o marcador.
 
 # ---------------------------------------------------------------- eyes
 # Ids straight out of Cosmetics/CharacterCreator/GradientSets.json -> Eyes_Gradient.
@@ -197,7 +204,7 @@ def patch(model, filename, rng):
         pool = UNDERTOPS_CHILD if is_child else UNDERTOPS_ADULT
         m, t, grad = rng.choice(pool)
         piece = {"Model": m, "Texture": t, "GradientSet": grad,
-                 "GradientId": rng.choice(FABRIC_COLORS), "$SimTale": MARKER}
+                 "GradientId": rng.choice(FABRIC_COLORS)}
         insert_at = next((i for i, a in enumerate(atts) if slot_of(a) == "Overtops"), len(atts))
         atts.insert(insert_at, piece)
         changes.append("undertop")

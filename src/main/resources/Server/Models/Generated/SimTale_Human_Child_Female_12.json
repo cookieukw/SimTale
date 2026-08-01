@@ -33,8 +33,7 @@
       "Model": "NPC/Player_Child/Cosmetics/Undertops/BasicUndertop_Child.blockymodel",
       "Texture": "Cosmetics/Undertops/BasicTop_Textures/FrostyF_Top_Texture.png",
       "GradientSet": "Colored_Cotton",
-      "GradientId": "Blue",
-      "$SimTale": "fix_npc_appearance"
+      "GradientId": "Blue"
     },
     {
       "Model": "NPC/Player_Child/Cosmetics/Overtops/Straps_Wasteland_Marauder_Child.blockymodel",
