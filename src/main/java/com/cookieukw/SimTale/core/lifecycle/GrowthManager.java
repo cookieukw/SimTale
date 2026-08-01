@@ -52,6 +52,27 @@ public class GrowthManager {
         };
     }
 
+    /**
+     * Run {@code task} outside the Store processing window.
+     * <p>
+     * All growth originates from {@code GrowthTickSystem.tick()}, and the Store refuses structural writes
+     * ({@code putComponent}, {@code addComponent}, entity spawn) while it is processing:
+     * <pre>
+     *   IllegalStateException: Store is currently processing!
+     * </pre>
+     * Enqueueing on the world thread resolves this because that queue drains outside the
+     * systems tick.
+     */
+    private static void runOutsideTick(Store<EntityStore> store, Runnable task) {
+        if (store != null && !store.isProcessing()) {
+            task.run();
+            return;
+        }
+        if (!WorldUtil.execute(task)) {
+            LOGGER.atWarning().log("SimTale: nenhum mundo carregado; etapa de crescimento ignorada.");
+        }
+    }
+
     public static void applyVisualScale(Ref<EntityStore> ref, float scale) {
         Store<EntityStore> store = ref.getStore();
         PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
@@ -60,7 +81,15 @@ public class GrowthManager {
             if (Math.abs(oldRef.getScale() - scale) > 0.01f) {
                 ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), scale, oldRef.getRandomAttachmentIds());
                 pm.setModelReference(newRef);
-                store.putComponent(ref, PersistentModel.getComponentType(), pm);
+                // putComponent and structural write, and this runs every tick coming from
+                // GrowthTickSystem. Without the detour below, the child's visual scale was
+                // never applied — the exception rose and took down the rest of the growth
+                // tick along with it.
+                runOutsideTick(store, () -> {
+                    if (ref.isValid()) {
+                        store.putComponent(ref, PersistentModel.getComponentType(), pm);
+                    }
+                });
             }
         }
     }
@@ -77,7 +106,15 @@ public class GrowthManager {
         if (stageChanged) {
             LOGGER.atInfo().log("SimTale: " + child.getFullName() + " grew to "
                 + child.stage.getDisplayName() + " (scale: " + child.currentScale + ")");
-            onStageChanged(child);
+
+            // The entire promotion is deferred, not just the spawn. It creates the new entity and
+            // immediately after uses its reference for name, nameplate, family and persistence
+            // — deferring only the spawn would leave this whole block working with a reference
+            // that does not exist yet. As this chain starts in GrowthTickSystem.tick(), without
+            // this, no child would ever change stage in normal gameplay.
+            World world = WorldUtil.first();
+            Store<EntityStore> store = world != null ? world.getEntityStore().getStore() : null;
+            runOutsideTick(store, () -> onStageChanged(child));
         }
 
         if (child.needsCare() && child.babyNeeds != null) {
