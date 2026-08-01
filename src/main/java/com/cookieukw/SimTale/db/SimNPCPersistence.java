@@ -26,7 +26,64 @@ import java.util.UUID;
  * Handles persistence for SimTale NPCs using the Caskara database.
  */
 public class SimNPCPersistence {
+    /**
+     * All SimTale NPC data lives in this named shell.
+     * <p>
+     * IMPORTANT: never reach for the static {@code Caskara.save/load/list/delete} helpers for
+     * {@link SimNPCData}. Those resolve to {@code Caskara.shell("default")} — a different
+     * store — so a write here would be invisible to them and vice versa. That mismatch used to
+     * be spread across seven call sites: NPC lookups always came back null (which is why
+     * SimTaleTickSystem could never re-attach a component), listings were always empty, and
+     * deletions silently missed, leaving dead NPCs in the database forever.
+     * <p>
+     * Go through the helpers below instead.
+     */
     public static final Shell DB_SHELL = Caskara.shell("simtale");
+
+    /** Reads one NPC record, or null when the id is unknown. */
+    public static SimNPCData loadData(UUID entityId) {
+        if (entityId == null) return null;
+        return DB_SHELL.core(SimNPCData.class).extract(entityId.toString()).sync().orElse(null);
+    }
+
+    /** Every stored NPC record. Never null. */
+    public static List<SimNPCData> listAll() {
+        try {
+            List<SimNPCData> all = DB_SHELL.core(SimNPCData.class).extractAll();
+            return all != null ? all : new ArrayList<>();
+        } catch (Exception e) {
+            HytaleLogger.forEnclosingClass().atWarning()
+                .log("SimTale: falha ao listar NPCs do banco: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /** Removes one NPC record. Safe to call for an id that was never stored. */
+    public static void deleteNPC(UUID entityId) {
+        if (entityId == null) return;
+        try {
+            DB_SHELL.core(SimNPCData.class).discard(entityId.toString());
+        } catch (Exception e) {
+            HytaleLogger.forEnclosingClass().atWarning()
+                .log("SimTale: falha ao apagar NPC " + entityId + ": " + e.getMessage());
+        }
+    }
+
+    /** Wipes every NPC record. Returns how many were removed. */
+    public static int deleteAll() {
+        int removed = 0;
+        for (SimNPCData data : listAll()) {
+            if (data.id == null) continue;
+            try {
+                DB_SHELL.core(SimNPCData.class).discard(data.id);
+                removed++;
+            } catch (Exception e) {
+                HytaleLogger.forEnclosingClass().atWarning()
+                    .log("SimTale: falha ao apagar NPC " + data.id + ": " + e.getMessage());
+            }
+        }
+        return removed;
+    }
 
     public static void saveNPC(SimNPCComponent component) {
         if (component.entityId == null)
