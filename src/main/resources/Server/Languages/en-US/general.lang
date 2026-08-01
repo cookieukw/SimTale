@@ -63,3 +63,6 @@ cmd.forceplant.farmland_not_found = No empty farmland found near farmer {name}
 cmd.forceplant.not_farmer = No Farmer NPC nearby.
 cmd.forceplant.seeds_added = Added 5x Carrot Seeds to {name}'s inventory
 cmd.forceplant.ai_inactive = NPC AI not active.
+yes = Yes
+no = No
+house.debug.status = [House Debug] Interior blocks visited: {visited} (Max: 512) | Doors: {doors} | Chests: {chests} | Overflowed/Open: {overflowed} | Unloaded Chunks: {unloaded}

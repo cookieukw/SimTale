@@ -63,3 +63,6 @@ cmd.forceplant.farmland_not_found = Nenhuma terra arada vazia encontrada por per
 cmd.forceplant.not_farmer = Nenhum NPC Fazendeiro por perto.
 cmd.forceplant.seeds_added = Adicionado 5x Sementes de Cenoura ao inventário de {name}
 cmd.forceplant.ai_inactive = IA do NPC não ativa.
+yes = Sim
+no = Não
+house.debug.status = [Debug de Casa] Blocos internos visitados: {visited} (Máx: 512) | Portas: {doors} | Baús: {chests} | Transbordou/Aberto: {overflowed} | Chunks Descarregados: {unloaded}

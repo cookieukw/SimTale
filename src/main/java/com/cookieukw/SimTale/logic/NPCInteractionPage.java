@@ -91,7 +91,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     /** Sends a debug line to the player and mirrors it to the console. */
     private void debug(String line) {
         if (!CAMERA_DEBUG) return;
-        playerRefComp.sendMessage(Message.raw("§b[cam]§r " + line));
+        playerRefComp.sendMessage(Message.raw("[cam] " + line));
         HytaleLogger.forEnclosingClass().atInfo().log("[SimTale-CAM] " + line);
     }
 

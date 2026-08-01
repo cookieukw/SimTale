@@ -1020,8 +1020,21 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
             
             HouseBlockPos houseBed = new HouseBlockPos(nearestBed.x, nearestBed.y, nearestBed.z);
-            HouseManager.HouseCompatibilityResult result = HouseManager.checkFullCompatibility(world, houseBed, playerRef.getUuid());
+            HouseManager.HouseScanResult rawScan = HouseManager.scanHouseFromBed(world, houseBed);
             
+            Message yesMsg = Message.translation("general.yes");
+            Message noMsg = Message.translation("general.no");
+            
+            Message debugMsg = Message.translation("general.house.debug.status")
+                .param("visited", rawScan.interiorBlocks().size())
+                .param("doors", rawScan.doorBlocks().size())
+                .param("chests", rawScan.chestBlocks().size())
+                .param("overflowed", rawScan.overflowed() ? yesMsg : noMsg)
+                .param("unloaded", rawScan.hitUnloaded() ? yesMsg : noMsg)
+                .color("yellow");
+            ctx.sendMessage(debugMsg);
+
+            HouseManager.HouseCompatibilityResult result = HouseManager.checkFullCompatibility(world, houseBed, playerRef.getUuid());
             ctx.sendMessage(HouseManager.buildCompatibilityReport(result));
         }
     }
