@@ -30,7 +30,7 @@
       "GradientId": "Black"
     },
     {
-      "Model": "Cosmetics/Undertops/BasicUndertop_Child.blockymodel",
+      "Model": "NPC/Player_Child/Cosmetics/Undertops/BasicUndertop_Child.blockymodel",
       "Texture": "Cosmetics/Undertops/BasicTop_Textures/FrostyF_Top_Texture.png",
       "GradientSet": "Colored_Cotton",
       "GradientId": "Purple",

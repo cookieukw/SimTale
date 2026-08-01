@@ -24,7 +24,7 @@
       "GradientId": "BrownLight"
     },
     {
-      "Model": "Cosmetics/Pants/Pants_Straight_Child.blockymodel",
+      "Model": "NPC/Player_Child/Cosmetics/Pants/Pants_Straight_Child.blockymodel",
       "Texture": "Cosmetics/Pants/Pants_Straight_Textures/Wrecked_Greyscale.png",
       "GradientSet": "Jean_Generic",
       "GradientId": "Blue"

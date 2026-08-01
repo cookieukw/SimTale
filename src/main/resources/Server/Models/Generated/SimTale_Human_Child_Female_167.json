@@ -28,7 +28,7 @@
       "Texture": "Cosmetics/Pants/Pants_Straight_Textures/Pants_Brown.png"
     },
     {
-      "Model": "Cosmetics/Undertops/BasicUndertop_Child.blockymodel",
+      "Model": "NPC/Player_Child/Cosmetics/Undertops/BasicUndertop_Child.blockymodel",
       "Texture": "Cosmetics/Undertops/BasicTop_Textures/FrostyF_Top_Texture.png",
       "GradientSet": "Colored_Cotton",
       "GradientId": "Yellow",

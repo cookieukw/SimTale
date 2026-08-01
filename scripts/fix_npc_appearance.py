@@ -77,12 +77,21 @@ UNDERTOPS_ADULT = [
     ("Cosmetics/Undertops/BasicUndertop.blockymodel",
      "Cosmetics/Undertops/BasicTop_Textures/FrostyF_Top_Texture.png", "Colored_Cotton"),
 ]
+# Child garments live under NPC/Player_Child/, NOT under the bare Cosmetics/ path the adults use.
+# The MODEL is what moves; the TEXTURE stays shared with the adult version.
+#
+# This list originally reused the adult convention and just appended "_Child" to the filename,
+# which produced paths no asset ever matched. The result was not a missing shirt: the whole model
+# failed to register, so every role pointing at it died with
+#   IllegalStateException: The model with the name "..." does not exist for attribute "Appearance"
+# and the mod refused to load. 34 models were bricked that way. Derive these by copying from a
+# model that already ships the garment — never by pattern-matching a filename.
 UNDERTOPS_CHILD = [
-    ("Cosmetics/Undertops/LongSleeveShirt_Child.blockymodel",
+    ("NPC/Player_Child/Cosmetics/Undertops/LongSleeveShirt_Child.blockymodel",
      "Cosmetics/Undertops/LongSleeveShirt_Textures/Villager_Shirt_Greyscale.png", "Pastel_Cotton"),
-    ("Cosmetics/Undertops/Tshirt_Child.blockymodel",
+    ("NPC/Player_Child/Cosmetics/Undertops/Tshirt_Child.blockymodel",
      "Cosmetics/Undertops/Tshirt_Textures/Dipcut_Greyscale.png", "Colored_Cotton"),
-    ("Cosmetics/Undertops/BasicUndertop_Child.blockymodel",
+    ("NPC/Player_Child/Cosmetics/Undertops/BasicUndertop_Child.blockymodel",
      "Cosmetics/Undertops/BasicTop_Textures/FrostyF_Top_Texture.png", "Colored_Cotton"),
 ]
 
@@ -110,10 +119,11 @@ MALE_PANTS = [
     ("Cosmetics/Pants/Shorty_Slim.blockymodel",
      "Cosmetics/Pants/Shorty_Slim_Textures/Jean_Fantasy_Geyscale_Texture.png", "Jean_Generic"),
 ]
+# Same NPC/Player_Child/ rule as UNDERTOPS_CHILD above — see the note there.
 MALE_PANTS_CHILD = [
-    ("Cosmetics/Pants/Pants_Straight_Child.blockymodel",
+    ("NPC/Player_Child/Cosmetics/Pants/Pants_Straight_Child.blockymodel",
      "Cosmetics/Pants/Pants_Straight_Textures/Wrecked_Greyscale.png", "Jean_Generic"),
-    ("Cosmetics/Pants/Pants_Slim_Child.blockymodel",
+    ("NPC/Player_Child/Cosmetics/Pants/Pants_Slim_Child.blockymodel",
      "Cosmetics/Pants/Pants_Slim_Textures/Jean_Tight_Greyscale.png", "Jean_Generic"),
 ]
 

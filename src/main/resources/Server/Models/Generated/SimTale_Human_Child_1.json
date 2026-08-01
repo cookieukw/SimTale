@@ -24,7 +24,7 @@
       "GradientId": "Blue"
     },
     {
-      "Model": "Cosmetics/Pants/Pants_Slim_Child.blockymodel",
+      "Model": "NPC/Player_Child/Cosmetics/Pants/Pants_Slim_Child.blockymodel",
       "Texture": "Cosmetics/Pants/Pants_Slim_Textures/Jean_Tight_Greyscale.png",
       "GradientSet": "Jean_Generic",
       "GradientId": "Turquoise_Dark"

@@ -30,7 +30,7 @@
       "GradientId": "Turquoise_Dark"
     },
     {
-      "Model": "Cosmetics/Undertops/Tshirt_Child.blockymodel",
+      "Model": "NPC/Player_Child/Cosmetics/Undertops/Tshirt_Child.blockymodel",
       "Texture": "Cosmetics/Undertops/Tshirt_Textures/Dipcut_Greyscale.png",
       "GradientSet": "Colored_Cotton",
       "GradientId": "Blue",
