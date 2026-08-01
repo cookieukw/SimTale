@@ -53,10 +53,10 @@ house.check.conflict = Esta casa conflita com uma residência já registrada!
 house.check.unknown_error = Erro estrutural desconhecido ao validar a casa.
 house.check.valid = Esta é uma casa válida! Um NPC pode morar aqui.
 house.check.incomplete = Esta casa está incompleta. Precisa de: 
-house.requirement.light_source = uma fonte de luz
-house.requirement.seating = um assento
-house.requirement.surface = uma superfície de mesa
-house.requirement.storage_optional = um contêiner (opcional)
+house.requirement.light_source = iluminação
+house.requirement.seating = uma cadeira
+house.requirement.surface = uma mesa
+house.requirement.storage_optional = um baú (opcional)
 
 cmd.forceplant.success = Forçando {name} a plantar em {pos}
 cmd.forceplant.farmland_not_found = Nenhuma terra arada vazia encontrada por perto do fazendeiro {name}

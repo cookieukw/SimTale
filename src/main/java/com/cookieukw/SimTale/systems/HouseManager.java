@@ -310,8 +310,8 @@ public class HouseManager {
     }
 
     public enum FurnitureRequirement {
-        LIGHT_SOURCE("torch", "lantern", "candle", "campfire", "glow"),
-        SEATING("chair", "stool", "bench", "seat"),
+        LIGHT_SOURCE("torch", "lantern", "candle", "campfire", "glow", "lamp", "chandelier"),
+        SEATING("chair", "stool", "bench", "seat", "sofa", "couch"),
         SURFACE("table", "workbench", "desk", "counter"),
         STORAGE_OPTIONAL("chest", "barrel", "cupboard", "cabinet");
 

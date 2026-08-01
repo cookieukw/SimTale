@@ -53,10 +53,10 @@ house.check.conflict = This house conflicts with an already registered residency
 house.check.unknown_error = Unknown structural error validating the house.
 house.check.valid = This is a valid house! An NPC can live here.
 house.check.incomplete = This house is incomplete. Needs: 
-house.requirement.light_source = a light source
-house.requirement.seating = a seating
-house.requirement.surface = a table surface
-house.requirement.storage_optional = a container (optional)
+house.requirement.light_source = lighting
+house.requirement.seating = a chair
+house.requirement.surface = a table
+house.requirement.storage_optional = a chest (optional)
 
 cmd.forceplant.success = Forcing {name} to plant at {pos}
 cmd.forceplant.farmland_not_found = No empty farmland found near farmer {name}
