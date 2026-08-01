@@ -401,32 +401,55 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             if (result instanceof BlockMountAPI.Mounted) {
                 LOGGER.info("[SimTale] NPC '{}' successfully mounted bed at ({},{},{})", npc.name, bedPos.x, bedPos.y, bedPos.z);
                 
-                // Teleport the NPC onto the bed block mattress using Hytale's official Teleport component
-                float bedYawRad = npc.bedLocation.yaw; // Already in radians
-                
                 // We use +0.65 to ensure her bounding box is completely above the solid bed collision box (0.6 height).
                 // This prevents Hytale's physics engine from pushing her sideways onto the grass.
                 // Start with the center of the claimed bed block
                 double seatX = bedPos.x + 0.5;
                 double seatY = bedPos.y + 2.0; // User preferred drop height to land perfectly without sliding
                 double seatZ = bedPos.z + 0.5;
-                
-                // Adjust to the exact geometric center if it's a double bed
+
+                // A cama ocupa dois blocos, e o eixo em que os dois se encostam E o eixo em que
+                // se deita. Essa varredura ja existia para centralizar o corpo; agora ela decide
+                // a rotacao tambem.
                 BlockType posX = world.getBlockType(bedPos.x + 1, bedPos.y, bedPos.z);
                 BlockType negX = world.getBlockType(bedPos.x - 1, bedPos.y, bedPos.z);
                 BlockType posZ = world.getBlockType(bedPos.x, bedPos.y, bedPos.z + 1);
                 BlockType negZ = world.getBlockType(bedPos.x, bedPos.y, bedPos.z - 1);
 
+                // null = nao deu para determinar o eixo (cama de bloco unico, vizinho em chunk
+                // nao carregado); nesse caso caimos no yaw registrado, que e o que havia antes.
+                Boolean alongX = null;
+
                 if (posX != null && posX.getId() != null && BedRegistry.isBedId(posX.getId())) {
                     seatX = bedPos.x + 1.0;
+                    alongX = true;
                 } else if (negX != null && negX.getId() != null && BedRegistry.isBedId(negX.getId())) {
                     seatX = bedPos.x;
+                    alongX = true;
                 } else if (posZ != null && posZ.getId() != null && BedRegistry.isBedId(posZ.getId())) {
                     seatZ = bedPos.z + 1.0;
+                    alongX = false;
                 } else if (negZ != null && negZ.getId() != null && BedRegistry.isBedId(negZ.getId())) {
                     seatZ = bedPos.z;
+                    alongX = false;
                 }
-                
+
+                // Rotacao deduzida da geometria da cama, nao da rotacao da entidade dela.
+                //
+                // npc.bedLocation.yaw vem do TransformComponent da propria cama
+                // (BedEntityRegistrySystem), ou seja, e o "para onde a cama aponta". Em mobilia
+                // isso costuma ser o lado por onde se entra, que e PERPENDICULAR ao eixo em que
+                // o corpo deita. Usar esse valor direto deitava a NPC atravessada, formando um
+                // T com a cama.
+                //
+                // A convencao de yaw e a do proprio motor: PhysicsMath.headingFromDirection e
+                // atan2(-dx, -dz), entao yaw 0 encara -Z (corpo ao longo de Z) e yaw PI/2 encara
+                // -X (corpo ao longo de X). E exatamente o mapeamento que BedWorldBootstrap ja
+                // usava ao registrar camas pela varredura de blocos.
+                float bedYawRad = alongX == null
+                        ? npc.bedLocation.yaw
+                        : (alongX ? (float) (Math.PI / 2.0) : 0f);
+
                 Vector3d teleportPos = new Vector3d(seatX, seatY, seatZ);
                 Rotation3f teleportRot = new Rotation3f(0f, bedYawRad, 0f);
                 
