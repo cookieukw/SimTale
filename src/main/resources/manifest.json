@@ -1,7 +1,7 @@
 {
   "Group": "Cookieukw",
   "Name": "SimTale",
-  "Version": "0.0.2",
+  "Version": "1.0.0",
   "Description": "SimTale is a plugin for HyTale!",
   "Authors": [
     {
@@ -10,9 +10,9 @@
   ],
 
   "Dependencies": {
-    "Cookieukw:Caskara": ">=1.0.2"
+    "Cookieukw:Caskara": ">=3.0.0"
   },
-  "ServerVersion": "2026.03.26-89796e57b",
+  "ServerVersion": ">=0.5.7",
   "OptionalDependencies": {},
   "DisabledByDefault": false,
   "Main": "com.cookieukw.SimTale.SimTale",
