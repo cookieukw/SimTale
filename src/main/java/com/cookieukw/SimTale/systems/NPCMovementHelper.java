@@ -67,6 +67,34 @@ public class NPCMovementHelper {
         }
     }
 
+    /**
+     * Prende o leash numa posicao explicita, sem tocar no estado do role.
+     *
+     * <p>Existe por causa de uma diferenca sutil em relacao ao {@link #clearMoveTarget}: aquele
+     * fixa o leash onde o NPC <em>esta</em> e forca o estado {@code Idle}. Isso serve para quem
+     * acabou de chegar a um destino a pe, mas nao para quem vai ser teleportado logo em seguida
+     * — e nem para quem precisa ficar num estado proprio, como {@code Sleep}.
+     *
+     * <p>O caso concreto e a cama. O NPC caminha ate o bloco <em>ao lado</em> da cama, o
+     * clearMoveTarget prende o leash ali, e so entao ele e teleportado para cima do colchao.
+     * O leash continuava apontando para o bloco vizinho, entao a propria IA do role puxava o NPC
+     * de volta: ele escorregava da cama para o chao a noite inteira.
+     */
+    public static void pinLeashAt(Ref<EntityStore> npcRef, RoutineAIComponent ai, Vector3d pos) {
+        if (npcRef == null || pos == null) return;
+
+        if (ai != null) {
+            // Mantido em sincronia com o leash real, senao o proximo moveTo compara com um valor
+            // antigo e pode concluir que nao precisa atualizar nada.
+            ai.lastLeashPos = new Vector3d(pos);
+        }
+
+        NPCEntity npcEntity = npcRef.getStore().getComponent(npcRef, Objects.requireNonNull(NPCEntity.getComponentType()));
+        if (npcEntity != null) {
+            npcEntity.setLeashPoint(new Vector3d(pos));
+        }
+    }
+
     public static void clearMoveTarget(Ref<EntityStore> npcRef, RoutineAIComponent ai) {
         ai.lastLeashPos = null;
         ai.lastLeashTick = 0;

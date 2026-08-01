@@ -431,7 +431,20 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 Rotation3f teleportRot = new Rotation3f(0f, bedYawRad, 0f);
                 
                 commandBuffer.addComponent(ref, Teleport.getComponentType(), new Teleport(teleportPos, teleportRot));
-                
+
+                // O leash TEM que acompanhar o teleporte.
+                //
+                // No MOVING_TO_BED o clearMoveTarget prendeu o leash onde o NPC estava: o bloco
+                // ao LADO da cama. Agora ele acabou de ser teleportado para cima do colchao, a
+                // um bloco de distancia dali. O leash e o que a IA do proprio role persegue,
+                // entao ela passava a noite puxando o NPC de volta para o lado — era isso que
+                // fazia ele deslizar da cama para o chao, com a animacao de dormir rodando.
+                //
+                // Note que nao da para usar clearMoveTarget aqui: alem de prender no lugar
+                // errado (a posicao pre-teleporte), ele forcaria o estado Idle logo antes de a
+                // gente pedir o estado Sleep.
+                NPCMovementHelper.pinLeashAt(ref, ai, teleportPos);
+
                 setSleepingState(ref, store, commandBuffer, true);
                 
                 NPCEntity npcEntityComponent = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
