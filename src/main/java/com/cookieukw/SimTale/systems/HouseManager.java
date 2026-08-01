@@ -8,8 +8,7 @@ import com.cookieukw.SimTale.db.SimBedData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.cookieukw.SimTale.core.SimLog;
 
 import com.hypixel.hytale.server.core.Message;
 import java.util.*;
@@ -17,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class HouseManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HouseManager.class);
+    private static final SimLog LOGGER = SimLog.forClass(HouseManager.class);
     private static final int MAX_INTERIOR_BLOCKS = 512;
     public static final int MIN_INTERIOR_BLOCKS = 50;
 
@@ -58,6 +57,7 @@ public class HouseManager {
                     indexHouse(house);
                 }
                 LOGGER.info("[SimTale] Carregadas {} casas com sucesso da persistência Caskara", HOUSES_BY_ID.size());
+                dedupeHousesByBed();
             }
         } catch (Exception e) {
             LOGGER.error("[SimTale] Falha ao carregar as casas da persistência Caskara: ", e);
@@ -415,12 +415,38 @@ public class HouseManager {
         if (report.outcome == ScanOutcome.NEW_HOUSE_SINGLE_OWNER || 
             report.outcome == ScanOutcome.NEW_HOUSE_MULTI_OWNER) {
             
+            // Reaproveita o id de quem ja ocupa este comodo, em vez de sortear um novo.
+            //
+            // Aqui estava a origem do acumulo de registros: era sempre UUID.randomUUID(), e o
+            // saveHouse grava em "house_<uuid>". Como o id mudava a cada reivindicacao, o MESMO
+            // comodo virava um registro novo toda vez que uma NPC pegava uma cama nele. Um mundo
+            // com UMA casa fisica chegou a 109 registros no Caskara.
+            //
+            // O estrago nao era so lixo no banco: no loadAllHouses todos sao indexados, e o
+            // BLOCK_TO_HOUSE_ID acabava apontando para um registro antigo cuja bedPos era outra
+            // cama. Dai o scanAndClassify devolvia CONFLICT_WITH_EXISTING para o comodo inteiro e
+            // nenhuma NPC conseguia mais reivindicar cama nenhuma ali.
+            UUID reusedId = findHouseIdForRoom(houseBed, report.raw.interiorBlocks);
+            Set<UUID> owners = new HashSet<>(report.freshBedOwners);
+
+            if (reusedId != null) {
+                HouseData previous = HOUSES_BY_ID.get(reusedId);
+                if (previous != null && previous.owners != null) {
+                    // Nao expulsa quem ja morava ali ao atualizar o registro.
+                    for (String ownerStr : previous.owners) {
+                        try {
+                            owners.add(UUID.fromString(ownerStr));
+                        } catch (Exception ignored) {}
+                    }
+                }
+            }
+
             HouseData house = new HouseData(
-                UUID.randomUUID(), 
-                report.freshBedOwners, 
-                houseBed, 
-                report.raw.interiorBlocks, 
-                report.raw.doorBlocks, 
+                reusedId != null ? reusedId : UUID.randomUUID(),
+                owners,
+                houseBed,
+                report.raw.interiorBlocks,
+                report.raw.doorBlocks,
                 report.raw.chestBlocks
             );
             registerHouse(house);
@@ -433,10 +459,138 @@ public class HouseManager {
             SimNPCPersistence.saveNPC(npc);
             LOGGER.info("[SimTale] NPC '{}' registrou e validou com sucesso sua casa na cama ({},{},{})!", npc.name, bestBed.x, bestBed.y, bestBed.z);
             return true;
+        } else if (report.outcome == ScanOutcome.CONFLICT_WITH_EXISTING
+                || report.outcome == ScanOutcome.MERGED_INTO_EXISTING) {
+
+            // O comodo ja pertence a uma casa registrada. Isso nao e motivo para recusar: a NPC
+            // simplesmente se muda para la.
+            //
+            // Antes, qualquer um desses dois desfechos devolvia false, e o efeito era um
+            // travamento total. O log de uma sessao mostrou o ciclo se repetindo 30x por segundo:
+            //
+            //   is tired (energy=0.0), interrupting task to find bed immediately
+            //   found unclaimed bed at (44,80,30)
+            //   Cama (44,80,30) rejeitada: a casa candidata e invalida (CONFLICT_WITH_EXISTING)
+            //
+            // 3447 rejeicoes em poucos segundos, sempre da mesma cama. A NPC ficava exausta e
+            // parada, sem nunca andar ate a cama, porque FINDING_BED caia em IDLE e a interrupcao
+            // de cansaco reiniciava tudo no tick seguinte.
+            //
+            // A causa de fundo e que o mundo acumulou 109 casas registradas ao longo dos testes,
+            // entao praticamente todo comodo ja pertence a alguma. Recusar todas equivale a
+            // proibir qualquer NPC de dormir.
+            HouseData existing = report.conflictingHouseId != null
+                    ? HOUSES_BY_ID.get(report.conflictingHouseId)
+                    : null;
+
+            if (existing == null) {
+                // O id apontava para uma casa que nao existe mais: registro orfao. Nao ha dono a
+                // respeitar, entao o caminho normal de criacao pode seguir na proxima tentativa.
+                LOGGER.warn("[SimTale] Cama ({},{},{}): conflito com casa inexistente {}. Registro orfao ignorado.",
+                        bestBed.x, bestBed.y, bestBed.z, report.conflictingHouseId);
+                return false;
+            }
+
+            if (isBedTakenByAnotherNpc(bestBed, npc)) {
+                LOGGER.warn("[SimTale] Cama ({},{},{}) ja tem dono; NPC '{}' vai procurar outra.",
+                        bestBed.x, bestBed.y, bestBed.z, npc.name);
+                return false;
+            }
+
+            existing.owners.add(npc.entityId.toString());
+            registerHouse(existing);
+
+            npc.bedLocation = bestBed;
+            npc.family.homeX = bestBed.x;
+            npc.family.homeY = bestBed.y;
+            npc.family.homeZ = bestBed.z;
+            npc.family.hasSharedHome = true;
+            SimNPCPersistence.saveNPC(npc);
+
+            LOGGER.info("[SimTale] NPC '{}' mudou-se para a casa existente {} usando a cama ({},{},{}).",
+                    npc.name, existing.houseId, bestBed.x, bestBed.y, bestBed.z);
+            return true;
+
         } else {
-            LOGGER.warn("[SimTale] Cama ({},{},{}) para o NPC '{}' foi rejeitada: a casa candidata e invalida ({})", 
+            LOGGER.warn("[SimTale] Cama ({},{},{}) para o NPC '{}' foi rejeitada: a casa candidata e invalida ({})",
                         bestBed.x, bestBed.y, bestBed.z, npc.name, report.outcome);
             return false;
         }
+    }
+
+    /**
+     * Procura o id da casa que ja cobre este comodo, se houver.
+     * <p>
+     * A cama e consultada primeiro porque e o ponto de partida do scan; depois qualquer bloco do
+     * interior serve, ja que basta um deles pertencer a uma casa para o comodo ser o mesmo.
+     */
+    private static UUID findHouseIdForRoom(HouseBlockPos bedPos, Set<HouseBlockPos> interior) {
+        UUID byBed = BLOCK_TO_HOUSE_ID.get(bedPos);
+        if (byBed != null && HOUSES_BY_ID.containsKey(byBed)) return byBed;
+
+        if (interior != null) {
+            for (HouseBlockPos pos : interior) {
+                UUID id = BLOCK_TO_HOUSE_ID.get(pos);
+                if (id != null && HOUSES_BY_ID.containsKey(id)) return id;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Remove registros duplicados da mesma cama, mantendo um.
+     * <p>
+     * Limpa o passivo deixado pelo bug do id aleatorio (ver {@link #validateAndClaimBed}). So
+     * agrupa por {@code bedPos} identico: dois registros para a MESMA cama sao necessariamente o
+     * mesmo lugar, entao nao ha julgamento a fazer. Casas com camas diferentes ficam intactas.
+     */
+    private static void dedupeHousesByBed() {
+        Map<HouseBlockPos, UUID> keptByBed = new HashMap<>();
+        List<UUID> duplicates = new ArrayList<>();
+
+        for (Map.Entry<UUID, HouseData> entry : HOUSES_BY_ID.entrySet()) {
+            HouseData house = entry.getValue();
+            if (house == null || house.bedPos == null) continue;
+
+            UUID kept = keptByBed.putIfAbsent(house.bedPos, entry.getKey());
+            if (kept != null) {
+                duplicates.add(entry.getKey());
+            }
+        }
+
+        if (duplicates.isEmpty()) return;
+
+        for (UUID dup : duplicates) {
+            deleteHouse(dup);
+        }
+        LOGGER.warn("[SimTale] {} registros de casa duplicados removidos ({} restantes). "
+                        + "Eram sobras do id aleatorio gerado a cada reivindicacao de cama.",
+                duplicates.size(), HOUSES_BY_ID.size());
+
+        // Reindexa: os registros apagados podem ter sobrescrito entradas do que ficou.
+        BLOCK_TO_HOUSE_ID.clear();
+        OWNER_TO_HOUSE_ID.clear();
+        for (HouseData house : HOUSES_BY_ID.values()) {
+            indexHouse(house);
+        }
+    }
+
+    /**
+     * Diz se a cama ja e usada por outra NPC.
+     * <p>
+     * Se muda para uma casa existente quem tem onde deitar. Uma casa pode ter varios moradores,
+     * entao o que importa e a cama estar livre, nao o comodo.
+     */
+    private static boolean isBedTakenByAnotherNpc(SimBedData.BedPos bed, SimNPCComponent self) {
+        for (SimNPCComponent other : com.cookieukw.SimTale.SimTale.ACTIVE_NPCS) {
+            if (other == self) continue;
+            if (other.entityId != null && self.entityId != null && other.entityId.equals(self.entityId)) continue;
+
+            SimBedData.BedPos b = other.bedLocation;
+            if (b != null && b.x == bed.x && b.y == bed.y && b.z == bed.z) {
+                return true;
+            }
+        }
+        return false;
     }
 }

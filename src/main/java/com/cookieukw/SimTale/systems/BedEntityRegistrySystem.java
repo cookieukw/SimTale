@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.SimLog;
+
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.ComponentType;
@@ -19,8 +21,7 @@ import java.util.Map;
 
 public class BedEntityRegistrySystem extends RefChangeSystem<EntityStore, PersistentModel> {
 
-    private static final org.slf4j.Logger LOGGER =
-            org.slf4j.LoggerFactory.getLogger(BedEntityRegistrySystem.class);
+    private static final SimLog LOGGER = SimLog.forClass(BedEntityRegistrySystem.class);
     private final Map<Ref<EntityStore>, BedPos> trackedBeds = new HashMap<>();
 
     @Override

@@ -16,14 +16,13 @@ import com.hypixel.hytale.server.npc.entities.NPCEntity;
 
 import org.joml.Vector3d;
 import org.joml.Vector3i;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.cookieukw.SimTale.core.SimLog;
 
 import com.hypixel.hytale.server.npc.role.support.StateSupport;
 import java.util.Objects;
 
 public class NPCMovementHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NPCMovementHelper.class);
+    private static final SimLog LOGGER = SimLog.forClass(NPCMovementHelper.class);
     private static final double LEASH_UPDATE_THRESHOLD_SQ = 0.5 * 0.5;
     /**
      * State the NPC roles enter to walk to their leash point.
@@ -120,6 +119,17 @@ public class NPCMovementHelper {
         AnimationUtils.playAnimation(ref, slot, anim, name, store);
     }
 
+    /**
+     * Versao sem {@link CommandBuffer}, para uso fora de um sistema de tick (comandos).
+     * <p>
+     * {@code store.getComponent} devolve a instancia viva, entao mexer nos campos ja altera o
+     * componente. O {@code replaceComponent} da versao completa existe para sinalizar a
+     * atualizacao, nao para a escrita em si — e comando nao tem CommandBuffer para chamar.
+     */
+    public static void setSleepingState(Ref<EntityStore> ref, Store<EntityStore> store, boolean sleeping) {
+        setSleepingState(ref, store, null, sleeping);
+    }
+
     public static void setSleepingState(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, boolean sleeping) {
         MovementStatesComponent msc = store.getComponent(ref, MovementStatesComponent.getComponentType());
         if (msc == null) return;
@@ -133,9 +143,22 @@ public class NPCMovementHelper {
         ms.falling = false;
         ms.mantling = false;
         ms.sliding = false;
+        // sitting e uma flag SEPARADA de sleeping, e ficava intocada aqui. Se qualquer coisa a
+        // tiver ligado antes, ela permanecia ligada durante o sono — e o corpo era desenhado
+        // sentado em vez de deitado. Vale zerar em ambos os sentidos: ao dormir e ao acordar,
+        // nunca queremos a NPC sentada.
+        //
+        // Nao e so pose: ModelSystems$UpdateMovementStateBoundingBox deriva a caixa de colisao
+        // dessas flags, entao sitting/sleeping errados dao a hitbox errada — que e justamente a
+        // origem do empurrao lateral na cama.
+        ms.sitting = false;
         ms.mounting = sleeping;
         ms.sleeping = sleeping;
-        commandBuffer.replaceComponent(ref, MovementStatesComponent.getComponentType(), msc);
+        // Nulo quando chamado de um comando (ver a sobrecarga acima). Os campos ja foram
+        // alterados na instancia viva; o replaceComponent apenas sinaliza a mudanca.
+        if (commandBuffer != null) {
+            commandBuffer.replaceComponent(ref, MovementStatesComponent.getComponentType(), msc);
+        }
     }
 
     public static Vector3i getBedApproachPosition(Vector3i bedPos, TransformComponent transform, World world) {

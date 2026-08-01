@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.SimLog;
+
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.system.WorldEventSystem;
@@ -12,7 +14,7 @@ import org.joml.Vector3i;
 import javax.annotation.Nonnull;
 
 public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, PlaceBlockEvent> {
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(BedPlaceBlockEventSystem.class);
+    private static final SimLog LOGGER = SimLog.forClass(BedPlaceBlockEventSystem.class);
 
     public BedPlaceBlockEventSystem() {
         super(PlaceBlockEvent.class);

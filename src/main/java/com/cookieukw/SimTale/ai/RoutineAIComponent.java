@@ -64,6 +64,19 @@ public class RoutineAIComponent implements Component<EntityStore> {
     
     // Debug
     public boolean forcedByDebug = false;
+
+    /**
+     * Tick a partir do qual vale a pena procurar cama de novo.
+     * <p>
+     * Existe porque a interrupcao de cansaco zerava {@code taskStartTime} para "bypass cooldown".
+     * Quando a cama encontrada nao podia ser reivindicada, a tarefa voltava para IDLE e no tick
+     * seguinte a interrupcao disparava de novo — 30 buscas por segundo, sempre da mesma cama.
+     * Uma sessao registrou 3447 rejeicoes seguidas em poucos segundos, com a NPC parada.
+     * <p>
+     * Este campo e independente de {@code taskStartTime} justamente para sobreviver as trocas de
+     * tarefa: e ele que a interrupcao consulta.
+     */
+    public long nextBedSearchTick = 0;
     
     public RoutineAIComponent() {
     }

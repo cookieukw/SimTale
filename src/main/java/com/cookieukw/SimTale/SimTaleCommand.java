@@ -54,6 +54,7 @@ import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
+import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.server.npc.role.support.StateSupport;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.server.core.modules.entity.component.ActiveAnimationComponent;
@@ -258,6 +259,20 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                         npc.entityRef.getStore().tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
                         touched = true;
                     }
+
+                    // Solta tambem quem ficou preso na cama.
+                    //
+                    // Sem isto o unstick zerava a task para IDLE mas deixava a NPC montada e com
+                    // MovementStates.sleeping ligado. Na tentativa seguinte de dormir o
+                    // mountOnBlock respondia ALREADY_MOUNTED e a NPC nunca voltava para a cama —
+                    // o que tambem tornava impossivel reproduzir o ciclo de sono para testar.
+                    if (npc.entityRef.getStore().getComponent(
+                            npc.entityRef, MountedComponent.getComponentType()) != null) {
+                        npc.entityRef.getStore().tryRemoveComponent(
+                                npc.entityRef, MountedComponent.getComponentType());
+                        touched = true;
+                    }
+                    NPCMovementHelper.setSleepingState(npc.entityRef, npc.entityRef.getStore(), false);
                     RoutineAIComponent ai = npc.entityRef.getStore().getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
                     if (ai != null) {
                         // Drops the stale leash so the next moveTo re-issues the "Moving" state

@@ -29,12 +29,11 @@ import java.util.List;
 import java.util.Map;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.cookieukw.SimTale.core.SimLog;
 
 public class NPCWorkHelper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NPCWorkHelper.class);
+    private static final SimLog LOGGER = SimLog.forClass(NPCWorkHelper.class);
 
     private static final int GATHER_WORK_DURATION_TICKS = 40; // 2 seconds
     private static final double WORK_REACH_DISTANCE_SQ = 2.5 * 2.5;

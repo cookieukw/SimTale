@@ -14,8 +14,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.cookieukw.SimTale.core.SimLog;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,7 +55,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class NPCDoorHelper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NPCDoorHelper.class);
+    private static final SimLog LOGGER = SimLog.forClass(NPCDoorHelper.class);
 
     private NPCDoorHelper() {
         // Utility class.

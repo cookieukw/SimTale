@@ -17,11 +17,10 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import org.joml.Vector3d;
 import org.joml.Vector3i;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.cookieukw.SimTale.core.SimLog;
 
 public class NPCHungerHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NPCHungerHelper.class);
+    private static final SimLog LOGGER = SimLog.forClass(NPCHungerHelper.class);
 
     /** Shared with RoutineAISystem so the "search immediately" bypass actually bypasses the cooldown. */
     public static final int FOOD_SEARCH_COOLDOWN_TICKS = 100;

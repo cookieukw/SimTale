@@ -1,8 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.cookieukw.SimTale.core.SimLog;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,7 +11,7 @@ import java.util.Set;
 public final class BedRegistry {
     private BedRegistry() {}
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BedRegistry.class);
+    private static final SimLog LOGGER = SimLog.forClass(BedRegistry.class);
 
     /** A double bed occupies adjacent blocks; only the first part is registered. */
     private static final int DEDUPE_RADIUS_XZ = 2;

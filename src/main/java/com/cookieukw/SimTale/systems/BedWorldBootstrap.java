@@ -1,12 +1,14 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.SimLog;
+
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
 import org.joml.Vector3d;
 
 
 public final class BedWorldBootstrap {
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(BedWorldBootstrap.class);
+    private static final SimLog LOGGER = SimLog.forClass(BedWorldBootstrap.class);
     private BedWorldBootstrap() {
     }
 

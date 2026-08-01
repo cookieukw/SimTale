@@ -18,8 +18,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.joml.Vector3d;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.cookieukw.SimTale.core.SimLog;
 
 import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
 /**
@@ -27,7 +26,7 @@ import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
  * Loads their SimTale data (gender) and opens the selection screen if they haven't selected one.
  */
 public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PlayerJoinHandler.class);
+    private static final SimLog LOGGER = SimLog.forClass(PlayerJoinHandler.class);
 
     @Override
     public void accept(PlayerReadyEvent event) {

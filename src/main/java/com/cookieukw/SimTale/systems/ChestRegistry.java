@@ -1,12 +1,14 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.SimLog;
+
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public final class ChestRegistry {
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ChestRegistry.class);
+    private static final SimLog LOGGER = SimLog.forClass(ChestRegistry.class);
     private ChestRegistry() {}
 
     public static final Set<HouseBlockPos> CHESTS = Collections.synchronizedSet(new HashSet<>());

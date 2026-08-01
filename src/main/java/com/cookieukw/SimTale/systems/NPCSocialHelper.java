@@ -16,8 +16,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import org.joml.Vector3d;
 import org.joml.Vector3i;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.cookieukw.SimTale.core.SimLog;
 
 /**
  * Handles the two "autonomy" branches of the routine AI: walking over to another NPC for a
@@ -28,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NPCSocialHelper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NPCSocialHelper.class);
+    private static final SimLog LOGGER = SimLog.forClass(NPCSocialHelper.class);
 
     private static final String ANIM_WALK = "Characters/Animations/Actions/Walk.blockyanim";
     private static final String ANIM_IDLE = "Characters/Animations/Actions/Idle.blockyanim";
