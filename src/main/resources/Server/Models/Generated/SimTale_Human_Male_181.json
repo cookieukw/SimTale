@@ -32,8 +32,7 @@
       "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
       "Texture": "Cosmetics/Undertops/Tshirt_Textures/Wideneck_Tshirt_Greyscale.png",
       "GradientSet": "Colored_Cotton",
-      "GradientId": "Purple",
-      "$SimTale": "fix_npc_appearance"
+      "GradientId": "Purple"
     },
     {
       "Model": "Cosmetics/Overtops/Overtops_Arm_Band.blockymodel",

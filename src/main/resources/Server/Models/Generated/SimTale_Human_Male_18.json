@@ -30,8 +30,7 @@
       "Model": "Cosmetics/Undertops/BasicUndertop.blockymodel",
       "Texture": "Cosmetics/Undertops/BasicTop_Textures/FrostyF_Top_Texture.png",
       "GradientSet": "Colored_Cotton",
-      "GradientId": "Red",
-      "$SimTale": "fix_npc_appearance"
+      "GradientId": "Red"
     },
     {
       "Model": "Cosmetics/Overtops/Overtops_Necklace.blockymodel",
