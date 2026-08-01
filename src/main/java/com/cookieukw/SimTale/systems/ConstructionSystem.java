@@ -10,13 +10,17 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
+import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.PlaceBlockSettings;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.accessor.BlockAccessor;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import org.joml.Vector3d;
 import javax.annotation.Nonnull;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.WorldUtil;
@@ -125,10 +129,22 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
                     type = "Empty"; // Fallback to empty if null
                 }
 
-                if (blockInfo.getRotation() != null) {
-                    world.setBlock(worldX, worldY, worldZ, type, blockInfo.getRotation());
+                if (type.equalsIgnoreCase("Empty")) {
+                    world.setBlock(worldX, worldY, worldZ, "Empty");
                 } else {
-                    world.setBlock(worldX, worldY, worldZ, type);
+                    int rotVal = blockInfo.getRotation() != null ? blockInfo.getRotation() : 0;
+                    RotationTuple rotationTuple = RotationTuple.get(rotVal);
+                    
+                    int placeFlags = PlaceBlockSettings.PERFORM_BLOCK_UPDATE 
+                                   | PlaceBlockSettings.UPDATE_CONNECTIONS;
+                    
+                    long chunkKey = ChunkUtil.indexChunkFromBlock(worldX, worldZ);
+                    BlockAccessor blockAccessor = world.getChunk(chunkKey);
+                    if (blockAccessor != null) {
+                        blockAccessor.placeBlock(worldX, worldY, worldZ, type, rotationTuple, placeFlags, true);
+                    } else {
+                        world.setBlock(worldX, worldY, worldZ, type, rotVal);
+                    }
                 }
                 site.currentIndex++;
             }
