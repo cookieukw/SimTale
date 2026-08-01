@@ -991,6 +991,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
             Vector3d pos = tc.getPosition();
             
+            // Scan and register loaded beds in a 12-block radius to ensure BedRegistry.BEDS is populated instantly
+            BedWorldBootstrap.bootstrapLoadedRadius(world, pos, 12);
+            
             com.cookieukw.SimTale.db.SimBedData.BedPos nearestBed = null;
             double minDist = Double.MAX_VALUE;
             synchronized (BedRegistry.BEDS) {
