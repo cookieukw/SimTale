@@ -71,7 +71,8 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             if (npc == null) {
                 UUIDComponent uuidComp = targetRef.getStore().getComponent(targetRef, UUIDComponent.getComponentType());
                 if (uuidComp != null) {
-                    SimNPCData data = Caskara.load(uuidComp.getUuid().toString(), SimNPCData.class);
+                    // "simtale" shell, not Caskara's "default" — see SimNPCPersistence.DB_SHELL.
+                    SimNPCData data = SimNPCPersistence.loadData(uuidComp.getUuid());
                     String name = null;
                     if (data != null) {
                         name = data.name;

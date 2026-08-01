@@ -1,7 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.SimNPCFactory.NPCType;
@@ -44,7 +44,9 @@ public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
         // If there are already saved NPCs in Caskara, don't spawn anymore automatically!
         if (!SimTale.debugForceSpawning) {
             try {
-                List<SimNPCData> saved = Caskara.list(SimNPCData.class);
+                // Caskara.list() reads the "default" shell and always came back empty, so this
+                // guard never fired and the auto-spawner kept adding NPCs to a populated world.
+                List<SimNPCData> saved = SimNPCPersistence.listAll();
                 if (saved != null && !saved.isEmpty()) {
                     return; // Skip spawning
                 }

@@ -411,10 +411,19 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     count++;
                 }
                 PlumbobSystem.removePlumbob(npc.entityId);
-                Caskara.delete(npc.entityId.toString(), SimNPCData.class);
+                SimNPCPersistence.deleteNPC(npc.entityId);
             }
             SimTale.clearActiveNpcs();
-            ctx.sendMessage(Message.raw("Removidos permanentemente " + count + " NPCs do Hytale e banco de dados."));
+
+            // Sweep the database as well. Removing the entities is not enough: records for NPCs
+            // that are not currently tracked (unloaded chunks, entities already gone, leftovers
+            // from earlier sessions) would otherwise survive and be resurrected. This used to be
+            // guaranteed to leak, because Caskara.delete() targeted the "default" shell while
+            // the records live in "simtale".
+            int purged = SimNPCPersistence.deleteAll();
+
+            ctx.sendMessage(Message.raw("Removidos " + count + " NPCs do mundo e "
+                    + purged + " registros do banco."));
         }
     }
 
@@ -912,7 +921,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             
             CompletableFuture.runAsync(() -> {
                 try {
-                    List<SimNPCData> allData = Caskara.list(SimNPCData.class);
+                    // "simtale" shell, not Caskara's "default" — this always returned empty.
+                    List<SimNPCData> allData = SimNPCPersistence.listAll();
                     if (allData == null || allData.isEmpty()) {
                         playerRef.sendMessage(Message.translation("general.cmd.search.empty"));
                         return;

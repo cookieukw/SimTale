@@ -648,11 +648,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     });
                     if (dyingNpc != null && dyingNpc.entityId != null) {
                         PlumbobSystem.removePlumbob(dyingNpc.entityId);
-                        try {
-                            Caskara.delete(dyingNpc.entityId.toString(), SimNPCData.class);
-                        } catch (Exception e) {
-                            LOGGER.error("Error deleting deceased NPC from Caskara", e);
-                        }
+                        // Caskara.delete() targets the "default" shell, so this never removed
+                        // anything: every NPC that ever died stayed in the database forever.
+                        SimNPCPersistence.deleteNPC(dyingNpc.entityId);
                     }
                     commandBuffer.removeEntity(dyingRef, RemoveReason.REMOVE);
                     ai.currentTask = TaskType.IDLE;

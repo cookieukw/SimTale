@@ -241,7 +241,8 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         if (npc == null) {
             UUIDComponent uuidComp = store.getComponent(targetRef, UUIDComponent.getComponentType());
             if (uuidComp != null) {
-                SimNPCData data = Caskara.load(uuidComp.getUuid().toString(), SimNPCData.class);
+                // "simtale" shell, not Caskara's "default" — see SimNPCPersistence.DB_SHELL.
+                SimNPCData data = SimNPCPersistence.loadData(uuidComp.getUuid());
                 String name = null;
                 if (data != null) {
                     LOGGER.atInfo().log("SimTale: NPC " + data.name + " remontado apos carregamento do mundo!");

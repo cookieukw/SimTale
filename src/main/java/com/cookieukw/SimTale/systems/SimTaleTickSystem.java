@@ -69,7 +69,9 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             UUIDComponent uuidComp = chunk.getComponent(index, UUIDComponent.getComponentType());
             if (uuidComp != null) {
                 UUID uuid = uuidComp.getUuid();
-                SimNPCData data = Caskara.load(uuid.toString(), SimNPCData.class);
+                // Caskara.load() resolves to the "default" shell; NPC data lives in "simtale".
+                // This used to always return null, so this whole re-attach path never ran.
+                SimNPCData data = SimNPCPersistence.loadData(uuid);
                 if (data != null) {
                     HytaleLogger.forEnclosingClass().atInfo().log("SimTale: NPC " + data.name + " remontado ao entrar no mundo/carregar chunk!");
                     npc = new SimNPCComponent(uuid, data.name);
