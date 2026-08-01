@@ -5,6 +5,7 @@ import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.SimNPCFactory.NPCType;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -92,17 +93,38 @@ public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
 
         NPCType type = Math.random() > 0.5 ? NPCType.HUMAN_MALE : NPCType.HUMAN_FEMALE;
         
-        try {
-            SimNPCFactory.spawnNPC(store, spawnPos, type);
-            lastSpawnTick = currentTick;
-        } catch (Exception e) {
-            // Previously an empty catch with an "ignore spawn failures" comment. That made a
-            // broken spawner indistinguishable from a disabled one — the "Spawn result is null"
-            // failure produced no log line at all. Worse, lastSpawnTick was only advanced on
-            // success, so a persistent failure retried on *every* tick, silently.
-            lastSpawnTick = currentTick;
-            LOGGER.atWarning().log("SimTale: falha ao spawnar NPC automatico em "
-                    + String.format("(%.1f, %.1f, %.1f)", spawnPos.x, spawnPos.y, spawnPos.z) + ": " + e);
+        // Avancado ANTES de agendar, nao depois de spawnar. O spawn agora e assincrono, entao
+        // usar o resultado dele para marcar o tempo permitiria enfileirar um spawn por tick ate
+        // o primeiro terminar.
+        lastSpawnTick = currentTick;
+
+        // O spawn PRECISA sair do tick.
+        //
+        // Isto aqui roda dentro de EntityTickingSystem.tick(), e SimNPCFactory.spawnNPC faz
+        // escritas estruturais na Store (NPCPlugin.spawnNPC, addComponent, putComponent). A Store
+        // recusa qualquer uma delas enquanto esta processando:
+        //
+        //   IllegalStateException: Store is currently processing!
+        //   Ensure you aren't calling a store method from a system.
+        //
+        // Ou seja, o spawn automatico NUNCA funcionou — toda tentativa caia no catch abaixo e
+        // virava uma linha de aviso no log. So o /simtale forcespawn funcionava, porque comando
+        // nao roda dentro do tick de um sistema. Era essa a razao de o mundo nao povoar sozinho.
+        //
+        // world.execute() enfileira para a thread do mundo, que drena fora da janela de
+        // processamento dos sistemas.
+        final Vector3d pos = spawnPos;
+        boolean queued = WorldUtil.execute(() -> {
+            try {
+                SimNPCFactory.spawnNPC(store, pos, type);
+            } catch (Exception e) {
+                LOGGER.atWarning().log("SimTale: falha ao spawnar NPC automatico em "
+                        + String.format("(%.1f, %.1f, %.1f)", pos.x, pos.y, pos.z) + ": " + e);
+            }
+        });
+
+        if (!queued) {
+            LOGGER.atWarning().log("SimTale: nenhum mundo carregado, spawn automatico ignorado.");
         }
     }
 }

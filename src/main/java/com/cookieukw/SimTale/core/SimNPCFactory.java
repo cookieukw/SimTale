@@ -16,6 +16,7 @@ import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.Message;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.SimTale;
+import com.hypixel.hytale.logger.HytaleLogger;
 import it.unimi.dsi.fastutil.Pair;
 import java.util.UUID;
 import java.util.HashMap;
@@ -133,6 +134,29 @@ public class SimNPCFactory {
         
         // 5. Track for chat system
         SimTale.trackNpc(simComponent);
+
+        // 6. Grava no banco IMEDIATAMENTE.
+        //
+        // Antes, um NPC recem-criado so existia em memoria. Ele so ganhava registro no banco se,
+        // mais tarde, alguma rotina de IA por acaso chamasse saveNPC — dormir, comer, conversar.
+        // Ate la ele estava vivo no mundo e invisivel para a persistencia.
+        //
+        // Duas consequencias, as duas observadas em jogo:
+        //   1. Sair e voltar ao mundo fazia os NPCs recem-criados sumirem, porque nunca foram
+        //      salvos.
+        //   2. As contagens nao batiam: /simtale forcespawn quatro vezes seguido de clearall
+        //      limpava "3 registros", porque os quatro novos nao tinham registro nenhum.
+        //
+        // O Reaper fica de fora de proposito: e uma entidade temporaria de cerimonia de morte,
+        // nao um morador, e nem sequer passa por loadNPC acima.
+        if (type != NPCType.REAPER) {
+            try {
+                SimNPCPersistence.saveNPC(simComponent);
+            } catch (Exception e) {
+                HytaleLogger.forEnclosingClass().atWarning()
+                        .log("SimTale: NPC " + entityId + " criado mas nao persistido: " + e);
+            }
+        }
 
         return ref;
     }
