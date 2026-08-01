@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class HouseManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(HouseManager.class);
     private static final int MAX_INTERIOR_BLOCKS = 512;
+    public static final int MIN_INTERIOR_BLOCKS = 50;
 
     public static final Map<UUID, HouseData> HOUSES_BY_ID = new ConcurrentHashMap<>();
     public static final Map<HouseBlockPos, UUID> BLOCK_TO_HOUSE_ID = new ConcurrentHashMap<>();
@@ -183,7 +184,7 @@ public class HouseManager {
         if (raw.overflowed || raw.hitUnloaded) {
             return new ScanReport(ScanOutcome.TOO_LARGE_OR_UNENCLOSED, Set.of(), null, raw);
         }
-        if (raw.interiorBlocks.size() < 15) return new ScanReport(ScanOutcome.TOO_SMALL, Set.of(), null, raw);
+        if (raw.interiorBlocks.size() < MIN_INTERIOR_BLOCKS) return new ScanReport(ScanOutcome.TOO_SMALL, Set.of(), null, raw);
         if (raw.doorBlocks.isEmpty()) return new ScanReport(ScanOutcome.NO_ENTRANCE, Set.of(), null, raw);
 
         for (HouseBlockPos pos : raw.interiorBlocks) {
@@ -300,7 +301,8 @@ public class HouseManager {
         String id = type.getId().toLowerCase();
         if (id.equalsIgnoreCase("empty") || id.equalsIgnoreCase("air")) return false;
 
-        return !id.contains("torch") && !id.contains("flower") && !id.contains("grass") &&
+        return !id.contains("torch") && !id.contains("flower") && 
+                (!id.contains("grass") || id.contains("soil_grass") || id.contains("grass_block")) &&
                 !id.contains("carpet") && !id.contains("banner") && !id.contains("lantern") &&
                 !id.contains("chain") && !id.contains("painting") && !id.contains("mushroom") &&
                 !id.contains("water") && !id.contains("lava") && !id.contains("liquid") &&

@@ -47,7 +47,7 @@ baby.generic.prep = o bebê
 baby.custody.inventory_full = Seu inventário está cheio! Abra espaço para pegar o bebê de volta.
 
 house.check.unenclosed = A casa não está totalmente cercada por paredes ou é grande demais!
-house.check.too_small = A casa é muito pequena! O volume interno deve ser de pelo menos 15 blocos.
+house.check.too_small = A casa é muito pequena! O volume interno deve ser de pelo menos 50 blocos.
 house.check.no_entrance = A casa não possui nenhuma porta de entrada!
 house.check.conflict = Esta casa conflita com uma residência já registrada!
 house.check.unknown_error = Erro estrutural desconhecido ao validar a casa.
