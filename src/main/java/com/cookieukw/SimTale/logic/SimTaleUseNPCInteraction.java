@@ -1,6 +1,5 @@
 package com.cookieukw.SimTale.logic;
 
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCData;

@@ -32,7 +32,6 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ArrayList;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.Gender;

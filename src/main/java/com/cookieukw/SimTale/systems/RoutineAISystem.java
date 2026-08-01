@@ -4,7 +4,6 @@ import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleUtils;
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;

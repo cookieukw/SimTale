@@ -1,6 +1,5 @@
 package com.cookieukw.SimTale.systems;
 
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
