@@ -19,7 +19,9 @@
     },
     {
       "Model": "Characters/Body_Attachments/Eyes/Eyes.blockymodel",
-      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png",
+      "GradientSet": "Eyes_Gradient",
+      "GradientId": "Green"
     },
     {
       "Model": "NPC/Player_Child/Cosmetics/Pants/Pants_Complex_Child.blockymodel",
@@ -40,8 +42,8 @@
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
       "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Makeup_Greyscale.png",
-      "GradientSet": "Skin",
-      "GradientId": "06"
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Red"
     },
     {
       "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",

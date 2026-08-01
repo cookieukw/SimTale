@@ -30,13 +30,15 @@
     },
     {
       "Model": "NPC/Dolls/Cosmetics/Eyes/Eyes_ChibiDoll.blockymodel",
-      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png",
+      "GradientSet": "Eyes_Gradient",
+      "GradientId": "BrownLight"
     },
     {
-      "Model": "NPC/Dolls/Cosmetics/Overpants/Dress_ChibiDoll.blockymodel",
-      "Texture": "Cosmetics/Overpants/Dress_Textures/Tribal_Dress_Greyscale.png",
-      "GradientSet": "Fantasy_Cotton",
-      "GradientId": "Black"
+      "Model": "Cosmetics/Pants/Shorty_Slim.blockymodel",
+      "Texture": "Cosmetics/Pants/Shorty_Slim_Textures/Jean_Fantasy_Geyscale_Texture.png",
+      "GradientSet": "Jean_Generic",
+      "GradientId": "Turquoise_Dark"
     },
     {
       "Model": "NPC/Dolls/Cosmetics/Overtops/OnePiece_ChibiDoll.blockymodel",

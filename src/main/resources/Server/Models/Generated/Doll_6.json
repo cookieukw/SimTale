@@ -30,7 +30,9 @@
     },
     {
       "Model": "NPC/Dolls/Cosmetics/Eyes/Eyes_ChibiDoll.blockymodel",
-      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png",
+      "GradientSet": "Eyes_Gradient",
+      "GradientId": "Grey"
     },
     {
       "Model": "NPC/Dolls/Cosmetics/Pants/Pants_Straight_ChibiDoll.blockymodel",
@@ -49,8 +51,8 @@
     {
       "Model": "NPC/Dolls/Cosmetics/Mouths/Mouth1_ChibiDoll.blockymodel",
       "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Makeup_Greyscale.png",
-      "GradientSet": "Skin",
-      "GradientId": "42"
+      "GradientSet": "Fantasy_Cotton_Dark",
+      "GradientId": "Red"
     },
     {
       "Model": "NPC/Dolls/Cosmetics/Ears/Ears1_ChibiDoll.blockymodel",

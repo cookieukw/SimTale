@@ -30,7 +30,9 @@
     },
     {
       "Model": "NPC/Dolls/Cosmetics/Eyes/Eyes_ChibiDoll.blockymodel",
-      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png",
+      "GradientSet": "Eyes_Gradient",
+      "GradientId": "Brown"
     },
     {
       "Model": "NPC/Dolls/Cosmetics/Pants/Pants_Straight_ChibiDoll.blockymodel",

@@ -30,13 +30,22 @@
     },
     {
       "Model": "NPC/Dolls/Cosmetics/Eyes/Eyes_ChibiDoll.blockymodel",
-      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png",
+      "GradientSet": "Eyes_Gradient",
+      "GradientId": "Honey"
     },
     {
       "Model": "NPC/Dolls/Cosmetics/Pants/Pants_Straight_ChibiDoll.blockymodel",
       "Texture": "Cosmetics/Pants/Artic_Scout_Pants.png",
       "GradientSet": "Fantasy_Cotton",
       "GradientId": "Orange"
+    },
+    {
+      "Model": "Cosmetics/Undertops/LongSleeveShirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/LongSleeveShirt_Textures/Flowy_Shirt_Greyscale.png",
+      "GradientSet": "Pastel_Cotton",
+      "GradientId": "Blue",
+      "$SimTale": "fix_npc_appearance"
     },
     {
       "Model": "NPC/Dolls/Cosmetics/Overtops/Arm_Bandage_ChibiDoll.blockymodel",
@@ -51,8 +60,8 @@
     {
       "Model": "NPC/Dolls/Cosmetics/Mouths/Mouth1_ChibiDoll.blockymodel",
       "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Makeup_Greyscale.png",
-      "GradientSet": "Skin",
-      "GradientId": "39"
+      "GradientSet": "Fantasy_Cotton",
+      "GradientId": "Red"
     },
     {
       "Model": "NPC/Dolls/Cosmetics/Ears/Ears1_ChibiDoll.blockymodel",
