@@ -1,175 +1,204 @@
+// NPC interaction panel.
+//
+// Every #id here is part of the contract with NPCInteractionPage.java: the click bindings
+// target the Button ids (#ChatButton) and the text is written into the child Label ids
+// (#ChatButtonText.TextSpans). Removing or renaming one throws KeyNotFoundException and the
+// screen fails to load, so the structure is preserved exactly — only the presentation changed.
+
+$T = "../SimTaleTheme.ui";
+
 Group {
   LayoutMode: Right;
   Background: #00000000;
-  Group #MainPanel {
-    Anchor: (Right: 80, Width: 580, Height: 952);
-    LayoutMode: Top;
-    Background: #1A1A2EDD;
-    Padding: (Top: 24, Bottom: 20, Horizontal: 24);
 
+  Group #MainPanel {
+    Anchor: (Right: 64, Width: 560, Height: 940);
+    LayoutMode: Top;
+    Background: $T.@PanelSurface;
+    Padding: (Top: 24, Bottom: 22, Horizontal: $T.@GutterOuter);
+
+    // ---------------------------------------------------------------- header
     Label #NpcName {
       Text: "NPC";
-      Anchor: (Width: 520, Height: 52, Bottom: 4);
-      Style: (FontSize: 36, TextColor: #E0E0FFFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Anchor: (Height: 44, Bottom: 2);
+      Style: $T.@TitleStyle;
     }
     Label #NpcProfession {
       Text: "Profissão: Desempregado";
-      Anchor: (Width: 520, Height: 30, Bottom: 2);
-      Style: (FontSize: 20, TextColor: #FFD700FF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Anchor: (Height: 24);
+      Style: $T.@SubtitleStyle;
     }
     Label #NpcMood {
       Text: "Humor: Feliz";
-      Anchor: (Width: 520, Height: 26, Bottom: 12);
-      Style: (FontSize: 18, TextColor: #AAAACCFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Anchor: (Height: 22, Bottom: 4);
+      Style: $T.@CaptionStyle;
     }
 
+    $T.@Separator { @Anchor = (Bottom: $T.@SectionGap); }
+
+    // ---------------------------------------------------------------- info well
     Group #InfoPanel {
-      Anchor: (Width: 520, Height: 276, Bottom: 12);
+      Anchor: (Height: 300, Bottom: $T.@SectionGap);
       LayoutMode: Top;
-      Background: #16213EFF;
-      Padding: (Top: 8, Bottom: 8, Horizontal: 12);
+      Background: $T.@InsetSurface;
+      Padding: (Top: 12, Bottom: 12, Horizontal: $T.@GutterInner);
 
       Label #InfoHeader {
         Text: "INFORMAÇÕES";
-        Anchor: (Width: 496, Height: 26, Bottom: 4);
-        Style: (FontSize: 18, TextColor: #8888AAFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+        Anchor: (Height: 22, Bottom: 8);
+        Style: $T.@SectionHeaderStyle;
       }
       Label #NpcTraits {
         Text: "Traços: —";
-        Anchor: (Width: 496, Height: 24, Bottom: 4);
-        Style: (FontSize: 16, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 26, Bottom: $T.@RowGap);
+        Style: $T.@BodyStyle;
       }
       Label #NpcLikes {
         Text: "Gosta de: —";
-        Anchor: (Width: 496, Height: 24, Bottom: 4);
-        Style: (FontSize: 16, TextColor: #88DD88FF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 26, Bottom: $T.@RowGap);
+        Style: (...$T.@BodyStyle, TextColor: $T.@AccentLike);
       }
       Label #NpcHates {
         Text: "Odeia: —";
-        Anchor: (Width: 496, Height: 24, Bottom: 4);
-        Style: (FontSize: 16, TextColor: #DD8888FF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 26, Bottom: $T.@RowGap);
+        Style: (...$T.@BodyStyle, TextColor: $T.@AccentHate);
       }
       Label #NpcHobby {
         Text: "Hobby: —";
-        Anchor: (Width: 496, Height: 24, Bottom: 4);
-        Style: (FontSize: 16, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 26, Bottom: $T.@RowGap);
+        Style: $T.@BodyStyle;
       }
       Label #NpcSeason {
         Text: "Estação Fav.: —";
-        Anchor: (Width: 496, Height: 24, Bottom: 4);
-        Style: (FontSize: 16, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 26, Bottom: $T.@RowGap);
+        Style: $T.@BodyStyle;
       }
       Label #NpcFamilyParents {
         Text: "Pais: —";
-        Anchor: (Width: 496, Height: 24, Bottom: 4);
-        Style: (FontSize: 16, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 26, Bottom: $T.@RowGap);
+        Style: $T.@BodyStyle;
       }
       Label #NpcFamilyChildren {
         Text: "Filhos: —";
-        Anchor: (Width: 496, Height: 24, Bottom: 4);
-        Style: (FontSize: 16, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 26, Bottom: 10);
+        Style: $T.@BodyStyle;
       }
-      Label #NpcRelationship {
-        Text: "Relacionamento: Desconhecido";
-        Anchor: (Width: 496, Height: 24);
-        Style: (FontSize: 16, TextColor: #AACCFFFF, RenderBold: true, HorizontalAlignment: Start, VerticalAlignment: Center);
+
+      // The relationship line is the one number players actually track, so it sits in its own
+      // well at the bottom of the panel instead of blending into the list above it.
+      Group {
+        Anchor: (Height: 34);
+        Background: $T.@WellSurface;
+        Padding: (Horizontal: 10);
+        LayoutMode: Middle;
+
+        Label #NpcRelationship {
+          Text: "Relacionamento: Desconhecido";
+          Anchor: (Height: 24);
+          Style: (...$T.@BodyStrong, TextColor: $T.@TextBlue);
+        }
       }
     }
 
+    // ---------------------------------------------------------------- actions
     Group #ButtonGrid {
-      Anchor: (Width: 520, Height: 240);
       LayoutMode: Top;
 
       Group #ButtonRow1 {
-        Anchor: (Width: 520, Height: 52, Bottom: 8);
+        Anchor: (Height: $T.@ButtonH, Bottom: $T.@ButtonGap);
         LayoutMode: CenterMiddle;
+
         Button #ChatButton {
-          Anchor: (Width: 248, Height: 52, Right: 12);
-          Background: #334466FF;
+          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
+          Style: $T.@BtnNeutral;
           Label #ChatButtonText {
             Text: "Bater Papo";
-            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-            Style: (FontSize: 20, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
           }
         }
         Button #JokeButton {
-          Anchor: (Width: 248, Height: 52);
-          Background: #334466FF;
+          Anchor: (Width: 250, Height: $T.@ButtonH);
+          Style: $T.@BtnNeutral;
           Label #JokeButtonText {
             Text: "Contar Piada";
-            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-            Style: (FontSize: 20, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
           }
         }
       }
 
       Group #ButtonRow2 {
-        Anchor: (Width: 520, Height: 52, Bottom: 8);
+        Anchor: (Height: $T.@ButtonH, Bottom: $T.@ButtonGap);
         LayoutMode: CenterMiddle;
+
         Button #FlirtButton {
-          Anchor: (Width: 248, Height: 52, Right: 12);
-          Background: #553355FF;
+          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
+          Style: $T.@BtnSecondary;
           Label #FlirtButtonText {
             Text: "Paquerar";
-            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-            Style: (FontSize: 20, TextColor: #FFCCFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+            Anchor: (Full: 0);
+            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentRomance);
           }
         }
         Button #GiftButton {
-          Anchor: (Width: 248, Height: 52);
-          Background: #335533FF;
+          Anchor: (Width: 250, Height: $T.@ButtonH);
+          Style: $T.@BtnSecondary;
           Label #GiftButtonText {
             Text: "Presentear";
-            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-            Style: (FontSize: 20, TextColor: #CCFFCCFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+            Anchor: (Full: 0);
+            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentLike);
           }
         }
       }
 
       Group #ButtonRow3 {
-        Anchor: (Width: 520, Height: 52, Bottom: 8);
+        Anchor: (Height: $T.@ButtonH, Bottom: $T.@ButtonGap);
         LayoutMode: CenterMiddle;
+
         Button #InsultButton {
-          Anchor: (Width: 248, Height: 52, Right: 12);
-          Background: #553333FF;
+          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
+          Style: $T.@BtnDestructive;
           Label #InsultButtonText {
             Text: "Insultar";
-            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-            Style: (FontSize: 20, TextColor: #FFAAAAFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
           }
         }
         Button #AssignProfessionButton {
-          Anchor: (Width: 248, Height: 52);
-          Background: #445533FF;
+          Anchor: (Width: 250, Height: $T.@ButtonH);
+          Style: $T.@BtnTertiary;
           Label #AssignProfessionButtonText {
             Text: "Dar Emprego";
-            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-            Style: (FontSize: 20, TextColor: #FFEECCFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+            Anchor: (Full: 0);
+            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentWork);
           }
         }
       }
 
+      // Both of these start hidden and are revealed from Java via #X.Visible.
       Group #ButtonRow4 {
-        Anchor: (Width: 520, Height: 52);
+        Anchor: (Height: $T.@ButtonH);
         LayoutMode: CenterMiddle;
+
         Button #PregnancyButton {
-          Anchor: (Width: 248, Height: 52, Right: 12);
-          Background: #772244FF;
+          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
+          Style: $T.@BtnSecondary;
           Visible: false;
           Label #PregnancyButtonText {
             Text: %ui.button.pregnancy;
-            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-            Style: (FontSize: 20, TextColor: #FFCCCCFF, HorizontalAlignment: Center, VerticalAlignment: Center, RenderBold: true);
+            Anchor: (Full: 0);
+            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentRomance);
           }
         }
         Button #InventoryButton {
-          Anchor: (Width: 248, Height: 52);
-          Background: #2B5B84FF;
+          Anchor: (Width: 250, Height: $T.@ButtonH);
+          Style: $T.@BtnTertiary;
           Visible: false;
           Label #InventoryButtonText {
             Text: "Inventário";
-            Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-            Style: (FontSize: 20, TextColor: #DCE6F0FF, HorizontalAlignment: Center, VerticalAlignment: Center, RenderBold: true);
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
           }
         }
       }

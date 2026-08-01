@@ -1,52 +1,65 @@
+// First-login gender pick.
+//
+// #MaleButton and #FemaleButton carry the click bindings from PlayerGenderPage; the inner
+// #MaleContent / #FemaleContent groups and their labels are kept so nothing that walks the
+// tree by id breaks.
+
+$T = "../SimTaleTheme.ui";
+
 Group {
   LayoutMode: MiddleCenter;
-  Background: #000000CC;
+  // Heavier scrim here than on the other screens: this one blocks progress until answered,
+  // so the world behind it should read as clearly out of reach.
+  Background: #05070C(0.82);
+
   Group #GenderPanel {
-    Anchor: (Width: 650, Height: 450);
+    Anchor: (Width: 620, Height: 430);
     LayoutMode: Top;
-    Background: #111422FF;
-    Padding: (Top: 40, Bottom: 40, Horizontal: 40);
+    Background: $T.@PanelSurface;
+    Padding: (Top: 34, Bottom: 34, Horizontal: 36);
 
     Label #Title {
       Text: %ui.gender.title;
-      Anchor: (Width: 570, Height: 48, Bottom: 16);
-      Style: (FontSize: 32, TextColor: #FFD700FF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Anchor: (Height: 42, Bottom: 6);
+      Style: (...$T.@TitleStyle, TextColor: $T.@TextGold);
     }
+
+    $T.@Separator { @Anchor = (Bottom: 12); }
 
     Label #Subtitle {
       Text: %ui.gender.subtitle;
-      Anchor: (Width: 520, Height: 70, Bottom: 40);
-      Style: (FontSize: 16, TextColor: #A0A5C0FF, HorizontalAlignment: Center, VerticalAlignment: Center, Wrap: true);
+      Anchor: (Height: 64, Bottom: 26);
+      Style: (...$T.@CaptionStyle, FontSize: 15, Wrap: true);
     }
 
     Group #ButtonsRow {
-      Anchor: (Width: 570, Height: 180);
+      FlexWeight: 1;
       LayoutMode: CenterMiddle;
 
       Button #MaleButton {
-        Anchor: (Width: 260, Height: 150, Right: 24);
-        Background: #1E3A8AFF;
-        
+        Anchor: (Width: 258, Height: 132, Right: 20);
+        Style: $T.@BtnNeutral;
+
         Group #MaleContent {
           LayoutMode: MiddleCenter;
           Anchor: (Full: 0);
           Label #MaleText {
             Text: %ui.gender.male;
-            Style: (FontSize: 24, TextColor: #E0F2FEFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+            Style: (...$T.@ButtonLabelStyle, FontSize: 22, TextColor: #BBD6F5);
           }
         }
       }
 
       Button #FemaleButton {
-        Anchor: (Width: 260, Height: 150);
-        Background: #881337FF;
-        
+        Anchor: (Width: 258, Height: 132);
+        Style: $T.@BtnSecondary;
+
         Group #FemaleContent {
           LayoutMode: MiddleCenter;
           Anchor: (Full: 0);
           Label #FemaleText {
             Text: %ui.gender.female;
-            Style: (FontSize: 24, TextColor: #FFE4E6FF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+            Style: (...$T.@ButtonLabelStyle, FontSize: 22, TextColor: $T.@AccentRomance);
           }
         }
       }

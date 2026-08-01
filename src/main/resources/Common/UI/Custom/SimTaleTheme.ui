@@ -1,0 +1,149 @@
+// SimTale — shared UI theme.
+//
+// Built on the game's own Common.ui so the mod's screens read as part of Hytale instead of
+// looking bolted on. Two things do most of the work:
+//
+//   * Surfaces are 9-slice PatchStyle textures rather than flat colour fills. That is what
+//     gives panels and buttons their rounded, bevelled edges — the previous screens painted
+//     flat hex rectangles, which is exactly why they felt square and unfinished.
+//   * Buttons gain Hovered/Pressed states and click sounds, which they had none of.
+//
+// Paths are relative to Common/UI/Custom/, matching how the game's own Pages/*.ui do it
+// ("../Common.ui", "../Common/Texture.png"). Verified against PrefabBrowser.ui, which sits at
+// the same depth as the SimTale screens.
+
+$Game = "Common.ui";
+
+// ---------------------------------------------------------------- palette
+// Anchored on the game's named colours so the mod follows any future retheme, plus a few
+// SimTale accents for the social systems.
+@TextPrimary   = #E6EDF3;
+@TextSecondary = $Game.@ColorDefaultLabel;   // #96a9be
+@TextMuted     = $Game.@ColorGrayCaption;    // #878e9c
+@TextGold      = $Game.@ColorGoldHighlight;  // #E8A93B
+@TextBlue      = $Game.@ColorBlueAccent;     // #7a9cc6
+
+@AccentLike    = #7FCF8A;
+@AccentHate    = #D9736B;
+@AccentRomance = #D98BC4;
+@AccentWork    = #C7A76B;
+
+// ---------------------------------------------------------------- metrics
+@GutterOuter = 20;
+@GutterInner = 14;
+@RowGap      = 6;
+@SectionGap  = 14;
+@ButtonH     = 46;
+@ButtonGap   = 10;
+
+// ---------------------------------------------------------------- surfaces
+// ContainerFullPatch is the frame the game uses for its own dialogs; ContainerPanelPatch is
+// the inset well it uses for grouped content inside one.
+@PanelSurface = (TexturePath: "Common/ContainerFullPatch.png", Border: 20);
+@InsetSurface = (TexturePath: "Common/ContainerPanelPatch.png", Border: 16);
+@WellSurface  = (TexturePath: "Common/ContainerBackgroundSecondary.png", Border: 12);
+@ProgressFill = (TexturePath: "Common/ProgressBarFill.png", Border: 6);
+
+// Hairline plus centre ornament — the same separator the game puts between panel sections.
+@Separator = Group {
+  @Anchor = ();
+  LayoutMode: Left;
+  Anchor: (...@Anchor, Height: 8, Bottom: @RowGap);
+
+  Group {
+    FlexWeight: 1;
+    Background: "Common/ContainerPanelSeparatorFancyLine.png";
+  }
+  Group {
+    Anchor: (Width: 11);
+    Background: "Common/ContainerPanelSeparatorFancyDecoration.png";
+  }
+  Group {
+    FlexWeight: 1;
+    Background: "Common/ContainerPanelSeparatorFancyLine.png";
+  }
+};
+
+// ---------------------------------------------------------------- button styles
+// ButtonStyle, not TextButtonStyle: every SimTale button keeps a child Label with its own id,
+// because the Java writes text through "#ChatButtonText.TextSpans" while binding the click to
+// "#ChatButton". Switching to TextButton would move the text into the button itself and break
+// every one of those bindings.
+@BtnNeutral = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Primary_Square.png", Border: 12)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Primary_Square_Hovered.png", Border: 12)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Primary_Square_Pressed.png", Border: 12)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnSecondary = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnTertiary = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Tertiary.png", Border: 12)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Tertiary_Hovered.png", Border: 12)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Tertiary_Pressed.png", Border: 12)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+// Insults and other destructive actions get the game's red button so the weight reads at once.
+//
+// Sounds deliberately use @ButtonSounds rather than the game's own @ButtonDestructiveSounds.
+// That expression is defined in Common.ui as `$Sounds.@ButtonsDestructive`, and no such
+// expression exists in Sounds.ui — the shipped file is simply wrong. Nothing in vanilla
+// references it, and the parser resolves expressions lazily, so the broken line never runs
+// for the game itself; the moment this theme referenced it, world join died with
+// "Could not find an expression named ButtonsDestructive in document Sounds.ui".
+@BtnDestructive = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Destructive.png", Border: 12)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Destructive_Hovered.png", Border: 12)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Destructive_Pressed.png", Border: 12)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+// ---------------------------------------------------------------- label styles
+@TitleStyle = (
+  FontSize: 30, TextColor: @TextPrimary, RenderBold: true, RenderUppercase: true,
+  HorizontalAlignment: Center, VerticalAlignment: Center,
+  ShrinkTextToFit: true, MinShrinkTextToFitFontSize: 18
+);
+
+@SubtitleStyle = (
+  FontSize: 17, TextColor: @TextGold, RenderBold: true,
+  HorizontalAlignment: Center, VerticalAlignment: Center
+);
+
+@CaptionStyle = (
+  FontSize: 15, TextColor: @TextMuted,
+  HorizontalAlignment: Center, VerticalAlignment: Center
+);
+
+@SectionHeaderStyle = (
+  FontSize: 13, TextColor: @TextMuted, RenderBold: true, RenderUppercase: true,
+  HorizontalAlignment: Start, VerticalAlignment: Center
+);
+
+@BodyStyle = (
+  FontSize: 15, TextColor: @TextSecondary,
+  HorizontalAlignment: Start, VerticalAlignment: Center,
+  ShrinkTextToFit: true, MinShrinkTextToFitFontSize: 12
+);
+
+@BodyStrong = (
+  ...@BodyStyle,
+  TextColor: @TextPrimary, RenderBold: true
+);
+
+@ButtonLabelStyle = (
+  FontSize: 16, TextColor: #D6E2EA, RenderBold: true, RenderUppercase: true,
+  HorizontalAlignment: Center, VerticalAlignment: Center,
+  ShrinkTextToFit: true, MinShrinkTextToFitFontSize: 11
+);

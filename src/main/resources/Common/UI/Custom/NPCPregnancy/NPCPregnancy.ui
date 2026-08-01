@@ -1,93 +1,118 @@
+// Pregnancy details.
+//
+// Ids are the contract with PregnancyDisplayUtil / NPCPregnancyPage: labels are written via
+// "#X.TextSpans", the two footer buttons are toggled via "#BackButton.Visible" /
+// "#CloseButton.Visible", and the bar is driven by resizing #ProgressBarFill. All preserved.
+
+$T = "../SimTaleTheme.ui";
+
 Group {
   LayoutMode: MiddleCenter;
-  Background: #00000099;
+  // Slightly deeper scrim than before so the panel reads as a modal rather than a sticker.
+  Background: #05070C(0.72);
+
   Group #MainPanel {
-    Anchor: (Width: 580, Height: 760);
+    Anchor: (Width: 560, Height: 748);
     LayoutMode: Top;
-    Background: #1A1A2EFF;
-    Padding: (Top: 24, Bottom: 24, Horizontal: 24);
+    Background: $T.@PanelSurface;
+    Padding: (Top: 24, Bottom: 22, Horizontal: $T.@GutterOuter);
 
     Label #SubjectName {
       Text: "—";
-      Anchor: (Width: 520, Height: 52, Bottom: 4);
-      Style: (FontSize: 32, TextColor: #E0E0FFFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Anchor: (Height: 42, Bottom: 2);
+      Style: $T.@TitleStyle;
     }
     Label #SubTitle {
       Text: %ui.pregnancy.subtitle;
-      Anchor: (Width: 520, Height: 30, Bottom: 24);
-      Style: (FontSize: 20, TextColor: #FF88AAFF, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Anchor: (Height: 24, Bottom: 4);
+      Style: (...$T.@SubtitleStyle, TextColor: $T.@AccentRomance);
     }
 
+    $T.@Separator { @Anchor = (Bottom: $T.@SectionGap); }
+
     Group #InfoPanel {
-      Anchor: (Width: 520, Height: 420, Bottom: 32);
       LayoutMode: Top;
-      Background: #16213EFF;
-      Padding: (Top: 16, Bottom: 16, Horizontal: 20);
+      FlexWeight: 1;
+      Background: $T.@InsetSurface;
+      Padding: (Top: 16, Bottom: 16, Horizontal: 18);
 
       Label #FatherName {
         Text: "—";
-        Anchor: (Width: 480, Height: 32, Bottom: 12);
-        Style: (FontSize: 18, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 28, Bottom: 8);
+        Style: $T.@BodyStyle;
       }
       Label #GestationStage {
         Text: "—";
-        Anchor: (Width: 480, Height: 32, Bottom: 12);
-        Style: (FontSize: 18, TextColor: #FFB3D9FF, RenderBold: true, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 28, Bottom: 8);
+        Style: (...$T.@BodyStrong, TextColor: $T.@AccentRomance);
       }
       Label #ElapsedDays {
         Text: "—";
-        Anchor: (Width: 480, Height: 32, Bottom: 12);
-        Style: (FontSize: 18, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 28, Bottom: 12);
+        Style: $T.@BodyStyle;
       }
+
       Label #ProgressText {
         Text: "—";
-        Anchor: (Width: 480, Height: 28, Bottom: 8);
-        Style: (FontSize: 18, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 24, Bottom: 6);
+        Style: $T.@BodyStyle;
       }
+      // The track keeps a fixed height and the fill is resized from Java, so this cannot become
+      // a ProgressBar node without changing that contract.
       Group #ProgressBarContainer {
-        Anchor: (Width: 480, Height: 20, Bottom: 16);
+        Anchor: (Height: 18, Bottom: 16);
         LayoutMode: Left;
-        Background: #111422FF;
+        Background: $T.@WellSurface;
+        Padding: (Full: 3);
+
         Group #ProgressBarFill {
-          Anchor: (Width: 0, Height: 20);
-          Background: #FF88AAFF;
+          Anchor: (Width: 0, Height: 12);
+          // Via the theme so this file stays free of ../ paths — those are resolved relative
+          // to the file that declares them, and every other texture here comes from
+          // SimTaleTheme.ui, which sits one level up.
+          Background: $T.@ProgressFill;
         }
       }
+
       Label #TimeRemaining {
         Text: "—";
-        Anchor: (Width: 480, Height: 32, Bottom: 12);
-        Style: (FontSize: 18, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 28, Bottom: 12);
+        Style: $T.@BodyStyle;
       }
+
+      $T.@Separator { @Anchor = (Bottom: 10); }
+
       Label #Symptoms {
         Text: "—";
-        Anchor: (Width: 480, Height: 48, Bottom: 12);
-        Style: (FontSize: 16, TextColor: #AAAAFFFF, HorizontalAlignment: Start, VerticalAlignment: Start);
+        Anchor: (Height: 46, Bottom: 10);
+        Style: (...$T.@BodyStyle, FontSize: 14, VerticalAlignment: Start);
       }
       Label #TotalChildren {
         Text: "—";
-        Anchor: (Width: 480, Height: 32, Bottom: 12);
-        Style: (FontSize: 18, TextColor: #CCCCDDFF, HorizontalAlignment: Start, VerticalAlignment: Center);
+        Anchor: (Height: 28);
+        Style: $T.@BodyStyle;
       }
     }
 
+    // Only one of these is visible at a time; Java flips them.
     Button #BackButton {
-      Anchor: (Width: 520, Height: 52);
-      Background: #334466FF;
+      Anchor: (Height: $T.@ButtonH, Top: $T.@SectionGap);
+      Style: $T.@BtnNeutral;
       Visible: true;
       Label #BackButtonText {
         Text: %ui.pregnancy.back;
-        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-        Style: (FontSize: 20, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center, RenderBold: true);
+        Anchor: (Full: 0);
+        Style: $T.@ButtonLabelStyle;
       }
     }
     Button #CloseButton {
-      Anchor: (Width: 520, Height: 52);
-      Background: #334466FF;
+      Anchor: (Height: $T.@ButtonH, Top: $T.@SectionGap);
+      Style: $T.@BtnNeutral;
       Visible: false;
       Label #CloseButtonText {
         Text: %ui.pregnancy.close;
-        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-        Style: (FontSize: 20, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center, RenderBold: true);
+        Anchor: (Full: 0);
+        Style: $T.@ButtonLabelStyle;
       }
     }
   }
