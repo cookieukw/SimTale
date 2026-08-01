@@ -11,6 +11,7 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
+import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
+
+    private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
     private long lastSpawnTick = 0;
     private final long systemStartTime = System.currentTimeMillis();
@@ -93,7 +96,13 @@ public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
             SimNPCFactory.spawnNPC(store, spawnPos, type);
             lastSpawnTick = currentTick;
         } catch (Exception e) {
-            // Ignore spawn failures (e.g. invalid position)
+            // Previously an empty catch with an "ignore spawn failures" comment. That made a
+            // broken spawner indistinguishable from a disabled one — the "Spawn result is null"
+            // failure produced no log line at all. Worse, lastSpawnTick was only advanced on
+            // success, so a persistent failure retried on *every* tick, silently.
+            lastSpawnTick = currentTick;
+            LOGGER.atWarning().log("SimTale: falha ao spawnar NPC automatico em "
+                    + String.format("(%.1f, %.1f, %.1f)", spawnPos.x, spawnPos.y, spawnPos.z) + ": " + e);
         }
     }
 }

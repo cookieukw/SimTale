@@ -5,6 +5,7 @@ import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookie.caskara.Caskara;
 import com.cookie.caskara.db.Shell;
 import com.hypixel.hytale.component.ComponentAccessor;
@@ -40,16 +41,33 @@ public class SimNPCPersistence {
      */
     public static final Shell DB_SHELL = Caskara.shell("simtale");
 
+    /**
+     * Per-world store, for anything that only means something inside one world: NPC entities
+     * and the houses whose block coordinates would point at thin air in another world.
+     * <p>
+     * {@code Caskara.shell(name)} keys purely on the name, so every world shared one database.
+     * A brand new world therefore opened already "full" of the previous world's NPCs — which
+     * is what stopped the starting group from ever spawning, since the spawner skips a world
+     * that already has saved NPCs.
+     * <p>
+     * Falls back to the global shell only when no world is loaded, which in practice means
+     * start-up ordering rather than real use.
+     */
+    public static Shell worldShell() {
+        World world = WorldUtil.first();
+        return world != null ? Caskara.shell(world, "simtale") : DB_SHELL;
+    }
+
     /** Reads one NPC record, or null when the id is unknown. */
     public static SimNPCData loadData(UUID entityId) {
         if (entityId == null) return null;
-        return DB_SHELL.core(SimNPCData.class).extract(entityId.toString()).sync().orElse(null);
+        return worldShell().core(SimNPCData.class).extract(entityId.toString()).sync().orElse(null);
     }
 
     /** Every stored NPC record. Never null. */
     public static List<SimNPCData> listAll() {
         try {
-            List<SimNPCData> all = DB_SHELL.core(SimNPCData.class).extractAll();
+            List<SimNPCData> all = worldShell().core(SimNPCData.class).extractAll();
             return all != null ? all : new ArrayList<>();
         } catch (Exception e) {
             HytaleLogger.forEnclosingClass().atWarning()
@@ -62,7 +80,7 @@ public class SimNPCPersistence {
     public static void deleteNPC(UUID entityId) {
         if (entityId == null) return;
         try {
-            DB_SHELL.core(SimNPCData.class).discard(entityId.toString());
+            worldShell().core(SimNPCData.class).discard(entityId.toString());
         } catch (Exception e) {
             HytaleLogger.forEnclosingClass().atWarning()
                 .log("SimTale: falha ao apagar NPC " + entityId + ": " + e.getMessage());
@@ -75,7 +93,7 @@ public class SimNPCPersistence {
         for (SimNPCData data : listAll()) {
             if (data.id == null) continue;
             try {
-                DB_SHELL.core(SimNPCData.class).discard(data.id);
+                worldShell().core(SimNPCData.class).discard(data.id);
                 removed++;
             } catch (Exception e) {
                 HytaleLogger.forEnclosingClass().atWarning()
@@ -124,14 +142,14 @@ public class SimNPCPersistence {
         data.emotionSource = component.emotionSource;
         data.lastEmotionChangeTick = component.lastEmotionChangeTick;
 
-        DB_SHELL.core(SimNPCData.class).preserve(component.entityId.toString(), data);
+        worldShell().core(SimNPCData.class).preserve(component.entityId.toString(), data);
     }
 
     public static void loadNPC(SimNPCComponent component) {
         if (component.entityId == null)
             return;
 
-        SimNPCData data = DB_SHELL.core(SimNPCData.class).extract(component.entityId.toString()).sync().orElse(null);
+        SimNPCData data = worldShell().core(SimNPCData.class).extract(component.entityId.toString()).sync().orElse(null);
         if (data != null) {
             applyData(component, data);
         }
@@ -223,7 +241,7 @@ public class SimNPCPersistence {
     public static List<SimNPCComponent> loadAllNPCs() {
         List<SimNPCComponent> result = new ArrayList<>();
         try {
-            List<SimNPCData> allData = DB_SHELL.core(SimNPCData.class).extractAll();
+            List<SimNPCData> allData = worldShell().core(SimNPCData.class).extractAll();
             if (allData != null) {
                 for (SimNPCData data : allData) {
                     if (data.id == null) continue;

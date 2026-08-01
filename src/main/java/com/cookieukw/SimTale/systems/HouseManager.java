@@ -49,7 +49,7 @@ public class HouseManager {
         OWNER_TO_HOUSE_ID.clear();
 
         try {
-            List<HouseData> list = SimNPCPersistence.DB_SHELL.core(HouseData.class).extractAll();
+            List<HouseData> list = SimNPCPersistence.worldShell().core(HouseData.class).extractAll();
             if (list != null) {
                 for (HouseData house : list) {
                     if (house.houseId == null) continue;
@@ -65,14 +65,14 @@ public class HouseManager {
 
     public static void saveHouse(HouseData house) {
         if (house == null || house.houseId == null) return;
-        SimNPCPersistence.DB_SHELL.core(HouseData.class).preserve("house_" + house.houseId, house);
+        SimNPCPersistence.worldShell().core(HouseData.class).preserve("house_" + house.houseId, house);
     }
 
     public static void deleteHouse(UUID houseId) {
         HouseData house = HOUSES_BY_ID.remove(houseId);
         if (house != null) {
             unindexHouse(house);
-            SimNPCPersistence.DB_SHELL.core(HouseData.class).discard("house_" + houseId.toString());
+            SimNPCPersistence.worldShell().core(HouseData.class).discard("house_" + houseId.toString());
             LOGGER.info("[SimTale] Casa {} deletada.", houseId);
         }
     }

@@ -2,16 +2,22 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
+import com.cookieukw.SimTale.core.StartingTroop;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.cookieukw.SimTale.logic.PlayerGenderPage;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.UUID;
 import java.util.function.Consumer;
+
+import org.joml.Vector3d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,13 +79,33 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
 
         // Bootstrap bed scan around the player
         try {
-            com.hypixel.hytale.server.core.modules.entity.component.TransformComponent tc = 
-                playerRef.getStore().getComponent(playerRef, com.hypixel.hytale.server.core.modules.entity.component.TransformComponent.getComponentType());
+            TransformComponent tc =
+                playerRef.getStore().getComponent(playerRef, TransformComponent.getComponentType());
             if (tc != null) {
                 BedWorldBootstrap.bootstrapLoadedRadius(player.getWorld(), tc.getPosition(), 96);
             }
         } catch (Exception e) {
             LOGGER.debug("[SimTale] Error bootstrapping beds on player join: " + e.getMessage());
+        }
+
+        // Founding group, only in a world that has never had NPCs.
+        //
+        // Deferred to the world thread and given a moment first: spawning entities is a
+        // structural store write, and PlayerReadyEvent can fire while the store is still
+        // processing. The delay also lets the chunks around the spawn point finish loading, so
+        // the ground search has real blocks to test instead of empty air.
+        try {
+           TransformComponent tc =
+                playerRef.getStore().getComponent(playerRef, TransformComponent.getComponentType());
+            if (tc != null) {
+                final Vector3d spawnPos = new Vector3d(tc.getPosition());
+                final World world = player.getWorld();
+                WorldUtil.executeLater(
+                    () -> StartingTroop.spawnIfFreshWorld(world.getEntityStore().getStore(), world, spawnPos),
+                    3000L);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] Error scheduling starting troop: " + e.getMessage());
         }
     }
 }
