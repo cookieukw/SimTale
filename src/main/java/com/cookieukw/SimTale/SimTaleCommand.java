@@ -141,7 +141,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             double bestDist = Double.MAX_VALUE;
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef == null || !npc.entityRef.isValid()) continue;
-                TransformComponent nt = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                TransformComponent nt = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                 if (nt == null) continue;
                 double d = pt.getPosition().distanceSquared(nt.getPosition());
                 if (d < bestDist) { bestDist = d; best = npc; }
@@ -254,11 +254,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 npc.currentConversationPartner = null;
 
                 if (npc.entityRef != null && npc.entityRef.isValid()) {
-                    if (store.getComponent(npc.entityRef, Frozen.getComponentType()) != null) {
-                        store.tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
+                    if (npc.entityRef.getStore().getComponent(npc.entityRef, Frozen.getComponentType()) != null) {
+                        npc.entityRef.getStore().tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
                         touched = true;
                     }
-                    RoutineAIComponent ai = store.getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    RoutineAIComponent ai = npc.entityRef.getStore().getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
                     if (ai != null) {
                         // Drops the stale leash so the next moveTo re-issues the "Moving" state
                         // and the walk animation comes back.
@@ -340,7 +340,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null) {
-                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
                         Vector3d nPos = npcTransform.getPosition();
@@ -382,10 +382,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             int count = 0;
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null && npc.entityRef.isValid()) {
-                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (npcTransform != null) {
                         npcTransform.setPosition(new Vector3d(pPos.x + (Math.random() - 0.5) * 4, pPos.y, pPos.z + (Math.random() - 0.5) * 4));
-                        store.putComponent(npc.entityRef, TransformComponent.getComponentType(), npcTransform);
+                        npc.entityRef.getStore().putComponent(npc.entityRef, TransformComponent.getComponentType(), npcTransform);
                         count++;
                     }
                 }
@@ -482,7 +482,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null) {
-                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
                         Vector3d nPos = npcTransform.getPosition();
@@ -541,7 +541,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
                 for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                     if (npc.entityRef != null && npc.entityRef.isValid() && npc.gender == Gender.FEMALE) {
-                        TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                        TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                         if (playerTransform != null && npcTransform != null) {
                             Vector3d pPos = playerTransform.getPosition();
                             Vector3d nPos = npcTransform.getPosition();
@@ -608,7 +608,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
                 for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                     if (npc.entityRef != null && npc.entityRef.isValid() && npc.pregnancy != null && npc.pregnancy.pregnant) {
-                        TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                        TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                         if (playerTransform != null && npcTransform != null) {
                             Vector3d pPos = playerTransform.getPosition();
                             Vector3d nPos = npcTransform.getPosition();
@@ -719,7 +719,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null) {
-                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
                         Vector3d nPos = npcTransform.getPosition();
@@ -836,7 +836,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             ctx.sendMessage(Message.raw("NPCs Ativos proximos:"));
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null) {
-                    TransformComponent npcTc = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    TransformComponent npcTc = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (npcTc != null) {
                         double dist = pos.distance(npcTc.getPosition());
                         if (dist <= 15.0) {
@@ -879,7 +879,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null) {
-                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
                         Vector3d nPos = npcTransform.getPosition();
@@ -1127,7 +1127,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null && npc.entityRef.isValid()) {
-                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
                         Vector3d nPos = npcTransform.getPosition();
@@ -1171,7 +1171,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null && npc.entityRef.isValid()) {
-                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
                         Vector3d nPos = npcTransform.getPosition();
@@ -1216,7 +1216,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null && npc.entityRef.isValid() && npc.profession == com.cookieukw.SimTale.core.Profession.FARMER) {
-                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
                         Vector3d nPos = npcTransform.getPosition();

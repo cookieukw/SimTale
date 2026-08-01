@@ -96,6 +96,27 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             SimNPCPersistence.loadNPC(npc);
         }
 
+        // A referencia da propria entidade, tirada do chunk que esta sendo tickado agora.
+        //
+        // Isto conserta um efeito colateral da mudanca que fez o SimNPCComponent persistir
+        // nativamente. Antes, um NPC recarregado chegava SEM o componente, caia no ramo
+        // `npc == null` la em cima e ganhava entityRef via getRefFromUUID. Depois que o
+        // componente passou a voltar junto com a entidade, aquele ramo deixou de rodar — e era
+        // o unico lugar que preenchia entityRef.
+        //
+        // Resultado: o NPC entrava em ACTIVE_NPCS com entityRef == null. Como todo subcomando
+        // filtra por `if (npc.entityRef != null)`, o mod respondia "Nenhum NPC por perto" com o
+        // NPC parado na frente do jogador. A tecla F continuava funcionando porque recebe a
+        // referencia direto do evento de interacao, sem passar por ACTIVE_NPCS — e era
+        // exatamente esse contraste que denunciava o problema.
+        //
+        // entityRef e transient de proposito (referencia viva nao se serializa), entao a fonte
+        // certa e o proprio chunk, nao o banco.
+        Ref<EntityStore> selfRef = chunk.getReferenceTo(index);
+        if (npc.entityRef == null || !npc.entityRef.isValid()) {
+            npc.entityRef = selfRef;
+        }
+
         // Was a linear scan of the whole roster, once per NPC per tick — O(n²) every tick.
         SimNPCComponent activeMatch = SimTale.findNpc(npc.entityId);
 
@@ -103,8 +124,13 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             SimNPCPersistence.loadNPC(npc);
             SimTale.trackNpc(npc);
         } else if (activeMatch != npc) {
+            // A instancia rastreada e a que os comandos enxergam, entao ela tambem precisa de
+            // uma referencia valida — nao adianta consertar so a copia que veio do chunk.
+            if (activeMatch.entityRef == null || !activeMatch.entityRef.isValid()) {
+                activeMatch.entityRef = selfRef;
+            }
             // Replace the chunk's component with our official tracked instance which holds command changes
-            commandBuffer.replaceComponent(chunk.getReferenceTo(index), SimTale.SIM_NPC_COMPONENT_TYPE, activeMatch);
+            commandBuffer.replaceComponent(selfRef, SimTale.SIM_NPC_COMPONENT_TYPE, activeMatch);
             npc = activeMatch;
         }
 

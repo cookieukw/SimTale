@@ -93,27 +93,8 @@ public class SimNPCSpawnSystem extends EntityTickingSystem<EntityStore> {
 
         NPCType type = Math.random() > 0.5 ? NPCType.HUMAN_MALE : NPCType.HUMAN_FEMALE;
         
-        // Avancado ANTES de agendar, nao depois de spawnar. O spawn agora e assincrono, entao
-        // usar o resultado dele para marcar o tempo permitiria enfileirar um spawn por tick ate
-        // o primeiro terminar.
-        lastSpawnTick = currentTick;
-
-        // O spawn PRECISA sair do tick.
-        //
-        // Isto aqui roda dentro de EntityTickingSystem.tick(), e SimNPCFactory.spawnNPC faz
-        // escritas estruturais na Store (NPCPlugin.spawnNPC, addComponent, putComponent). A Store
-        // recusa qualquer uma delas enquanto esta processando:
-        //
-        //   IllegalStateException: Store is currently processing!
-        //   Ensure you aren't calling a store method from a system.
-        //
-        // Ou seja, o spawn automatico NUNCA funcionou — toda tentativa caia no catch abaixo e
-        // virava uma linha de aviso no log. So o /simtale forcespawn funcionava, porque comando
-        // nao roda dentro do tick de um sistema. Era essa a razao de o mundo nao povoar sozinho.
-        //
-        // world.execute() enfileira para a thread do mundo, que drena fora da janela de
-        // processamento dos sistemas.
-        final Vector3d pos = spawnPos;
+        
+        lastSpawnTick = currentTick;        final Vector3d pos = spawnPos;
         boolean queued = WorldUtil.execute(() -> {
             try {
                 SimNPCFactory.spawnNPC(store, pos, type);
