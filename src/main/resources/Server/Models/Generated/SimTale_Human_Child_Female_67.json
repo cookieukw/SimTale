@@ -44,8 +44,8 @@
     {
       "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
       "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Makeup_Greyscale.png",
-      "GradientSet": "Pastel_Cotton",
-      "GradientId": "Pink"
+      "GradientSet": "Skin",
+      "GradientId": "15"
     },
     {
       "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",
