@@ -49,15 +49,54 @@ tasks.register('runTests', JavaExec) {
 }
 
 // Tarefa de deploy
-tasks.register('deploy', Copy) {
+//
+// Copia ATOMICA, e isso importa. A versao anterior era um `Copy` do Gradle, que escreve o jar
+// direto por cima de Mods/SimTale-x.y.z.jar. Como o Hytale observa essa pasta e recarrega o mod
+// sozinho quando o arquivo muda, ele disparava a recarga assim que a escrita comecava e lia um
+// jar pela metade. O sintoma era:
+//
+//   FAIL: /Server/NPC/Roles/SimTale_Human_Male.json: Failed to load builder:
+//   java.util.zip.ZipException: invalid LOC header (bad signature)
+//
+// seguido de "Reloading nonexistent role ..." para cada role gerado, porque os roles base nunca
+// chegaram a entrar no registro. O jar em disco estava intacto o tempo todo — o problema era
+// puramente o instante da leitura. Com 11 MB de mod, a janela de corrupcao e larga.
+//
+// Escrever num arquivo temporario na MESMA pasta e depois renomear resolve: no mesmo sistema de
+// arquivos, o rename e atomico. O jogo ou ve o jar antigo inteiro, ou o novo inteiro. Nunca um
+// meio-termo.
+tasks.register('deploy') {
     dependsOn 'jar'
-    from tasks.jar.archiveFile
-    into "${hytaleHome}/Mods"
-    
-    doFirst {
+
+    def jarFile = tasks.jar.archiveFile
+    def targetDir = file("${hytaleHome}/Mods")
+
+    inputs.file(jarFile)
+
+    doLast {
         if (!file(hytaleHome).exists()) {
             println "AVISO: Pasta do Hytale não encontrada em: $hytaleHome"
             println "Configure 'hytale.dir=/caminho/certo' no seu local.properties"
+            return
+        }
+        targetDir.mkdirs()
+
+        def source = jarFile.get().asFile
+        def target = new File(targetDir, source.name)
+        // O temporario precisa ficar na mesma pasta do destino, senao o rename cruza sistemas
+        // de arquivos e deixa de ser atomico (ATOMIC_MOVE lanca excecao nesse caso).
+        def temp = new File(targetDir, source.name + ".tmp")
+
+        try {
+            java.nio.file.Files.copy(source.toPath(), temp.toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+            java.nio.file.Files.move(temp.toPath(), target.toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                    java.nio.file.StandardCopyOption.ATOMIC_MOVE)
+            println "Deploy: ${target}"
+        } catch (Exception e) {
+            temp.delete()
+            throw e
         }
     }
 }
