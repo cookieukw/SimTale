@@ -5,6 +5,9 @@ import com.cookieukw.SimTale.engine.MagicEngine;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 import com.cookieukw.SimTale.logic.JobType;
 import com.cookieukw.SimTale.logic.SocialStats;
+import com.hypixel.hytale.codec.Codec;
+import com.hypixel.hytale.codec.KeyedCodec;
+import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -55,6 +58,17 @@ public class SimNPCComponent implements Component<EntityStore> {
      */
     public boolean isReaper = false;
     public transient MagicEngine activeMagicGame;
+    /**
+     * False until this component has been filled in from Caskara (or freshly created by the
+     * factory).
+     * <p>
+     * Matters because the codec restores only the id and name: everything else comes back from
+     * the default constructor, which rolls a *random* profession and preferences. Saving in
+     * that state would overwrite the NPC's real data in the database with the placeholder, so
+     * {@code SimNPCPersistence.saveNPC} refuses to write while this is false.
+     */
+    public transient boolean dataLoaded = false;
+
     public transient boolean isInteractingViaUI = false;
     /**
      * Player whose interaction page is currently open, so the AI can keep the NPC turned
@@ -64,6 +78,32 @@ public class SimNPCComponent implements Component<EntityStore> {
     public transient UUID uiInteractionPlayer;
     public transient boolean forceSleep = false;
     public transient Mood lastPlayedEmotion = null;
+
+    /**
+     * Persists only the identity of the NPC — its id and name.
+     * <p>
+     * Everything else (personality, needs, relationships, family, pregnancy) still lives in
+     * Caskara and is restored by {@code SimNPCPersistence.loadNPC} on the first tick. The point
+     * of this codec is not to store the data twice; it is to make sure the component itself is
+     * always present on the entity.
+     * <p>
+     * Without it the component was runtime-only, so every reload left the entity with no
+     * SimNPCComponent at all and the mod had to guess its way back: SimTaleTickSystem would
+     * notice the gap, look the id up in Caskara and re-attach. That only runs while the entity
+     * is being ticked, so an NPC could sit there orphaned until the player walked close enough
+     * — visibly idle, with no plumbob, and invisible to /simtale clearall (which iterates
+     * ACTIVE_NPCS), while the interaction key still worked because it has its own Caskara
+     * fallback. Anchoring the id here removes that whole failure mode.
+     */
+    public static final BuilderCodec<SimNPCComponent> CODEC = BuilderCodec
+        .builder(SimNPCComponent.class, SimNPCComponent::new)
+        .append(new KeyedCodec<>("EntityId", Codec.STRING),
+                (c, v) -> c.entityId = (v != null && !v.isEmpty()) ? UUID.fromString(v) : null,
+                c -> c.entityId != null ? c.entityId.toString() : "").add()
+        .append(new KeyedCodec<>("Name", Codec.STRING),
+                (c, v) -> { if (v != null && !v.isEmpty()) c.name = v; },
+                c -> c.name != null ? c.name : "").add()
+        .build();
 
     /**
      * Default constructor for registry and codecs.
@@ -139,6 +179,10 @@ public class SimNPCComponent implements Component<EntityStore> {
         if (bedLocation != null) {
             clone.bedLocation = new BedPos(bedLocation.x, bedLocation.y, bedLocation.z, bedLocation.yaw);
         }
+
+        // Carried over so a clone of a loaded component is still allowed to save; otherwise the
+        // ECS swapping in a clone would silently block persistence for that NPC.
+        clone.dataLoaded = dataLoaded;
 
         // Identity/family state — must be copied explicitly, otherwise the
         // default constructor's random profession would leak into the clone.

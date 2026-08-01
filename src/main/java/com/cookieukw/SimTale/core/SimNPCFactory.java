@@ -102,6 +102,9 @@ public class SimNPCFactory {
 
         SimNPCComponent simComponent = new SimNPCComponent(entityId, name);
         simComponent.entityRef = ref;
+        // Freshly rolled NPC: this object *is* the authoritative data, so it may save without
+        // first reading from the database.
+        simComponent.dataLoaded = true;
         simComponent.isReaper = (type == NPCType.REAPER);
         
         if (type == NPCType.HUMAN_MALE || type == NPCType.CHILD_MALE) {

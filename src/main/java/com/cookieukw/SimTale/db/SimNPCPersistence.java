@@ -32,6 +32,17 @@ public class SimNPCPersistence {
         if (component.entityId == null)
             return;
 
+        // Guard against writing a placeholder over real data. Since SimNPCComponent is now
+        // persisted by Hytale with a codec that only carries id and name, a reloaded entity
+        // arrives with a component whose remaining fields came from the default constructor —
+        // including a randomly rolled profession. Anything that saved before loadNPC() ran
+        // would have committed that random state to the database.
+        if (!component.dataLoaded) {
+            HytaleLogger.forEnclosingClass().atWarning()
+                .log("SimTale: ignorando save de " + component.entityId + " (dados ainda nao carregados do banco)");
+            return;
+        }
+
         SimNPCData data = new SimNPCData(
                 component.entityId,
                 component.name,
@@ -67,6 +78,9 @@ public class SimNPCPersistence {
         if (data != null) {
             applyData(component, data);
         }
+        // Set even when there is no record: the component now reflects the database as well as
+        // it ever will, and a never-saved NPC must still be allowed to save for the first time.
+        component.dataLoaded = true;
     }
 
     /**
@@ -159,6 +173,7 @@ public class SimNPCPersistence {
                     UUID entityId = UUID.fromString(data.id);
                     SimNPCComponent comp = new SimNPCComponent(entityId, data.name);
                     applyData(comp, data);
+                    comp.dataLoaded = true;
                     result.add(comp);
                 }
             }

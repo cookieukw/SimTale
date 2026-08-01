@@ -181,8 +181,12 @@ public class SimTale extends JavaPlugin {
         // Register data components
         // registerComponent(Class, Supplier) is the available method in
         // ComponentRegistryProxy
+        // Registered WITH a persistence id and codec so the component survives entity reloads.
+        // Previously it used the codec-less overload, which made it runtime-only: NPCs came
+        // back from a reload with no SimNPCComponent and had to be re-attached by
+        // SimTaleTickSystem, which only runs while the entity is ticking.
         SIM_NPC_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(SimNPCComponent.class,
-                SimNPCComponent::new);
+                "simtale:npc", SimNPCComponent.CODEC);
         ROUTINE_AI_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(RoutineAIComponent.class, 
                 RoutineAIComponent::new);
         CONSTRUCTION_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(ConstructionSiteComponent.class, 

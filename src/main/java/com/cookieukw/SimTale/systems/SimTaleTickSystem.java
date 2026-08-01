@@ -89,6 +89,12 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             return;
         }
 
+        // The codec restores only id and name, so a component that came back with the entity
+        // still needs its real data pulled from Caskara before anything reads or saves it.
+        if (!npc.dataLoaded) {
+            SimNPCPersistence.loadNPC(npc);
+        }
+
         // Was a linear scan of the whole roster, once per NPC per tick — O(n²) every tick.
         SimNPCComponent activeMatch = SimTale.findNpc(npc.entityId);
 
