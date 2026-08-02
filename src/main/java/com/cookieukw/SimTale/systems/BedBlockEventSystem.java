@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.system.WorldEventSystem;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.event.events.ecs.BreakBlockEvent;
 import org.joml.Vector3i;
@@ -17,13 +18,17 @@ public class BedBlockEventSystem extends WorldEventSystem<EntityStore, BreakBloc
     @Override
     public void handle(@Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer, @Nonnull BreakBlockEvent event) {
         Vector3i pos = event.getTargetBlock();
-        BedRegistry.removeAt(pos.x, pos.y, pos.z);
-        BedRegistry.removeAt(pos.x - 1, pos.y, pos.z);
-        BedRegistry.removeAt(pos.x + 1, pos.y, pos.z);
-        BedRegistry.removeAt(pos.x, pos.y, pos.z - 1);
-        BedRegistry.removeAt(pos.x, pos.y, pos.z + 1);
+        World world = store.getExternalData().getWorld();
 
-        ChestRegistry.removeAt(pos.x, pos.y, pos.z);
+        // Furniture spans several blocks, and the break event reports whichever one was hit.
+        // Registries key on the anchor, so resolve it before removing; otherwise breaking a
+        // chest from its far side leaves a phantom entry and NPCs keep walking to it.
+        Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
+
+        BedRegistry.removeAt(anchor.x, anchor.y, anchor.z);
+        ChestRegistry.removeAt(anchor.x, anchor.y, anchor.z);
+
+        // Crops and farmland are single blocks, so they use the hit position directly.
         CropRegistry.removeAt(pos.x, pos.y, pos.z);
         FarmlandRegistry.removeAt(pos.x, pos.y, pos.z);
     }

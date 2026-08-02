@@ -33,7 +33,9 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
 
 
         if (ChestRegistry.isChestId(type.getId())) {
-            ChestRegistry.add(pos.x, pos.y, pos.z);
+            // Register the anchor so placement and removal agree on one position per chest.
+            Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
+            ChestRegistry.add(anchor.x, anchor.y, anchor.z);
         }
 
         if (CropRegistry.isCropId(type.getId())) {
