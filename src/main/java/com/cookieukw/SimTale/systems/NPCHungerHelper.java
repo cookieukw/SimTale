@@ -65,17 +65,23 @@ public class NPCHungerHelper {
     /** Below this, hunger starts costing health. */
     private static final float STARVATION_THRESHOLD = 5f;
 
-    /** Ticks between starvation hits. 20 ticks/s, so this is one hit every 15s. */
-    private static final int STARVATION_INTERVAL_TICKS = 300;
+    /**
+     * Pacing of starvation damage, sized for roughly two hours from full health to death.
+     *
+     * <p>Roles declare {@code MaxHealth: 200}, so 4 damage per hit needs 50 hits. Spreading those
+     * over two hours (144000 ticks at 20/s) puts one hit every 2880 ticks. Sturdier NPCs last
+     * proportionally longer, which is the intended reading of "at least two hours".
+     */
+    private static final int STARVATION_INTERVAL_TICKS = 2880;
 
     private static final float STARVATION_DAMAGE = 4f;
 
     /**
      * Drains health while hunger sits at rock bottom.
      *
-     * <p>Paced so an NPC left with an empty larder takes a long time to die: the damage is small
-     * and spaced out, which gives the hunger routine many chances to find a meal first. Starving
-     * to death should be the outcome of a village with no food, not of one missed lunch.
+     * <p>Deliberately slow. Hunger itself decays at 0.0001 per tick, so an untouched NPC takes
+     * around thirteen hours to fall from full to the threshold, and only then does this begin.
+     * Starving to death is the outcome of an abandoned village, not of one missed lunch.
      */
     public static void tickStarvation(Ref<EntityStore> ref, SimNPCComponent npc, World world) {
         if (npc.needs == null || npc.needs.hunger > STARVATION_THRESHOLD) return;
@@ -130,6 +136,9 @@ public class NPCHungerHelper {
                 ai.currentTask = TaskType.MOVING_TO_FOOD;
                 NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
             } else {
+                // Hold off the hunger interrupt, which fires from any task and would otherwise
+                // re-enter this search on the very next tick for as long as there is no food.
+                ai.nextFoodSearchTick = world.getTick() + FOOD_SEARCH_COOLDOWN_TICKS;
                 ai.currentTask = TaskType.IDLE;
             }
         }
@@ -139,9 +148,12 @@ public class NPCHungerHelper {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
 
             if (world.getTick() - ai.taskStartTime > MOVE_TIMEOUT_TICKS) {
-                LOGGER.debug("[SimTale] NPC {} desistiu de chegar ao bau de comida", npc.name);
+                LOGGER.debug("[COMIDA] {} desistiu de chegar ao bau de comida", npc.name);
                 NPCMovementHelper.clearMoveTarget(ref, ai);
                 ai.targetBlockPosition = null;
+                // An unreachable chest still looks like the best option to the search, so without
+                // this the hunger interrupt would send the NPC back to it immediately, forever.
+                ai.nextFoodSearchTick = world.getTick() + FOOD_SEARCH_COOLDOWN_TICKS;
                 ai.currentTask = TaskType.IDLE;
                 return;
             }

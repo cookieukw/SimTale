@@ -66,6 +66,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     private static final int BATH_SEARCH_RADIUS = 15;
     private static final int BATH_SEARCH_HEIGHT = 5;
     private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 60;
+    /** Hunger low enough to drop whatever the NPC is doing. Well under the idle-time threshold of 50. */
+    private static final float HUNGER_INTERRUPT_THRESHOLD = 25f;
     private static final int SLEEP_DURATION_TICKS = 20 * 120;
     private static final int WAKE_ANIM_TICKS = 20;
     private static final double BED_REACH_DISTANCE_SQ = 2.5 * 2.5; // Increased to prevent getting stuck on bed collision
@@ -201,6 +203,29 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             ai.taskStartTime = 0; // bypass cooldown
             clearAutonomyState(ai);
             LOGGER.info("[SimTale] NPC '{}' is tired (energy={}), interrupting task to find bed immediately", npc.name, npc.needs.energy);
+        }
+
+        // --- Very low hunger interrupts the current task, mirroring the sleep interrupt above ---
+        //
+        // Without this, hunger was only ever checked inside the IDLE branch, so a busy NPC could
+        // starve with a full larder simply by never running out of things to do. Sleep already
+        // worked this way; hunger did not, and that asymmetry had no reason behind it.
+        //
+        // The threshold sits well below the IDLE one (50): this is the emergency path, not the
+        // normal one. Eating takes about three seconds, so interrupting costs little.
+        if (npc.needs.hunger < HUNGER_INTERRUPT_THRESHOLD
+                && world.getTick() >= ai.nextFoodSearchTick
+                && ai.currentTask != TaskType.FINDING_FOOD && ai.currentTask != TaskType.MOVING_TO_FOOD
+                && ai.currentTask != TaskType.EATING
+                && ai.currentTask != TaskType.FINDING_BED && ai.currentTask != TaskType.MOVING_TO_BED
+                && ai.currentTask != TaskType.ENTERING_BED && ai.currentTask != TaskType.SLEEPING
+                && ai.currentTask != TaskType.WAKING) {
+
+            ai.currentTask = TaskType.FINDING_FOOD;
+            ai.targetBlockPosition = null;
+            ai.taskStartTime = world.getTick() - NPCHungerHelper.FOOD_SEARCH_COOLDOWN_TICKS;
+            clearAutonomyState(ai);
+            LOGGER.info("[SimTale] NPC '{}' is starving (hunger={}), interrupting task to find food", npc.name, npc.needs.hunger);
         }
 
         // --- Force sleep from command (uses SimNPCComponent flag to survive tick overwrite) ---

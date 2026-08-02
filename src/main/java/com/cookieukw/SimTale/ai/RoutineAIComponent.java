@@ -78,6 +78,15 @@ public class RoutineAIComponent implements Component<EntityStore> {
      */
     public long nextBedSearchTick = 0;
 
+    /**
+     * Same guard as {@link #nextBedSearchTick}, for food.
+     * <p>
+     * The hunger interrupt fires from any task, so without a cooldown an NPC with no reachable
+     * food would re-enter FINDING_FOOD every single tick — the exact storm the bed search hit,
+     * which produced thousands of failed searches per second.
+     */
+    public long nextFoodSearchTick = 0;
+
     /** Set when the food is taken from the chest, consumed when the EATING state finishes. */
     public int eatingTier = 0;
     public boolean eatingWasHated = false;
