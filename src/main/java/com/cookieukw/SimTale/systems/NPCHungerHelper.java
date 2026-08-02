@@ -32,14 +32,33 @@ public class NPCHungerHelper {
      */
     private static final int MOVE_TIMEOUT_TICKS = 600;
 
-    /** Single source of truth for "is this item edible?" heuristics. */
-    private static boolean isFoodId(String itemIdLower) {
-        // Harvested crops (Plant_Crop_Carrot_Item, ...) are edible too. Without this a farmer
-        // could fill the house chest with produce that no hungry NPC would ever recognise.
-        if (itemIdLower.startsWith("plant_crop_") && itemIdLower.endsWith("_item")) {
-            return true;
+    /** How far an NPC will walk for a meal. */
+    private static final double CHEST_SEARCH_RADIUS = 24.0;
+
+    /** Best stack found in one chest, together with how appealing it is to the searching NPC. */
+    private record ChestFood(HouseBlockPos chest, short slot, int score, double distSq) {}
+
+    /**
+     * Finds the best-scoring food in a chest, or null when it holds nothing this NPC would eat.
+     */
+    private static ChestFood bestFoodIn(World world, HouseBlockPos chestPos, SimNPCComponent npc, double distSq) {
+        ItemContainerBlock cb = BlockModule.getComponent(
+                ItemContainerBlock.getComponentType(), world, chestPos.x, chestPos.y, chestPos.z);
+        if (cb == null) return null;
+
+        ItemContainer container = cb.getItemContainer();
+        ChestFood best = null;
+
+        for (short slot = 0; slot < container.getCapacity(); slot++) {
+            ItemStack item = container.getItemStack(slot);
+            int score = NPCFoodHelper.scoreFor(item, npc.preferences);
+            if (score == NPCFoodHelper.NOT_FOOD) continue;
+
+            if (best == null || score > best.score()) {
+                best = new ChestFood(chestPos, slot, score, distSq);
+            }
         }
-        return itemIdLower.contains("food_") || itemIdLower.contains("_food") || itemIdLower.startsWith("food");
+        return best;
     }
 
     public static void handleHungerLogic(
@@ -54,41 +73,33 @@ public class NPCHungerHelper {
             ai.taskStartTime = world.getTick();
             Vector3d pos = transform.getPosition();
             
-            HouseBlockPos closestChest = null;
-            double minChestDistSq = Double.MAX_VALUE;
+            // Pick the tastiest meal in reach, not the nearest chest that happens to hold food.
+            // Distance only breaks ties between equally appealing options.
+            ChestFood best = null;
 
             synchronized (ChestRegistry.CHESTS) {
                 for (HouseBlockPos chestPos : ChestRegistry.CHESTS) {
                     double dx = pos.x - (chestPos.x + 0.5);
                     double dy = pos.y - (chestPos.y + 0.5);
                     double dz = pos.z - (chestPos.z + 0.5);
-                    double distSq = dx*dx + dy*dy + dz*dz;
-                    if (distSq <= 10.0 * 10.0 && distSq < minChestDistSq) {
-                        if (HouseManager.canOpenChest(npc.entityId, chestPos)) {
-                            // Check if chest contains food
-                            ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, chestPos.x, chestPos.y, chestPos.z);
-                            boolean hasFood = false;
-                            if (cb != null) {
-                                ItemContainer container = cb.getItemContainer();
-                                for (short slot = 0; slot < container.getCapacity(); slot++) {
-                                    ItemStack item = container.getItemStack(slot);
-                                    if (item != null && !item.isEmpty() && isFoodId(item.getItemId().toLowerCase())) {
-                                        hasFood = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (hasFood) {
-                                minChestDistSq = distSq;
-                                closestChest = chestPos;
-                            }
-                        }
+                    double distSq = dx * dx + dy * dy + dz * dz;
+
+                    if (distSq > CHEST_SEARCH_RADIUS * CHEST_SEARCH_RADIUS) continue;
+                    if (!HouseManager.canOpenChest(npc.entityId, chestPos)) continue;
+
+                    ChestFood candidate = bestFoodIn(world, chestPos, npc, distSq);
+                    if (candidate == null) continue;
+
+                    if (best == null
+                            || candidate.score() > best.score()
+                            || (candidate.score() == best.score() && candidate.distSq() < best.distSq())) {
+                        best = candidate;
                     }
                 }
             }
 
-            if (closestChest != null) {
-                ai.targetBlockPosition = new Vector3i(closestChest.x, closestChest.y, closestChest.z);
+            if (best != null) {
+                ai.targetBlockPosition = new Vector3i(best.chest().x, best.chest().y, best.chest().z);
                 ai.currentTask = TaskType.MOVING_TO_FOOD;
                 NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
             } else {
@@ -114,28 +125,27 @@ public class NPCHungerHelper {
             if (dx*dx + dz*dz < 2.0 * 2.0) {
                 NPCMovementHelper.clearMoveTarget(ref, ai);
                 
-                // Try to consume 1 food item from the chest
-                boolean foodConsumed = false;
+                // Re-pick on arrival: another NPC may have emptied the chest during the walk.
                 Vector3i chestPos = ai.targetBlockPosition;
-                ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, chestPos.x, chestPos.y, chestPos.z);
-                if (cb != null) {
-                    ItemContainer container = cb.getItemContainer();
-                    for (short slot = 0; slot < container.getCapacity(); slot++) {
-                        ItemStack item = container.getItemStack(slot);
-                        if (item != null && !item.isEmpty() && isFoodId(item.getItemId().toLowerCase())) {
-                            container.removeItemStackFromSlot(slot, 1);
-                            foodConsumed = true;
-                            LOGGER.debug("[SimTale] NPC {} consumed 1x {} from chest at {}", npc.name, item.getItemId(), chestPos);
-                            break;
-                        }
-                    }
-                }
+                ChestFood chosen = bestFoodIn(world,
+                        new HouseBlockPos(chestPos.x, chestPos.y, chestPos.z), npc, 0.0);
 
-                if (foodConsumed) {
+                if (chosen != null) {
+                    ItemContainerBlock cb = BlockModule.getComponent(
+                            ItemContainerBlock.getComponentType(), world, chestPos.x, chestPos.y, chestPos.z);
+                    ItemStack item = cb.getItemContainer().getItemStack(chosen.slot());
+
+                    ai.eatingTier = NPCFoodHelper.tierOf(item);
+                    ai.eatingWasHated = NPCFoodHelper.isHated(item, npc.preferences);
+                    ai.eatingWasFavorite = NPCFoodHelper.isFavorite(item, npc.preferences);
+
+                    LOGGER.debug("[COMIDA] {} pegou {} (tier {}, score {}) no bau {}",
+                            npc.name, item.getItemId(), ai.eatingTier, chosen.score(), chestPos);
+
+                    cb.getItemContainer().removeItemStackFromSlot(chosen.slot(), 1);
                     ai.currentTask = TaskType.EATING;
                     ai.taskStartTime = world.getTick();
                 } else {
-                    // No food left (or chunk unloaded/chest broken)
                     ai.currentTask = TaskType.IDLE;
                 }
             } else {
@@ -148,7 +158,21 @@ public class NPCHungerHelper {
                 NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Eat.blockyanim", "Eat", store);
             }
             if (world.getTick() - ai.taskStartTime > 60) {
-                npc.needs.hunger = Math.min(100f, npc.needs.hunger + 40f);
+                float restored = NPCFoodHelper.hungerRestored(ai.eatingTier);
+                npc.needs.hunger = Math.min(100f, npc.needs.hunger + restored);
+
+                if (ai.eatingWasFavorite) {
+                    npc.needs.fun = Math.min(100f, npc.needs.fun + 10f);
+                } else if (ai.eatingWasHated) {
+                    npc.needs.fun = Math.max(0f, npc.needs.fun - 10f);
+                }
+
+                LOGGER.debug("[COMIDA] {} terminou de comer (tier {}, +{} fome, fome agora {})",
+                        npc.name, ai.eatingTier, restored, npc.needs.hunger);
+
+                ai.eatingTier = 0;
+                ai.eatingWasHated = false;
+                ai.eatingWasFavorite = false;
                 ai.currentTask = TaskType.IDLE;
                 NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             }

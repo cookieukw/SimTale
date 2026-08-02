@@ -77,6 +77,11 @@ public class RoutineAIComponent implements Component<EntityStore> {
      * tarefa: e ele que a interrupcao consulta.
      */
     public long nextBedSearchTick = 0;
+
+    /** Set when the food is taken from the chest, consumed when the EATING state finishes. */
+    public int eatingTier = 0;
+    public boolean eatingWasHated = false;
+    public boolean eatingWasFavorite = false;
     
     public RoutineAIComponent() {
     }
