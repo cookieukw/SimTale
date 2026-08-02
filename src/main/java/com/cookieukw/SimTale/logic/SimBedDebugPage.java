@@ -5,7 +5,6 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.systems.BedRegistry;
-import com.cookieukw.SimTale.systems.BedWorldBootstrap;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -68,16 +67,14 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                 });
             }
             List<BedPos> list = new ArrayList<>();
-            for (BedPos bp : BedRegistry.BEDS) {
-                if (world != null) {
-                    WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(bp.x, bp.z));
-                    // Display-only deduplication: skip the foot/secondary part of the bed
-                    if (chunk != null && BedWorldBootstrap.isPrimaryBedBlock(world, bp.x, bp.y, bp.z)) {
-                        continue;
-                    }
-                }
-                list.add(bp);
-            }
+            // Sem filtro de exibicao: o registro agora guarda apenas a ancora de cada movel.
+            //
+            // Antes cada um dos seis blocos de uma cama virava um registro, e esta tela tentava
+            // esconder as sobras com a heuristica isPrimaryBedBlock. Consertada a origem (o
+            // registro passa pelo FurnitureAnchorHelper), o filtro deixou de ser necessario — e
+            // passaria a esconder camas legitimas, ja que a ancora nem sempre satisfaz aquela
+            // heuristica de vizinhanca.
+            list.addAll(BedRegistry.BEDS);
             list.sort((b1, b2) -> {
                 if (b1.x != b2.x) return Integer.compare(b1.x, b2.x);
                 if (b1.y != b2.y) return Integer.compare(b1.y, b2.y);

@@ -76,16 +76,7 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
             LOGGER.debug("[SimTale] Error loading houses: " + e.getMessage());
         }
 
-        // Bootstrap bed scan around the player
-        try {
-            TransformComponent tc =
-                playerRef.getStore().getComponent(playerRef, TransformComponent.getComponentType());
-            if (tc != null) {
-                BedWorldBootstrap.bootstrapLoadedRadius(player.getWorld(), tc.getPosition(), 96);
-            }
-        } catch (Exception e) {
-            LOGGER.debug("[SimTale] Error bootstrapping beds on player join: " + e.getMessage());
-        }
+
 
         // Founding group, only in a world that has never had NPCs.
         //

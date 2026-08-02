@@ -5,6 +5,7 @@ import com.cookieukw.SimTale.core.SimLog;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
 import org.joml.Vector3d;
+import org.joml.Vector3i;
 
 
 public final class BedWorldBootstrap {
@@ -28,19 +29,29 @@ public final class BedWorldBootstrap {
                     if (type == null || type.getId() == null) continue;
                     if (!BedRegistry.isBedId(type.getId())) continue;
                     
-                    boolean isPrimary = isPrimaryBedBlock(world, x, y, z);
-                    LOGGER.debug("[SimTale-DEBUG] Block scan found bed-like block: '" + type.getId() + "' at (" + x + "," + y + "," + z + ") isPrimary=" + isPrimary);
-                    if (isPrimary) continue;
-                    
-                    // Estimate yaw based on the neighboring bed block orientation
+                    // Uma cama ocupa SEIS blocos. Registrar cada um como cama independente e o
+                    // que fazia o /simtale debugnear reportar doze camas onde havia duas — e,
+                    // pior, fazia a NPC ser montada num bloco qualquer do movel em vez da ancora.
+                    // Como o ponto de montagem do asset e medido a partir da ancora, montar num
+                    // filler desloca a pose de dormir pela distancia daquele filler ate ela.
+                    //
+                    // A heuristica anterior (isPrimaryBedBlock, "o vizinho esta em +X ou +Z")
+                    // tentava adivinhar a ancora pela vizinhanca. Agora quem responde e o proprio
+                    // motor, pelo dado de filler que o /inspectfiller do jogo tambem le.
+                    Vector3i ancora = FurnitureAnchorHelper.anchorOf(world, x, y, z);
+
                     float yaw = 0f;
-                    if (isBed(world.getBlockType(x + 1, y, z)) || isBed(world.getBlockType(x - 1, y, z))) {
-                        yaw = (float) (Math.PI / 2.0); // oriented along X-axis (90 degrees in radians)
-                    } else if (isBed(world.getBlockType(x, y, z + 1)) || isBed(world.getBlockType(x, y, z - 1))) {
-                        yaw = 0f;  // oriented along Z-axis (0 degrees in radians)
+                    if (isBed(world.getBlockType(ancora.x + 1, ancora.y, ancora.z))
+                            || isBed(world.getBlockType(ancora.x - 1, ancora.y, ancora.z))) {
+                        yaw = (float) (Math.PI / 2.0); // deitado ao longo do eixo X
+                    } else if (isBed(world.getBlockType(ancora.x, ancora.y, ancora.z + 1))
+                            || isBed(world.getBlockType(ancora.x, ancora.y, ancora.z - 1))) {
+                        yaw = 0f; // deitado ao longo do eixo Z
                     }
-                    
-                    BedRegistry.addOrReplace(x, y, z, yaw);
+
+                    // addOrReplace deduplica por posicao, entao os seis blocos do movel
+                    // convergem para um unico registro.
+                    BedRegistry.addOrReplace(ancora.x, ancora.y, ancora.z, yaw);
                 }
             }
         }

@@ -30,9 +30,7 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
 
         LOGGER.debug("[SimTale] Block placed: " + type.getId() + " isBed=" + BedRegistry.isBedId(type.getId()));
 
-        if (BedRegistry.isBedId(type.getId())) {
-            BedRegistry.addOrReplace(pos.x, pos.y, pos.z, 0f);
-        }
+
 
         if (ChestRegistry.isChestId(type.getId())) {
             ChestRegistry.add(pos.x, pos.y, pos.z);

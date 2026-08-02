@@ -9,6 +9,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import org.joml.Vector3f;
 
 import com.hypixel.hytale.builtin.mounts.BlockMountAPI;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
@@ -407,7 +408,15 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 return;
             }
 
-            Vector3i bedPos = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
+            // Normaliza para a ancora do movel antes de montar.
+            //
+            // Uma cama ocupa seis blocos, e o mountOnBlock calcula onde o corpo deita a partir do
+            // ponto de montagem do asset — que e medido DA ANCORA. Passar um bloco de filler
+            // desloca a NPC exatamente pela distancia daquele bloco ate a ancora, e como o bloco
+            // sorteado variava, o erro variava junto. Era essa a origem do desalinhamento que
+            // resistiu a todas as tentativas de compensar por posicao.
+            Vector3i bedPos = FurnitureAnchorHelper.anchorOf(
+                    world, npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
             if (ai.targetBlockPosition == null) {
                 ai.targetBlockPosition = getBedApproachPosition(bedPos, transform, world);
             }
@@ -422,6 +431,20 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
             if (result instanceof BlockMountAPI.Mounted) {
                 LOGGER.info("[SimTale] NPC '{}' successfully mounted bed at ({},{},{})", npc.name, bedPos.x, bedPos.y, bedPos.z);
+                
+                // Comentado para permitir que o offset nativo do Hytale funcione
+                /*
+                MountedComponent mc = ref.getStore().getComponent(ref, MountedComponent.getComponentType());
+                if (mc != null) {
+                    Vector3f offset = new Vector3f(
+                        (float) TUNE_ACROSS_BED,
+                        (float) TUNE_HEIGHT,
+                        (float) TUNE_ALONG_BED
+                    );
+                    MountedComponent adjusted = new MountedComponent(mc.getMountedToBlock(), offset, mc.getBlockMountType());
+                    commandBuffer.replaceComponent(ref, MountedComponent.getComponentType(), adjusted);
+                }
+                */
                 
                 // NAO posiciona nem gira a NPC aqui. O mountOnBlock acima ja fez isso.
                 //
@@ -561,25 +584,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 return;
             }
 
-            // Ajuste de posicao na cama, aplicado DOIS TICKS depois de deitar.
-            //
-            // Todas as tentativas anteriores foram feitas logo apos o mountOnBlock, no mesmo tick,
-            // e nenhuma apareceu na tela — nem mexer no TransformComponent, nem no
-            // attachmentOffset do MountedComponent. A explicacao e ordem de aplicacao: o
-            // mountOnBlock enfileira o MountedComponent no commandBuffer, que so e processado no
-            // fim do tick. Qualquer escrita feita antes disso e sobrescrita quando a montagem
-            // finalmente entra.
-            //
-            // A prova disso veio de um teste com o mod sem tocar em pose nenhuma: a NPC "deu um
-            // teleporte" visivel ate a cama. Ou seja, o cliente MOSTRA o reposicionamento do
-            // mount; o que ele ignorava eram as minhas escritas feitas cedo demais.
-            //
-            // Dois ticks e folga suficiente para o commandBuffer ter drenado. Aplicar uma vez so
-            // evita acumular o deslocamento a cada tick.
-            if (world.getTick() - ai.taskStartTime == 2) {
-                applyBedFineTune(world, transform,
-                        new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z));
-            }
+
+
+
 
             npc.needs.healEnergy(0.045f);
 
@@ -1009,11 +1016,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     public static volatile double TUNE_HEIGHT = 0.0;
 
     /** Aplica o ajuste atual a uma NPC ja deitada, sem esperar o proximo ciclo de sono. */
-    public static void retuneSleepingNpc(World world, TransformComponent transform, Vector3i bedPos) {
-        applyBedFineTune(world, transform, bedPos);
+    public static void retuneSleepingNpc(Ref<EntityStore> ref, World world, TransformComponent transform, Vector3i bedPos) {
+        applyBedFineTune(ref, null, world, transform, bedPos);
     }
 
-    private static void applyBedFineTune(World world, TransformComponent transform, Vector3i bedPos) {
+    private static void applyBedFineTune(Ref<EntityStore> ref, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform, Vector3i bedPos) {
         if (TUNE_ALONG_BED == 0.0 && TUNE_ACROSS_BED == 0.0 && TUNE_HEIGHT == 0.0) {
             return;
         }
@@ -1036,20 +1043,18 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // cliente. O mountOnBlock usa setPosition, mas logo depois enfileira o MountedComponent,
         // e e essa mudanca estrutural que dispara a sincronizacao. Um ajuste posterior como este
         // nao tem nada que dispare o envio — a posicao mudava no servidor e o cliente continuava
-        // desenhando a NPC no lugar antigo. O faceConversationPartner ja tinha esbarrado no
-        // equivalente para rotacao, e usa teleportRotation pelo mesmo motivo.
+        // desenhando a NPC no lugar antigo.
         transform.teleportPosition(tuned);
 
-        // Ajuste ativo NUNCA e silencioso.
-        //
-        // Os tres valores sao voláteis de runtime, alterados por /simtale bedtune, e sobrevivem
-        // ate o servidor reiniciar. Durante a depuracao chegaram a ficar em along=-10, height=10,
-        // across=50 — o que desloca a NPC para longe da cama. Sem esta linha, um valor esquecido
-        // de um teste anterior contamina todos os testes seguintes e parece bug do jogo.
+        if (commandBuffer != null) {
+            commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+        } else {
+            ref.getStore().putComponent(ref, TransformComponent.getComponentType(), transform);
+        }
+
         LOGGER.warn("[SimTale][CAMA] ajuste MANUAL ativo (along={} across={} height={}): "
-                        + "({}, {}, {}) -> ({}, {}, {}). Use /simtale bedtune 0 0 0 para zerar.",
+                        + "-> ({}, {}, {}). Use /simtale bedtune 0 0 0 para zerar.",
                 TUNE_ALONG_BED, TUNE_ACROSS_BED, TUNE_HEIGHT,
-                String.format("%.2f", pos.x), String.format("%.2f", pos.y), String.format("%.2f", pos.z),
                 String.format("%.2f", tuned.x), String.format("%.2f", tuned.y), String.format("%.2f", tuned.z));
     }
 }

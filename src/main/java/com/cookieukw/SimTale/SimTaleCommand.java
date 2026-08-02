@@ -358,7 +358,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             double minDistance = Double.MAX_VALUE;
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef != null) {
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
                     TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
@@ -500,7 +500,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             double minDistance = Double.MAX_VALUE;
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef != null) {
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
                     TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
@@ -645,6 +645,13 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                         mc.getMountedToBlock(), novo, mc.getBlockMountType());
                 npc.entityRef.getStore().putComponent(
                         npc.entityRef, MountedComponent.getComponentType(), ajustado);
+
+                TransformComponent npcTransform = npc.entityRef.getStore()
+                        .getComponent(npc.entityRef, TransformComponent.getComponentType());
+                if (npcTransform != null && npc.bedLocation != null) {
+                    org.joml.Vector3i bedPos = new org.joml.Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
+                    com.cookieukw.SimTale.systems.RoutineAISystem.retuneSleepingNpc(npc.entityRef, world, npcTransform, bedPos);
+                }
 
                 ctx.sendMessage(Message.raw(String.format(
                         "[bedtune] %s: offset (%.2f, %.2f, %.2f) -> (%.2f, %.2f, %.2f)",
@@ -891,7 +898,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             double minDistance = Double.MAX_VALUE;
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef != null) {
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
                     TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
@@ -962,10 +969,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             Player player = store.getComponent(ref, Player.getComponentType());
             if (player != null) {
-                TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
-                if (tc != null) {
-                    BedWorldBootstrap.bootstrapLoadedRadius(world, tc.getPosition(), 96);
-                }
+
                 player.getPageManager().openCustomPage(ref, store, new SimBedDebugPage(playerRef, player));
             }
         }
