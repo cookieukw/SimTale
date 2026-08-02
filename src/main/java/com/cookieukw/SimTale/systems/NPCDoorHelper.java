@@ -22,37 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Opens and closes doors for NPCs.
- *
- * <p>Replaces the old {@code HouseDoorManager}, which had two independent bugs — and
- * either of them alone would prevent the entire system from working.
- *
- * <h3>Bug 1: no door opened, for anyone</h3>
- * The code constructed the new state via string manipulation:
- * <pre>
- *   if (state.toLowerCase().contains("closed"))                 // tested in lowercase
- *       openState = state.replace("closed","open")              // but replaced in the original string
- *                        .replace("CLOSED","OPEN");
- * </pre>
- * The actual door states in Hytale are {@code CloseDoorIn}, {@code CloseDoorOut},
- * {@code OpenDoorIn}, {@code OpenDoorOut}, and {@code DoorBlocked}. {@code "CloseDoorIn"} in
- * lowercase becomes {@code "closedoorin"}, which <em>contains</em> {@code "closed"} — so the
- * {@code if} statement passed by accident. However, the original string does not contain {@code "closed"}
- * nor {@code "CLOSED"}, so both {@code replace} calls changed nothing and {@code openState} came out
- * <b>identical</b> to the closed state. The door was "opened" to the state it already had.
- * Auto-close had the exact same mirrored bug.
- *
- * <h3>Bug 2: only looked at the registered house doors of the NPC themselves</h3>
- * The lookup started from {@code HouseManager.OWNER_TO_HOUSE_ID.get(npc.entityId)}. An NPC without a house,
- * an NPC visiting another house, or any door not belonging to a registered house
- * (village gate, workshop door) were never even considered.
- *
- * <h3>How it works now</h3>
- * Scans blocks around the NPC and delegates all decisions to the engine's own API
- * ({@link DoorBlockUtils} and {@link DoorInteraction#getDoorAtPosition}), instead of reimplementing
- * door logic with text. Nothing here depends on a registered house.
- */
+
 public final class NPCDoorHelper {
 
     private static final SimLog LOGGER = SimLog.forClass(NPCDoorHelper.class);
@@ -132,16 +102,36 @@ public final class NPCDoorHelper {
 
             DoorInteraction.DoorInfo door =
                     DoorInteraction.getDoorAtPosition(chunkStore, x, y, z, yaw);
-            if (door == null) return;
+            if (door == null) {
+                // Ponto cego conhecido: isDoor() disse que ha porta aqui, mas o motor nao devolveu
+                // DoorInfo. Se aparecer muito, o suspeito e a rotacao passada — getDoorAtPosition
+                // usa o yaw para localizar a folha da porta.
+                LOGGER.debug("[PORTA] bloco de porta em ({},{},{}) tipo='{}' mas getDoorAtPosition devolveu null (yaw={})",
+                        x, y, z, type.getId(), yaw);
+                return;
+            }
 
-            Vector3i doorPos = door.getBlockPosition();
+            // Normaliza para a ancora do movel.
+            //
+            // Uma porta ocupa QUATRO blocos na grade, mesmo aparentando um de largura por dois de
+            // altura: como todo movel, ela fica deslocada meio bloco e encosta em duas colunas.
+            // E getDoorAtPosition devolve o bloco consultado, nao uma posicao canonica — ao
+            // contrario do que este codigo assumia. Sem normalizar, uma porta vira quatro:
+            // trabalho repetido por tick e quatro entradas no mapa de fechamento.
+            Vector3i doorPos = FurnitureAnchorHelper.anchorOf(world, door.getBlockPosition());
             if (doorPos == null || !handled.add(new Vector3i(doorPos))) return;
 
             DoorState current = door.getDoorState();
             if (current != DoorState.CLOSED) {
-                // Already open. Renew the cooldown to prevent closing in front of a passing NPC.
-                OPENED_DOORS.computeIfPresent(
-                        toKey(doorPos), (k, v) -> AUTO_CLOSE_TICKS);
+                // Porta ja aberta: passa a rastrear para que ela FECHE depois.
+                //
+                // Aqui havia um computeIfPresent, que so renova chave existente. Uma porta
+                // encontrada ja aberta — aberta pelo jogador, ou sobrando de antes do mod
+                // rastrea-la — nunca entrava no mapa e portanto nunca era fechada. Ficava aberta
+                // para sempre, e a NPC "atravessava" simplesmente porque nao havia o que abrir.
+                OPENED_DOORS.put(toKey(doorPos), AUTO_CLOSE_TICKS);
+                LOGGER.debug("[PORTA] ({},{},{}) ja aberta ({}), agora rastreada para fechar",
+                        doorPos.x, doorPos.y, doorPos.z, current);
                 return;
             }
 
@@ -155,19 +145,29 @@ public final class NPCDoorHelper {
             // Argument order: (current state, desired state). Confirmed in the bytecode of
             // DoorInteraction.activateDoor, where the call is getInteractionState(fromState, doorState).
             String interactionState = DoorBlockUtils.getInteractionState(current, target);
-            if (interactionState == null) return;
+            if (interactionState == null) {
+                LOGGER.debug("[PORTA] ({},{},{}) getInteractionState({} -> {}) devolveu null",
+                        doorPos.x, doorPos.y, doorPos.z, current, target);
+                return;
+            }
 
             // Covers the DoorBlocked state: an obstructed door cannot open.
-            if (!DoorBlockUtils.canOpenDoor(chunkStore, doorPos, interactionState)) return;
+            if (!DoorBlockUtils.canOpenDoor(chunkStore, doorPos, interactionState)) {
+                LOGGER.debug("[PORTA] ({},{},{}) canOpenDoor recusou o estado '{}'",
+                        doorPos.x, doorPos.y, doorPos.z, interactionState);
+                return;
+            }
 
             world.setBlockInteractionState(doorPos, door.getBlockType(), interactionState);
             OPENED_DOORS.put(toKey(doorPos), AUTO_CLOSE_TICKS);
 
-            LOGGER.debug("[SimTale] NPC '{}' abriu porta em ({}, {}, {}) -> {}",
-                    npc.name, doorPos.x, doorPos.y, doorPos.z, interactionState);
+            LOGGER.debug("[PORTA] '{}' ABRIU ({},{},{}) tipo='{}' {} -> {} (estado '{}')",
+                    npc.name, doorPos.x, doorPos.y, doorPos.z,
+                    door.getBlockType() != null ? door.getBlockType().getId() : "null",
+                    current, target, interactionState);
         } catch (Exception e) {
             // A problematic door shouldn't crash the entire NPC AI tick.
-            LOGGER.debug("[SimTale] Falha ao abrir porta em ({}, {}, {}): {}", x, y, z, e.toString());
+            LOGGER.debug("[PORTA] falha em ({},{},{}): {}", x, y, z, e.toString());
         }
     }
 
@@ -210,15 +210,24 @@ public final class NPCDoorHelper {
 
             DoorInteraction.DoorInfo door =
                     DoorInteraction.getDoorAtPosition(chunkStore, pos.x, pos.y, pos.z, yaw);
-            if (door == null) return;
+            if (door == null) {
+                LOGGER.debug("[PORTA] fechar ({},{},{}): getDoorAtPosition devolveu null", pos.x, pos.y, pos.z);
+                return;
+            }
 
             DoorState current = door.getDoorState();
             if (current == DoorState.CLOSED) return;
 
             String interactionState = DoorBlockUtils.getInteractionState(current, DoorState.CLOSED);
-            if (interactionState == null) return;
+            if (interactionState == null) {
+                LOGGER.debug("[PORTA] fechar ({},{},{}): getInteractionState({} -> CLOSED) devolveu null",
+                        pos.x, pos.y, pos.z, current);
+                return;
+            }
 
             world.setBlockInteractionState(door.getBlockPosition(), door.getBlockType(), interactionState);
+            LOGGER.debug("[PORTA] FECHOU ({},{},{}) {} -> CLOSED (estado '{}')",
+                    pos.x, pos.y, pos.z, current, interactionState);
 
             LOGGER.debug("[SimTale] Porta em ({}, {}, {}) fechou sozinha -> {}",
                     pos.x, pos.y, pos.z, interactionState);
