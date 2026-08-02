@@ -50,10 +50,6 @@ public final class NPCDoorHelper {
 
     private static long lastAutoCloseTick = -1L;
 
-    // ---------------------------------------------------------------------
-    // Public API
-    // ---------------------------------------------------------------------
-
     public static void handleNpcDoors(World world, SimNPCComponent npc, TransformComponent transform) {
         if (world == null || npc == null || transform == null || npc.entityId == null) return;
 
@@ -69,11 +65,7 @@ public final class NPCDoorHelper {
         int baseX = (int) Math.floor(npcPos.x);
         int baseY = (int) Math.floor(npcPos.y);
         int baseZ = (int) Math.floor(npcPos.z);
-
-        // A double-height door appears in multiple scan cells, and getDoorAtPosition
-        // normalizes all of them to the same position. Without this, the same door would be processed
-        // up to six times in the same tick.
-        Set<Vector3i> handled = new HashSet<>();
+   Set<Vector3i> handled = new HashSet<>();
 
         for (int dx = -SCAN_XZ; dx <= SCAN_XZ; dx++) {
             for (int dy = -SCAN_DOWN; dy <= SCAN_UP; dy++) {
@@ -84,17 +76,11 @@ public final class NPCDoorHelper {
         }
     }
 
-    // ---------------------------------------------------------------------
-    // Opening
-    // ---------------------------------------------------------------------
-
+   
     private static void tryOpenDoorAt(World world, SimNPCComponent npc, Vector3d npcPos,
                                       int x, int y, int z, Set<Vector3i> handled) {
         try {
             BlockType type = world.getBlockType(x, y, z);
-            // isDoor() is a true property flag of the BlockType (IsDoor in the asset JSON). The old
-            // code used getId().toLowerCase().contains("door"), which besides being fragile caught
-            // any block with "door" in the name — trapdoor, doorframe, decoration.
             if (type == null || !type.isDoor()) return;
 
             ChunkStore chunkStore = world.getChunkStore();
@@ -103,35 +89,16 @@ public final class NPCDoorHelper {
             DoorInteraction.DoorInfo door =
                     DoorInteraction.getDoorAtPosition(chunkStore, x, y, z, yaw);
             if (door == null) {
-                // Ponto cego conhecido: isDoor() disse que ha porta aqui, mas o motor nao devolveu
-                // DoorInfo. Se aparecer muito, o suspeito e a rotacao passada — getDoorAtPosition
-                // usa o yaw para localizar a folha da porta.
-                LOGGER.debug("[PORTA] bloco de porta em ({},{},{}) tipo='{}' mas getDoorAtPosition devolveu null (yaw={})",
-                        x, y, z, type.getId(), yaw);
                 return;
             }
 
-            // Normaliza para a ancora do movel.
-            //
-            // Uma porta ocupa QUATRO blocos na grade, mesmo aparentando um de largura por dois de
-            // altura: como todo movel, ela fica deslocada meio bloco e encosta em duas colunas.
-            // E getDoorAtPosition devolve o bloco consultado, nao uma posicao canonica — ao
-            // contrario do que este codigo assumia. Sem normalizar, uma porta vira quatro:
-            // trabalho repetido por tick e quatro entradas no mapa de fechamento.
-            Vector3i doorPos = FurnitureAnchorHelper.anchorOf(world, door.getBlockPosition());
+           Vector3i doorPos = FurnitureAnchorHelper.anchorOf(world, door.getBlockPosition());
             if (doorPos == null || !handled.add(new Vector3i(doorPos))) return;
 
             DoorState current = door.getDoorState();
             if (current != DoorState.CLOSED) {
-                // Porta ja aberta: passa a rastrear para que ela FECHE depois.
-                //
-                // Aqui havia um computeIfPresent, que so renova chave existente. Uma porta
-                // encontrada ja aberta — aberta pelo jogador, ou sobrando de antes do mod
-                // rastrea-la — nunca entrava no mapa e portanto nunca era fechada. Ficava aberta
-                // para sempre, e a NPC "atravessava" simplesmente porque nao havia o que abrir.
+             
                 OPENED_DOORS.put(toKey(doorPos), AUTO_CLOSE_TICKS);
-                LOGGER.debug("[PORTA] ({},{},{}) ja aberta ({}), agora rastreada para fechar",
-                        doorPos.x, doorPos.y, doorPos.z, current);
                 return;
             }
 
