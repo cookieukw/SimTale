@@ -28,8 +28,6 @@ import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import org.joml.Vector3i;
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ArrayList;
@@ -56,7 +54,6 @@ import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
-import com.cookieukw.SimTale.systems.RoutineAISystem;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.server.npc.role.support.StateSupport;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
@@ -85,7 +82,6 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ClearAllSubCommand());
         this.addSubCommand(new ForceSpawnSubCommand());
         this.addSubCommand(new ForceSleepSubCommand());
-        this.addSubCommand(new BedTuneSubCommand());
         this.addSubCommand(new ForcePregSubCommand());
         this.addSubCommand(new ForceBirthSubCommand());
         this.addSubCommand(new SetStageSubCommand());
@@ -523,167 +519,6 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             nearestNPC.forceSleep = true;
             
             ctx.sendMessage(Message.raw("Forcando " + nearestNPC.name + " a ir dormir! Energia definida para 0."));
-        }
-    }
-
-    /**
-     * Calibra ao vivo a posicao da NPC na cama.
-     *
-     * <p>Existe porque acertar esse alinhamento por deducao nao funcionou: a cama nao e alinhada
-     * ao bloco, atravessa quatro deles ocupando o espaco de dois, e nenhuma conta feita a partir
-     * das coordenadas dos blocos deu o resultado certo. Cada tentativa custava um recompilar,
-     * subir o mundo e olhar — ciclo caro para um ajuste que se resolve no olho em segundos.
-     *
-     * <h3>Unidade: centesimos de bloco, em numero inteiro</h3>
-     * Decimal nao passa pelo parser de comando do Hytale, entao {@code 0.2} era rejeitado e o
-     * jogo respondia com o uso do comando. Os valores agora sao inteiros em centesimos:
-     * {@code 20} = 0,20 bloco. Assim nao ha ponto nem virgula para o parser recusar.
-     *
-     * <p>Os eixos sao LOCAIS da cama, entao valem em qualquer rotacao. O Hytale usa flags
-     * nomeadas, nao argumentos posicionais:
-     * <pre>
-     *   /simtale bedtune --along=20              0,20 na direcao dos pes (negativo vai para a cabeceira)
-     *   /simtale bedtune --across=-10            0,10 para o lado
-     *   /simtale bedtune --height=-20            desce 0,20
-     *   /simtale bedtune --along=0 --across=0 --height=0   zera tudo
-     *   /simtale bedtune                         mostra os valores atuais
-     *   /simtale bedtune --along=pose            alterna quem cuida da pose
-     * </pre>
-     *
-     * <p>Flags omitidas viram zero, entao vale sempre informar as tres ao ajustar.
-     *
-     * <p>O ajuste vale na hora para quem ja esta deitada e passa a valer para os proximos sonos.
-     * Quando estiver bom, os valores vao para as constantes de RoutineAISystem.
-     */
-    private static class BedTuneSubCommand extends AbstractPlayerCommand {
-        private final OptionalArg<String> alongArg;
-        private final OptionalArg<String> acrossArg;
-        private final OptionalArg<String> heightArg;
-
-        public BedTuneSubCommand() {
-            super("bedtune", "Ajusta ao vivo a posicao da NPC na cama (eixos locais da cama)");
-            this.alongArg = this.withOptionalArg("along", "+ pes / - cabeceira", ArgTypes.STRING);
-            this.acrossArg = this.withOptionalArg("across", "para os lados", ArgTypes.STRING);
-            this.heightArg = this.withOptionalArg("height", "altura", ArgTypes.STRING);
-        }
-
-        @Override
-        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
-                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
-
-            String a = ctx.get(this.alongArg);
-
-            // "/simtale bedtune pose" alterna entre deixar o mount cuidar da pose e o
-            // comportamento antigo (mod forcando estado + animacao + MovementStates).
-            if (a != null && a.equalsIgnoreCase("pose")) {
-                RoutineAISystem.LET_MOUNT_HANDLE_POSE = !RoutineAISystem.LET_MOUNT_HANDLE_POSE;
-                ctx.sendMessage(Message.raw("[bedtune] LET_MOUNT_HANDLE_POSE = "
-                        + RoutineAISystem.LET_MOUNT_HANDLE_POSE
-                        + (RoutineAISystem.LET_MOUNT_HANDLE_POSE
-                            ? " (so monta, nao mexe em pose)"
-                            : " (mod forca estado/animacao, como antes)")));
-                ctx.sendMessage(Message.raw("Use /simtale unstick e depois /simtale forcesleep para ver o efeito."));
-                return;
-            }
-
-            if (a == null) {
-                ctx.sendMessage(Message.raw(String.format(
-                        "[bedtune] atual: along=%.2f across=%.2f height=%.2f (blocos)",
-                        RoutineAISystem.TUNE_ALONG_BED, RoutineAISystem.TUNE_ACROSS_BED,
-                        RoutineAISystem.TUNE_HEIGHT)));
-                ctx.sendMessage(Message.raw(
-                        "Uso: /simtale bedtune --along=20 --across=0 --height=0   (valores em CENTESIMOS: 20 = 0,20 bloco)"));
-                ctx.sendMessage(Message.raw(
-                        "Zerar: /simtale bedtune --along=0 --across=0 --height=0   |   Pose: --along=pose"));
-                return;
-            }
-
-            // Centesimos de bloco, em inteiro.
-            //
-            // A versao anterior aceitava decimal, mas o parser de comando do Hytale recusa o
-            // ponto: "/simtale bedtune --along=0.2" respondia com o uso do comando em vez de
-            // aplicar. Trabalhar em centesimos remove o ponto da equacao — 20 significa 0,20.
-            try {
-                RoutineAISystem.TUNE_ALONG_BED = parseCentesimos(a);
-                String b = ctx.get(this.acrossArg);
-                String c = ctx.get(this.heightArg);
-                RoutineAISystem.TUNE_ACROSS_BED = b == null ? 0.0 : parseCentesimos(b);
-                RoutineAISystem.TUNE_HEIGHT = c == null ? 0.0 : parseCentesimos(c);
-            } catch (NumberFormatException e) {
-                ctx.sendMessage(Message.raw(
-                        "[bedtune] valor invalido. Use INTEIRO em centesimos, ex: --along=20 (=0,20 bloco)."));
-                return;
-            }
-
-            // Mexe no attachmentOffset do MountedComponent, NAO no TransformComponent.
-            //
-            // Enquanto a NPC esta montada, o cliente desenha ela pelo offset da montagem e ignora
-            // a posicao do transform. O log provou isso: com along=-2 across=-2 o servidor moveu
-            // a NPC de (45.50, 80.90, 30.10) para (43.50, 80.90, 32.10) — dois blocos — e na tela
-            // ela nao saiu do lugar. Todo ajuste anterior mexia num valor que o cliente descarta.
-            //
-            // O MountedComponent e networked (tem consumeNetworkOutdated) e nao expoe setter,
-            // entao o caminho e construir um novo com o offset corrigido e substituir.
-            //
-            // Os valores sao RELATIVOS: cada chamada soma ao offset atual. Assim da para ir
-            // empurrando de pouco em pouco e ver o efeito na hora.
-            int ajustadas = 0;
-            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef == null || !npc.entityRef.isValid()) continue;
-
-                MountedComponent mc = npc.entityRef.getStore()
-                        .getComponent(npc.entityRef, MountedComponent.getComponentType());
-                if (mc == null) continue;
-
-                Vector3fc atual = mc.getAttachmentOffset();
-                Vector3f novo = new Vector3f(
-                        atual.x() + (float) RoutineAISystem.TUNE_ACROSS_BED,
-                        atual.y() + (float) RoutineAISystem.TUNE_HEIGHT,
-                        atual.z() + (float) RoutineAISystem.TUNE_ALONG_BED);
-
-                MountedComponent ajustado = new MountedComponent(
-                        mc.getMountedToBlock(), novo, mc.getBlockMountType());
-                npc.entityRef.getStore().putComponent(
-                        npc.entityRef, MountedComponent.getComponentType(), ajustado);
-
-                TransformComponent npcTransform = npc.entityRef.getStore()
-                        .getComponent(npc.entityRef, TransformComponent.getComponentType());
-                if (npcTransform != null && npc.bedLocation != null) {
-                    org.joml.Vector3i bedPos = new org.joml.Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
-                    com.cookieukw.SimTale.systems.RoutineAISystem.retuneSleepingNpc(npc.entityRef, world, npcTransform, bedPos);
-                }
-
-                ctx.sendMessage(Message.raw(String.format(
-                        "[bedtune] %s: offset (%.2f, %.2f, %.2f) -> (%.2f, %.2f, %.2f)",
-                        npc.name, atual.x(), atual.y(), atual.z(), novo.x, novo.y, novo.z)));
-                ajustadas++;
-            }
-
-            if (ajustadas == 0) {
-                ctx.sendMessage(Message.raw("[bedtune] nenhuma NPC montada. Deixe uma dormindo antes."));
-            }
-
-            if (RoutineAISystem.TUNE_ALONG_BED != 0 || RoutineAISystem.TUNE_ACROSS_BED != 0
-                    || RoutineAISystem.TUNE_HEIGHT != 0) {
-                ctx.sendMessage(Message.raw(
-                        "[bedtune] ATENCAO: o ajuste fica ativo para os proximos sonos ate o servidor reiniciar. "
-                        + "Para zerar: /simtale bedtune --along=0 --across=0 --height=0"));
-            }
-        }
-
-        /**
-         * Le um inteiro em centesimos de bloco e devolve blocos.
-         * <p>
-         * Tolera um decimal escrito com ponto ou virgula, caso o parser do jogo deixe passar em
-         * alguma versao — nesse caso o valor e lido como blocos, que e a leitura natural de quem
-         * digitou "0,2".
-         */
-        private static double parseCentesimos(String raw) {
-            String s = raw.trim();
-            if (s.indexOf('.') >= 0 || s.indexOf(',') >= 0) {
-                return Double.parseDouble(s.replace(',', '.'));
-            }
-            return Integer.parseInt(s) / 100.0;
         }
     }
 

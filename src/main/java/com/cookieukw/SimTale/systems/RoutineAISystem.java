@@ -9,7 +9,6 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import org.joml.Vector3f;
 
 import com.hypixel.hytale.builtin.mounts.BlockMountAPI;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
@@ -20,7 +19,6 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
@@ -75,18 +73,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     private static final double SOCIALIZE_SEARCH_RANGE_SQ = 20.0 * 20.0;
     /** Max distance from home an idle stroll may take the NPC. */
     private static final double WANDER_RADIUS = 8.0;
-    /**
-     * Quando true, o mod apenas monta a NPC na cama e nao mexe em pose, estado nem animacao.
-     *
-     * <p><b>Resultado do teste:</b> com true a NPC fica <b>em pe</b> sobre a cama. Isso resolveu
-     * a duvida: quem a deita sao as camadas do mod ({@code MovementStates.sleeping} e a animacao
-     * de dormir), nao o sistema de montagem. Elas nao estavam atrapalhando a pose — elas <i>sao</i>
-     * a pose. Por isso o padrao voltou a ser false.
-     *
-     * <p>O interruptor fica para comparacao futura, ja que foi ele que fechou essa questao.
-     */
-    public static volatile boolean LET_MOUNT_HANDLE_POSE = false;
-
     private static final SimLog LOGGER = SimLog.forClass(RoutineAISystem.class);
     @Override
     @Nonnull
@@ -432,20 +418,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             if (result instanceof BlockMountAPI.Mounted) {
                 LOGGER.info("[SimTale] NPC '{}' successfully mounted bed at ({},{},{})", npc.name, bedPos.x, bedPos.y, bedPos.z);
                 
-                // Comentado para permitir que o offset nativo do Hytale funcione
-                /*
-                MountedComponent mc = ref.getStore().getComponent(ref, MountedComponent.getComponentType());
-                if (mc != null) {
-                    Vector3f offset = new Vector3f(
-                        (float) TUNE_ACROSS_BED,
-                        (float) TUNE_HEIGHT,
-                        (float) TUNE_ALONG_BED
-                    );
-                    MountedComponent adjusted = new MountedComponent(mc.getMountedToBlock(), offset, mc.getBlockMountType());
-                    commandBuffer.replaceComponent(ref, MountedComponent.getComponentType(), adjusted);
-                }
-                */
-                
                 // NAO posiciona nem gira a NPC aqui. O mountOnBlock acima ja fez isso.
                 //
                 // Confirmado no bytecode de BlockMountAPI.mountOnBlock, que executa, nesta ordem:
@@ -457,12 +429,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 //   TransformComponent.setPosition(...)          // aplica direto, sincrono
                 //   TransformComponent.setRotation(...)
                 //
-                // Ou seja, o motor conhece o ponto exato onde o corpo deita naquele modelo de
-                // cama e ja o aplica. O codigo antigo enfileirava, logo em seguida, um Teleport
-                // para bedPos + (0.5, 2.0, 0.5) com um yaw vindo do TransformComponent da
-                // ENTIDADE da cama — sobrescrevendo os dois valores corretos por dois errados.
+                // In other words, the engine knows the exact spot where the body lies on that bed model and
+                // applies it. The old code queued, immediately after, a Teleport to bedPos +
+                // (0.5, 2.0, 0.5) with a yaw coming from the bed ENTITY's TransformComponent —
+                // overwriting the two correct values with two wrong ones.
                 //
-                // Isso explicava tres sintomas de uma vez: a NPC deitada atravessada (o yaw da
+                //  explicava tres sintomas de uma vez: a NPC deitada atravessada (o yaw da
                 // mobilia aponta para o lado por onde se entra, perpendicular a quem deita), a
                 // queda de ~1,4 bloco ate o colchao, e a ejecao lateral da fisica — que foi o
                 // motivo de a altura ter sido subida para 2.0 como paliativo. Nenhum desses
@@ -472,90 +444,41 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 // clearMoveTarget do MOVING_TO_BED o deixou no bloco AO LADO da cama. Sem isto,
                 // a NPC sai da cama e vai dormir no chao, ao lado. Como o mount ja atualizou o
                 // TransformComponent de forma sincrona, a posicao lida agora ja e a do colchao.
-                // O ajuste de posicao NAO pode ser feito aqui — ver o bloco SLEEPING abaixo.
                 NPCMovementHelper.pinLeashAt(ref, ai, new Vector3d(transform.getPosition()));
 
-                // Diagnostico do posicionamento na cama.
+                // The POSE comes from here, not from the mount system.
                 //
-                // O ponto de montagem da cama tem Offset {X:0.4, Y:0.4, Z:1.0} — ou seja, o corpo
-                // fica UM BLOCO adiante do bloco ancora, na direcao definida pela rotacao do
-                // bloco. Isso significa que passar o bloco errado da cama para o mountOnBlock
-                // desloca a NPC para fora, que e o sintoma atual.
-                //
-                // Estes numeros dizem qual das duas causas e a real, sem chute:
-                //   - se "bloco em bedPos" nao for uma cama, bedLocation esta apontando para o
-                //     lugar errado (provavelmente veio do floor() da posicao da ENTIDADE cama);
-                //   - se for cama e houver outra cama vizinha, bedPos e a ponta errada do movel;
-                //   - se for cama e nao houver vizinha, o movel e de um bloco so e o problema
-                //     esta na rotacao aplicada ao offset.
-                if (LOGGER.isInfoEnabled()) {
-                    BlockType atBed = world.getBlockType(bedPos.x, bedPos.y, bedPos.z);
-                    String atBedId = (atBed != null && atBed.getId() != null) ? atBed.getId() : "null";
-                    boolean atBedIsBed = atBed != null && atBed.getId() != null && BedRegistry.isBedId(atBed.getId());
+                // A test with these three calls turned off left the NPC STANDING on the bed, which
+                // settled the question: the mount handles position and rotation, but the one that
+                // lays the body down is MovementStates.sleeping plus the animation. Do not remove
+                // without repeating that test.
+                setSleepingState(ref, store, commandBuffer, true);
 
-                    StringBuilder vizinhas = new StringBuilder();
-                    int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
-                    String[] nomes = {"+X","-X","+Z","-Z"};
-                    for (int i = 0; i < dirs.length; i++) {
-                        BlockType nb = world.getBlockType(bedPos.x + dirs[i][0], bedPos.y, bedPos.z + dirs[i][1]);
-                        if (nb != null && nb.getId() != null && BedRegistry.isBedId(nb.getId())) {
-                            if (vizinhas.length() > 0) vizinhas.append(",");
-                            vizinhas.append(nomes[i]);
-                        }
+                // The role does not declare the "Sleep" state, so this call generates
+                // "State 'Sleep.null' ... does not exist" in the log. It stays because it is harmless
+                // and because declaring the state requires a BlockSet asset that we still haven't
+                // figured out how to register by mod — see docs/sistemas/npc-comportamento.md.
+                NPCEntity npcEntityComponent = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
+                if (npcEntityComponent != null) {
+                    StateSupport stateSupport = StateSupport.get(ref, store);
+                    if (stateSupport != null) {
+                        stateSupport.setState(ref, "Sleep", null, store);
                     }
-
-                    Vector3d depois = transform.getPosition();
-                    LOGGER.info("[SimTale][CAMA] npc='{}' bedPos=({},{},{}) blocoLa='{}' ehCama={} "
-                                    + "camasVizinhas=[{}] rotIndex={} posDepoisDoMount=({}, {}, {}) delta=({}, {}, {})",
-                            npc.name, bedPos.x, bedPos.y, bedPos.z, atBedId, atBedIsBed,
-                            vizinhas.length() == 0 ? "nenhuma" : vizinhas.toString(),
-                            world.getBlockRotationIndex(bedPos.x, bedPos.y, bedPos.z),
-                            String.format("%.2f", depois.x), String.format("%.2f", depois.y), String.format("%.2f", depois.z),
-                            String.format("%.2f", depois.x - bedPos.x),
-                            String.format("%.2f", depois.y - bedPos.y),
-                            String.format("%.2f", depois.z - bedPos.z));
                 }
 
-                // Deixa o sistema de montagem do jogo trabalhar sozinho.
-                //
-                // Quando o JOGADOR deita nesta mesma cama, ele fica certo — e nenhuma das tres
-                // chamadas abaixo acontece no caminho dele. Elas foram somando ao longo do tempo
-                // e podem estar justamente atropelando a pose que o mount ja define:
-                //
-                //   setSleepingState  sobrescreve o MovementStates, de onde
-                //                     ModelSystems$UpdateMovementStateBoundingBox tira a caixa de
-                //                     colisao — e possivelmente o cliente tira a pose;
-                //   setState("Sleep") falha (o role nao declara esse estado) e so gera aviso;
-                //   playAnim(Status)  forca uma animacao que pode sobrepor a pose da montagem.
-                //
-                // O MountedComponent ja carrega BlockMountType.Bed, entao o cliente tem tudo o
-                // que precisa para desenhar alguem deitado. Este interruptor existe para provar
-                // ou descartar isso sem recompilar duas vezes: com true, so montamos e saimos do
-                // caminho.
-                if (!LET_MOUNT_HANDLE_POSE) {
-                    setSleepingState(ref, store, commandBuffer, true);
-
-                    NPCEntity npcEntityComponent = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
-                    if (npcEntityComponent != null) {
-                        StateSupport stateSupport = StateSupport.get(ref, store);
-                        if (stateSupport != null) {
-                            stateSupport.setState(ref, "Sleep", null, store);
-                        }
-                    }
-
-                    playAnim(ref, AnimationSlot.Status, "Characters/Animations/Flavor/Sleep.blockyanim", "Sleep", store);
-                }
+                playAnim(ref, AnimationSlot.Status, "Characters/Animations/Flavor/Sleep.blockyanim", "Sleep", store);
 
                 ai.currentTask = TaskType.SLEEPING;
             } else {
                 LOGGER.warn("[SimTale] Bed mount failed for NPC '{}': {}", npc.name, result);
 
-                // Nem toda falha significa que a cama acabou.
+                // Any failure does not mean the bed is gone.
                 //
-                // ALREADY_MOUNTED so diz que a NPC ficou presa a uma montagem anterior — a cama
-                // esta inteira. O codigo antigo tratava qualquer falha do mesmo jeito: apagava
-                // npc.bedLocation e gravava no banco. Ou seja, um tropeco transitorio custava a
-                // cama da NPC de forma permanente, e ela ia procurar outra do zero.
+                // ALREADY_MOUNTED only says that the NPC is stuck to a previous mount — the
+                // bed is intact. The old code treated any failure the same way: it erased
+                // npc.bedLocation and saved it to the database. In other words, a transient
+                // stumble cost the NPC her bed permanently, and she would go look for another
+                // one from scratch.
                 //
                 // Aqui a montagem velha e removida e a proxima tentativa acontece no proximo
                 // tick, com a cama preservada.
@@ -974,87 +897,4 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         return HouseManager.validateAndClaimBed(world, bestBed, npc);
     }
 
-    /**
-     * Ajuste fino, opcional, sobre a posicao que o motor deu na cama.
-     *
-     * <h3>Por que nao ha calculo geometrico aqui</h3>
-     * Houve uma versao que "centralizava" a NPC entre os centros dos dois blocos da cama. A
-     * premissa estava errada: <b>a cama nao e alinhada ao bloco como no Minecraft</b>. Ela ocupa
-     * o espaco de dois blocos, mas atravessada — meio bloco dentro de cada vizinho, encostando em
-     * quatro blocos no total. Nesse arranjo o centro visual do movel nao coincide com o centro
-     * dos blocos que o representam, e aquele calculo empurrava a NPC para longe do lugar certo.
-     *
-     * <p>O motor, por outro lado, ja conhece a geometria real. Para a cama do vilarejo,
-     * {@code Beds} declara {@code Offset {X:0.4, Y:0.4, Z:1.0}}, e com {@code rotIndex=1} o
-     * {@code mountOnBlock} colocou a NPC em:
-     *
-     * <pre>
-     *   centro do bloco (44,80,30) = (44.5, 80.5, 30.5)
-     *   offset rotacionado         = (1.0,  0.4,  -0.4)
-     *   resultado                  = (45.5, 80.9,  30.1)
-     * </pre>
-     *
-     * Se o movel vai de {@code x=44.5} a {@code x=46.5}, {@code 45.5} e justamente o meio dele —
-     * o offset de um bloco inteiro existe por causa do deslocamento de meio bloco. Ou seja: o
-     * valor do motor e a melhor referencia disponivel, e nao ha nada a corrigir por calculo.
-     *
-     * <h3>Como calibrar, se sobrar desalinhamento</h3>
-     * As constantes abaixo estao em coordenadas LOCAIS da cama, entao funcionam igual em qualquer
-     * rotacao:
-     * <ul>
-     *   <li>{@code TUNE_ALONG_BED}: positivo empurra na direcao dos pes, negativo na da cabeceira;</li>
-     *   <li>{@code TUNE_ACROSS_BED}: desloca para os lados;</li>
-     *   <li>{@code TUNE_HEIGHT}: sobe ou desce.</li>
-     * </ul>
-     * Com as tres em zero esta funcao nao faz nada e a posicao e exatamente a do motor. Mexa em
-     * passos de 0.1 e observe — so quem ve a tela consegue fechar esse ajuste.
-     */
-    // Ajustaveis em tempo real por /simtale bedtune, para nao precisar recompilar a cada
-    // tentativa. Quando o valor estiver bom, e so copiar para ca como padrao.
-    public static volatile double TUNE_ALONG_BED = 0.0;
-    public static volatile double TUNE_ACROSS_BED = 0.0;
-    public static volatile double TUNE_HEIGHT = 0.0;
-
-    /** Aplica o ajuste atual a uma NPC ja deitada, sem esperar o proximo ciclo de sono. */
-    public static void retuneSleepingNpc(Ref<EntityStore> ref, World world, TransformComponent transform, Vector3i bedPos) {
-        applyBedFineTune(ref, null, world, transform, bedPos);
-    }
-
-    private static void applyBedFineTune(Ref<EntityStore> ref, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform, Vector3i bedPos) {
-        if (TUNE_ALONG_BED == 0.0 && TUNE_ACROSS_BED == 0.0 && TUNE_HEIGHT == 0.0) {
-            return;
-        }
-
-        // Eixos locais da cama levados para o mundo pela rotacao do bloco: o comprimento e o Z
-        // local (e o eixo que o Offset Z:1.0 percorre) e a largura e o X local.
-        Vector3i along = new Vector3i(0, 0, 1);
-        Vector3i across = new Vector3i(1, 0, 0);
-        RotationTuple rot = RotationTuple.get(world.getBlockRotationIndex(bedPos.x, bedPos.y, bedPos.z));
-        rot.applyRotationTo(along);
-        rot.applyRotationTo(across);
-
-        Vector3d pos = transform.getPosition();
-        Vector3d tuned = new Vector3d(
-                pos.x + along.x * TUNE_ALONG_BED + across.x * TUNE_ACROSS_BED,
-                pos.y + TUNE_HEIGHT,
-                pos.z + along.z * TUNE_ALONG_BED + across.z * TUNE_ACROSS_BED);
-
-        // teleportPosition, nao setPosition: sao metodos distintos, e so o primeiro chega ao
-        // cliente. O mountOnBlock usa setPosition, mas logo depois enfileira o MountedComponent,
-        // e e essa mudanca estrutural que dispara a sincronizacao. Um ajuste posterior como este
-        // nao tem nada que dispare o envio — a posicao mudava no servidor e o cliente continuava
-        // desenhando a NPC no lugar antigo.
-        transform.teleportPosition(tuned);
-
-        if (commandBuffer != null) {
-            commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
-        } else {
-            ref.getStore().putComponent(ref, TransformComponent.getComponentType(), transform);
-        }
-
-        LOGGER.warn("[SimTale][CAMA] ajuste MANUAL ativo (along={} across={} height={}): "
-                        + "-> ({}, {}, {}). Use /simtale bedtune 0 0 0 para zerar.",
-                TUNE_ALONG_BED, TUNE_ACROSS_BED, TUNE_HEIGHT,
-                String.format("%.2f", tuned.x), String.format("%.2f", tuned.y), String.format("%.2f", tuned.z));
-    }
 }
