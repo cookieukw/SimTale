@@ -32,6 +32,8 @@ public final class NPCFoodHelper {
 
     private static final float[] HUNGER_BY_TIER = {0f, 25f, 45f, 65f};
 
+    private static final float[] HEALTH_BY_TIER = {0f, 6f, 14f, 24f};
+
     public static int tierOf(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return NOT_FOOD;
 
@@ -54,6 +56,10 @@ public final class NPCFoodHelper {
 
     public static float hungerRestored(int tier) {
         return tier >= 1 && tier < HUNGER_BY_TIER.length ? HUNGER_BY_TIER[tier] : 0f;
+    }
+
+    public static float healthRestored(int tier) {
+        return tier >= 1 && tier < HEALTH_BY_TIER.length ? HEALTH_BY_TIER[tier] : 0f;
     }
 
     /**

@@ -569,6 +569,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         }
 
         // --- Chest Interaction & Feeding Logic (Delegado ao NPCHungerHelper) ---
+        NPCHungerHelper.tickStarvation(ref, npc, world);
         NPCHungerHelper.handleHungerLogic(ref, npc, ai, transform, world, store);
 
         // --- Crop Harvesting & Hunting Logic (Delegado ao NPCWorkHelper) ---

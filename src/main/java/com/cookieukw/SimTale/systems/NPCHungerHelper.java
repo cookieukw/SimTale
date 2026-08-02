@@ -1,5 +1,6 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookie.runecore.api.StatHelper;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.HouseBlockPos;
@@ -59,6 +60,32 @@ public class NPCHungerHelper {
             }
         }
         return best;
+    }
+
+    /** Below this, hunger starts costing health. */
+    private static final float STARVATION_THRESHOLD = 5f;
+
+    /** Ticks between starvation hits. 20 ticks/s, so this is one hit every 15s. */
+    private static final int STARVATION_INTERVAL_TICKS = 300;
+
+    private static final float STARVATION_DAMAGE = 4f;
+
+    /**
+     * Drains health while hunger sits at rock bottom.
+     *
+     * <p>Paced so an NPC left with an empty larder takes a long time to die: the damage is small
+     * and spaced out, which gives the hunger routine many chances to find a meal first. Starving
+     * to death should be the outcome of a village with no food, not of one missed lunch.
+     */
+    public static void tickStarvation(Ref<EntityStore> ref, SimNPCComponent npc, World world) {
+        if (npc.needs == null || npc.needs.hunger > STARVATION_THRESHOLD) return;
+        if (npc.entityId == null) return;
+
+        // Staggered by entity id so a starving village does not take damage in lockstep.
+        if (Math.floorMod(world.getTick() + npc.entityId.hashCode(), STARVATION_INTERVAL_TICKS) != 0) return;
+
+        StatHelper.subtractHealth(ref, STARVATION_DAMAGE);
+        LOGGER.debug("[COMIDA] {} passando fome (fome {}), -{} de vida", npc.name, npc.needs.hunger, STARVATION_DAMAGE);
     }
 
     public static void handleHungerLogic(
@@ -160,6 +187,11 @@ public class NPCHungerHelper {
             if (world.getTick() - ai.taskStartTime > 60) {
                 float restored = NPCFoodHelper.hungerRestored(ai.eatingTier);
                 npc.needs.hunger = Math.min(100f, npc.needs.hunger + restored);
+
+                float healed = NPCFoodHelper.healthRestored(ai.eatingTier);
+                if (healed > 0f) {
+                    StatHelper.addHealth(ref, healed);
+                }
 
                 if (ai.eatingWasFavorite) {
                     npc.needs.fun = Math.min(100f, npc.needs.fun + 10f);
