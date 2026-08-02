@@ -53,6 +53,7 @@ import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.entity.Frozen;
+import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.server.npc.role.support.StateSupport;
@@ -82,6 +83,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ClearAllSubCommand());
         this.addSubCommand(new ForceSpawnSubCommand());
         this.addSubCommand(new ForceSleepSubCommand());
+        this.addSubCommand(new DebugLogSubCommand());
         this.addSubCommand(new ForcePregSubCommand());
         this.addSubCommand(new ForceBirthSubCommand());
         this.addSubCommand(new SetStageSubCommand());
@@ -519,6 +521,29 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             nearestNPC.forceSleep = true;
             
             ctx.sendMessage(Message.raw("Forcando " + nearestNPC.name + " a ir dormir! Energia definida para 0."));
+        }
+    }
+
+    /**
+     * Liga e desliga as mensagens de depuracao do mod.
+     *
+     * <p>Boa parte do diagnostico do SimTale esta em chamadas {@code LOGGER.debug}, que o
+     * {@link SimLog} descarta por padrao — do contrario o log do servidor encheria com varreduras
+     * por tick (busca de cama, de agua, de bau, de porta). Sem um jeito de liga-las em jogo,
+     * investigar qualquer coisa exigia recompilar.
+     */
+    private static class DebugLogSubCommand extends AbstractPlayerCommand {
+        public DebugLogSubCommand() {
+            super("debug", "Liga/desliga as mensagens de depuracao do SimTale no log");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            SimLog.debugEnabled = !SimLog.debugEnabled;
+            ctx.sendMessage(Message.raw("[SimTale] log de depuracao "
+                    + (SimLog.debugEnabled ? "LIGADO" : "desligado")
+                    + (SimLog.debugEnabled ? " — lembre de desligar depois, ele e verboso." : "")));
         }
     }
 
