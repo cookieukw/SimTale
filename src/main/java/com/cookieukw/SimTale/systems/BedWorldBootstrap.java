@@ -19,6 +19,7 @@ public final class BedWorldBootstrap {
         int pz = (int) Math.floor(center.z);
         
         int bedsFound = BedRegistry.size();
+        int chestsFound = ChestRegistry.size();
         LOGGER.debug("[SimTale-DEBUG] Starting simple radius scan around (" + px + "," + py + "," + pz + ") with radius " + radius);
         
         // Scan a cube around the player position
@@ -27,20 +28,32 @@ public final class BedWorldBootstrap {
                 for (int y = Math.max(0, py - 16); y <= Math.min(319, py + 16); y++) {
                     BlockType type = world.getBlockType(x, y, z);
                     if (type == null || type.getId() == null) continue;
-                    if (!BedRegistry.isBedId(type.getId())) continue;
 
-                    registerBedAt(world, x, y, z);
+                    if (BedRegistry.isBedId(type.getId())) {
+                        registerBedAt(world, x, y, z);
+                        continue;
+                    }
+
+                    // Chests the player placed before the server came up were invisible to the
+                    // NPCs, since only the place event ever registered them.
+                    if (ChestRegistry.isContainerAt(world, x, y, z)) {
+                        Vector3i chestAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
+                        ChestRegistry.add(chestAnchor.x, chestAnchor.y, chestAnchor.z);
+                    }
                 }
             }
         }
         
         int newBeds = BedRegistry.size() - bedsFound;
-        if (newBeds > 0) {
+        int newChests = ChestRegistry.size() - chestsFound;
+        if (newBeds > 0 || newChests > 0) {
             // At info level: this now runs on join, and it is the one line that tells whether the
-            // world's existing beds were picked up at all.
-            LOGGER.info("[SimTale] Scan found {} new beds. Total: {}", newBeds, BedRegistry.size());
+            // world's existing furniture was picked up at all.
+            LOGGER.info("[SimTale] Scan found {} new beds and {} new chests. Totals: {} beds, {} chests",
+                    newBeds, newChests, BedRegistry.size(), ChestRegistry.size());
         } else {
-            LOGGER.debug("[SimTale-DEBUG] Simple scan finished: no new beds. Total: " + BedRegistry.size());
+            LOGGER.debug("[SimTale-DEBUG] Scan finished: nothing new. Totals: "
+                    + BedRegistry.size() + " beds, " + ChestRegistry.size() + " chests");
         }
     }
 

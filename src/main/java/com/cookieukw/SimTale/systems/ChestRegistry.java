@@ -3,6 +3,9 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.core.SimLog;
 
 import com.cookieukw.SimTale.core.HouseBlockPos;
+import com.hypixel.hytale.server.core.modules.block.BlockModule;
+import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
+import com.hypixel.hytale.server.core.universe.world.World;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,10 +16,34 @@ public final class ChestRegistry {
 
     public static final Set<HouseBlockPos> CHESTS = Collections.synchronizedSet(new HashSet<>());
 
+    /**
+     * Name-based guess, kept only as a fallback for callers that have an id and no world.
+     *
+     * <p>Unreliable by nature: it depends on Hytale naming its storage blocks with one of these
+     * words, and a chest called something like {@code Furniture_Storage_Crate} slips through. Use
+     * {@link #isContainerAt} whenever a world reference is available.
+     */
     public static boolean isChestId(String id) {
         if (id == null) return false;
         String name = id.toLowerCase();
         return name.contains("chest") || name.contains("barrel") || name.contains("cupboard") || name.contains("cabinet");
+    }
+
+    /**
+     * Authoritative check: a block is storage when the engine gives it an item container.
+     *
+     * <p>This is the same component the NPCs already read when looking for food, so registration
+     * and consumption can no longer disagree — under the old name heuristic a block could be
+     * skipped at registration and still hold food an NPC would happily have eaten.
+     */
+    public static boolean isContainerAt(World world, int x, int y, int z) {
+        if (world == null) return false;
+        try {
+            return BlockModule.getComponent(
+                    ItemContainerBlock.getComponentType(), world, x, y, z) != null;
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     public static void add(int x, int y, int z) {

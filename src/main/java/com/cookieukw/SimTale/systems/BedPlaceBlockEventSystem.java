@@ -39,10 +39,17 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
             BedWorldBootstrap.registerBedAt(world, pos.x, pos.y, pos.z);
         }
 
-        if (ChestRegistry.isChestId(type.getId())) {
+        // Ask the engine whether the block holds an item container instead of guessing from its
+        // name. The name heuristic silently missed any storage block Hytale does not happen to
+        // call chest/barrel/cupboard/cabinet, which is why chestcheck reported nothing after
+        // three chests had been placed.
+        if (ChestRegistry.isContainerAt(world, pos.x, pos.y, pos.z)
+                || ChestRegistry.isChestId(type.getId())) {
             // Register the anchor so placement and removal agree on one position per chest.
             Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
             ChestRegistry.add(anchor.x, anchor.y, anchor.z);
+            LOGGER.debug("[SimTale] Chest registered from placement: {} at ({},{},{})",
+                    type.getId(), anchor.x, anchor.y, anchor.z);
         }
 
         if (CropRegistry.isCropId(type.getId())) {
