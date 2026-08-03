@@ -166,9 +166,15 @@ Group {
       LayoutMode: Left;
       Button #BtnViewBeds {
         FlexWeight: 1;
+        Anchor: (Height: @DebugBtnH, Right: 10);
+        Style: $T.@BtnNeutral;
+        Label { Text: "Ver Camas"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
+      }
+      Button #BtnViewChests {
+        FlexWeight: 1;
         Anchor: (Height: @DebugBtnH);
         Style: $T.@BtnNeutral;
-        Label { Text: "Ver Camas Registradas"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
+        Label { Text: "Ver Baús"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
       }
     }
   }

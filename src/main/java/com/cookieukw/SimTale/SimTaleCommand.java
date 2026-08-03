@@ -89,6 +89,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new SetStageSubCommand());
         this.addSubCommand(new ForceMarrySubCommand());
         this.addSubCommand(new DebugBedsSubCommand());
+        this.addSubCommand(new DebugChestsSubCommand());
         this.addSubCommand(new PregnancySubCommand());
         this.addSubCommand(new DebugNearSubCommand());
         this.addSubCommand(new SetMoodSubCommand());
@@ -831,6 +832,22 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             if (player != null) {
 
                 player.getPageManager().openCustomPage(ref, store, new SimBedDebugPage(playerRef, player));
+            }
+        }
+    }
+
+    private static class DebugChestsSubCommand extends AbstractPlayerCommand {
+        public DebugChestsSubCommand() {
+            super("debugchests", "Abre a tela de debug de baus registrados");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            Player player = store.getComponent(ref, Player.getComponentType());
+            if (player != null) {
+                player.getPageManager().openCustomPage(ref, store,
+                        new com.cookieukw.SimTale.logic.SimChestDebugPage(playerRef, player));
             }
         }
     }

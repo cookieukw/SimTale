@@ -75,6 +75,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnPrevNpc", new EventData().append("action", "prev_npc"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnNextNpc", new EventData().append("action", "next_npc"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnViewBeds", new EventData().append("action", "view_beds"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnViewChests", new EventData().append("action", "view_chests"), false);
     }
 
     private void populateNPCData(UICommandBuilder cmd, SimNPCComponent npc, Store<EntityStore> store) {
@@ -125,6 +126,16 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
                 BedWorldBootstrap.bootstrapLoadedRadius(store.getExternalData().getWorld(), tc.getPosition(), 96);
             }
             player.getPageManager().openCustomPage(storeRef, store, new SimBedDebugPage(playerRefComp, player));
+            return;
+        }
+        if (eventData.contains("view_chests")) {
+            // Same wide rescan the bed view does, so a chest placed before the server came up
+            // shows here without the player having to walk over and replace it.
+            TransformComponent tc = store.getComponent(storeRef, TransformComponent.getComponentType());
+            if (tc != null) {
+                BedWorldBootstrap.bootstrapLoadedRadius(store.getExternalData().getWorld(), tc.getPosition(), 96);
+            }
+            player.getPageManager().openCustomPage(storeRef, store, new SimChestDebugPage(playerRefComp, player));
             return;
         }
 
