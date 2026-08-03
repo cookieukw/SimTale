@@ -38,7 +38,8 @@ Group {
 
     // ---------------------------------------------------------------- info well
     Group #InfoPanel {
-      Anchor: (Height: 300, Bottom: $T.@SectionGap);
+      // Grew with the needs row added below; the rows are fixed-height so the panel has to follow.
+      Anchor: (Height: 332, Bottom: $T.@SectionGap);
       LayoutMode: Top;
       Background: $T.@InsetSurface;
       Padding: (Top: 12, Bottom: 12, Horizontal: $T.@GutterInner);
@@ -47,6 +48,13 @@ Group {
         Text: "INFORMAÇÕES";
         Anchor: (Height: 22, Bottom: 8);
         Style: $T.@SectionHeaderStyle;
+      }
+      // Needs sit above the personality lines because they change minute to minute, while traits
+      // and likes never do. The colour is set from Java so a starving NPC reads at a glance.
+      Label #NpcNeeds {
+        Text: "Fome: —";
+        Anchor: (Height: 26, Bottom: $T.@RowGap);
+        Style: $T.@BodyStrong;
       }
       Label #NpcTraits {
         Text: "Traços: —";

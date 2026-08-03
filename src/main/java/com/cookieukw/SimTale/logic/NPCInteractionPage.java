@@ -456,6 +456,10 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             commandBuilder.set("#NpcSeason.TextSpans", Message.translation("ui.season").insert(Message.raw(" ")).insert(Message.translation("ui." + seasonKey)));
         }
         
+        // Outside the preferences block on purpose: needs exist even for an NPC whose personality
+        // data failed to load, and that is exactly when knowing it is starving matters most.
+        buildNeedsLine(commandBuilder, npc);
+
         Relationship rel = npc.getRelationship(playerRefComp.getUuid());
         Message statusMsg = Message.translation("ui.rel." + rel.getStatusName().toLowerCase());
         Message relValues = Message.translation("ui.relationship.values")
@@ -676,5 +680,39 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             return temp.name;
         }
         return "Desconhecido";
+    }
+
+    /**
+     * Writes the needs line, leading with hunger and colouring it by severity.
+     *
+     * <p>The thresholds mirror the ones the routine actually acts on, so the label and the
+     * behaviour never tell different stories: below 50 the NPC starts looking for food when idle,
+     * below 25 it drops whatever it is doing, and below 5 it is losing health.
+     */
+    private void buildNeedsLine(UICommandBuilder commandBuilder, SimNPCComponent npc) {
+        if (npc.needs == null) return;
+
+        int hunger = Math.round(npc.needs.hunger);
+        int energy = Math.round(npc.needs.energy);
+
+        String state;
+        String color;
+        if (hunger < 5) {
+            state = "faminto";
+            color = "#ff4455";
+        } else if (hunger < 25) {
+            state = "com muita fome";
+            color = "#ff8844";
+        } else if (hunger < 50) {
+            state = "com fome";
+            color = "#ffcc55";
+        } else {
+            state = "saciado";
+            color = "#44ff88";
+        }
+
+        commandBuilder.set("#NpcNeeds.Text",
+                "Fome: " + hunger + "/100 (" + state + ")   •   Energia: " + energy + "/100");
+        commandBuilder.set("#NpcNeeds.Style.TextColor", color);
     }
 }
