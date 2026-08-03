@@ -195,14 +195,29 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // IDLE -> no proximo tick a interrupcao dispara outra vez. Como ela zera taskStartTime
         // para furar o cooldown, isso rodava a cada tick. Um log real acumulou 3447 rejeicoes da
         // MESMA cama em poucos segundos, com a NPC parada de exaustao o tempo todo.
-        if (npc.needs.energy < sleepThreshold && world.getTick() >= ai.nextBedSearchTick
-                && ai.currentTask != TaskType.FINDING_BED && ai.currentTask != TaskType.MOVING_TO_BED && ai.currentTask != TaskType.ENTERING_BED && ai.currentTask != TaskType.SLEEPING && ai.currentTask != TaskType.WAKING) {
+        // The clock, not just exhaustion, sends an NPC to bed. Before this a villager with full
+        // energy simply never slept, and the village stayed busy all night. Guards run the
+        // opposite shift, so for them this window is the daytime.
+        boolean sleepWindowOpen = NPCSleepHelper.isSleepPeriod(npc, world);
+        boolean exhausted = npc.needs.energy < sleepThreshold;
+
+        boolean alreadyHeadedToBed = ai.currentTask == TaskType.FINDING_BED
+                || ai.currentTask == TaskType.MOVING_TO_BED || ai.currentTask == TaskType.ENTERING_BED
+                || ai.currentTask == TaskType.SLEEPING || ai.currentTask == TaskType.WAKING;
+
+        if ((sleepWindowOpen || exhausted) && world.getTick() >= ai.nextBedSearchTick
+                && !alreadyHeadedToBed) {
 
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
             ai.taskStartTime = 0; // bypass cooldown
+            ai.sleepingOnSchedule = sleepWindowOpen;
             clearAutonomyState(ai);
-            LOGGER.info("[SimTale] NPC '{}' is tired (energy={}), interrupting task to find bed immediately", npc.name, npc.needs.energy);
+            if (sleepWindowOpen) {
+                LOGGER.info("[SimTale] NPC '{}' sleep window opened, heading to bed", npc.name);
+            } else {
+                LOGGER.info("[SimTale] NPC '{}' is tired (energy={}), interrupting task to find bed immediately", npc.name, npc.needs.energy);
+            }
         }
 
         // --- Very low hunger interrupts the current task, mirroring the sleep interrupt above ---
@@ -556,8 +571,20 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
             }
 
-            if (npc.needs.energy >= 100 || world.getTick() - ai.taskStartTime >= SLEEP_DURATION_TICKS) {
+            // A scheduled sleeper stays down until its window closes, however rested it is;
+            // otherwise it would pop out of bed in the middle of the night as soon as energy
+            // filled up. An exhaustion nap still ends on the old rule.
+            boolean doneSleeping;
+            if (ai.sleepingOnSchedule) {
+                doneSleeping = !NPCSleepHelper.isSleepPeriod(npc, world);
+            } else {
+                doneSleeping = npc.needs.energy >= 100
+                        || world.getTick() - ai.taskStartTime >= SLEEP_DURATION_TICKS;
+            }
+
+            if (doneSleeping) {
                 npc.needs.energy = Math.min(100f, npc.needs.energy);
+                ai.sleepingOnSchedule = false;
                 ai.currentTask = TaskType.WAKING;
                 ai.taskStartTime = world.getTick();
             }
