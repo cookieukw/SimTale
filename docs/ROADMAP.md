@@ -89,13 +89,32 @@ ela. Precisa de teste em jogo para saber se é problema real.
 Mesma família dos ajustes de rotação/animação que já fizemos na câmera de interação. Encosta em
 código que já conheço bem.
 
-### Fome — revisão
-**Onde**: `NPCHungerHelper` + `RoutineAISystem` (estados `FINDING_FOOD` / `MOVING_TO_FOOD` /
-`EATING`) + `ChestRegistry`
+### ~~Fome — revisão~~ ✅ FEITO
+**Onde**: `systems/NPCFoodHelper.java` (novo), `NPCHungerHelper`, `RoutineAISystem`
 
-Tudo isso já roda, inclusive a busca de comida em baú. O pedido é afinação: comer
-automaticamente, recuperar vida, morrer só depois de muito tempo. São ajustes de regra e de
-número, não estrutura.
+Classificação de comida passou a usar o dado do item (`isConsumable` + o tier
+`Root_Secondary_Consume_Food_T1..T3`) em vez do nome. A heurística antiga aceitava
+`Plant_Crop_Mushroom_Cap_Brown` (não é comestível) e rejeitava `Ingredient_Dough` (é).
+
+Escolha agora ordena por **tier → gosto → distância**: comida preparada antes de crua, favorita
+antes de odiada. Antes pegava o primeiro slot do baú mais próximo.
+
+Comer restaura fome (25/45/65) e vida (6/14/24, via `StatHelper` do RuneCore). Fome abaixo de 5
+tira vida, calibrada para 2 h de vida cheia até a morte.
+
+Interrupção por fome adicionada, espelhando a do sono — antes a fome só era checada em `IDLE`, e
+uma NPC sempre ocupada nunca comia. Com cooldown (`nextFoodSearchTick`) para não repetir a
+tempestade de buscas que a cama teve.
+
+**Ficou de fora, de propósito**: baú do mundo continua ignorado (decisão de design — a NPC só usa
+o que o jogador colocou).
+
+### Morte por fome — falta confirmar
+**Onde**: `NPCHungerHelper.tickStarvation` → `RoutineAISystem` (`DYING` / `REAPING`)
+
+`StatHelper.subtractHealth` chegando a zero **não foi verificado**. Se o motor matar a entidade
+direto, a NPC some sem passar pelo fluxo de morte do SimTale (corpo, ceifador, registro). Teste
+antes de considerar a fome fechada.
 
 ### Reputação por profissão
 **Onde**: campo novo em `SimNPCComponent` + codec + `NpcContextBuilder`
