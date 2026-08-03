@@ -695,24 +695,45 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         int hunger = Math.round(npc.needs.hunger);
         int energy = Math.round(npc.needs.energy);
 
-        String state;
-        String color;
+        Message hungerState;
+        String hungerColor;
         if (hunger < 5) {
-            state = "faminto";
-            color = "#ff4455";
+            hungerState = Message.translation("ui.hunger.starving");
+            hungerColor = "#ff4455";
         } else if (hunger < 25) {
-            state = "com muita fome";
-            color = "#ff8844";
+            hungerState = Message.translation("ui.hunger.very_hungry");
+            hungerColor = "#ff8844";
         } else if (hunger < 50) {
-            state = "com fome";
-            color = "#ffcc55";
+            hungerState = Message.translation("ui.hunger.hungry");
+            hungerColor = "#ffcc55";
         } else {
-            state = "saciado";
-            color = "#44ff88";
+            hungerState = Message.translation("ui.hunger.satisfied");
+            hungerColor = "#44ff88";
         }
 
-        commandBuilder.set("#NpcNeeds.Text",
-                "Fome: " + hunger + "/100 (" + state + ")   •   Energia: " + energy + "/100");
-        commandBuilder.set("#NpcNeeds.Style.TextColor", color);
+        Message hungerText = Message.translation("ui.needs.hunger")
+                .param("hunger", String.valueOf(hunger))
+                .param("state", hungerState);
+        commandBuilder.set("#NpcHunger.TextSpans", hungerText);
+        commandBuilder.set("#NpcHunger.Style.TextColor", hungerColor);
+
+        Message energyState;
+        String energyColor;
+        if (energy < 15) {
+            energyState = Message.translation("ui.energy.exhausted");
+            energyColor = "#ff4455";
+        } else if (energy < 30) {
+            energyState = Message.translation("ui.energy.tired");
+            energyColor = "#ff8844";
+        } else {
+            energyState = Message.translation("ui.energy.active");
+            energyColor = "#44ff88";
+        }
+
+        Message energyText = Message.translation("ui.needs.energy")
+                .param("energy", String.valueOf(energy))
+                .param("state", energyState);
+        commandBuilder.set("#NpcEnergy.TextSpans", energyText);
+        commandBuilder.set("#NpcEnergy.Style.TextColor", energyColor);
     }
 }
