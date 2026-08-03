@@ -87,6 +87,16 @@ public class RoutineAIComponent implements Component<EntityStore> {
      */
     public long nextFoodSearchTick = 0;
 
+    /**
+     * True when the NPC went to bed because its sleeping window opened, not because it was
+     * exhausted.
+     * <p>
+     * The two cases wake on different conditions: a scheduled sleeper stays down until its window
+     * closes, while an exhaustion nap ends as soon as energy is full. Without this flag a villager
+     * would pop out of bed in the middle of the night the moment energy hit 100.
+     */
+    public boolean sleepingOnSchedule = false;
+
     /** Set when the food is taken from the chest, consumed when the EATING state finishes. */
     public int eatingTier = 0;
     public boolean eatingWasHated = false;
@@ -113,6 +123,12 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.lastLeashPos = this.lastLeashPos;
         comp.lastLeashTick = this.lastLeashTick;
         comp.forcedByDebug = this.forcedByDebug;
+        comp.nextBedSearchTick = this.nextBedSearchTick;
+        comp.nextFoodSearchTick = this.nextFoodSearchTick;
+        comp.sleepingOnSchedule = this.sleepingOnSchedule;
+        comp.eatingTier = this.eatingTier;
+        comp.eatingWasHated = this.eatingWasHated;
+        comp.eatingWasFavorite = this.eatingWasFavorite;
         return comp;
     }
 }
