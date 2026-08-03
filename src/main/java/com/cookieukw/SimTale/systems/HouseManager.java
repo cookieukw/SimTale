@@ -165,7 +165,7 @@ public class HouseManager {
                     visited.add(neighbor);
                     continue; 
                 }
-                if (isChest(type)) {
+                if (isChest(world, neighbor, type)) {
                     chestBlocks.add(neighbor);
                     visited.add(neighbor);
                     continue; 
@@ -302,11 +302,17 @@ public class HouseManager {
         return BedRegistry.isBedId(type.getId());
     }
 
-    private static boolean isChest(BlockType type) {
-        if (type == null) return false;
-        // Delegates instead of duplicating the keyword list, which had already been copied
-        // into ChestRegistry.isChestId — two copies that could silently drift apart.
-        return ChestRegistry.isChestId(type.getId());
+    /**
+     * Asks the engine whether the block is storage, with the old name guess as a fallback.
+     *
+     * <p>The name-only version was why NPCs stopped fetching food: chests this world uses do not
+     * carry any of the expected keywords, so the house scan filed them as plain walls. They never
+     * entered {@code interior}, so {@code BLOCK_TO_HOUSE_ID} had no entry for them, so
+     * {@code canOpenChest} — which now requires a house — refused every one of them.
+     */
+    private static boolean isChest(World world, HouseBlockPos pos, BlockType type) {
+        if (ChestRegistry.isContainerAt(world, pos.x, pos.y, pos.z)) return true;
+        return type != null && ChestRegistry.isChestId(type.getId());
     }
 
     private static boolean isSolid(BlockType type) {

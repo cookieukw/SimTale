@@ -209,8 +209,14 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 || ai.currentTask == TaskType.MOVING_TO_BED || ai.currentTask == TaskType.ENTERING_BED
                 || ai.currentTask == TaskType.SLEEPING || ai.currentTask == TaskType.WAKING;
 
+        // Dying is not a task to be interrupted. Neither interrupt excluded it, so a starving NPC
+        // was pulled straight back out of DYING, the death check re-fired on the next tick, and the
+        // "is dying" broadcast repeated forever without the NPC ever actually dying.
+        boolean inDeathFlow = ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.DEAD
+                || ai.currentTask == TaskType.REAPING;
+
         if ((sleepWindowOpen || exhausted) && world.getTick() >= ai.nextBedSearchTick
-                && !alreadyHeadedToBed) {
+                && !alreadyHeadedToBed && !inDeathFlow) {
 
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
@@ -238,7 +244,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 && ai.currentTask != TaskType.EATING
                 && ai.currentTask != TaskType.FINDING_BED && ai.currentTask != TaskType.MOVING_TO_BED
                 && ai.currentTask != TaskType.ENTERING_BED && ai.currentTask != TaskType.SLEEPING
-                && ai.currentTask != TaskType.WAKING) {
+                && ai.currentTask != TaskType.WAKING
+                && !inDeathFlow) {
 
             ai.currentTask = TaskType.FINDING_FOOD;
             ai.targetBlockPosition = null;
