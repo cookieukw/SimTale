@@ -12,6 +12,15 @@ public class Needs {
     public float fun = 100f;
     public float hygiene = 100f;
 
+    /**
+     * Health already lost to starvation, in points.
+     *
+     * <p>Death is driven by this rather than by hunger hitting zero, so an NPC takes the full
+     * starvation window to die instead of dropping the instant its belly empties. Lives on Needs
+     * because Needs is what gets persisted, so the countdown survives a relog.
+     */
+    public float starvationDamage = 0f;
+
     public void tickDecay(Set<Trait> traits) {
         // traits comes straight off a deserialized Personality and can legitimately be null.
         boolean lazy = traits != null && traits.contains(Trait.LAZY);

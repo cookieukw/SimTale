@@ -237,13 +237,22 @@ public class HouseManager {
         }
     }
 
+    /**
+     * Whether this NPC may take from the chest.
+     *
+     * <p>A chest that belongs to no house is off limits. That is what keeps NPCs away from the
+     * loot chests the world generator scatters around: the registry scan picks up every storage
+     * block in range, and without this rule a villager would happily raid a dungeon for dinner.
+     * The side effect is that a chest the player drops in an open field is also ignored until it
+     * is part of a recognised house, which is the intended trade.
+     */
     public static boolean canOpenChest(UUID npcId, HouseBlockPos chestPos) {
         UUID houseId = BLOCK_TO_HOUSE_ID.get(chestPos);
         if (houseId == null) {
-            return true;
+            return false;
         }
         HouseData house = HOUSES_BY_ID.get(houseId);
-        if (house == null) return true;
+        if (house == null) return false;
 
         // npcId is null for NPCs that have not been persisted yet; it used to NPE here,
         // aborting the whole hunger/deposit scan for that NPC.

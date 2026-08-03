@@ -115,8 +115,10 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
 
     /** Resolves the house link, naming the NPC owners when they are loaded. */
     private String describeOwner(HouseBlockPos pos) {
+        // Chests outside a house are unusable by design — that is what keeps NPCs out of the
+        // world generator's loot chests — so say so instead of calling them "public".
         UUID houseId = HouseManager.BLOCK_TO_HOUSE_ID.get(pos);
-        if (houseId == null) return "Baú público (sem casa)";
+        if (houseId == null) return "Sem casa — NPCs ignoram";
 
         HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
         if (house == null) return "Casa " + shortId(houseId) + " (dados não encontrados)";

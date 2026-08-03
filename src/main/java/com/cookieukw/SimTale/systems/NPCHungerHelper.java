@@ -77,6 +77,16 @@ public class NPCHungerHelper {
     private static final float STARVATION_DAMAGE = 4f;
 
     /**
+     * Total starvation damage that kills, matching the {@code MaxHealth: 200} the roles declare.
+     *
+     * <p>Death is counted rather than read back from the engine: RuneCore exposes
+     * {@code addHealth}/{@code subtractHealth} but no reliable getter, and guessing at the stat-map
+     * read path would be a compile-time gamble. The cost is that an NPC wounded by something else
+     * does not starve to death any sooner, which is a fair trade for a deterministic two hours.
+     */
+    public static final float LETHAL_STARVATION_DAMAGE = 200f;
+
+    /**
      * Drains health while hunger sits at rock bottom.
      *
      * <p>Deliberately slow. Hunger itself decays at 0.0001 per tick, so an untouched NPC takes
@@ -91,7 +101,10 @@ public class NPCHungerHelper {
         if (Math.floorMod(world.getTick() + npc.entityId.hashCode(), STARVATION_INTERVAL_TICKS) != 0) return;
 
         StatHelper.subtractHealth(ref, STARVATION_DAMAGE);
-        LOGGER.debug("[COMIDA] {} passando fome (fome {}), -{} de vida", npc.name, npc.needs.hunger, STARVATION_DAMAGE);
+        npc.needs.starvationDamage += STARVATION_DAMAGE;
+        LOGGER.debug("[COMIDA] {} passando fome (fome {}), -{} de vida (acumulado {}/{})",
+                npc.name, npc.needs.hunger, STARVATION_DAMAGE,
+                npc.needs.starvationDamage, LETHAL_STARVATION_DAMAGE);
     }
 
     public static void handleHungerLogic(
@@ -199,6 +212,10 @@ public class NPCHungerHelper {
             if (world.getTick() - ai.taskStartTime > 60) {
                 float restored = NPCFoodHelper.hungerRestored(ai.eatingTier);
                 npc.needs.hunger = Math.min(100f, npc.needs.hunger + restored);
+
+                // A meal calls off the countdown. Without this an NPC that starved most of the way
+                // through, then ate, would still drop dead on the next few starvation ticks.
+                npc.needs.starvationDamage = 0f;
 
                 float healed = NPCFoodHelper.healthRestored(ai.eatingTier);
                 if (healed > 0f) {

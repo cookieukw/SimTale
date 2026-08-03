@@ -156,7 +156,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // --- 1. Evaluation Phase ---
         if (ai.currentTask != TaskType.DYING && ai.currentTask != TaskType.DEAD && ai.currentTask != TaskType.REAPING) {
-            if (npc.needs.hunger <= 0) {
+            // Death comes from the health starvation has drained, not from the hunger bar itself.
+            // Hunger hitting zero used to kill instantly, which made the whole starvation system
+            // decorative: an NPC died the moment its belly emptied, long before the damage
+            // mattered, and healing from food changed nothing.
+            if (npc.needs.starvationDamage >= NPCHungerHelper.LETHAL_STARVATION_DAMAGE) {
                 ai.currentTask = TaskType.DYING;
                 ai.taskStartTime = world.getTick();
                 playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
