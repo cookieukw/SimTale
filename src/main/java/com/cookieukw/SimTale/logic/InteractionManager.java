@@ -2,7 +2,9 @@ package com.cookieukw.SimTale.logic;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
+import com.cookie.runecore.api.StatHelper;
 import com.cookieukw.SimTale.ai.AiConfigManager;
+import com.cookieukw.SimTale.systems.NPCFoodHelper;
 import com.cookieukw.SimTale.ai.AiMessage;
 import com.cookieukw.SimTale.ai.AiRequest;
 import com.cookieukw.SimTale.ai.NpcContextBuilder;
@@ -284,7 +286,73 @@ public class InteractionManager {
             return handleMarriageProposal(npc, rel, playerUuid);
         }
 
+        InteractionOutcome meal = tryFeed(npc, heldItem, itemName);
+        if (meal != null) return meal;
+
         return calculateGiftAffinity(npc, itemId, itemName, rel);
+    }
+
+    /** Hunger level at or below which a gift of food is eaten on the spot instead of pocketed. */
+    private static final float HUNGRY_ENOUGH_TO_EAT = 50f;
+
+    /**
+     * Feeds the NPC directly when it is hungry and the gift is edible.
+     *
+     * <p>Returns null when this is not a meal, so the normal affinity rules take over — a cake
+     * handed to someone who just ate is still a nice present, just not dinner.
+     *
+     * <p>Uses the same {@link NPCFoodHelper} the chest routine uses, so a player cannot feed an NPC
+     * something it would refuse to eat on its own, and the restored amounts match tier for tier.
+     */
+    private static InteractionOutcome tryFeed(SimNPCComponent npc, ItemStack heldItem, String itemName) {
+        if (npc.needs == null || npc.needs.hunger > HUNGRY_ENOUGH_TO_EAT) return null;
+
+        int tier = NPCFoodHelper.tierOf(heldItem);
+        if (tier == NPCFoodHelper.NOT_FOOD) return null;
+
+        boolean hated = NPCFoodHelper.isHated(heldItem, npc.preferences);
+        boolean favorite = NPCFoodHelper.isFavorite(heldItem, npc.preferences);
+
+        npc.needs.hunger = Math.min(100f, npc.needs.hunger + NPCFoodHelper.hungerRestored(tier));
+        // Same reset the chest meal does: feeding someone calls off the starvation countdown.
+        npc.needs.starvationDamage = 0f;
+
+        float healed = NPCFoodHelper.healthRestored(tier);
+        if (healed > 0f) {
+            healNpc(npc, healed);
+        }
+
+        if (favorite) {
+            npc.needs.fun = Math.min(100f, npc.needs.fun + 10f);
+        } else if (hated) {
+            npc.needs.fun = Math.max(0f, npc.needs.fun - 10f);
+        }
+
+        // Feeding someone who is starving lands harder than handing over a trinket, and a hated
+        // food still helps the body while souring the mood — hence the reduced, not negative, gain.
+        int friendship = hated ? 6 : (favorite ? 25 : 15);
+        int trust = hated ? 4 : (favorite ? 15 : 10);
+        int affinity = hated ? 5 : (favorite ? 30 : 18);
+
+        String key = hated ? "fed_hated" : (favorite ? "fed_favorite" : "fed");
+        return InteractionOutcome.ofItem(friendship, 0, trust, affinity,
+                Message.translation("npc-dialogues.gift." + key)
+                        .param("name", npc.name).param("itemName", itemName),
+                MemoryEvent.GIFTED, true);
+    }
+
+    /** Best-effort heal: the NPC entity may not be resolvable, and a missed heal is not fatal. */
+    private static void healNpc(SimNPCComponent npc, float amount) {
+        try {
+            World world = WorldUtil.first();
+            if (world == null || npc.entityId == null) return;
+            Ref<EntityStore> npcRef = world.getEntityStore().getRefFromUUID(npc.entityId);
+            if (npcRef != null && npcRef.isValid()) {
+                StatHelper.addHealth(npcRef, amount);
+            }
+        } catch (RuntimeException ignored) {
+            // Stat handling is best-effort; the hunger restore above already happened.
+        }
     }
 
     private static InteractionOutcome handleChildGift(SimNPCComponent npc, String itemId, String itemName) {
