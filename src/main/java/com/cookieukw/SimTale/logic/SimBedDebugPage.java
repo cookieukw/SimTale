@@ -35,6 +35,9 @@ import javax.annotation.Nonnull;
 @SuppressWarnings("null")
 public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
 
+    private static final com.cookieukw.SimTale.core.SimLog LOGGER =
+            com.cookieukw.SimTale.core.SimLog.forClass(SimBedDebugPage.class);
+
     private final Player player;
     private final PlayerRef playerRefComp;
     private int selectedIndex; // Represents current Page Index
@@ -55,6 +58,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
 
     private List<BedPos> getBeds(World world) {
         synchronized (BedRegistry.BEDS) {
+            int before = BedRegistry.BEDS.size();
             if (world != null) {
                 // Self-healing: prune bed ONLY if chunk is loaded AND block is no longer a bed block
                 BedRegistry.BEDS.removeIf(bp -> {
@@ -65,6 +69,12 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                     }
                     return false; // Keep bed if chunk is unloaded
                 });
+            }
+            int pruned = before - BedRegistry.BEDS.size();
+            if (pruned > 0) {
+                // If this ever prunes everything the screen looks broken, when in fact the anchor
+                // stored in the registry no longer reads as a bed block. Worth seeing.
+                LOGGER.info("[SimTale] Bed page pruned {} stale bed(s), {} left", pruned, BedRegistry.BEDS.size());
             }
             List<BedPos> list = new ArrayList<>();
             // Sem filtro de exibicao: o registro agora guarda apenas a ancora de cada movel.
@@ -134,7 +144,11 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             }
         }
 
-        cmd.set("#PageIndex.Text", "Página " + (selectedIndex + 1) + " / " + totalPages);
+        // Show the count: a blank list and a registry with zero entries look identical on screen,
+        // and that ambiguity sent us chasing the wrong bug more than once.
+        cmd.set("#PageIndex.Text", "Página " + (selectedIndex + 1) + " / " + totalPages
+                + "  (" + beds.size() + " camas)");
+        LOGGER.info("[SimTale] Bed debug page opened with {} registered beds", beds.size());
 
         // Register navigation buttons
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnPrevPage", new EventData().append("action", "prev_page"), false);

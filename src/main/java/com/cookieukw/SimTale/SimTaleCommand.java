@@ -829,10 +829,17 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             Player player = store.getComponent(ref, Player.getComponentType());
-            if (player != null) {
+            if (player == null) return;
 
-                player.getPageManager().openCustomPage(ref, store, new SimBedDebugPage(playerRef, player));
+            // Scan before opening, like housecheck and the SimDebug button already do. Without it
+            // this command showed an empty list for any bed outside the radius swept when the
+            // player joined, which reads as "nothing is registered" rather than "nothing here yet".
+            TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
+            if (tc != null) {
+                BedWorldBootstrap.bootstrapLoadedRadius(world, tc.getPosition(), 32);
             }
+
+            player.getPageManager().openCustomPage(ref, store, new SimBedDebugPage(playerRef, player));
         }
     }
 
