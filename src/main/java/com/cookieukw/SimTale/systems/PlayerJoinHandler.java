@@ -78,6 +78,26 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
 
 
 
+        // Populate the furniture registries for the area the player just loaded into.
+        //
+        // Nothing else does this on join: the place events only cover furniture put down while the
+        // server is up, so beds that were already in the world stayed invisible to the NPCs until
+        // someone happened to run /simtale housecheck, which scans as a side effect. Delayed like
+        // the starting troop so the surrounding chunks have real blocks to read.
+        try {
+            TransformComponent joinTc =
+                playerRef.getStore().getComponent(playerRef, TransformComponent.getComponentType());
+            if (joinTc != null) {
+                final Vector3d scanCenter = new Vector3d(joinTc.getPosition());
+                final World scanWorld = player.getWorld();
+                WorldUtil.executeLater(
+                    () -> BedWorldBootstrap.bootstrapLoadedRadius(scanWorld, scanCenter, 32),
+                    2000L);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] Error scheduling furniture scan: " + e.getMessage());
+        }
+
         // Founding group, only in a world that has never had NPCs.
         //
         // Deferred to the world thread and given a moment first: spawning entities is a

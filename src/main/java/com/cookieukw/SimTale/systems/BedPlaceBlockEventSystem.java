@@ -30,7 +30,14 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
 
         LOGGER.debug("[SimTale] Block placed: " + type.getId() + " isBed=" + BedRegistry.isBedId(type.getId()));
 
-
+        // Without this a bed placed by hand was never registered. The only paths that populated
+        // BedRegistry were the radius scan (which runs solely inside /simtale housecheck) and the
+        // entity system (which covers beds that are entities, not blocks), so in a fresh world no
+        // NPC could ever claim a bed. It looked like it worked in older worlds only because the
+        // registries are static and a housecheck had already been run there.
+        if (BedRegistry.isBedId(type.getId())) {
+            BedWorldBootstrap.registerBedAt(world, pos.x, pos.y, pos.z);
+        }
 
         if (ChestRegistry.isChestId(type.getId())) {
             // Register the anchor so placement and removal agree on one position per chest.

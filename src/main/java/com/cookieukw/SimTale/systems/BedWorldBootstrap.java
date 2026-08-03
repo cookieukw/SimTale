@@ -28,36 +28,53 @@ public final class BedWorldBootstrap {
                     BlockType type = world.getBlockType(x, y, z);
                     if (type == null || type.getId() == null) continue;
                     if (!BedRegistry.isBedId(type.getId())) continue;
-                    
-                    // Uma cama ocupa SEIS blocos. Registrar cada um como cama independente e o
-                    // que fazia o /simtale debugnear reportar doze camas onde havia duas — e,
-                    // pior, fazia a NPC ser montada num bloco qualquer do movel em vez da ancora.
-                    // Como o ponto de montagem do asset e medido a partir da ancora, montar num
-                    // filler desloca a pose de dormir pela distancia daquele filler ate ela.
-                    //
-                    // A heuristica anterior (isPrimaryBedBlock, "o vizinho esta em +X ou +Z")
-                    // tentava adivinhar a ancora pela vizinhanca. Agora quem responde e o proprio
-                    // motor, pelo dado de filler que o /inspectfiller do jogo tambem le.
-                    Vector3i ancora = FurnitureAnchorHelper.anchorOf(world, x, y, z);
 
-                    float yaw = 0f;
-                    if (isBed(world.getBlockType(ancora.x + 1, ancora.y, ancora.z))
-                            || isBed(world.getBlockType(ancora.x - 1, ancora.y, ancora.z))) {
-                        yaw = (float) (Math.PI / 2.0); // deitado ao longo do eixo X
-                    } else if (isBed(world.getBlockType(ancora.x, ancora.y, ancora.z + 1))
-                            || isBed(world.getBlockType(ancora.x, ancora.y, ancora.z - 1))) {
-                        yaw = 0f; // deitado ao longo do eixo Z
-                    }
-
-                    // addOrReplace deduplica por posicao, entao os seis blocos do movel
-                    // convergem para um unico registro.
-                    BedRegistry.addOrReplace(ancora.x, ancora.y, ancora.z, yaw);
+                    registerBedAt(world, x, y, z);
                 }
             }
         }
         
         int newBeds = BedRegistry.size() - bedsFound;
-        LOGGER.debug("[SimTale-DEBUG] Simple scan finished: found " + newBeds + " new beds. Total beds: " + BedRegistry.size());
+        if (newBeds > 0) {
+            // At info level: this now runs on join, and it is the one line that tells whether the
+            // world's existing beds were picked up at all.
+            LOGGER.info("[SimTale] Scan found {} new beds. Total: {}", newBeds, BedRegistry.size());
+        } else {
+            LOGGER.debug("[SimTale-DEBUG] Simple scan finished: no new beds. Total: " + BedRegistry.size());
+        }
+    }
+
+    /**
+     * Registers the bed that owns the given block, resolving the anchor and the lying axis.
+     *
+     * <p>Shared by the radius scan and by {@code BedPlaceBlockEventSystem} so a bed placed by hand
+     * and a bed found by the scan end up as the exact same entry. Any of the six blocks may be
+     * passed in; they all converge on one registration.
+     *
+     * <p>A bed spans SIX blocks. Registering each of them as an independent bed is what made
+     * {@code /simtale debugnear} report twelve beds where there were two — and, worse, made the NPC
+     * mount on an arbitrary block of the furniture instead of the anchor. Since the asset's mount
+     * point is measured from the anchor, mounting on a filler offsets the sleeping pose by the
+     * distance from that filler to it.
+     *
+     * <p>The earlier heuristic ({@code isPrimaryBedBlock}, "the neighbour is at +X or +Z") tried to
+     * guess the anchor from the neighbourhood. Now the engine answers, through the same filler data
+     * the game's own {@code /inspectfiller} reads.
+     */
+    public static void registerBedAt(World world, int x, int y, int z) {
+        Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
+
+        float yaw = 0f;
+        if (isBed(world.getBlockType(anchor.x + 1, anchor.y, anchor.z))
+                || isBed(world.getBlockType(anchor.x - 1, anchor.y, anchor.z))) {
+            yaw = (float) (Math.PI / 2.0); // lying along the X axis
+        } else if (isBed(world.getBlockType(anchor.x, anchor.y, anchor.z + 1))
+                || isBed(world.getBlockType(anchor.x, anchor.y, anchor.z - 1))) {
+            yaw = 0f; // lying along the Z axis
+        }
+
+        // addOrReplace dedupes by position, so the six blocks converge on a single record.
+        BedRegistry.addOrReplace(anchor.x, anchor.y, anchor.z, yaw);
     }
 
     public static boolean isPrimaryBedBlock(World world, int x, int y, int z) {
