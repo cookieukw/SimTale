@@ -152,7 +152,7 @@ public class BabyCareManager {
                 if (care.currentTurnOwnerId.equals(playerUuidStr) && !playerUuidStr.equals(care.currentHolderId)) {
                     // Give baby to player if inventory has space
                     CombinedItemContainer combinedInventory = InventoryComponent.getCombined(store, playerRef, InventoryComponent.HOTBAR_FIRST);
-                    ItemStack babyItem = new ItemStack("simtale:Baby", 1).withMetadata("childId", Codec.STRING, care.childId);
+                    ItemStack babyItem = new ItemStack("Baby", 1).withMetadata("childId", Codec.STRING, care.childId);
                     
                     ItemStackTransaction transaction = combinedInventory.addItemStack(babyItem);
                     ItemStack remainder = transaction.getRemainder();
@@ -183,7 +183,7 @@ public class BabyCareManager {
                     boolean removed = false;
                     for (short slot = 0; slot < combinedInventory.getCapacity(); slot++) {
                         ItemStack item = combinedInventory.getItemStack(slot);
-                        if (item != null && item.getItemId().equals("simtale:Baby")) {
+                        if (item != null && item.getItemId().equals("Baby")) {
                             String cId = item.getFromMetadataOrNull("childId", Codec.STRING);
                             if (care.childId.equals(cId)) {
                                 combinedInventory.removeItemStackFromSlot(slot, item, 1);
@@ -245,7 +245,7 @@ public class BabyCareManager {
         Set<UUID> presentIds = new HashSet<>();
         for (short slot = 0; slot < container.getCapacity(); slot++) {
             ItemStack item = container.getItemStack(slot);
-            if (item != null && item.getItemId().equals("simtale:Baby")) {
+            if (item != null && item.getItemId().equals("Baby")) {
                 String cIdStr = item.getFromMetadataOrNull("childId", Codec.STRING);
                 if (cIdStr != null) {
                     try {
@@ -258,7 +258,7 @@ public class BabyCareManager {
         // Add missing babies
         for (UUID childId : carried) {
             if (!presentIds.contains(childId)) {
-                ItemStack babyItem = new ItemStack("simtale:Baby", 1).withMetadata("childId", Codec.STRING, childId.toString());
+                ItemStack babyItem = new ItemStack("Baby", 1).withMetadata("childId", Codec.STRING, childId.toString());
                 container.addItemStack(babyItem);
             }
         }
@@ -266,7 +266,7 @@ public class BabyCareManager {
         // Remove extra babies (that are no longer carried by this NPC)
         for (short slot = 0; slot < container.getCapacity(); slot++) {
             ItemStack item = container.getItemStack(slot);
-            if (item != null && item.getItemId().equals("simtale:Baby")) {
+            if (item != null && item.getItemId().equals("Baby")) {
                 String cIdStr = item.getFromMetadataOrNull("childId", Codec.STRING);
                 if (cIdStr != null) {
                     try {
@@ -293,7 +293,7 @@ public class BabyCareManager {
                 Set<UUID> currentInInv = new HashSet<>();
                 for (short slot = 0; slot < container.getCapacity(); slot++) {
                     ItemStack item = container.getItemStack(slot);
-                    if (item != null && item.getItemId().equals("simtale:Baby")) {
+                    if (item != null && item.getItemId().equals("Baby")) {
                         String cIdStr = item.getFromMetadataOrNull("childId", Codec.STRING);
                         if (cIdStr != null) {
                             try {

@@ -79,7 +79,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
 
             for (short slot = 0; slot < combinedInventory.getCapacity(); slot++) {
                 ItemStack item = combinedInventory.getItemStack(slot);
-                if (item != null && item.getItemId().equals("simtale:Baby")) {
+                if (item != null && item.getItemId().equals("Baby")) {
                     String childIdStr = item.getFromMetadataOrNull("childId", Codec.STRING);
                     if (childIdStr != null) {
                         break;
@@ -112,7 +112,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
             // --- Process Baby Items in Player Inventory (Swap to NPC if ready) ---
             for (short slot = 0; slot < combinedInventory.getCapacity(); slot++) {
                 ItemStack item = combinedInventory.getItemStack(slot);
-                if (item != null && item.getItemId().equals("simtale:Baby")) {
+                if (item != null && item.getItemId().equals("Baby")) {
                     String childIdStr = item.getFromMetadataOrNull("childId", Codec.STRING);
                     if (childIdStr != null) {
                         UUID invBabyChildId = UUID.fromString(childIdStr);
@@ -159,7 +159,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
                 BabyCareData care = BabyCareManager.load(npcChildId);
                 if (care != null && nowMs >= care.nextSwapAllowedTime) {
                     // Give baby back to player if inventory has space
-                    ItemStack newBabyItem = new ItemStack("simtale:Baby", 1).withMetadata("childId", Codec.STRING, npcChildId.toString());
+                    ItemStack newBabyItem = new ItemStack("Baby", 1).withMetadata("childId", Codec.STRING, npcChildId.toString());
                     ItemStackTransaction transaction = combinedInventory.addItemStack(newBabyItem);
                     ItemStack remainder = transaction.getRemainder();
 

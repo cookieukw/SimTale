@@ -3,7 +3,6 @@
     "Name": "general.item.baby.name",
     "Description": "general.item.baby.description"
   },
-  "Id": "Baby",
   "Icon": "Icons/Items/Baby_Icon.png",
   "Quality": "Epic",
   "Categories": [

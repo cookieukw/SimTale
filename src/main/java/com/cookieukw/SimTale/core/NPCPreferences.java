@@ -35,7 +35,7 @@ private static final List<String> ITEM_POOL = List.of(
         "Alchemy_Cauldron",
         "Deco_Lantern",
         "Blueprint_TavernHouse",
-        "simtale:wedding_ring"
+        "wedding_ring"
 );
 
 private static final List<String> HATED_ITEM_POOL = List.of(
@@ -81,7 +81,7 @@ private static final Map<String, String> ITEM_DISPLAY_NAMES = Map.ofEntries(
         Map.entry("Alchemy_Cauldron", "Caldeirão de Alquimia"),
         Map.entry("Deco_Lantern", "Lanterna"),
         Map.entry("Blueprint_TavernHouse", "Projeto de Taverna"),
-        Map.entry("simtale:wedding_ring", "Aliança de Casamento"),
+        Map.entry("wedding_ring", "Aliança de Casamento"),
 
         Map.entry("Deco_Trash", "Lixo"),
         Map.entry("Deco_Trash_Pile_Small", "Pilha de Lixo"),

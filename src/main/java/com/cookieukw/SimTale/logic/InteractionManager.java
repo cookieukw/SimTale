@@ -282,7 +282,7 @@ public class InteractionManager {
             return handleChildGift(npc, itemId, itemName);
         }
 
-        if (itemId.equals("simtale:wedding_ring")) {
+        if (itemId.equals("wedding_ring")) {
             return handleMarriageProposal(npc, rel, playerUuid);
         }
 

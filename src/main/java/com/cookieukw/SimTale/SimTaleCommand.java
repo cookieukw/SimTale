@@ -1381,7 +1381,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 String seed = com.cookieukw.SimTale.systems.NPCWorkHelper.findSeedInInventory(inv);
                 if (seed == null) {
                     // Give them 5 carrot seeds to start
-                    inv.addItemStack(new ItemStack("hytale:Plant_Seeds_Carrot", 5));
+                    inv.addItemStack(new ItemStack("Plant_Seeds_Carrot", 5));
                     ctx.sendMessage(Message.translation("general.cmd.forceplant.seeds_added").param("name", nearestNPC.name));
                 }
             }

@@ -81,7 +81,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
         // --- Place Baby Item on Block Click ---
         ItemStack heldItem = InventoryComponent.getItemInHand(playerRef.getStore(), playerRef);
-        if (heldItem != null && heldItem.getItemId().equals("simtale:Baby")) {
+        if (heldItem != null && heldItem.getItemId().equals("Baby")) {
             Vector3i targetBlock = event.getTargetBlock();
             if (targetBlock != null) {
                 String childIdStr = heldItem.getFromMetadataOrNull("childId", Codec.STRING);
@@ -304,7 +304,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         }
 
         if (childComp != null && childComp.stage == GrowthStage.BABY) {
-            ItemStack babyItem = new ItemStack("simtale:Baby", 1).withMetadata("childId", Codec.STRING, childComp.childId.toString());
+            ItemStack babyItem = new ItemStack("Baby", 1).withMetadata("childId", Codec.STRING, childComp.childId.toString());
 
             CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
             ItemStackTransaction transaction = combinedInventory.addItemStack(babyItem);
