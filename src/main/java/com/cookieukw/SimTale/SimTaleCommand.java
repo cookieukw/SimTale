@@ -90,6 +90,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ForceMarrySubCommand());
         this.addSubCommand(new DebugBedsSubCommand());
         this.addSubCommand(new DebugChestsSubCommand());
+        this.addSubCommand(new ForgetSubCommand());
         this.addSubCommand(new PregnancySubCommand());
         this.addSubCommand(new DebugNearSubCommand());
         this.addSubCommand(new SetMoodSubCommand());
@@ -240,12 +241,30 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     private static class UnstickSubCommand extends AbstractPlayerCommand {
 
         public UnstickSubCommand() {
-            super("unstick", "Destrava NPCs presos no estado de interacao (congelados/deslizando)");
+            super("unstick", "Destrava NPCs presos e o proprio jogador preso na cama");
         }
 
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            // Free the player first: getting stuck in a bed with no way out, not even in creative,
+            // leaves no other escape from inside the game. Nothing in SimTale mounts the player, so
+            // this is a rescue hatch rather than a fix — but the components are the same ones the
+            // NPC path clears, and clearing them when they are absent is harmless.
+            boolean playerFreed = false;
+            if (store.getComponent(ref, MountedComponent.getComponentType()) != null) {
+                store.tryRemoveComponent(ref, MountedComponent.getComponentType());
+                playerFreed = true;
+            }
+            if (store.getComponent(ref, Frozen.getComponentType()) != null) {
+                store.tryRemoveComponent(ref, Frozen.getComponentType());
+                playerFreed = true;
+            }
+            NPCMovementHelper.setSleepingState(ref, store, false);
+            ctx.sendMessage(Message.raw(playerFreed
+                    ? "[SimTale] Voce foi solto da cama/montaria."
+                    : "[SimTale] Voce nao estava montado nem congelado."));
+
             int fixed = 0;
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 boolean touched = false;
@@ -840,6 +859,57 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             player.getPageManager().openCustomPage(ref, store, new SimBedDebugPage(playerRef, player));
+        }
+    }
+
+    /**
+     * Removes the SimTale NPC component from entities that were adopted by mistake.
+     *
+     * <p>Before the guard in SimTaleEventHandler, right-clicking any entity attached
+     * SIM_NPC_COMPONENT_TYPE to it — cows included. The guard stops new cases but does nothing
+     * about the ones already carrying the component, and those keep opening the villager panel and
+     * running the villager routine.
+     *
+     * <p>The tell is {@code gender}: {@code SimNPCFactory.spawnNPC} always sets it, while the
+     * adoption path built the component with the bare constructor, which leaves it null.
+     */
+    private static class ForgetSubCommand extends AbstractPlayerCommand {
+        public ForgetSubCommand() {
+            super("forget", "Remove o componente de NPC de entidades adotadas por engano (vacas, mobs)");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            List<SimNPCComponent> adopted = new ArrayList<>();
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.gender == null) {
+                    adopted.add(npc);
+                }
+            }
+
+            if (adopted.isEmpty()) {
+                ctx.sendMessage(Message.raw("[SimTale] Nenhuma entidade adotada por engano encontrada."));
+                return;
+            }
+
+            int cleaned = 0;
+            for (SimNPCComponent npc : adopted) {
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
+                    Store<EntityStore> npcStore = npc.entityRef.getStore();
+                    npcStore.tryRemoveComponent(npc.entityRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+                    npcStore.tryRemoveComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    // Leave the entity free to move: the routine may have parked it in a bed.
+                    npcStore.tryRemoveComponent(npc.entityRef, MountedComponent.getComponentType());
+                    npcStore.tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
+                    NPCMovementHelper.setSleepingState(npc.entityRef, npcStore, false);
+                }
+                SimTale.untrackNpc(npc);
+                cleaned++;
+            }
+
+            ctx.sendMessage(Message.raw("[SimTale] " + cleaned
+                    + " entidade(s) adotada(s) por engano foram liberadas."));
         }
     }
 
