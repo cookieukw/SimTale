@@ -140,3 +140,37 @@ hunger.satisfied = satisfied
 energy.exhausted = exhausted
 energy.tired = tired
 energy.active = active
+
+debugbeds.title = SIMBEDDEBUG - Registered Beds
+debugbeds.bed_entry = Bed {index} — X: {x}, Y: {y}, Z: {z}
+debugbeds.status_free = Status: FREE
+debugbeds.status_owners = Owner(s): {owners}
+debugbeds.btn_tp = Teleport
+debugbeds.btn_unclaim = Unclaim
+debugbeds.page_index = Page {current} / {total}  ({count} beds)
+debugbeds.btn_prev = < Previous
+debugbeds.btn_next = Next >
+debugbeds.btn_back = Back to NPC Debug
+debugbeds.msg_tp_success = [SimBedDebug] Teleported to Bed #{index}
+debugbeds.msg_unclaim_success = [SimBedDebug] {count} NPCs unlinked from Bed #{index}!
+
+debugchests.title = SIMCHESTDEBUG - Registered Chests
+debugchests.chest_entry = Chest {index} — X: {x}, Y: {y}, Z: {z}
+debugchests.contents_unloaded = Out of reach (unloaded chunk)
+debugchests.contents_empty = Empty
+debugchests.contents_summary = {items} ({food} food)
+debugchests.item_singular = item
+debugchests.item_plural = items
+debugchests.owner_no_house = No house — NPCs ignore
+debugchests.owner_no_data = House {id} (data not found)
+debugchests.owner_no_owners = House {id} (no owners)
+debugchests.owner_names = Owner(s): {owners}
+debugchests.btn_tp = Teleport
+debugchests.btn_forget = Remove
+debugchests.page_index = Page {current} / {total}  ({count} chests)
+debugchests.btn_prev = < Previous
+debugchests.btn_next = Next >
+debugchests.btn_back = Back to NPC Debug
+debugchests.msg_tp_success = [SimChestDebug] Teleported to Chest #{index}
+debugchests.msg_forget_success = [SimChestDebug] Chest #{index} removed from registry. Block remains in world and will return on next scan.
+

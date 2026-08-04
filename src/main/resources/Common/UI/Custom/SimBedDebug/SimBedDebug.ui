@@ -37,15 +37,16 @@ $T = "../SimTaleTheme.ui";
   Button #BtnTp {
     Anchor: (Width: @RowBtnW, Height: @RowBtnH, Top: 10, Right: 8);
     Style: $T.@BtnNeutral;
-    Label { Text: "Teleport"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
+    Label { Text: "ui.debugbeds.btn_tp"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
   }
 
   // Breaks the NPC's link to the bed, so it gets the destructive treatment.
   Button #BtnUnclaim {
     Anchor: (Width: @RowBtnW, Height: @RowBtnH, Top: 10);
     Style: $T.@BtnDestructive;
-    Label { Text: "Desvincular"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
+    Label { Text: "ui.debugbeds.btn_unclaim"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
   }
+
 };
 
 Group {
@@ -59,7 +60,7 @@ Group {
     Padding: (Horizontal: $T.@GutterOuter, Vertical: 20);
 
     Label #Title {
-      Text: "SIMBEDDEBUG - Camas Registradas";
+      Text: "ui.debugbeds.title";
       Anchor: (Height: 34, Bottom: 4);
       Style: (...$T.@TitleStyle, FontSize: 22, TextColor: $T.@AccentRomance);
     }
@@ -84,7 +85,7 @@ Group {
       Button #BtnPrevPage {
         Anchor: (Width: 148, Height: 42, Right: 10);
         Style: $T.@BtnTertiary;
-        Label { Text: "< Anterior"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
+        Label { Text: "ui.debugbeds.btn_prev"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
       }
       Label #PageIndex {
         Text: "Página 1 / 1";
@@ -94,14 +95,15 @@ Group {
       Button #BtnNextPage {
         Anchor: (Width: 148, Height: 42);
         Style: $T.@BtnTertiary;
-        Label { Text: "Próximo >"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
+        Label { Text: "ui.debugbeds.btn_next"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
       }
     }
 
     Button #BtnBack {
       Anchor: (Height: 42);
       Style: $T.@BtnNeutral;
-      Label { Text: "Voltar para Debug de NPCs"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
+      Label { Text: "ui.debugbeds.btn_back"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
     }
+
   }
 }

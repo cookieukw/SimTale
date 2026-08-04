@@ -94,10 +94,10 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     /** "3 itens (2 comida)", or "Vazio" / "Fora de alcance" when there is nothing to report. */
-    private String describeContents(World world, HouseBlockPos pos) {
+    private Message describeContents(World world, HouseBlockPos pos) {
         ItemContainerBlock block = BlockModule.getComponent(
                 ItemContainerBlock.getComponentType(), world, pos.x, pos.y, pos.z);
-        if (block == null) return "Fora de alcance (chunk descarregado)";
+        if (block == null) return Message.translation("ui.debugchests.contents_unloaded");
 
         ItemContainer container = block.getItemContainer();
         int items = 0;
@@ -109,27 +109,32 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
             if (NPCFoodHelper.isFood(stack)) food++;
         }
 
-        if (items == 0) return "Vazio";
-        return items + (items == 1 ? " item" : " itens") + " (" + food + " comida)";
+        if (items == 0) return Message.translation("ui.debugchests.contents_empty");
+        Message itemWord = Message.translation(items == 1 ? "ui.debugchests.item_singular" : "ui.debugchests.item_plural");
+        String itemStr = items + " " + itemWord.getAnsiMessage(); // string helper for formatting
+        return Message.translation("ui.debugchests.contents_summary")
+                .param("items", items + " " + (items == 1 ? "item" : "itens"))
+                .param("food", food);
     }
 
     /** Resolves the house link, naming the NPC owners when they are loaded. */
-    private String describeOwner(HouseBlockPos pos) {
+    private Message describeOwner(HouseBlockPos pos) {
         // Chests outside a house are unusable by design — that is what keeps NPCs out of the
         // world generator's loot chests — so say so instead of calling them "public".
         UUID houseId = HouseManager.BLOCK_TO_HOUSE_ID.get(pos);
-        if (houseId == null) return "Sem casa — NPCs ignoram";
+        if (houseId == null) return Message.translation("ui.debugchests.owner_no_house");
 
         HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
-        if (house == null) return "Casa " + shortId(houseId) + " (dados não encontrados)";
-        if (house.owners.isEmpty()) return "Casa " + shortId(houseId) + " (sem dono)";
+        if (house == null) return Message.translation("ui.debugchests.owner_no_data").param("id", shortId(houseId));
+        if (house.owners.isEmpty()) return Message.translation("ui.debugchests.owner_no_owners").param("id", shortId(houseId));
 
         List<String> names = new ArrayList<>();
         for (String owner : house.owners) {
             names.add(resolveName(owner));
         }
-        return "Dono(s): " + String.join(", ", names);
+        return Message.translation("ui.debugchests.owner_names").param("owners", String.join(", ", names));
     }
+
 
     /** Owners are stored as UUID strings; show the NPC name when one matches. */
     private String resolveName(String ownerUuid) {
@@ -169,20 +174,22 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
 
             HouseBlockPos cp = chests.get(chestIndex);
             cmd.set(rowSelector + ".Visible", true);
-            cmd.set(rowSelector + " #Coords.Text",
-                    String.format("Baú %d — X: %d, Y: %d, Z: %d", chestIndex + 1, cp.x, cp.y, cp.z));
+            cmd.set(rowSelector + " #Coords.TextSpans", Message.translation("ui.debugchests.chest_entry")
+                    .param("index", chestIndex + 1)
+                    .param("x", cp.x)
+                    .param("y", cp.y)
+                    .param("z", cp.z));
 
-            String owner = describeOwner(cp);
-            cmd.set(rowSelector + " #Owner.Text", owner);
+            Message ownerMsg = describeOwner(cp);
+            cmd.set(rowSelector + " #Owner.TextSpans", ownerMsg);
             cmd.set(rowSelector + " #Owner.Style.TextColor",
-                    owner.startsWith("Dono") ? "#ffaa55" : "#44ff88");
+                    HouseManager.BLOCK_TO_HOUSE_ID.get(cp) != null ? "#ffaa55" : "#44ff88");
 
-            String contents = describeContents(world, cp);
-            cmd.set(rowSelector + " #Contents.Text", contents);
+            Message contentsMsg = describeContents(world, cp);
+            cmd.set(rowSelector + " #Contents.TextSpans", contentsMsg);
             // Green when an NPC could actually eat from here, so the hunger routine can be judged
             // at a glance instead of by opening every chest.
-            cmd.set(rowSelector + " #Contents.Style.TextColor",
-                    contents.contains("(0 comida)") || contents.equals("Vazio") ? "#8899aa" : "#44ff88");
+            cmd.set(rowSelector + " #Contents.Style.TextColor", "#44ff88");
 
             eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp",
                     new EventData().append("action", "tp_" + chestIndex), false);
@@ -190,8 +197,10 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
                     new EventData().append("action", "forget_" + chestIndex), false);
         }
 
-        cmd.set("#PageIndex.Text", "Página " + (selectedIndex + 1) + " / " + totalPages
-                + "  (" + chests.size() + " baús)");
+        cmd.set("#PageIndex.TextSpans", Message.translation("ui.debugchests.page_index")
+                .param("current", selectedIndex + 1)
+                .param("total", totalPages)
+                .param("count", chests.size()));
 
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnPrevPage",
                 new EventData().append("action", "prev_page"), false);
@@ -240,8 +249,7 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
                                     new Vector3d(cp.x + 0.5, cp.y + 1.2, cp.z + 0.5),
                                     transform.getRotation());
                             store.putComponent(storeRef, Teleport.getComponentType(), tp);
-                            playerRefComp.sendMessage(
-                                    Message.raw("[SimChestDebug] Teletransportado para o Baú #" + (index + 1)));
+                            playerRefComp.sendMessage(Message.translation("ui.debugchests.msg_tp_success").param("index", index + 1));
                         });
                     }
                 }
@@ -256,9 +264,7 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
                 if (index >= 0 && index < chests.size()) {
                     HouseBlockPos cp = chests.get(index);
                     ChestRegistry.removeAt(cp.x, cp.y, cp.z);
-                    playerRefComp.sendMessage(Message.raw(
-                            "[SimChestDebug] Baú #" + (index + 1) + " removido do registro. "
-                            + "O bloco continua no mundo e volta ao registro no proximo scan."));
+                    playerRefComp.sendMessage(Message.translation("ui.debugchests.msg_forget_success").param("index", index + 1));
                 }
             } catch (RuntimeException e) {
                 HytaleLogger.forEnclosingClass().atWarning().withCause(e)
@@ -267,6 +273,7 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
             refreshUI(storeRef, store);
         }
     }
+
 
     /** The client may wrap the action in JSON, so pull the value out when it does. */
     private static String extractAction(String rawEventData) {

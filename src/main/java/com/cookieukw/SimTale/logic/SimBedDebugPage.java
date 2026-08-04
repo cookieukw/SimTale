@@ -114,7 +114,11 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             if (bedIndex < beds.size()) {
                 BedPos bp = beds.get(bedIndex);
                 cmd.set(rowSelector + ".Visible", true);
-                cmd.set(rowSelector + " #Coords.Text", String.format("Cama %d — X: %d, Y: %d, Z: %d", bedIndex + 1, bp.x, bp.y, bp.z));
+                cmd.set(rowSelector + " #Coords.TextSpans", Message.translation("ui.debugbeds.bed_entry")
+                        .param("index", bedIndex + 1)
+                        .param("x", bp.x)
+                        .param("y", bp.y)
+                        .param("z", bp.z));
 
                 // Find owners (accept distance <= 1 block to handle offsets/deduplications)
                 List<String> owners = new ArrayList<>();
@@ -128,10 +132,11 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                 }
 
                 if (owners.isEmpty()) {
-                    cmd.set(rowSelector + " #Status.Text", "Status: LIVRE");
+                    cmd.set(rowSelector + " #Status.TextSpans", Message.translation("ui.debugbeds.status_free"));
                     cmd.set(rowSelector + " #Status.Style.TextColor", "#44ff88");
                 } else {
-                    cmd.set(rowSelector + " #Status.Text", "Dono(s): " + String.join(", ", owners));
+                    cmd.set(rowSelector + " #Status.TextSpans", Message.translation("ui.debugbeds.status_owners")
+                            .param("owners", String.join(", ", owners)));
                     cmd.set(rowSelector + " #Status.Style.TextColor", "#ffaa55");
                 }
 
@@ -144,11 +149,13 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             }
         }
 
-        // Show the count: a blank list and a registry with zero entries look identical on screen,
-        // and that ambiguity sent us chasing the wrong bug more than once.
-        cmd.set("#PageIndex.Text", "Página " + (selectedIndex + 1) + " / " + totalPages
-                + "  (" + beds.size() + " camas)");
+        // Show the count
+        cmd.set("#PageIndex.TextSpans", Message.translation("ui.debugbeds.page_index")
+                .param("current", selectedIndex + 1)
+                .param("total", totalPages)
+                .param("count", beds.size()));
         LOGGER.info("[SimTale] Bed debug page opened with {} registered beds", beds.size());
+
 
         // Register navigation buttons
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnPrevPage", new EventData().append("action", "prev_page"), false);
@@ -209,7 +216,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                                 transform.getRotation()
                             );
                             store.putComponent(storeRef, Teleport.getComponentType(), tp);
-                            playerRefComp.sendMessage(Message.raw("[SimBedDebug] Teletransportado para a Cama #" + (bedIndex + 1)));
+                            playerRefComp.sendMessage(Message.translation("ui.debugbeds.msg_tp_success").param("index", bedIndex + 1));
                         });
                     }
                 }
@@ -235,8 +242,9 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                             count++;
                         }
                     }
-                    playerRefComp.sendMessage(Message.raw("[SimBedDebug] " + count + " NPCs desvinculados da Cama #" + (bedIndex + 1) + "!"));
+                    playerRefComp.sendMessage(Message.translation("ui.debugbeds.msg_unclaim_success").param("count", count).param("index", bedIndex + 1));
                 }
+
             } catch (Exception e) {
                 HytaleLogger.forEnclosingClass().atWarning().withCause(e).log("Failed to process unclaim event: " + eventData);
             }

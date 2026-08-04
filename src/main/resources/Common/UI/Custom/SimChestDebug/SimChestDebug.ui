@@ -42,14 +42,14 @@ $T = "../SimTaleTheme.ui";
   Button #BtnTp {
     Anchor: (Width: @RowBtnW, Height: @RowBtnH, Top: 18, Right: 8);
     Style: $T.@BtnNeutral;
-    Label { Text: "Teleport"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
+    Label { Text: "ui.debugchests.btn_tp"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
   }
 
   // Drops the chest from the registry without touching the block, so it gets the destructive look.
   Button #BtnForget {
     Anchor: (Width: @RowBtnW, Height: @RowBtnH, Top: 18);
     Style: $T.@BtnDestructive;
-    Label { Text: "Remover"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
+    Label { Text: "ui.debugchests.btn_forget"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
   }
 };
 
@@ -64,7 +64,7 @@ Group {
     Padding: (Horizontal: $T.@GutterOuter, Vertical: 20);
 
     Label #Title {
-      Text: "SIMCHESTDEBUG - Baús Registrados";
+      Text: "ui.debugchests.title";
       Anchor: (Height: 34, Bottom: 4);
       Style: (...$T.@TitleStyle, FontSize: 22, TextColor: $T.@AccentRomance);
     }
@@ -89,7 +89,7 @@ Group {
       Button #BtnPrevPage {
         Anchor: (Width: 148, Height: 42, Right: 10);
         Style: $T.@BtnTertiary;
-        Label { Text: "< Anterior"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
+        Label { Text: "ui.debugchests.btn_prev"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
       }
       Label #PageIndex {
         Text: "Página 1 / 1";
@@ -99,14 +99,15 @@ Group {
       Button #BtnNextPage {
         Anchor: (Width: 148, Height: 42);
         Style: $T.@BtnTertiary;
-        Label { Text: "Próximo >"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
+        Label { Text: "ui.debugchests.btn_next"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
       }
     }
 
     Button #BtnBack {
       Anchor: (Height: 42);
       Style: $T.@BtnNeutral;
-      Label { Text: "Voltar para Debug de NPCs"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
+      Label { Text: "ui.debugchests.btn_back"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
     }
   }
 }
+
