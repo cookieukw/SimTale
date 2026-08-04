@@ -209,7 +209,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
               .append("  janelaDeSono=")
               .append(com.cookieukw.SimTale.systems.NPCSleepHelper.isSleepPeriod(best, world))
               .append("  noite=")
-              .append(com.cookieukw.SimTale.systems.NPCSleepHelper.isNight(world));
+              .append(com.cookieukw.SimTale.systems.NPCSleepHelper.isNight(world))
+              .append("  hora=")
+              .append(com.cookieukw.SimTale.systems.NPCSleepHelper.currentHour(world));
 
             ctx.sendMessage(Message.raw(sb.toString()));
             HytaleLogger.forEnclosingClass().atInfo().log(sb.toString());

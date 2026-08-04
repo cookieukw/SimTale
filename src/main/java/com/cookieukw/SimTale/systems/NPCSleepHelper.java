@@ -18,12 +18,18 @@ public final class NPCSleepHelper {
     }
 
     /**
-     * Night spans the last quarter of one day and the first quarter of the next. Same split
-     * {@code InteractionManager} already uses to pick night-time greetings, kept identical so the
-     * dialogue and the routine never disagree about what time it is.
+     * Hytale's own day/night boundaries: sunrise around 06:00, dusk from 19:30 — the point at which
+     * the game itself starts allowing beds to be used.
+     *
+     * <p>Written as hours rather than as fractions of a day because that is how the boundaries are
+     * actually documented, and because the previous value (0.75, i.e. 18:00) was a guess that
+     * happened to be an hour and a half early. Keeping the unit honest makes the next correction a
+     * one-number edit instead of a conversion puzzle.
      */
-    private static final float NIGHT_END = 0.25f;
-    private static final float NIGHT_START = 0.75f;
+    private static final float DAY_START_HOUR = 6.0f;
+    private static final float NIGHT_START_HOUR = 19.5f;
+
+    private static final float HOURS_PER_DAY = 24.0f;
 
     /** Day progress in 0..1, or null when the resource is unavailable. */
     private static Float dayProgress(World world) {
@@ -37,10 +43,22 @@ public final class NPCSleepHelper {
         }
     }
 
-    public static boolean isNight(World world) {
+    /**
+     * In-game hour in 0..24, or null when the time resource cannot be read.
+     *
+     * <p>Exposed so {@code /simtale npcstate} can print it: whether the mod's idea of the hour
+     * matches the sky is the one question that separates "the schedule is wrong" from "the clock is
+     * being read wrong", and it is not answerable from the code alone.
+     */
+    public static Float currentHour(World world) {
         Float progress = dayProgress(world);
-        if (progress == null) return false;
-        return progress < NIGHT_END || progress > NIGHT_START;
+        return progress == null ? null : progress * HOURS_PER_DAY;
+    }
+
+    public static boolean isNight(World world) {
+        Float hour = currentHour(world);
+        if (hour == null) return false;
+        return hour < DAY_START_HOUR || hour >= NIGHT_START_HOUR;
     }
 
     /** Guards hold the night watch, so their whole routine is inverted. */
@@ -55,9 +73,9 @@ public final class NPCSleepHelper {
      * exhaustion-only behaviour rather than trapping everyone in bed.
      */
     public static boolean isSleepPeriod(SimNPCComponent npc, World world) {
-        Float progress = dayProgress(world);
-        if (progress == null) return false;
-        boolean night = progress < NIGHT_END || progress > NIGHT_START;
+        Float hour = currentHour(world);
+        if (hour == null) return false;
+        boolean night = hour < DAY_START_HOUR || hour >= NIGHT_START_HOUR;
         return isNightWatch(npc) ? !night : night;
     }
 }
