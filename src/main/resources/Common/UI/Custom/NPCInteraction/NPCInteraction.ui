@@ -14,7 +14,7 @@ $T = "../SimTaleTheme.ui";
 // any of the 135 shipped .ui files, so it is not used here; if it turns out to exist, swapping is
 // a one-line change inside this template and nothing else moves.
 @ShowcaseSlot = Group {
-  FlexWeight: 1;
+  Anchor: (Width: 100);
   LayoutMode: Top;
   Padding: (Horizontal: 4);
 
@@ -33,6 +33,7 @@ $T = "../SimTaleTheme.ui";
     Style: (...$T.@BodyStyle, FontSize: 11, HorizontalAlignment: Center);
   }
 };
+
 
 // Bare icon for the taste rows: no caption, since the row label already says what it means.
 @TasteIcon = Group {
