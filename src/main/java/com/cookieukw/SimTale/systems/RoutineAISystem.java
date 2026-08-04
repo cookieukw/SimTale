@@ -130,7 +130,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         World world = WorldUtil.first();
         if (world == null) return;
 
+        // Desmonta e limpa MountedComponent se o NPC de longe não estiver mais em estado de sono ativo
+        // ou se sua chunk de cama tiver sido descarregada, evitando crash no ChunkUnloadingSystem do Hytale.
+        if (ai.currentTask != TaskType.SLEEPING && ai.currentTask != TaskType.ENTERING_BED) {
+            if (chunk.getComponent(index, MountedComponent.getComponentType()) != null) {
+                commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
+            }
+        }
+
         NPCDoorHelper.handleNpcDoors(world, npc, transform);
+
 
         // --- Dialogue lock ---
         // While an interaction page is open the mod's AI stands down entirely and the NPC is
@@ -562,6 +571,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
 
 
+
+
             npc.needs.healEnergy(0.045f);
 
             // Verify bed still exists periodically
@@ -606,6 +617,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 LOGGER.info("[SimTale] NPC '{}' has woken up and is leaving bed.", npc.name);
                 commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
                 setSleepingState(ref, store, commandBuffer, false);
+
+
                 
                 NPCEntity npcEntityComponent = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
                 if (npcEntityComponent != null) {
