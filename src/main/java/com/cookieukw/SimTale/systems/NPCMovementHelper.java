@@ -217,6 +217,52 @@ public class NPCMovementHelper {
         return standable != null ? standable : bedPos;
     }
 
+    /**
+     * Whether a straight line from {@code from} to the centre of {@code target} is free of solid
+     * blocks.
+     *
+     * <p>Exists because "is the NPC close enough to get into bed?" used to be a flat XZ distance
+     * test. An NPC standing outside the house, with nothing but a wall between it and the bed,
+     * passed that test and mounted straight through the wall — it looked like the NPC vanished.
+     *
+     * <p>Deliberately cheap: it samples the segment rather than doing a proper voxel traversal, and
+     * ignores the endpoints. It only has to reject a wall, not be exact.
+     */
+    public static boolean hasClearPath(World world, Vector3d from, Vector3i target) {
+        if (world == null) return false;
+
+        double tx = target.x + 0.5;
+        double ty = target.y + 0.5;
+        double tz = target.z + 0.5;
+
+        double dx = tx - from.x;
+        double dy = ty - from.y;
+        double dz = tz - from.z;
+
+        double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        int steps = (int) Math.ceil(distance * 2);
+        if (steps <= 1) return true;
+
+        for (int i = 1; i < steps; i++) {
+            double t = (double) i / steps;
+            int bx = (int) Math.floor(from.x + dx * t);
+            int by = (int) Math.floor(from.y + dy * t);
+            int bz = (int) Math.floor(from.z + dz * t);
+
+            if (bx == target.x && by == target.y && bz == target.z) continue;
+
+            BlockType block = world.getBlockType(bx, by, bz);
+            if (block == null || block.getId() == null) continue;
+            String id = block.getId();
+            if (id.equalsIgnoreCase("Empty")) continue;
+            // Furniture on the way is not a wall; the bed itself is the destination.
+            if (BedRegistry.isBedId(id)) continue;
+
+            return false;
+        }
+        return true;
+    }
+
     public static boolean isStandable(Vector3i pos, World world) {
         BlockType atPos = world.getBlockType(pos.x, pos.y, pos.z);
         if (atPos != null && atPos.getId() != null && !atPos.getId().equalsIgnoreCase("Empty")) {

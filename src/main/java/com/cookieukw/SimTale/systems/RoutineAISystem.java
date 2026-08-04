@@ -71,6 +71,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     private static final int SLEEP_DURATION_TICKS = 20 * 120;
     private static final int WAKE_ANIM_TICKS = 20;
     private static final double BED_REACH_DISTANCE_SQ = 2.5 * 2.5; // Increased to prevent getting stuck on bed collision
+
+    /** Give up walking to a bed after 30 s, so an unreachable one does not trap the NPC. */
+    private static final int BED_MOVE_TIMEOUT_TICKS = 600;
     /** Look for a chat partner within 20 blocks. */
     private static final double SOCIALIZE_SEARCH_RANGE_SQ = 20.0 * 20.0;
     /** Max distance from home an idle stroll may take the NPC. */
@@ -433,11 +436,31 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             Vector3i approachPos = getBedApproachPosition(bedPos, transform, world);
             ai.targetBlockPosition = approachPos;
 
+            // Give up on a bed that cannot be reached, instead of walking at a wall forever.
+            if (world.getTick() - ai.taskStartTime > BED_MOVE_TIMEOUT_TICKS) {
+                LOGGER.info("[SimTale] NPC '{}' gave up walking to its bed at ({},{},{})", npc.name, bedPos.x, bedPos.y, bedPos.z);
+                clearMoveTarget(ref, ai);
+                ai.targetBlockPosition = null;
+                ai.nextBedSearchTick = world.getTick() + BED_MOVE_TIMEOUT_TICKS;
+                ai.currentTask = TaskType.IDLE;
+                return;
+            }
+
             Vector3d pos = transform.getPosition();
             double dx = (approachPos.x + 0.5) - pos.x;
+            double dy = (approachPos.y + 0.5) - pos.y;
             double dz = (approachPos.z + 0.5) - pos.z;
 
-            if (dx * dx + dz * dz < BED_REACH_DISTANCE_SQ) {
+            // Proximity alone is not enough to get into bed.
+            //
+            // This test used to be flat XZ distance, which ignored both height and walls: an NPC
+            // standing outside the house, one wall away from the bed, satisfied it and mounted
+            // straight through the wall. From the outside it looked like the NPC vanished.
+            boolean closeEnough = dx * dx + dz * dz < BED_REACH_DISTANCE_SQ && Math.abs(dy) <= 2.0;
+            boolean reachable = closeEnough
+                    && NPCMovementHelper.hasClearPath(world, pos, approachPos);
+
+            if (reachable) {
                 clearMoveTarget(ref, ai);
                 ai.currentTask = TaskType.ENTERING_BED;
                 ai.taskStartTime = world.getTick();
