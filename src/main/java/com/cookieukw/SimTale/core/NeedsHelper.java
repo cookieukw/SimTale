@@ -33,9 +33,22 @@ public class NeedsHelper {
     /** Value returned when a stat cannot be read, matching the assets' InitialValue. */
     private static final float DEFAULT_VALUE = 100f;
 
-    public static Store<EntityStore> getStore() {
+    /**
+     * Finds the store that actually owns {@code entity}.
+     *
+     * <p>The previous version returned the first world of the iteration and called it a day. With
+     * one world that is right by accident; with two it reads an NPC's stats through a store that
+     * has never heard of it, and {@code getComponent} answers null — so the NPC silently reports
+     * full hunger and energy forever. Most call sites pass null for the store, so this ran on
+     * nearly every read.
+     */
+    public static Store<EntityStore> getStore(Ref<EntityStore> entity) {
+        if (entity == null || !entity.isValid()) return null;
         for (World w : Universe.get().getWorlds().values()) {
-            return w.getEntityStore().getStore();
+            Store<EntityStore> store = w.getEntityStore().getStore();
+            if (store != null && store.getComponent(entity, EntityStatMap.getComponentType()) != null) {
+                return store;
+            }
         }
         return null;
     }
@@ -51,8 +64,9 @@ public class NeedsHelper {
      * <p>An asset that fails to load should degrade the mod, not kill the server tick.
      */
     public static float getNeed(Store<EntityStore> store, Ref<EntityStore> entity, String statId) {
-        if (store == null) store = getStore();
-        if (store == null || entity == null || !entity.isValid()) return DEFAULT_VALUE;
+        if (entity == null || !entity.isValid()) return DEFAULT_VALUE;
+        if (store == null) store = getStore(entity);
+        if (store == null) return DEFAULT_VALUE;
 
         EntityStatMap map = store.getComponent(entity, EntityStatMap.getComponentType());
         if (map == null) return DEFAULT_VALUE;
@@ -67,8 +81,9 @@ public class NeedsHelper {
     }
 
     public static void setNeed(Store<EntityStore> store, Ref<EntityStore> entity, String statId, float value) {
-        if (store == null) store = getStore();
-        if (store == null || entity == null || !entity.isValid()) return;
+        if (entity == null || !entity.isValid()) return;
+        if (store == null) store = getStore(entity);
+        if (store == null) return;
 
         EntityStatMap map = store.getComponent(entity, EntityStatMap.getComponentType());
         if (map == null) return;

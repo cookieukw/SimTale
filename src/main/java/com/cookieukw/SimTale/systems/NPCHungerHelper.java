@@ -65,51 +65,57 @@ public class NPCHungerHelper {
         return best;
     }
 
-    /** Below this, hunger starts costing health. */
+    /** Below this, an NPC is too hungry to do anything but look for food. */
     private static final float STARVATION_THRESHOLD = 5f;
 
     /**
-     * Pacing of starvation damage, sized for roughly two hours from full health to death.
+     * Breaks a starving NPC out of whatever it was doing so it can only eat or grieve.
      *
-     * <p>Roles declare {@code MaxHealth: 200}, so 4 damage per hit needs 50 hits. Spreading those
-     * over two hours (144000 ticks at 20/s) puts one hit every 2880 ticks. Sturdier NPCs last
-     * proportionally longer, which is the intended reading of "at least two hours".
-     */
-    private static final int STARVATION_INTERVAL_TICKS = 2880;
-
-    private static final float STARVATION_DAMAGE = 4f;
-
-    /**
-     * Total starvation damage that kills, matching the {@code MaxHealth: 200} the roles declare.
-     *
-     * <p>Death is counted rather than read back from the engine: RuneCore exposes
-     * {@code addHealth}/{@code subtractHealth} but no reliable getter, and guessing at the stat-map
-     * read path would be a compile-time gamble. The cost is that an NPC wounded by something else
-     * does not starve to death any sooner, which is a fair trade for a deterministic two hours.
-     */
-    public static final float LETHAL_STARVATION_DAMAGE = 200f;
-
-    /**
-     * Drains health while hunger sits at rock bottom.
-     *
-     * <p>Deliberately slow. Hunger itself decays at 0.0001 per tick, so an untouched NPC takes
-     * around thirteen hours to fall from full to the threshold, and only then does this begin.
-     * Starving to death is the outcome of an abandoned village, not of one missed lunch.
+     * <p>Hunger is not lethal by design: aging and disease will own death later, and a second
+     * cause competing with them would make both harder to reason about. What starvation costs is
+     * the NPC's usefulness — it abandons its job, its hobby and its social life until it is fed.
      */
     public static void tickStarvation(Ref<EntityStore> ref, SimNPCComponent npc, World world, Store<EntityStore> store) {
-        if (NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID) > STARVATION_THRESHOLD) return;
+        if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) > STARVATION_THRESHOLD) return;
         if (npc.entityId == null) return;
 
         npc.setEmotion(Mood.SAD, 0.9f, "starvation", world.getTick());
 
-        // Stop what they are doing and complain
         RoutineAIComponent ai = store.getComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE);
-        if (ai != null && ai.currentTask != TaskType.FINDING_FOOD && ai.currentTask != TaskType.EATING) {
-            NPCMovementHelper.clearMoveTarget(ref, ai);
-            ai.currentTask = TaskType.IDLE;
-            NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Cry", store);
-            LOGGER.debug("[SimTale] {} is crying from starvation!", npc.name);
-        }
+        if (ai == null || isFeedingTask(ai.currentTask) || isDeathTask(ai.currentTask)) return;
+
+        // Sleep is not interrupted either: yanking a sleeping NPC to IDLE left it flagged as
+        // sleeping with no bed task, which the self-heal in RoutineAISystem then had to undo
+        // every tick.
+        if (isSleepTask(ai.currentTask)) return;
+
+        // Re-issuing this on a tick where the NPC is already idle and crying just resets the
+        // animation, so it never gets past the first frame.
+        if (ai.currentTask == TaskType.IDLE) return;
+
+        NPCMovementHelper.clearMoveTarget(ref, ai);
+        ai.currentTask = TaskType.IDLE;
+        NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Cry", store);
+        LOGGER.debug("[SimTale] {} is crying from starvation!", npc.name);
+    }
+
+    /**
+     * Tasks that are already about getting fed.
+     *
+     * <p>{@code MOVING_TO_FOOD} was missing from the old check, so an NPC that had found a chest
+     * was pulled back to IDLE on the very next tick — it could locate a meal but never reach one.
+     */
+    private static boolean isFeedingTask(TaskType task) {
+        return task == TaskType.FINDING_FOOD || task == TaskType.MOVING_TO_FOOD || task == TaskType.EATING;
+    }
+
+    private static boolean isSleepTask(TaskType task) {
+        return task == TaskType.FINDING_BED || task == TaskType.MOVING_TO_BED
+                || task == TaskType.ENTERING_BED || task == TaskType.SLEEPING || task == TaskType.WAKING;
+    }
+
+    private static boolean isDeathTask(TaskType task) {
+        return task == TaskType.DYING || task == TaskType.DEAD || task == TaskType.REAPING;
     }
 
     public static void handleHungerLogic(
