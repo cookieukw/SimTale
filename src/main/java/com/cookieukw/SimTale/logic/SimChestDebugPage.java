@@ -163,6 +163,8 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
         if (selectedIndex < 0) selectedIndex = 0;
         if (selectedIndex >= totalPages) selectedIndex = totalPages - 1;
 
+        cmd.set("#Title.TextSpans", Message.translation("ui.debugchests.title"));
+
         for (int i = 0; i < ROWS_PER_PAGE; i++) {
             int chestIndex = selectedIndex * ROWS_PER_PAGE + i;
             String rowSelector = "#Row" + i;
@@ -191,6 +193,9 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
             // at a glance instead of by opening every chest.
             cmd.set(rowSelector + " #Contents.Style.TextColor", "#44ff88");
 
+            cmd.set(rowSelector + " #BtnTp Label.TextSpans", Message.translation("ui.debugchests.btn_tp"));
+            cmd.set(rowSelector + " #BtnForget Label.TextSpans", Message.translation("ui.debugchests.btn_forget"));
+
             eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp",
                     new EventData().append("action", "tp_" + chestIndex), false);
             eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnForget",
@@ -201,6 +206,10 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
                 .param("current", selectedIndex + 1)
                 .param("total", totalPages)
                 .param("count", chests.size()));
+        cmd.set("#BtnPrevPage Label.TextSpans", Message.translation("ui.debugchests.btn_prev"));
+        cmd.set("#BtnNextPage Label.TextSpans", Message.translation("ui.debugchests.btn_next"));
+        cmd.set("#BtnBack Label.TextSpans", Message.translation("ui.debugchests.btn_back"));
+
 
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnPrevPage",
                 new EventData().append("action", "prev_page"), false);
