@@ -7,6 +7,7 @@ import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.cookieukw.SimTale.logic.PlayerPregnancyPage;
 import com.cookieukw.SimTale.logic.SimBedDebugPage;
+import com.cookieukw.SimTale.logic.SimChestDebugPage;
 import com.cookieukw.SimTale.systems.BedWorldBootstrap;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -41,6 +42,7 @@ import com.cookieukw.SimTale.core.FamilySystem;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import java.util.UUID;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
@@ -49,6 +51,7 @@ import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.systems.HouseManager;
 import com.cookieukw.SimTale.systems.BedRegistry;
 import com.cookieukw.SimTale.systems.ChestRegistry;
+import com.cookieukw.SimTale.systems.FurnitureAnchorHelper;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
@@ -66,6 +69,8 @@ import com.hypixel.hytale.protocol.MovementStates;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.logger.HytaleLogger;
 import java.util.Objects;
+
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import java.util.HashMap;
 
@@ -930,7 +935,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 // any entity that still has one when its chunk loads, so stripping the component
                 // alone would hand the cow straight back on the next reload.
                 if (npc.entityId != null) {
-                    com.cookieukw.SimTale.db.SimNPCPersistence.deleteNPC(npc.entityId);
+                    SimNPCPersistence.deleteNPC(npc.entityId);
                 }
 
                 SimTale.untrackNpc(npc);
@@ -963,7 +968,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             player.getPageManager().openCustomPage(ref, store,
-                    new com.cookieukw.SimTale.logic.SimChestDebugPage(playerRef, player));
+                    new SimChestDebugPage(playerRef, player));
         }
     }
 
@@ -1002,20 +1007,18 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 for (int dy = -1; dy <= 2; dy++) {
                     for (int dz = -1; dz <= 1; dz++) {
                         int bx = px + dx, by = py + dy, bz = pz + dz;
-                        com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType type =
-                                world.getBlockType(bx, by, bz);
+                        BlockType type = world.getBlockType(bx, by, bz);
                         if (type == null || type.getId() == null || type.getId().equalsIgnoreCase("Empty")) {
                             continue;
                         }
-                        Vector3i ancora = com.cookieukw.SimTale.systems.FurnitureAnchorHelper
-                                .anchorOf(world, bx, by, bz);
+                        Vector3i ancora = FurnitureAnchorHelper.anchorOf(world, bx, by, bz);
                         String chave = type.getId() + " @ (" + ancora.x + "," + ancora.y + "," + ancora.z + ")";
                         contagemPorAncora.merge(chave, 1, Integer::sum);
                     }
                 }
             }
 
-            for (java.util.Map.Entry<String, Integer> e : contagemPorAncora.entrySet()) {
+            for (Entry<String, Integer> e : contagemPorAncora.entrySet()) {
                 String blocos = e.getValue() > 1 ? "  [" + e.getValue() + " blocos]" : "";
                 ctx.sendMessage(Message.raw("  " + e.getKey() + blocos));
             }
