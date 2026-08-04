@@ -158,17 +158,27 @@ public class HouseManager {
                     visited.add(neighbor);
                     continue; 
                 }
+                // Furniture is recorded AND traversed. It used to be recorded and treated as a
+                // wall, which made the fill stop at it — and a bed spans six blocks, so the bed the
+                // scan starts from walled its own scan in. One house passed and the identical one
+                // next door failed purely because of where the bed sat relative to free space; a
+                // real case reported four interior blocks visited.
+                //
+                // Doors stay non-traversable on purpose: a door is the way out, and walking the
+                // fill through it would leak the scan into the world.
                 if (isBed(type)) {
                     if (!neighbor.equals(bedPos)) {
                         otherBeds.add(neighbor);
                     }
                     visited.add(neighbor);
-                    continue; 
+                    queue.add(neighbor);
+                    continue;
                 }
                 if (isChest(world, neighbor, type)) {
                     chestBlocks.add(neighbor);
                     visited.add(neighbor);
-                    continue; 
+                    queue.add(neighbor);
+                    continue;
                 }
                 if (isSolid(type)) {
                     continue; 
