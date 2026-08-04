@@ -34,6 +34,8 @@ prof.lumberjack = Lenhador
 prof.guard = Guarda
 prof.explorer = Explorador
 prof.builder = Construtor
+prof.hunter = Caçador
+
 season.spring = Primavera
 season.summer = Verão
 season.autumn = Outono

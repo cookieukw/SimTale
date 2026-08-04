@@ -34,6 +34,8 @@ prof.lumberjack = Lumberjack
 prof.guard = Guard
 prof.explorer = Explorer
 prof.builder = Builder
+prof.hunter = Hunter
+
 season.spring = Spring
 season.summer = Summer
 season.autumn = Autumn

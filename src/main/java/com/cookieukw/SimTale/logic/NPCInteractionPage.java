@@ -422,36 +422,14 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             List<String> allLikes = new ArrayList<>();
             if (npc.preferences.getFavoriteFoods() != null) allLikes.addAll(npc.preferences.getFavoriteFoods());
             if (npc.preferences.getFavoriteItems() != null) allLikes.addAll(npc.preferences.getFavoriteItems());
-            
-            if (!allLikes.isEmpty()) {
-                Message likesMsg = Message.raw("");
-                boolean first = true;
-                for (String itemId : allLikes) {
-                    if (!first) likesMsg = likesMsg.insert(Message.raw(", "));
-                    likesMsg = likesMsg.insert(Message.translation("ui." + itemId));
-                    first = false;
-                }
-                commandBuilder.set("#NpcLikes.TextSpans", Message.translation("ui.likes").insert(Message.raw(" ")).insert(likesMsg));
-            }
 
             List<String> allHates = new ArrayList<>();
             if (npc.preferences.getHatedFoods() != null) allHates.addAll(npc.preferences.getHatedFoods());
             if (npc.preferences.getHatedItems() != null) allHates.addAll(npc.preferences.getHatedItems());
-            
-            if (!allHates.isEmpty()) {
-                Message hatesMsg = Message.raw("");
-                boolean first = true;
-                for (String itemId : allHates) {
-                    if (!first) hatesMsg = hatesMsg.insert(Message.raw(", "));
-                    hatesMsg = hatesMsg.insert(Message.translation("ui." + itemId));
-                    first = false;
-                }
-                commandBuilder.set("#NpcHates.TextSpans", Message.translation("ui.hates").insert(Message.raw(" ")).insert(hatesMsg));
-            }
 
-            Message hobbyMsg = Message.translation("ui.hobby." + npc.preferences.getHobby().name().toLowerCase());
-            commandBuilder.set("#NpcHobby.TextSpans", Message.translation("ui.hobby").insert(Message.raw(" ")).insert(hobbyMsg));
-            
+            // Likes, hates, hobby and profession are shown as items now.
+            buildShowcase(commandBuilder, npc, allLikes, allHates);
+
             String seasonKey = "season." + (npc.preferences.getFavoriteSeason() != null ? npc.preferences.getFavoriteSeason().name().toLowerCase() : "spring");
             commandBuilder.set("#NpcSeason.TextSpans", Message.translation("ui.season").insert(Message.raw(" ")).insert(Message.translation("ui." + seasonKey)));
         }
@@ -680,6 +658,71 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             return temp.name;
         }
         return "Desconhecido";
+    }
+
+    /**
+     * Fills the four visual slots: profession, favourite, hated, hobby.
+     *
+     * <p>Each slot hides itself when there is nothing to show, so an unemployed NPC with no known
+     * tastes collapses to a hobby alone rather than showing three empty frames.
+     */
+    private void buildShowcase(UICommandBuilder commandBuilder, SimNPCComponent npc,
+            List<String> likes, List<String> hates) {
+        // Captions reuse the keys the rest of the panel already uses for professions and hobbies,
+        // so a profession renamed in the .lang file changes here too instead of drifting.
+        Message professionCaption = npc.profession != null
+                ? Message.translation("ui.prof." + npc.profession.name().toLowerCase())
+                : null;
+        setSlot(commandBuilder, "#SlotProfession",
+                NPCShowcaseItems.forProfession(npc.profession), professionCaption);
+
+        // Row captions come from the same ui.likes/ui.hates keys the old text lines used, so the
+        // .ui placeholders never end up as the string players actually read.
+        commandBuilder.set("#LikesCaption.TextSpans", Message.translation("ui.likes"));
+        commandBuilder.set("#HatesCaption.TextSpans", Message.translation("ui.hates"));
+        setTasteRow(commandBuilder, "#Like", likes);
+        setTasteRow(commandBuilder, "#Hate", hates);
+
+        String hobbyItem = npc.preferences != null
+                ? NPCShowcaseItems.forHobby(npc.preferences.getHobby()) : null;
+        Message hobbyCaption = npc.preferences != null && npc.preferences.getHobby() != null
+                ? Message.translation("ui.hobby." + npc.preferences.getHobby().name().toLowerCase())
+                : null;
+        setSlot(commandBuilder, "#SlotHobby", hobbyItem, hobbyCaption);
+    }
+
+    /** Number of taste icons the .ui declares per row; extras beyond this are not shown. */
+    private static final int TASTE_SLOTS = 6;
+
+    /**
+     * Fills one taste row, hiding the icons left over.
+     *
+     * <p>The whole list is shown rather than a sample. Showing only the first entry made an NPC
+     * look like it did not hate something it actually hated, which read as a bug in the gift rules
+     * when the rules were right and the screen was lying.
+     */
+    private void setTasteRow(UICommandBuilder commandBuilder, String prefix, List<String> items) {
+        for (int i = 0; i < TASTE_SLOTS; i++) {
+            String selector = prefix + i;
+            if (items != null && i < items.size()) {
+                commandBuilder.set(selector + ".Visible", true);
+                commandBuilder.set(selector + " #Icon.ItemId", items.get(i));
+            } else {
+                commandBuilder.set(selector + ".Visible", false);
+            }
+        }
+    }
+
+    /** Shows one slot, or hides it when the item id is missing. */
+    private void setSlot(UICommandBuilder commandBuilder, String selector, String itemId, Message caption) {
+        if (itemId == null || itemId.isEmpty()) {
+            commandBuilder.set(selector + ".Visible", false);
+            return;
+        }
+        commandBuilder.set(selector + ".Visible", true);
+        commandBuilder.set(selector + " #Icon.ItemId", itemId);
+        commandBuilder.set(selector + " #Caption.TextSpans",
+                caption != null ? caption : Message.raw(""));
     }
 
     /**

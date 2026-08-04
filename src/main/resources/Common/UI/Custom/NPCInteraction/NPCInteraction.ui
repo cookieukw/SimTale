@@ -7,6 +7,43 @@
 
 $T = "../SimTaleTheme.ui";
 
+// One showcase slot: the item on top, a short caption under it.
+//
+// The element is ItemIcon because that is the one item renderer proven to work from server code —
+// ItemRepairElement writes "#Icon.ItemId" the exact same way. No ItemPreviewComponent appears in
+// any of the 135 shipped .ui files, so it is not used here; if it turns out to exist, swapping is
+// a one-line change inside this template and nothing else moves.
+@ShowcaseSlot = Group {
+  FlexWeight: 1;
+  LayoutMode: Top;
+  Padding: (Horizontal: 4);
+
+  Group {
+    Anchor: (Height: 40, Bottom: 3);
+    LayoutMode: MiddleCenter;
+
+    ItemIcon #Icon {
+      Anchor: (Width: 36, Height: 36);
+    }
+  }
+
+  Label #Caption {
+    Text: "—";
+    Anchor: (Height: 18);
+    Style: (...$T.@BodyStyle, FontSize: 11, HorizontalAlignment: Center);
+  }
+};
+
+// Bare icon for the taste rows: no caption, since the row label already says what it means.
+@TasteIcon = Group {
+  Anchor: (Width: 34, Height: 34, Right: 4);
+  LayoutMode: MiddleCenter;
+
+  ItemIcon #Icon {
+    Anchor: (Width: 30, Height: 30);
+  }
+};
+
 Group {
   LayoutMode: Right;
   Background: #00000000;
@@ -38,8 +75,11 @@ Group {
 
     // ---------------------------------------------------------------- info well
     Group #InfoPanel {
-      // Grew with the needs row added below; the rows are fixed-height so the panel has to follow.
-      Anchor: (Height: 364, Bottom: $T.@SectionGap);
+      // Height is the sum of the rows, not a guess — getting it wrong does not clip, it lets the
+      // relationship well spill over the button grid below.
+      //   padding 24 + header 22+8 + (hunger 26 + energy 26 + traits 26 + showcase 64 + likes 38
+      //   + hates 38 + season 26 + parents 26) each with @RowGap 6 + children 26+10 + well 34 = 442
+      Anchor: (Height: 442, Bottom: $T.@SectionGap);
       LayoutMode: Top;
       Background: $T.@InsetSurface;
       Padding: (Top: 12, Bottom: 12, Horizontal: $T.@GutterInner);
@@ -66,20 +106,51 @@ Group {
         Anchor: (Height: 26, Bottom: $T.@RowGap);
         Style: $T.@BodyStyle;
       }
-      Label #NpcLikes {
-        Text: "Gosta de: —";
-        Anchor: (Height: 26, Bottom: $T.@RowGap);
-        Style: (...$T.@BodyStyle, TextColor: $T.@AccentLike);
+      // Four lines of "Gosta de: X / Odeia: Y / Hobby: Z / Profissão: W" became four pictures.
+      // The captions stay, otherwise the row reads as a random inventory instead of a profile.
+      Group #Showcase {
+        Anchor: (Height: 64, Bottom: $T.@RowGap);
+        LayoutMode: Left;
+
+        @ShowcaseSlot #SlotProfession {}
+        @ShowcaseSlot #SlotHobby {}
       }
-      Label #NpcHates {
-        Text: "Odeia: —";
-        Anchor: (Height: 26, Bottom: $T.@RowGap);
-        Style: (...$T.@BodyStyle, TextColor: $T.@AccentHate);
+
+      // Tastes get a row each, with room for the whole list. Showing only the first one made an
+      // NPC look like it did not hate something it actually hated — an NPC rolls two to three
+      // hated foods plus two to three hated items, so one icon was hiding up to five.
+      Group #LikesRow {
+        Anchor: (Height: 38, Bottom: $T.@RowGap);
+        LayoutMode: Left;
+
+        Label #LikesCaption {
+          Text: "Gosta:";
+          Anchor: (Width: 78, Height: 30, Top: 4);
+          Style: (...$T.@BodyStyle, FontSize: 13, TextColor: $T.@AccentLike);
+        }
+        @TasteIcon #Like0 {}
+        @TasteIcon #Like1 {}
+        @TasteIcon #Like2 {}
+        @TasteIcon #Like3 {}
+        @TasteIcon #Like4 {}
+        @TasteIcon #Like5 {}
       }
-      Label #NpcHobby {
-        Text: "Hobby: —";
-        Anchor: (Height: 26, Bottom: $T.@RowGap);
-        Style: $T.@BodyStyle;
+
+      Group #HatesRow {
+        Anchor: (Height: 38, Bottom: $T.@RowGap);
+        LayoutMode: Left;
+
+        Label #HatesCaption {
+          Text: "Odeia:";
+          Anchor: (Width: 78, Height: 30, Top: 4);
+          Style: (...$T.@BodyStyle, FontSize: 13, TextColor: $T.@AccentHate);
+        }
+        @TasteIcon #Hate0 {}
+        @TasteIcon #Hate1 {}
+        @TasteIcon #Hate2 {}
+        @TasteIcon #Hate3 {}
+        @TasteIcon #Hate4 {}
+        @TasteIcon #Hate5 {}
       }
       Label #NpcSeason {
         Text: "Estação Fav.: —";
