@@ -71,7 +71,7 @@ appears there, and neither does anything if birth failed.
 
 | Command | What it does |
 |---|---|
-| `/simtale setmood <mood> <intensity>` | Sets mood |
+| `/simtale setmood <mood> [0-100]` | Sets mood. Intensity is an **integer percentage** |
 | `/simtale setgender` | Sets gender |
 | `/simtale interact` | Opens the interaction panel |
 
@@ -79,7 +79,7 @@ appears there, and neither does anything if birth failed.
 
 | Command | Issue |
 |---|---|
-| `setmood` | Currently errors out |
+| `setmood` | Fixed: intensity was a decimal, which the parser rejects |
 | `debugnear` | Double-counts furniture — one door reads as two |
 | `unstick` | A sleeping NPC walks off still asleep |
 | `forcework` | Runs, but gives no feedback about what it found |

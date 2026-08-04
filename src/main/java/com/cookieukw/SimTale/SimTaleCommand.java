@@ -1017,12 +1017,17 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     private static class SetMoodSubCommand extends AbstractPlayerCommand {
         private final RequiredArg<String> moodArg;
-        private final OptionalArg<Double> intensityArg;
+        private final OptionalArg<String> intensityArg;
 
         public SetMoodSubCommand() {
             super("setmood", "Define o humor/expressao do NPC mais proximo");
             this.moodArg = this.withRequiredArg("mood", "NEUTRAL|HAPPY|ANGRY|SAD|SCARED|SLEEPY|EXCITED|BORED", ArgTypes.STRING);
-            this.intensityArg = this.withOptionalArg("intensity", "Intensidade da emocao (0.0 a 1.0)", ArgTypes.DOUBLE);
+            // Percentual inteiro, nao decimal.
+            //
+            // Este era o unico comando do projeto usando ArgTypes.DOUBLE, e tambem o unico que
+            // falhava. O parser do Hytale rejeita ponto decimal — o mesmo problema que ja tinha
+            // derrubado o antigo `bedtune`. Aceitar 0 a 100 e converter aqui evita o parser.
+            this.intensityArg = this.withOptionalArg("intensity", "Intensidade em % (0 a 100)", ArgTypes.STRING);
         }
 
         @Override
@@ -1037,8 +1042,17 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
-            Double intensityVal = ctx.get(this.intensityArg);
-            float intensity = intensityVal != null ? intensityVal.floatValue() : 1.0f;
+            String intensityRaw = ctx.get(this.intensityArg);
+            float intensity = 1.0f;
+            if (intensityRaw != null && !intensityRaw.isBlank()) {
+                try {
+                    int percent = Integer.parseInt(intensityRaw.trim());
+                    intensity = Math.max(0f, Math.min(100f, percent)) / 100f;
+                } catch (NumberFormatException e) {
+                    ctx.sendMessage(Message.raw("Intensidade invalida. Use um inteiro de 0 a 100 (ex: 75)."));
+                    return;
+                }
+            }
 
             TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
             SimNPCComponent nearestNPC = null;
