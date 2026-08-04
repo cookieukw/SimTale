@@ -22,13 +22,7 @@ java {
     withSourcesJar()
 }
 
-// Configuração para indexar pastas de assets extras no IDE e no JAR
 sourceSets {
-    main {
-        resources {
-            srcDirs += ['assets']
-        }
-    }
     test {
         java {
             srcDirs = ['tests']
@@ -72,6 +66,10 @@ tasks.register('deploy') {
     def targetDir = file("${hytaleHome}/Mods")
 
     inputs.file(jarFile)
+    // Sem outputs declarados o Gradle nao consegue avaliar atualidade, e `inputs` sozinho nao
+    // significa nada. Copiar sempre e o comportamento correto aqui: o alvo esta fora do projeto e
+    // pode ter sido substituido por fora.
+    outputs.upToDateWhen { false }
 
     doLast {
         if (!file(hytaleHome).exists()) {
@@ -85,7 +83,12 @@ tasks.register('deploy') {
         def target = new File(targetDir, source.name)
         // O temporario precisa ficar na mesma pasta do destino, senao o rename cruza sistemas
         // de arquivos e deixa de ser atomico (ATOMIC_MOVE lanca excecao nesse caso).
-        def temp = new File(targetDir, source.name + ".tmp")
+        //
+        // O nome NAO pode conter ".jar": o observador da pasta Mods pode casar por substring, e
+        // ai ele tentaria carregar o temporario enquanto ele ainda esta sendo escrito — que e
+        // exatamente o problema que a copia atomica existe para evitar. O ponto inicial tambem o
+        // deixa oculto no Linux.
+        def temp = new File(targetDir, "." + source.name.replace(".jar", "") + ".deploy.tmp")
 
         try {
             java.nio.file.Files.copy(source.toPath(), temp.toPath(),
@@ -101,15 +104,16 @@ tasks.register('deploy') {
     }
 }
 
-// Garante que o deploy rode após o jar
-tasks.jar.finalizedBy('deploy')
+// NAO usar tasks.jar.finalizedBy('deploy').
+//
+// Com finalizedBy, QUALQUER tarefa que produza o jar dispara um deploy: `build`, `assemble`, a
+// sincronizacao do IDE, o sources jar. O Hytale observa a pasta Mods e recarrega o mod sozinho
+// quando o arquivo muda, entao o jogo era recarregado em momentos que nao correspondiam a nenhuma
+// acao consciente — e testar logo depois pegava o mod em estado inconsistente.
+//
+// Como `deploy` ja declara dependsOn 'jar', `./gradlew deploy` continua compilando e copiando.
+// A diferenca e que agora `./gradlew build` NAO mexe na instalacao do jogo.
 
 tasks.named("jar") {
     destinationDirectory.set(file("$projectDir/build/libs"))
-}
-
-tasks.jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    // Adiciona todos os recursos (incluindo a nova pasta assets) ao JAR
-    from sourceSets.main.resources
 }
