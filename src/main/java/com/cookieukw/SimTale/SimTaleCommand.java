@@ -198,8 +198,18 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             if (ai != null) {
                 sb.append("\n  ai task=").append(ai.currentTask)
                   .append("  alvo=").append(ai.targetBlockPosition)
-                  .append("  lastLeash=").append(ai.lastLeashPos);
+                  .append("  lastLeash=").append(ai.lastLeashPos)
+                  .append("\n  sonoAgendado=").append(ai.sleepingOnSchedule);
             }
+
+            // Everything needed to tell "guard on the day shift" apart from "stuck in bed": the
+            // profession, whether the world clock says this NPC's sleep window is open, and the
+            // raw day progress behind that answer.
+            sb.append("\n  profissao=").append(best.profession)
+              .append("  janelaDeSono=")
+              .append(com.cookieukw.SimTale.systems.NPCSleepHelper.isSleepPeriod(best, world))
+              .append("  noite=")
+              .append(com.cookieukw.SimTale.systems.NPCSleepHelper.isNight(world));
 
             ctx.sendMessage(Message.raw(sb.toString()));
             HytaleLogger.forEnclosingClass().atInfo().log(sb.toString());
@@ -305,6 +315,13 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                         ai.socializeTargetId = null;
                         ai.socializeHost = false;
                         ai.wanderTimer = 0;
+                        // Without clearing this, an NPC freed from bed still counts as a scheduled
+                        // sleeper, and the SLEEPING branch would wait for a window that is not open.
+                        ai.sleepingOnSchedule = false;
+                        // Push both searches out so the interrupts do not drag her straight back
+                        // to the bed the command just freed her from.
+                        ai.nextBedSearchTick = world.getTick() + 200;
+                        ai.nextFoodSearchTick = world.getTick() + 200;
                     }
                 }
 
@@ -931,10 +948,18 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             Player player = store.getComponent(ref, Player.getComponentType());
-            if (player != null) {
-                player.getPageManager().openCustomPage(ref, store,
-                        new com.cookieukw.SimTale.logic.SimChestDebugPage(playerRef, player));
+            if (player == null) return;
+
+            // Same scan debugbeds does. Without it this screen only ever showed chests that
+            // happened to be within the radius swept when the player joined the world, which
+            // reads as "nothing is registered" — the exact ambiguity this page exists to remove.
+            TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
+            if (tc != null) {
+                BedWorldBootstrap.bootstrapLoadedRadius(world, tc.getPosition(), 32);
             }
+
+            player.getPageManager().openCustomPage(ref, store,
+                    new com.cookieukw.SimTale.logic.SimChestDebugPage(playerRef, player));
         }
     }
 
@@ -1207,6 +1232,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
             Vector3d pos = tc.getPosition();
+
+            // Scan first, like housecheck already did. Otherwise this command reports "nothing
+            // registered" for a chest that simply had not been picked up yet.
+            BedWorldBootstrap.bootstrapLoadedRadius(world, pos, 16);
 
             HouseBlockPos nearestChest = null;
             double minDist = Double.MAX_VALUE;
