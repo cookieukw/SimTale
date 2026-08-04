@@ -42,6 +42,41 @@ tasks.register('runTests', JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
 }
 
+// Validacao dos arquivos .ui
+//
+// O cliente recusa TODO o custom UI quando um unico arquivo esta malformado, e reporta um erro por
+// tentativa de conexao. Descobrir os problemas assim custa um restart de servidor por typo. Este
+// check roda antes do jar e falha o build, entao o erro aparece no terminal em vez de no jogo.
+//
+// A pasta de assets do Hytale entra por HYTALE_ASSETS ou por hytale.assets no local.properties.
+// Sem ela o script ainda roda, mas nao consegue distinguir textura do jogo de caminho errado.
+tasks.register('checkUi', Exec) {
+    group = 'verification'
+    description = 'Valida caminhos, chaves de traducao e sintaxe dos arquivos .ui'
+
+    def script = file("$projectDir/tools/check_ui.py")
+    onlyIf { script.exists() }
+
+    commandLine 'python3', script.absolutePath
+
+    def assetsDir = System.getenv('HYTALE_ASSETS')
+    if (assetsDir == null) {
+        def props = new Properties()
+        def f = project.rootProject.file('local.properties')
+        if (f.exists()) {
+            props.load(f.newDataInputStream())
+            assetsDir = props.getProperty('hytale.assets')
+        }
+    }
+    if (assetsDir != null) {
+        environment 'HYTALE_ASSETS', assetsDir
+    }
+}
+
+tasks.named('processResources') {
+    dependsOn 'checkUi'
+}
+
 // Tarefa de deploy
 //
 // Copia ATOMICA, e isso importa. A versao anterior era um `Copy` do Gradle, que escreve o jar
