@@ -33,6 +33,8 @@ cmd.search.finished = Busca finalizada. Total de NPCs encontrados: {count}
 cmd.search.error = Erro ao buscar no banco de dados: {error}
 profession.none = nenhuma
 npc.invalid = NPC não encontrado ou inválido.
+npc.sleeping = {name} está dormindo...
+
 npc.no_storage = O NPC não possui um inventário de armazenamento.
 npc.no_container = O NPC não possui um contêiner de armazenamento.
 baby.custody.taken = Você pegou {name} sob seus cuidados.

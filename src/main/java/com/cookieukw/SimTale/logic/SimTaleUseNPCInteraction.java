@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.logic;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
@@ -109,6 +110,16 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             // Gender is the tell: spawnNPC always sets it, adoption never did. Same rule as
             // /simtale forget, so what refuses to open here is exactly what that command clears.
             boolean wronglyAdopted = npc != null && npc.gender == null;
+
+            // Block interaction if NPC is currently sleeping or heading to bed
+            RoutineAIComponent ai = targetRef.getStore().getComponent(targetRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (ai != null && (ai.currentTask == RoutineAIComponent.TaskType.SLEEPING
+                    || ai.currentTask == RoutineAIComponent.TaskType.ENTERING_BED
+                    || ai.currentTask == RoutineAIComponent.TaskType.WAKING)) {
+                playerRefComponent.sendMessage(Message.translation("general.npc.sleeping").param("name", npc != null ? npc.name : "NPC"));
+                context.getState().state = InteractionState.Failed;
+                return;
+            }
 
             LOGGER.atInfo().log("SimTale [DEBUG]: player=" + (player != null) + ", npc=" + (npc != null));
             if (player != null && npc != null && !wronglyAdopted) {
