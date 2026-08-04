@@ -23,6 +23,7 @@ import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandManager;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
+import com.hypixel.hytale.server.core.modules.entity.component.NPCMarkerComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
@@ -82,6 +83,10 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                     
                     if (entityRef != null) {
                         commandBuffer.addComponent(entityRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
+                        // Restored NPCs never pass through SimNPCFactory, so the minimap marker has
+                        // to be re-applied here or they would vanish from the map after a reload.
+                        commandBuffer.putComponent(entityRef,
+                                NPCMarkerComponent.getComponentType(), NPCMarkerComponent.get());
                     }
                     
                     SimTale.trackNpc(npc);
