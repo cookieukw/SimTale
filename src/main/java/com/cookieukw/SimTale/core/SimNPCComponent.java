@@ -79,6 +79,14 @@ public class SimNPCComponent implements Component<EntityStore> {
     public transient Mood lastPlayedEmotion = null;
 
     /**
+     * Ticks since the face animation was last played.
+     *
+     * <p>Facial expressions are one-shot clips, so a mood that never changes shows its face exactly
+     * once and then sits neutral forever. This drives a periodic replay.
+     */
+    public transient int expressionAge = 0;
+
+    /**
      * Persists only the identity of the NPC — its id and name.
      * <p>
      * Everything else (personality, needs, relationships, family, pregnancy) still lives in

@@ -19,6 +19,15 @@ import javax.annotation.Nonnull;
 
 public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
 
+    /**
+     * How often a held mood shows its face again: 8 s.
+     *
+     * <p>Long enough that the NPC is not permanently mugging at the camera, short enough that
+     * walking past a happy villager reliably catches a smile. Counted in ticks rather than from
+     * {@code dt}, because the tick rate is a known 20/s and the unit of {@code dt} is not.
+     */
+    private static final int REPLAY_INTERVAL_TICKS = 160;
+
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
@@ -78,10 +87,10 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
         }
         
         AnimationSlot slotToUse = AnimationSlot.Face;
-        
+
         // Determine if the visual face expression needs to be sent to the client
         boolean expressionChanged = (npc.lastPlayedEmotion != currentMood);
-        
+
         // Special transition handling for ANGRY intensity changes (Angry <=> Rage)
         if (currentMood == Mood.ANGRY) {
             String currentPlaying = animComp.getActiveAnimations()[slotToUse.ordinal()];
@@ -89,10 +98,23 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
                 expressionChanged = true;
             }
         }
-        
+
+        // Replaying on a timer is what keeps the face alive.
+        //
+        // These clips are one-shot: they play, they end, and the head goes back to neutral. Firing
+        // only on change meant a mood that stayed put showed its face once and never again — an NPC
+        // could be HAPPY for ten minutes wearing a blank stare. It used to hide behind the fast
+        // emotion decay, which dropped moods to NEUTRAL every few seconds and re-triggered the
+        // animation by accident; slowing the decay removed the accident and exposed this.
+        npc.expressionAge++;
+        if (animName != null && npc.expressionAge >= REPLAY_INTERVAL_TICKS) {
+            expressionChanged = true;
+        }
+
         if (expressionChanged) {
             npc.lastPlayedEmotion = currentMood;
-            
+            npc.expressionAge = 0;
+
             if (animName != null) {
                 animComp.getActiveAnimations()[slotToUse.ordinal()] = animName;
                 animComp.setPlayingAnimation(slotToUse, animName);
