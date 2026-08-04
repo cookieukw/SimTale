@@ -68,29 +68,49 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             SimNPCComponent npc = targetRef.getStore().getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
             
             if (npc == null) {
+                // Same re-attach path as SimTaleEventHandler, and it needs the same guards. This
+                // is the F key; fixing only the right-click handler left the whole hole open,
+                // which is how cows kept becoming villagers after that fix.
+                if (targetRef.getStore().getComponent(targetRef, Player.getComponentType()) != null) {
+                    context.getState().state = InteractionState.Failed;
+                    return;
+                }
+
                 UUIDComponent uuidComp = targetRef.getStore().getComponent(targetRef, UUIDComponent.getComponentType());
                 if (uuidComp != null) {
                     // "simtale" shell, not Caskara's "default" — see SimNPCPersistence.DB_SHELL.
+                    // No record means this is not one of ours and there is nothing to re-attach.
                     SimNPCData data = SimNPCPersistence.loadData(uuidComp.getUuid());
-                    String name = null;
-                    if (data != null) {
-                        name = data.name;
-                    } else {
+                    if (data == null) {
+                        context.getState().state = InteractionState.Failed;
+                        return;
+                    }
+
+                    String name = data.name;
+                    if (name == null || name.isEmpty()) {
                         com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName displayName = targetRef.getStore().getComponent(targetRef, com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName.getComponentType());
                         if (displayName != null && displayName.getDisplayName() != null) {
                             name = displayName.getDisplayName().toString();
                         }
-                        if (name == null || name.isEmpty()) {
-                            name = com.cookieukw.SimTale.core.SimNPCNameGenerator.generate();
-                        }
                     }
+                    if (name == null || name.isEmpty()) {
+                        name = com.cookieukw.SimTale.core.SimNPCNameGenerator.generate();
+                    }
+
                     npc = new SimNPCComponent(uuidComp.getUuid(), name);
                     npc.entityRef = targetRef;
                     SimNPCPersistence.loadNPC(npc);
                     commandBuffer.addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
-                    
+
                     SimTale.trackNpc(npc);
                 }
+            }
+
+            // Entities adopted before these guards still carry the component and a saved record.
+            // Gender is the tell: spawnNPC always sets it, adoption never did.
+            if (npc != null && npc.gender == null) {
+                context.getState().state = InteractionState.Failed;
+                return;
             }
 
             LOGGER.atInfo().log("SimTale [DEBUG]: player=" + (player != null) + ", npc=" + (npc != null));

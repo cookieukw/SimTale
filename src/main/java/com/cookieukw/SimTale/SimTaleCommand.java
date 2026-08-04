@@ -904,12 +904,21 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     npcStore.tryRemoveComponent(npc.entityRef, Frozen.getComponentType());
                     NPCMovementHelper.setSleepingState(npc.entityRef, npcStore, false);
                 }
+
+                // Deleting the saved record is what makes this stick. SimTaleTickSystem re-attaches
+                // any entity that still has one when its chunk loads, so stripping the component
+                // alone would hand the cow straight back on the next reload.
+                if (npc.entityId != null) {
+                    com.cookieukw.SimTale.db.SimNPCPersistence.deleteNPC(npc.entityId);
+                }
+
                 SimTale.untrackNpc(npc);
                 cleaned++;
             }
 
             ctx.sendMessage(Message.raw("[SimTale] " + cleaned
-                    + " entidade(s) adotada(s) por engano foram liberadas."));
+                    + " entidade(s) adotada(s) liberadas e removidas do banco. "
+                    + "Entidades ainda nao carregadas so serao limpas quando aparecerem."));
         }
     }
 
