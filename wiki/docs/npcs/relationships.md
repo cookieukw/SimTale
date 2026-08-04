@@ -1,0 +1,63 @@
+---
+sidebar_position: 4
+title: Relationships
+---
+
+# Relationships
+
+Every NPC keeps a separate relationship with each player and with other NPCs.
+
+## The numbers
+
+| Value | Meaning |
+|---|---|
+| **Friendship** | General closeness |
+| **Romance** | Romantic interest |
+| **Trust** | Willingness to accept requests |
+| **Affinity** | Short-term reaction to your last actions |
+
+## Status ladder
+
+`UNKNOWN` → `STRANGER` → `ACQUAINTANCE` → `FRIEND` → `GOOD_FRIEND` → `BEST_FRIEND`
+
+Romantic branch: `DATING` → `ENGAGED` → `MARRIED`.
+Negative branch: `RIVAL` and `ENEMY`.
+
+Status changes what she says to you. The same greeting has different wording for a stranger and for
+a spouse.
+
+## Raising it
+
+| Action | Effect |
+|---|---|
+| Chat | Small, reliable gain |
+| Tell a joke | Depends on her sense of humour |
+| Flirt | Romance, if she is receptive |
+| Give a favourite gift | Large gain |
+| Feed her when hungry | Large gain — bigger than an ordinary gift |
+| Insult | Loss, and she remembers |
+
+## She remembers
+
+NPCs keep a memory of events. Insulting one has an effect that lasts beyond the moment: for a while
+afterwards she greets you differently.
+
+## NPC to NPC
+
+NPCs talk to each other on their own when their social need drops. A conversation raises both sides'
+social need and builds friendship between them, and that friendship survives a server restart.
+
+Mood spreads through these conversations. An `AGGRESSIVE` NPC, or two who are already enemies, turn
+the conversation into an argument instead: both walk away in a worse mood and like each other less.
+
+:::note Nobody gets dragged out of bed
+An NPC who is asleep or working is never picked as a conversation partner. And if energy runs out
+mid-conversation, she abandons the chat and goes to bed — the partner left behind does not freeze.
+:::
+
+## Marriage
+
+Give a wedding ring (`simtale:wedding_ring`) to an NPC with high romance and friendship and she
+accepts. Married NPCs share a home.
+
+If the numbers are not high enough, she turns you down.

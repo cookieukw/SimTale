@@ -14,7 +14,7 @@ O sistema opera através do `RoutineAISystem.java` e do componente `RoutineAICom
 
 ```
 RoutineAISystem (Tick per NPC)
-├── Evaluation Phase: Avalia se necessidades estão críticas (Fome <= 0 -> Morte)
+├── Evaluation Phase: Avalia se necessidades estão críticas (dano de inanição >= 200 -> Morte)
 ├── Decision Phase: Escolhe a tarefa (IDLE, FINDING_BED, MOVING_TO_BED, SLEEPING, etc.)
 └── Action Phase: Executa a ação no mundo físico
     ├── NPCHungerHelper  → FINDING_FOOD, MOVING_TO_FOOD, EATING

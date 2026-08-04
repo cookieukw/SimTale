@@ -168,3 +168,130 @@ getRandomVariant("npc-interactions.insult_" + tier.translationKey, 5)
 ```
 
 Após a correção a auditoria acusa zero chaves quebradas. A única referência restante, `server.npc.npc.isBusy`, é nativa do Hytale (definida no `server.lang` do `HytaleServer.jar`).
+
+---
+
+## 10. Cama Nunca Registrada ao Ser Colocada
+
+### Sintoma
+Em mundo novo, colocar uma cama não produzia efeito nenhum: nenhuma NPC a reivindicava, nenhuma
+dormia, e o `/simtale debugbeds` mostrava a lista vazia. Em mundos antigos tudo funcionava, o que
+fazia o problema parecer intermitente.
+
+### Diagnóstico (Causa Raiz)
+`BedPlaceBlockEventSystem.handle()` registrava baú, plantação e terra arada — **mas não cama**. As
+únicas coisas que povoavam o `BedRegistry` eram o `BedEntityRegistrySystem` (só camas que são
+entidade, não bloco), a restauração de NPC persistida, e `BedWorldBootstrap.bootstrapLoadedRadius`,
+que era chamado **apenas de dentro do `/simtale housecheck`** e da página de debug, como efeito
+colateral.
+
+Mundos antigos funcionavam porque alguém já tinha rodado o `housecheck` lá, e os registros são
+`static`: o estado sobrevivia na memória da JVM e vazava até de um mundo para outro.
+
+O sintoma "só aparece depois de reiniciar o mundo" era a mesma causa vista de outro ângulo.
+
+### Resolução
+*   Registro de cama adicionado ao evento de colocar, via `BedWorldBootstrap.registerBedAt`.
+*   `registerBedAt` extraído para que a varredura e o evento usem **o mesmo** código, evitando que
+    divirjam com o tempo.
+*   `PlayerJoinHandler` passou a rodar a varredura (raio 32, com 2 s de atraso para os chunks
+    carregarem), cobrindo mobília que já existia antes do servidor subir.
+*   O log da varredura subiu para nível `info`.
+
+### Lição
+Um comando de diagnóstico que também corrige o estado esconde a falha que deveria expor.
+
+---
+
+## 11. Baús Invisíveis para as NPCs (Classificação por Nome)
+
+### Sintoma
+Com três baús colocados na casa, o `/simtale chestcheck` respondia que nenhum estava registrado, e
+a NPC com fome ignorava baú cheio de comida.
+
+### Diagnóstico (Causa Raiz)
+`ChestRegistry.isChestId` exigia que o id do bloco contivesse `chest`, `barrel`, `cupboard` ou
+`cabinet`. Qualquer bloco de armazenamento nomeado de outra forma era ignorado silenciosamente.
+
+O mesmo erro estava em `HouseManager.isChest`, com uma consequência pior: os baús não entravam no
+`interior` da casa, então o `BLOCK_TO_HOUSE_ID` não tinha entrada para eles e o `canOpenChest`
+recusava todos.
+
+### Resolução
+`ChestRegistry.isContainerAt` pergunta ao motor se o bloco tem `ItemContainerBlock` — o **mesmo**
+componente que as NPCs já leem para procurar comida, de modo que registro e consumo não podem mais
+discordar. O nome ficou apenas como fallback, marcado como não confiável.
+
+### Lição
+Terceira ocorrência do mesmo padrão no projeto (junto de `Root_Secondary_Consume_Food_T*` para
+comida e dos caminhos de modelo de criança): **classificar por nome falha silenciosamente**.
+Sempre que houver um dado do motor que responda a pergunta, use o dado.
+
+---
+
+## 12. Morte por Fome Instantânea Tornava a Inanição Decorativa
+
+### Sintoma
+A NPC morria no instante em que a barra de fome chegava a zero, independentemente da vida. O dano
+de inanição e a cura ao comer não tinham efeito prático nenhum.
+
+### Diagnóstico (Causa Raiz)
+`RoutineAISystem` disparava `TaskType.DYING` em `npc.needs.hunger <= 0`, um teste anterior ao
+sistema de inanição e que nunca foi removido quando ele chegou.
+
+Junto disso, nenhuma das duas interrupções (sono e fome) excluía os estados `DYING`/`DEAD`/
+`REAPING`: a NPC entrava em `DYING`, era arrancada de lá no mesmo tick, o teste disparava de novo no
+tick seguinte, e o aviso de morte repetia para sempre sem ela nunca morrer.
+
+### Resolução
+*   A morte passou a vir do dano acumulado (`Needs.starvationDamage >= 200`, igual ao `MaxHealth`
+    dos roles), o que dá as duas horas pedidas e faz a cura por comida importar.
+*   O contador vive em `Needs` porque `Needs` é persistido, então a contagem sobrevive ao relog.
+*   Comer zera o contador.
+*   As duas interrupções passaram a respeitar o fluxo de morte.
+
+### Nota técnica
+O contador existe porque a RuneCore expõe `addHealth`/`subtractHealth` mas não um getter de vida
+confiável. O custo assumido é que uma NPC ferida por outra causa não morre de fome mais cedo.
+
+---
+
+## 13. Qualquer Entidade Virava NPC do Mod
+
+### Sintoma
+Apertar F numa vaca abria o painel de interação de NPC. Mais grave: o jogador ficava preso na cama
+sem conseguir sair, nem em modo criativo.
+
+### Diagnóstico (Causa Raiz)
+O caminho de re-anexar NPC depois de recarregar o mundo não tinha filtro algum. Ele lia o
+`UUIDComponent` (que toda entidade tem), inventava um nome quando não havia registro salvo, e
+executava `addComponent(targetRef, SIM_NPC_COMPONENT_TYPE, npc)`.
+
+Como a query do `RoutineAISystem` é exatamente esse componente, a entidade adotada passava a rodar
+a rotina de aldeão — ir para a cama, ser montada, receber `Frozen`. Aplicado a um jogador, isso
+produz exatamente um jogador preso na cama que o criativo não solta, porque o criativo não remove
+`MountedComponent`.
+
+O código estava **duplicado em dois handlers**: `SimTaleEventHandler` (clique direito) e
+`SimTaleUseNPCInteraction` (tecla F). Corrigir apenas o primeiro não teve efeito visível, porque o
+teste foi feito com F.
+
+### Resolução
+Nos dois handlers:
+*   Jogador nunca é adotado.
+*   Só entidade com registro no shell `simtale` é re-anexada — sem registro, não há o que remontar.
+*   O painel não abre para entidade adotada (marcador: `gender == null`, já que
+    `SimNPCFactory.spawnNPC` sempre define gênero e o caminho de adoção nunca definia).
+*   `/simtale forget` solta as adotadas **e apaga o registro**, porque o `SimTaleTickSystem`
+    re-anexa qualquer entidade que ainda tenha registro quando o chunk carrega.
+*   `/simtale unstick` passou a soltar também o próprio jogador.
+
+### Lição
+A busca que resolveu foi `grep addComponent(SIM_NPC_COMPONENT_TYPE)`. Antes de dar um problema por
+corrigido, procure **todas** as ocorrências do padrão — código duplicado significa correção
+duplicada.
+
+Vale também a comparação com o `PlumbobSystem`, que já tinha o filtro certo em duas camadas: a
+query (`Query.or`) como filtro grosso de performance, e uma checagem explícita dentro do `tick` como
+regra de correção. Handlers de evento não têm query, então dependem inteiramente da checagem — e não
+tinham nenhuma.

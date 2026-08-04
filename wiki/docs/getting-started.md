@@ -1,0 +1,94 @@
+---
+sidebar_position: 3
+title: Getting started
+---
+
+# Getting started
+
+The shortest path between "I installed the mod" and "I have a living village".
+
+## 1. Bring in an NPC
+
+```
+/simtale spawn HUMAN_FEMALE
+```
+
+Available types: `HUMAN_MALE`, `HUMAN_FEMALE`, `CHILD_MALE`, `CHILD_FEMALE`.
+
+She is born with a name, personality, traits, a job, a hobby, favourite foods and hated foods — all
+rolled at random. No two NPCs are alike.
+
+## 2. Build a house
+
+An NPC without a house wanders aimlessly and never sleeps properly. The minimum that counts as a
+house:
+
+- walls and a roof enclosing the space
+- a **door**
+- a **light source**
+- a **seat**
+- a **table**
+- a **bed**
+
+Aim at the door and check:
+
+```
+/simtale housecheck
+```
+
+The command tells you whether the structure is valid and what is missing. Details in
+[Building a house](houses/building-a-house.md).
+
+## 3. Let her claim the bed
+
+Once the house is ready, the NPC walks to the bed and registers that place as hers. From then on
+she lives there: she comes back to sleep, eats from that house's chests, and opens the door on her
+way in.
+
+Check who lives where:
+
+```
+/simtale debugbeds
+```
+
+## 4. Put out food
+
+Place a chest **inside the house** and leave food in it.
+
+:::caution The chest must belong to a house
+NPCs only use chests that belong to a recognised house. A chest dropped in an open field is
+ignored — which is also what keeps them out of the treasure chests scattered around the world.
+:::
+
+See what they can actually reach:
+
+```
+/simtale debugchests
+```
+
+The screen lists every registered chest, the house it belongs to, and how much food is inside.
+
+## 5. Talk to her
+
+Aim at the NPC and press **F**, or right-click. That opens the interaction panel, with hunger,
+energy, mood, traits, tastes and the available actions: chat, tell a joke, flirt, give a gift,
+insult, assign a job.
+
+See [Interacting with NPCs](interacting.md).
+
+## 6. Let time pass
+
+The mod is deliberately slow. Starting from 100 hunger, an NPC takes roughly seven in-game hours to
+get genuinely hungry, and fifteen to die if nobody feeds her. It is not meant to be watched — it is
+meant to let the village change on its own while you do something else.
+
+---
+
+## Common early problems
+
+| Symptom | Likely cause |
+|---|---|
+| The NPC does not sleep | The bed is not registered, or there is no valid house. Run `/simtale debugbeds`. |
+| The NPC does not eat | The chest does not belong to a house. Run `/simtale debugchests`. |
+| No NPC appears on its own | Wait ~40 s after joining, or use `/simtale forcespawn`. |
+| The house is rejected | Missing furniture or the space is not enclosed. `/simtale housecheck` says which. |

@@ -1,0 +1,30 @@
+/* Palette taken from the mod's in-game UI theme, so the site and the game look related. */
+
+:root {
+  --ifm-color-primary: #4a7ec7;
+  --ifm-color-primary-dark: #3f6fb3;
+  --ifm-color-primary-darker: #3b6aa9;
+  --ifm-color-primary-darkest: #31578b;
+  --ifm-color-primary-light: #5c8bcd;
+  --ifm-color-primary-lighter: #6592d0;
+  --ifm-color-primary-lightest: #82a6d9;
+  --ifm-code-font-size: 95%;
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #7aa7e0;
+  --ifm-color-primary-dark: #5f94d9;
+  --ifm-color-primary-darker: #518ad5;
+  --ifm-color-primary-darkest: #2f6cbe;
+  --ifm-color-primary-light: #95bae7;
+  --ifm-color-primary-lighter: #a3c4ea;
+  --ifm-color-primary-lightest: #cddef3;
+  --ifm-background-color: #12161f;
+}
+
+/* Reference tables (commands, ids, thresholds) are the most consulted content on the wiki, so they
+   get room to breathe instead of the cramped default. */
+table td,
+table th {
+  padding: 0.6rem 0.9rem;
+}

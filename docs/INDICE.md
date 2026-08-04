@@ -20,17 +20,20 @@ Bem-vindo à documentação oficial do mod **SimTale** em formato de monografia 
 9.  **[ConstructionHelper e Previews](sistemas/construction-helper.md)**: Renderização de ghosts de construções, compressão de coordenadas em longs e a prova matemática de otimização de cantos (8 ➔ 4).
 10. **[Persistência Caskara](sistemas/persistencia-db.md)**: Como os dados estruturados em JSON são gravados e restaurados de forma transparente.
 11. **[Reconhecimento de Casas](sistemas/reconhecimento-casas.md)**: Algoritmo de flood fill 3D, verificação de mobílias (Terraria-style) e segurança de baús.
+12. **[Registro de Mobília](sistemas/registro-mobilia.md)**: Âncoras de móveis multibloco pelo dado de *filler*, os registros de camas e baús, e por que classificação por nome falha.
+13. **[Fome, Sono e Morte](sistemas/fome-e-sono.md)**: Sono pelo relógio do mundo, turno noturno dos guardas, tiers de comida pelo dado do item e morte por inanição acumulada.
 
 ---
 
 ## 🎨 Assets e Scripts Auxiliares
-12. **[Modelo do Bebê Swaddle](assets/baby-swaddle.md)**: Otimização de caixas 3D e atlas de textura no Blockbench.
-13. **[Redimensionamento de Nodes (Python)](assets/cosmeticos-node-scales.md)**: Como deformamos acessórios e roupas de adultos para proporções de crianças.
+14. **[Modelo do Bebê Swaddle](assets/baby-swaddle.md)**: Otimização de caixas 3D e atlas de textura no Blockbench.
+15. **[Redimensionamento de Nodes (Python)](assets/cosmeticos-node-scales.md)**: Como deformamos acessórios e roupas de adultos para proporções de crianças.
 
 ---
 
 ## 📜 Histórico e Referências Rápidas
-14. **[FAQ e Perguntas Rápidas](perguntas-rapidas.md)**: O principal guia de respostas curtas sobre o funcionamento geral do mod.
-15. **[Bugs Históricos Resolvidos](historico/bugs-resolvidos.md)**: Changelog com problemas graves de performance, duplicação e navegação corrigidos no projeto.
-16. **[Decisões de Design (ADRs)](historico/decisoes-arquiteturais.md)**: Justificativa de escolhas arquiteturais fundamentais do projeto.
-17. **[Glossário de Termos](glossario.md)**: Lista de definições rápidas para conceitos do mod (ex: Leash Point, Plumbob, etc.).
+16. **[FAQ e Perguntas Rápidas](perguntas-rapidas.md)**: O principal guia de respostas curtas sobre o funcionamento geral do mod.
+17. **[Bugs Históricos Resolvidos](historico/bugs-resolvidos.md)**: Changelog com problemas graves de performance, duplicação e navegação corrigidos no projeto.
+18. **[Decisões de Design (ADRs)](historico/decisoes-arquiteturais.md)**: Justificativa de escolhas arquiteturais fundamentais do projeto.
+19. **[Glossário de Termos](glossario.md)**: Lista de definições rápidas para conceitos do mod (ex: Leash Point, Plumbob, etc.).
+20. **[Checklist de Testes](../testing_checklist.md)**: Roteiro de teste em jogo, sistema por sistema, com o que já foi validado e o que ainda falta.
