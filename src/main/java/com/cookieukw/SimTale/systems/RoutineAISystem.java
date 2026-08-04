@@ -8,6 +8,7 @@ import com.cookieukw.SimTale.db.SimNPCData;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.Frozen;
+import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import com.hypixel.hytale.builtin.mounts.BlockMountAPI;
@@ -166,6 +167,22 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             commandBuffer.tryRemoveComponent(ref, Frozen.getComponentType());
         }
 
+        // Same self-heal for the sleeping movement state.
+        //
+        // Frozen had a guard and the sleep flag did not, so any exit path that forgot to clear it
+        // left the NPC walking around playing the sleep animation. Rather than hunting every exit,
+        // the invariant is asserted here: not a sleep task means not sleeping.
+        boolean inSleepTask = ai.currentTask == TaskType.SLEEPING
+                || ai.currentTask == TaskType.ENTERING_BED
+                || ai.currentTask == TaskType.WAKING;
+        if (!inSleepTask) {
+            MovementStatesComponent msc = store.getComponent(ref, MovementStatesComponent.getComponentType());
+            if (msc != null && msc.getMovementStates().sleeping) {
+                LOGGER.info("[SimTale] NPC '{}' was flagged as sleeping while doing {}; clearing", npc.name, ai.currentTask);
+                NPCMovementHelper.setSleepingState(ref, store, commandBuffer, false);
+            }
+        }
+
         // --- 1. Evaluation Phase ---
         if (ai.currentTask != TaskType.DYING && ai.currentTask != TaskType.DEAD && ai.currentTask != TaskType.REAPING) {
             // Death comes from the health starvation has drained, not from the hunger bar itself.
@@ -227,8 +244,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         boolean inDeathFlow = ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.DEAD
                 || ai.currentTask == TaskType.REAPING;
 
+        // A task set by a debug command outranks the interrupts.
+        //
+        // Without this, /simtale forcework looked broken: it set the task, and on the very next
+        // tick the sleep interrupt overwrote it with FINDING_BED. Anything that fires from any
+        // state will win against a one-shot command unless it is told not to — and a debug command
+        // that cannot override the routine is useless for diagnosing the routine.
+        boolean forcedByCommand = ai.forcedByDebug;
+
         if ((sleepWindowOpen || exhausted) && world.getTick() >= ai.nextBedSearchTick
-                && !alreadyHeadedToBed && !inDeathFlow) {
+                && !alreadyHeadedToBed && !inDeathFlow && !forcedByCommand) {
 
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
@@ -257,7 +282,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 && ai.currentTask != TaskType.FINDING_BED && ai.currentTask != TaskType.MOVING_TO_BED
                 && ai.currentTask != TaskType.ENTERING_BED && ai.currentTask != TaskType.SLEEPING
                 && ai.currentTask != TaskType.WAKING
-                && !inDeathFlow) {
+                && !inDeathFlow && !forcedByCommand) {
 
             ai.currentTask = TaskType.FINDING_FOOD;
             ai.targetBlockPosition = null;
