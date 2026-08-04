@@ -67,25 +67,24 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             Player player = ref.getStore().getComponent(ref, Player.getComponentType());
             SimNPCComponent npc = targetRef.getStore().getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
             
-            if (npc == null) {
-                // Same re-attach path as SimTaleEventHandler, and it needs the same guards. This
-                // is the F key; fixing only the right-click handler left the whole hole open,
-                // which is how cows kept becoming villagers after that fix.
-                if (targetRef.getStore().getComponent(targetRef, Player.getComponentType()) != null) {
-                    context.getState().state = InteractionState.Failed;
-                    return;
-                }
+            // Guards for the re-attach path, which used to adopt ANY entity into the mod.
+            //
+            // They deliberately do NOT touch context.getState() and do NOT return early. This class
+            // is registered over the engine's own UseNPCInteraction.DEFAULT_ID, so failing the
+            // interaction here does not merely decline to open our screen — it breaks the shared
+            // interaction pipeline, and with it doors, blocks and everything else. Declining is
+            // done by simply leaving `npc` null, which the page condition below already handles.
+            boolean isPlayerTarget = targetRef.getStore()
+                    .getComponent(targetRef, Player.getComponentType()) != null;
 
+            if (npc == null && !isPlayerTarget) {
                 UUIDComponent uuidComp = targetRef.getStore().getComponent(targetRef, UUIDComponent.getComponentType());
-                if (uuidComp != null) {
-                    // "simtale" shell, not Caskara's "default" — see SimNPCPersistence.DB_SHELL.
-                    // No record means this is not one of ours and there is nothing to re-attach.
-                    SimNPCData data = SimNPCPersistence.loadData(uuidComp.getUuid());
-                    if (data == null) {
-                        context.getState().state = InteractionState.Failed;
-                        return;
-                    }
-
+                // "simtale" shell, not Caskara's "default" — see SimNPCPersistence.DB_SHELL.
+                // No record means this is not one of ours and there is nothing to re-attach.
+                SimNPCData data = uuidComp != null
+                        ? SimNPCPersistence.loadData(uuidComp.getUuid())
+                        : null;
+                if (uuidComp != null && data != null) {
                     String name = data.name;
                     if (name == null || name.isEmpty()) {
                         com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName displayName = targetRef.getStore().getComponent(targetRef, com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName.getComponentType());
@@ -107,14 +106,12 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             }
 
             // Entities adopted before these guards still carry the component and a saved record.
-            // Gender is the tell: spawnNPC always sets it, adoption never did.
-            if (npc != null && npc.gender == null) {
-                context.getState().state = InteractionState.Failed;
-                return;
-            }
+            // Gender is the tell: spawnNPC always sets it, adoption never did. Same rule as
+            // /simtale forget, so what refuses to open here is exactly what that command clears.
+            boolean wronglyAdopted = npc != null && npc.gender == null;
 
             LOGGER.atInfo().log("SimTale [DEBUG]: player=" + (player != null) + ", npc=" + (npc != null));
-            if (player != null && npc != null) {
+            if (player != null && npc != null && !wronglyAdopted) {
                 final Player finalPlayer = player;
                 final SimNPCComponent finalNpc = npc;
                 final PlayerRef finalPlayerRefComp = playerRefComponent;

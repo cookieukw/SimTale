@@ -71,6 +71,41 @@ grep -rn "addComponent.*SIM_NPC_COMPONENT_TYPE" --include=*.java .
 
 ---
 
+## 3.5 Do not fail an interaction you do not own
+
+`SimTaleUseNPCInteraction` is registered **over the engine's own** `UseNPCInteraction.DEFAULT_ID`:
+
+```java
+Interaction.getAssetStore().loadAssets(DefaultAssetMap.DEFAULT_PACK_KEY, List.of(
+    new SimTaleUseNPCInteraction(UseNPCInteraction.DEFAULT_ID)
+));
+```
+
+That means the class does not own a private interaction — it sits inside a shared pipeline.
+
+Guarding the cow-adoption bug there with `context.getState().state = InteractionState.Failed` plus
+an early `return` **removed every interaction in the game**: doors, blocks, containers, all of it.
+The filter was correct about *what* to reject; it was wrong about *how*.
+
+The fix is to decline without touching the state machine. Leaving `npc` as null is enough, because
+the page only opens when it is non-null:
+
+```java
+boolean wronglyAdopted = npc != null && npc.gender == null;
+if (player != null && npc != null && !wronglyAdopted) {
+    // open the page
+}
+```
+
+**Rule**: when overriding a shared engine hook, refuse by not acting. Setting a failure state is a
+statement about the whole pipeline, not just about your feature.
+
+Note the asymmetry with the right-click path: `SimTaleEventHandler` is a plain
+`Consumer<PlayerMouseButtonEvent>`, so returning early there only stops *our* handler and is safe.
+Same guard, two mechanisms, because the surrounding contracts differ.
+
+---
+
 ## 4. A diagnostic that also repairs hides the fault
 
 `bootstrapLoadedRadius` — the furniture scan — was only ever called from inside `/simtale housecheck`
