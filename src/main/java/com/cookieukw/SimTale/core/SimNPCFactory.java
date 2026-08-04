@@ -12,7 +12,6 @@ import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.npc.systems.NewSpawnStartTickingSystem;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
 import com.hypixel.hytale.server.core.modules.entity.component.Interactable;
-import com.hypixel.hytale.server.core.modules.entity.component.NPCMarkerComponent;
 import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.Message;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
@@ -129,9 +128,6 @@ public class SimNPCFactory {
         accessor.putComponent(ref, Nameplate.getComponentType(), new Nameplate(simComponent.name));
         accessor.putComponent(ref, Interactable.getComponentType(), Interactable.INSTANCE);
 
-        // Marker tag read by the engine's own MapMarkerTracker, which then streams the position to
-        // every client's minimap without any packet work on our side.
-        accessor.putComponent(ref, NPCMarkerComponent.getComponentType(), NPCMarkerComponent.get());
 
         // 4. ACTIVATE AI: Queue for ticking
         // This is mandatory for NPCs spawned via API to start their AI logic.

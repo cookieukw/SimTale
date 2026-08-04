@@ -1,5 +1,8 @@
 package com.cookieukw.SimTale;
 
+import com.cookieukw.SimTale.systems.SimTaleMarkerProvider;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.cookieukw.SimTale.ai.AiConfig;
 import com.cookieukw.SimTale.ai.AiConfigManager;
 import com.cookieukw.SimTale.ai.NpcAiManager;
@@ -208,6 +211,13 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new PlayerPregnancyTickSystem());
         this.getEntityStoreRegistry().registerSystem(new BabyCareTickSystem());
         this.getEntityStoreRegistry().registerSystem(new GrowthTickSystem());
+
+        // Map markers are per-world, so the provider is registered once per world rather than as a
+        // system. Registering it under a stable id lets a reload replace it instead of stacking.
+        for (World mapWorld : Universe.get().getWorlds().values()) {
+            mapWorld.getWorldMapManager().addMarkerProvider(
+                    SimTaleMarkerProvider.PROVIDER_ID, new SimTaleMarkerProvider());
+        }
 
         // Register event handlers
         this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class,
