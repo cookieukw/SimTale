@@ -116,7 +116,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             if (bedIndex < beds.size()) {
                 BedPos bp = beds.get(bedIndex);
                 cmd.set(rowSelector + ".Visible", true);
-                cmd.set(rowSelector + " #Coords.TextSpans", Message.translation("ui.debugbeds.bed_entry")
+                cmd.set(rowSelector + " #Coords.TextSpans", Message.translation("ui.debugbeds.bedEntry")
                         .param("index", bedIndex + 1)
                         .param("x", bp.x)
                         .param("y", bp.y)
@@ -134,16 +134,16 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                 }
 
                 if (owners.isEmpty()) {
-                    cmd.set(rowSelector + " #Status.TextSpans", Message.translation("ui.debugbeds.status_free"));
+                    cmd.set(rowSelector + " #Status.TextSpans", Message.translation("ui.debugbeds.statusFree"));
                     cmd.set(rowSelector + " #Status.Style.TextColor", "#44ff88");
                 } else {
-                    cmd.set(rowSelector + " #Status.TextSpans", Message.translation("ui.debugbeds.status_owners")
+                    cmd.set(rowSelector + " #Status.TextSpans", Message.translation("ui.debugbeds.statusOwners")
                             .param("owners", String.join(", ", owners)));
                     cmd.set(rowSelector + " #Status.Style.TextColor", "#ffaa55");
                 }
 
-                cmd.set(rowSelector + " #BtnTp Label.TextSpans", Message.translation("ui.debugbeds.btn_tp"));
-                cmd.set(rowSelector + " #BtnUnclaim Label.TextSpans", Message.translation("ui.debugbeds.btn_unclaim"));
+                cmd.set(rowSelector + " #BtnTp Label.TextSpans", Message.translation("ui.debugbeds.btnTp"));
+                cmd.set(rowSelector + " #BtnUnclaim Label.TextSpans", Message.translation("ui.debugbeds.btnUnclaim"));
 
                 // Bind buttons uniquely for this row's bed index
                 eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp", new EventData().append("action", "tp_" + bedIndex), false);
@@ -156,13 +156,13 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
 
 
         // Show the count and set button labels
-        cmd.set("#PageIndex.TextSpans", Message.translation("ui.debugbeds.page_index")
+        cmd.set("#PageIndex.TextSpans", Message.translation("ui.debugbeds.pageIndex")
                 .param("current", selectedIndex + 1)
                 .param("total", totalPages)
                 .param("count", beds.size()));
-        cmd.set("#BtnPrevPage Label.TextSpans", Message.translation("ui.debugbeds.btn_prev"));
-        cmd.set("#BtnNextPage Label.TextSpans", Message.translation("ui.debugbeds.btn_next"));
-        cmd.set("#BtnBack Label.TextSpans", Message.translation("ui.debugbeds.btn_back"));
+        cmd.set("#BtnPrevPage Label.TextSpans", Message.translation("ui.debugbeds.btnPrev"));
+        cmd.set("#BtnNextPage Label.TextSpans", Message.translation("ui.debugbeds.btnNext"));
+        cmd.set("#BtnBack Label.TextSpans", Message.translation("ui.debugbeds.btnBack"));
         LOGGER.info("[SimTale] Bed debug page opened with {} registered beds", beds.size());
 
         // Register navigation buttons
@@ -225,7 +225,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                                 transform.getRotation()
                             );
                             store.putComponent(storeRef, Teleport.getComponentType(), tp);
-                            playerRefComp.sendMessage(Message.translation("ui.debugbeds.msg_tp_success").param("index", bedIndex + 1));
+                            playerRefComp.sendMessage(Message.translation("ui.debugbeds.msgTpSuccess").param("index", bedIndex + 1));
                         });
                     }
                 }
@@ -251,7 +251,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                             count++;
                         }
                     }
-                    playerRefComp.sendMessage(Message.translation("ui.debugbeds.msg_unclaim_success").param("count", count).param("index", bedIndex + 1));
+                    playerRefComp.sendMessage(Message.translation("ui.debugbeds.msgUnclaimSuccess").param("count", count).param("index", bedIndex + 1));
                 }
 
             } catch (Exception e) {
