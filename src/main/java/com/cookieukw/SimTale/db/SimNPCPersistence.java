@@ -122,7 +122,6 @@ public class SimNPCPersistence {
                 component.entityId,
                 component.name,
                 component.personality,
-                component.needs,
                 component.stats,
                 component.memory,
                 component.profession,
@@ -175,9 +174,6 @@ public class SimNPCPersistence {
         }
         if (component.personality != null && component.personality.traits == null) {
             component.personality.traits = new HashSet<>();
-        }
-        if (data.needs != null) {
-            component.needs = data.needs;
         }
         if (data.stats != null) {
             component.stats = data.stats;

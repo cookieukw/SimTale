@@ -5,6 +5,7 @@ import com.cookie.runecore.api.EffectHelper;
 import com.cookie.runecore.api.StatHelper;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Child;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -172,8 +173,8 @@ public class PregnancyManager {
     public static void applyPregnancyBehavior(SimNPCComponent mother) {
         if (mother.pregnancy == null || !mother.pregnancy.pregnant) return;
         float mult = 1.0f + (mother.pregnancy.trimester * 0.3f);
-        mother.needs.hunger = Math.max(0, mother.needs.hunger - 0.0001f * (mult - 1.0f));
-        mother.needs.energy = Math.max(0, mother.needs.energy - 0.0002f * (mult - 1.0f));
+        NeedsHelper.setNeed(null, mother.entityRef, NeedsHelper.HUNGER_ID, Math.max(0, NeedsHelper.getNeed(null, mother.entityRef, NeedsHelper.HUNGER_ID) - 0.0001f * (mult - 1.0f)));
+        NeedsHelper.setNeed(null, mother.entityRef, NeedsHelper.ENERGY_ID, Math.max(0, NeedsHelper.getNeed(null, mother.entityRef, NeedsHelper.ENERGY_ID) - 0.0002f * (mult - 1.0f)));
     }
 
     public static void applyPregnancySpeedDebuff(Ref<EntityStore> entityRef, PregnancyComponent pregnancy) {

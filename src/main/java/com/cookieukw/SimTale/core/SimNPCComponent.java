@@ -24,7 +24,6 @@ public class SimNPCComponent implements Component<EntityStore> {
     public UUID entityId;
     public String name;
     public Personality personality;
-    public Needs needs;
     public SocialStats stats;
     public MemoryManager memory = new MemoryManager();
     public Map<UUID, Relationship> relationships = new HashMap<>();
@@ -110,7 +109,6 @@ public class SimNPCComponent implements Component<EntityStore> {
      */
     public SimNPCComponent() {
         this.personality = Personality.createDefault();
-        this.needs = new Needs();
         this.stats = new SocialStats();
         this.preferences = NPCPreferences.createRandom();
         assignRandomProfession();
@@ -137,12 +135,6 @@ public class SimNPCComponent implements Component<EntityStore> {
         if (personality.traits != null) {
             clone.personality.traits = new HashSet<>(personality.traits);
         }
-        clone.needs = new Needs();
-        clone.needs.hunger = needs.hunger;
-        clone.needs.energy = needs.energy;
-        clone.needs.social = needs.social;
-        clone.needs.fun = needs.fun;
-        clone.needs.hygiene = needs.hygiene;
         clone.stats = new SocialStats();
         clone.stats.level = stats.level;
         clone.stats.xp = stats.xp;

@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.ai;
 import com.cookieukw.SimTale.core.Child;
 import com.cookieukw.SimTale.core.Memory;
 import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.NPCPreferences;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -77,16 +78,14 @@ public class NpcContextBuilder {
         }
 
         // 5. Needs
-        if (npc.needs != null) {
-            systemPrompt.append("Your biological and social needs:\n");
-            systemPrompt.append("- Hunger: ").append(String.format("%.1f", npc.needs.hunger)).append("/100\n");
-            systemPrompt.append("- Energy: ").append(String.format("%.1f", npc.needs.energy)).append("/100\n");
-            systemPrompt.append("- Social: ").append(String.format("%.1f", npc.needs.social)).append("/100\n");
-            systemPrompt.append("- Fun: ").append(String.format("%.1f", npc.needs.fun)).append("/100\n");
-            systemPrompt.append("- Hygiene: ").append(String.format("%.1f", npc.needs.hygiene)).append("/100\n");
-            if (npc.needs.isMiserable()) {
-                systemPrompt.append("WARNING: You are feeling very miserable!\n");
-            }
+        systemPrompt.append("Your biological and social needs:\n");
+        systemPrompt.append("- Hunger: ").append(String.format("%.1f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID))).append("/100\n");
+        systemPrompt.append("- Energy: ").append(String.format("%.1f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.ENERGY_ID))).append("/100\n");
+        systemPrompt.append("- Social: ").append(String.format("%.1f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.SOCIAL_ID))).append("/100\n");
+        systemPrompt.append("- Fun: ").append(String.format("%.1f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID))).append("/100\n");
+        systemPrompt.append("- Hygiene: ").append(String.format("%.1f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HYGIENE_ID))).append("/100\n");
+        if (NeedsHelper.isMiserable(null, npc.entityRef)) {
+            systemPrompt.append("WARNING: You are feeling very miserable!\n");
         }
 
         // 6. Preferences

@@ -8,6 +8,7 @@ import com.cookieukw.SimTale.systems.NPCFoodHelper;
 import com.cookieukw.SimTale.ai.AiMessage;
 import com.cookieukw.SimTale.ai.AiRequest;
 import com.cookieukw.SimTale.ai.NpcContextBuilder;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.Profession;
@@ -325,7 +326,7 @@ public class InteractionManager {
      * something it would refuse to eat on its own, and the restored amounts match tier for tier.
      */
     private static InteractionOutcome tryFeed(SimNPCComponent npc, ItemStack heldItem, String itemName) {
-        if (npc.needs == null || npc.needs.hunger > HUNGRY_ENOUGH_TO_EAT) return null;
+        if (NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID) > HUNGRY_ENOUGH_TO_EAT) return null;
 
         int tier = NPCFoodHelper.tierOf(heldItem);
         if (tier == NPCFoodHelper.NOT_FOOD) return null;
@@ -333,9 +334,8 @@ public class InteractionManager {
         boolean hated = NPCFoodHelper.isHated(heldItem, npc.preferences);
         boolean favorite = NPCFoodHelper.isFavorite(heldItem, npc.preferences);
 
-        npc.needs.hunger = Math.min(100f, npc.needs.hunger + NPCFoodHelper.hungerRestored(tier));
-        // Same reset the chest meal does: feeding someone calls off the starvation countdown.
-        npc.needs.starvationDamage = 0f;
+        NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID) + NPCFoodHelper.hungerRestored(tier));
+        // Starvation damage has been removed, so we no longer reset it here.
 
         float healed = NPCFoodHelper.healthRestored(tier);
         if (healed > 0f) {
@@ -343,9 +343,9 @@ public class InteractionManager {
         }
 
         if (favorite) {
-            npc.needs.fun = Math.min(100f, npc.needs.fun + 10f);
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) + 10f);
         } else if (hated) {
-            npc.needs.fun = Math.max(0f, npc.needs.fun - 10f);
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) - 10f);
         }
 
         // Feeding someone who is starving lands harder than handing over a trinket, and a hated
@@ -586,7 +586,7 @@ public class InteractionManager {
         }
 
         npc.stats.addXP(Math.abs(outcome.affinity()) * 10);
-        npc.needs.social = Math.min(100, npc.needs.social + 10);
+        NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.SOCIAL_ID, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.SOCIAL_ID) + 10f);
 
         // Dynamic emotion trigger based on interaction outcome
         long tick = 0;
