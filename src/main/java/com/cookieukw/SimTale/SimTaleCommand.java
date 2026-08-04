@@ -136,7 +136,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     private static class NpcStateSubCommand extends AbstractPlayerCommand {
 
         public NpcStateSubCommand() {
-            super("npcstate", "Mostra o estado interno do NPC mais proximo");
+            super("npcstate", "Shows the internal state of the nearest NPC");
         }
 
         @Override
@@ -145,7 +145,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             TransformComponent pt = store.getComponent(ref, TransformComponent.getComponentType());
             if (pt == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Sem transform do jogador."));
+                ctx.sendMessage(Message.raw("[SimTale] No player transform."));
                 return;
             }
 
@@ -160,7 +160,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (best == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Nenhum NPC ativo por perto."));
+                ctx.sendMessage(Message.raw("[SimTale] No active NPCs nearby."));
                 return;
             }
 
@@ -230,7 +230,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         private final OptionalArg<String> stateArg;
 
         public CamDebugSubCommand() {
-            super("camdebug", "Liga/desliga o debug da camera de interacao");
+            super("camdebug", "Toggles interaction camera debug");
             this.stateArg = this.withOptionalArg("state", "on|off", ArgTypes.STRING);
         }
 
@@ -243,7 +243,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             } else {
                 NPCInteractionPage.CAMERA_DEBUG = state.equalsIgnoreCase("on") || state.equalsIgnoreCase("true");
             }
-            ctx.sendMessage(Message.raw("[SimTale] Debug de camera: "
+            ctx.sendMessage(Message.raw("[SimTale] Camera debug: "
                     + (NPCInteractionPage.CAMERA_DEBUG ? "LIGADO" : "DESLIGADO")
                     + ". Abra o menu de um NPC para ver o dump."));
         }
@@ -260,7 +260,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     private static class UnstickSubCommand extends AbstractPlayerCommand {
 
         public UnstickSubCommand() {
-            super("unstick", "Destrava NPCs presos e o proprio jogador preso na cama");
+            super("unstick", "Unstucks frozen NPCs and the player stuck in bed");
         }
 
         @Override
@@ -336,7 +336,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
                 if (touched) fixed++;
             }
-            ctx.sendMessage(Message.raw("[SimTale] Destravados " + fixed + " de "
+            ctx.sendMessage(Message.raw("[SimTale] Unstuck " + fixed + " de "
                     + SimTale.ACTIVE_NPCS.size() + " NPCs ativos."));
         }
     }
@@ -347,7 +347,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         private final RequiredArg<String> npcTypeArg;
 
         public SpawnSubCommand() {
-            super("spawn", "Cria um NPC do SimTale");
+            super("spawn", "Spawns a SimTale NPC");
             this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE|CHILD_MALE|CHILD_FEMALE", ArgTypes.STRING);
         }
 
@@ -366,7 +366,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
             // `assert` is stripped at runtime without -ea, so these were not real checks.
             if (transform == null) {
-                ctx.sendMessage(Message.raw("Nao foi possivel obter sua posicao."));
+                ctx.sendMessage(Message.raw("Could not get your position."));
                 return;
             }
             Vector3d pos = transform.getPosition().add(2, 0, 2);
@@ -385,7 +385,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     private static class InteractSubCommand extends AbstractPlayerCommand {
         public InteractSubCommand() {
-            super("interact", "Abre a tela de interacao com o NPC mais proximo");
+            super("interact", "Opens the interaction screen with the nearest NPC");
         }
 
         @Override
@@ -423,7 +423,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             Player player = store.getComponent(ref, Player.getComponentType());
             if (player == null) {
-                ctx.sendMessage(Message.raw("Componente de jogador indisponivel."));
+                ctx.sendMessage(Message.raw("Player component unavailable."));
                 return;
             }
             player.getPageManager().openCustomPage(ref, store, new NPCInteractionPage(playerRef, player, nearestNPC));
@@ -433,7 +433,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     private static class TpAllSubCommand extends AbstractPlayerCommand {
         public TpAllSubCommand() {
-            super("tpall", "Teleporta todos os NPCs ativos para sua posicao");
+            super("tpall", "Teleports all active NPCs to your position");
         }
 
         @Override
@@ -453,13 +453,13 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     }
                 }
             }
-            ctx.sendMessage(Message.raw("Teleportados " + count + " NPCs do SimTale para sua posicao."));
+            ctx.sendMessage(Message.raw("Teleported " + count + " SimTale NPCs to your position."));
         }
     }
 
     private static class ClearAllSubCommand extends AbstractPlayerCommand {
         public ClearAllSubCommand() {
-            super("clearall", "Remove todos os NPCs do SimTale do mundo e do banco");
+            super("clearall", "Removes all SimTale NPCs from the world and database");
         }
 
         @Override
@@ -484,7 +484,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             // the records live in "simtale".
             int purged = SimNPCPersistence.deleteAll();
 
-            ctx.sendMessage(Message.raw("Removidos " + count + " NPCs do mundo e "
+            ctx.sendMessage(Message.raw("Removed " + count + " NPCs from the world and "
                     + purged + " registros do banco."));
         }
     }
@@ -493,7 +493,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         private final OptionalArg<String> npcTypeArg;
 
         public ForceSpawnSubCommand() {
-            super("forcespawn", "Forca o spawn imediato de um NPC para debug");
+            super("forcespawn", "Forces the immediate spawn of an NPC for debugging");
             this.npcTypeArg = this.withOptionalArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE|CHILD_MALE|CHILD_FEMALE", ArgTypes.STRING);
         }
 
@@ -515,7 +515,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
             if (transform == null) {
-                ctx.sendMessage(Message.raw("Nao foi possivel obter sua posicao."));
+                ctx.sendMessage(Message.raw("Could not get your position."));
                 return;
             }
             Vector3d pos = transform.getPosition().add(2, 0, 2);
@@ -527,13 +527,13 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 SimNPCPersistence.saveNPC(comp);
             }
 
-            ctx.sendMessage(Message.raw("Forcado spawn de NPC de debug do tipo: " + type.name()));
+            ctx.sendMessage(Message.raw("Forced spawn of debug NPC of type: " + type.name()));
         }
     }
 
     private static class ForceSleepSubCommand extends AbstractPlayerCommand {
         public ForceSleepSubCommand() {
-            super("forcesleep", "Forca o NPC mais proximo a procurar uma cama e ir dormir");
+            super("forcesleep", "Forces the nearest NPC to find a bed and sleep");
         }
 
         @Override
@@ -559,14 +559,14 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestNPC == null) {
-                ctx.sendMessage(Message.raw("Nenhum NPC por perto."));
+                ctx.sendMessage(Message.raw("No NPCs nearby."));
                 return;
             }
 
             NeedsHelper.setNeed(null, nearestNPC.entityRef, NeedsHelper.ENERGY_ID, 0f);
             nearestNPC.forceSleep = true;
             
-            ctx.sendMessage(Message.raw("Forcando " + nearestNPC.name + " a ir dormir! Energia definida para 0."));
+            ctx.sendMessage(Message.raw("Forcing " + nearestNPC.name + " to go sleep! Energy set to 0."));
         }
     }
 
@@ -580,14 +580,14 @@ public class SimTaleCommand extends AbstractPlayerCommand {
      */
     private static class DebugLogSubCommand extends AbstractPlayerCommand {
         public DebugLogSubCommand() {
-            super("debug", "Liga/desliga as mensagens de depuracao do SimTale no log");
+            super("debug", "Toggles SimTale debug messages in the log");
         }
 
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             SimLog.debugEnabled = !SimLog.debugEnabled;
-            ctx.sendMessage(Message.raw("[SimTale] log de depuracao "
+            ctx.sendMessage(Message.raw("[SimTale] debug log "
                     + (SimLog.debugEnabled ? "LIGADO" : "desligado")
                     + (SimLog.debugEnabled ? " — lembre de desligar depois, ele e verboso." : "")));
         }
@@ -597,7 +597,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         private final OptionalArg<String> targetArg;
 
         public ForcePregSubCommand() {
-            super("forcepreg", "Forca a gravidez no player executor ou na NPC feminina mais proxima");
+            super("forcepreg", "Forces pregnancy on the executing player or nearest female NPC");
             this.targetArg = this.withOptionalArg("target", "me|npc", ArgTypes.STRING);
         }
 
@@ -641,12 +641,12 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 }
 
                 if (nearestNPC == null) {
-                    ctx.sendMessage(Message.raw("Nenhuma NPC feminina encontrada por perto."));
+                    ctx.sendMessage(Message.raw("No female NPC found nearby."));
                     return;
                 }
 
                 if (nearestNPC.pregnancy != null && nearestNPC.pregnancy.pregnant) {
-                    ctx.sendMessage(Message.raw(nearestNPC.name + " ja esta gravida!"));
+                    ctx.sendMessage(Message.raw(nearestNPC.name + " is already pregnant!"));
                     return;
                 }
 
@@ -656,9 +656,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 boolean success = LifecycleManager.startPregnancy(nearestNPC, playerRef.getUuid(), world.getTick());
                 if (success) {
                     SimNPCPersistence.saveNPC(nearestNPC);
-                    ctx.sendMessage(Message.raw("Gravidez forcada com sucesso para: " + nearestNPC.name));
+                    ctx.sendMessage(Message.raw("Pregnancy successfully forced for: " + nearestNPC.name));
                 } else {
-                    ctx.sendMessage(Message.raw("Falha ao iniciar gravidez para: " + nearestNPC.name));
+                    ctx.sendMessage(Message.raw("Failed to start pregnancy for: " + nearestNPC.name));
                 }
             }
         }
@@ -668,7 +668,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         private final OptionalArg<String> targetArg;
 
         public ForceBirthSubCommand() {
-            super("forcebirth", "Forca o parto imediato do player executor ou da NPC mais proxima");
+            super("forcebirth", "Forces immediate birth on the executing player or nearest NPC");
             this.targetArg = this.withOptionalArg("target", "me|npc", ArgTypes.STRING);
         }
 
@@ -683,9 +683,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 if (playerComp != null && playerComp.pregnancy != null && playerComp.pregnancy.pregnant) {
                     playerComp.pregnancy.startTick = world.getTick() - playerComp.pregnancy.durationTicks - 1;
                     LifecycleManager.birthPlayerBaby(ref, playerComp, store, world.getTick());
-                    ctx.sendMessage(Message.raw("Voce deu a luz ao seu bebe!"));
+                    ctx.sendMessage(Message.raw("You gave birth to your baby!"));
                 } else {
-                    ctx.sendMessage(Message.raw("Voce nao esta gravida para forcar o parto."));
+                    ctx.sendMessage(Message.raw("You are not pregnant to force birth."));
                 }
             } else {
                 TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
@@ -708,7 +708,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 }
 
                 if (nearestNPC == null) {
-                    ctx.sendMessage(Message.raw("Nenhuma NPC gravida encontrada por perto."));
+                    ctx.sendMessage(Message.raw("No pregnant NPC found nearby."));
                     return;
                 }
 
@@ -719,7 +719,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     SimNPCPersistence.saveNPC(nearestNPC);
                     ctx.sendMessage(Message.raw(nearestNPC.name + " deu a luz a " + child.getFullName() + "!"));
                 } else {
-                    ctx.sendMessage(Message.raw("Falha no parto de " + nearestNPC.name));
+                    ctx.sendMessage(Message.raw("Birth failed for " + nearestNPC.name));
                 }
             }
         }
@@ -729,7 +729,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         private final RequiredArg<String> stageArg;
 
         public SetStageSubCommand() {
-            super("setstage", "Define o estagio de crescimento do filho mais proximo");
+            super("setstage", "Sets the growth stage of the nearest child");
             this.stageArg = this.withRequiredArg("stage", "BABY|TODDLER|CHILD|TEEN|ADULT", ArgTypes.STRING);
         }
 
@@ -741,7 +741,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             try {
                 targetStage = GrowthStage.valueOf(stageName);
             } catch (IllegalArgumentException e) {
-                ctx.sendMessage(Message.raw("Estagio invalido. Escolha entre: BABY, TODDLER, CHILD, TEEN, ADULT"));
+                ctx.sendMessage(Message.raw("Invalid stage. Choose from: BABY, TODDLER, CHILD, TEEN, ADULT"));
                 return;
             }
 
@@ -768,7 +768,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestChild == null) {
-                ctx.sendMessage(Message.raw("Nenhum filho ativo encontrado por perto."));
+                ctx.sendMessage(Message.raw("No active children found nearby."));
                 return;
             }
 
@@ -787,13 +787,13 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 }
             }
 
-            ctx.sendMessage(Message.raw("Estagio de " + nearestChild.getFullName() + " definido para " + targetStage.name() + " (escala: " + nearestChild.currentScale + ")."));
+            ctx.sendMessage(Message.raw("Stage of " + nearestChild.getFullName() + " definido para " + targetStage.name() + " (escala: " + nearestChild.currentScale + ")."));
         }
     }
 
     private static class ForceMarrySubCommand extends AbstractPlayerCommand {
         public ForceMarrySubCommand() {
-            super("marry", "Forca o casamento com o NPC mais proximo");
+            super("marry", "Forces marriage with the nearest NPC");
         }
 
         @Override
@@ -819,12 +819,12 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestNPC == null) {
-                ctx.sendMessage(Message.raw("Nenhum NPC por perto para casar."));
+                ctx.sendMessage(Message.raw("No NPCs nearby to marry."));
                 return;
             }
 
             if (nearestNPC.family.isMarried) {
-                ctx.sendMessage(Message.raw(nearestNPC.name + " ja esta casado(a)!"));
+                ctx.sendMessage(Message.raw(nearestNPC.name + " is already married!"));
                 return;
             }
 
@@ -837,7 +837,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             nearestNPC.family.marry(playerRef.getUuid(), null);
             SimNPCPersistence.saveNPC(nearestNPC);
 
-            ctx.sendMessage(Message.raw("Voce agora esta casado com: " + nearestNPC.name + "!"));
+            ctx.sendMessage(Message.raw("You are now married to: " + nearestNPC.name + "!"));
         }
     }
 
@@ -850,7 +850,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     private static class PregnancySubCommand extends AbstractPlayerCommand {
         public PregnancySubCommand() {
-            super("pregnancy", "Abre a tela de informacoes da gravidez do jogador");
+            super("pregnancy", "Opens the player pregnancy info screen");
         }
 
         @Override
@@ -867,7 +867,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     private static class DebugBedsSubCommand extends AbstractPlayerCommand {
         public DebugBedsSubCommand() {
-            super("debugbeds", "Abre a tela de debug de camas");
+            super("debugbeds", "Opens the bed debug screen");
         }
 
         @Override
@@ -901,7 +901,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
      */
     private static class ForgetSubCommand extends AbstractPlayerCommand {
         public ForgetSubCommand() {
-            super("forget", "Remove o componente de NPC de entidades adotadas por engano (vacas, mobs)");
+            super("forget", "Removes NPC component from mistakenly adopted entities (cows, mobs)");
         }
 
         @Override
@@ -915,7 +915,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (adopted.isEmpty()) {
-                ctx.sendMessage(Message.raw("[SimTale] Nenhuma entidade adotada por engano encontrada."));
+                ctx.sendMessage(Message.raw("[SimTale] No mistakenly adopted entity found."));
                 return;
             }
 
@@ -950,7 +950,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     private static class DebugChestsSubCommand extends AbstractPlayerCommand {
         public DebugChestsSubCommand() {
-            super("debugchests", "Abre a tela de debug de baus registrados");
+            super("debugchests", "Opens the registered chests debug screen");
         }
 
         @Override
@@ -974,7 +974,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     private static class DebugNearSubCommand extends AbstractPlayerCommand {
         public DebugNearSubCommand() {
-            super("debugnear", "Mostra detalhes de blocos e entidades proximas");
+            super("debugnear", "Shows details of nearby blocks and entities");
         }
 
         @Override
@@ -982,7 +982,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
             if (tc == null) {
-                ctx.sendMessage(Message.raw("Erro: TransformComponent nulo."));
+                ctx.sendMessage(Message.raw("Error: TransformComponent is null."));
                 return;
             }
 
@@ -1000,7 +1000,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             // vezes e parecia haver seis camas — foi exatamente isso que atrasou o diagnostico do
             // alinhamento do sono. Resolvendo cada bloco para a sua ancora e deduplicando por ela,
             // um movel aparece uma vez, com quantos blocos ocupa.
-            ctx.sendMessage(Message.raw("Moveis/blocos proximos:"));
+            ctx.sendMessage(Message.raw("Nearby blocks/furniture:"));
             java.util.Map<String, Integer> contagemPorAncora = new java.util.LinkedHashMap<>();
 
             for (int dx = -1; dx <= 1; dx++) {
@@ -1024,7 +1024,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             // 2. Scan all ACTIVE_NPCS near the player
-            ctx.sendMessage(Message.raw("NPCs Ativos proximos:"));
+            ctx.sendMessage(Message.raw("Nearby Active NPCs:"));
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null) {
                     TransformComponent npcTc = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
@@ -1044,7 +1044,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         private final OptionalArg<String> intensityArg;
 
         public SetMoodSubCommand() {
-            super("setmood", "Define o humor/expressao do NPC mais proximo");
+            super("setmood", "Sets the mood/expression of the nearest NPC");
             this.moodArg = this.withRequiredArg("mood", "NEUTRAL|HAPPY|ANGRY|SAD|SCARED|SLEEPY|EXCITED|BORED", ArgTypes.STRING);
             // Percentual inteiro, nao decimal.
             //
@@ -1062,7 +1062,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             try {
                 targetMood = Mood.valueOf(moodName);
             } catch (IllegalArgumentException e) {
-                ctx.sendMessage(Message.raw("Humor invalido. Escolha entre: NEUTRAL, HAPPY, ANGRY, SAD, SCARED, SLEEPY, EXCITED, BORED"));
+                ctx.sendMessage(Message.raw("Invalid mood. Choose from: NEUTRAL, HAPPY, ANGRY, SAD, SCARED, SLEEPY, EXCITED, BORED"));
                 return;
             }
 
@@ -1073,7 +1073,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     int percent = Integer.parseInt(intensityRaw.trim());
                     intensity = Math.max(0f, Math.min(100f, percent)) / 100f;
                 } catch (NumberFormatException e) {
-                    ctx.sendMessage(Message.raw("Intensidade invalida. Use um inteiro de 0 a 100 (ex: 75)."));
+                    ctx.sendMessage(Message.raw("Invalid intensity. Use an integer from 0 to 100 (e.g., 75)."));
                     return;
                 }
             }
@@ -1098,14 +1098,14 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestNPC == null) {
-                ctx.sendMessage(Message.raw("Nenhum NPC por perto."));
+                ctx.sendMessage(Message.raw("No NPCs nearby."));
                 return;
             }
 
             nearestNPC.setEmotion(targetMood, intensity, "command", world.getTick());
             SimNPCPersistence.saveNPC(nearestNPC);
 
-            ctx.sendMessage(Message.raw("Humor de " + nearestNPC.name + " definido para " + targetMood.name() + " com intensidade " + intensity + "."));
+            ctx.sendMessage(Message.raw("Mood of " + nearestNPC.name + " definido para " + targetMood.name() + " com intensidade " + intensity + "."));
         }
     }
 
@@ -1113,7 +1113,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         private final RequiredArg<String> nameArg;
 
         public SearchSubCommand() {
-            super("search", "Procura um NPC no banco de dados pelo nome");
+            super("search", "Searches for an NPC in the database by name");
             this.nameArg = this.withRequiredArg("name", "Nome do NPC", ArgTypes.STRING);
         }
 
@@ -1155,7 +1155,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         private final OptionalArg<String> stateArg;
 
         public ToggleAiSubCommand() {
-            super("toggleai", "Ativa ou desativa o uso de Inteligencia Artificial para interacoes");
+            super("toggleai", "Enables or disables the use of AI for interactions");
             this.stateArg = this.withOptionalArg("state", "on|off", ArgTypes.STRING);
         }
 
@@ -1177,13 +1177,13 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             com.cookieukw.SimTale.ai.AiConfigManager.save();
             String status = config.enabled ? "ATIVADO" : "DESATIVADO";
-            ctx.sendMessage(Message.raw("O uso de IA Generativa para conversas com NPCs foi: " + status));
+            ctx.sendMessage(Message.raw("The use of Generative AI for NPC conversations was: " + status));
         }
     }
 
     private static class HouseCheckSubCommand extends AbstractPlayerCommand {
         public HouseCheckSubCommand() {
-            super("housecheck", "Verifica a validade estrutural e a mobilia da casa mais proxima");
+            super("housecheck", "Checks the structural validity and furniture of the nearest house");
         }
 
         @Override
@@ -1260,7 +1260,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     private static class ChestCheckSubCommand extends AbstractPlayerCommand {
         public ChestCheckSubCommand() {
-            super("chestcheck", "Verifica o registro e a posse do bau mais proximo");
+            super("chestcheck", "Checks the registry and ownership of the nearest chest");
         }
 
         @Override
@@ -1268,7 +1268,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
             if (tc == null) {
-                ctx.sendMessage(Message.raw("Erro: TransformComponent nulo."));
+                ctx.sendMessage(Message.raw("Error: TransformComponent is null."));
                 return;
             }
             Vector3d pos = tc.getPosition();
@@ -1294,12 +1294,12 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestChest == null) {
-                ctx.sendMessage(Message.raw("Nenhum bau registrado no ChestRegistry."));
+                ctx.sendMessage(Message.raw("No chests registered in ChestRegistry."));
                 return;
             }
 
             if (minDist > 16 * 16) {
-                ctx.sendMessage(Message.raw("Nenhum bau registrado proximo (raio de 16 blocos)!"));
+                ctx.sendMessage(Message.raw("No registered chests nearby (16 block radius)!"));
                 return;
             }
 
@@ -1324,7 +1324,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     private static class ForceEatSubCommand extends AbstractPlayerCommand {
         public ForceEatSubCommand() {
-            super("forceeat", "Força o NPC mais próximo a ir comer de um baú");
+            super("forceeat", "Forces the nearest NPC to eat from a chest");
         }
 
         @Override
@@ -1350,7 +1350,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestNPC == null) {
-                ctx.sendMessage(Message.raw("Nenhum NPC por perto."));
+                ctx.sendMessage(Message.raw("No NPCs nearby."));
                 return;
             }
 
@@ -1368,7 +1368,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     private static class ForceWorkSubCommand extends AbstractPlayerCommand {
         public ForceWorkSubCommand() {
-            super("forcework", "Força o NPC mais próximo a ir trabalhar (colher ou caçar)");
+            super("forcework", "Forces the nearest NPC to work (farm or hunt)");
         }
 
         @Override
@@ -1394,7 +1394,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestNPC == null) {
-                ctx.sendMessage(Message.raw("Nenhum NPC por perto."));
+                ctx.sendMessage(Message.raw("No NPCs nearby."));
                 return;
             }
 
@@ -1406,14 +1406,14 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
                 ctx.sendMessage(Message.raw("Forçando " + nearestNPC.name + " a ir trabalhar! Profissão: " + nearestNPC.profession.ptName));
             } else {
-                ctx.sendMessage(Message.raw("IA do NPC não ativa."));
+                ctx.sendMessage(Message.raw("NPC AI not active."));
             }
         }
     }
 
     private static class ForcePlantSubCommand extends AbstractPlayerCommand {
         public ForcePlantSubCommand() {
-            super("forceplant", "Força o NPC Fazendeiro mais próximo a plantar em terras aradas próximas");
+            super("forceplant", "Forces the nearest Farmer NPC to plant in nearby plowed land");
         }
 
         @Override
@@ -1477,7 +1477,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     private static class SetGenderSubCommand extends AbstractPlayerCommand {
         public SetGenderSubCommand() {
-            super("setgender", "Abre a tela de seleção de gênero para o jogador");
+            super("setgender", "Opens the gender selection screen for the player");
         }
 
         @Override
@@ -1485,7 +1485,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             Player player = store.getComponent(ref, Player.getComponentType());
             if (player == null) {
-                ctx.sendMessage(Message.raw("Erro: Jogador não encontrado."));
+                ctx.sendMessage(Message.raw("Error: Player not found."));
                 return;
             }
 
@@ -1499,7 +1499,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             player.getPageManager().openCustomPage(ref, store, new com.cookieukw.SimTale.logic.PlayerGenderPage(playerRef, player, simPlayer));
-            ctx.sendMessage(Message.raw("Abrindo painel de seleção de gênero..."));
+            ctx.sendMessage(Message.raw("Opening gender selection panel..."));
         }
     }
 }
