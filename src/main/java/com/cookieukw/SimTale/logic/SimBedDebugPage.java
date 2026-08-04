@@ -106,6 +106,8 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
         if (selectedIndex < 0) selectedIndex = 0;
         if (selectedIndex >= totalPages) selectedIndex = totalPages - 1;
 
+        cmd.set("#Title.TextSpans", Message.translation("ui.debugbeds.title"));
+
         // Render 5 items for the current page
         for (int i = 0; i < 5; i++) {
             int bedIndex = selectedIndex * 5 + i;
@@ -140,6 +142,9 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                     cmd.set(rowSelector + " #Status.Style.TextColor", "#ffaa55");
                 }
 
+                cmd.set(rowSelector + " #BtnTp Label.TextSpans", Message.translation("ui.debugbeds.btn_tp"));
+                cmd.set(rowSelector + " #BtnUnclaim Label.TextSpans", Message.translation("ui.debugbeds.btn_unclaim"));
+
                 // Bind buttons uniquely for this row's bed index
                 eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp", new EventData().append("action", "tp_" + bedIndex), false);
                 eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnUnclaim", new EventData().append("action", "unclaim_" + bedIndex), false);
@@ -149,19 +154,23 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             }
         }
 
-        // Show the count
+
+        // Show the count and set button labels
         cmd.set("#PageIndex.TextSpans", Message.translation("ui.debugbeds.page_index")
                 .param("current", selectedIndex + 1)
                 .param("total", totalPages)
                 .param("count", beds.size()));
+        cmd.set("#BtnPrevPage Label.TextSpans", Message.translation("ui.debugbeds.btn_prev"));
+        cmd.set("#BtnNextPage Label.TextSpans", Message.translation("ui.debugbeds.btn_next"));
+        cmd.set("#BtnBack Label.TextSpans", Message.translation("ui.debugbeds.btn_back"));
         LOGGER.info("[SimTale] Bed debug page opened with {} registered beds", beds.size());
-
 
         // Register navigation buttons
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnPrevPage", new EventData().append("action", "prev_page"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnNextPage", new EventData().append("action", "next_page"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnBack", new EventData().append("action", "back"), false);
     }
+
 
     @Override
     public void handleDataEvent(@Nonnull Ref<EntityStore> storeRef, @Nonnull Store<EntityStore> store, @Nonnull String rawEventData) {
