@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.systems.BedWorldBootstrap;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
@@ -96,10 +97,10 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
         cmd.set("#NpcTask.Text", "Task: " + taskName);
 
         // Needs stats
-        cmd.set("#StatsHunger.Text", "Fome: " + String.format("%.0f", npc.needs.hunger));
-        cmd.set("#StatsEnergy.Text", "Energia: " + String.format("%.0f", npc.needs.energy));
-        cmd.set("#StatsSocial.Text", "Social: " + String.format("%.0f", npc.needs.social));
-        cmd.set("#StatsHygiene.Text", "Higiene: " + String.format("%.0f", npc.needs.hygiene));
+        cmd.set("#StatsHunger.Text", "Fome: " + String.format("%.0f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID)));
+        cmd.set("#StatsEnergy.Text", "Energia: " + String.format("%.0f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.ENERGY_ID)));
+        cmd.set("#StatsSocial.Text", "Social: " + String.format("%.0f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.SOCIAL_ID)));
+        cmd.set("#StatsHygiene.Text", "Higiene: " + String.format("%.0f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HYGIENE_ID)));
 
         // Index display
         cmd.set("#NpcIndex.Text", (selectedIndex + 1) + " / " + SimTale.ACTIVE_NPCS.size());
@@ -151,7 +152,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             forceTask(npc, TaskType.FINDING_FOOD, store);
             playerRefComp.sendMessage(Message.raw("[SimDebug] " + npc.name + " forcado a comer!"));
         } else if (eventData.contains("force_sleep")) {
-            npc.needs.energy = 0f;
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.ENERGY_ID, 0f);
             forceTask(npc, TaskType.FINDING_BED, store);
             playerRefComp.sendMessage(Message.raw("[SimDebug] " + npc.name + " forcado a dormir!"));
         } else if (eventData.contains("force_bath")) {
@@ -161,14 +162,14 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             forceTask(npc, TaskType.WANDERING, store);
             playerRefComp.sendMessage(Message.raw("[SimDebug] " + npc.name + " forcado a socializar/andar!"));
         } else if (eventData.contains("hunger_zero")) {
-            npc.needs.hunger = 0f;
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID, 0f);
             playerRefComp.sendMessage(Message.raw("[SimDebug] Fome de " + npc.name + " zerada! (Teste de morte)"));
         } else if (eventData.contains("reset_needs")) {
-            npc.needs.hunger = 100f;
-            npc.needs.energy = 100f;
-            npc.needs.social = 100f;
-            npc.needs.fun = 100f;
-            npc.needs.hygiene = 100f;
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID, 100f);
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.ENERGY_ID, 100f);
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.SOCIAL_ID, 100f);
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, 100f);
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.HYGIENE_ID, 100f);
             playerRefComp.sendMessage(Message.raw("[SimDebug] Needs de " + npc.name + " resetados para 100!"));
         }
 

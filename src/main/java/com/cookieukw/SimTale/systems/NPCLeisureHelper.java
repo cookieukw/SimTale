@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.NPCPreferences.Hobby;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -176,11 +177,13 @@ public final class NPCLeisureHelper {
         }
 
         boolean atProperSpot = blockKeywordFor(hobby) != null;
-        npc.needs.fun = Math.min(100f, npc.needs.fun + (atProperSpot ? FUN_PER_TICK : FUN_PER_TICK_AT_HOME));
 
-        if (npc.needs.fun >= 100f || elapsed >= HOBBY_DURATION_TICKS) {
+
+        NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) + (atProperSpot ? FUN_PER_TICK : FUN_PER_TICK_AT_HOME));
+
+        if (NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) >= 100f || elapsed >= HOBBY_DURATION_TICKS) {
             npc.setEmotion(Mood.HAPPY, 0.5f, "hobby", world.getTick());
-            LOGGER.debug("[SimTale] NPC '{}' finished {} (fun={})", npc.name, hobby, npc.needs.fun);
+            LOGGER.debug("[SimTale] NPC '{}' finished {} (fun={})", npc.name, hobby, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID));
             stop(ref, ai, store);
         }
     }

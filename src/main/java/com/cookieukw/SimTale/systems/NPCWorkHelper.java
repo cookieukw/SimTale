@@ -4,6 +4,8 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.core.MemoryEvent;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.component.Ref;
@@ -99,14 +101,11 @@ public class NPCWorkHelper {
      * in the simulation noticed.
      */
     private static void applyWorkSatisfaction(SimNPCComponent npc, long tick) {
-        if (npc.needs == null) {
-            return;
-        }
-        if (NPCLeisureHelper.matchesProfession(NPCLeisureHelper.hobbyOf(npc), npc.profession)) {
-            npc.needs.fun = Math.min(100f, npc.needs.fun + 6f);
-            npc.setEmotion(Mood.HAPPY, 0.45f, "loves_the_job", tick);
+        // Work naturally drops fun, unless it's a good mood/traits combo
+        if (npc.activeEmotion == Mood.HAPPY) {
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, Math.min(100f, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) + 6f));
         } else {
-            npc.needs.fun = Math.max(0f, npc.needs.fun - 1.5f);
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, Math.max(0f, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) - 1.5f));
         }
     }
 

@@ -37,6 +37,7 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.component.RemoveReason;
@@ -100,7 +101,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
 
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
-        if (npc == null || npc.needs == null) return;
+        if (npc == null || npc.entityRef == null) return;
 
         // Skip routine AI for babies and toddlers (cared for by parents).
         // The isEmpty() guard matters: without any children in the world this loop still ran
@@ -143,8 +144,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         World world = WorldUtil.first();
         if (world == null) return;
 
-        // Desmonta e limpa MountedComponent se o NPC de longe não estiver mais em estado de sono ativo
-        // ou se sua chunk de cama tiver sido descarregada, evitando crash no ChunkUnloadingSystem do Hytale.
+        // unmounts and clears MountedComponent if the distant NPC is no longer in active sleep state
+        // or if its bed chunk has been unloaded, avoiding crashes in Hytale's ChunkUnloadingSystem.
         if (ai.currentTask != TaskType.SLEEPING && ai.currentTask != TaskType.ENTERING_BED) {
             if (chunk.getComponent(index, MountedComponent.getComponentType()) != null) {
                 commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
@@ -202,7 +203,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             // Hunger hitting zero used to kill instantly, which made the whole starvation system
             // decorative: an NPC died the moment its belly emptied, long before the damage
             // mattered, and healing from food changed nothing.
-            if (npc.needs.starvationDamage >= NPCHungerHelper.LETHAL_STARVATION_DAMAGE) {
+            if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) <= 0) {
                 ai.currentTask = TaskType.DYING;
                 ai.taskStartTime = world.getTick();
                 playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Sleep", store);
@@ -248,9 +249,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // little tired. An NPC with full energy going to sleep looks broken no matter what the
         // schedule says — and it produced a real dead end, where a guard switched to another
         // profession mid-nap stayed in bed with 100 energy on its first day in the new job.
-        boolean tiredEnoughToTurnIn = npc.needs.energy < SCHEDULED_SLEEP_MAX_ENERGY;
+        boolean tiredEnoughToTurnIn = NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < SCHEDULED_SLEEP_MAX_ENERGY;
         boolean sleepWindowOpen = NPCSleepHelper.isSleepPeriod(npc, world) && tiredEnoughToTurnIn;
-        boolean exhausted = npc.needs.energy < sleepThreshold;
+        boolean exhausted = NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < sleepThreshold;
 
         boolean alreadyHeadedToBed = ai.currentTask == TaskType.FINDING_BED
                 || ai.currentTask == TaskType.MOVING_TO_BED || ai.currentTask == TaskType.ENTERING_BED
@@ -281,7 +282,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             if (sleepWindowOpen) {
                 LOGGER.info("[SimTale] NPC '{}' sleep window opened, heading to bed", npc.name);
             } else {
-                LOGGER.info("[SimTale] NPC '{}' is tired (energy={}), interrupting task to find bed immediately", npc.name, npc.needs.energy);
+                LOGGER.info("[SimTale] NPC '{}' is tired (energy={}), interrupting task to find bed immediately", npc.name, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID));
             }
         }
 
@@ -293,7 +294,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         //
         // The threshold sits well below the IDLE one (50): this is the emergency path, not the
         // normal one. Eating takes about three seconds, so interrupting costs little.
-        if (npc.needs.hunger < HUNGER_INTERRUPT_THRESHOLD
+        if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < HUNGER_INTERRUPT_THRESHOLD
                 && world.getTick() >= ai.nextFoodSearchTick
                 && ai.currentTask != TaskType.FINDING_FOOD && ai.currentTask != TaskType.MOVING_TO_FOOD
                 && ai.currentTask != TaskType.EATING
@@ -306,7 +307,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             ai.targetBlockPosition = null;
             ai.taskStartTime = world.getTick() - NPCHungerHelper.FOOD_SEARCH_COOLDOWN_TICKS;
             clearAutonomyState(ai);
-            LOGGER.info("[SimTale] NPC '{}' is starving (hunger={}), interrupting task to find food", npc.name, npc.needs.hunger);
+            LOGGER.info("[SimTale] NPC '{}' is starving (hunger={}), interrupting task to find food", npc.name, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID));
         }
 
         // --- Force sleep from command (uses SimNPCComponent flag to survive tick overwrite) ---
@@ -339,19 +340,19 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
             }
 
-            if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 70) {
+            if (ai.currentTask == TaskType.IDLE && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < 70) {
                 ai.currentTask = TaskType.FINDING_FOOD;
                 ai.targetBlockPosition = null;
                 ai.taskStartTime = world.getTick() - NPCHungerHelper.FOOD_SEARCH_COOLDOWN_TICKS;
-            } else if (ai.currentTask == TaskType.IDLE && npc.needs.hygiene < 40) {
+            } else if (ai.currentTask == TaskType.IDLE && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) < 40) {
                 ai.currentTask = TaskType.FINDING_BATH;
                 ai.targetBlockPosition = null;
                 ai.taskStartTime = world.getTick() - BATH_SEARCH_COOLDOWN_TICKS;
-            } else if (ai.currentTask == TaskType.IDLE && npc.needs.fun < NPCLeisureHelper.FUN_THRESHOLD) {
+            } else if (ai.currentTask == TaskType.IDLE && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.FUN_ID) < NPCLeisureHelper.FUN_THRESHOLD) {
                 ai.currentTask = TaskType.FINDING_LEISURE;
                 ai.targetBlockPosition = null;
                 ai.taskStartTime = world.getTick() - NPCLeisureHelper.LEISURE_SEARCH_COOLDOWN_TICKS;
-            } else if (ai.currentTask == TaskType.IDLE && npc.needs.social < 50 && Math.random() < 0.05) {
+            } else if (ai.currentTask == TaskType.IDLE && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) < 50 && Math.random() < 0.05) {
                 SimNPCComponent bestTarget = null;
                 double bestDist = SOCIALIZE_SEARCH_RANGE_SQ;
                 for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
@@ -639,7 +640,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
 
 
-            npc.needs.healEnergy(0.045f);
+            NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) + 0.045f));
 
             // Verify bed still exists periodically
             if ((world.getTick() - ai.taskStartTime) % 20 == 0) {
@@ -669,12 +670,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 // window that no longer applies. A guard turned hunter mid-nap gets up.
                 doneSleeping = !NPCSleepHelper.isSleepPeriod(npc, world);
             } else {
-                doneSleeping = npc.needs.energy >= 100
+                doneSleeping = NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) >= 100
                         || world.getTick() - ai.taskStartTime >= SLEEP_DURATION_TICKS;
             }
 
             if (doneSleeping) {
-                npc.needs.energy = Math.min(100f, npc.needs.energy);
+                NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID)));
                 ai.sleepingOnSchedule = false;
                 ai.currentTask = TaskType.WAKING;
                 ai.taskStartTime = world.getTick();
@@ -730,7 +731,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         }
 
         // --- Chest Interaction & Feeding Logic (Delegado ao NPCHungerHelper) ---
-        NPCHungerHelper.tickStarvation(ref, npc, world);
+        NPCHungerHelper.tickStarvation(ref, npc, world, store);
         NPCHungerHelper.handleHungerLogic(ref, npc, ai, transform, world, store);
 
         // --- Crop Harvesting & Hunting Logic (Delegado ao NPCWorkHelper) ---
@@ -814,10 +815,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         }
 
         if (ai.currentTask == TaskType.BATHING) {
-            npc.needs.hygiene = Math.min(100f, npc.needs.hygiene + 1.0f);
+            NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) + 1.0f));
             // The hygiene check alone was the only exit; if anything else clamped hygiene the
             // NPC would swim forever.
-            if (npc.needs.hygiene >= 100f
+            if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) >= 100f
                     || world.getTick() - ai.taskStartTime > BATH_DURATION_LIMIT_TICKS) {
                 ai.currentTask = TaskType.IDLE;
                 playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
@@ -905,8 +906,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 if ((world.getTick() - ai.taskStartTime) % 40 == 0) {
                     playAnim(ref, "Characters/Animations/Actions/Smith.blockyanim", "Smith", store);
                 }
-                npc.needs.energy = Math.max(0f, npc.needs.energy - 0.05f);
-                if (npc.needs.energy <= 10f) {
+                NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID, Math.max(0f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) - 0.05f));
+                if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) <= 10f) {
                     ai.currentTask = TaskType.IDLE;
                     playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
                 }

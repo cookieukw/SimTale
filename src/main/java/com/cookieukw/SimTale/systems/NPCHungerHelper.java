@@ -4,6 +4,9 @@ import com.cookie.runecore.api.StatHelper;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.HouseBlockPos;
+import com.cookieukw.SimTale.core.NeedsHelper;
+import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -93,18 +96,20 @@ public class NPCHungerHelper {
      * around thirteen hours to fall from full to the threshold, and only then does this begin.
      * Starving to death is the outcome of an abandoned village, not of one missed lunch.
      */
-    public static void tickStarvation(Ref<EntityStore> ref, SimNPCComponent npc, World world) {
-        if (npc.needs == null || npc.needs.hunger > STARVATION_THRESHOLD) return;
+    public static void tickStarvation(Ref<EntityStore> ref, SimNPCComponent npc, World world, Store<EntityStore> store) {
+        if (NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID) > STARVATION_THRESHOLD) return;
         if (npc.entityId == null) return;
 
-        // Staggered by entity id so a starving village does not take damage in lockstep.
-        if (Math.floorMod(world.getTick() + npc.entityId.hashCode(), STARVATION_INTERVAL_TICKS) != 0) return;
+        npc.setEmotion(Mood.SAD, 0.9f, "starvation", world.getTick());
 
-        StatHelper.subtractHealth(ref, STARVATION_DAMAGE);
-        npc.needs.starvationDamage += STARVATION_DAMAGE;
-        LOGGER.debug("[COMIDA] {} passando fome (fome {}), -{} de vida (acumulado {}/{})",
-                npc.name, npc.needs.hunger, STARVATION_DAMAGE,
-                npc.needs.starvationDamage, LETHAL_STARVATION_DAMAGE);
+        // Stop what they are doing and complain
+        RoutineAIComponent ai = store.getComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+        if (ai != null && ai.currentTask != TaskType.FINDING_FOOD && ai.currentTask != TaskType.EATING) {
+            NPCMovementHelper.clearMoveTarget(ref, ai);
+            ai.currentTask = TaskType.IDLE;
+            NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Sleep.blockyanim", "Cry", store);
+            LOGGER.debug("[SimTale] {} is crying from starvation!", npc.name);
+        }
     }
 
     public static void handleHungerLogic(
@@ -211,11 +216,7 @@ public class NPCHungerHelper {
             }
             if (world.getTick() - ai.taskStartTime > 60) {
                 float restored = NPCFoodHelper.hungerRestored(ai.eatingTier);
-                npc.needs.hunger = Math.min(100f, npc.needs.hunger + restored);
-
-                // A meal calls off the countdown. Without this an NPC that starved most of the way
-                // through, then ate, would still drop dead on the next few starvation ticks.
-                npc.needs.starvationDamage = 0f;
+                NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID, Math.min(100f, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID) + restored));
 
                 float healed = NPCFoodHelper.healthRestored(ai.eatingTier);
                 if (healed > 0f) {
@@ -223,13 +224,13 @@ public class NPCHungerHelper {
                 }
 
                 if (ai.eatingWasFavorite) {
-                    npc.needs.fun = Math.min(100f, npc.needs.fun + 10f);
+                    NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, Math.min(100f, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) + 10f));
                 } else if (ai.eatingWasHated) {
-                    npc.needs.fun = Math.max(0f, npc.needs.fun - 10f);
+                    NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, Math.max(0f, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) - 10f));
                 }
 
-                LOGGER.debug("[COMIDA] {} terminou de comer (tier {}, +{} fome, fome agora {})",
-                        npc.name, ai.eatingTier, restored, npc.needs.hunger);
+                LOGGER.debug("[SimTale] NPC {} finished eating (tier {}). Restored: {}, new hunger={}",
+                        npc.name, ai.eatingTier, restored, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID));
 
                 ai.eatingTier = 0;
                 ai.eatingWasHated = false;

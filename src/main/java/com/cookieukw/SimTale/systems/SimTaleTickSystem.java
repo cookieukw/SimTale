@@ -8,6 +8,7 @@ import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookieukw.SimTale.logic.InteractionType;
@@ -151,9 +152,9 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        if (npc.needs == null || npc.personality == null) return;
+        if (npc.personality == null) return;
 
-        npc.needs.tickDecay(npc.personality.traits);
+        NeedsHelper.tickDecay(store, npc.entityRef, npc.personality.traits);
 
         // Decay emotion intensity over time.
         //
@@ -175,11 +176,11 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         } else if (npc.memory.remembers(com.cookieukw.SimTale.core.MemoryEvent.INSULTED, null, 30000)) {
             npc.setEmotion(Mood.ANGRY, 0.8f, "insult", absoluteTick);
         } else {
-            if (npc.personality.traits.contains(com.cookieukw.SimTale.core.Trait.AGGRESSIVE) && (npc.needs.hunger < 50 || npc.needs.energy < 50)) {
+            if (npc.personality.traits.contains(com.cookieukw.SimTale.core.Trait.AGGRESSIVE) && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < 50 || NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < 50)) {
                 npc.setEmotion(Mood.ANGRY, 0.7f, "needs", absoluteTick);
-            } else if (npc.needs.energy < 20) {
+            } else if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < 20) {
                 npc.setEmotion(Mood.SLEEPY, 0.8f, "tiredness", absoluteTick);
-            } else if (npc.needs.isMiserable()) {
+            } else if (NeedsHelper.isMiserable(store, npc.entityRef)) {
                 npc.setEmotion(Mood.SAD, 0.6f, "misery", absoluteTick);
             } else {
                 Ref<EntityStore> entityRef = world.getEntityStore().getRefFromUUID(npc.entityId);
@@ -192,7 +193,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                         if (Math.random() < 0.0004) {
                             npc.setEmotion(Mood.BORED, 0.4f, "idleness", absoluteTick);
                         }
-                    } else if (npc.needs.hunger > 60 && npc.needs.energy > 60 && npc.needs.social > 60) {
+                    } else if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) > 60 && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) > 60 && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) > 60) {
                         npc.setEmotion(Mood.HAPPY, 0.3f, "wellness", absoluteTick);
                     }
                 }

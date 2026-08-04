@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -167,8 +168,8 @@ public class NPCSocialHelper {
      * mutual relationship and mood contagion.
      */
     private static void applyChatOutcome(SimNPCComponent host, SimNPCComponent guest, long tick) {
-        host.needs.social = Math.min(100f, host.needs.social + SOCIAL_RESTORE);
-        guest.needs.social = Math.min(100f, guest.needs.social + SOCIAL_RESTORE);
+        NeedsHelper.setNeed(null, host.entityRef, NeedsHelper.SOCIAL_ID, Math.min(100f, NeedsHelper.getNeed(null, host.entityRef, NeedsHelper.SOCIAL_ID) + SOCIAL_RESTORE));
+        NeedsHelper.setNeed(null, guest.entityRef, NeedsHelper.SOCIAL_ID, Math.min(100f, NeedsHelper.getNeed(null, guest.entityRef, NeedsHelper.SOCIAL_ID) + SOCIAL_RESTORE));
 
         boolean pleasant = bondNpcs(host, guest);
         exchangeMood(host, guest, pleasant, tick);

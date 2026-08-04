@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Child;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NPCPreferences;
 import com.cookieukw.SimTale.core.Profession;
@@ -395,6 +396,11 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
 
         // --- Info Panel Static UI Overrides ---
         commandBuilder.set("#InfoHeader.TextSpans", Message.translation("ui.info"));
+        commandBuilder.set("#ChatButtonText.TextSpans", Message.translation("ui.button.chat"));
+        commandBuilder.set("#JokeButtonText.TextSpans", Message.translation("ui.button.joke"));
+        commandBuilder.set("#FlirtButtonText.TextSpans", Message.translation("ui.button.flirt"));
+        commandBuilder.set("#GiftButtonText.TextSpans", Message.translation("ui.button.gift"));
+        commandBuilder.set("#InsultButtonText.TextSpans", Message.translation("ui.button.insult"));
         commandBuilder.set("#AssignProfessionButtonText.TextSpans", Message.translation("ui.button.prof"));
         commandBuilder.set("#PregnancyButtonText.TextSpans", Message.translation("ui.button.pregnancy"));
 
@@ -490,6 +496,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         }
 
         if (isChild) {
+            commandBuilder.set("#FlirtButton.Visible", false);
             commandBuilder.set("#AssignProfessionButton.Visible", false);
             commandBuilder.set("#PregnancyButton.Visible", false);
         }
@@ -501,7 +508,11 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         commandBuilder.set("#InventoryButton.Visible", isMarried);
 
         // --- Button Event Bindings ---
-        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#TalkButton", new EventData().append("button", "TalkButton"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ChatButton", new EventData().append("button", "ChatButton"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#JokeButton", new EventData().append("button", "JokeButton"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#FlirtButton", new EventData().append("button", "FlirtButton"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#InsultButton", new EventData().append("button", "InsultButton"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GiftButton", new EventData().append("button", "GiftButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#AssignProfessionButton", new EventData().append("button", "AssignProfessionButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#PregnancyButton", new EventData().append("button", "PregnancyButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#InventoryButton", new EventData().append("button", "InventoryButton"), false);
@@ -525,7 +536,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                         if (dyingRef != null) {
                             SimNPCComponent dyingNpc = store.getComponent(dyingRef, SimTale.SIM_NPC_COMPONENT_TYPE);
                             if (dyingNpc != null) {
-                                dyingNpc.needs.hunger = 50f;
+                                NeedsHelper.setNeed(null, dyingNpc.entityRef, NeedsHelper.HUNGER_ID, 50f);
                                 store.putComponent(dyingRef, SimTale.SIM_NPC_COMPONENT_TYPE, dyingNpc);
                             }
                             RoutineAIComponent dyingAi = store.getComponent(dyingRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
@@ -552,8 +563,21 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             return;
         }
 
-        if (eventData.contains("TalkButton")) {
-            DialogManager.openMainDialog(playerRefComp, player, storeRef, store, npc);
+        if (eventData.contains("ChatButton")) {
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.FRIENDLY);
+            playerRefComp.sendMessage(resp);
+        } else if (eventData.contains("JokeButton")) {
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.FUNNY);
+            playerRefComp.sendMessage(resp);
+        } else if (eventData.contains("FlirtButton")) {
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.ROMANTIC);
+            playerRefComp.sendMessage(resp);
+        } else if (eventData.contains("InsultButton")) {
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.MEAN);
+            playerRefComp.sendMessage(resp);
+        } else if (eventData.contains("GiftButton")) {
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.GIFT);
+            playerRefComp.sendMessage(resp);
         } else if (eventData.contains("AssignProfessionButton")) {
             Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.ASSIGN_PROFESSION);
             playerRefComp.sendMessage(resp);
@@ -710,10 +734,10 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
      * below 25 it drops whatever it is doing, and below 5 it is losing health.
      */
     private void buildNeedsLine(UICommandBuilder commandBuilder, SimNPCComponent npc) {
-        if (npc.needs == null) return;
+        if (npc.entityRef == null) return;
 
-        int hunger = Math.round(npc.needs.hunger);
-        int energy = Math.round(npc.needs.energy);
+        int hunger = Math.round(NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID));
+        int energy = Math.round(NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.ENERGY_ID));
 
         Message hungerState;
         String hungerColor;
