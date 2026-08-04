@@ -278,11 +278,15 @@ public class InteractionManager {
         String itemName = heldItem.getDisplayName().getAnsiMessage();
         String itemId = heldItem.getItemId().toLowerCase(Locale.ROOT);
 
+        // The real id has been guessed wrong three times over (with and without a "simtale:"
+        // prefix, CamelCase and snake_case), so log it once and stop guessing.
+        LOGGER.atInfo().log("SimTale: presente recebido, itemId bruto = '%s'", heldItem.getItemId());
+
         if (isChild) {
             return handleChildGift(npc, itemId, itemName);
         }
 
-        if (itemId.equals("WeddingRing")) {
+        if (isWeddingRing(heldItem.getItemId())) {
             return handleMarriageProposal(npc, rel, playerUuid);
         }
 
@@ -290,6 +294,21 @@ public class InteractionManager {
         if (meal != null) return meal;
 
         return calculateGiftAffinity(npc, itemId, itemName, rel);
+    }
+
+    /**
+     * Whether this item is the wedding ring, whatever form its id happens to take.
+     *
+     * <p>Matching used to be a single {@code equals} against a hardcoded string, and it was wrong
+     * every time: the asset id could be {@code WeddingRing}, {@code wedding_ring}, with or without
+     * a {@code simtale:} prefix, and the caller had already lowercased the id — so a CamelCase
+     * literal could never match anything. Stripping everything that is not a letter or digit and
+     * comparing the tail covers all four shapes at once.
+     */
+    private static boolean isWeddingRing(String rawItemId) {
+        if (rawItemId == null) return false;
+        String normalized = rawItemId.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
+        return normalized.endsWith("weddingring");
     }
 
     /** Hunger level at or below which a gift of food is eaten on the spot instead of pocketed. */
