@@ -75,6 +75,15 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
     /** Give up walking to a bed after 30 s, so an unreachable one does not trap the NPC. */
     private static final int BED_MOVE_TIMEOUT_TICKS = 600;
+
+    /**
+     * An NPC with more energy than this will not go to bed just because its sleep window opened.
+     *
+     * <p>Sits high on purpose: it is not a second tiredness threshold, only a sanity check. Someone
+     * who has been awake a while turns in when night falls; someone who just woke up, or who just
+     * changed profession and inherited a different schedule, does not walk straight back to bed.
+     */
+    private static final float SCHEDULED_SLEEP_MAX_ENERGY = 90f;
     /** Look for a chat partner within 20 blocks. */
     private static final double SOCIALIZE_SEARCH_RANGE_SQ = 20.0 * 20.0;
     /** Max distance from home an idle stroll may take the NPC. */
@@ -231,7 +240,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // The clock, not just exhaustion, sends an NPC to bed. Before this a villager with full
         // energy simply never slept, and the village stayed busy all night. Guards run the
         // opposite shift, so for them this window is the daytime.
-        boolean sleepWindowOpen = NPCSleepHelper.isSleepPeriod(npc, world);
+        // The clock alone is not enough to send someone to bed: they also have to be at least a
+        // little tired. An NPC with full energy going to sleep looks broken no matter what the
+        // schedule says — and it produced a real dead end, where a guard switched to another
+        // profession mid-nap stayed in bed with 100 energy on its first day in the new job.
+        boolean tiredEnoughToTurnIn = npc.needs.energy < SCHEDULED_SLEEP_MAX_ENERGY;
+        boolean sleepWindowOpen = NPCSleepHelper.isSleepPeriod(npc, world) && tiredEnoughToTurnIn;
         boolean exhausted = npc.needs.energy < sleepThreshold;
 
         boolean alreadyHeadedToBed = ai.currentTask == TaskType.FINDING_BED
@@ -646,6 +660,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             // filled up. An exhaustion nap still ends on the old rule.
             boolean doneSleeping;
             if (ai.sleepingOnSchedule) {
+                // Re-evaluated every tick against the CURRENT profession, so changing someone's job
+                // while they sleep flips their shift and wakes them instead of leaving them in a
+                // window that no longer applies. A guard turned hunter mid-nap gets up.
                 doneSleeping = !NPCSleepHelper.isSleepPeriod(npc, world);
             } else {
                 doneSleeping = npc.needs.energy >= 100
