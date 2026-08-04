@@ -33,7 +33,10 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ArrayList;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
+import com.cookieukw.SimTale.db.SimBedData;
 import com.cookieukw.SimTale.db.SimNPCData;
+import com.cookieukw.SimTale.ai.AiConfig;
+import com.cookieukw.SimTale.ai.AiConfigManager;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
@@ -60,6 +63,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
+import com.cookieukw.SimTale.systems.NPCWorkHelper;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.server.npc.role.support.StateSupport;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
@@ -1163,7 +1167,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             
-            com.cookieukw.SimTale.ai.AiConfig config = com.cookieukw.SimTale.ai.AiConfigManager.getConfig();
+            AiConfig config = AiConfigManager.getConfig();
             String stateStr = ctx.get(this.stateArg);
 
             if (stateStr == null) {
@@ -1175,7 +1179,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 config.enabled = false;
             }
 
-            com.cookieukw.SimTale.ai.AiConfigManager.save();
+            AiConfigManager.save();
             String status = config.enabled ? "ATIVADO" : "DESATIVADO";
             ctx.sendMessage(Message.raw("The use of Generative AI for NPC conversations was: " + status));
         }
@@ -1199,10 +1203,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             // Scan and register loaded beds in a 12-block radius to ensure BedRegistry.BEDS is populated instantly
             BedWorldBootstrap.bootstrapLoadedRadius(world, pos, 12);
             
-            com.cookieukw.SimTale.db.SimBedData.BedPos nearestBed = null;
+            SimBedData.BedPos nearestBed = null;
             double minDist = Double.MAX_VALUE;
             synchronized (BedRegistry.BEDS) {
-                for (com.cookieukw.SimTale.db.SimBedData.BedPos bp : BedRegistry.BEDS) {
+                for (SimBedData.BedPos bp : BedRegistry.BEDS) {
                     double dx = bp.x - pos.x;
                     double dy = bp.y - pos.y;
                     double dz = bp.z - pos.z;
@@ -1447,7 +1451,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             InventoryComponent.Storage storage = store.getComponent(nearestNPC.entityRef, InventoryComponent.Storage.getComponentType());
             if (storage != null && storage.getInventory() != null) {
                 ItemContainer inv = storage.getInventory();
-                String seed = com.cookieukw.SimTale.systems.NPCWorkHelper.findSeedInInventory(inv);
+                String seed = NPCWorkHelper.findSeedInInventory(inv);
                 if (seed == null) {
                     // Give them 5 carrot seeds to start
                     inv.addItemStack(new ItemStack("Plant_Seeds_Carrot", 5));
@@ -1458,7 +1462,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
             if (ai != null) {
                 TransformComponent npcTransform = store.getComponent(nearestNPC.entityRef, TransformComponent.getComponentType());
-                Vector3i farmPos = com.cookieukw.SimTale.systems.NPCWorkHelper.scanForFarmland(npcTransform.getPosition(), world);
+                Vector3i farmPos = NPCWorkHelper.scanForFarmland(npcTransform.getPosition(), world);
                 if (farmPos != null) {
                     ai.targetBlockPosition = farmPos;
                     ai.currentTask = RoutineAIComponent.TaskType.MOVING_TO_WORK;
@@ -1491,7 +1495,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             SimPlayerComponent simPlayer = store.getComponent(ref, SimTale.SIM_PLAYER_COMPONENT_TYPE);
             if (simPlayer == null) {
-                simPlayer = com.cookieukw.SimTale.db.SimPlayerPersistence.loadPlayer(playerRef.getUuid());
+                simPlayer = SimPlayerPersistence.loadPlayer(playerRef.getUuid());
                 if (simPlayer == null) {
                     simPlayer = new SimPlayerComponent(playerRef.getUuid());
                 }
