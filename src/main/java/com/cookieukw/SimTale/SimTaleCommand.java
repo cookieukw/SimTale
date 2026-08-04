@@ -987,16 +987,35 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             ctx.sendMessage(Message.raw("--- DIAGNOSTICO PROXIMO (Sua Pos: " + px + "," + py + "," + pz + ") ---"));
 
             // 1. Scan blocks in 3x3x3
-            ctx.sendMessage(Message.raw("Blocos proximos:"));
+            // Um movel por linha, nao um bloco por linha.
+            //
+            // A cama ocupa seis blocos e a porta quatro, entao o dump cru listava a mesma cama seis
+            // vezes e parecia haver seis camas — foi exatamente isso que atrasou o diagnostico do
+            // alinhamento do sono. Resolvendo cada bloco para a sua ancora e deduplicando por ela,
+            // um movel aparece uma vez, com quantos blocos ocupa.
+            ctx.sendMessage(Message.raw("Moveis/blocos proximos:"));
+            java.util.Map<String, Integer> contagemPorAncora = new java.util.LinkedHashMap<>();
+
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 2; dy++) {
                     for (int dz = -1; dz <= 1; dz++) {
-                        com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType type = world.getBlockType(px + dx, py + dy, pz + dz);
-                        if (type != null && type.getId() != null && !type.getId().equalsIgnoreCase("Empty")) {
-                            ctx.sendMessage(Message.raw("  Block (" + dx + "," + dy + "," + dz + "): ID='" + type.getId() + "'"));
+                        int bx = px + dx, by = py + dy, bz = pz + dz;
+                        com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType type =
+                                world.getBlockType(bx, by, bz);
+                        if (type == null || type.getId() == null || type.getId().equalsIgnoreCase("Empty")) {
+                            continue;
                         }
+                        Vector3i ancora = com.cookieukw.SimTale.systems.FurnitureAnchorHelper
+                                .anchorOf(world, bx, by, bz);
+                        String chave = type.getId() + " @ (" + ancora.x + "," + ancora.y + "," + ancora.z + ")";
+                        contagemPorAncora.merge(chave, 1, Integer::sum);
                     }
                 }
+            }
+
+            for (java.util.Map.Entry<String, Integer> e : contagemPorAncora.entrySet()) {
+                String blocos = e.getValue() > 1 ? "  [" + e.getValue() + " blocos]" : "";
+                ctx.sendMessage(Message.raw("  " + e.getKey() + blocos));
             }
 
             // 2. Scan all ACTIVE_NPCS near the player
