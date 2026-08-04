@@ -151,7 +151,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        NPCDoorHelper.handleNpcDoors(world, npc, transform);
+        // The leash point is where the NPC is actually walking to, which is a far better statement
+        // of intent than which way its body happens to be turned.
+        NPCEntity doorNpcEntity = chunk.getComponent(index, Objects.requireNonNull(NPCEntity.getComponentType()));
+        Vector3d doorDestination = doorNpcEntity != null ? doorNpcEntity.getLeashPoint() : null;
+        NPCDoorHelper.handleNpcDoors(world, npc, transform, doorDestination);
 
 
         // --- Dialogue lock ---

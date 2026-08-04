@@ -19,7 +19,9 @@ import com.cookieukw.SimTale.core.SimLog;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -45,12 +47,28 @@ public final class NPCDoorHelper {
     /** Each NPC only checks doors once every 5 ticks, staggered by ID to spread the load. */
     private static final int CHECK_INTERVAL = 5;
 
+    /**
+     * How directly the NPC must be facing a door before it opens it.
+     *
+     * <p>Cosine of the angle between where the NPC is looking and where the door is, so 0.5 is a
+     * 60-degree cone ahead. Proximity alone used to be enough, and the scan is a 3x3x3 cube — so an
+     * NPC merely walking along a wall opened the door beside it, with no intention of going through.
+     *
+     * <p>Facing is the best available proxy for intent here: the engine turns an NPC toward wherever
+     * it is walking, so "the door is in front of me" is effectively "I am walking into it".
+     */
+    private static final double FACING_DOT_THRESHOLD = 0.5;
+
     /** Open doors with remaining ticks before closing. */
     public static final Map<HouseBlockPos, Integer> OPENED_DOORS = new ConcurrentHashMap<>();
 
     private static long lastAutoCloseTick = -1L;
 
-    public static void handleNpcDoors(World world, SimNPCComponent npc, TransformComponent transform) {
+    /**
+     * @param destination where the NPC is walking to (its leash point), or null when unknown.
+     */
+    public static void handleNpcDoors(World world, SimNPCComponent npc, TransformComponent transform,
+                                      Vector3d destination) {
         if (world == null || npc == null || transform == null || npc.entityId == null) return;
 
         long tick = world.getTick();
@@ -62,15 +80,37 @@ public final class NPCDoorHelper {
         if ((tick + Math.abs(npc.entityId.hashCode())) % CHECK_INTERVAL != 0) return;
 
         Vector3d npcPos = transform.getPosition();
+
+        // Forward vector from the body's yaw. The engine's own convention:
+        // PhysicsMath.headingFromDirection computes atan2(-dx, -dz), so forward is
+        // (-sin(yaw), -cos(yaw)). Same formula faceConversationPartner relies on.
+        float yawRad = transform.getRotation().yaw();
+        double forwardX = -Math.sin(yawRad);
+        double forwardZ = -Math.cos(yawRad);
+
+        // Is the NPC about to cross a house boundary?
+        //
+        // This is the real question. Standing next to a door says nothing about wanting through it,
+        // and body orientation is only a proxy — but "I am outside and my destination is inside"
+        // (or the reverse) is intent stated outright. BLOCK_TO_HOUSE_ID already knows which blocks
+        // belong to which house, so the answer costs two lookups.
+        boolean crossingHouseBoundary = false;
+        if (destination != null) {
+            UUID houseAtNpc = houseIdAt(npcPos);
+            UUID houseAtDestination = houseIdAt(destination);
+            crossingHouseBoundary = !Objects.equals(houseAtNpc, houseAtDestination);
+        }
+
         int baseX = (int) Math.floor(npcPos.x);
         int baseY = (int) Math.floor(npcPos.y);
         int baseZ = (int) Math.floor(npcPos.z);
-   Set<Vector3i> handled = new HashSet<>();
+        Set<Vector3i> handled = new HashSet<>();
 
         for (int dx = -SCAN_XZ; dx <= SCAN_XZ; dx++) {
             for (int dy = -SCAN_DOWN; dy <= SCAN_UP; dy++) {
                 for (int dz = -SCAN_XZ; dz <= SCAN_XZ; dz++) {
-                    tryOpenDoorAt(world, npc, npcPos, baseX + dx, baseY + dy, baseZ + dz, handled);
+                    tryOpenDoorAt(world, npc, npcPos, forwardX, forwardZ, crossingHouseBoundary,
+                            baseX + dx, baseY + dy, baseZ + dz, handled);
                 }
             }
         }
@@ -78,6 +118,7 @@ public final class NPCDoorHelper {
 
    
     private static void tryOpenDoorAt(World world, SimNPCComponent npc, Vector3d npcPos,
+                                      double forwardX, double forwardZ, boolean crossingHouseBoundary,
                                       int x, int y, int z, Set<Vector3i> handled) {
         try {
             BlockType type = world.getBlockType(x, y, z);
@@ -97,8 +138,19 @@ public final class NPCDoorHelper {
 
             DoorState current = door.getDoorState();
             if (current != DoorState.CLOSED) {
-             
+                // Already open: refresh the timer regardless of facing, so a door stays open while
+                // someone is still coming through it.
                 OPENED_DOORS.put(toKey(doorPos), AUTO_CLOSE_TICKS);
+                return;
+            }
+
+            // Two signals, and the stronger one wins.
+            //
+            // Crossing a house boundary is a statement of intent: the destination is on the other
+            // side, so the door has to be used. Facing is only a fallback — it covers doors that
+            // belong to no registered house, and doors between rooms of the same house, where the
+            // boundary test cannot say anything.
+            if (!crossingHouseBoundary && !isFacing(npcPos, forwardX, forwardZ, doorPos)) {
                 return;
             }
 
@@ -136,6 +188,37 @@ public final class NPCDoorHelper {
             // A problematic door shouldn't crash the entire NPC AI tick.
             LOGGER.debug("[PORTA] falha em ({},{},{}): {}", x, y, z, e.toString());
         }
+    }
+
+    /** House that owns the block at this position, or null when it belongs to none. */
+    private static UUID houseIdAt(Vector3d pos) {
+        HouseBlockPos block = new HouseBlockPos(
+                (int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z));
+        UUID direct = HouseManager.BLOCK_TO_HOUSE_ID.get(block);
+        if (direct != null) return direct;
+
+        // Standing on the floor puts the feet one block below the interior the fill recorded, so a
+        // miss at foot level is checked one block up before giving up.
+        HouseBlockPos above = new HouseBlockPos(block.x, block.y + 1, block.z);
+        return HouseManager.BLOCK_TO_HOUSE_ID.get(above);
+    }
+
+    /**
+     * Whether the door sits inside the cone the NPC is facing.
+     *
+     * <p>Compares only the horizontal plane: a door one block above or below is still the same door
+     * from the walker's point of view, and folding Y in would reject it for no reason.
+     */
+    private static boolean isFacing(Vector3d npcPos, double forwardX, double forwardZ, Vector3i doorPos) {
+        double toDoorX = (doorPos.x + 0.5) - npcPos.x;
+        double toDoorZ = (doorPos.z + 0.5) - npcPos.z;
+
+        double distance = Math.sqrt(toDoorX * toDoorX + toDoorZ * toDoorZ);
+        // Standing inside the doorway: there is no meaningful direction, so let it through.
+        if (distance < 0.001) return true;
+
+        double dot = (forwardX * toDoorX + forwardZ * toDoorZ) / distance;
+        return dot >= FACING_DOT_THRESHOLD;
     }
 
     // ---------------------------------------------------------------------
