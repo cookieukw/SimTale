@@ -142,8 +142,6 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                     cmd.set(rowSelector + " #Status.Style.TextColor", "#ffaa55");
                 }
 
-                cmd.set(rowSelector + " #BtnTp Label.TextSpans", Message.translation("ui.debugbeds.btnTp"));
-                cmd.set(rowSelector + " #BtnUnclaim Label.TextSpans", Message.translation("ui.debugbeds.btnUnclaim"));
 
                 // Bind buttons uniquely for this row's bed index
                 eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp", new EventData().append("action", "tp_" + bedIndex), false);
@@ -160,9 +158,6 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                 .param("current", selectedIndex + 1)
                 .param("total", totalPages)
                 .param("count", beds.size()));
-        cmd.set("#BtnPrevPage Label.TextSpans", Message.translation("ui.debugbeds.btnPrev"));
-        cmd.set("#BtnNextPage Label.TextSpans", Message.translation("ui.debugbeds.btnNext"));
-        cmd.set("#BtnBack Label.TextSpans", Message.translation("ui.debugbeds.btnBack"));
         LOGGER.info("[SimTale] Bed debug page opened with {} registered beds", beds.size());
 
         // Register navigation buttons
