@@ -632,9 +632,25 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 playAnim(ref, "Characters/Animations/Default/Idle.blockyanim", "Idle", store);
                 
                 if (npc.bedLocation != null) {
-                    Vector3i approachPos = getBedApproachPosition(new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z), transform, world);
-                    transform.teleportPosition(new Vector3d(approachPos.x + 0.5, approachPos.y, approachPos.z + 0.5));
-                    commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                    // Must be the nullable lookup, not getBedApproachPosition: that one falls back
+                    // to the bed itself when nothing beside it is standable, and teleporting there
+                    // buries the NPC inside the bed. A bed pushed against a wall hits that case.
+                    //
+                    // Normalise to the anchor first — bedLocation may be any of the six blocks, and
+                    // the candidates are computed relative to whatever is passed in.
+                    Vector3i bedAnchor = FurnitureAnchorHelper.anchorOf(
+                            world, npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
+                    Vector3i exitPos = NPCMovementHelper.findStandableBeside(bedAnchor, transform, world);
+
+                    if (exitPos != null) {
+                        transform.teleportPosition(new Vector3d(exitPos.x + 0.5, exitPos.y, exitPos.z + 0.5));
+                        commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                    } else {
+                        // Nowhere to step out to. Staying put is wrong-looking but recoverable;
+                        // teleporting into the bed is not.
+                        LOGGER.warn("[SimTale] NPC '{}' has no standable spot beside its bed at ({},{},{}); skipping wake-up teleport",
+                                npc.name, bedAnchor.x, bedAnchor.y, bedAnchor.z);
+                    }
                 }
 
                 ai.currentTask = TaskType.IDLE;

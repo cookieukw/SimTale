@@ -161,12 +161,31 @@ public class NPCMovementHelper {
         }
     }
 
-    public static Vector3i getBedApproachPosition(Vector3i bedPos, TransformComponent transform, World world) {
+    /**
+     * A spot beside the bed the NPC can stand on, or null when there is none.
+     *
+     * <p>Only the four orthogonal neighbours of the anchor used to be considered. A bed spans six
+     * blocks, so the neighbours along the bed's own axis are its filler blocks and never standable
+     * — which leaves very few options, and a bed pushed against a wall can leave none at all.
+     * Diagonals and the row one block further out are searched too.
+     */
+    public static Vector3i findStandableBeside(Vector3i bedPos, TransformComponent transform, World world) {
         Vector3i[] candidates = {
+            // Orthogonal neighbours first: they read as "getting out of bed" rather than a hop.
             new Vector3i(bedPos.x + 1, bedPos.y, bedPos.z),
             new Vector3i(bedPos.x - 1, bedPos.y, bedPos.z),
             new Vector3i(bedPos.x, bedPos.y, bedPos.z + 1),
-            new Vector3i(bedPos.x, bedPos.y, bedPos.z - 1)
+            new Vector3i(bedPos.x, bedPos.y, bedPos.z - 1),
+            // Diagonals.
+            new Vector3i(bedPos.x + 1, bedPos.y, bedPos.z + 1),
+            new Vector3i(bedPos.x + 1, bedPos.y, bedPos.z - 1),
+            new Vector3i(bedPos.x - 1, bedPos.y, bedPos.z + 1),
+            new Vector3i(bedPos.x - 1, bedPos.y, bedPos.z - 1),
+            // Two blocks out, to clear the far end of the bed itself.
+            new Vector3i(bedPos.x + 2, bedPos.y, bedPos.z),
+            new Vector3i(bedPos.x - 2, bedPos.y, bedPos.z),
+            new Vector3i(bedPos.x, bedPos.y, bedPos.z + 2),
+            new Vector3i(bedPos.x, bedPos.y, bedPos.z - 2)
         };
 
         Vector3d npcPos = transform.getPosition();
@@ -174,8 +193,7 @@ public class NPCMovementHelper {
         double bestDistSq = Double.MAX_VALUE;
 
         for (Vector3i c : candidates) {
-            boolean stand = isStandable(c, world);
-            if (!stand) continue;
+            if (!isStandable(c, world)) continue;
             double dx = (c.x + 0.5) - npcPos.x;
             double dz = (c.z + 0.5) - npcPos.z;
             double d2 = dx * dx + dz * dz;
@@ -185,7 +203,18 @@ public class NPCMovementHelper {
             }
         }
 
-        return best != null ? best : bedPos;
+        return best;
+    }
+
+    /**
+     * Walk target for reaching the bed. Falls back to the bed itself, which is fine here: this is
+     * only a destination to walk toward, and arriving on top of the bed still triggers mounting.
+     *
+     * <p>Do NOT reuse this for the wake-up teleport — see {@link #findStandableBeside}.
+     */
+    public static Vector3i getBedApproachPosition(Vector3i bedPos, TransformComponent transform, World world) {
+        Vector3i standable = findStandableBeside(bedPos, transform, world);
+        return standable != null ? standable : bedPos;
     }
 
     public static boolean isStandable(Vector3i pos, World world) {
