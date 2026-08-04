@@ -37,6 +37,8 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
+import com.cookieukw.SimTale.core.FamilySystem;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -556,7 +558,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
-            nearestNPC.needs.energy = 0f;
+            NeedsHelper.setNeed(null, nearestNPC.entityRef, NeedsHelper.ENERGY_ID, 0f);
             nearestNPC.forceSleep = true;
             
             ctx.sendMessage(Message.raw("Forcando " + nearestNPC.name + " a ir dormir! Energia definida para 0."));
@@ -1349,7 +1351,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
-            nearestNPC.needs.hunger = 0f;
+            NeedsHelper.setNeed(null, nearestNPC.entityRef, NeedsHelper.HUNGER_ID, 0f);
             RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
             if (ai != null) {
                 ai.currentTask = RoutineAIComponent.TaskType.FINDING_FOOD;
