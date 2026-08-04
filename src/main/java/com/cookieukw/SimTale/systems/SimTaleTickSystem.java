@@ -155,9 +155,13 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
 
         npc.needs.tickDecay(npc.personality.traits);
 
-        // Decay emotion intensity over time
+        // Decay emotion intensity over time.
+        //
+        // 0.001 per tick burned a full-intensity mood in 45 s, and the ambient HAPPY at 0.3 in ten.
+        // At 0.0002 a strong feeling lasts around 7 min and a mild one around 1.5 min, which is the
+        // difference between a village with moods and a village with flickering icons.
         if (npc.activeEmotion != Mood.NEUTRAL) {
-            npc.emotionIntensity = Math.max(0f, npc.emotionIntensity - 0.001f);
+            npc.emotionIntensity = Math.max(0f, npc.emotionIntensity - 0.0002f);
             if (npc.emotionIntensity < 0.1f) {
                 npc.activeEmotion = Mood.NEUTRAL;
                 npc.emotionIntensity = 0f;
@@ -182,7 +186,10 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                 if (entityRef != null) {
                     RoutineAIComponent aiComp = store.getComponent(entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
                     if (aiComp != null && (aiComp.currentTask == RoutineAIComponent.TaskType.IDLE || aiComp.currentTask == RoutineAIComponent.TaskType.WANDERING)) {
-                        if (Math.random() < 0.005) {
+                        // 0.005 per tick is one in ten seconds — boredom arrived almost the moment
+                        // an NPC stopped moving. At 0.0004 it takes around two minutes of idling,
+                        // which is closer to what "bored" is supposed to mean.
+                        if (Math.random() < 0.0004) {
                             npc.setEmotion(Mood.BORED, 0.4f, "idleness", absoluteTick);
                         }
                     } else if (npc.needs.hunger > 60 && npc.needs.energy > 60 && npc.needs.social > 60) {

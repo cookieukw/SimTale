@@ -226,23 +226,42 @@ public class SimNPCComponent implements Component<EntityStore> {
         return activeEmotion != null ? activeEmotion : Mood.NEUTRAL;
     }
 
+    /** How long a mood is protected from being replaced by a weaker one: 30 s. */
+    public static final long EMOTION_HOLD_TICKS = 600;
+
+    /** Below this, a mood counts as faded and stops defending its slot. */
+    private static final float FADED_EMOTION = 0.25f;
+
+    /**
+     * Sets the current mood, unless something stronger is still in effect.
+     *
+     * <p>The old rule was "after 100 ticks, anything overwrites anything". Five seconds is nothing,
+     * so ambient triggers — the idleness roll, the wellness check — steamrolled real emotions: an
+     * NPC made happy on purpose turned BORED seconds later. Worse, the ambient HAPPY at intensity
+     * 0.3 would overwrite a HAPPY at 1.0, quietly weakening it.
+     *
+     * <p>Now priority decides. Something stronger always lands. Something equal only lands if it is
+     * at least as intense, or if the hold window has passed. Something weaker has to wait for the
+     * current mood to both hold its time and fade.
+     */
     public void setEmotion(Mood emotion, float intensity, String source, long currentTick) {
         long elapsed = currentTick - lastEmotionChangeTick;
-        boolean forceChange = false;
-        
-        if (elapsed < 100) {
-            int newPriority = getEmotionPriority(emotion);
-            int currentPriority = getEmotionPriority(activeEmotion);
-            if (newPriority > currentPriority) {
-                forceChange = true;
-            } else if (intensity - emotionIntensity > 0.4f) {
-                forceChange = true;
-            }
+        int newPriority = getEmotionPriority(emotion);
+        int currentPriority = getEmotionPriority(activeEmotion);
+
+        boolean change;
+        if (activeEmotion == null || activeEmotion == Mood.NEUTRAL) {
+            change = true;
+        } else if (newPriority > currentPriority) {
+            change = true;
+        } else if (newPriority == currentPriority) {
+            // Same feeling: a stronger dose refreshes it, a weaker one waits its turn.
+            change = intensity >= emotionIntensity || elapsed >= EMOTION_HOLD_TICKS;
         } else {
-            forceChange = true;
+            change = elapsed >= EMOTION_HOLD_TICKS && emotionIntensity <= FADED_EMOTION;
         }
 
-        if (forceChange) {
+        if (change) {
             this.activeEmotion = emotion;
             this.emotionIntensity = Math.clamp(intensity, 0.0f, 1.0f);
             this.emotionSource = source;
