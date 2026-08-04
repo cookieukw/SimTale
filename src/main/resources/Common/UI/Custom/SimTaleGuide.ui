@@ -1,0 +1,50 @@
+$T = "SimTaleTheme.ui";
+
+Group #GuideContainer {
+  Anchor: (Width: 800, Height: 550);
+  Background: "textures/BookBackground.png";
+  LayoutMode: MiddleCenter;
+  
+  Group #LeftPage {
+    Anchor: (Width: 365, Height: 480, Left: 30, Top: 35);
+
+    Label #Title {
+      Anchor: (Top: 40, Left: 20, Right: 20, Height: 50);
+      Style: (...$T.@TitleStyle, TextColor: #2e1d0f, FontSize: 32);
+      Text: "SimTale";
+    }
+    
+    Label #Subtitle {
+      Anchor: (Top: 90, Left: 20, Right: 20, Height: 30);
+      Style: (...$T.@SubtitleStyle, TextColor: #4a3420, FontSize: 20);
+      Text: "Manual de Sobrevivência NPC";
+    }
+
+    Label #Content1 {
+      Anchor: (Top: 160, Bottom: 20, Left: 30, Right: 30);
+      Style: (...$T.@BodyStyle, TextColor: #2e1d0f, FontSize: 17, Wrap: true);
+      Text: "Bem-vindo ao SimTale! Seus NPCs agora possuem vontade própria. O RoutineAISystem controla as necessidades deles com base no EntityStats do Hytale. Preste atenção nas barras de Fome (Hunger), Energia (Energy), Higiene (Hygiene) e Diversão (Fun). Um NPC faminto não trabalhará na fazenda e pode desmaiar!";
+    }
+  }
+
+  Group #RightPage {
+    Anchor: (Width: 365, Height: 480, Right: 30, Top: 35);
+    
+    Label #Content2 {
+      Anchor: (Top: 40, Bottom: 80, Left: 30, Right: 30);
+      Style: (...$T.@BodyStyle, TextColor: #2e1d0f, FontSize: 17, Wrap: true);
+      Text: "Quando o NPC ficar sujo (Higiene abaixo de 40), ele interromperá o que estiver fazendo para procurar o bloco de água mais próximo, tocando a animação 'Bath'. Caso a Energia zere, ele vai dormir no chão imediatamente, custe o que custar. Construa camas e locais de banho perto dos postos de trabalho para otimizar o tempo deles.";
+    }
+
+    Button #NextPage {
+      Anchor: (Width: 100, Height: 40, Bottom: 30, Right: 30);
+      Style: $T.@BtnNeutral;
+      
+      Label {
+        Anchor: (Full: 0);
+        Style: (...$T.@ButtonLabelStyle, TextColor: #f2ebd9);
+        Text: "Avançar";
+      }
+    }
+  }
+}
