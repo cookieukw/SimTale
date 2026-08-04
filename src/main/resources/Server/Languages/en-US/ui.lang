@@ -174,3 +174,13 @@ debugchests.btn_back = Back to NPC Debug
 debugchests.msg_tp_success = [SimChestDebug] Teleported to Chest #{index}
 debugchests.msg_forget_success = [SimChestDebug] Chest #{index} removed from registry. Block remains in world and will return on next scan.
 
+job.none = nothing
+job.mine = mining
+job.farm = farming
+job.gather = gathering
+job.fish = fishing
+job.explore = exploring
+job.build = building
+job.hunt = hunting
+job.none_specific = no particular work
+prof.other = another profession

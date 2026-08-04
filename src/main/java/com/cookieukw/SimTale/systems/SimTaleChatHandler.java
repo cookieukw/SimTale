@@ -211,7 +211,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         if (npc.currentJob != JobType.NONE && intent != ChatIntent.COME) {
             sendReply(sender, Message.translation(getRandomVariant("npc-interactions.busy_job", tier, 3))
-                    .param("name", npc.name).param("job", npc.currentJob.getPortugueseName()));
+                    .param("name", npc.name).param("job", Message.translation(npc.currentJob.translationKey())));
             npc.currentConversationPartner = null;
             return;
         }
@@ -240,7 +240,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             case PERSONAL_QUESTION -> {
                 openConversation(npc, sender, currentTick);
                 sendReply(sender, Message.translation(getRandomVariant("npc-interactions.personal_question", tier, 5)).param("name", npc.name)
-                    .param("prof_name", npc.profession != null ? npc.profession.ptName : "nada"));
+                    .param("prof_name", professionName(npc.profession)));
             }
             case SELF_TALK -> {
                 openConversation(npc, sender, currentTick);
@@ -268,13 +268,15 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             case HELP_REQUEST -> {
                 openConversation(npc, sender, currentTick);
                 sendReply(sender, Message.translation(getRandomVariant("npc-interactions.help_request", tier, 3)).param("name", npc.name)
-                    .param("prof_name", npc.profession != null ? npc.profession.ptName : "nada"));
+                    .param("prof_name", professionName(npc.profession)));
             }
             case WHAT_CAN_YOU_DO -> {
                 openConversation(npc, sender, currentTick);
-                String jobList = npc.profession != null ? npc.profession.getJobListPt() : "nada no momento";
+                Message jobList = npc.profession != null
+                        ? npc.profession.getJobList()
+                        : Message.translation("ui.job.none_specific");
                 sendReply(sender, Message.translation(getRandomVariant("npc-interactions.what_can_you_do", tier, 3))
-                    .param("name", npc.name).param("prof_name", npc.profession != null ? npc.profession.ptName : "Desempregado")
+                    .param("name", npc.name).param("prof_name", professionName(npc.profession))
                     .param("job_list", jobList));
             }
             default -> {
@@ -409,7 +411,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         if (newProf != null) {
             npc.profession = newProf;
-            sendReply(sender, Message.translation(getRandomVariant("npc-interactions.prof.accept", tier, 3)).param("name", npc.name).param("prof_name", newProf.ptName));
+            sendReply(sender, Message.translation(getRandomVariant("npc-interactions.prof.accept", tier, 3)).param("name", npc.name).param("prof_name", professionName(newProf)));
             npc.currentConversationPartner = null;
         } else {
             sendReply(sender, Message.translation(getRandomVariant("npc-interactions.prof.invalid", tier, 3)).param("name", npc.name));
@@ -438,10 +440,10 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         }
         if (!npc.profession.canDoJob(job)) {
             // Find which profession CAN do this job, and suggest it
-            String neededProf = findProfessionForJob(job);
+            Message neededProf = findProfessionForJob(job);
             sendReply(sender, Message.translation(getRandomVariant("npc-interactions.job.wrong_prof", tier, 3))
-                    .param("name", npc.name).param("prof_name", npc.profession.ptName)
-                    .param("job_name", job.getPortugueseName()).param("needed_prof", neededProf));
+                    .param("name", npc.name).param("prof_name", professionName(npc.profession))
+                    .param("job_name", Message.translation(job.translationKey())).param("needed_prof", neededProf));
             return;
         }
 
@@ -457,18 +459,31 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         npc.jobEmployer = sender.getUuid();
         npc.isAway = false;
         npc.currentConversationPartner = null; // Unlock conversation now that intent is clear
-        sendReply(sender, Message.translation(getRandomVariant("npc-interactions.job.accept", tier, 3)).param("name", npc.name).param("job_name", job.getPortugueseName()));
+        sendReply(sender, Message.translation(getRandomVariant("npc-interactions.job.accept", tier, 3)).param("name", npc.name).param("job_name", Message.translation(job.translationKey())));
     }
 
-    /** Returns the Portuguese name of a profession that can do the given job. */
+    /** Localized name of a profession that can do the given job. */
     @Nonnull
-    private String findProfessionForJob(JobType job) {
+    private Message findProfessionForJob(JobType job) {
         for (Profession p : Profession.values()) {
             if (p.canDoJob(job)) {
-                return p.ptName;
+                return professionName(p);
             }
         }
-        return "outra profissão";
+        return Message.translation("ui.prof.other");
+    }
+
+    /**
+     * Localized profession name, falling back to "unemployed" when there is none.
+     *
+     * <p>These used to insert {@code Profession.ptName} straight into the sentence, so a player
+     * running the game in English read "gives you back your Pescador tools".
+     */
+    @Nonnull
+    private static Message professionName(Profession profession) {
+        return profession != null
+                ? Message.translation(profession.translationKey())
+                : Message.translation("ui.prof.unemployed");
     }
 
     /**

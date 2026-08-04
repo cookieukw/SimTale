@@ -256,7 +256,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         try {
             for (PlayerRef pr : Universe.get().getPlayers()) {
                 if (pr.getUuid().equals(npc.jobEmployer)) {
-                    pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("general.tick.job.complete", 3)).param("name", npc.name).param("job_name", npc.currentJob.getPortugueseName()));
+                    pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("general.tick.job.complete", 3)).param("name", npc.name).param("job_name", Message.translation(npc.currentJob.translationKey())));
                     
                     List<JobLootTable.LootEntry> loots = JobLootTable.getLootForJob(npc.currentJob);
                     for (JobLootTable.LootEntry loot : loots) {

@@ -28,4 +28,14 @@ public enum JobType {
     public String getPortugueseName() {
         return portugueseName;
     }
+
+    /**
+     * Key for the localized job name, e.g. {@code ui.job.hunt}.
+     *
+     * <p>Player-facing text must use this rather than {@link #getPortugueseName()}, which exists
+     * only as the enum's own label and leaks Portuguese into sentences in other languages.
+     */
+    public String translationKey() {
+        return "ui.job." + name().toLowerCase(java.util.Locale.ROOT);
+    }
 }

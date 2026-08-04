@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.core;
 
 import com.cookieukw.SimTale.logic.JobType;
+import com.hypixel.hytale.server.core.Message;
 import java.util.EnumSet;
 
 public enum Profession {
@@ -28,6 +29,17 @@ public enum Profession {
         return allowedJobs.contains(job);
     }
 
+    /**
+     * Key for the localized profession name, e.g. {@code ui.prof.guard}.
+     *
+     * <p>Player-facing text must go through this instead of {@link #ptName}. Using the raw field
+     * produced sentences like "gives you back your Pescador tools" for a player running the game
+     * in English — an English sentence with a Portuguese word dropped in the middle.
+     */
+    public String translationKey() {
+        return "ui.prof." + name().toLowerCase(java.util.Locale.ROOT);
+    }
+
     /** Returns a comma-separated list of Portuguese job names this profession can perform. */
     public String getJobListPt() {
         if (allowedJobs.isEmpty()) return "nenhum trabalho específico";
@@ -39,6 +51,21 @@ public enum Profession {
             first = false;
         }
         return sb.toString();
+    }
+
+    /** Localized, comma-separated list of the jobs this profession can perform. */
+    public Message getJobList() {
+        if (allowedJobs.isEmpty()) {
+            return Message.translation("ui.job.none_specific");
+        }
+        Message list = Message.raw("");
+        boolean first = true;
+        for (JobType j : allowedJobs) {
+            if (!first) list = list.insert(Message.raw(", "));
+            list = list.insert(Message.translation(j.translationKey()));
+            first = false;
+        }
+        return list;
     }
 
     /**

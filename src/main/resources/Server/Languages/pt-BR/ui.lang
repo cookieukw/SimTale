@@ -174,3 +174,13 @@ debugchests.btn_back = Voltar para Debug de NPCs
 debugchests.msg_tp_success = [SimChestDebug] Teletransportado para o Baú #{index}
 debugchests.msg_forget_success = [SimChestDebug] Baú #{index} removido do registro. O bloco continua no mundo e volta ao registro no proximo scan.
 
+job.none = nenhum
+job.mine = minerar
+job.farm = farmar
+job.gather = coletar
+job.fish = pescar
+job.explore = explorar
+job.build = construir
+job.hunt = caçar
+job.none_specific = nenhum trabalho específico
+prof.other = outra profissão

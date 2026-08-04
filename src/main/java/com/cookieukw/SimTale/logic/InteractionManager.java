@@ -492,7 +492,9 @@ public class InteractionManager {
             .orElseGet(() -> giftOutcome(8, 4, 15, "normal", ctx));
     }
 
-    private record ProfessionContext(SimNPCComponent npc, Relationship rel, Profession targetProf, String profName, String itemName, double roll) {}
+    // profName is a Message, not a String: it is a localized profession name and must render in
+    // the player's language rather than carry the enum's Portuguese label into the sentence.
+    private record ProfessionContext(SimNPCComponent npc, Relationship rel, Profession targetProf, Message profName, String itemName, double roll) {}
     private record ProfessionRule(Predicate<ProfessionContext> condition, Function<ProfessionContext, InteractionOutcome> outcome) {}
 
     private static final List<ProfessionRule> PROFESSION_RULES = List.of(
@@ -531,7 +533,7 @@ public class InteractionManager {
             return InteractionOutcome.error(Message.translation("npc-dialogues.prof.assign.unknown").param("name", npc.name).param("itemName", itemName));
         }
 
-        String profName = targetProf.ptName;
+        Message profName = Message.translation(targetProf.translationKey());
 
         if (npc.profession == targetProf) {
             return InteractionOutcome.error(Message.translation("npc-dialogues.prof.assign.already").param("name", npc.name).param("profName", profName));
@@ -552,7 +554,7 @@ public class InteractionManager {
         // Success path: perform the assignment
         Message prefix = Message.raw("");
         if (npc.profession != null && npc.profession != Profession.UNEMPLOYED && !npc.profession.triggerItemKeyword.isEmpty()) {
-            prefix = Message.translation("npc-dialogues.prof.assign.return").param("name", npc.name).param("profName", npc.profession.ptName).insert(Message.raw(" "));
+            prefix = Message.translation("npc-dialogues.prof.assign.return").param("name", npc.name).param("profName", Message.translation(npc.profession.translationKey())).insert(Message.raw(" "));
         }
 
         npc.profession = targetProf;
