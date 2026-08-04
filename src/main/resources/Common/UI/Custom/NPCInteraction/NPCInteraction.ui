@@ -193,22 +193,13 @@ Group {
         Anchor: (Height: $T.@ButtonH, Bottom: $T.@ButtonGap);
         LayoutMode: CenterMiddle;
 
-        Button #ChatButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
-          Style: $T.@BtnNeutral;
-          Label #ChatButtonText {
-            Text: "Bater Papo";
-            Anchor: (Full: 0);
-            Style: $T.@ButtonLabelStyle;
-          }
-        }
-        Button #JokeButton {
+        Button #TalkButton {
           Anchor: (Width: 250, Height: $T.@ButtonH);
           Style: $T.@BtnNeutral;
-          Label #JokeButtonText {
-            Text: "Contar Piada";
+          Label #TalkButtonText {
+            Text: "Conversar";
             Anchor: (Full: 0);
-            Style: $T.@ButtonLabelStyle;
+            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentLike);
           }
         }
       }
@@ -217,41 +208,8 @@ Group {
         Anchor: (Height: $T.@ButtonH, Bottom: $T.@ButtonGap);
         LayoutMode: CenterMiddle;
 
-        Button #FlirtButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
-          Style: $T.@BtnSecondary;
-          Label #FlirtButtonText {
-            Text: "Paquerar";
-            Anchor: (Full: 0);
-            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentRomance);
-          }
-        }
-        Button #GiftButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH);
-          Style: $T.@BtnSecondary;
-          Label #GiftButtonText {
-            Text: "Presentear";
-            Anchor: (Full: 0);
-            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentLike);
-          }
-        }
-      }
-
-      Group #ButtonRow3 {
-        Anchor: (Height: $T.@ButtonH, Bottom: $T.@ButtonGap);
-        LayoutMode: CenterMiddle;
-
-        Button #InsultButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
-          Style: $T.@BtnDestructive;
-          Label #InsultButtonText {
-            Text: "Insultar";
-            Anchor: (Full: 0);
-            Style: $T.@ButtonLabelStyle;
-          }
-        }
         Button #AssignProfessionButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH);
+          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
           Style: $T.@BtnTertiary;
           Label #AssignProfessionButtonText {
             Text: "Dar Emprego";
@@ -259,23 +217,7 @@ Group {
             Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentWork);
           }
         }
-      }
 
-      // Both of these start hidden and are revealed from Java via #X.Visible.
-      Group #ButtonRow4 {
-        Anchor: (Height: $T.@ButtonH);
-        LayoutMode: CenterMiddle;
-
-        Button #PregnancyButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
-          Style: $T.@BtnSecondary;
-          Visible: false;
-          Label #PregnancyButtonText {
-            Text: %ui.button.pregnancy;
-            Anchor: (Full: 0);
-            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentRomance);
-          }
-        }
         Button #InventoryButton {
           Anchor: (Width: 250, Height: $T.@ButtonH);
           Style: $T.@BtnTertiary;
@@ -284,6 +226,22 @@ Group {
             Text: "Inventário";
             Anchor: (Full: 0);
             Style: $T.@ButtonLabelStyle;
+          }
+        }
+      }
+
+      Group #ButtonRow3 {
+        Anchor: (Height: $T.@ButtonH);
+        LayoutMode: CenterMiddle;
+
+        Button #PregnancyButton {
+          Anchor: (Width: 250, Height: $T.@ButtonH);
+          Style: $T.@BtnSecondary;
+          Visible: false;
+          Label #PregnancyButtonText {
+            Text: %ui.button.pregnancy;
+            Anchor: (Full: 0);
+            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentRomance);
           }
         }
       }
