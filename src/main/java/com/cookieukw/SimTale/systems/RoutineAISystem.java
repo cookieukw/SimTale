@@ -284,7 +284,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
             }
 
-            if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 50) {
+            if (ai.currentTask == TaskType.IDLE && npc.needs.hunger < 70) {
                 ai.currentTask = TaskType.FINDING_FOOD;
                 ai.targetBlockPosition = null;
                 ai.taskStartTime = world.getTick() - NPCHungerHelper.FOOD_SEARCH_COOLDOWN_TICKS;

@@ -746,13 +746,14 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         } else if (hunger < 25) {
             hungerState = Message.translation("ui.hunger.very_hungry");
             hungerColor = "#ff8844";
-        } else if (hunger < 50) {
+        } else if (hunger < 70) {
             hungerState = Message.translation("ui.hunger.hungry");
             hungerColor = "#ffcc55";
         } else {
             hungerState = Message.translation("ui.hunger.satisfied");
             hungerColor = "#44ff88";
         }
+
 
         Message hungerText = Message.translation("ui.needs.hunger")
                 .param("hunger", String.valueOf(hunger))

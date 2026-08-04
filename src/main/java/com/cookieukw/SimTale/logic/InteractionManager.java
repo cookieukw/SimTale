@@ -293,7 +293,8 @@ public class InteractionManager {
     }
 
     /** Hunger level at or below which a gift of food is eaten on the spot instead of pocketed. */
-    private static final float HUNGRY_ENOUGH_TO_EAT = 50f;
+    private static final float HUNGRY_ENOUGH_TO_EAT = 70f;
+
 
     /**
      * Feeds the NPC directly when it is hungry and the gift is edible.
