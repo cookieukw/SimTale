@@ -31,6 +31,7 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import org.joml.Vector3i;
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookieukw.SimTale.db.SimBedData;
@@ -77,6 +78,7 @@ import java.util.Objects;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * Commands for the SimTale plugin.
@@ -489,7 +491,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             int purged = SimNPCPersistence.deleteAll();
 
             ctx.sendMessage(Message.raw("Removed " + count + " NPCs from the world and "
-                    + purged + " registros do banco."));
+                    + purged + " bank records."));
         }
     }
 
@@ -575,12 +577,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     /**
-     * Liga e desliga as mensagens de depuracao do mod.
+     * Turns the mod's debug messages on and off.
      *
-     * <p>Boa parte do diagnostico do SimTale esta em chamadas {@code LOGGER.debug}, que o
-     * {@link SimLog} descarta por padrao — do contrario o log do servidor encheria com varreduras
-     * por tick (busca de cama, de agua, de bau, de porta). Sem um jeito de liga-las em jogo,
-     * investigar qualquer coisa exigia recompilar.
+     * <p>Much of SimTale's diagnosis is in {@code LOGGER.debug} calls, which {@link SimLog} discards
+     * by default — otherwise the server log would fill with per-tick scans (bed search, water,
+     * chest, door). Without a way to turn them on in-game, investigating anything required recompiling.
      */
     private static class DebugLogSubCommand extends AbstractPlayerCommand {
         public DebugLogSubCommand() {
@@ -592,8 +593,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             SimLog.debugEnabled = !SimLog.debugEnabled;
             ctx.sendMessage(Message.raw("[SimTale] debug log "
-                    + (SimLog.debugEnabled ? "LIGADO" : "desligado")
-                    + (SimLog.debugEnabled ? " — lembre de desligar depois, ele e verboso." : "")));
+                    + (SimLog.debugEnabled ? "ON" : "OFF")
+                    + (SimLog.debugEnabled ? " — remember to turn it off later, it is verbose." : "")));
         }
     }
 
@@ -780,7 +781,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             nearestChild.currentScale = targetStage.getScale();
             nearestChild.birthTick = world.getTick() - (targetStage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
 
-            // Atualiza a escala visual do modelo da entidade filho
+            // update the visual scale of the child entity model
             Ref<EntityStore> childRef = world.getEntityStore().getRefFromUUID(nearestChild.childId);
             if (childRef != null) {
                 PersistentModel pm = store.getComponent(childRef, PersistentModel.getComponentType());
@@ -947,8 +948,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             ctx.sendMessage(Message.raw("[SimTale] " + cleaned
-                    + " entidade(s) adotada(s) liberadas e removidas do banco. "
-                    + "Entidades ainda nao carregadas so serao limpas quando aparecerem."));
+                    + " adopted entity(s) released and removed from the bank. "
+                    + "Entities not yet loaded will only be cleaned when they appear."));
         }
     }
 
@@ -995,17 +996,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             int py = (int) Math.floor(pos.y);
             int pz = (int) Math.floor(pos.z);
 
-            ctx.sendMessage(Message.raw("--- DIAGNOSTICO PROXIMO (Sua Pos: " + px + "," + py + "," + pz + ") ---"));
+            ctx.sendMessage(Message.raw("--- NEAREST (Your Pos: " + px + "," + py + "," + pz + ") ---"));
 
-            // 1. Scan blocks in 3x3x3
-            // Um movel por linha, nao um bloco por linha.
-            //
-            // A cama ocupa seis blocos e a porta quatro, entao o dump cru listava a mesma cama seis
-            // vezes e parecia haver seis camas — foi exatamente isso que atrasou o diagnostico do
-            // alinhamento do sono. Resolvendo cada bloco para a sua ancora e deduplicando por ela,
-            // um movel aparece uma vez, com quantos blocos ocupa.
+            // Scan blocks in 3x3x3
             ctx.sendMessage(Message.raw("Nearby blocks/furniture:"));
-            java.util.Map<String, Integer> contagemPorAncora = new java.util.LinkedHashMap<>();
+            Map<String, Integer> countBlocksByAnchor = new LinkedHashMap<>();
 
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 2; dy++) {
@@ -1015,19 +1010,44 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                         if (type == null || type.getId() == null || type.getId().equalsIgnoreCase("Empty")) {
                             continue;
                         }
-                        Vector3i ancora = FurnitureAnchorHelper.anchorOf(world, bx, by, bz);
-                        String chave = type.getId() + " @ (" + ancora.x + "," + ancora.y + "," + ancora.z + ")";
-                        contagemPorAncora.merge(chave, 1, Integer::sum);
+                        Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, bx, by, bz);
+                        String key = type.getId() + " @ (" + anchor.x + "," + anchor.y + "," + anchor.z + ")";
+                        countBlocksByAnchor.merge(key, 1, Integer::sum);
                     }
                 }
             }
 
-            for (Entry<String, Integer> e : contagemPorAncora.entrySet()) {
+            for (Entry<String, Integer> e : countBlocksByAnchor.entrySet()) {
+                String blocos = e.getValue() > 1 ? "  [" + e.getValue() + " blocks]" : "";
+                ctx.sendMessage(Message.raw("  " + e.getKey() + blocos));
+            }
+
+            //  Scan entities
+            ctx.sendMessage(Message.raw("Nearby entities:"));
+            ctx.sendMessage(Message.raw("Nearby blocks/furniture:"));
+            Map<String, Integer> countEntitiesByAnchor = new LinkedHashMap<>();
+
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 2; dy++) {
+                    for (int dz = -1; dz <= 1; dz++) {
+                        int bx = px + dx, by = py + dy, bz = pz + dz;
+                        BlockType type = world.getBlockType(bx, by, bz);
+                        if (type == null || type.getId() == null || type.getId().equalsIgnoreCase("Empty")) {
+                            continue;
+                        }
+                        Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, bx, by, bz);
+                        String key = type.getId() + " @ (" + anchor.x + "," + anchor.y + "," + anchor.z + ")";
+                        countEntitiesByAnchor.merge(key, 1, Integer::sum);
+                    }
+                }
+            }
+
+            for (Entry<String, Integer> e : countEntitiesByAnchor.entrySet()) {
                 String blocos = e.getValue() > 1 ? "  [" + e.getValue() + " blocos]" : "";
                 ctx.sendMessage(Message.raw("  " + e.getKey() + blocos));
             }
 
-            // 2. Scan all ACTIVE_NPCS near the player
+            // Scan all ACTIVE_NPCS near the player
             ctx.sendMessage(Message.raw("Nearby Active NPCs:"));
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null) {
@@ -1050,11 +1070,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         public SetMoodSubCommand() {
             super("setmood", "Sets the mood/expression of the nearest NPC");
             this.moodArg = this.withRequiredArg("mood", "NEUTRAL|HAPPY|ANGRY|SAD|SCARED|SLEEPY|EXCITED|BORED", ArgTypes.STRING);
-            // Percentual inteiro, nao decimal.
+            // percent integer, not decimal.
             //
-            // Este era o unico comando do projeto usando ArgTypes.DOUBLE, e tambem o unico que
-            // falhava. O parser do Hytale rejeita ponto decimal — o mesmo problema que ja tinha
-            // derrubado o antigo `bedtune`. Aceitar 0 a 100 e converter aqui evita o parser.
+            // This was the only command in the project using ArgTypes.DOUBLE, and also the only that
+            // failed. The Hytale parser rejects decimal point — the same problem that already had
+            // torn down the old `bedtune`. Accepting 0 to 100 and converting here avoids the parser.
             this.intensityArg = this.withOptionalArg("intensity", "Intensidade em % (0 a 100)", ArgTypes.STRING);
         }
 
