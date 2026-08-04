@@ -282,7 +282,7 @@ public class InteractionManager {
             return handleChildGift(npc, itemId, itemName);
         }
 
-        if (itemId.equals("wedding_ring")) {
+        if (itemId.equals("WeddingRing")) {
             return handleMarriageProposal(npc, rel, playerUuid);
         }
 
