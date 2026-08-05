@@ -1,8 +1,0 @@
-{
-  "RequireNewClick": true,
-  "Interactions": [
-    {
-      "Type": "SimTale_GenericItemUse"
-    }
-  ]
-}

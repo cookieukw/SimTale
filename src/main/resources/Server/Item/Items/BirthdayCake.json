@@ -11,6 +11,6 @@
   "MaxStack": 1,
   "Consumable": true,
   "Interactions": {
-    "Secondary": "SimTale_GenericItemUse"
+    "Secondary": "RuneCore_GenericItemUse"
   }
 }

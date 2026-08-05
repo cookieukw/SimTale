@@ -13,8 +13,8 @@ import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.cookieukw.SimTale.logic.SimTaleCheckPregnancyInteraction;
-import com.cookieukw.SimTale.logic.SimTaleGenericItemInteraction;
 import com.cookieukw.SimTale.logic.SimTaleUseNPCInteraction;
+import com.cookieukw.SimTale.logic.SimTaleItemRegistry;
 import com.cookieukw.SimTale.systems.BabyCareTickSystem;
 import com.cookieukw.SimTale.systems.ConstructionSystem;
 import com.cookieukw.SimTale.systems.MoodAnimationSystem;
@@ -250,11 +250,7 @@ public class SimTale extends JavaPlugin {
                 SimTaleCheckPregnancyInteraction.CODEC
         );
 
-        Interaction.CODEC.register(
-                "SimTale_GenericItemUse",
-                SimTaleGenericItemInteraction.class,
-                SimTaleGenericItemInteraction.CODEC
-        );
+        SimTaleItemRegistry.init();
     }
 
     /** @return the first non-blank value, or {@code null} when both are blank/absent. */

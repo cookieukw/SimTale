@@ -20,6 +20,6 @@
   "MaxStack": 1,
   "DropOnDeath": false,
   "Interactions": {
-    "Secondary": "SimTale_GenericItemUse"
+    "Secondary": "RuneCore_GenericItemUse"
   }
 }

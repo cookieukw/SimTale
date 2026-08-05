@@ -10,6 +10,6 @@
   "Scale": 1.0,
   "MaxStack": 1,
   "Interactions": {
-    "Secondary": "SimTale_GenericItemUse"
+    "Secondary": "RuneCore_GenericItemUse"
   }
 }
