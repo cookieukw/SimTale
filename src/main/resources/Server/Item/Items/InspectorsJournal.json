@@ -3,7 +3,7 @@
     "Name": "general.item.inspectors_journal.name",
     "Description": "general.item.inspectors_journal.description"
   },
-  "Icon": "Icons/Items/InspectorsJournal_texture.png",
+  "Icon": "Icons/Items/InspectorsJournal.png",
   "Model": "Resources/InspectorsJournal/InspectorsJournal.blockymodel",
   "Texture": "Resources/InspectorsJournal/InspectorsJournal_texture.png",
   "PlayerAnimationsId": "Item",

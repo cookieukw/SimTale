@@ -3,7 +3,7 @@
     "Name": "general.item.innkeepers_ledger.name",
     "Description": "general.item.innkeepers_ledger.description"
   },
-  "Icon": "Icons/Items/InnkeepersLedger_texture.png",
+  "Icon": "Icons/Items/InnkeepersLedger.png",
   "Model": "Resources/InnkeepersLedger/InnkeepersLedger.blockymodel",
   "Texture": "Resources/InnkeepersLedger/InnkeepersLedger_texture.png",
   "PlayerAnimationsId": "Item",

@@ -3,7 +3,7 @@
     "Name": "general.item.quartermasters_glass.name",
     "Description": "general.item.quartermasters_glass.description"
   },
-  "Icon": "Icons/Items/QuartermastersGlass_texture.png",
+  "Icon": "Icons/Items/QuartermastersGlass.png",
   "Model": "Resources/QuartermastersGlass/QuartermastersGlass.blockymodel",
   "Texture": "Resources/QuartermastersGlass/QuartermastersGlass_texture.png",
   "PlayerAnimationsId": "Item",

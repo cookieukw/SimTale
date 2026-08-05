@@ -3,7 +3,7 @@
     "Name": "general.item.wedding_ring.name",
     "Description": "general.item.wedding_ring.description"
   },
-  "Icon": "Icons/Items/Wedding_Ring_Icon.png",
+  "Icon": "Icons/Items/WeddingRing.png",
   "Quality": "Legendary",
   "Categories": [
     "Items.Ingredients"

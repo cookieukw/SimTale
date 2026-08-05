@@ -3,7 +3,7 @@
     "Name": "general.item.town_bell.name",
     "Description": "general.item.town_bell.description"
   },
-  "Icon": "Icons/Items/TownBell_texture.png",
+  "Icon": "Icons/Items/TownBell.png",
   "Model": "Resources/TownBell/TownBell.blockymodel",
   "Texture": "Resources/TownBell/TownBell_texture.png",
   "PlayerAnimationsId": "Item",

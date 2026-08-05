@@ -3,7 +3,7 @@
     "Name": "general.item.birthday_cake.name",
     "Description": "general.item.birthday_cake.description"
   },
-  "Icon": "Icons/Items/BirthdayCake_texture.png",
+  "Icon": "Icons/Items/BirthdayCake.png",
   "Model": "Resources/BirthdayCake/BirthdayCake.blockymodel",
   "Texture": "Resources/BirthdayCake/BirthdayCake_texture.png",
   "PlayerAnimationsId": "Item",
