@@ -1,0 +1,25 @@
+{
+  "Input": [
+    {
+      "ItemId": "Ingredient_Bar_Gold",
+      "Quantity": 3
+    },
+    {
+      "ItemId": "Wood_Softwood_Planks",
+      "Quantity": 2
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "TownBell",
+    "Quantity": 1
+  },
+  "BenchRequirement": [
+    {
+      "Id": "Workbench",
+      "Type": "Crafting",
+      "Categories": [
+        "Workbench_Tools"
+      ]
+    }
+  ]
+}

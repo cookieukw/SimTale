@@ -1,0 +1,29 @@
+{
+  "Input": [
+    {
+      "ItemId": "Plant_Flower_Common_White",
+      "Quantity": 1
+    },
+    {
+      "ItemId": "Wood_Softwood_Planks",
+      "Quantity": 1
+    },
+    {
+      "ItemId": "Ingredient_Life_Essence_Cauliflower",
+      "Quantity": 1
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "PregnancyTest",
+    "Quantity": 1
+  },
+  "BenchRequirement": [
+    {
+      "Id": "Alchemybench",
+      "Type": "Crafting",
+      "Categories": [
+        "Alchemy_Potions_Misc"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.house_blueprint.name",
+    "Description": "general.item.house_blueprint.description"
+  },
+  "Icon": "Icons/Items/HouseBlueprint_texture.png",
+  "Model": "Resources/HouseBlueprint/HouseBlueprint.blockymodel",
+  "Texture": "Resources/HouseBlueprint/HouseBlueprint_texture.png",
+  "PlayerAnimationsId": "Item",
+  "Scale": 1.0,
+  "MaxStack": 1
+}

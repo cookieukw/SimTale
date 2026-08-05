@@ -1,0 +1,29 @@
+{
+  "Input": [
+    {
+      "ItemId": "Deco_Map",
+      "Quantity": 1
+    },
+    {
+      "ItemId": "Deco_Inkwell",
+      "Quantity": 1
+    },
+    {
+      "ItemId": "Deco_Scroll",
+      "Quantity": 1
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "HouseBlueprint",
+    "Quantity": 1
+  },
+  "BenchRequirement": [
+    {
+      "Id": "Fieldcraft",
+      "Type": "Crafting",
+      "Categories": [
+        "Tools"
+      ]
+    }
+  ]
+}

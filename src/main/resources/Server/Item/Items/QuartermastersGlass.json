@@ -1,0 +1,12 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.quartermasters_glass.name",
+    "Description": "general.item.quartermasters_glass.description"
+  },
+  "Icon": "Icons/Items/QuartermastersGlass_texture.png",
+  "Model": "Resources/QuartermastersGlass/QuartermastersGlass.blockymodel",
+  "Texture": "Resources/QuartermastersGlass/QuartermastersGlass_texture.png",
+  "PlayerAnimationsId": "Item",
+  "Scale": 1.0,
+  "MaxStack": 1
+}

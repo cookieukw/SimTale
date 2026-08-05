@@ -1,0 +1,25 @@
+{
+  "Input": [
+    {
+      "ItemId": "Food_Pie_Apple",
+      "Quantity": 1
+    },
+    {
+      "ItemId": "Build_Lightsource_Orange",
+      "Quantity": 1
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "BirthdayCake",
+    "Quantity": 1
+  },
+  "BenchRequirement": [
+    {
+      "Id": "Cookingbench",
+      "Type": "Crafting",
+      "Categories": [
+        "Baked"
+      ]
+    }
+  ]
+}
