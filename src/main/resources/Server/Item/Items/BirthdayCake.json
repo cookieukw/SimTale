@@ -9,6 +9,8 @@
   "PlayerAnimationsId": "Item",
   "Scale": 1.0,
   "MaxStack": 1,
-  "Placeable": true,
-  "Consumable": true
+  "Consumable": true,
+  "Interactions": {
+    "Secondary": "SimTale_GenericItemUse"
+  }
 }

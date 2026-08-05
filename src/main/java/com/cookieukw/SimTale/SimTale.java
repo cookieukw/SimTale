@@ -13,6 +13,7 @@ import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.cookieukw.SimTale.logic.SimTaleCheckPregnancyInteraction;
+import com.cookieukw.SimTale.logic.SimTaleGenericItemInteraction;
 import com.cookieukw.SimTale.logic.SimTaleUseNPCInteraction;
 import com.cookieukw.SimTale.systems.BabyCareTickSystem;
 import com.cookieukw.SimTale.systems.ConstructionSystem;
@@ -247,6 +248,12 @@ public class SimTale extends JavaPlugin {
                 "SimTale_CheckPregnancy",
                 SimTaleCheckPregnancyInteraction.class,
                 SimTaleCheckPregnancyInteraction.CODEC
+        );
+
+        Interaction.CODEC.register(
+                "SimTale_GenericItemUse",
+                SimTaleGenericItemInteraction.class,
+                SimTaleGenericItemInteraction.CODEC
         );
     }
 

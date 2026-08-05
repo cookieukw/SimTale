@@ -20,7 +20,7 @@
     ],
     "Translation": [
       0,
-     0
+      0
     ]
   },
   "Tags": {
@@ -30,5 +30,8 @@
   },
   "Scale": 1,
   "MaxStack": 1,
-  "DropOnDeath": false
+  "DropOnDeath": false,
+  "Interactions": {
+    "Secondary": "SimTale_GenericItemUse"
+  }
 }

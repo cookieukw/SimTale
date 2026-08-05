@@ -8,5 +8,8 @@
   "Texture": "Resources/InnkeepersLedger/InnkeepersLedger_texture.png",
   "PlayerAnimationsId": "Item",
   "Scale": 1.0,
-  "MaxStack": 1
+  "MaxStack": 1,
+  "Interactions": {
+    "Secondary": "SimTale_GenericItemUse"
+  }
 }
