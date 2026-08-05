@@ -81,9 +81,21 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         ComponentAccessor<EntityStore> playerAccessor = playerRef.getStore();
         PlayerRef playerRefComp = playerAccessor.getComponent(playerRef, Universe.get().getPlayerRefComponentType());
         if (playerRefComp == null) return;
+        
+        LOGGER.atInfo().log("SimTale Debug: PlayerMouseButtonEvent fired!");
+        ItemStack heldItemTest = InventoryComponent.getItemInHand(playerRef.getStore(), playerRef);
+        if (heldItemTest != null && heldItemTest.getItemId() != null) {
+            LOGGER.atInfo().log("SimTale Debug: Held item is: " + heldItemTest.getItemId());
+        } else {
+            LOGGER.atInfo().log("SimTale Debug: Held item is null or has no ID");
+        }
 
         // --- Place Baby Item on Block Click ---
         ItemStack heldItem = InventoryComponent.getItemInHand(playerRef.getStore(), playerRef);
+        if (heldItem != null) {
+            LOGGER.atInfo().log("SimTale Debug: Right-clicked holding item with ID: " + heldItem.getItemId());
+        }
+
         if (heldItem != null && heldItem.getItemId().equals("Baby")) {
             Vector3i targetBlock = event.getTargetBlock();
             if (targetBlock != null) {
@@ -168,58 +180,6 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             }
         }
 
-        // --- Pregnancy Test Interaction ---
-        if (heldItem != null && heldItem.getItemId().equals("PregnancyTest")) {
-            Store<EntityStore> localStore = world.getEntityStore().getStore();
-            Ref<EntityStore> targetRef = event.getTargetEntityRef();
-            SimPlayerComponent playerComp = localStore.getComponent(playerRef, SimTale.SIM_PLAYER_COMPONENT_TYPE);
-            if (playerComp == null) {
-                playerComp = new SimPlayerComponent(playerRefComp.getUuid());
-                localStore.addComponent(playerRef, SimTale.SIM_PLAYER_COMPONENT_TYPE, playerComp);
-            }
-
-            // Every rejection below used to be a bare `return`, so the item looked broken: no
-            // panel, no message, no log, and the test was not even consumed. Refusing is fine;
-            // refusing silently is what made this impossible to diagnose in game.
-            if (targetRef != null) {
-                SimNPCComponent targetNPC = localStore.getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-                if (targetNPC == null) {
-                    playerRefComp.sendMessage(Message.translation("general.pregtest.not_npc"));
-                    event.setCancelled(true);
-                    return;
-                }
-                if (targetNPC.gender != Gender.FEMALE) {
-                    playerRefComp.sendMessage(Message.translation("general.pregtest.npc_not_female").param("name", targetNPC.name));
-                    event.setCancelled(true);
-                    return;
-                }
-                player.getPageManager().openCustomPage(playerRef, localStore, new NPCPregnancyPage(playerRefComp, player, targetNPC));
-            } else {
-                // gender is null until the player picks one, and null is not FEMALE — so on a
-                // fresh save this branch rejected every single use with no explanation.
-                if (playerComp.gender == null) {
-                    playerRefComp.sendMessage(Message.translation("general.pregtest.no_gender"));
-                    event.setCancelled(true);
-                    return;
-                }
-                if (playerComp.gender != Gender.FEMALE) {
-                    playerRefComp.sendMessage(Message.translation("general.pregtest.player_not_female"));
-                    event.setCancelled(true);
-                    return;
-                }
-                player.getPageManager().openCustomPage(playerRef, localStore, new PlayerPregnancyPage(playerRefComp, player, playerComp));
-            }
-            
-            // Consume the item
-            InventoryComponent.Hotbar hotbarComponent = playerRef.getStore().getComponent(playerRef, InventoryComponent.Hotbar.getComponentType());
-            if (hotbarComponent != null && hotbarComponent.getActiveSlot() != -1) {
-                CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
-                combinedInventory.removeItemStackFromSlot(hotbarComponent.getActiveSlot(), heldItem, 1);
-            }
-            
-            event.setCancelled(true);
-            return;
-        }
 
         // Blueprint item handling
         if (event.getItemInHand() != null && event.getItemInHand().getId() != null &&

@@ -8,5 +8,8 @@
   "Texture": "Resources/PregnancyTest/PregnancyTest_texture.png",
   "PlayerAnimationsId": "Item",
   "Scale": 1.0,
-  "MaxStack": 10
+  "MaxStack": 10,
+  "Interactions": {
+    "Secondary": "SimTale_CheckPregnancy"
+  }
 }
