@@ -178,21 +178,33 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                 localStore.addComponent(playerRef, SimTale.SIM_PLAYER_COMPONENT_TYPE, playerComp);
             }
 
+            // Every rejection below used to be a bare `return`, so the item looked broken: no
+            // panel, no message, no log, and the test was not even consumed. Refusing is fine;
+            // refusing silently is what made this impossible to diagnose in game.
             if (targetRef != null) {
-                // Clicked an entity - check if it's an NPC
                 SimNPCComponent targetNPC = localStore.getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-                if (targetNPC != null) {
-                    if (targetNPC.gender != Gender.FEMALE) {
-                        return; // Cannot use pregnancy test on male NPCs
-                    }
-                    player.getPageManager().openCustomPage(playerRef, localStore, new NPCPregnancyPage(playerRefComp, player, targetNPC));
-                } else {
-                    // Clicked an entity but not an NPC, do nothing or fallback
+                if (targetNPC == null) {
+                    playerRefComp.sendMessage(Message.translation("general.pregtest.not_npc"));
+                    event.setCancelled(true);
                     return;
                 }
+                if (targetNPC.gender != Gender.FEMALE) {
+                    playerRefComp.sendMessage(Message.translation("general.pregtest.npc_not_female").param("name", targetNPC.name));
+                    event.setCancelled(true);
+                    return;
+                }
+                player.getPageManager().openCustomPage(playerRef, localStore, new NPCPregnancyPage(playerRefComp, player, targetNPC));
             } else {
-                // Clicked in the air or on a block - check player's pregnancy
+                // gender is null until the player picks one, and null is not FEMALE — so on a
+                // fresh save this branch rejected every single use with no explanation.
+                if (playerComp.gender == null) {
+                    playerRefComp.sendMessage(Message.translation("general.pregtest.no_gender"));
+                    event.setCancelled(true);
+                    return;
+                }
                 if (playerComp.gender != Gender.FEMALE) {
+                    playerRefComp.sendMessage(Message.translation("general.pregtest.player_not_female"));
+                    event.setCancelled(true);
                     return;
                 }
                 player.getPageManager().openCustomPage(playerRef, localStore, new PlayerPregnancyPage(playerRefComp, player, playerComp));
