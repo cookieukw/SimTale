@@ -182,6 +182,9 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                 // Clicked an entity - check if it's an NPC
                 SimNPCComponent targetNPC = localStore.getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
                 if (targetNPC != null) {
+                    if (targetNPC.gender != Gender.FEMALE) {
+                        return; // Cannot use pregnancy test on male NPCs
+                    }
                     player.getPageManager().openCustomPage(playerRef, localStore, new NPCPregnancyPage(playerRefComp, player, targetNPC));
                 } else {
                     // Clicked an entity but not an NPC, do nothing or fallback
