@@ -22,7 +22,7 @@
         {
           "id": "2",
           "name": "flat_sheet",
-          "position": {"x": 0, "y": 0, "z": 0},
+          "position": {"x": 0, "y": 15, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -73,7 +73,7 @@
         {
           "id": "3",
           "name": "left_roll",
-          "position": {"x": -16.5, "y": 0, "z": 0.9},
+          "position": {"x": -16.5, "y": 15, "z": 0.9},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -124,7 +124,7 @@
         {
           "id": "4",
           "name": "right_roll",
-          "position": {"x": 16.5, "y": 0, "z": 0.9},
+          "position": {"x": 16.5, "y": 15, "z": 0.9},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -175,7 +175,7 @@
         {
           "id": "5",
           "name": "rod_left",
-          "position": {"x": -16.5, "y": 0, "z": 0.9},
+          "position": {"x": -16.5, "y": 15, "z": 0.9},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -226,7 +226,7 @@
         {
           "id": "6",
           "name": "rod_right",
-          "position": {"x": 16.5, "y": 0, "z": 0.9},
+          "position": {"x": 16.5, "y": 15, "z": 0.9},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",

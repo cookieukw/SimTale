@@ -22,7 +22,7 @@
         {
           "id": "2",
           "name": "spine",
-          "position": {"x": 0, "y": 0, "z": 0},
+          "position": {"x": 0, "y": 15, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -73,7 +73,7 @@
         {
           "id": "3",
           "name": "cover_left",
-          "position": {"x": -3, "y": 0, "z": 0},
+          "position": {"x": -3, "y": 15, "z": 0},
           "orientation": {"x": 0, "y": 0.17365, "z": 0, "w": 0.98481},
           "shape": {
             "type": "box",
@@ -124,7 +124,7 @@
         {
           "id": "4",
           "name": "pages_left",
-          "position": {"x": -3, "y": 0, "z": 0},
+          "position": {"x": -3, "y": 15, "z": 0},
           "orientation": {"x": 0, "y": 0.17365, "z": 0, "w": 0.98481},
           "shape": {
             "type": "none",
@@ -197,7 +197,7 @@
         {
           "id": "6",
           "name": "cover_right",
-          "position": {"x": 3, "y": 0, "z": 0},
+          "position": {"x": 3, "y": 15, "z": 0},
           "orientation": {"x": 0, "y": -0.17365, "z": 0, "w": 0.98481},
           "shape": {
             "type": "box",
@@ -248,7 +248,7 @@
         {
           "id": "7",
           "name": "pages_right",
-          "position": {"x": 3, "y": 0, "z": 0},
+          "position": {"x": 3, "y": 15, "z": 0},
           "orientation": {"x": 0, "y": -0.17365, "z": 0, "w": 0.98481},
           "shape": {
             "type": "none",

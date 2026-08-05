@@ -22,7 +22,7 @@
         {
           "id": "2",
           "name": "cover_front",
-          "position": {"x": 0, "y": 0, "z": 3.2},
+          "position": {"x": 0, "y": 15, "z": 3.2},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -73,7 +73,7 @@
         {
           "id": "3",
           "name": "cover_back",
-          "position": {"x": 0, "y": 0, "z": -3.2},
+          "position": {"x": 0, "y": 15, "z": -3.2},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -124,7 +124,7 @@
         {
           "id": "4",
           "name": "spine",
-          "position": {"x": -11.4, "y": 0, "z": 0},
+          "position": {"x": -11.4, "y": 15, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -175,7 +175,7 @@
         {
           "id": "5",
           "name": "pages",
-          "position": {"x": 0.8, "y": 0, "z": 0},
+          "position": {"x": 0.8, "y": 15, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",

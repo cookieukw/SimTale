@@ -22,7 +22,7 @@
         {
           "id": "2",
           "name": "paper",
-          "position": {"x": 0, "y": 0, "z": 0},
+          "position": {"x": 0, "y": 20, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -73,7 +73,7 @@
         {
           "id": "3",
           "name": "ribbon",
-          "position": {"x": 0, "y": 0, "z": 0},
+          "position": {"x": 0, "y": 20, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -124,7 +124,7 @@
         {
           "id": "4",
           "name": "rod_top",
-          "position": {"x": 0, "y": 17.25, "z": 0},
+          "position": {"x": 0, "y": 37.25, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -175,7 +175,7 @@
         {
           "id": "5",
           "name": "rod_bottom",
-          "position": {"x": 0, "y": -17.25, "z": 0},
+          "position": {"x": 0, "y": 2.75, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",

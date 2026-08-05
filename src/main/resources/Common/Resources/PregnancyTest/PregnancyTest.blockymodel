@@ -22,7 +22,7 @@
         {
           "id": "2",
           "name": "body",
-          "position": {"x": 0, "y": 3, "z": 0},
+          "position": {"x": 0, "y": 17.5, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -73,7 +73,7 @@
         {
           "id": "3",
           "name": "cap",
-          "position": {"x": 0, "y": -12, "z": 0},
+          "position": {"x": 0, "y": 2.5, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",

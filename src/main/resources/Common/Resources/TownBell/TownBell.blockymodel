@@ -3,7 +3,7 @@
     {
       "id": "1",
       "name": "town_bell_root",
-      "position": {"x": 0, "y": 0, "z": 0},
+      "position": {"x": -0.44444, "y": 1, "z": 0},
       "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
       "shape": {
         "type": "none",
@@ -22,7 +22,7 @@
         {
           "id": "2",
           "name": "base",
-          "position": {"x": 0, "y": 2, "z": 0},
+          "position": {"x": 0.44444, "y": 1, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -73,12 +73,12 @@
         {
           "id": "3",
           "name": "post_left",
-          "position": {"x": -12, "y": 34, "z": 0},
+          "position": {"x": -11.55556, "y": 33, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
             "offset": {"x": 0, "y": 0, "z": 0},
-            "stretch": {"x": 2, "y": 2, "z": 2},
+            "stretch": {"x": 2, "y": 2, "z": 2.1},
             "settings": {
               "isPiece": false,
               "size": {"x": 2, "y": 30, "z": 2}
@@ -124,12 +124,12 @@
         {
           "id": "4",
           "name": "post_right",
-          "position": {"x": 12, "y": 34, "z": 0},
+          "position": {"x": 12.44444, "y": 33, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
             "offset": {"x": 0, "y": 0, "z": 0},
-            "stretch": {"x": 2, "y": 2, "z": 2},
+            "stretch": {"x": 2, "y": 2, "z": 2.1},
             "settings": {
               "isPiece": false,
               "size": {"x": 2, "y": 30, "z": 2}
@@ -175,12 +175,12 @@
         {
           "id": "5",
           "name": "crossbar",
-          "position": {"x": 0, "y": 60, "z": 0},
+          "position": {"x": 0.44444, "y": 59, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
             "offset": {"x": 0, "y": 0, "z": 0},
-            "stretch": {"x": 2, "y": 2, "z": 2},
+            "stretch": {"x": 1.9, "y": 2, "z": 1.9},
             "settings": {
               "isPiece": false,
               "size": {"x": 14, "y": 2, "z": 2}
@@ -226,7 +226,7 @@
         {
           "id": "6",
           "name": "roof_left",
-          "position": {"x": -7, "y": 65, "z": 0},
+          "position": {"x": -6.55556, "y": 64, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0.1501, "w": 0.98867},
           "shape": {
             "type": "box",
@@ -277,7 +277,7 @@
         {
           "id": "7",
           "name": "roof_right",
-          "position": {"x": 7, "y": 65, "z": 0},
+          "position": {"x": 7.44444, "y": 64, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": -0.1501, "w": 0.98867},
           "shape": {
             "type": "box",
@@ -328,7 +328,7 @@
         {
           "id": "8",
           "name": "bell_flare",
-          "position": {"x": 0, "y": 52, "z": 0},
+          "position": {"x": 0.44444, "y": 51, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -379,7 +379,7 @@
         {
           "id": "9",
           "name": "bell_rim",
-          "position": {"x": 0, "y": 47, "z": 0},
+          "position": {"x": 0.44444, "y": 46, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -430,11 +430,11 @@
         {
           "id": "10",
           "name": "bell_rope",
-          "position": {"x": -4, "y": 28, "z": 0},
+          "position": {"x": 0.44444, "y": 33, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
-            "offset": {"x": 4, "y": 6, "z": 0},
+            "offset": {"x": 0, "y": 0, "z": 0},
             "stretch": {"x": 2, "y": 2, "z": 2},
             "settings": {
               "isPiece": false,
