@@ -14,6 +14,9 @@ import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
+import com.cookieukw.SimTale.logic.NPCPregnancyPage;
+import com.cookieukw.SimTale.logic.PlayerPregnancyPage;
+import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
@@ -163,6 +166,44 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                     }
                 }
             }
+        }
+
+        // --- Pregnancy Test Interaction ---
+        if (heldItem != null && heldItem.getItemId().equals("PregnancyTest")) {
+            Store<EntityStore> localStore = world.getEntityStore().getStore();
+            Ref<EntityStore> targetRef = event.getTargetEntityRef();
+            SimPlayerComponent playerComp = localStore.getComponent(playerRef, SimTale.SIM_PLAYER_COMPONENT_TYPE);
+            if (playerComp == null) {
+                playerComp = new SimPlayerComponent(playerRefComp.getUuid());
+                localStore.addComponent(playerRef, SimTale.SIM_PLAYER_COMPONENT_TYPE, playerComp);
+            }
+
+            if (targetRef != null) {
+                // Clicked an entity - check if it's an NPC
+                SimNPCComponent targetNPC = localStore.getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+                if (targetNPC != null) {
+                    player.getPageManager().openCustomPage(playerRef, localStore, new NPCPregnancyPage(playerRefComp, player, targetNPC));
+                } else {
+                    // Clicked an entity but not an NPC, do nothing or fallback
+                    return;
+                }
+            } else {
+                // Clicked in the air or on a block - check player's pregnancy
+                if (playerComp.gender != Gender.FEMALE) {
+                    return;
+                }
+                player.getPageManager().openCustomPage(playerRef, localStore, new PlayerPregnancyPage(playerRefComp, player, playerComp));
+            }
+            
+            // Consume the item
+            InventoryComponent.Hotbar hotbarComponent = playerRef.getStore().getComponent(playerRef, InventoryComponent.Hotbar.getComponentType());
+            if (hotbarComponent != null && hotbarComponent.getActiveSlot() != -1) {
+                CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
+                combinedInventory.removeItemStackFromSlot(hotbarComponent.getActiveSlot(), heldItem, 1);
+            }
+            
+            event.setCancelled(true);
+            return;
         }
 
         // Blueprint item handling
