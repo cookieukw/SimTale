@@ -205,7 +205,7 @@ public class NPCWorkHelper {
         if (ai.currentTask == TaskType.MOVING_TO_WORK) {
             if (world.getTick() - ai.taskStartTime > MOVE_TIMEOUT_TICKS) {
                 LOGGER.debug("[SimTale] NPC {} desistiu de chegar ao alvo de trabalho", npc.name);
-                abandonTask(ref, ai);
+                abandonTask(ref, ai, npc);
                 return;
             }
             Vector3d npcPos = transform.getPosition();
@@ -396,6 +396,7 @@ public class NPCWorkHelper {
                     }
                 }
                 applyWorkSatisfaction(npc, world.getTick());
+                releaseWorkPost(ai, npc);
                 ai.currentTask = TaskType.IDLE;
                 playIdleAnim(ref, store);
             }
@@ -406,7 +407,7 @@ public class NPCWorkHelper {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
             if (world.getTick() - ai.taskStartTime > MOVE_TIMEOUT_TICKS) {
                 LOGGER.debug("[SimTale] NPC {} desistiu de chegar ao bau de deposito", npc.name);
-                abandonTask(ref, ai);
+                abandonTask(ref, ai, npc);
                 return;
             }
             Vector3d npcPos = transform.getPosition();
@@ -447,10 +448,6 @@ public class NPCWorkHelper {
     }
 
     /** Drops the current movement goal and returns the NPC to IDLE. */
-    private static void abandonTask(Ref<EntityStore> ref, RoutineAIComponent ai) {
-        abandonTask(ref, ai, null);
-    }
-
     private static void abandonTask(Ref<EntityStore> ref, RoutineAIComponent ai, SimNPCComponent npc) {
         NPCMovementHelper.clearMoveTarget(ref, ai);
         ai.targetBlockPosition = null;
