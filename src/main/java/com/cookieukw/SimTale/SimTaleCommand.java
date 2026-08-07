@@ -113,6 +113,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new SetMoodSubCommand());
         this.addSubCommand(new SearchSubCommand());
         this.addSubCommand(new ToggleAiSubCommand());
+        this.addSubCommand(new AiStatusSubCommand());
         this.addSubCommand(new HouseCheckSubCommand());
         this.addSubCommand(new ChestCheckSubCommand());
         this.addSubCommand(new ForceEatSubCommand());
@@ -134,7 +135,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus>"));
     }
 
     /**
@@ -1260,6 +1261,56 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             AiConfigManager.save();
             String status = config.enabled ? "ATIVADO" : "DESATIVADO";
             ctx.sendMessage(Message.raw("The use of Generative AI for NPC conversations was: " + status));
+        }
+    }
+
+    /**
+     * Debug-only: shows exactly what {@code AiConfigManager}/{@code NpcAiManager} actually loaded
+     * and initialized at boot, as opposed to what {@code simtale-ai.json} says on disk — the two
+     * can disagree (e.g. a key present in the file but blank, or a provider requested in
+     * {@code provider} that never got registered because its key was missing).
+     */
+    private static class AiStatusSubCommand extends AbstractPlayerCommand {
+        public AiStatusSubCommand() {
+            super("aistatus", "Shows the current AI config and which providers actually initialized");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            AiConfig config = AiConfigManager.getConfig();
+
+            ctx.sendMessage(Message.raw("--- SimTale AI status ---"));
+            ctx.sendMessage(Message.raw("Arquivo de config: " + AiConfigManager.configFilePath()
+                + (AiConfigManager.configFileExists() ? " (existe)" : " (NÃO existe — usando padrão em memória)")));
+            ctx.sendMessage(Message.raw("enabled: " + config.enabled));
+            ctx.sendMessage(Message.raw("provider (config): " + config.provider));
+            ctx.sendMessage(Message.raw("geminiKey: " + (config.geminiKey != null && !config.geminiKey.isBlank() ? "definida" : "vazia")
+                + " | openaiKey: " + (config.openaiKey != null && !config.openaiKey.isBlank() ? "definida" : "vazia")
+                + " | openrouterKey: " + (config.openrouterKey != null && !config.openrouterKey.isBlank() ? "definida" : "vazia")));
+
+            if (SimTale.aiManager == null) {
+                ctx.sendMessage(Message.raw("aiManager: NULL — a IA não foi inicializada no setup do plugin."));
+                return;
+            }
+
+            java.util.Set<String> registered = SimTale.aiManager.registeredProviderIds();
+            String defaultProviderId = SimTale.aiManager.defaultProviderId();
+            ctx.sendMessage(Message.raw("Providers realmente registrados (chave presente e válida no boot): "
+                + (registered.isEmpty() ? "nenhum" : String.join(", ", registered))));
+            ctx.sendMessage(Message.raw("Provider padrão (o que generate() de fato usa): "
+                + (defaultProviderId != null ? defaultProviderId : "nenhum")));
+
+            if (!config.enabled) {
+                ctx.sendMessage(Message.raw("=> IA desligada (enabled=false). O chat só usa as respostas prontas."));
+            } else if (registered.isEmpty()) {
+                ctx.sendMessage(Message.raw("=> IA ligada, mas NENHUM provider inicializou — falta uma API key válida "
+                    + "(geminiKey/openaiKey/openrouterKey no simtale-ai.json, ou GEMINI_API_KEY/OPENAI_API_KEY/OPENROUTER_API_KEY "
+                    + "como variável de ambiente do servidor). Precisa reiniciar o servidor depois de configurar."));
+            } else {
+                ctx.sendMessage(Message.raw("=> Deveria estar funcionando. Se ainda assim não responder, olhe o log do "
+                    + "servidor por 'SimTale: provedor de IA falhou' na hora que você mandar mensagem."));
+            }
         }
     }
 
