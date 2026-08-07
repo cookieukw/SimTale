@@ -1022,35 +1022,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("  " + e.getKey() + blocos));
             }
 
-            //  Scan entities
-            ctx.sendMessage(Message.raw("Nearby entities:"));
-            ctx.sendMessage(Message.raw("Nearby blocks/furniture:"));
-            Map<String, Integer> countEntitiesByAnchor = new LinkedHashMap<>();
-
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dy = -1; dy <= 2; dy++) {
-                    for (int dz = -1; dz <= 1; dz++) {
-                        int bx = px + dx, by = py + dy, bz = pz + dz;
-                        BlockType type = world.getBlockType(bx, by, bz);
-                        if (type == null || type.getId() == null || type.getId().equalsIgnoreCase("Empty")) {
-                            continue;
-                        }
-                        Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, bx, by, bz);
-                        String key = type.getId() + " @ (" + anchor.x + "," + anchor.y + "," + anchor.z + ")";
-                        countEntitiesByAnchor.merge(key, 1, Integer::sum);
-                    }
-                }
-            }
-
-            for (Entry<String, Integer> e : countEntitiesByAnchor.entrySet()) {
-                String blocos = e.getValue() > 1 ? "  [" + e.getValue() + " blocos]" : "";
-                ctx.sendMessage(Message.raw("  " + e.getKey() + blocos));
-            }
-
             // Scan all ACTIVE_NPCS near the player
             ctx.sendMessage(Message.raw("Nearby Active NPCs:"));
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef != null) {
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
                     TransformComponent npcTc = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (npcTc != null) {
                         double dist = pos.distance(npcTc.getPosition());
