@@ -15,6 +15,16 @@ public class AiConfigManager {
         return currentConfig;
     }
 
+    /** Absolute path to the config file, for diagnostics — the relative name alone doesn't say
+     *  which directory the server actually resolved it against. */
+    public static String configFilePath() {
+        return CONFIG_FILE.getAbsolutePath();
+    }
+
+    public static boolean configFileExists() {
+        return CONFIG_FILE.exists();
+    }
+
     public static void load() {
         try {
             if (!CONFIG_FILE.exists()) {

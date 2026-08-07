@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.ai;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -53,5 +54,18 @@ public class NpcAiManager {
 
     public CompletableFuture<AiResponse> generateAsync(AiRequest request) {
         return CompletableFuture.supplyAsync(() -> generate(request));
+    }
+
+    /**
+     * Ids of providers that actually initialized (had a non-blank API key at setup), for
+     * diagnostics — distinct from {@code config.provider}, which is just what was *requested*.
+     */
+    public Set<String> registeredProviderIds() {
+        return providers.keySet();
+    }
+
+    /** The provider {@code generate(AiRequest)} actually uses, or null if none registered. */
+    public String defaultProviderId() {
+        return defaultProvider != null ? defaultProvider.id() : null;
     }
 }
