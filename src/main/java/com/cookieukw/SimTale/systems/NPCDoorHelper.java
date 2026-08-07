@@ -19,9 +19,7 @@ import com.cookieukw.SimTale.core.SimLog;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -88,19 +86,6 @@ public final class NPCDoorHelper {
         double forwardX = -Math.sin(yawRad);
         double forwardZ = -Math.cos(yawRad);
 
-        // Is the NPC about to cross a house boundary?
-        //
-        // This is the real question. Standing next to a door says nothing about wanting through it,
-        // and body orientation is only a proxy — but "I am outside and my destination is inside"
-        // (or the reverse) is intent stated outright. BLOCK_TO_HOUSE_ID already knows which blocks
-        // belong to which house, so the answer costs two lookups.
-        boolean crossingHouseBoundary = false;
-        if (destination != null) {
-            UUID houseAtNpc = houseIdAt(npcPos);
-            UUID houseAtDestination = houseIdAt(destination);
-            crossingHouseBoundary = !Objects.equals(houseAtNpc, houseAtDestination);
-        }
-
         int baseX = (int) Math.floor(npcPos.x);
         int baseY = (int) Math.floor(npcPos.y);
         int baseZ = (int) Math.floor(npcPos.z);
@@ -109,16 +94,15 @@ public final class NPCDoorHelper {
         for (int dx = -SCAN_XZ; dx <= SCAN_XZ; dx++) {
             for (int dy = -SCAN_DOWN; dy <= SCAN_UP; dy++) {
                 for (int dz = -SCAN_XZ; dz <= SCAN_XZ; dz++) {
-                    tryOpenDoorAt(world, npc, npcPos, forwardX, forwardZ, crossingHouseBoundary,
+                    tryOpenDoorAt(world, npc, npcPos, forwardX, forwardZ, destination,
                             baseX + dx, baseY + dy, baseZ + dz, handled);
                 }
             }
         }
     }
 
-   
     private static void tryOpenDoorAt(World world, SimNPCComponent npc, Vector3d npcPos,
-                                      double forwardX, double forwardZ, boolean crossingHouseBoundary,
+                                      double forwardX, double forwardZ, Vector3d destination,
                                       int x, int y, int z, Set<Vector3i> handled) {
         try {
             BlockType type = world.getBlockType(x, y, z);
@@ -136,21 +120,25 @@ public final class NPCDoorHelper {
            Vector3i doorPos = FurnitureAnchorHelper.anchorOf(world, door.getBlockPosition());
             if (doorPos == null || !handled.add(new Vector3i(doorPos))) return;
 
+            // Does the NPC actually need to go through THIS door, or is it merely nearby/facing it?
+            //
+            // A facing cone alone said nothing about intent — an NPC walking along a wall, or just
+            // loitering in a room after arriving, faces every door it passes within 60 degrees, and
+            // used to open (or keep open) every one of them. The precise question is geometric: is
+            // the destination on the opposite side of this specific door from the NPC? If so, the
+            // NPC has to cross it; if not, this door is irrelevant no matter how it is facing.
+            // Falls back to the facing cone only when there is no destination to compare against.
+            boolean intentToCross = destination != null
+                    ? DoorBlockUtils.isInFrontOfDoor(doorPos, yaw, npcPos)
+                            != DoorBlockUtils.isInFrontOfDoor(doorPos, yaw, destination)
+                    : isFacing(npcPos, forwardX, forwardZ, doorPos);
+            if (!intentToCross) return;
+
             DoorState current = door.getDoorState();
             if (current != DoorState.CLOSED) {
-                // Already open: refresh the timer regardless of facing, so a door stays open while
-                // someone is still coming through it.
+                // Already open and this NPC genuinely intends to cross it: refresh the timer so it
+                // doesn't close mid-crossing.
                 OPENED_DOORS.put(toKey(doorPos), AUTO_CLOSE_TICKS);
-                return;
-            }
-
-            // Two signals, and the stronger one wins.
-            //
-            // Crossing a house boundary is a statement of intent: the destination is on the other
-            // side, so the door has to be used. Facing is only a fallback — it covers doors that
-            // belong to no registered house, and doors between rooms of the same house, where the
-            // boundary test cannot say anything.
-            if (!crossingHouseBoundary && !isFacing(npcPos, forwardX, forwardZ, doorPos)) {
                 return;
             }
 
@@ -188,19 +176,6 @@ public final class NPCDoorHelper {
             // A problematic door shouldn't crash the entire NPC AI tick.
             LOGGER.debug("[PORTA] falha em ({},{},{}): {}", x, y, z, e.toString());
         }
-    }
-
-    /** House that owns the block at this position, or null when it belongs to none. */
-    private static UUID houseIdAt(Vector3d pos) {
-        HouseBlockPos block = new HouseBlockPos(
-                (int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z));
-        UUID direct = HouseManager.BLOCK_TO_HOUSE_ID.get(block);
-        if (direct != null) return direct;
-
-        // Standing on the floor puts the feet one block below the interior the fill recorded, so a
-        // miss at foot level is checked one block up before giving up.
-        HouseBlockPos above = new HouseBlockPos(block.x, block.y + 1, block.z);
-        return HouseManager.BLOCK_TO_HOUSE_ID.get(above);
     }
 
     /**
