@@ -395,6 +395,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                         npc.name, npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
                 ai.targetBlockPosition = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
                 ai.currentTask = TaskType.MOVING_TO_BED;
+                // MOVING_TO_BED's own timeout check runs later in this same tick (no return
+                // between the blocks) and measures from taskStartTime. Whoever routed the NPC
+                // into FINDING_BED zeroed it out (both the nightly trigger and /simtale
+                // forcesleep do, to bypass FINDING_BED's own retry cooldown) — without restamping
+                // it here, "now - 0" is always past the timeout, so an NPC that already owns a
+                // bed gave up walking to it before taking a single step, every time.
+                ai.taskStartTime = world.getTick();
                 playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
             } else if (ai.taskStartTime == 0 || world.getTick() - ai.taskStartTime >= BED_SEARCH_RETRY_COOLDOWN_TICKS) {
                 ai.taskStartTime = world.getTick();
