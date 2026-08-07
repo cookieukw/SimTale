@@ -249,6 +249,14 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         boolean inDeathFlow = ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.DEAD
                 || ai.currentTask == TaskType.REAPING;
 
+        // A claimed work post (fishing, and future lumberjack/farmer posts) must not outlive the
+        // NPC that claimed it — otherwise a killed fisherman leaves its post permanently
+        // reserved, with no one left to release it. releaseWorkPost is a no-op once the claim is
+        // already gone, so calling it every tick a dying/dead/reaped NPC ticks is harmless.
+        if (inDeathFlow && ai.claimedWorkPost != null) {
+            NPCWorkHelper.releaseWorkPost(ai, npc);
+        }
+
         // A task set by a debug command outranks the interrupts.
         //
         // Without this, /simtale forcework looked broken: it set the task, and on the very next

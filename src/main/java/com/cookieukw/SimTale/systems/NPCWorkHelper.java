@@ -457,8 +457,10 @@ public class NPCWorkHelper {
     }
 
     /** Releases whatever work post this NPC is holding, if any — called on both give-up and
-     *  successful completion so a claimed post never outlives the task that claimed it. */
-    private static void releaseWorkPost(RoutineAIComponent ai, SimNPCComponent npc) {
+     *  successful completion so a claimed post never outlives the task that claimed it. Also
+     *  called from {@code RoutineAISystem} the moment an NPC enters the death flow, so a killed
+     *  fisherman doesn't leave its post permanently reserved. */
+    public static void releaseWorkPost(RoutineAIComponent ai, SimNPCComponent npc) {
         if (ai.claimedWorkPost == null) return;
         if (npc != null && npc.entityId != null) {
             FishingPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
