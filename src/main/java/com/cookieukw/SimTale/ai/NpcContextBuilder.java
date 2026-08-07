@@ -19,6 +19,20 @@ import java.util.UUID;
 
 public class NpcContextBuilder {
 
+    private static final java.util.regex.Pattern LEADING_NAME_TAG =
+            java.util.regex.Pattern.compile("^\\s*\\[[^\\]]{0,40}\\]:?\\s*");
+
+    /**
+     * Strips a leading "[Name]" / "[Name]:" tag the model sometimes prepends despite being told
+     * not to (see the directive in {@link #build}) — including the failure mode where it emits
+     * the literal placeholder "[NomeNPC]" instead of substituting the real name. Safety net for
+     * prompt non-compliance, not a replacement for the instruction itself.
+     */
+    public static String stripLeadingNameTag(String text) {
+        if (text == null) return null;
+        return LEADING_NAME_TAG.matcher(text).replaceFirst("");
+    }
+
     public static AiRequest build(SimNPCComponent npc, UUID playerUuid, String playerName, List<AiMessage> conversationHistory) {
        
         // `UUID.fromString(playerUuid.toString())` was a no-op round-trip, and the null check
@@ -165,7 +179,12 @@ public class NpcContextBuilder {
             }
         }
         // 10. Directives
-        systemPrompt.append("\nRespond in the first person in a natural way, maintaining total consistency with your personality, mood, traits and feelings towards the player. Do not break character. Important: you must reply exclusively in the language with the locale code ").append(language).append(".");
+        //
+        // Without an explicit ban, the model tends to imitate chat-script formatting from its
+        // training data and prefixes its own reply with a speaker tag — sometimes even a literal,
+        // unsubstituted placeholder like "[NomeNPC]" instead of the real name — which then doubles
+        // up with the "[Name] " prefix the game itself adds when displaying the message.
+        systemPrompt.append("\nRespond in the first person in a natural way, maintaining total consistency with your personality, mood, traits and feelings towards the player. Do not break character. Reply with ONLY the words you say — no name tag, no speaker label, no brackets, no quotation marks around the whole reply, no formatting of any kind. The game already shows your name next to the message. Important: you must reply exclusively in the language with the locale code ").append(language).append(".");
 
         // Metadata Map construction for tracing/debug
         Map<String, Object> metadata = new HashMap<>();

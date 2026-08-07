@@ -182,7 +182,7 @@ public class InteractionManager {
                     // The callback runs on a CompletableFuture worker. sendMessage touches
                     // engine state, so it has to be handed back to the world thread.
                     WorldUtil.execute(() ->
-                            playerRef.sendMessage(Message.raw("[" + npc.name + "] " + aiRes.text())));
+                            playerRef.sendMessage(Message.raw("[" + npc.name + "] " + NpcContextBuilder.stripLeadingNameTag(aiRes.text()))));
                 })
                 // Without this, any exception inside the callback (or the HTTP call) vanished
                 // into the CompletableFuture with no trace at all.
