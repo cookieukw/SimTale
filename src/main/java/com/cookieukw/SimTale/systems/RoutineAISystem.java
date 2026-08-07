@@ -723,6 +723,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // --- Crop Harvesting & Hunting Logic (Delegado ao NPCWorkHelper) ---
         NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store);
 
+        // `forcedByDebug` only means "outrank the sleep/hunger interrupts for the tick a debug
+        // command just set the task on" — every read site above (the interrupt checks, and
+        // NPCWorkHelper's own stagger bypass) has already had its chance to see it true this
+        // tick. Clearing it here, once, unconditionally, replaces a single reset buried inside
+        // NPCWorkHelper's IDLE+Farmer/Hunter branch, which every OTHER debug command that sets
+        // the flag (forcekill, forceplant setting MOVING_TO_WORK directly, the SimDebug UI's
+        // force buttons) never passed through — leaving the flag stuck true forever on any NPC
+        // those touched, which silently and permanently disabled its sleep and hunger interrupts.
+        ai.forcedByDebug = false;
+
         // --- Socializing & Wandering (Delegado ao NPCSocialHelper) ---
         NPCSocialHelper.handleSocialLogic(ref, npc, ai, transform, world, store);
 

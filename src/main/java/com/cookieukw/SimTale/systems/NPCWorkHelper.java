@@ -135,9 +135,10 @@ public class NPCWorkHelper {
                 }
             }
 
-            // Stagger scans (e.g. random chance or time check)
+            // Stagger scans (e.g. random chance or time check). Bypassed immediately when a debug
+            // command just forced this NPC — reset centrally in RoutineAISystem right after this
+            // call returns, not here, so every caller of the flag gets cleared, not just this one.
             if (world.getTick() % 100 == 0 || ai.forcedByDebug) {
-                ai.forcedByDebug = false;
                 if (npc.profession == Profession.FARMER) {
                     // Try to harvest first
                     Vector3i cropPos = scanForCrops(transform.getPosition());
