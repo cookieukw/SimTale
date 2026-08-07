@@ -85,6 +85,22 @@ cmd.forceplant.farmland_not_found = No empty farmland found near farmer {name}
 cmd.forceplant.not_farmer = No Farmer NPC nearby.
 cmd.forceplant.seeds_added = Added 5x Carrot Seeds to {name}'s inventory
 cmd.forceplant.ai_inactive = NPC AI not active.
+cmd.aistatus.header = --- SimTale AI status ---
+cmd.aistatus.config_file_found = Config file: {path} (exists)
+cmd.aistatus.config_file_missing = Config file: {path} (does NOT exist — using in-memory default)
+cmd.aistatus.enabled = Enabled: {state}
+cmd.aistatus.provider_configured = Configured provider: {provider}
+cmd.aistatus.keys = Gemini key: {gemini} | OpenAI key: {openai} | OpenRouter key: {openrouter}
+cmd.aistatus.key_defined = set
+cmd.aistatus.key_blank = blank
+cmd.aistatus.manager_null = AI manager: NULL — AI was never initialized during plugin setup.
+cmd.aistatus.registered_providers = Actually registered providers (valid key at boot): {providers}
+cmd.aistatus.registered_none = none
+cmd.aistatus.default_provider = Default provider (what generation actually uses): {provider}
+cmd.aistatus.default_provider_none = none
+cmd.aistatus.diagnosis_disabled = => AI disabled (Enabled: No). Chat only uses the canned replies.
+cmd.aistatus.diagnosis_no_provider = => AI enabled, but NO provider initialized — missing a valid API key (geminiKey/openaiKey/openrouterKey in simtale-ai.json, or GEMINI_API_KEY/OPENAI_API_KEY/OPENROUTER_API_KEY as a server environment variable). Restart the server after configuring.
+cmd.aistatus.diagnosis_ok = => Should be working. If it still doesn't reply, check the server log for 'SimTale: provedor de IA falhou' when you send a message.
 yes = Yes
 no = No
 house.debug.status = [House Debug] Interior blocks visited: {visited} (Max: 512) | Doors: {doors} | Chests: {chests} | Overflowed/Open: {overflowed} | Unloaded Chunks: {unloaded}

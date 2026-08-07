@@ -85,6 +85,22 @@ cmd.forceplant.farmland_not_found = Nenhuma terra arada vazia encontrada por per
 cmd.forceplant.not_farmer = Nenhum NPC Fazendeiro por perto.
 cmd.forceplant.seeds_added = Adicionado 5x Sementes de Cenoura ao inventário de {name}
 cmd.forceplant.ai_inactive = IA do NPC não ativa.
+cmd.aistatus.header = --- Status da IA do SimTale ---
+cmd.aistatus.config_file_found = Arquivo de config: {path} (existe)
+cmd.aistatus.config_file_missing = Arquivo de config: {path} (NÃO existe — usando padrão em memória)
+cmd.aistatus.enabled = Ativado: {state}
+cmd.aistatus.provider_configured = Provider configurado: {provider}
+cmd.aistatus.keys = Chave Gemini: {gemini} | Chave OpenAI: {openai} | Chave OpenRouter: {openrouter}
+cmd.aistatus.key_defined = definida
+cmd.aistatus.key_blank = vazia
+cmd.aistatus.manager_null = Gerenciador de IA: NULO — a IA não foi inicializada no setup do plugin.
+cmd.aistatus.registered_providers = Providers realmente registrados (chave válida no boot): {providers}
+cmd.aistatus.registered_none = nenhum
+cmd.aistatus.default_provider = Provider padrão (o que a geração de fato usa): {provider}
+cmd.aistatus.default_provider_none = nenhum
+cmd.aistatus.diagnosis_disabled = => IA desligada (Ativado: Não). O chat só usa as respostas prontas.
+cmd.aistatus.diagnosis_no_provider = => IA ligada, mas NENHUM provider inicializou — falta uma chave de API válida (geminiKey/openaiKey/openrouterKey no simtale-ai.json, ou GEMINI_API_KEY/OPENAI_API_KEY/OPENROUTER_API_KEY como variável de ambiente do servidor). É preciso reiniciar o servidor depois de configurar.
+cmd.aistatus.diagnosis_ok = => Deveria estar funcionando. Se ainda assim não responder, olhe o log do servidor por 'SimTale: provedor de IA falhou' na hora que você mandar mensagem.
 yes = Sim
 no = Não
 house.debug.status = [Debug de Casa] Blocos internos visitados: {visited} (Máx: 512) | Portas: {doors} | Baús: {chests} | Transbordou/Aberto: {overflowed} | Chunks Descarregados: {unloaded}

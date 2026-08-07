@@ -1279,37 +1279,44 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             AiConfig config = AiConfigManager.getConfig();
+            Message yes = Message.translation("general.yes");
+            Message no = Message.translation("general.no");
+            Message defined = Message.translation("general.cmd.aistatus.key_defined");
+            Message blank = Message.translation("general.cmd.aistatus.key_blank");
 
-            ctx.sendMessage(Message.raw("--- SimTale AI status ---"));
-            ctx.sendMessage(Message.raw("Arquivo de config: " + AiConfigManager.configFilePath()
-                + (AiConfigManager.configFileExists() ? " (existe)" : " (NÃO existe — usando padrão em memória)")));
-            ctx.sendMessage(Message.raw("enabled: " + config.enabled));
-            ctx.sendMessage(Message.raw("provider (config): " + config.provider));
-            ctx.sendMessage(Message.raw("geminiKey: " + (config.geminiKey != null && !config.geminiKey.isBlank() ? "definida" : "vazia")
-                + " | openaiKey: " + (config.openaiKey != null && !config.openaiKey.isBlank() ? "definida" : "vazia")
-                + " | openrouterKey: " + (config.openrouterKey != null && !config.openrouterKey.isBlank() ? "definida" : "vazia")));
+            ctx.sendMessage(Message.translation("general.cmd.aistatus.header"));
+            ctx.sendMessage(Message.translation(AiConfigManager.configFileExists()
+                    ? "general.cmd.aistatus.config_file_found" : "general.cmd.aistatus.config_file_missing")
+                .param("path", AiConfigManager.configFilePath()));
+            ctx.sendMessage(Message.translation("general.cmd.aistatus.enabled").param("state", config.enabled ? yes : no));
+            ctx.sendMessage(Message.translation("general.cmd.aistatus.provider_configured").param("provider", config.provider));
+            ctx.sendMessage(Message.translation("general.cmd.aistatus.keys")
+                .param("gemini", config.geminiKey != null && !config.geminiKey.isBlank() ? defined : blank)
+                .param("openai", config.openaiKey != null && !config.openaiKey.isBlank() ? defined : blank)
+                .param("openrouter", config.openrouterKey != null && !config.openrouterKey.isBlank() ? defined : blank));
 
             if (SimTale.aiManager == null) {
-                ctx.sendMessage(Message.raw("aiManager: NULL — a IA não foi inicializada no setup do plugin."));
+                ctx.sendMessage(Message.translation("general.cmd.aistatus.manager_null"));
                 return;
             }
 
             java.util.Set<String> registered = SimTale.aiManager.registeredProviderIds();
             String defaultProviderId = SimTale.aiManager.defaultProviderId();
-            ctx.sendMessage(Message.raw("Providers realmente registrados (chave presente e válida no boot): "
-                + (registered.isEmpty() ? "nenhum" : String.join(", ", registered))));
-            ctx.sendMessage(Message.raw("Provider padrão (o que generate() de fato usa): "
-                + (defaultProviderId != null ? defaultProviderId : "nenhum")));
+            ctx.sendMessage(Message.translation("general.cmd.aistatus.registered_providers")
+                .param("providers", registered.isEmpty()
+                    ? Message.translation("general.cmd.aistatus.registered_none")
+                    : Message.raw(String.join(", ", registered))));
+            ctx.sendMessage(Message.translation("general.cmd.aistatus.default_provider")
+                .param("provider", defaultProviderId != null
+                    ? Message.raw(defaultProviderId)
+                    : Message.translation("general.cmd.aistatus.default_provider_none")));
 
             if (!config.enabled) {
-                ctx.sendMessage(Message.raw("=> IA desligada (enabled=false). O chat só usa as respostas prontas."));
+                ctx.sendMessage(Message.translation("general.cmd.aistatus.diagnosis_disabled"));
             } else if (registered.isEmpty()) {
-                ctx.sendMessage(Message.raw("=> IA ligada, mas NENHUM provider inicializou — falta uma API key válida "
-                    + "(geminiKey/openaiKey/openrouterKey no simtale-ai.json, ou GEMINI_API_KEY/OPENAI_API_KEY/OPENROUTER_API_KEY "
-                    + "como variável de ambiente do servidor). Precisa reiniciar o servidor depois de configurar."));
+                ctx.sendMessage(Message.translation("general.cmd.aistatus.diagnosis_no_provider"));
             } else {
-                ctx.sendMessage(Message.raw("=> Deveria estar funcionando. Se ainda assim não responder, olhe o log do "
-                    + "servidor por 'SimTale: provedor de IA falhou' na hora que você mandar mensagem."));
+                ctx.sendMessage(Message.translation("general.cmd.aistatus.diagnosis_ok"));
             }
         }
     }
