@@ -283,6 +283,15 @@ public class InteractionManager {
         // prefix, CamelCase and snake_case), so log it once and stop guessing.
         LOGGER.atInfo().log("SimTale: presente recebido, itemId bruto = '%s'", heldItem.getItemId());
 
+        // "Baby" must never fall into the generic gift path: it would silently delete the item
+        // (consumeHeldItemFromPlayer) and score a normal gift affinity without BabyCareManager
+        // ever seeing it, orphaning the child's custody record. Custody transfer only happens
+        // through the spouse's inventory (BabyCareManager.registerInventoryListener) or the
+        // automatic proximity swap (BabyCareTickSystem) — both points-neutral by design.
+        if (heldItem.getItemId().equals("Baby")) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.gift.baby_reject"));
+        }
+
         if (isChild) {
             return handleChildGift(npc, itemId, itemName);
         }

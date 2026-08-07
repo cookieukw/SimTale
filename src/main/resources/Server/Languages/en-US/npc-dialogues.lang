@@ -134,6 +134,7 @@ flirt.child = You can't flirt with a child!
 gift.noitem = You are not holding any item to give as a gift!
 gift.accelerated = You fed {name} with {item}! Their growth was accelerated.
 gift.child_reject = {name} is just a child and doesn't want this gift. Try giving some food!
+gift.baby_reject = You can't gift a baby away! Use the spouse's inventory to hand off custody instead.
 
 # MOTHER AI
 baby.pickup = {parent} picked up baby {baby}.

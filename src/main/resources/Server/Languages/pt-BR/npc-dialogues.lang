@@ -134,6 +134,7 @@ flirt.child = Você não pode flertar com uma criança!
 gift.noitem = Você não está segurando nenhum item para dar de presente!
 gift.accelerated = Voce deu algum item para {name}? Aumentamos o crescimento dele(a) de +5% para +10%!
 gift.child_reject = {name} é apenas uma criança e não quer esse presente. Tente dar comida!
+gift.baby_reject = Você não pode presentear o bebê! Use o inventário do cônjuge para passar a guarda.
 
 # MOTHER AI
 baby.pickup = {parent} pegou o bebê {baby} no colo.
