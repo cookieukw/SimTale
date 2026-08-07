@@ -187,11 +187,12 @@ public class NPCWorkHelper {
                     }
                 } else if (npc.profession == Profession.FISHERMAN) {
                     // Water was already resolved once, when the fishing post was placed — no
-                    // scan needed here, just look the post up.
+                    // scan needed here, just look the post up. One NPC per post at a time.
                     Vector3d pos = transform.getPosition();
-                    FishingPostRegistry.FishingPost post = FishingPostRegistry.nearestTo(pos.x, pos.y, pos.z);
+                    FishingPostRegistry.FishingPost post = FishingPostRegistry.claimNearest(pos.x, pos.y, pos.z, npc.entityId);
                     if (post != null) {
                         ai.targetBlockPosition = new Vector3i(post.waterX(), post.waterY(), post.waterZ());
+                        ai.claimedWorkPost = new Vector3i(post.postX(), post.postY(), post.postZ());
                         ai.currentTask = TaskType.MOVING_TO_WORK;
                         ai.taskStartTime = world.getTick();
                         playWalk(ref, store);
