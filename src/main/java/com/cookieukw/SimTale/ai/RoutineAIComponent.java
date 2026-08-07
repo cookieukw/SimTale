@@ -37,12 +37,17 @@ public class RoutineAIComponent implements Component<EntityStore> {
         MOVING_TO_WORK,
         FARMING,
         HUNTING,
+        FISHING,
         MOVING_TO_DEPOSIT,
         PLANTING
     }
 
     public TaskType currentTask = TaskType.IDLE;
     public Vector3i targetBlockPosition = null;
+    /** Marker position of a claimed work post (fishing, and future lumberjack/farmer posts),
+     *  released in {@code NPCWorkHelper.abandonTask} or on completing the task. Distinct from
+     *  {@code targetBlockPosition}, which for fishing holds the water tile, not the post itself. */
+    public Vector3i claimedWorkPost = null;
     public long taskStartTime = 0;
     public Vector3d lastLeashPos = null;
     public long lastLeashTick = 0;
@@ -111,6 +116,9 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.currentTask = this.currentTask;
         if (this.targetBlockPosition != null) {
             comp.targetBlockPosition = new Vector3i(this.targetBlockPosition);
+        }
+        if (this.claimedWorkPost != null) {
+            comp.claimedWorkPost = new Vector3i(this.claimedWorkPost);
         }
         comp.taskStartTime = this.taskStartTime;
         comp.dyingEntityId = this.dyingEntityId;

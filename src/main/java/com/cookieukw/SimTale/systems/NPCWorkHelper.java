@@ -91,6 +91,19 @@ public class NPCWorkHelper {
     /** Block id used to clear a position, matching the convention in ConstructionSystem. */
     private static final String EMPTY_BLOCK = "Empty";
 
+    /** Fish catch table, ordered common to rare — see {@link #rollFish()}. */
+    private static final String[] FISH_ITEMS = {
+            "Food_Fish_Raw", "Food_Fish_Raw", "Food_Fish_Raw",
+            "Food_Fish_Raw_Uncommon", "Food_Fish_Raw_Uncommon",
+            "Food_Fish_Raw_Rare",
+            "Food_Fish_Raw_Epic"
+    };
+
+    /** Weighted random catch — mostly common fish, occasionally something better. */
+    private static String rollFish() {
+        return FISH_ITEMS[(int) (Math.random() * FISH_ITEMS.length)];
+    }
+
     /**
      * Mood payoff for finishing a task. An NPC whose hobby lines up with its profession
      * genuinely enjoys the work and gets a little {@code fun} out of it; one whose hobby has
@@ -118,7 +131,7 @@ public class NPCWorkHelper {
             Store<EntityStore> store
     ) {
         // Evaluate Transition to Work/Deposit from IDLE
-        if (ai.currentTask == TaskType.IDLE && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER)) {
+        if (ai.currentTask == TaskType.IDLE && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN)) {
             ItemContainer inventory = getInventory(store, ref);
             boolean hasItemsToDeposit = hasAnyItem(inventory);
 
@@ -172,6 +185,17 @@ public class NPCWorkHelper {
                             playWalk(ref, store);
                         }
                     }
+                } else if (npc.profession == Profession.FISHERMAN) {
+                    // Water was already resolved once, when the fishing post was placed — no
+                    // scan needed here, just look the post up.
+                    Vector3d pos = transform.getPosition();
+                    FishingPostRegistry.FishingPost post = FishingPostRegistry.nearestTo(pos.x, pos.y, pos.z);
+                    if (post != null) {
+                        ai.targetBlockPosition = new Vector3i(post.waterX(), post.waterY(), post.waterZ());
+                        ai.currentTask = TaskType.MOVING_TO_WORK;
+                        ai.taskStartTime = world.getTick();
+                        playWalk(ref, store);
+                    }
                 }
             }
         }
@@ -217,6 +241,16 @@ public class NPCWorkHelper {
                 } else {
                     NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(animalPos.x, npcPos.y, animalPos.z));
                 }
+            } else if (npc.profession == Profession.FISHERMAN) {
+                if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
+                // Approach from beside the water, not standing inside it.
+                if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5)) {
+                    NPCMovementHelper.clearMoveTarget(ref, ai);
+                    ai.currentTask = TaskType.FISHING;
+                    ai.taskStartTime = world.getTick();
+                } else {
+                    NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, npcPos.y, ai.targetBlockPosition.z + 0.5));
+                }
             }
         }
 
@@ -241,11 +275,23 @@ public class NPCWorkHelper {
                     String seedItem = lookup(CROP_TO_SEED, cropId, "Plant_Seeds_Carrot");
                     ItemContainer inv = getInventory(store, ref);
                     if (inv != null) {
-                        inv.addItemStack(new ItemStack(meatOrVeg, 1));
+                        // Checked, not blind-added: an add into a full inventory silently drops
+                        // the item while this log line still claimed success every time.
+                        ItemStack produce = new ItemStack(meatOrVeg, 1);
+                        if (inv.canAddItemStack(produce)) {
+                            inv.addItemStack(produce);
+                        } else {
+                            LOGGER.debug("[SimTale] Farmer NPC {} harvested {} but inventory is full — lost", npc.name, meatOrVeg);
+                        }
 
                         // 100% chance to drop 1-2 seeds
                         int seedAmount = 1 + (int)(Math.random() * 2);
-                        inv.addItemStack(new ItemStack(seedItem, seedAmount));
+                        ItemStack seeds = new ItemStack(seedItem, seedAmount);
+                        if (inv.canAddItemStack(seeds)) {
+                            inv.addItemStack(seeds);
+                        } else {
+                            LOGGER.debug("[SimTale] Farmer NPC {} harvested {} seeds but inventory is full — lost", npc.name, seedAmount);
+                        }
 
                         LOGGER.debug("[SimTale] Farmer NPC {} harvested crop {} (gained {} seeds)", npc.name, cropId, seedAmount);
                     }
@@ -274,6 +320,14 @@ public class NPCWorkHelper {
                             inv.removeItemStackFromSlot(slot, 1);
                             String cropBlock = getCropBlockFromSeed(seed);
                             world.setBlock(plantPos.x, plantPos.y, plantPos.z, cropBlock);
+                            // world.setBlock is a raw storage write with no event dispatch —
+                            // unlike a hand-placed crop (registered by BedPlaceBlockEventSystem
+                            // reacting to the engine's PlaceBlockEvent), this block is invisible
+                            // to CropRegistry unless registered here explicitly. Without this,
+                            // the plot was farmland (empty tile) right up until the NPC's own
+                            // planting made it neither farmland nor a trackable crop — permanently
+                            // dead after the first auto-replant.
+                            CropRegistry.add(plantPos.x, plantPos.y, plantPos.z);
                             LOGGER.debug("[SimTale] Farmer NPC {} planted {} at {}", npc.name, cropBlock, plantPos);
                         }
                     }
@@ -304,13 +358,43 @@ public class NPCWorkHelper {
                         // Put meat in storage
                         ItemContainer inv = getInventory(store, ref);
                         if (inv != null) {
-                            inv.addItemStack(new ItemStack(meatId, 1));
+                            ItemStack meat = new ItemStack(meatId, 1);
+                            if (inv.canAddItemStack(meat)) {
+                                inv.addItemStack(meat);
+                            } else {
+                                LOGGER.debug("[SimTale] Hunter NPC {} hunted {} but inventory is full — meat lost", npc.name, meatId);
+                            }
                         }
                         LOGGER.debug("[SimTale] Hunter NPC {} hunted animal {}", npc.name, modelId);
                     }
                 }
                 applyWorkSatisfaction(npc, world.getTick());
                 ai.workTargetEntityId = null;
+                ai.currentTask = TaskType.IDLE;
+                playIdleAnim(ref, store);
+            }
+        }
+
+        // FISHING State
+        if (ai.currentTask == TaskType.FISHING) {
+            if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
+            if (world.getTick() - ai.taskStartTime == 1) {
+                playSmith(ref, store);
+            }
+
+            if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
+                String fishId = rollFish();
+                ItemContainer inv = getInventory(store, ref);
+                if (inv != null) {
+                    ItemStack fish = new ItemStack(fishId, 1);
+                    if (inv.canAddItemStack(fish)) {
+                        inv.addItemStack(fish);
+                        LOGGER.debug("[SimTale] Fisherman NPC {} caught {}", npc.name, fishId);
+                    } else {
+                        LOGGER.debug("[SimTale] Fisherman NPC {} caught {} but inventory is full — lost", npc.name, fishId);
+                    }
+                }
+                applyWorkSatisfaction(npc, world.getTick());
                 ai.currentTask = TaskType.IDLE;
                 playIdleAnim(ref, store);
             }
@@ -470,9 +554,12 @@ public class NPCWorkHelper {
                 if (target == null || !target.isValid()) continue;
                 PersistentModel pm = target.getStore().getComponent(target, PersistentModel.getComponentType());
                 if (pm != null) {
+                    // Model asset ids for livestock are plain keys like "Pig"/"Cow" — never
+                    // namespaced under anything containing "creature" (checked against every
+                    // model asset JSON the engine ships). Requiring that substring made this
+                    // scan reject every real animal, so Hunter could never find a target at all.
                     String modelId = pm.getModelReference().getModelAssetId().toLowerCase();
-                    if (modelId.contains("creature") &&
-                        (modelId.contains("pig") || modelId.contains("sheep") || modelId.contains("cow") || modelId.contains("chicken") || modelId.contains("hen") || modelId.contains("goat"))) {
+                    if (modelId.contains("pig") || modelId.contains("sheep") || modelId.contains("cow") || modelId.contains("chicken") || modelId.contains("hen") || modelId.contains("goat")) {
                         return target;
                     }
                 }

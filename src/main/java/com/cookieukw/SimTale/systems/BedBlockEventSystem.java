@@ -31,5 +31,6 @@ public class BedBlockEventSystem extends WorldEventSystem<EntityStore, BreakBloc
         // Crops and farmland are single blocks, so they use the hit position directly.
         CropRegistry.removeAt(pos.x, pos.y, pos.z);
         FarmlandRegistry.removeAt(pos.x, pos.y, pos.z);
+        FishingPostRegistry.removeAt(pos.x, pos.y, pos.z);
     }
 }

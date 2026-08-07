@@ -59,5 +59,9 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
         if (FarmlandRegistry.isFarmlandId(type.getId())) {
             FarmlandRegistry.add(pos.x, pos.y, pos.z);
         }
+
+        if (FishingPostRegistry.isFishingPostId(type.getId())) {
+            FishingPostRegistry.registerAt(world, pos.x, pos.y, pos.z);
+        }
     }
 }
