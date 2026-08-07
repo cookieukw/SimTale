@@ -1460,8 +1460,13 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             SimNPCComponent nearestNPC = null;
             double minDistance = Double.MAX_VALUE;
 
+            // NPCWorkHelper.handleWorkLogic only ever reacts to this trigger for Farmer/Hunter
+            // (systems/NPCWorkHelper.java:121) — every other profession picked here would set the
+            // debug flag on an NPC nothing ever reads it from, and silently do nothing.
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef != null && npc.entityRef.isValid()) {
+                if (npc.entityRef != null && npc.entityRef.isValid()
+                        && (npc.profession == com.cookieukw.SimTale.core.Profession.FARMER
+                            || npc.profession == com.cookieukw.SimTale.core.Profession.HUNTER)) {
                     TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
@@ -1476,7 +1481,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestNPC == null) {
-                ctx.sendMessage(Message.raw("No NPCs nearby."));
+                ctx.sendMessage(Message.raw("No Farmer or Hunter NPC nearby."));
                 return;
             }
 
@@ -1486,7 +1491,13 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ai.forcedByDebug = true;
                 ai.taskStartTime = world.getTick();
                 store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
-                ctx.sendMessage(Message.raw("Forçando " + nearestNPC.name + " a ir trabalhar! Profissão: " + nearestNPC.profession.ptName));
+                // The actual scan (deposit-if-carrying, then harvest-or-plant / hunt) runs on
+                // NPCWorkHelper's next tick, not synchronously here, so this can't promise it found
+                // something — only that the check will run immediately instead of on its normal
+                // 100-tick stagger.
+                ctx.sendMessage(Message.raw(nearestNPC.name + " (" + nearestNPC.profession.ptName
+                    + ") vai verificar trabalho no próximo tick — só terá efeito visível se houver "
+                    + "colheita/plantio/caça disponível por perto."));
             } else {
                 ctx.sendMessage(Message.raw("NPC AI not active."));
             }
