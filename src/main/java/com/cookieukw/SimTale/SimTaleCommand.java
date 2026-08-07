@@ -1524,7 +1524,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 if (npc.entityRef != null && npc.entityRef.isValid()
                         && (npc.profession == com.cookieukw.SimTale.core.Profession.FARMER
                             || npc.profession == com.cookieukw.SimTale.core.Profession.HUNTER
-                            || npc.profession == com.cookieukw.SimTale.core.Profession.FISHERMAN)) {
+                            || npc.profession == com.cookieukw.SimTale.core.Profession.FISHERMAN
+                            || npc.profession == com.cookieukw.SimTale.core.Profession.LUMBERJACK)) {
                     TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
@@ -1539,7 +1540,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestNPC == null) {
-                ctx.sendMessage(Message.raw("No Farmer, Hunter or Fisherman NPC nearby."));
+                ctx.sendMessage(Message.raw("No Farmer, Hunter, Fisherman or Lumberjack NPC nearby."));
                 return;
             }
 
@@ -1555,7 +1556,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 // 100-tick stagger.
                 ctx.sendMessage(Message.raw(nearestNPC.name + " (" + nearestNPC.profession.ptName
                     + ") vai verificar trabalho no próximo tick — só terá efeito visível se houver "
-                    + "colheita/plantio/caça/pesca disponível por perto."));
+                    + "colheita/plantio/caça/pesca/corte de árvore disponível por perto."));
             } else {
                 ctx.sendMessage(Message.raw("NPC AI not active."));
             }

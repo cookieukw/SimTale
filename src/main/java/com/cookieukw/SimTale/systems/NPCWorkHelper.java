@@ -131,7 +131,7 @@ public class NPCWorkHelper {
             Store<EntityStore> store
     ) {
         // Evaluate Transition to Work/Deposit from IDLE
-        if (ai.currentTask == TaskType.IDLE && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN)) {
+        if (ai.currentTask == TaskType.IDLE && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK)) {
             ItemContainer inventory = getInventory(store, ref);
             boolean hasItemsToDeposit = hasAnyItem(inventory);
 
@@ -197,6 +197,18 @@ public class NPCWorkHelper {
                         ai.taskStartTime = world.getTick();
                         playWalk(ref, store);
                     }
+                } else if (npc.profession == Profession.LUMBERJACK) {
+                    // Same trade as fishing: the tree was already found when the lumbermill was
+                    // placed, so this is a lookup, not a scan.
+                    Vector3d pos = transform.getPosition();
+                    LumberPostRegistry.LumberPost post = LumberPostRegistry.claimNearest(pos.x, pos.y, pos.z, npc.entityId);
+                    if (post != null) {
+                        ai.targetBlockPosition = new Vector3i(post.treeX(), post.treeY(), post.treeZ());
+                        ai.claimedWorkPost = new Vector3i(post.postX(), post.postY(), post.postZ());
+                        ai.currentTask = TaskType.MOVING_TO_WORK;
+                        ai.taskStartTime = world.getTick();
+                        playWalk(ref, store);
+                    }
                 }
             }
         }
@@ -248,6 +260,15 @@ public class NPCWorkHelper {
                 if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5)) {
                     NPCMovementHelper.clearMoveTarget(ref, ai);
                     ai.currentTask = TaskType.FISHING;
+                    ai.taskStartTime = world.getTick();
+                } else {
+                    NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, npcPos.y, ai.targetBlockPosition.z + 0.5));
+                }
+            } else if (npc.profession == Profession.LUMBERJACK) {
+                if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
+                if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5)) {
+                    NPCMovementHelper.clearMoveTarget(ref, ai);
+                    ai.currentTask = TaskType.CHOPPING;
                     ai.taskStartTime = world.getTick();
                 } else {
                     NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, npcPos.y, ai.targetBlockPosition.z + 0.5));
@@ -402,6 +423,47 @@ public class NPCWorkHelper {
             }
         }
 
+        // CHOPPING State
+        if (ai.currentTask == TaskType.CHOPPING) {
+            if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
+            if (world.getTick() - ai.taskStartTime == 1) {
+                playSmith(ref, store);
+            }
+
+            if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
+                Vector3i treePos = ai.targetBlockPosition;
+                BlockType blockType = world.getBlockType(treePos.x, treePos.y, treePos.z);
+                if (LumberPostRegistry.isTreeTrunk(blockType)) {
+                    // The trunk block id doubles as the item id — no CROP_TO_FOOD-style lookup
+                    // table exists per species, and none is needed.
+                    String logId = blockType.getId();
+                    world.setBlock(treePos.x, treePos.y, treePos.z, EMPTY_BLOCK);
+                    // The post this NPC used pointed at exactly this trunk; it's gone now, so the
+                    // post has to go looking again next time (a re-placed or new lumbermill).
+                    LumberPostRegistry.removeByTree(treePos.x, treePos.y, treePos.z);
+
+                    ItemContainer inv = getInventory(store, ref);
+                    if (inv != null) {
+                        ItemStack log = new ItemStack(logId, 1);
+                        if (inv.canAddItemStack(log)) {
+                            inv.addItemStack(log);
+                            LOGGER.debug("[SimTale] Lumberjack NPC {} chopped {}", npc.name, logId);
+                        } else {
+                            LOGGER.debug("[SimTale] Lumberjack NPC {} chopped {} but inventory is full — lost", npc.name, logId);
+                        }
+                    }
+                } else {
+                    // Someone else got here first (player, or another lumberjack before the
+                    // registry caught up) — nothing to chop, just stop cleanly.
+                    LOGGER.debug("[SimTale] Lumberjack NPC {} arrived at ({},{},{}) but it wasn't a tree anymore", npc.name, treePos.x, treePos.y, treePos.z);
+                }
+                applyWorkSatisfaction(npc, world.getTick());
+                releaseWorkPost(ai, npc);
+                ai.currentTask = TaskType.IDLE;
+                playIdleAnim(ref, store);
+            }
+        }
+
         // MOVING_TO_DEPOSIT
         if (ai.currentTask == TaskType.MOVING_TO_DEPOSIT) {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
@@ -463,7 +525,11 @@ public class NPCWorkHelper {
     public static void releaseWorkPost(RoutineAIComponent ai, SimNPCComponent npc) {
         if (ai.claimedWorkPost == null) return;
         if (npc != null && npc.entityId != null) {
+            // claimedWorkPost doesn't record which registry it came from, and release() on the
+            // wrong one is a harmless no-op (it only removes an entry that matches both the exact
+            // position and this NPC's id) — simpler than threading the profession through here.
             FishingPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
+            LumberPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
         }
         ai.claimedWorkPost = null;
     }

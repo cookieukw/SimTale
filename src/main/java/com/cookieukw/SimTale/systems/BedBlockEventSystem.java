@@ -32,5 +32,10 @@ public class BedBlockEventSystem extends WorldEventSystem<EntityStore, BreakBloc
         CropRegistry.removeAt(pos.x, pos.y, pos.z);
         FarmlandRegistry.removeAt(pos.x, pos.y, pos.z);
         FishingPostRegistry.removeAt(pos.x, pos.y, pos.z);
+        LumberPostRegistry.removeAt(pos.x, pos.y, pos.z);
+        // The post itself may still stand while its registered tree gets chopped (by a player or
+        // the lumberjack NPC it sent) — that leaves the post pointing at an empty spot forever
+        // unless the tree's own removal deregisters it too.
+        LumberPostRegistry.removeByTree(pos.x, pos.y, pos.z);
     }
 }
