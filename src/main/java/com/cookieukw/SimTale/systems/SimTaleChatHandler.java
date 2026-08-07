@@ -1,5 +1,9 @@
 package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.ai.AiConfigManager;
+import com.cookieukw.SimTale.ai.AiMessage;
+import com.cookieukw.SimTale.ai.AiRequest;
+import com.cookieukw.SimTale.ai.NpcContextBuilder;
 import com.cookieukw.SimTale.core.FriendshipTier;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
@@ -22,6 +26,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.logger.HytaleLogger;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -284,6 +289,57 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
                 sendReply(sender, Message.translation(getRandomVariant("npc-interactions.smalltalk", tier, 10)).param("name", npc.name));
             }
         }
+
+        // The canned line above always goes out synchronously — nothing here replaces it. If AI
+        // is configured, the real reply arrives as a *second*, separate chat message once the
+        // provider responds, same layering InteractionManager.handleFriendly already uses for the
+        // interaction-panel "chat" button. Job/movement commands (MINE, COME, ...) intentionally
+        // skip this: they already got their functional reply, and an AI aside on top of a work
+        // order is noise, not conversation.
+        if (isConversational(intent)) {
+            maybeSendAiReply(npc, sender, message);
+        }
+    }
+
+    /** Whether this intent is a back-and-forth exchange, as opposed to a command with its own effect. */
+    private static boolean isConversational(ChatIntent intent) {
+        return switch (intent) {
+            case GREETING, COMPLIMENT, PERSONAL_QUESTION, SELF_TALK, HUMOR,
+                 GRATITUDE, INSULT_CHAT, HELP_REQUEST, WHAT_CAN_YOU_DO, SMALLTALK -> true;
+            default -> false;
+        };
+    }
+
+    /**
+     * Fires an async AI reply on top of the canned line already sent, mirroring
+     * {@code InteractionManager.handleFriendly}. No-ops silently when the AI is unconfigured or
+     * disabled — the canned reply already covers that case, so there is nothing to fall back to.
+     */
+    private void maybeSendAiReply(SimNPCComponent npc, PlayerRef sender, String message) {
+        if (SimTale.aiManager == null || !AiConfigManager.getConfig().enabled) {
+            return;
+        }
+
+        AiRequest aiRequest = NpcContextBuilder.build(
+                npc, sender.getUuid(), sender.getUsername(),
+                List.of(new AiMessage("user", message)));
+
+        SimTale.aiManager.generateAsync(aiRequest)
+            .thenAccept(aiRes -> {
+                if (!aiRes.success()) {
+                    HytaleLogger.forEnclosingClass().atWarning()
+                            .log("SimTale: provedor de IA falhou no chat: " + aiRes.errorMessage());
+                    return;
+                }
+                // Callback runs on the CompletableFuture pool, not the world thread.
+                WorldUtil.execute(() ->
+                        sender.sendMessage(Message.raw("[" + npc.name + "] " + aiRes.text())));
+            })
+            .exceptionally(ex -> {
+                HytaleLogger.forEnclosingClass().atWarning()
+                        .log("SimTale: erro na resposta assincrona da IA no chat: " + ex);
+                return null;
+            });
     }
 
     /**
