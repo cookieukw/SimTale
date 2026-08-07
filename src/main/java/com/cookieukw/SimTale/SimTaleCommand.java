@@ -26,6 +26,8 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
+import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import org.joml.Vector3i;
@@ -800,55 +802,79 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     /**
-     * Debug-only: skips the {@code BabyCareData.nextSwapAllowedTime} 4-hour real-time cooldown for
-     * the nearest active child instead of reimplementing the swap. The next {@code BabyCareTickSystem}
-     * tick (every 30 ticks) does the actual swap once the player stands within 4 blocks of the
-     * spouse NPC, so this only unblocks the wait — it does not duplicate the swap logic itself.
+     * Debug-only: skips the {@code BabyCareData.nextSwapAllowedTime} 4-hour real-time cooldown
+     * instead of reimplementing the swap. The next {@code BabyCareTickSystem} tick (every 30
+     * ticks) does the actual swap once the player stands within 4 blocks of the spouse NPC, so
+     * this only unblocks the wait — it does not duplicate the swap logic itself.
+     *
+     * <p>A newborn baby has no world entity (it is removed on birth — only an inventory item plus
+     * {@code BabyCareData} on disk), so this can't search by nearby entity like {@code setstage}
+     * does. It looks first at the player's own inventory for the "Baby" item, then at nearby NPCs
+     * currently carrying one via {@code BabyCareManager.getCarriedBabies}.
      */
     private static class ForceBabySwapSubCommand extends AbstractPlayerCommand {
         public ForceBabySwapSubCommand() {
-            super("forcebabyswap", "Skips the custody swap cooldown for the nearest child");
+            super("forcebabyswap", "Skips the custody swap cooldown for a baby you hold or a nearby NPC holds");
         }
 
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
-            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
-            GrowthComponent nearestChild = null;
-            double minDistance = Double.MAX_VALUE;
+            UUID childId = null;
+            String source = null;
 
-            for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
-                if (child.childId != null) {
-                    Ref<EntityStore> childRef = world.getEntityStore().getRefFromUUID(child.childId);
-                    if (childRef != null) {
-                        TransformComponent childTransform = store.getComponent(childRef, TransformComponent.getComponentType());
-                        if (playerTransform != null && childTransform != null) {
-                            double distSq = playerTransform.getPosition().distanceSquared(childTransform.getPosition());
-                            if (distSq < minDistance) {
-                                minDistance = distSq;
-                                nearestChild = child;
-                            }
-                        }
+            CombinedItemContainer inventory = InventoryComponent.getCombined(store, ref, InventoryComponent.HOTBAR_FIRST);
+            for (short slot = 0; slot < inventory.getCapacity(); slot++) {
+                ItemStack item = inventory.getItemStack(slot);
+                if (item != null && item.getItemId().equals("Baby")) {
+                    String childIdStr = item.getFromMetadataOrNull("childId", Codec.STRING);
+                    if (childIdStr != null) {
+                        childId = UUID.fromString(childIdStr);
+                        source = "your inventory";
+                        break;
                     }
                 }
             }
 
-            if (nearestChild == null) {
-                ctx.sendMessage(Message.raw("No active children found nearby."));
+            if (childId == null) {
+                TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+                SimNPCComponent nearestCarrier = null;
+                double minDistance = Double.MAX_VALUE;
+
+                for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                    if (npc.entityRef == null || !npc.entityRef.isValid()) continue;
+                    if (BabyCareManager.getCarriedBabies(npc.entityId).isEmpty()) continue;
+                    TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (playerTransform == null || npcTransform == null) continue;
+                    double distSq = playerTransform.getPosition().distanceSquared(npcTransform.getPosition());
+                    if (distSq < minDistance) {
+                        minDistance = distSq;
+                        nearestCarrier = npc;
+                    }
+                }
+
+                if (nearestCarrier != null) {
+                    childId = BabyCareManager.getCarriedBabies(nearestCarrier.entityId).get(0);
+                    source = nearestCarrier.name + "'s inventory";
+                }
+            }
+
+            if (childId == null) {
+                ctx.sendMessage(Message.raw("No baby found in your inventory or a nearby NPC's."));
                 return;
             }
 
-            BabyCareData care = BabyCareManager.load(nearestChild.childId);
+            BabyCareData care = BabyCareManager.load(childId);
             if (care == null) {
-                ctx.sendMessage(Message.raw("No BabyCareData found for " + nearestChild.getFullName() + " — was it born before co-parenting existed?"));
+                ctx.sendMessage(Message.raw("Found the baby item but no matching BabyCareData for it."));
                 return;
             }
 
             care.nextSwapAllowedTime = System.currentTimeMillis();
             BabyCareManager.save(care);
 
-            ctx.sendMessage(Message.raw("Swap cooldown cleared for " + nearestChild.getFullName()
-                + ". Current holder: " + care.currentHolderId + ". Stand within 4 blocks of the spouse NPC and wait a couple seconds for the next tick to swap it."));
+            ctx.sendMessage(Message.raw("Swap cooldown cleared for the baby currently in " + source
+                + ". Stand within 4 blocks of the spouse NPC and wait a couple seconds for the next tick to swap it."));
         }
     }
 
