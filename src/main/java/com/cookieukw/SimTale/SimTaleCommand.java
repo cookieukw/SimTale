@@ -117,6 +117,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ChestCheckSubCommand());
         this.addSubCommand(new ForceEatSubCommand());
         this.addSubCommand(new ForceWorkSubCommand());
+        this.addSubCommand(new ForceKillSubCommand());
         this.addSubCommand(new ForcePlantSubCommand());
         this.addSubCommand(new SetGenderSubCommand());
         this.addSubCommand(new CamDebugSubCommand());
@@ -133,7 +134,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill>"));
     }
 
     /**
@@ -359,7 +360,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
         public SpawnSubCommand() {
             super("spawn", "Spawns a SimTale NPC");
-            this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE|CHILD_MALE|CHILD_FEMALE", ArgTypes.STRING);
+            this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE|CHILD_MALE|CHILD_FEMALE|REAPER", ArgTypes.STRING);
         }
 
         @Override
@@ -370,7 +371,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             try {
                 type = SimNPCFactory.NPCType.valueOf(typeName.toUpperCase());
             } catch (IllegalArgumentException e) {
-                ctx.sendMessage(Message.translation("general.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD_MALE/CHILD_FEMALE"));
+                ctx.sendMessage(Message.translation("general.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD_MALE/CHILD_FEMALE/REAPER"));
                 return;
             }
 
@@ -1489,6 +1490,61 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             } else {
                 ctx.sendMessage(Message.raw("NPC AI not active."));
             }
+        }
+    }
+
+    /**
+     * Debug-only: there is currently no in-game path into the death flow at all (old age/disease
+     * are aspirational per the comment in {@code RoutineAISystem}) — the only way to test the
+     * Grim Reaper soul-collection pipeline (DYING -> DEAD -> REAPING) is to force it directly.
+     * Requires a reaper NPC to already exist in the world ({@code /simtale spawn reaper}) —
+     * {@code RoutineAISystem} only dispatches an idle reaper it finds in {@code ACTIVE_NPCS}.
+     */
+    private static class ForceKillSubCommand extends AbstractPlayerCommand {
+        public ForceKillSubCommand() {
+            super("forcekill", "Forces the nearest non-reaper NPC into the death flow (needs a reaper NPC to exist to be reaped)");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null && npc.entityRef.isValid() && !npc.isReaper) {
+                    TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (playerTransform != null && npcTransform != null) {
+                        double distSq = playerTransform.getPosition().distanceSquared(npcTransform.getPosition());
+                        if (distSq < minDistance) {
+                            minDistance = distSq;
+                            nearestNPC = npc;
+                        }
+                    }
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("No NPCs nearby."));
+                return;
+            }
+
+            RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (ai == null) {
+                ctx.sendMessage(Message.raw("NPC AI not active."));
+                return;
+            }
+
+            boolean reaperExists = SimTale.ACTIVE_NPCS.stream().anyMatch(n -> n.isReaper);
+
+            ai.currentTask = RoutineAIComponent.TaskType.DYING;
+            ai.forcedByDebug = true;
+            ai.taskStartTime = world.getTick();
+            store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
+
+            ctx.sendMessage(Message.raw("Forçando " + nearestNPC.name + " a morrer. Um ceifador deve coletar a alma em ~200 ticks."
+                + (reaperExists ? "" : " ATENÇÃO: nenhum ceifador ativo no momento — spawne um com /simtale spawn reaper, senão o corpo fica preso em DEAD.")));
         }
     }
 
