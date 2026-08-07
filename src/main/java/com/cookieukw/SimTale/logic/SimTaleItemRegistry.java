@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.logic;
 import com.cookie.runecore.api.RuneCoreItemManager;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCFactory;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -55,13 +56,18 @@ public class SimTaleItemRegistry {
                 ? SimNPCFactory.NPCType.HUMAN_MALE
                 : SimNPCFactory.NPCType.HUMAN_FEMALE;
 
-            Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
-            if (npcRef == null) {
-                playerRef.sendMessage(Message.raw("📜 O contrato não encontrou ninguém disposto a se mudar agora. Tente de novo."));
-                return;
-            }
-
-            playerRef.sendMessage(Message.raw("📜 Um novo morador chegou à vila!"));
+            // Item interactions tick from inside the store's own processing window;
+            // Store.addEntity (inside spawnNPC) is a structural write and throws
+            // "Store is currently processing!" if called straight from here. Same fix as
+            // everywhere else in the mod that mutates entities off a system's own tick.
+            WorldUtil.execute(() -> {
+                Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
+                if (npcRef == null) {
+                    playerRef.sendMessage(Message.raw("📜 O contrato não encontrou ninguém disposto a se mudar agora. Tente de novo."));
+                    return;
+                }
+                playerRef.sendMessage(Message.raw("📜 Um novo morador chegou à vila!"));
+            });
         });
         
         RuneCoreItemManager.register("QuartermastersGlass", (player, playerRef) -> {
