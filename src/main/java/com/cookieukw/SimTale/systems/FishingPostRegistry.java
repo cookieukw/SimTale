@@ -73,6 +73,7 @@ public final class FishingPostRegistry {
         synchronized (POSTS) {
             POSTS.removeIf(p -> p.postX() == x && p.postY() == y && p.postZ() == z);
         }
+        CLAIMED_BY.remove(key(x, y, z));
     }
 
     /** Nearest registered post to a world position, or null if none registered. */
