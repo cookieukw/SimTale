@@ -1525,7 +1525,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                         && (npc.profession == com.cookieukw.SimTale.core.Profession.FARMER
                             || npc.profession == com.cookieukw.SimTale.core.Profession.HUNTER
                             || npc.profession == com.cookieukw.SimTale.core.Profession.FISHERMAN
-                            || npc.profession == com.cookieukw.SimTale.core.Profession.LUMBERJACK)) {
+                            || npc.profession == com.cookieukw.SimTale.core.Profession.LUMBERJACK
+                            || npc.profession == com.cookieukw.SimTale.core.Profession.MINER)) {
                     TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();

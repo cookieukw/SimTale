@@ -10,24 +10,19 @@ import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.component.spatial.SpatialResource;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
-import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.component.RemoveReason;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
@@ -78,15 +73,23 @@ public class NPCWorkHelper {
             "corn", "Plant_Crop_Corn_Block"
     );
 
-    private static final Map<String, String> ANIMAL_TO_MEAT = orderedMap(
-            "pig", "Food_Pork_Raw",
-            "cow", "Food_Beef_Raw",
-            "bull", "Food_Beef_Raw",
-            "chicken", "Food_Chicken_Raw",
-            "hen", "Food_Chicken_Raw",
-            "sheep", "Food_Wildmeat_Raw",
-            "goat", "Food_Wildmeat_Raw"
-    );
+    /** Hunt expedition reward table — no real animal is tracked anymore, so this is just a
+     *  weighted roll instead of a model-id lookup. */
+    private static final String[] HUNT_ITEMS = {
+            "Food_Pork_Raw", "Food_Beef_Raw", "Food_Chicken_Raw", "Food_Wildmeat_Raw"
+    };
+
+    /** Mining expedition reward table, ordered common to rare. */
+    private static final String[] ORE_ITEMS = {
+            "Ore_Copper", "Ore_Copper", "Ore_Copper",
+            "Ore_Iron", "Ore_Iron", "Ore_Iron",
+            "Ore_Silver", "Ore_Silver",
+            "Ore_Gold",
+            "Ore_Cobalt",
+            "Ore_Mithril",
+            "Ore_Thorium",
+            "Ore_Adamantite"
+    };
 
     /** Block id used to clear a position, matching the convention in ConstructionSystem. */
     private static final String EMPTY_BLOCK = "Empty";
@@ -102,6 +105,45 @@ public class NPCWorkHelper {
     /** Weighted random catch — mostly common fish, occasionally something better. */
     private static String rollFish() {
         return FISH_ITEMS[(int) (Math.random() * FISH_ITEMS.length)];
+    }
+
+    private static String rollHunt() {
+        return HUNT_ITEMS[(int) (Math.random() * HUNT_ITEMS.length)];
+    }
+
+    private static String rollOre() {
+        return ORE_ITEMS[(int) (Math.random() * ORE_ITEMS.length)];
+    }
+
+    /** How long an EXPEDITION lasts — long enough to read as "went out and came back", short
+     *  enough not to seriously delay sleep even though the state is protected from interruption. */
+    private static final int EXPEDITION_DURATION_TICKS = 2400; // ~2 minutes
+
+    /** Scale swapped in for the duration — there is no invisibility flag on the engine, so a
+     *  near-zero model stands in for "not here" instead. */
+    private static final float EXPEDITION_SCALE = 0.001f;
+    private static final float NORMAL_NPC_SCALE = 1.0f;
+
+    /**
+     * Hunter and Miner share this: no real-time chase/dig, no risk of the NPC wandering into a
+     * hostile mob or falling down a hole — it just leaves for a while and comes back with
+     * something. Doesn't start right as the sleep window is opening, so it can't seriously delay
+     * bedtime; once started it runs to completion (protected in RoutineAISystem's interrupt
+     * check), because an interrupt mid-expedition would leave the shrink applied permanently.
+     */
+    private static void startExpedition(Ref<EntityStore> ref, RoutineAIComponent ai, SimNPCComponent npc, World world, Store<EntityStore> store) {
+        if (NPCSleepHelper.isSleepPeriod(npc, world)) return;
+
+        PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
+        if (pm != null) {
+            ModelReference oldRef = pm.getModelReference();
+            store.replaceComponent(ref, PersistentModel.getComponentType(),
+                    new PersistentModel(new ModelReference(oldRef.getModelAssetId(), EXPEDITION_SCALE, new LinkedHashMap<>())));
+        }
+
+        NPCMovementHelper.clearMoveTarget(ref, ai);
+        ai.currentTask = TaskType.EXPEDITION;
+        ai.taskStartTime = world.getTick();
     }
 
     /**
@@ -225,24 +267,6 @@ public class NPCWorkHelper {
                 } else {
                     NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, npcPos.y, ai.targetBlockPosition.z + 0.5));
                 }
-            } else if (npc.profession == Profession.HUNTER) {
-                if (ai.workTargetEntityId == null) { ai.currentTask = TaskType.IDLE; return; }
-                Ref<EntityStore> animalRef = world.getEntityStore().getRefFromUUID(ai.workTargetEntityId);
-                if (animalRef == null || !animalRef.isValid()) {
-                    ai.currentTask = TaskType.IDLE;
-                    return;
-                }
-                TransformComponent animalTrans = animalRef.getStore().getComponent(animalRef, TransformComponent.getComponentType());
-                if (animalTrans == null) { ai.currentTask = TaskType.IDLE; return; }
-                Vector3d animalPos = animalTrans.getPosition();
-
-                if (isNear(npcPos, animalPos.x, animalPos.z)) {
-                    NPCMovementHelper.clearMoveTarget(ref, ai);
-                    ai.currentTask = TaskType.HUNTING;
-                    ai.taskStartTime = world.getTick();
-                } else {
-                    NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(animalPos.x, npcPos.y, animalPos.z));
-                }
             } else if (npc.profession == Profession.FISHERMAN) {
                 if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
                 // Approach from beside the water, not standing inside it.
@@ -348,43 +372,6 @@ public class NPCWorkHelper {
             }
         }
 
-        // HUNTING State
-        if (ai.currentTask == TaskType.HUNTING) {
-            if (ai.workTargetEntityId == null) { ai.currentTask = TaskType.IDLE; return; }
-            if (world.getTick() - ai.taskStartTime == 1) {
-                playSmith(ref, store);
-            }
-
-            if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
-                Ref<EntityStore> animalRef = world.getEntityStore().getRefFromUUID(ai.workTargetEntityId);
-                if (animalRef != null && animalRef.isValid()) {
-                    PersistentModel pm = animalRef.getStore().getComponent(animalRef, PersistentModel.getComponentType());
-                    if (pm != null) {
-                        String modelId = pm.getModelReference().getModelAssetId();
-                        String meatId = lookup(ANIMAL_TO_MEAT, modelId, "Food_Wildmeat_Raw");
-
-                        // Destroy animal
-                        animalRef.getStore().removeEntity(animalRef, RemoveReason.REMOVE);
-
-                        // Put meat in storage
-                        ItemContainer inv = getInventory(store, ref);
-                        if (inv != null) {
-                            ItemStack meat = new ItemStack(meatId, 1);
-                            if (inv.canAddItemStack(meat)) {
-                                inv.addItemStack(meat);
-                            } else {
-                                LOGGER.debug("[SimTale] Hunter NPC {} hunted {} but inventory is full — meat lost", npc.name, meatId);
-                            }
-                        }
-                        LOGGER.debug("[SimTale] Hunter NPC {} hunted animal {}", npc.name, modelId);
-                    }
-                }
-                applyWorkSatisfaction(npc, world.getTick());
-                ai.workTargetEntityId = null;
-                ai.currentTask = TaskType.IDLE;
-                playIdleAnim(ref, store);
-            }
-        }
 
         // FISHING State
         if (ai.currentTask == TaskType.FISHING) {
@@ -448,6 +435,33 @@ public class NPCWorkHelper {
                 }
                 applyWorkSatisfaction(npc, world.getTick());
                 releaseWorkPost(ai, npc);
+                ai.currentTask = TaskType.IDLE;
+                playIdleAnim(ref, store);
+            }
+        }
+
+        // EXPEDITION State — Hunter/Miner, see startExpedition() for why there's no travel here.
+        if (ai.currentTask == TaskType.EXPEDITION) {
+            if (world.getTick() - ai.taskStartTime >= EXPEDITION_DURATION_TICKS) {
+                PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
+                if (pm != null) {
+                    ModelReference oldRef = pm.getModelReference();
+                    store.replaceComponent(ref, PersistentModel.getComponentType(),
+                            new PersistentModel(new ModelReference(oldRef.getModelAssetId(), NORMAL_NPC_SCALE, new LinkedHashMap<>())));
+                }
+
+                String rewardId = npc.profession == Profession.MINER ? rollOre() : rollHunt();
+                ItemContainer inv = getInventory(store, ref);
+                if (inv != null) {
+                    ItemStack reward = new ItemStack(rewardId, 1);
+                    if (inv.canAddItemStack(reward)) {
+                        inv.addItemStack(reward);
+                        LOGGER.debug("[SimTale] NPC {} returned from expedition with {}", npc.name, rewardId);
+                    } else {
+                        LOGGER.debug("[SimTale] NPC {} returned from expedition with {} but inventory is full — lost", npc.name, rewardId);
+                    }
+                }
+                applyWorkSatisfaction(npc, world.getTick());
                 ai.currentTask = TaskType.IDLE;
                 playIdleAnim(ref, store);
             }
@@ -610,36 +624,6 @@ public class NPCWorkHelper {
             }
         }
         return closest;
-    }
-
-    private static Ref<EntityStore> scanForAnimals(Vector3d center, Store<EntityStore> store) {
-        try {
-            SpatialResource<Ref<EntityStore>, EntityStore> spatial =
-                store.getResource(EntityModule.get().getEntitySpatialResourceType());
-
-            List<Ref<EntityStore>> results = new ArrayList<>();
-            spatial.getSpatialStructure().collect(center, 15.0, results);
-
-            for (Ref<EntityStore> target : results) {
-                if (target == null || !target.isValid()) continue;
-                PersistentModel pm = target.getStore().getComponent(target, PersistentModel.getComponentType());
-                if (pm != null) {
-                    // Model asset ids for livestock are plain keys like "Pig"/"Cow" — never
-                    // namespaced under anything containing "creature" (checked against every
-                    // model asset JSON the engine ships). Requiring that substring made this
-                    // scan reject every real animal, so Hunter could never find a target at all.
-                    String modelId = pm.getModelReference().getModelAssetId().toLowerCase();
-                    if (modelId.contains("pig") || modelId.contains("sheep") || modelId.contains("cow") || modelId.contains("chicken") || modelId.contains("hen") || modelId.contains("goat")) {
-                        return target;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // The spatial index can be mutated concurrently mid-scan; that is expected and
-            // recoverable, but swallowing it silently hid real errors here for a long time.
-            LOGGER.debug("[SimTale] Falha ao varrer animais proximos (ignorada)", e);
-        }
-        return null;
     }
 
     public static Vector3i scanForFarmland(Vector3d center, World world) {
