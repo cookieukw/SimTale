@@ -59,6 +59,8 @@ import com.cookieukw.SimTale.systems.FurnitureAnchorHelper;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
+import com.cookieukw.SimTale.core.lifecycle.BabyCareData;
+import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.entity.Frozen;
@@ -118,6 +120,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new CamDebugSubCommand());
         this.addSubCommand(new UnstickSubCommand());
         this.addSubCommand(new NpcStateSubCommand());
+        this.addSubCommand(new ForceBabySwapSubCommand());
     }
 
     @Override
@@ -128,7 +131,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap>"));
     }
 
     /**
@@ -793,6 +796,59 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             ctx.sendMessage(Message.raw("Stage of " + nearestChild.getFullName() + " definido para " + targetStage.name() + " (escala: " + nearestChild.currentScale + ")."));
+        }
+    }
+
+    /**
+     * Debug-only: skips the {@code BabyCareData.nextSwapAllowedTime} 4-hour real-time cooldown for
+     * the nearest active child instead of reimplementing the swap. The next {@code BabyCareTickSystem}
+     * tick (every 30 ticks) does the actual swap once the player stands within 4 blocks of the
+     * spouse NPC, so this only unblocks the wait — it does not duplicate the swap logic itself.
+     */
+    private static class ForceBabySwapSubCommand extends AbstractPlayerCommand {
+        public ForceBabySwapSubCommand() {
+            super("forcebabyswap", "Skips the custody swap cooldown for the nearest child");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            GrowthComponent nearestChild = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
+                if (child.childId != null) {
+                    Ref<EntityStore> childRef = world.getEntityStore().getRefFromUUID(child.childId);
+                    if (childRef != null) {
+                        TransformComponent childTransform = store.getComponent(childRef, TransformComponent.getComponentType());
+                        if (playerTransform != null && childTransform != null) {
+                            double distSq = playerTransform.getPosition().distanceSquared(childTransform.getPosition());
+                            if (distSq < minDistance) {
+                                minDistance = distSq;
+                                nearestChild = child;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (nearestChild == null) {
+                ctx.sendMessage(Message.raw("No active children found nearby."));
+                return;
+            }
+
+            BabyCareData care = BabyCareManager.load(nearestChild.childId);
+            if (care == null) {
+                ctx.sendMessage(Message.raw("No BabyCareData found for " + nearestChild.getFullName() + " — was it born before co-parenting existed?"));
+                return;
+            }
+
+            care.nextSwapAllowedTime = System.currentTimeMillis();
+            BabyCareManager.save(care);
+
+            ctx.sendMessage(Message.raw("Swap cooldown cleared for " + nearestChild.getFullName()
+                + ". Current holder: " + care.currentHolderId + ". Stand within 4 blocks of the spouse NPC and wait a couple seconds for the next tick to swap it."));
         }
     }
 
