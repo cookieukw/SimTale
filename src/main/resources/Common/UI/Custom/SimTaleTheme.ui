@@ -8,9 +8,9 @@
 //     flat hex rectangles, which is exactly why they felt square and unfinished.
 //   * Buttons gain Hovered/Pressed states and click sounds, which they had none of.
 //
-// Paths are relative to Common/UI/Custom/, matching how the game's own Pages/*.ui do it
-// ("../Common.ui", "../Common/Texture.png"). Verified against PrefabBrowser.ui, which sits at
-// the same depth as the SimTale screens.
+// Common.ui itself lives at Common/UI/Custom/Common.ui, the same folder as this file, so the
+// bare filename resolves directly — no "../" needed. (Confirmed against the client's own error
+// message: "Common.ui" resolves, "../Common.ui" does not, from this file's location.)
 
 $Game = "Common.ui";
 
