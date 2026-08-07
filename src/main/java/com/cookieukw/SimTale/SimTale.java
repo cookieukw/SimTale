@@ -23,7 +23,6 @@ import com.cookieukw.SimTale.systems.PlayerPregnancyTickSystem;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookieukw.SimTale.systems.PregnancyTickSystem;
 import com.cookieukw.SimTale.systems.RoutineAISystem;
-import com.cookieukw.SimTale.systems.SimNPCSpawnSystem;
 import com.cookieukw.SimTale.systems.SimTaleChatHandler;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.cookieukw.SimTale.systems.SimTaleTickSystem;
@@ -81,7 +80,6 @@ public class SimTale extends JavaPlugin {
             new ConcurrentHashMap<>();
 
     public static final List<ConstructionSiteComponent> ACTIVE_SITES = new CopyOnWriteArrayList<>();
-    public static boolean debugForceSpawning = false;
     public static NpcAiManager aiManager;
 
     /**
@@ -208,7 +206,6 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new PlumbobSystem());
         this.getEntityStoreRegistry().registerSystem(new MoodAnimationSystem());
         this.getEntityStoreRegistry().registerSystem(new ConstructionSystem());
-        this.getEntityStoreRegistry().registerSystem(new SimNPCSpawnSystem());
         this.getEntityStoreRegistry().registerSystem(new PregnancyTickSystem());
         this.getEntityStoreRegistry().registerSystem(new PlayerPregnancyTickSystem());
         this.getEntityStoreRegistry().registerSystem(new BabyCareTickSystem());

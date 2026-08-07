@@ -9,6 +9,7 @@
   "PlayerAnimationsId": "Item",
   "Scale": 1.0,
   "MaxStack": 10,
+  "Consumable": true,
   "Interactions": {
     "Secondary": "RuneCore_GenericItemUse"
   }

@@ -16,10 +16,11 @@ import org.joml.Vector3i;
 /**
  * Spawns the founding group of NPCs the first time a player sets foot in a fresh world.
  * <p>
- * Before this existed the only spawner was {@code SimNPCSpawnSystem}, which waits 30 seconds
- * and then adds a single NPC every 10 seconds. Reaching a village-sized group took over two
- * minutes of NPCs popping in one at a time, so the "arrive with a troop" moment never read as
- * one. The tick spawner stays as a slow top-up; this is the arrival.
+ * The only other spawner used to be {@code SimNPCSpawnSystem}, a tick system that waited 30
+ * seconds and then added a single NPC every 10 seconds — reaching a village-sized group took
+ * over two minutes of NPCs popping in one at a time, so the "arrive with a troop" moment never
+ * read as one. That trickle spawner was removed; growing the population past this founding
+ * group is now the player's call, via the {@code ImmigrationContract} item.
  */
 public final class StartingTroop {
 
