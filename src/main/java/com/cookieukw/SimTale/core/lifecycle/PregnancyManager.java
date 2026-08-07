@@ -149,6 +149,10 @@ public class PregnancyManager {
             LifecycleState.ACTIVE_CHILDREN.add(child);
             Caskara.save("child_" + child.childId.toString(), child);
             BabyCareManager.initializeForChild(child);
+            // initializeForChild only persists BabyCareData; the in-memory cache that drives the
+            // inventory sync needs the same starting holder or the "Baby" item never appears until
+            // a world/server restart forces loadCache() to read it back from disk.
+            BabyCareManager.addCarriedBaby(mother.entityId, child.childId);
 
             LOGGER.atInfo().log("SimTale: Nasceu " + child.getFullName() + " ("
                 + childGender.getDisplayName() + ") — filho(a) de " + mother.name);
