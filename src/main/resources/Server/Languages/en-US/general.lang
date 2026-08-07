@@ -101,6 +101,14 @@ cmd.aistatus.default_provider_none = none
 cmd.aistatus.diagnosis_disabled = => AI disabled (Enabled: No). Chat only uses the canned replies.
 cmd.aistatus.diagnosis_no_provider = => AI enabled, but NO provider initialized — missing a valid API key (geminiKey/openaiKey/openrouterKey in simtale-ai.json, or GEMINI_API_KEY/OPENAI_API_KEY/OPENROUTER_API_KEY as a server environment variable). Restart the server after configuring.
 cmd.aistatus.diagnosis_ok = => Should be working. If it still doesn't reply, check the server log for 'SimTale: provedor de IA falhou' when you send a message.
+cmd.chestcheck.no_transform = Error: TransformComponent is null.
+cmd.chestcheck.none_registered = No chests registered in ChestRegistry.
+cmd.chestcheck.none_nearby = No registered chests nearby (16 block radius)!
+cmd.chestcheck.located = [ChestCheck] Chest located at ({x}, {y}, {z})
+cmd.chestcheck.house = House: {houseId}
+cmd.chestcheck.owners = Owners: {owners}
+cmd.chestcheck.house_data_missing = Error: Linked to house {houseId} but house data not found.
+cmd.chestcheck.public_chest = Type: Public Chest (Not owned by any registered house)
 yes = Yes
 no = No
 house.debug.status = [House Debug] Interior blocks visited: {visited} (Max: 512) | Doors: {doors} | Chests: {chests} | Overflowed/Open: {overflowed} | Unloaded Chunks: {unloaded}

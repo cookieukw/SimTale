@@ -1408,7 +1408,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
             if (tc == null) {
-                ctx.sendMessage(Message.raw("Error: TransformComponent is null."));
+                ctx.sendMessage(Message.translation("general.cmd.chestcheck.no_transform"));
                 return;
             }
             Vector3d pos = tc.getPosition();
@@ -1434,31 +1434,30 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestChest == null) {
-                ctx.sendMessage(Message.raw("No chests registered in ChestRegistry."));
+                ctx.sendMessage(Message.translation("general.cmd.chestcheck.none_registered"));
                 return;
             }
 
             if (minDist > 16 * 16) {
-                ctx.sendMessage(Message.raw("No registered chests nearby (16 block radius)!"));
+                ctx.sendMessage(Message.translation("general.cmd.chestcheck.none_nearby"));
                 return;
             }
 
-            String msg = "[ChestCheck] Baú localizado em (" + nearestChest.x + ", " + nearestChest.y + ", " + nearestChest.z + ")\n";
+            ctx.sendMessage(Message.translation("general.cmd.chestcheck.located")
+                .param("x", nearestChest.x).param("y", nearestChest.y).param("z", nearestChest.z));
 
             UUID houseId = HouseManager.BLOCK_TO_HOUSE_ID.get(nearestChest);
             if (houseId != null) {
                 HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
                 if (house != null) {
-                    msg += "Residência: " + houseId + "\n";
-                    msg += "Proprietários: " + String.join(", ", house.owners);
+                    ctx.sendMessage(Message.translation("general.cmd.chestcheck.house").param("houseId", houseId.toString()));
+                    ctx.sendMessage(Message.translation("general.cmd.chestcheck.owners").param("owners", String.join(", ", house.owners)));
                 } else {
-                    msg += "Erro: Vinculado à casa " + houseId + " mas dados da casa não encontrados.";
+                    ctx.sendMessage(Message.translation("general.cmd.chestcheck.house_data_missing").param("houseId", houseId.toString()));
                 }
             } else {
-                msg += "Tipo: Baú Público (Não pertence a nenhuma casa cadastrada)";
+                ctx.sendMessage(Message.translation("general.cmd.chestcheck.public_chest"));
             }
-
-            ctx.sendMessage(Message.raw(msg));
         }
     }
 

@@ -101,6 +101,14 @@ cmd.aistatus.default_provider_none = nenhum
 cmd.aistatus.diagnosis_disabled = => IA desligada (Ativado: Não). O chat só usa as respostas prontas.
 cmd.aistatus.diagnosis_no_provider = => IA ligada, mas NENHUM provider inicializou — falta uma chave de API válida (geminiKey/openaiKey/openrouterKey no simtale-ai.json, ou GEMINI_API_KEY/OPENAI_API_KEY/OPENROUTER_API_KEY como variável de ambiente do servidor). É preciso reiniciar o servidor depois de configurar.
 cmd.aistatus.diagnosis_ok = => Deveria estar funcionando. Se ainda assim não responder, olhe o log do servidor por 'SimTale: provedor de IA falhou' na hora que você mandar mensagem.
+cmd.chestcheck.no_transform = Erro: TransformComponent nulo.
+cmd.chestcheck.none_registered = Nenhum baú registrado no ChestRegistry.
+cmd.chestcheck.none_nearby = Nenhum baú registrado por perto (raio de 16 blocos)!
+cmd.chestcheck.located = [ChestCheck] Baú localizado em ({x}, {y}, {z})
+cmd.chestcheck.house = Residência: {houseId}
+cmd.chestcheck.owners = Proprietários: {owners}
+cmd.chestcheck.house_data_missing = Erro: Vinculado à casa {houseId} mas dados da casa não encontrados.
+cmd.chestcheck.public_chest = Tipo: Baú Público (Não pertence a nenhuma casa cadastrada)
 yes = Sim
 no = Não
 house.debug.status = [Debug de Casa] Blocos internos visitados: {visited} (Máx: 512) | Portas: {doors} | Baús: {chests} | Transbordou/Aberto: {overflowed} | Chunks Descarregados: {unloaded}
