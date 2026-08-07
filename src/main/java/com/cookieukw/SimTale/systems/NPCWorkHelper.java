@@ -448,10 +448,25 @@ public class NPCWorkHelper {
 
     /** Drops the current movement goal and returns the NPC to IDLE. */
     private static void abandonTask(Ref<EntityStore> ref, RoutineAIComponent ai) {
+        abandonTask(ref, ai, null);
+    }
+
+    private static void abandonTask(Ref<EntityStore> ref, RoutineAIComponent ai, SimNPCComponent npc) {
         NPCMovementHelper.clearMoveTarget(ref, ai);
         ai.targetBlockPosition = null;
         ai.workTargetEntityId = null;
+        releaseWorkPost(ai, npc);
         ai.currentTask = TaskType.IDLE;
+    }
+
+    /** Releases whatever work post this NPC is holding, if any — called on both give-up and
+     *  successful completion so a claimed post never outlives the task that claimed it. */
+    private static void releaseWorkPost(RoutineAIComponent ai, SimNPCComponent npc) {
+        if (ai.claimedWorkPost == null) return;
+        if (npc != null && npc.entityId != null) {
+            FishingPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
+        }
+        ai.claimedWorkPost = null;
     }
 
     // ── Animation shortcuts ──────────────────────────────────────────────────
