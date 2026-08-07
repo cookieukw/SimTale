@@ -246,8 +246,14 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // Dying is not a task to be interrupted. Neither interrupt excluded it, so a starving NPC
         // was pulled straight back out of DYING, the death check re-fired on the next tick, and the
         // "is dying" broadcast repeated forever without the NPC ever actually dying.
+        //
+        // EXPEDITION (Hunter/Miner "gone for a while") is protected for a different reason: it
+        // shrinks the NPC to near-zero scale for the duration, standing in as "not here" without
+        // an actual invisibility flag (the engine has none). An interrupt yanking the task away
+        // mid-expedition would leave that shrink permanent — the model never gets restored — so
+        // this state has to run to completion, same as death does.
         boolean inDeathFlow = ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.DEAD
-                || ai.currentTask == TaskType.REAPING;
+                || ai.currentTask == TaskType.REAPING || ai.currentTask == TaskType.EXPEDITION;
 
         // A claimed work post (fishing, and future lumberjack/farmer posts) must not outlive the
         // NPC that claimed it — otherwise a killed fisherman leaves its post permanently

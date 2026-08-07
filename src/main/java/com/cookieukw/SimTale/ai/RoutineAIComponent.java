@@ -39,6 +39,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
         HUNTING,
         FISHING,
         CHOPPING,
+        EXPEDITION,
         MOVING_TO_DEPOSIT,
         PLANTING
     }

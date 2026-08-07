@@ -131,7 +131,7 @@ public class NPCWorkHelper {
             Store<EntityStore> store
     ) {
         // Evaluate Transition to Work/Deposit from IDLE
-        if (ai.currentTask == TaskType.IDLE && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK)) {
+        if (ai.currentTask == TaskType.IDLE && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK || npc.profession == Profession.MINER)) {
             ItemContainer inventory = getInventory(store, ref);
             boolean hasItemsToDeposit = hasAnyItem(inventory);
 
@@ -172,19 +172,8 @@ public class NPCWorkHelper {
                             }
                         }
                     }
-                } else if (npc.profession == Profession.HUNTER) {
-                    // Scan for animals
-                    Ref<EntityStore> animalRef = scanForAnimals(transform.getPosition(), store);
-                    if (animalRef != null && animalRef.isValid()) {
-                        UUIDComponent uuidComp =
-                            animalRef.getStore().getComponent(animalRef, com.hypixel.hytale.server.core.entity.UUIDComponent.getComponentType());
-                        if (uuidComp != null) {
-                            ai.workTargetEntityId = uuidComp.getUuid();
-                            ai.currentTask = TaskType.MOVING_TO_WORK;
-                            ai.taskStartTime = world.getTick();
-                            playWalk(ref, store);
-                        }
-                    }
+                } else if (npc.profession == Profession.HUNTER || npc.profession == Profession.MINER) {
+                    startExpedition(ref, ai, npc, world, store);
                 } else if (npc.profession == Profession.FISHERMAN) {
                     // Water was already resolved once, when the fishing post was placed — no
                     // scan needed here, just look the post up. One NPC per post at a time.
