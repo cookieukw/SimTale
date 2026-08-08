@@ -87,6 +87,38 @@ public class SimNPCPersistence {
         }
     }
 
+    /**
+     * Separate per-world shell for NPCs the Grim Reaper has collected. Distinct from
+     * {@link #worldShell()} so a live NPC's record and an archived dead one never collide under
+     * the same id.
+     * <p>
+     * Nothing reads from this yet — it exists so death stops being destructive. Foundation for a
+     * future revive mechanic or a graveyard/cemetery feature.
+     */
+    public static Shell graveyardShell() {
+        World world = WorldUtil.first();
+        return world != null ? Caskara.shell(world, "simtale_graveyard") : Caskara.shell("simtale_graveyard");
+    }
+
+    /**
+     * Moves an NPC's record into the graveyard shell instead of deleting it outright — same
+     * spot {@link #deleteNPC} used to be called from when the Reaper finishes collecting a
+     * soul. The data survives there for whatever uses it later.
+     */
+    public static void archiveToGraveyard(UUID entityId) {
+        if (entityId == null) return;
+        try {
+            SimNPCData data = worldShell().core(SimNPCData.class).extract(entityId.toString()).sync().orElse(null);
+            if (data != null) {
+                graveyardShell().core(SimNPCData.class).preserve(entityId.toString(), data);
+            }
+            worldShell().core(SimNPCData.class).discard(entityId.toString());
+        } catch (Exception e) {
+            HytaleLogger.forEnclosingClass().atWarning()
+                .log("SimTale: falha ao arquivar NPC " + entityId + " no cemiterio: " + e.getMessage());
+        }
+    }
+
     /** Wipes every NPC record. Returns how many were removed. */
     public static int deleteAll() {
         int removed = 0;
