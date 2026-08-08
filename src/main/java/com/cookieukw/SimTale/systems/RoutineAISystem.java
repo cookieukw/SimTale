@@ -36,6 +36,8 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.WorldUtil;
+import com.cookieukw.SimTale.core.SimNPCFactory;
+import com.cookie.runecore.api.StatusEffectHelper;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
@@ -76,6 +78,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
     /** Give up walking to a bed after 30 s, so an unreachable one does not trap the NPC. */
     private static final int BED_MOVE_TIMEOUT_TICKS = 600;
+
+    /** How long the Reaper stands at the corpse before completing the collection — long enough
+     *  for the player to notice, go find an Ingredient_Voidheart, and come plead for the NPC's
+     *  life before it's too late. */
+    private static final int REAP_PLEAD_WINDOW_TICKS = 20 * 20;
 
     /**
      * An NPC with more energy than this will not go to bed just because its sleep window opened.
@@ -206,38 +213,42 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // Hunger does not kill. An NPC at zero stops working, cries and stays miserable until
         // someone feeds it; the DYING flow below is reached only by old age, disease or a command.
         if (ai.currentTask == TaskType.DYING) {
+            // Visual cue that something is wrong, for the ~10s before the Reaper shows up —
+            // otherwise the NPC just stands there giving no indication anything is happening.
+            if (world.getTick() - ai.taskStartTime == 1) {
+                StatusEffectHelper.applyBleeding(ref);
+            }
             if (world.getTick() - ai.taskStartTime > 200) {
+                StatusEffectHelper.revertBleeding(ref);
                 ai.currentTask = TaskType.DEAD;
                 ai.taskStartTime = world.getTick();
+
+                // The Reaper is ephemeral — spawned fresh for this specific death and removed
+                // again once the ritual finishes (REAPING below), rather than needing to already
+                // exist in the world beforehand. Previously nothing spawned her at all: without
+                // running /simtale spawn reaper ahead of time (undocumented outside the
+                // forcekill warning), or if the one Reaper that did exist was already busy with
+                // a different corpse, the body was stuck in DEAD forever. Spawning is a
+                // structural write and this runs from inside the Store's own tick, so it has to
+                // be deferred the same way startExpedition/spawnNPC elsewhere are.
+                Vector3d deathPos = transform.getPosition();
+                UUID dyingId = npc.entityId;
+                WorldUtil.execute(() -> {
+                    Ref<EntityStore> reaperRef = SimNPCFactory.spawnNPC(store, deathPos, SimNPCFactory.NPCType.REAPER);
+                    RoutineAIComponent reaperAi = store.getComponent(reaperRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (reaperAi == null) {
+                        reaperAi = new RoutineAIComponent();
+                        store.addComponent(reaperRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, reaperAi);
+                    }
+                    reaperAi.currentTask = TaskType.REAPING;
+                    reaperAi.dyingEntityId = dyingId;
+                    reaperAi.reapTimer = REAP_PLEAD_WINDOW_TICKS;
+                });
             }
             return;
         }
 
-        if (ai.currentTask == TaskType.DEAD) {
-            // Previously this search ran exactly once, in the same tick DYING flipped to DEAD.
-            // If no Reaper existed yet at that instant, or the only one was already busy reaping
-            // a different corpse, the body was stuck in DEAD forever — nothing ever retried.
-            // Matches the historical report of NPCs that "didn't die" or stayed in the world:
-            // the DYING->DEAD transition itself always worked, but the handoff to a Reaper was a
-            // one-shot coin flip. Retrying periodically here means a Reaper that spawns or frees
-            // up later still picks the corpse up.
-            if (world.getTick() % 20 == 0) {
-                for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
-                    // isValid() matters, not just != null — a stale ref (NPC removed, or the
-                    // world tearing down mid-tick) makes store.getComponent throw
-                    // "Invalid entity reference!" instead of returning null.
-                    if (other.entityRef == null || !other.entityRef.isValid()) continue;
-                    RoutineAIComponent otherAi = store.getComponent(other.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
-                    if (otherAi != null && otherAi.currentTask == TaskType.IDLE && other.isReaper) {
-                        otherAi.currentTask = TaskType.REAPING;
-                        otherAi.dyingEntityId = npc.entityId;
-                        otherAi.reapTimer = 100;
-                        break;
-                    }
-                }
-            }
-            return;
-        }
+        if (ai.currentTask == TaskType.DEAD) return;
 
         // --- Check low energy to go to bed immediately (interrupts current task) ---
         float sleepThreshold = npc.personality.traits.contains(Trait.LAZY) ? 60f : 30f;
@@ -885,16 +896,18 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     Universe.get().getPlayers().forEach(p -> {
                         p.sendMessage(Message.translation("general.reaper.soul_taken").param("name", deceasedName));
                         try {
-                            CommandManager.get().handleCommand(p, "give " + p.getUsername() + " Rock_Stone_Cobble --quantity=1");
+                            // A raw stone stood in only because there was nothing better on hand.
+                            // Life_Essence actually reads as a collected soul.
+                            CommandManager.get().handleCommand(p, "give " + p.getUsername() + " Ingredient_Life_Essence --quantity=1");
                         } catch (Exception e) {
                             LOGGER.error("Error giving soul to player", e);
                         }
                     });
                     if (dyingNpc != null && dyingNpc.entityId != null) {
                         PlumbobSystem.removePlumbob(dyingNpc.entityId);
-                        // Caskara.delete() targets the "default" shell, so this never removed
-                        // anything: every NPC that ever died stayed in the database forever.
-                        SimNPCPersistence.deleteNPC(dyingNpc.entityId);
+                        // Record survives now instead of being deleted outright — foundation for
+                        // a future revive/cemetery feature (SimNPCPersistence.archiveToGraveyard).
+                        SimNPCPersistence.archiveToGraveyard(dyingNpc.entityId);
                     }
                     // Same class of leak as the DB one above, just in memory: the corpse entity
                     // was removed from the world here, but its SimNPCComponent stayed in
@@ -906,7 +919,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                         SimTale.untrackNpc(dyingNpc);
                     }
                     commandBuffer.removeEntity(dyingRef, RemoveReason.REMOVE);
-                    ai.currentTask = TaskType.IDLE;
+
+                    // The Reaper herself is ephemeral — spawned fresh for this one death, gone
+                    // once the ritual is done, instead of lingering in the world as a permanent
+                    // NPC (which also used to require /simtale spawn reaper to exist ahead of
+                    // time or the corpse never got collected at all).
+                    SimTale.untrackNpc(npc);
+                    commandBuffer.removeEntity(ref, RemoveReason.REMOVE);
                 }
             }
         }
