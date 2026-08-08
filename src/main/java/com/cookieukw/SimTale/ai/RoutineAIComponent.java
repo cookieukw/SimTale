@@ -42,7 +42,9 @@ public class RoutineAIComponent implements Component<EntityStore> {
         EXPEDITION,
         MOVING_TO_DEPOSIT,
         MOVING_TO_SEEDS,
-        PLANTING
+        PLANTING,
+        MOVING_TO_FIGHT,
+        FIGHTING
     }
 
     public TaskType currentTask = TaskType.IDLE;
