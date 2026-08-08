@@ -93,7 +93,7 @@ public class SimNPCFactory {
         
         String name;
         if (type == NPCType.REAPER) {
-            name = "Dona Morte";
+            name = "Grim Reaper";
             PersistentModel pm = new PersistentModel(
                 new ModelReference("Common/NPC/Void/Necromancer_Void/Models/Model.blockymodel", 1.0f, new HashMap<>())
             );
