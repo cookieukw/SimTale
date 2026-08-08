@@ -209,6 +209,19 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             if (world.getTick() - ai.taskStartTime > 200) {
                 ai.currentTask = TaskType.DEAD;
                 ai.taskStartTime = world.getTick();
+            }
+            return;
+        }
+
+        if (ai.currentTask == TaskType.DEAD) {
+            // Previously this search ran exactly once, in the same tick DYING flipped to DEAD.
+            // If no Reaper existed yet at that instant, or the only one was already busy reaping
+            // a different corpse, the body was stuck in DEAD forever — nothing ever retried.
+            // Matches the historical report of NPCs that "didn't die" or stayed in the world:
+            // the DYING->DEAD transition itself always worked, but the handoff to a Reaper was a
+            // one-shot coin flip. Retrying periodically here means a Reaper that spawns or frees
+            // up later still picks the corpse up.
+            if (world.getTick() % 20 == 0) {
                 for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
                     // isValid() matters, not just != null — a stale ref (NPC removed, or the
                     // world tearing down mid-tick) makes store.getComponent throw
@@ -225,8 +238,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
             return;
         }
-
-        if (ai.currentTask == TaskType.DEAD) return;
 
         // --- Check low energy to go to bed immediately (interrupts current task) ---
         float sleepThreshold = npc.personality.traits.contains(Trait.LAZY) ? 60f : 30f;
@@ -884,6 +895,15 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                         // Caskara.delete() targets the "default" shell, so this never removed
                         // anything: every NPC that ever died stayed in the database forever.
                         SimNPCPersistence.deleteNPC(dyingNpc.entityId);
+                    }
+                    // Same class of leak as the DB one above, just in memory: the corpse entity
+                    // was removed from the world here, but its SimNPCComponent stayed in
+                    // ACTIVE_NPCS/NPCS_BY_ID forever with a now-invalid entityRef — a permanent
+                    // ghost entry for every NPC that ever died, for the life of the server
+                    // process. Every list scan and lookup elsewhere had to keep guarding against
+                    // it via isValid() checks instead of it simply not being there.
+                    if (dyingNpc != null) {
+                        SimTale.untrackNpc(dyingNpc);
                     }
                     commandBuffer.removeEntity(dyingRef, RemoveReason.REMOVE);
                     ai.currentTask = TaskType.IDLE;
