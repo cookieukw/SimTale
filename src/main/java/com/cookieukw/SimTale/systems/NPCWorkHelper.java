@@ -213,7 +213,7 @@ public class NPCWorkHelper {
                     }
 
                     // Try to harvest first
-                    Vector3i cropPos = scanForCrops(scanCenter, scanRadius);
+                    Vector3i cropPos = scanForCrops(scanCenter, scanRadius, world);
                     if (cropPos != null) {
                         ai.targetBlockPosition = cropPos;
                         if (claimedPost != null) {
@@ -305,16 +305,26 @@ public class NPCWorkHelper {
                 }
                 if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5)) {
                     NPCMovementHelper.clearMoveTarget(ref, ai);
-                    // Determine if harvesting or planting
+                    // Determine if harvesting or planting. Ripeness (not mere crop presence)
+                    // decides FARMING — otherwise a target reached while its crop was still
+                    // growing (e.g. re-checked after someone else got there first) got harvested
+                    // immediately regardless of stage.
                     BlockType blockType = world.getBlockType(ai.targetBlockPosition.x, ai.targetBlockPosition.y, ai.targetBlockPosition.z);
                     String blockId = blockType != null ? blockType.getId() : null;
-                    if (blockId != null && blockId.toLowerCase().contains("crop")) {
+                    boolean isEmpty = blockId == null || blockId.equalsIgnoreCase(EMPTY_BLOCK);
+                    if (CropRegistry.isReadyToHarvest(blockId)) {
                         ai.currentTask = TaskType.FARMING;
-                    } else {
+                        ai.taskStartTime = world.getTick();
+                        LOGGER.debug("[SimTale] Farmer NPC {} arrived at target {} (blockId='{}') -> entering FARMING", npc.name, ai.targetBlockPosition, blockId);
+                    } else if (isEmpty) {
                         ai.currentTask = TaskType.PLANTING;
+                        ai.taskStartTime = world.getTick();
+                        LOGGER.debug("[SimTale] Farmer NPC {} arrived at target {} (blockId='{}') -> entering PLANTING", npc.name, ai.targetBlockPosition, blockId);
+                    } else {
+                        // Occupied by a still-growing crop — nothing to do here yet.
+                        LOGGER.debug("[SimTale] Farmer NPC {} arrived at target {} (blockId='{}') but it's neither ripe nor empty — looking for other work", npc.name, ai.targetBlockPosition, blockId);
+                        continueOrFinishFarmWork(ai, npc, world, ref, store);
                     }
-                    LOGGER.debug("[SimTale] Farmer NPC {} arrived at target {} (blockId='{}') -> entering {}", npc.name, ai.targetBlockPosition, blockId, ai.currentTask);
-                    ai.taskStartTime = world.getTick();
                 } else {
                     NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, npcPos.y, ai.targetBlockPosition.z + 0.5));
                 }
@@ -350,7 +360,7 @@ public class NPCWorkHelper {
             if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
                 Vector3i cropPos = ai.targetBlockPosition;
                 BlockType blockType = world.getBlockType(cropPos.x, cropPos.y, cropPos.z);
-                if (blockType != null && blockType.getId() != null && blockType.getId().toLowerCase().contains("crop")) {
+                if (blockType != null && CropRegistry.isReadyToHarvest(blockType.getId())) {
                     String cropId = blockType.getId();
                     // Replace with empty
                     world.setBlock(cropPos.x, cropPos.y, cropPos.z, EMPTY_BLOCK);
@@ -621,7 +631,7 @@ public class NPCWorkHelper {
         if (ai.claimedWorkPost != null) {
             Vector3d postCenter = new Vector3d(ai.claimedWorkPost.x + 0.5, ai.claimedWorkPost.y, ai.claimedWorkPost.z + 0.5);
 
-            Vector3i cropPos = scanForCrops(postCenter, FARM_POST_WORK_RADIUS);
+            Vector3i cropPos = scanForCrops(postCenter, FARM_POST_WORK_RADIUS, world);
             if (cropPos != null) {
                 ai.targetBlockPosition = cropPos;
                 ai.currentTask = TaskType.MOVING_TO_WORK;
@@ -799,15 +809,16 @@ public class NPCWorkHelper {
      *  tile, before wandering off. */
     private static final double FARM_POST_WORK_RADIUS = 6.0;
 
-    private static Vector3i scanForCrops(Vector3d center) {
-        return scanForCrops(center, 15.0);
-    }
-
-    private static Vector3i scanForCrops(Vector3d center, double radius) {
+    /** Only matches crops the live world reports as fully grown ({@link CropRegistry#isReadyToHarvest})
+     *  — a registry entry alone just means "a crop is planted here", not "ready to pick". Without
+     *  this check she'd target (and immediately harvest) her own just-planted seedling. */
+    private static Vector3i scanForCrops(Vector3d center, double radius, World world) {
         Vector3i closest = null;
         double minDistSq = radius * radius;
         synchronized (CropRegistry.CROPS) {
             for (HouseBlockPos cp : CropRegistry.CROPS) {
+                BlockType type = world.getBlockType(cp.x, cp.y, cp.z);
+                if (type == null || !CropRegistry.isReadyToHarvest(type.getId())) continue;
                 double dx = cp.x - center.x;
                 double dy = cp.y - center.y;
                 double dz = cp.z - center.z;

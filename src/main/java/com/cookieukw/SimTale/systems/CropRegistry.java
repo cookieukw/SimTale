@@ -26,6 +26,16 @@ public final class CropRegistry {
         return name.contains("plant_crop_") && name.contains("_block") && !name.contains("eternal");
     }
 
+    /** A crop only carries "stagefinal" in its runtime id once fully grown — a freshly planted
+     *  or still-growing crop matches {@link #isCropId} too, but isn't ready to harvest yet.
+     *  Without this check the Farmer harvested her own just-planted seedling immediately, since
+     *  the harvest logic never distinguished "occupied by a crop" from "occupied by a RIPE crop"
+     *  — endless plant/harvest loop on the same tile, never advancing to the rest of the patch. */
+    public static boolean isReadyToHarvest(String id) {
+        if (id == null) return false;
+        return id.toLowerCase(Locale.ROOT).contains("stagefinal");
+    }
+
     public static void add(int x, int y, int z) {
         synchronized (CROPS) {
             HouseBlockPos pos = new HouseBlockPos(x, y, z);
