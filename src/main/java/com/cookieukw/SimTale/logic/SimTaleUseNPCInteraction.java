@@ -201,7 +201,7 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             // stateSupport.addInteraction(Objects.requireNonNull(playerRefComponent.getReference()));
             InteractionView interactionView = commandBuffer.getResource(Blackboard.getResourceType()).getView(InteractionView.class, 0L);
             if (interactionView.getReservationStatus(targetRef, ref, commandBuffer) == ReservationStatus.RESERVED_OTHER) {
-                playerRefComponent.sendMessage(Message.translation("server.npc.npc.isBusy").param("roleName", npcComponent.getRoleName()));
+                playerRefComponent.sendMessage(Message.translation("general.npc.busy").param("roleName", npcComponent.getRoleName()));
                 context.getState().state = InteractionState.Failed;
                 return;
             }

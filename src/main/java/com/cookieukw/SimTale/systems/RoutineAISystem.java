@@ -37,6 +37,8 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.core.SimNPCFactory;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import com.cookie.runecore.api.StatusEffectHelper;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.NeedsHelper;
@@ -231,7 +233,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 // a different corpse, the body was stuck in DEAD forever. Spawning is a
                 // structural write and this runs from inside the Store's own tick, so it has to
                 // be deferred the same way startExpedition/spawnNPC elsewhere are.
-                Vector3d deathPos = transform.getPosition();
+                // Offset a few blocks away instead of spawning her exactly on top of the
+                // corpse — she was clipping straight into the dying NPC, making it awful to
+                // even see or interact with either of them. REAPING already walks her in from
+                // wherever she starts if she's more than 2 blocks out, so this also means she
+                // visibly approaches instead of just appearing glued to the body.
+                Vector3d deathPos = transform.getPosition().add(3, 0, 3);
                 UUID dyingId = npc.entityId;
                 WorldUtil.execute(() -> {
                     Ref<EntityStore> reaperRef = SimNPCFactory.spawnNPC(store, deathPos, SimNPCFactory.NPCType.REAPER);
