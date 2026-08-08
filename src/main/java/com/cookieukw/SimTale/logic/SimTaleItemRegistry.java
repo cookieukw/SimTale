@@ -2,9 +2,12 @@ package com.cookieukw.SimTale.logic;
 
 import com.cookie.runecore.api.RuneCoreItemManager;
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.ConstructionSiteComponent;
+import com.cookieukw.SimTale.core.Rotation4;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.WorldUtil;
+import com.cookieukw.SimTale.systems.ConstructionPreviewManager;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -13,9 +16,11 @@ import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import org.joml.Vector3d;
+import org.joml.Vector3i;
 
 public class SimTaleItemRegistry {
 
@@ -88,10 +93,7 @@ public class SimTaleItemRegistry {
         // Was entirely missing — Baby.json points its Secondary interaction at
         // "RuneCore_GenericItemUse" same as every other custom item here, but with no matching
         // register() call RuneCoreGenericItemInteraction always logged "No handler registered
-        // for item: Baby" and the interaction just failed. Nothing to do with the raw
-        // PlayerMouseButtonEvent path (that one's real bug — SimTale.java using .register
-        // instead of .registerGlobal — is separate, and matters for the Blueprint item instead,
-        // which has no Interactions override and so falls through to that path directly).
+        // for item: Baby" and the interaction just failed.
         RuneCoreItemManager.register("Baby", (player, playerRef) -> {
             if (playerRef.getReference() == null || !playerRef.getReference().isValid()) {
                 return;
@@ -114,6 +116,50 @@ public class SimTaleItemRegistry {
             // Structural write (spawnNPC -> Store.addEntity) from inside the interaction's own
             // processing window — same deferral ImmigrationContract needs above.
             WorldUtil.execute(() -> SimTaleEventHandler.placeBabyFromHeldItem(store, pRef, playerRef, heldItem, spawnPos));
+        });
+
+        // Replaces the old click-hologram-confirm flow (raw PlayerMouseButtonEvent, a preview
+        // ghost you had to walk up to and click again to confirm). That depended on the same
+        // registration bug as everywhere else in this file's history — and even fixed, a
+        // multi-step click flow is more to go wrong than a single "use item, it builds" action.
+        // Starts and commits the construction site in one step, right where the player is
+        // standing, facing the direction they're facing — no preview, no obstruction check
+        // (unlike the old flow, which refused an obstructed site; this doesn't, same tradeoff
+        // /simtale forceconstruct makes for the same reason: simpler and more reliable beats
+        // fancier and flaky).
+        RuneCoreItemManager.register("Blueprint_TavernHouse", (player, playerRef) -> {
+            if (playerRef.getReference() == null || !playerRef.getReference().isValid()) {
+                return;
+            }
+            Ref<EntityStore> pRef = playerRef.getReference();
+            Store<EntityStore> store = pRef.getStore();
+            TransformComponent transform = store.getComponent(pRef, TransformComponent.getComponentType());
+            World world = store.getExternalData() != null ? store.getExternalData().getWorld() : null;
+            if (transform == null || world == null) {
+                return;
+            }
+
+            Vector3d pos = transform.getPosition();
+            Vector3i anchor = new Vector3i((int) pos.x, (int) pos.y, (int) pos.z);
+            Rotation4 facing = Rotation4.fromYawDegrees(Math.toDegrees(transform.getRotation().yaw()));
+
+            InventoryComponent.Hotbar hotbar = store.getComponent(pRef, InventoryComponent.Hotbar.getComponentType());
+            if (hotbar != null) {
+                hotbar.getInventory().removeItemStackFromSlot(hotbar.getActiveSlot(), 1);
+            }
+
+            WorldUtil.execute(() -> {
+                ConstructionPreviewManager.start(playerRef.getUuid(), "TavernHouse", anchor);
+                ConstructionSiteComponent committed = ConstructionPreviewManager.commit(playerRef.getUuid(), world);
+                if (committed != null) {
+                    committed.facing = facing;
+                    committed.roofFacing = facing;
+                    committed.isBuilding = true;
+                    playerRef.sendMessage(Message.raw("🏗️ Construção da Tavern House iniciada!"));
+                } else {
+                    playerRef.sendMessage(Message.raw("Não foi possível iniciar a construção."));
+                }
+            });
         });
 
         RuneCoreItemManager.register("QuartermastersGlass", (player, playerRef) -> {
