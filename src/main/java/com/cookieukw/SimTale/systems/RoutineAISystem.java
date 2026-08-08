@@ -210,7 +210,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 ai.currentTask = TaskType.DEAD;
                 ai.taskStartTime = world.getTick();
                 for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
-                    if (other.entityRef == null) continue;
+                    // isValid() matters, not just != null — a stale ref (NPC removed, or the
+                    // world tearing down mid-tick) makes store.getComponent throw
+                    // "Invalid entity reference!" instead of returning null.
+                    if (other.entityRef == null || !other.entityRef.isValid()) continue;
                     RoutineAIComponent otherAi = store.getComponent(other.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
                     if (otherAi != null && otherAi.currentTask == TaskType.IDLE && other.isReaper) {
                         otherAi.currentTask = TaskType.REAPING;
