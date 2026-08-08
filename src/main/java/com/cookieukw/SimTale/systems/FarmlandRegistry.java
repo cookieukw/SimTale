@@ -15,7 +15,10 @@ public final class FarmlandRegistry {
     public static boolean isFarmlandId(String id) {
         if (id == null) return false;
         String lower = id.toLowerCase();
-        return lower.contains("tilled") || lower.contains("grass") || lower.startsWith("soil_dirt") || lower.contains("soil_mud");
+        // Hytale prefixes state-variant ids with "*" (e.g. watered tilled soil comes back as
+        // "*soil_dirt_tilled_state_definitions_watered") — contains() instead of startsWith()
+        // so that leading marker doesn't hide the match, same fix as CropRegistry.isCropId.
+        return lower.contains("tilled") || lower.contains("grass") || lower.contains("soil_dirt") || lower.contains("soil_mud");
     }
 
     public static void add(int x, int y, int z) {

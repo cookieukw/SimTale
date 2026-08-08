@@ -205,13 +205,15 @@ public class NPCWorkHelper {
                     // is already claimed), so farming still works without placing a scarecrow.
                     Vector3d npcPos = transform.getPosition();
                     Vector3d scanCenter = npcPos;
+                    double scanRadius = 15.0;
                     FarmPostRegistry.FarmPost claimedPost = FarmPostRegistry.claimNearest(npcPos.x, npcPos.y, npcPos.z, npc.entityId);
                     if (claimedPost != null) {
                         scanCenter = new Vector3d(claimedPost.postX() + 0.5, claimedPost.postY(), claimedPost.postZ() + 0.5);
+                        scanRadius = FARM_POST_WORK_RADIUS;
                     }
 
                     // Try to harvest first
-                    Vector3i cropPos = scanForCrops(scanCenter);
+                    Vector3i cropPos = scanForCrops(scanCenter, scanRadius);
                     if (cropPos != null) {
                         ai.targetBlockPosition = cropPos;
                         if (claimedPost != null) {
@@ -222,7 +224,7 @@ public class NPCWorkHelper {
                         playWalk(ref, store);
                     } else {
                         String seed = findSeedInInventory(inventory);
-                        Vector3i farmPos = seed != null ? scanForFarmland(scanCenter, world) : null;
+                        Vector3i farmPos = seed != null ? scanForFarmland(scanCenter, scanRadius, world) : null;
                         if (farmPos != null) {
                             ai.targetBlockPosition = farmPos;
                             if (claimedPost != null) {
@@ -381,9 +383,7 @@ public class NPCWorkHelper {
                     }
                 }
                 applyWorkSatisfaction(npc, world.getTick());
-                releaseWorkPost(ai, npc);
-                ai.currentTask = TaskType.IDLE;
-                playIdleAnim(ref, store);
+                continueOrFinishFarmWork(ai, npc, world, ref, store);
             }
         }
 
@@ -424,9 +424,7 @@ public class NPCWorkHelper {
                     LOGGER.debug("[SimTale] Farmer NPC {} PLANTING failed at {}: getInventory returned null", npc.name, plantPos);
                 }
                 applyWorkSatisfaction(npc, world.getTick());
-                releaseWorkPost(ai, npc);
-                ai.currentTask = TaskType.IDLE;
-                playIdleAnim(ref, store);
+                continueOrFinishFarmWork(ai, npc, world, ref, store);
             }
         }
 
@@ -614,6 +612,44 @@ public class NPCWorkHelper {
         }
     }
 
+    /** Called after a Farmer finishes one tile (harvest or plant). Looks for more work within
+     *  {@link #FARM_POST_WORK_RADIUS} of the claimed scarecrow post — harvest before replanting,
+     *  same as a real farmer would — before giving up and going IDLE. Without this she did
+     *  exactly one tile per visit to the plot and wandered off, leaving the rest of the patch
+     *  untouched even when it was still full of ready crops. */
+    private static void continueOrFinishFarmWork(RoutineAIComponent ai, SimNPCComponent npc, World world, Ref<EntityStore> ref, Store<EntityStore> store) {
+        if (ai.claimedWorkPost != null) {
+            Vector3d postCenter = new Vector3d(ai.claimedWorkPost.x + 0.5, ai.claimedWorkPost.y, ai.claimedWorkPost.z + 0.5);
+
+            Vector3i cropPos = scanForCrops(postCenter, FARM_POST_WORK_RADIUS);
+            if (cropPos != null) {
+                ai.targetBlockPosition = cropPos;
+                ai.currentTask = TaskType.MOVING_TO_WORK;
+                ai.taskStartTime = world.getTick();
+                playWalk(ref, store);
+                return;
+            }
+
+            String seed = findSeedInInventory(getInventory(store, ref));
+            if (seed != null) {
+                Vector3i farmPos = scanForFarmland(postCenter, FARM_POST_WORK_RADIUS, world);
+                if (farmPos != null) {
+                    ai.targetBlockPosition = farmPos;
+                    ai.currentTask = TaskType.MOVING_TO_WORK;
+                    ai.taskStartTime = world.getTick();
+                    playWalk(ref, store);
+                    return;
+                }
+            }
+
+            // Patch is clear (or she's out of seeds) — free the claim for the next visit/farmer.
+            FarmPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
+            ai.claimedWorkPost = null;
+        }
+        ai.currentTask = TaskType.IDLE;
+        playIdleAnim(ref, store);
+    }
+
     /** Drops the current movement goal and returns the NPC to IDLE. */
     private static void abandonTask(Ref<EntityStore> ref, RoutineAIComponent ai, SimNPCComponent npc) {
         NPCMovementHelper.clearMoveTarget(ref, ai);
@@ -758,9 +794,18 @@ public class NPCWorkHelper {
         return null;
     }
 
+    /** Radius, in blocks, a Farmer works within once a Deco_Scarecrow plot is claimed — she
+     *  should clear and replant the whole patch around the post, not just the single nearest
+     *  tile, before wandering off. */
+    private static final double FARM_POST_WORK_RADIUS = 6.0;
+
     private static Vector3i scanForCrops(Vector3d center) {
+        return scanForCrops(center, 15.0);
+    }
+
+    private static Vector3i scanForCrops(Vector3d center, double radius) {
         Vector3i closest = null;
-        double minDistSq = 15.0 * 15.0;
+        double minDistSq = radius * radius;
         synchronized (CropRegistry.CROPS) {
             for (HouseBlockPos cp : CropRegistry.CROPS) {
                 double dx = cp.x - center.x;
@@ -777,8 +822,12 @@ public class NPCWorkHelper {
     }
 
     public static Vector3i scanForFarmland(Vector3d center, World world) {
+        return scanForFarmland(center, 15.0, world);
+    }
+
+    public static Vector3i scanForFarmland(Vector3d center, double radius, World world) {
         Vector3i closest = null;
-        double minDistSq = 15.0 * 15.0;
+        double minDistSq = radius * radius;
 
         synchronized (FarmlandRegistry.FARMLAND) {
             for (HouseBlockPos fp : FarmlandRegistry.FARMLAND) {
