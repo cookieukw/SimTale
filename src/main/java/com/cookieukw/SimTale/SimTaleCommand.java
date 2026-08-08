@@ -408,7 +408,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
         public SpawnSubCommand() {
             super("spawn", "Spawns a SimTale NPC");
-            this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE|CHILD_MALE|CHILD_FEMALE|REAPER", ArgTypes.STRING);
+            this.npcTypeArg = this.withRequiredArg("type", "SLOTHIAN|TRORK|HUMAN_MALE|HUMAN_FEMALE|CHILD_MALE|CHILD_FEMALE", ArgTypes.STRING);
         }
 
         @Override
@@ -419,7 +419,14 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             try {
                 type = SimNPCFactory.NPCType.valueOf(typeName.toUpperCase());
             } catch (IllegalArgumentException e) {
-                ctx.sendMessage(Message.translation("general.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD_MALE/CHILD_FEMALE/REAPER"));
+                ctx.sendMessage(Message.translation("general.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD_MALE/CHILD_FEMALE"));
+                return;
+            }
+            // The Reaper is ephemeral now — spawned automatically for a specific death and
+            // removed once the ritual finishes (RoutineAISystem's DYING->DEAD transition), not a
+            // standing NPC the player summons ahead of time.
+            if (type == SimNPCFactory.NPCType.REAPER) {
+                ctx.sendMessage(Message.raw("[SimTale] O Ceifador nao pode mais ser invocado manualmente — ele aparece sozinho quando uma NPC morre."));
                 return;
             }
 
@@ -1761,7 +1768,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
     private static class ForceKillSubCommand extends AbstractPlayerCommand {
         public ForceKillSubCommand() {
-            super("forcekill", "Forces the nearest non-reaper NPC into the death flow (needs a reaper NPC to exist to be reaped)");
+            super("forcekill", "Forces the nearest NPC into the death flow (a Reaper spawns automatically to collect the soul)");
         }
 
         @Override
@@ -1795,15 +1802,12 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
-            boolean reaperExists = SimTale.ACTIVE_NPCS.stream().anyMatch(n -> n.isReaper);
-
             ai.currentTask = RoutineAIComponent.TaskType.DYING;
             ai.forcedByDebug = true;
             ai.taskStartTime = world.getTick();
             store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
 
-            ctx.sendMessage(Message.raw("Forçando " + nearestNPC.name + " a morrer. Um ceifador deve coletar a alma em ~200 ticks."
-                + (reaperExists ? "" : " ATENÇÃO: nenhum ceifador ativo no momento — spawne um com /simtale spawn reaper, senão o corpo fica preso em DEAD.")));
+            ctx.sendMessage(Message.raw("Forçando " + nearestNPC.name + " a morrer. Em ~200 ticks um Ceifador vai aparecer sozinho pra coletar a alma."));
         }
     }
 
