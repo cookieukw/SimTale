@@ -1,6 +1,8 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
+import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -51,7 +53,12 @@ public class NPCMovementHelper {
         }
 
         if (needsUpdate) {
-            LOGGER.debug("[SimTale] moveTo updating leash point to ({},{},{})", targetPos.x, targetPos.y, targetPos.z);
+            // Without the NPC's name here, this line is useless for telling two NPCs' movement
+            // apart in a busy log — which one is dragging around near (X,Y,Z) was previously a
+            // guessing game whenever more than one NPC was active at once.
+            SimNPCComponent npc = ref.getStore().getComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE);
+            LOGGER.debug("[SimTale] moveTo({}) updating leash point to ({},{},{})",
+                    npc != null ? npc.name : "?", targetPos.x, targetPos.y, targetPos.z);
             ai.lastLeashPos = new Vector3d(targetPos);
             ai.lastLeashTick = world.getTick();
             
