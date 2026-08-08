@@ -548,6 +548,8 @@ public class NPCWorkHelper {
                         for (short slot = 0; slot < npcInv.getCapacity(); slot++) {
                             ItemStack item = npcInv.getItemStack(slot);
                             if (item == null || item.isEmpty()) continue;
+                            // Seeds are supplies she's keeping for herself, not loot.
+                            if (item.getItemId().toLowerCase(java.util.Locale.ROOT).contains("plant_seeds_")) continue;
 
                             // Copy first and check the chest has room, then clear the NPC slot.
                             // The old order removed the item from the NPC and handed the
