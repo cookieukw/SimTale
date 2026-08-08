@@ -179,7 +179,7 @@ public class NPCWorkHelper {
         // Evaluate Transition to Work/Deposit from IDLE
         if (ai.currentTask == TaskType.IDLE && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK || npc.profession == Profession.MINER)) {
             ItemContainer inventory = getInventory(store, ref);
-            boolean hasItemsToDeposit = hasAnyItem(inventory);
+            boolean hasItemsToDeposit = hasAnyDepositableItem(inventory);
 
             if (hasItemsToDeposit) {
                 // Find a chest owned by NPC to deposit items
@@ -678,6 +678,21 @@ public class NPCWorkHelper {
         for (short slot = 0; slot < container.getCapacity(); slot++) {
             ItemStack item = container.getItemStack(slot);
             if (item != null && !item.isEmpty()) return true;
+        }
+        return false;
+    }
+
+    /** Same as {@link #hasAnyItem}, but ignores seeds — those are supplies a Farmer is holding
+     *  on to for her own work, not loot to hand off. Without this, the very seeds just given by
+     *  {@code forceplant} or fetched via {@code MOVING_TO_SEEDS} get immediately deposited back
+     *  into the chest the moment she's IDLE again, before she ever gets to plant them. */
+    private static boolean hasAnyDepositableItem(ItemContainer container) {
+        if (container == null) return false;
+        for (short slot = 0; slot < container.getCapacity(); slot++) {
+            ItemStack item = container.getItemStack(slot);
+            if (item != null && !item.isEmpty() && !item.getItemId().toLowerCase(java.util.Locale.ROOT).contains("plant_seeds_")) {
+                return true;
+            }
         }
         return false;
     }
