@@ -26,6 +26,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.cookie.caskara.Caskara;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
@@ -128,6 +129,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new CamDebugSubCommand());
         this.addSubCommand(new UnstickSubCommand());
         this.addSubCommand(new RescanSubCommand());
+        this.addSubCommand(new BabyStageSubCommand());
         this.addSubCommand(new NpcStateSubCommand());
         this.addSubCommand(new ForceBabySwapSubCommand());
     }
@@ -140,7 +142,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|babystage>"));
     }
 
     /**
@@ -845,6 +847,86 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             ctx.sendMessage(Message.raw("Stage of " + nearestChild.getFullName() + " definido para " + targetStage.name() + " (escala: " + nearestChild.currentScale + ")."));
+        }
+    }
+
+    /**
+     * Debug-only: {@code setstage} only finds a child already spawned as a live entity
+     * ({@code LifecycleManager.ACTIVE_CHILDREN} entries resolve through
+     * {@code world.getEntityStore().getRefFromUUID}), but a newborn "Baby" item held by the
+     * player has no live entity at all — {@code birthPlayerBaby} spawns one only long enough to
+     * mint a UUID, then removes it immediately, and {@code SimTaleEventHandler} additionally
+     * refuses to place a `stage == BABY` item back down at all. There was no way to advance a
+     * carried baby's stage without waiting for real time to pass. This edits the carried item's
+     * backing {@link GrowthComponent} directly, by its {@code childId} metadata, with no entity
+     * spawn involved.
+     */
+    private static class BabyStageSubCommand extends AbstractPlayerCommand {
+        private final RequiredArg<String> stageArg;
+
+        public BabyStageSubCommand() {
+            super("babystage", "Sets the growth stage of the Baby item held in your hand (no need to place it down first)");
+            this.stageArg = this.withRequiredArg("stage", "BABY|TODDLER|CHILD|TEEN|ADULT", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            GrowthStage targetStage;
+            try {
+                targetStage = GrowthStage.valueOf(ctx.get(this.stageArg).toUpperCase());
+            } catch (IllegalArgumentException e) {
+                ctx.sendMessage(Message.raw("Invalid stage. Choose from: BABY, TODDLER, CHILD, TEEN, ADULT"));
+                return;
+            }
+
+            ItemStack heldItem = InventoryComponent.getItemInHand(store, ref);
+            if (heldItem == null || !heldItem.getItemId().equals("Baby")) {
+                ctx.sendMessage(Message.raw("[SimTale] Segure o item 'Baby' na mao para usar este comando."));
+                return;
+            }
+
+            String childIdStr = heldItem.getFromMetadataOrNull("childId", Codec.STRING);
+            if (childIdStr == null) {
+                ctx.sendMessage(Message.raw("[SimTale] Este item 'Baby' nao tem childId — provavelmente corrompido."));
+                return;
+            }
+            UUID childId;
+            try {
+                childId = UUID.fromString(childIdStr);
+            } catch (IllegalArgumentException badId) {
+                ctx.sendMessage(Message.raw("[SimTale] childId invalido no item."));
+                return;
+            }
+
+            GrowthComponent childComp = null;
+            for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
+                if (child.childId != null && child.childId.equals(childId)) {
+                    childComp = child;
+                    break;
+                }
+            }
+            if (childComp == null) {
+                childComp = Caskara.load("child_" + childId, GrowthComponent.class);
+                if (childComp != null) {
+                    LifecycleManager.ACTIVE_CHILDREN.add(childComp);
+                }
+            }
+            if (childComp == null) {
+                ctx.sendMessage(Message.raw("[SimTale] Nao encontrei os dados desse bebe (childId=" + childId + ")."));
+                return;
+            }
+
+            // No live entity to update — the point of this command is that one doesn't exist
+            // yet. The stage/scale take effect the moment it's placed down (SimTaleEventHandler
+            // reads childComp.currentScale/stage at that point) or picked up again.
+            childComp.stage = targetStage;
+            childComp.currentScale = targetStage.getScale();
+            childComp.birthTick = world.getTick() - (targetStage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
+            Caskara.save("child_" + childId, childComp);
+
+            ctx.sendMessage(Message.raw("[SimTale] Stage do bebe carregado (" + childComp.getFullName() + ") definido para "
+                    + targetStage.name() + " (escala: " + childComp.currentScale + "). Ja pode colocar no chao."));
         }
     }
 
