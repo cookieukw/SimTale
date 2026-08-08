@@ -69,7 +69,10 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
         }
 
         if (FarmPostRegistry.isFarmPostId(type.getId())) {
-            FarmPostRegistry.registerAt(pos.x, pos.y, pos.z);
+            // The scarecrow is 3 blocks tall — anchor first, or each constituent block becomes
+            // its own separate (and redundant) registered post.
+            Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
+            FarmPostRegistry.registerAt(scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
         }
     }
 }

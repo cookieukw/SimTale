@@ -23,6 +23,8 @@ public final class BedWorldBootstrap {
         int fishingPostsFound = FishingPostRegistry.POSTS.size();
         int lumberPostsFound = LumberPostRegistry.POSTS.size();
         int farmPostsFound = FarmPostRegistry.POSTS.size();
+        int farmlandFound = FarmlandRegistry.FARMLAND.size();
+        int cropsFound = CropRegistry.CROPS.size();
         LOGGER.debug("[SimTale-DEBUG] Starting simple radius scan around (" + px + "," + py + "," + pz + ") with radius " + radius);
 
         // Scan a cube around the player position
@@ -52,7 +54,18 @@ public final class BedWorldBootstrap {
                     } else if (LumberPostRegistry.isLumberPostId(type.getId())) {
                         LumberPostRegistry.registerAt(world, x, y, z);
                     } else if (FarmPostRegistry.isFarmPostId(type.getId())) {
-                        FarmPostRegistry.registerAt(x, y, z);
+                        Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
+                        FarmPostRegistry.registerAt(scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
+                    }
+
+                    // Same gap again, this time on the farmland/crops themselves — tilled soil or
+                    // a planted crop from an earlier session was invisible to scanForFarmland/
+                    // scanForCrops (which only ever read the registry, never the live world)
+                    // until the server was restarted again after a place event re-registered it.
+                    if (FarmlandRegistry.isFarmlandId(type.getId())) {
+                        FarmlandRegistry.add(x, y, z);
+                    } else if (CropRegistry.isCropId(type.getId())) {
+                        CropRegistry.add(x, y, z);
                     }
                 }
             }
@@ -63,12 +76,16 @@ public final class BedWorldBootstrap {
         int newFishingPosts = FishingPostRegistry.POSTS.size() - fishingPostsFound;
         int newLumberPosts = LumberPostRegistry.POSTS.size() - lumberPostsFound;
         int newFarmPosts = FarmPostRegistry.POSTS.size() - farmPostsFound;
-        if (newBeds > 0 || newChests > 0 || newFishingPosts > 0 || newLumberPosts > 0 || newFarmPosts > 0) {
+        int newFarmland = FarmlandRegistry.FARMLAND.size() - farmlandFound;
+        int newCrops = CropRegistry.CROPS.size() - cropsFound;
+        if (newBeds > 0 || newChests > 0 || newFishingPosts > 0 || newLumberPosts > 0 || newFarmPosts > 0
+                || newFarmland > 0 || newCrops > 0) {
             // At info level: this now runs on join, and it is the one line that tells whether the
             // world's existing furniture was picked up at all.
-            LOGGER.info("[SimTale] Scan found {} new beds, {} new chests, {} new fishing posts, {} new lumber posts, {} new farm posts. Totals: {} beds, {} chests, {} fishing, {} lumber, {} farm",
-                    newBeds, newChests, newFishingPosts, newLumberPosts, newFarmPosts,
-                    BedRegistry.size(), ChestRegistry.size(), FishingPostRegistry.POSTS.size(), LumberPostRegistry.POSTS.size(), FarmPostRegistry.POSTS.size());
+            LOGGER.info("[SimTale] Scan found {} new beds, {} new chests, {} new fishing posts, {} new lumber posts, {} new farm posts, {} new farmland, {} new crops. Totals: {} beds, {} chests, {} fishing, {} lumber, {} farm, {} farmland, {} crops",
+                    newBeds, newChests, newFishingPosts, newLumberPosts, newFarmPosts, newFarmland, newCrops,
+                    BedRegistry.size(), ChestRegistry.size(), FishingPostRegistry.POSTS.size(), LumberPostRegistry.POSTS.size(), FarmPostRegistry.POSTS.size(),
+                    FarmlandRegistry.FARMLAND.size(), CropRegistry.CROPS.size());
         } else {
             LOGGER.debug("[SimTale-DEBUG] Scan finished: nothing new. Totals: "
                     + BedRegistry.size() + " beds, " + ChestRegistry.size() + " chests");
