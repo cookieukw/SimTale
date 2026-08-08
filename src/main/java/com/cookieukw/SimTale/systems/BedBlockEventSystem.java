@@ -37,5 +37,6 @@ public class BedBlockEventSystem extends WorldEventSystem<EntityStore, BreakBloc
         // the lumberjack NPC it sent) — that leaves the post pointing at an empty spot forever
         // unless the tree's own removal deregisters it too.
         LumberPostRegistry.removeByTree(pos.x, pos.y, pos.z);
+        FarmPostRegistry.removeAt(pos.x, pos.y, pos.z);
     }
 }

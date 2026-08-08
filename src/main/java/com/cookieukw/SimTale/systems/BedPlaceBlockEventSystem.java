@@ -67,5 +67,9 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
         if (LumberPostRegistry.isLumberPostId(type.getId())) {
             LumberPostRegistry.registerAt(world, pos.x, pos.y, pos.z);
         }
+
+        if (FarmPostRegistry.isFarmPostId(type.getId())) {
+            FarmPostRegistry.registerAt(pos.x, pos.y, pos.z);
+        }
     }
 }
