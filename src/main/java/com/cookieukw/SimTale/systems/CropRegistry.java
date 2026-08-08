@@ -16,7 +16,13 @@ public final class CropRegistry {
         // Case-insensitive, matching BedRegistry/ChestRegistry/FarmlandRegistry. This was the
         // only registry that compared casing exactly.
         String name = id.toLowerCase(Locale.ROOT);
-        return name.startsWith("plant_crop_") && name.endsWith("_block") && !name.contains("eternal");
+        // Growth is an in-place BlockType state machine, not a separate registered id per stage
+        // — a grown crop's runtime getId() comes back as
+        // "plant_crop_carrot_block_state_definitions_stagefinal", not bare "..._block". This was
+        // only ever called with the bare id (at plant time), so the stricter endsWith("_block")
+        // never actually misfired, but it was one re-check against a grown crop away from
+        // silently failing. "_block" appearing anywhere covers every stage.
+        return name.startsWith("plant_crop_") && name.contains("_block") && !name.contains("eternal");
     }
 
     public static void add(int x, int y, int z) {
