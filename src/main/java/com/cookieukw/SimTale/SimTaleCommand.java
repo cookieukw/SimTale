@@ -1728,15 +1728,32 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
             if (ai != null) {
                 TransformComponent npcTransform = store.getComponent(nearestNPC.entityRef, TransformComponent.getComponentType());
-                Vector3i farmPos = NPCWorkHelper.scanForFarmland(npcTransform.getPosition(), world);
+                Vector3d npcPos = npcTransform.getPosition();
+
+                // Same registered-plot lookup handleWorkLogic uses: a Deco_Scarecrow lets her
+                // find farmland from anywhere, not just within scanning range of where she's
+                // standing right now.
+                com.cookieukw.SimTale.systems.FarmPostRegistry.FarmPost claimedPost =
+                        com.cookieukw.SimTale.systems.FarmPostRegistry.claimNearest(npcPos.x, npcPos.y, npcPos.z, nearestNPC.entityId);
+                Vector3d scanCenter = claimedPost != null
+                        ? new Vector3d(claimedPost.postX() + 0.5, claimedPost.postY(), claimedPost.postZ() + 0.5)
+                        : npcPos;
+
+                Vector3i farmPos = NPCWorkHelper.scanForFarmland(scanCenter, world);
                 if (farmPos != null) {
                     ai.targetBlockPosition = farmPos;
+                    if (claimedPost != null) {
+                        ai.claimedWorkPost = new Vector3i(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ());
+                    }
                     ai.currentTask = RoutineAIComponent.TaskType.MOVING_TO_WORK;
                     ai.forcedByDebug = true;
                     ai.taskStartTime = world.getTick();
                     store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
                     ctx.sendMessage(Message.translation("general.cmd.forceplant.success").param("name", nearestNPC.name).param("pos", farmPos.toString()));
                 } else {
+                    if (claimedPost != null) {
+                        com.cookieukw.SimTale.systems.FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), nearestNPC.entityId);
+                    }
                     ctx.sendMessage(Message.translation("general.cmd.forceplant.farmland_not_found").param("name", nearestNPC.name));
                 }
             } else {
