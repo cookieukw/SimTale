@@ -70,6 +70,10 @@ import com.hypixel.hytale.server.core.entity.Frozen;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.cookieukw.SimTale.systems.NPCWorkHelper;
+import com.cookieukw.SimTale.systems.ConstructionPreviewManager;
+import com.cookieukw.SimTale.systems.SimTaleEventHandler;
+import com.cookieukw.SimTale.core.ConstructionSiteComponent;
+import com.cookieukw.SimTale.core.Rotation4;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.server.npc.role.support.StateSupport;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
@@ -130,6 +134,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new UnstickSubCommand());
         this.addSubCommand(new RescanSubCommand());
         this.addSubCommand(new BabyStageSubCommand());
+        this.addSubCommand(new ForcePlaceBabySubCommand());
+        this.addSubCommand(new ForceConstructSubCommand());
         this.addSubCommand(new NpcStateSubCommand());
         this.addSubCommand(new ForceBabySwapSubCommand());
     }
@@ -142,7 +148,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|babystage>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|babystage|forceplacebaby|forceconstruct>"));
     }
 
     /**
@@ -682,7 +688,12 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 if (playerComp.pregnancy == null) {
                     playerComp.pregnancy = new PregnancyComponent();
                 }
-                playerComp.pregnancy.start(UUID.randomUUID(), world.getTick());
+                // No real father to reference for a solo /simtale forcepreg --target=me — a
+                // random UUID here used to silently fail every lookup that tried to resolve it
+                // against a real NPC (the birth-time "add child to father's family" loop, any
+                // future "who's the father" check), instead of the fatherId just being absent
+                // like it legitimately is in this case.
+                playerComp.pregnancy.start(null, world.getTick());
                 SimPlayerPersistence.savePlayer(playerComp);
                 ctx.sendMessage(Message.translation("general.cmd.forcepreg.success"));
                 openPlayerPregnancyPage(ref, store, playerRef, playerComp);
@@ -934,6 +945,87 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             ctx.sendMessage(Message.raw("[SimTale] Stage do bebe carregado (" + childComp.getFullName() + ") definido para "
                     + targetStage.name() + " (escala: " + childComp.currentScale + "). Ja pode colocar no chao."));
+        }
+    }
+
+    /**
+     * Debug-only: places the "Baby" item held in the player's hand on the ground 2 blocks away,
+     * without needing a right-click on a block.
+     * <p>
+     * The right-click flow ({@code SimTaleEventHandler}, listening for {@code PlayerMouseButtonEvent})
+     * turned out to be unreliable enough during this session's testing that it needed a direct
+     * alternative: the registration used {@code EventRegistry.register(...)} instead of
+     * {@code .registerGlobal(...)} — the only listener in either this project or RuneCore doing
+     * that for this event type, and the only one that never fired at all (confirmed with a log
+     * at the very top of the handler that never printed once across a full testing session of
+     * right-clicks). That registration bug is fixed now, but a direct command is still faster to
+     * test with and doesn't depend on the click pipeline working at all, so it's kept — same
+     * reasoning as every other {@code force*} debug command in this file.
+     */
+    private static class ForcePlaceBabySubCommand extends AbstractPlayerCommand {
+        public ForcePlaceBabySubCommand() {
+            super("forceplacebaby", "Places the Baby item you're holding on the ground, bypassing the right-click flow");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            ItemStack heldItem = InventoryComponent.getItemInHand(store, ref);
+            if (heldItem == null || !"Baby".equals(heldItem.getItemId())) {
+                ctx.sendMessage(Message.raw("[SimTale] Segure o item 'Baby' na mao para usar este comando."));
+                return;
+            }
+
+            TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+            if (transform == null) {
+                ctx.sendMessage(Message.raw("[SimTale] Nao foi possivel obter sua posicao."));
+                return;
+            }
+            Vector3d spawnPos = transform.getPosition().add(2, 0, 2);
+
+            boolean placed = SimTaleEventHandler.placeBabyFromHeldItem(store, ref, playerRef, heldItem, spawnPos);
+            if (!placed) {
+                ctx.sendMessage(Message.raw("[SimTale] Nao foi possivel colocar o bebe (childId invalido, dados nao encontrados, ou ainda no estagio BABY)."));
+            }
+        }
+    }
+
+    /**
+     * Debug-only: starts building a TavernHouse at the player's position immediately, skipping
+     * the Blueprint_TavernHouse item's right-click preview/confirm flow entirely — same
+     * reasoning as {@code ForcePlaceBabySubCommand} above (the click pipeline this depends on,
+     * {@code SimTaleEventHandler}, was unreliable to test against). Goes straight to
+     * {@code ConstructionPreviewManager.commit}, which does not check {@code isClear} itself
+     * (only the click-handler's caller did) — so unlike the normal flow, this does not refuse an
+     * obstructed site. That is intentional for a debug command; the normal blueprint flow still
+     * enforces it.
+     */
+    private static class ForceConstructSubCommand extends AbstractPlayerCommand {
+        public ForceConstructSubCommand() {
+            super("forceconstruct", "Starts building a TavernHouse at your position, bypassing the blueprint item's click flow");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+            if (transform == null) {
+                ctx.sendMessage(Message.raw("[SimTale] Nao foi possivel obter sua posicao."));
+                return;
+            }
+            Vector3d pos = transform.getPosition();
+            Vector3i anchor = new Vector3i((int) pos.x, (int) pos.y, (int) pos.z);
+
+            ConstructionPreviewManager.start(playerRef.getUuid(), "TavernHouse", anchor);
+            ConstructionSiteComponent committed = ConstructionPreviewManager.commit(playerRef.getUuid(), world);
+            if (committed != null) {
+                committed.facing = Rotation4.NORTH;
+                committed.roofFacing = Rotation4.NORTH;
+                committed.isBuilding = true;
+                ctx.sendMessage(Message.raw("[SimTale] Construcao de TavernHouse iniciada na sua posicao."));
+            } else {
+                ctx.sendMessage(Message.raw("[SimTale] Falha ao iniciar a construcao."));
+            }
         }
     }
 

@@ -219,7 +219,16 @@ public class SimTale extends JavaPlugin {
         }
 
         // Register event handlers
-        this.getEventRegistry().register(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class,
+        //
+        // Was .register(...) instead of .registerGlobal(...) — the only PlayerMouseButtonEvent
+        // registration in either this project or RuneCore using that method, and the only one
+        // that never fired. Every other listener for this event (SimTaleChatHandler's own
+        // PlayerChatEvent registration right below, and all four of RuneCore's
+        // PlayerMouseButtonEvent listeners) uses registerGlobal. This is why the baby/blueprint
+        // block-placement logic in SimTaleEventHandler never ran, no matter what item was held —
+        // confirmed via a log line at the very top of accept() that never printed once across an
+        // entire testing session full of right-clicks.
+        this.getEventRegistry().registerGlobal(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class,
                 new SimTaleEventHandler());
         
         // MobsAndMates: Register chat handler
