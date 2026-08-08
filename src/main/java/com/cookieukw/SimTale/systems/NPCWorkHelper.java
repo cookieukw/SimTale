@@ -355,6 +355,7 @@ public class NPCWorkHelper {
                     }
                 }
                 applyWorkSatisfaction(npc, world.getTick());
+                releaseWorkPost(ai, npc);
                 ai.currentTask = TaskType.IDLE;
                 playIdleAnim(ref, store);
             }
