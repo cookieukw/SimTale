@@ -20,8 +20,11 @@ public final class BedWorldBootstrap {
         
         int bedsFound = BedRegistry.size();
         int chestsFound = ChestRegistry.size();
+        int fishingPostsFound = FishingPostRegistry.POSTS.size();
+        int lumberPostsFound = LumberPostRegistry.POSTS.size();
+        int farmPostsFound = FarmPostRegistry.POSTS.size();
         LOGGER.debug("[SimTale-DEBUG] Starting simple radius scan around (" + px + "," + py + "," + pz + ") with radius " + radius);
-        
+
         // Scan a cube around the player position
         for (int x = px - radius; x <= px + radius; x++) {
             for (int z = pz - radius; z <= pz + radius; z++) {
@@ -40,17 +43,32 @@ public final class BedWorldBootstrap {
                         Vector3i chestAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
                         ChestRegistry.add(chestAnchor.x, chestAnchor.y, chestAnchor.z);
                     }
+
+                    // Work posts (fishing/lumber/farm) have the exact same gap the chests did:
+                    // registered only by the place event, so a fresh server boot forgot every one
+                    // placed in an earlier session even though the block was still standing there.
+                    if (FishingPostRegistry.isFishingPostId(type.getId())) {
+                        FishingPostRegistry.registerAt(world, x, y, z);
+                    } else if (LumberPostRegistry.isLumberPostId(type.getId())) {
+                        LumberPostRegistry.registerAt(world, x, y, z);
+                    } else if (FarmPostRegistry.isFarmPostId(type.getId())) {
+                        FarmPostRegistry.registerAt(x, y, z);
+                    }
                 }
             }
         }
-        
+
         int newBeds = BedRegistry.size() - bedsFound;
         int newChests = ChestRegistry.size() - chestsFound;
-        if (newBeds > 0 || newChests > 0) {
+        int newFishingPosts = FishingPostRegistry.POSTS.size() - fishingPostsFound;
+        int newLumberPosts = LumberPostRegistry.POSTS.size() - lumberPostsFound;
+        int newFarmPosts = FarmPostRegistry.POSTS.size() - farmPostsFound;
+        if (newBeds > 0 || newChests > 0 || newFishingPosts > 0 || newLumberPosts > 0 || newFarmPosts > 0) {
             // At info level: this now runs on join, and it is the one line that tells whether the
             // world's existing furniture was picked up at all.
-            LOGGER.info("[SimTale] Scan found {} new beds and {} new chests. Totals: {} beds, {} chests",
-                    newBeds, newChests, BedRegistry.size(), ChestRegistry.size());
+            LOGGER.info("[SimTale] Scan found {} new beds, {} new chests, {} new fishing posts, {} new lumber posts, {} new farm posts. Totals: {} beds, {} chests, {} fishing, {} lumber, {} farm",
+                    newBeds, newChests, newFishingPosts, newLumberPosts, newFarmPosts,
+                    BedRegistry.size(), ChestRegistry.size(), FishingPostRegistry.POSTS.size(), LumberPostRegistry.POSTS.size(), FarmPostRegistry.POSTS.size());
         } else {
             LOGGER.debug("[SimTale-DEBUG] Scan finished: nothing new. Totals: "
                     + BedRegistry.size() + " beds, " + ChestRegistry.size() + " chests");
