@@ -211,6 +211,29 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
+        // Real combat (a player's weapon, anything dealing damage through the engine's own
+        // health stat) never routed through here at all — SimTale had no hook for it, only for
+        // /simtale forcekill setting DYING directly. An NPC actually killed in melee kept
+        // getting ticked by every system below as if nothing happened: RoutineAISystem kept
+        // walking her around (no death animation exists for that, hence "no walk animation"),
+        // and since the engine already considers her dead/at 0 HP, further hits on her did
+        // nothing. Checking health here, for any task that isn't already part of the death flow,
+        // means any way an NPC reaches 0 HP funnels into the same DYING -> DEAD -> REAPING
+        // pipeline instead of leaving a broken not-quite-dead entity behind.
+        if (ai.currentTask != TaskType.DYING && ai.currentTask != TaskType.DEAD && ai.currentTask != TaskType.REAPING) {
+            EntityStatMap statMap = store.getComponent(ref, EntityStatMap.getComponentType());
+            if (statMap != null) {
+                EntityStatValue healthVal = statMap.get(DefaultEntityStatTypes.getHealth());
+                if (healthVal != null && healthVal.get() <= 0f) {
+                    LOGGER.info("[SimTale] NPC '{}' reached 0 HP outside of forcekill — routing into the death flow", npc.name);
+                    NPCMovementHelper.clearMoveTarget(ref, ai);
+                    ai.currentTask = TaskType.DYING;
+                    ai.taskStartTime = world.getTick();
+                    return;
+                }
+            }
+        }
+
         // --- 1. Evaluation Phase ---
         // Hunger does not kill. An NPC at zero stops working, cries and stays miserable until
         // someone feeds it; the DYING flow below is reached only by old age, disease or a command.
