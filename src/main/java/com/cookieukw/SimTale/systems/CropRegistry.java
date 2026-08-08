@@ -18,11 +18,12 @@ public final class CropRegistry {
         String name = id.toLowerCase(Locale.ROOT);
         // Growth is an in-place BlockType state machine, not a separate registered id per stage
         // — a grown crop's runtime getId() comes back as
-        // "plant_crop_carrot_block_state_definitions_stagefinal", not bare "..._block". This was
-        // only ever called with the bare id (at plant time), so the stricter endsWith("_block")
-        // never actually misfired, but it was one re-check against a grown crop away from
-        // silently failing. "_block" appearing anywhere covers every stage.
-        return name.startsWith("plant_crop_") && name.contains("_block") && !name.contains("eternal");
+        // "*plant_crop_carrot_block_state_definitions_stagefinal": a leading "*" (Hytale's own
+        // marker for a state-variant block, confirmed via /simtale debugnear output) plus
+        // "_state_definitions_<stage>" instead of the bare "..._block" used at plant time.
+        // startsWith("plant_crop_") missed every grown stage because of that leading "*" — use
+        // contains so the prefix position doesn't matter.
+        return name.contains("plant_crop_") && name.contains("_block") && !name.contains("eternal");
     }
 
     public static void add(int x, int y, int z) {
