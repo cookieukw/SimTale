@@ -7,6 +7,11 @@ import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.RemoveReason;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.InteractionState;
 import com.hypixel.hytale.protocol.InteractionType;
@@ -117,6 +122,50 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
                     || ai.currentTask == RoutineAIComponent.TaskType.ENTERING_BED
                     || ai.currentTask == RoutineAIComponent.TaskType.WAKING)) {
                 playerRefComponent.sendMessage(Message.translation("general.npc.sleeping").param("name", npc != null ? npc.name : "NPC"));
+                context.getState().state = InteractionState.Failed;
+                return;
+            }
+
+            // Pleading for a life, mid-collection: interacting with the Reaper while she's
+            // actively REAPING short-circuits the normal interaction panel entirely — no
+            // friendly chat, no gifts, no marriage proposal to Death. Holding an
+            // Ingredient_Voidheart buys the NPC back; anything else (or nothing) just gets
+            // turned away.
+            if (npc != null && npc.isReaper && ai != null && ai.currentTask == RoutineAIComponent.TaskType.REAPING) {
+                World world = targetRef.getStore().getExternalData().getWorld();
+                ItemStack heldItem = InventoryComponent.getItemInHand(ref.getStore(), ref);
+
+                if (heldItem != null && heldItem.getItemId().equals("Ingredient_Voidheart")
+                        && ai.dyingEntityId != null && world != null) {
+                    Ref<EntityStore> dyingRef = world.getEntityStore().getRefFromUUID(ai.dyingEntityId);
+                    RoutineAIComponent dyingAi = dyingRef != null
+                            ? dyingRef.getStore().getComponent(dyingRef, SimTale.ROUTINE_AI_COMPONENT_TYPE) : null;
+                    SimNPCComponent dyingNpc = dyingRef != null
+                            ? dyingRef.getStore().getComponent(dyingRef, SimTale.SIM_NPC_COMPONENT_TYPE) : null;
+
+                    if (dyingAi != null && dyingNpc != null) {
+                        dyingAi.currentTask = RoutineAIComponent.TaskType.IDLE;
+                        dyingAi.taskStartTime = 0;
+
+                        // Same hotbar-removal pattern as the Baby item drop in SimTaleEventHandler.
+                        InventoryComponent.Hotbar hotbarComponent = ref.getStore().getComponent(ref, InventoryComponent.Hotbar.getComponentType());
+                        if (hotbarComponent != null && hotbarComponent.getActiveSlot() != -1) {
+                            CombinedItemContainer combinedInventory =
+                                    InventoryComponent.getCombined(ref.getStore(), ref, InventoryComponent.HOTBAR_FIRST);
+                            combinedInventory.removeItemStackFromSlot(hotbarComponent.getActiveSlot(), heldItem, 1);
+                        }
+
+                        playerRefComponent.sendMessage(Message.raw("[SimTale] A Morte aceita o Voidheart e poupa " + dyingNpc.name + "."));
+
+                        SimTale.untrackNpc(npc);
+                        commandBuffer.removeEntity(targetRef, RemoveReason.REMOVE);
+                    } else {
+                        playerRefComponent.sendMessage(Message.raw("[SimTale] Tarde demais — a alma ja foi."));
+                    }
+                } else {
+                    playerRefComponent.sendMessage(Message.raw("[SimTale] A Morte nao aceita nada alem de um Ingredient_Voidheart em troca de uma vida."));
+                }
+
                 context.getState().state = InteractionState.Failed;
                 return;
             }
