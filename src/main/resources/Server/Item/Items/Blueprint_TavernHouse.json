@@ -23,5 +23,8 @@
       "Utility"
     ]
   },
-  "MaxStack": 1
+  "MaxStack": 1,
+  "Interactions": {
+    "Secondary": "RuneCore_GenericItemUse"
+  }
 }

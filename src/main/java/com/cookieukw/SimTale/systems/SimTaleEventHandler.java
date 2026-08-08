@@ -2,11 +2,8 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
-import com.cookieukw.SimTale.core.ConstructionSiteComponent;
-import com.cookieukw.SimTale.core.Rotation4;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.cookieukw.SimTale.core.PrefabManager;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
@@ -107,66 +104,6 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             }
         }
 
-
-        // Blueprint item handling
-        if (event.getItemInHand() != null && event.getItemInHand().getId() != null &&
-            event.getItemInHand().getId().toLowerCase().contains("blueprint")) {
-            
-            // Derived from the blueprint item instead of hardcoded: every blueprint used to
-            // build a tavern. "Blueprint_TavernHouse" -> "TavernHouse".
-            String itemId = event.getItemInHand().getId();
-            int separator = itemId.lastIndexOf('_');
-            String prefabName = separator >= 0 && separator < itemId.length() - 1
-                    ? itemId.substring(separator + 1)
-                    : "TavernHouse";
-            if (PrefabManager.getPrefab(prefabName) == null) {
-                prefabName = "TavernHouse";
-            }
-            Vector3i targetBlock = event.getTargetBlock();
-            if (targetBlock != null) {
-                PlayerRef pRef = event.getPlayerRefComponent();
-                ConstructionSiteComponent activePreview = ConstructionPreviewManager.get(pRef.getUuid());
-
-                if (activePreview != null) {
-                    // Confirm and commit if player right-clicks close to the preview anchor
-                    if (targetBlock.distance(activePreview.anchor) < 4.0) {
-                        if (!activePreview.isClear) {
-                            pRef.sendMessage(Message.raw("Construction denied! The area is obstructed (marked red)."));
-                            return;
-                        }
-                        ConstructionSiteComponent committed = ConstructionPreviewManager.commit(pRef.getUuid(), world);
-                        if (committed != null) {
-                            committed.isBuilding = true;
-                            pRef.sendMessage(Message.raw("Construction started! NPCs will now come to build."));
-                        }
-                    } else {
-                        // Otherwise, move/update the preview to the new looked block
-                        Vector3i spawnPos = new Vector3i(targetBlock.x, targetBlock.y + 1, targetBlock.z);
-                        TransformComponent transform = playerAccessor.getComponent(playerRef, TransformComponent.getComponentType());
-                        Rotation4 facing = Rotation4.NORTH;
-                        if (transform != null) {
-                            facing = Rotation4.fromYawDegrees(Math.toDegrees(transform.getRotation().yaw()));
-                        }
-                        ConstructionPreviewManager.update(pRef.getUuid(), world, spawnPos, facing);
-                        pRef.sendMessage(Message.raw("Moved preview to new location. Right click the preview to confirm."));
-                    }
-                } else {
-                    // Start a new preview session
-                    Vector3i spawnPos = new Vector3i(targetBlock.x, targetBlock.y + 1, targetBlock.z);
-                    TransformComponent transform = playerAccessor.getComponent(playerRef, TransformComponent.getComponentType());
-                    Rotation4 facing = Rotation4.NORTH;
-                    if (transform != null) {
-                        facing = Rotation4.fromYawDegrees(Math.toDegrees(transform.getRotation().yaw()));
-                    }
-                    ConstructionSiteComponent site = ConstructionPreviewManager.start(pRef.getUuid(), prefabName, spawnPos);
-                    site.facing = facing;
-                    site.roofFacing = facing;
-                    ConstructionHelper.placePreview(world, site);
-                    pRef.sendMessage(Message.raw("Ghost preview placed. Right click the preview to confirm, or use '/build rotate'."));
-                }
-            }
-            return;
-        }
 
         Ref<EntityStore> targetRef = event.getTargetEntityRef();
         
