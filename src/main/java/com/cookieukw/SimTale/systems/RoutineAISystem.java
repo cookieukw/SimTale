@@ -881,6 +881,17 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // --- REAPING ---
         if (ai.currentTask == TaskType.REAPING && ai.dyingEntityId != null) {
+            // Self-heal against whatever it is (role's own appearance system, most likely —
+            // REAPER spawns on the "SimTale_Human_Male" role for its behavior, and that role's
+            // own "Appearance" is a normal human) keeps putting the human model back after
+            // SimNPCFactory's initial override. Checked every tick instead of once so it doesn't
+            // matter when the conflicting system runs relative to spawn.
+            PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
+            if (pm != null && !SimNPCFactory.REAPER_MODEL_ASSET_ID.equals(pm.getModelReference().getModelAssetId())) {
+                commandBuffer.replaceComponent(ref, PersistentModel.getComponentType(),
+                        new PersistentModel(new ModelReference(SimNPCFactory.REAPER_MODEL_ASSET_ID, 1.0f, new HashMap<>())));
+            }
+
             Ref<EntityStore> dyingRef = world.getEntityStore().getRefFromUUID(ai.dyingEntityId);
             TransformComponent dyingTransform = (dyingRef != null) ? store.getComponent(dyingRef, TransformComponent.getComponentType()) : null;
             if (dyingTransform == null) {
