@@ -119,6 +119,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new ForceEatSubCommand());
         this.addSubCommand(new ForceWorkSubCommand());
         this.addSubCommand(new ForceKillSubCommand());
+        this.addSubCommand(new SetProfessionSubCommand());
         this.addSubCommand(new ForcePlantSubCommand());
         this.addSubCommand(new SetGenderSubCommand());
         this.addSubCommand(new CamDebugSubCommand());
@@ -135,7 +136,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession>"));
     }
 
     /**
@@ -1578,6 +1579,60 @@ public class SimTaleCommand extends AbstractPlayerCommand {
      * Requires a reaper NPC to already exist in the world ({@code /simtale spawn reaper}) —
      * {@code RoutineAISystem} only dispatches an idle reaper it finds in {@code ACTIVE_NPCS}.
      */
+    /**
+     * Debug-only: assigns a profession directly, bypassing chat (needs friendship &gt; 20, see
+     * {@code SimTaleChatHandler.handleProfessionChange}) and the item-based UI assignment (needs
+     * the right tool in hand and isn't guaranteed to land on the NPC you're aiming at). Useful
+     * for testing a specific profession's work cycle without first winning the NPC over.
+     */
+    private static class SetProfessionSubCommand extends AbstractPlayerCommand {
+        private final RequiredArg<String> profArg;
+
+        public SetProfessionSubCommand() {
+            super("setprofession", "Forces the nearest NPC's profession, no affinity or item needed");
+            this.profArg = this.withRequiredArg("profession",
+                    "UNEMPLOYED|MINER|FARMER|FISHERMAN|LUMBERJACK|GUARD|EXPLORER|BUILDER|HUNTER", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            String profName = ctx.get(this.profArg);
+            com.cookieukw.SimTale.core.Profession profession;
+            try {
+                profession = com.cookieukw.SimTale.core.Profession.valueOf(profName.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                ctx.sendMessage(Message.raw("Invalid profession. Choose from: UNEMPLOYED/MINER/FARMER/FISHERMAN/LUMBERJACK/GUARD/EXPLORER/BUILDER/HUNTER"));
+                return;
+            }
+
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
+                    TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (playerTransform != null && npcTransform != null) {
+                        double distSq = playerTransform.getPosition().distanceSquared(npcTransform.getPosition());
+                        if (distSq < minDistance) {
+                            minDistance = distSq;
+                            nearestNPC = npc;
+                        }
+                    }
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("No NPCs nearby."));
+                return;
+            }
+
+            nearestNPC.profession = profession;
+            ctx.sendMessage(Message.raw(nearestNPC.name + " agora é " + profession.ptName + "."));
+        }
+    }
+
     private static class ForceKillSubCommand extends AbstractPlayerCommand {
         public ForceKillSubCommand() {
             super("forcekill", "Forces the nearest non-reaper NPC into the death flow (needs a reaper NPC to exist to be reaped)");
