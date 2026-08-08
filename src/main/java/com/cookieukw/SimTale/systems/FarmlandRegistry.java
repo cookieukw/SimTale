@@ -10,9 +10,12 @@ public final class FarmlandRegistry {
 
     public static final Set<HouseBlockPos> FARMLAND = Collections.synchronizedSet(new HashSet<>());
 
+    /** Matches vanilla Hytale planting, which doesn't require tilled soil — any grass/dirt-type
+     *  ground block works, not just Soil_Dirt_Tilled. */
     public static boolean isFarmlandId(String id) {
         if (id == null) return false;
-        return id.toLowerCase().contains("tilled");
+        String lower = id.toLowerCase();
+        return lower.contains("tilled") || lower.contains("grass") || lower.startsWith("soil_dirt") || lower.contains("soil_mud");
     }
 
     public static void add(int x, int y, int z) {

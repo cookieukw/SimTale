@@ -126,6 +126,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new SetGenderSubCommand());
         this.addSubCommand(new CamDebugSubCommand());
         this.addSubCommand(new UnstickSubCommand());
+        this.addSubCommand(new RescanSubCommand());
         this.addSubCommand(new NpcStateSubCommand());
         this.addSubCommand(new ForceBabySwapSubCommand());
     }
@@ -138,7 +139,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession>"));
+        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan>"));
     }
 
     /**
@@ -354,6 +355,30 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
             ctx.sendMessage(Message.raw("[SimTale] Unstuck " + fixed + " de "
                     + SimTale.ACTIVE_NPCS.size() + " NPCs ativos."));
+        }
+    }
+
+    /**
+     * Re-runs the bed/chest/work-post/farmland/crop world scan centered on wherever the player
+     * is standing right now, instead of only wherever they were standing at world join. Testing
+     * an area far from spawn otherwise means that area's blocks stay invisible to the registries
+     * until the next full rejoin from right on top of them.
+     */
+    private static class RescanSubCommand extends AbstractPlayerCommand {
+        public RescanSubCommand() {
+            super("rescan", "Re-scans beds/chests/work posts/farmland/crops around your current position");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent pt = store.getComponent(ref, TransformComponent.getComponentType());
+            if (pt == null) {
+                ctx.sendMessage(Message.raw("[SimTale] No player transform."));
+                return;
+            }
+            com.cookieukw.SimTale.systems.BedWorldBootstrap.bootstrapLoadedRadius(world, pt.getPosition(), 32);
+            ctx.sendMessage(Message.raw("[SimTale] Rescan done around your position. Check the server log for counts."));
         }
     }
 
@@ -1761,6 +1786,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                         : npcPos;
 
                 Vector3i farmPos = NPCWorkHelper.scanForFarmland(scanCenter, world);
+                SIM_LOGGER.debug("[SimTale] forceplant scan for {}: claimedPost={}, scanCenter=({},{},{}), farmPos={}, FarmlandRegistry.size={}",
+                        nearestNPC.name, claimedPost, scanCenter.x, scanCenter.y, scanCenter.z, farmPos,
+                        com.cookieukw.SimTale.systems.FarmlandRegistry.FARMLAND.size());
                 if (farmPos != null) {
                     ai.targetBlockPosition = farmPos;
                     if (claimedPost != null) {
