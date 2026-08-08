@@ -199,23 +199,42 @@ public class NPCWorkHelper {
             // call returns, not here, so every caller of the flag gets cleared, not just this one.
             if (world.getTick() % 100 == 0 || ai.forcedByDebug) {
                 if (npc.profession == Profession.FARMER) {
+                    // A registered Deco_Scarecrow plot lets her find work from anywhere, not only
+                    // within scanning range of wherever she happens to be standing. Falls back to
+                    // scanning around her own position when no plot is registered (or every plot
+                    // is already claimed), so farming still works without placing a scarecrow.
+                    Vector3d npcPos = transform.getPosition();
+                    Vector3d scanCenter = npcPos;
+                    FarmPostRegistry.FarmPost claimedPost = FarmPostRegistry.claimNearest(npcPos.x, npcPos.y, npcPos.z, npc.entityId);
+                    if (claimedPost != null) {
+                        scanCenter = new Vector3d(claimedPost.postX() + 0.5, claimedPost.postY(), claimedPost.postZ() + 0.5);
+                    }
+
                     // Try to harvest first
-                    Vector3i cropPos = scanForCrops(transform.getPosition());
+                    Vector3i cropPos = scanForCrops(scanCenter);
                     if (cropPos != null) {
                         ai.targetBlockPosition = cropPos;
+                        if (claimedPost != null) {
+                            ai.claimedWorkPost = new Vector3i(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ());
+                        }
                         ai.currentTask = TaskType.MOVING_TO_WORK;
                         ai.taskStartTime = world.getTick();
                         playWalk(ref, store);
                     } else {
                         String seed = findSeedInInventory(inventory);
-                        if (seed != null) {
-                            Vector3i farmPos = scanForFarmland(transform.getPosition(), world);
-                            if (farmPos != null) {
-                                ai.targetBlockPosition = farmPos;
-                                ai.currentTask = TaskType.MOVING_TO_WORK;
-                                ai.taskStartTime = world.getTick();
-                                playWalk(ref, store);
+                        Vector3i farmPos = seed != null ? scanForFarmland(scanCenter, world) : null;
+                        if (farmPos != null) {
+                            ai.targetBlockPosition = farmPos;
+                            if (claimedPost != null) {
+                                ai.claimedWorkPost = new Vector3i(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ());
                             }
+                            ai.currentTask = TaskType.MOVING_TO_WORK;
+                            ai.taskStartTime = world.getTick();
+                            playWalk(ref, store);
+                        } else if (claimedPost != null) {
+                            // Nothing to do at this plot right now — don't sit on the claim,
+                            // another farmer (or this one, next cycle) might find work there.
+                            FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
                         }
                     }
                 } else if (npc.profession == Profession.HUNTER || npc.profession == Profession.MINER) {
