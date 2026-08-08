@@ -23,6 +23,7 @@ import java.util.HashMap;
 
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 
 /**
  * Factory for creating SimTale NPCs with proper models and components.
@@ -122,7 +123,12 @@ public class SimNPCFactory {
         }
 
         accessor.addComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE, simComponent);
-        
+
+        // NPCPlugin.spawnNPC attaches a Storage component backed by EmptyItemContainer
+        // (capacity 0) by default — fine for vanilla NPCs, but ours need to actually carry
+        // seeds, tools and harvested goods (fish, wood, ore, meat, crops).
+        accessor.putComponent(ref, InventoryComponent.Storage.getComponentType(), new InventoryComponent.Storage((short) 20));
+
         // 3. Add overhead name plate and make entity interactable
         accessor.putComponent(ref, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(simComponent.name)));
         accessor.putComponent(ref, Nameplate.getComponentType(), new Nameplate(simComponent.name));

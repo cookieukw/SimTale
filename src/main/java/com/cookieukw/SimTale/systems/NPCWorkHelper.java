@@ -276,16 +276,25 @@ public class NPCWorkHelper {
             }
             Vector3d npcPos = transform.getPosition();
             if (npc.profession == Profession.FARMER) {
-                if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
+                if (ai.targetBlockPosition == null) {
+                    // Previously silent — an NPC could drop from MOVING_TO_WORK straight to IDLE
+                    // (and from there get picked up by the 2% WANDERING roll seconds later) with
+                    // no trace in the log of why the target it had just been given vanished.
+                    LOGGER.debug("[SimTale] Farmer NPC {} lost its work target mid-walk (targetBlockPosition null), tick={}", npc.name, world.getTick());
+                    ai.currentTask = TaskType.IDLE;
+                    return;
+                }
                 if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5)) {
                     NPCMovementHelper.clearMoveTarget(ref, ai);
                     // Determine if harvesting or planting
                     BlockType blockType = world.getBlockType(ai.targetBlockPosition.x, ai.targetBlockPosition.y, ai.targetBlockPosition.z);
-                    if (blockType != null && blockType.getId() != null && blockType.getId().toLowerCase().contains("crop")) {
+                    String blockId = blockType != null ? blockType.getId() : null;
+                    if (blockId != null && blockId.toLowerCase().contains("crop")) {
                         ai.currentTask = TaskType.FARMING;
                     } else {
                         ai.currentTask = TaskType.PLANTING;
                     }
+                    LOGGER.debug("[SimTale] Farmer NPC {} arrived at target {} (blockId='{}') -> entering {}", npc.name, ai.targetBlockPosition, blockId, ai.currentTask);
                     ai.taskStartTime = world.getTick();
                 } else {
                     NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, npcPos.y, ai.targetBlockPosition.z + 0.5));
@@ -388,8 +397,14 @@ public class NPCWorkHelper {
                             // dead after the first auto-replant.
                             CropRegistry.add(plantPos.x, plantPos.y, plantPos.z);
                             LOGGER.debug("[SimTale] Farmer NPC {} planted {} at {}", npc.name, cropBlock, plantPos);
+                        } else {
+                            LOGGER.debug("[SimTale] Farmer NPC {} PLANTING failed at {}: findSeedInInventory returned '{}' but findSeedSlot could not locate it", npc.name, plantPos, seed);
                         }
+                    } else {
+                        LOGGER.debug("[SimTale] Farmer NPC {} PLANTING failed at {}: no seed found in inventory", npc.name, plantPos);
                     }
+                } else {
+                    LOGGER.debug("[SimTale] Farmer NPC {} PLANTING failed at {}: getInventory returned null", npc.name, plantPos);
                 }
                 applyWorkSatisfaction(npc, world.getTick());
                 releaseWorkPost(ai, npc);
@@ -580,9 +595,23 @@ public class NPCWorkHelper {
 
     // ── Inventory / proximity helpers ────────────────────────────────────────
 
-    private static ItemContainer getInventory(Store<EntityStore> store, Ref<EntityStore> ref) {
+    /** NPCs spawned by the engine's own NPCPlugin get a Storage component backed by
+     *  EmptyItemContainer (capacity 0) — fine for vanilla mobs, useless for a profession that
+     *  needs to carry seeds/tools/harvest. SimNPCFactory now allocates real capacity for NPCs
+     *  created from here on, but existing NPCs (persisted entities from before that fix, or ones
+     *  created some other way) keep whatever Storage they were spawned with. Self-heal it here
+     *  the same way BedWorldBootstrap self-heals the work-post registries. */
+    public static ItemContainer getInventory(Store<EntityStore> store, Ref<EntityStore> ref) {
         InventoryComponent.Storage storage = store.getComponent(ref, InventoryComponent.Storage.getComponentType());
-        return (storage != null) ? storage.getInventory() : null;
+        if (storage == null) return null;
+        ItemContainer inv = storage.getInventory();
+        if (inv != null && inv.getCapacity() <= 0) {
+            InventoryComponent.Storage fixed = new InventoryComponent.Storage((short) 20);
+            WorldUtil.execute(() -> store.replaceComponent(ref, InventoryComponent.Storage.getComponentType(), fixed));
+            LOGGER.debug("[SimTale] Healed zero-capacity inventory for entity {}", ref);
+            return fixed.getInventory();
+        }
+        return inv;
     }
 
     private static boolean hasAnyItem(ItemContainer container) {

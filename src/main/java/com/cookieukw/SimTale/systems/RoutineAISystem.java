@@ -131,6 +131,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         RoutineAIComponent ai = chunk.getComponent(index, SimTale.ROUTINE_AI_COMPONENT_TYPE);
         if (ai == null) {
+            // A brand-new component silently resets everything to IDLE/no-target — indistinguishable
+            // from a genuine state change unless logged here. If this fires for an NPC that
+            // already had one going (mid-work, mid-social, etc.), that's the actual bug: something
+            // made the existing RoutineAIComponent invisible to this tick's chunk view.
+            LOGGER.info("[SimTale] {} had no RoutineAIComponent this tick — creating a fresh one (state reset to IDLE)", npc.name);
             ai = new RoutineAIComponent();
             commandBuffer.addComponent(chunk.getReferenceTo(index), SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
         }

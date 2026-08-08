@@ -89,6 +89,8 @@ import java.util.LinkedHashMap;
  */
 public class SimTaleCommand extends AbstractPlayerCommand {
 
+    private static final SimLog SIM_LOGGER = SimLog.forClass(SimTaleCommand.class);
+
     public SimTaleCommand() {
         super("simtale", "SimTale plugin commands");
         this.setPermissionGroups("Adventure");
@@ -1713,15 +1715,34 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
-            // Ensure they have seeds
-            InventoryComponent.Storage storage = store.getComponent(nearestNPC.entityRef, InventoryComponent.Storage.getComponentType());
-            if (storage != null && storage.getInventory() != null) {
-                ItemContainer inv = storage.getInventory();
+            // Ensure they have seeds. Goes through NPCWorkHelper.getInventory rather than reading
+            // the Storage component directly — it self-heals NPCs still carrying the engine's
+            // default zero-capacity EmptyItemContainer (see NPCWorkHelper.getInventory).
+            ItemContainer inv = NPCWorkHelper.getInventory(store, nearestNPC.entityRef);
+            if (inv != null) {
                 String seed = NPCWorkHelper.findSeedInInventory(inv);
                 if (seed == null) {
                     // Give them 5 carrot seeds to start
-                    inv.addItemStack(new ItemStack("Plant_Seeds_Carrot", 5));
-                    ctx.sendMessage(Message.translation("general.cmd.forceplant.seeds_added").param("name", nearestNPC.name));
+                    ItemStack seedStack = new ItemStack("Plant_Seeds_Carrot", 5);
+                    if (inv.canAddItemStack(seedStack)) {
+                        inv.addItemStack(seedStack);
+                        SIM_LOGGER.debug("[SimTale] forceplant gave {} 5x Plant_Seeds_Carrot; findSeedInInventory now returns '{}'",
+                                nearestNPC.name, NPCWorkHelper.findSeedInInventory(inv));
+                        ctx.sendMessage(Message.translation("general.cmd.forceplant.seeds_added").param("name", nearestNPC.name));
+                    } else {
+                        StringBuilder contents = new StringBuilder();
+                        for (short slot = 0; slot < inv.getCapacity(); slot++) {
+                            ItemStack it = inv.getItemStack(slot);
+                            if (it != null && !it.isEmpty()) {
+                                contents.append(it.getItemId()).append("x").append(it.getQuantity()).append(", ");
+                            }
+                        }
+                        SIM_LOGGER.debug("[SimTale] forceplant could not give {} seeds — inventory full (capacity={}). Contents: {}",
+                                nearestNPC.name, inv.getCapacity(), contents.toString());
+                        ctx.sendMessage(Message.raw("[SimTale] " + nearestNPC.name + "'s inventory is full — could not give seeds."));
+                    }
+                } else {
+                    SIM_LOGGER.debug("[SimTale] forceplant: {} already has seed '{}', not adding more", nearestNPC.name, seed);
                 }
             }
 
