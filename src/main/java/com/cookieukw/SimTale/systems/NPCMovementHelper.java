@@ -57,8 +57,11 @@ public class NPCMovementHelper {
             // apart in a busy log — which one is dragging around near (X,Y,Z) was previously a
             // guessing game whenever more than one NPC was active at once.
             SimNPCComponent npc = ref.getStore().getComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE);
-            LOGGER.debug("[SimTale] moveTo({}) updating leash point to ({},{},{})",
-                    npc != null ? npc.name : "?", targetPos.x, targetPos.y, targetPos.z);
+            // currentTask alongside the name: nine different call sites across five helper
+            // classes all funnel through here, and a moveTo firing for a task the caller wasn't
+            // expecting (e.g. an interrupt nobody logged) was previously invisible.
+            LOGGER.debug("[SimTale] moveTo({}, task={}) updating leash point to ({},{},{})",
+                    npc != null ? npc.name : "?", ai.currentTask, targetPos.x, targetPos.y, targetPos.z);
             ai.lastLeashPos = new Vector3d(targetPos);
             ai.lastLeashTick = world.getTick();
             
