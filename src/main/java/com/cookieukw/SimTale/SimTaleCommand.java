@@ -76,6 +76,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.ActiveAnimationCo
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.protocol.MovementStates;
 import com.hypixel.hytale.protocol.AnimationSlot;
+import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.logger.HytaleLogger;
 import java.util.Objects;
 
@@ -331,6 +332,22 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                         touched = true;
                     }
                     NPCMovementHelper.setSleepingState(npc.entityRef, npc.entityRef.getStore(), false);
+                    // setSleepingState only resets the MovementStates flags (physics/hitbox).
+                    // The Sleep clip itself plays on a separate Status animation slot
+                    // (RoutineAISystem's SLEEPING entry) that this never stopped — she kept
+                    // playing the lying-down animation while walking around. The natural WAKING
+                    // completion (RoutineAISystem.java) stops it the same way; unstick needs to
+                    // do the same rescue, not just clear the task state.
+                    AnimationUtils.stopAnimation(npc.entityRef, AnimationSlot.Status, true, npc.entityRef.getStore());
+                    NPCEntity npcEntityComponent = npc.entityRef.getStore().getComponent(npc.entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
+                    if (npcEntityComponent != null) {
+                        StateSupport stateSupport = StateSupport.get(npc.entityRef, npc.entityRef.getStore());
+                        if (stateSupport != null) {
+                            stateSupport.setState(npc.entityRef, "Idle", null, npc.entityRef.getStore());
+                        }
+                    }
+                    NPCMovementHelper.playAnim(npc.entityRef, AnimationSlot.Status, "Characters/Animations/Default/Idle.blockyanim", "Idle", npc.entityRef.getStore());
+                    touched = true;
                     RoutineAIComponent ai = npc.entityRef.getStore().getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
                     if (ai != null) {
                         // Drops the stale leash so the next moveTo re-issues the "Moving" state
