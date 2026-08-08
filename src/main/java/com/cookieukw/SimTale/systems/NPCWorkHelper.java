@@ -231,6 +231,23 @@ public class NPCWorkHelper {
                             ai.currentTask = TaskType.MOVING_TO_WORK;
                             ai.taskStartTime = world.getTick();
                             playWalk(ref, store);
+                        } else if (seed == null) {
+                            // Out of seeds and nothing to harvest — go restock from a chest she
+                            // can open, instead of standing at the claimed post doing nothing.
+                            HouseBlockPos seedChest = findSeedChest(npc, world);
+                            if (seedChest != null) {
+                                ai.targetBlockPosition = new Vector3i(seedChest.x, seedChest.y, seedChest.z);
+                                // Release the plot claim — fetching seeds may take a while and
+                                // another farmer shouldn't be blocked from using it meanwhile.
+                                if (claimedPost != null) {
+                                    FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
+                                }
+                                ai.currentTask = TaskType.MOVING_TO_SEEDS;
+                                ai.taskStartTime = world.getTick();
+                                playWalk(ref, store);
+                            } else if (claimedPost != null) {
+                                FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
+                            }
                         } else if (claimedPost != null) {
                             // Nothing to do at this plot right now — don't sit on the claim,
                             // another farmer (or this one, next cycle) might find work there.
@@ -543,7 +560,49 @@ public class NPCWorkHelper {
                             npcInv.removeItemStackFromSlot(slot, item.getQuantity());
                             moved++;
                         }
-                        LOGGER.debug("[SimTale] NPC {} deposited {} stack(s) into chest at {}", npc.name, moved, chestPos);
+        LOGGER.debug("[SimTale] NPC {} deposited {} stack(s) into chest at {}", npc.name, moved, chestPos);
+                    }
+                }
+                ai.currentTask = TaskType.IDLE;
+            } else {
+                NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, npcPos.y, ai.targetBlockPosition.z + 0.5));
+            }
+        }
+
+        // MOVING_TO_SEEDS
+        if (ai.currentTask == TaskType.MOVING_TO_SEEDS) {
+            if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
+            if (world.getTick() - ai.taskStartTime > MOVE_TIMEOUT_TICKS) {
+                LOGGER.debug("[SimTale] NPC {} desistiu de chegar ao bau de sementes", npc.name);
+                abandonTask(ref, ai, npc);
+                return;
+            }
+            Vector3d npcPos = transform.getPosition();
+            if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5)) {
+                NPCMovementHelper.clearMoveTarget(ref, ai);
+
+                Vector3i chestPos = ai.targetBlockPosition;
+                ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, chestPos.x, chestPos.y, chestPos.z);
+                if (cb != null) {
+                    ItemContainer chestInv = cb.getItemContainer();
+                    ItemContainer npcInv = getInventory(store, ref);
+                    if (chestInv != null && npcInv != null) {
+                        // Re-check on arrival: another farmer may have emptied the chest during
+                        // the walk over.
+                        String seedId = findSeedInInventory(chestInv);
+                        if (seedId != null) {
+                            short slot = findSeedSlot(chestInv, seedId);
+                            if (slot != -1) {
+                                ItemStack chestStack = chestInv.getItemStack(slot);
+                                int take = Math.min(chestStack.getQuantity(), 10);
+                                ItemStack toTake = new ItemStack(seedId, take);
+                                if (npcInv.canAddItemStack(toTake)) {
+                                    chestInv.removeItemStackFromSlot(slot, take);
+                                    npcInv.addItemStack(toTake);
+                                    LOGGER.debug("[SimTale] NPC {} took {}x{} from seed chest at {}", npc.name, take, seedId, chestPos);
+                                }
+                            }
+                        }
                     }
                 }
                 ai.currentTask = TaskType.IDLE;
@@ -657,6 +716,24 @@ public class NPCWorkHelper {
         synchronized (ChestRegistry.CHESTS) {
             for (HouseBlockPos cp : ChestRegistry.CHESTS) {
                 if (HouseManager.canOpenChest(npc.entityId, cp)) {
+                    return cp;
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Same idea as {@link #findHomeChest}, but only returns a chest she can open that actually
+     *  has seeds in it right now — so a Farmer with an empty pouch can go restock instead of
+     *  standing around forever waiting for the player to hand-feed her. */
+    private static HouseBlockPos findSeedChest(SimNPCComponent npc, World world) {
+        synchronized (ChestRegistry.CHESTS) {
+            for (HouseBlockPos cp : ChestRegistry.CHESTS) {
+                if (!HouseManager.canOpenChest(npc.entityId, cp)) continue;
+                ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, cp.x, cp.y, cp.z);
+                if (cb == null) continue;
+                ItemContainer chestInv = cb.getItemContainer();
+                if (chestInv != null && findSeedInInventory(chestInv) != null) {
                     return cp;
                 }
             }
