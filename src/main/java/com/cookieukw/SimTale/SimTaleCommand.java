@@ -1256,6 +1256,23 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 }
             }
 
+            // Temporary: dump every nearby modelled entity (SimTale NPCs, hostile mobs, animals,
+            // etc.) with its raw model asset id — needed to find out what identifies a hostile
+            // mob (skeleton, zombie...) before Guard combat can detect one instead of guessing at
+            // a keyword like the old broken Hunter "contains creature" filter did.
+            sb.append("\nNearby modelled entities (any type):");
+            store.forEachChunk(PersistentModel.getComponentType(), (chunk, cb) -> {
+                for (int i = 0; i < chunk.size(); i++) {
+                    TransformComponent entTc = chunk.getComponent(i, TransformComponent.getComponentType());
+                    PersistentModel entPm = chunk.getComponent(i, PersistentModel.getComponentType());
+                    if (entTc == null || entPm == null || entPm.getModelReference() == null) continue;
+                    double dist = pos.distance(entTc.getPosition());
+                    if (dist > 15.0) continue;
+                    sb.append("\n  Entity model='").append(entPm.getModelReference().getModelAssetId())
+                      .append("' Dist=").append(String.format("%.2f", dist));
+                }
+            });
+
             // Results go to the server log, not chat — this dumps a lot of lines and chat isn't
             // a good place to read/scroll through them.
             HytaleLogger.forEnclosingClass().atInfo().log(sb.toString());
