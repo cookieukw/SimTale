@@ -1080,10 +1080,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             int py = (int) Math.floor(pos.y);
             int pz = (int) Math.floor(pos.z);
 
-            ctx.sendMessage(Message.raw("--- NEAREST (Your Pos: " + px + "," + py + "," + pz + ") ---"));
+            StringBuilder sb = new StringBuilder();
+            sb.append("--- NEAREST (Your Pos: ").append(px).append(",").append(py).append(",").append(pz).append(") ---");
 
             // Scan blocks in 3x3x3
-            ctx.sendMessage(Message.raw("Nearby blocks/furniture:"));
+            sb.append("\nNearby blocks/furniture:");
             Map<String, Integer> countBlocksByAnchor = new LinkedHashMap<>();
 
             for (int dx = -1; dx <= 1; dx++) {
@@ -1103,22 +1104,28 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             for (Entry<String, Integer> e : countBlocksByAnchor.entrySet()) {
                 String blocos = e.getValue() > 1 ? "  [" + e.getValue() + " blocks]" : "";
-                ctx.sendMessage(Message.raw("  " + e.getKey() + blocos));
+                sb.append("\n  ").append(e.getKey()).append(blocos);
             }
 
             // Scan all ACTIVE_NPCS near the player
-            ctx.sendMessage(Message.raw("Nearby Active NPCs:"));
+            sb.append("\nNearby Active NPCs:");
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null && npc.entityRef.isValid()) {
                     TransformComponent npcTc = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (npcTc != null) {
                         double dist = pos.distance(npcTc.getPosition());
                         if (dist <= 15.0) {
-                            ctx.sendMessage(Message.raw("  NPC: Name='" + npc.name + "' Dist=" + String.format("%.2f", dist) + " (id=" + npc.entityId + ")"));
+                            sb.append("\n  NPC: Name='").append(npc.name).append("' Dist=")
+                              .append(String.format("%.2f", dist)).append(" (id=").append(npc.entityId).append(")");
                         }
                     }
                 }
             }
+
+            // Results go to the server log, not chat — this dumps a lot of lines and chat isn't
+            // a good place to read/scroll through them.
+            HytaleLogger.forEnclosingClass().atInfo().log(sb.toString());
+            ctx.sendMessage(Message.raw("[SimTale] debugnear: resultado no log do servidor."));
         }
     }
 
