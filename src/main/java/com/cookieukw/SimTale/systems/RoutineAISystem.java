@@ -39,6 +39,9 @@ import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.cookie.runecore.api.StatusEffectHelper;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.NeedsHelper;
@@ -220,7 +223,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // nothing. Checking health here, for any task that isn't already part of the death flow,
         // means any way an NPC reaches 0 HP funnels into the same DYING -> DEAD -> REAPING
         // pipeline instead of leaving a broken not-quite-dead entity behind.
-        if (ai.currentTask != TaskType.DYING && ai.currentTask != TaskType.DEAD && ai.currentTask != TaskType.REAPING) {
+        if (ai.currentTask != TaskType.DYING && ai.currentTask != TaskType.DEAD && ai.currentTask != TaskType.REAPING
+                && ai.currentTask != TaskType.EXPEDITION) {
             EntityStatMap statMap = store.getComponent(ref, EntityStatMap.getComponentType());
             if (statMap != null) {
                 EntityStatValue healthVal = statMap.get(DefaultEntityStatTypes.getHealth());
