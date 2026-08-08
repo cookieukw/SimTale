@@ -391,6 +391,8 @@ public class NPCWorkHelper {
                         }
                     }
                 }
+                applyWorkSatisfaction(npc, world.getTick());
+                releaseWorkPost(ai, npc);
                 ai.currentTask = TaskType.IDLE;
                 playIdleAnim(ref, store);
             }
@@ -557,6 +559,7 @@ public class NPCWorkHelper {
             // position and this NPC's id) — simpler than threading the profession through here.
             FishingPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
             LumberPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
+            FarmPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
         }
         ai.claimedWorkPost = null;
     }
