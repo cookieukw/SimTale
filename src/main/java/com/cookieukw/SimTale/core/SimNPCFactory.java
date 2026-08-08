@@ -30,6 +30,12 @@ import com.hypixel.hytale.server.core.inventory.InventoryComponent;
  */
 public class SimNPCFactory {
 
+    /** REAPER spawns on the "SimTale_Human_Male" role (behavior only — the role's own
+     *  "Appearance" is a normal human) and gets this model applied on top of it. Exposed so
+     *  {@code RoutineAISystem} can reassert it if the role's own appearance system stomps it
+     *  back to human on a later tick. */
+    public static final String REAPER_MODEL_ASSET_ID = "Common/NPC/Void/Necromancer_Void/Models/Model.blockymodel";
+
     public enum NPCType {
         SLOTHIAN("SimTale_Slothian"),
         TRORK("SimTale_Trork"),
@@ -95,7 +101,7 @@ public class SimNPCFactory {
         if (type == NPCType.REAPER) {
             name = "Grim Reaper";
             PersistentModel pm = new PersistentModel(
-                new ModelReference("Common/NPC/Void/Necromancer_Void/Models/Model.blockymodel", 1.0f, new HashMap<>())
+                new ModelReference(REAPER_MODEL_ASSET_ID, 1.0f, new HashMap<>())
             );
             accessor.putComponent(ref, PersistentModel.getComponentType(), pm);
         } else {
