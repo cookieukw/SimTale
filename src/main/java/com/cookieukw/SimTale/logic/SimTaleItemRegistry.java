@@ -5,10 +5,12 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.WorldUtil;
+import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -83,6 +85,37 @@ public class SimTaleItemRegistry {
             });
         });
         
+        // Was entirely missing — Baby.json points its Secondary interaction at
+        // "RuneCore_GenericItemUse" same as every other custom item here, but with no matching
+        // register() call RuneCoreGenericItemInteraction always logged "No handler registered
+        // for item: Baby" and the interaction just failed. Nothing to do with the raw
+        // PlayerMouseButtonEvent path (that one's real bug — SimTale.java using .register
+        // instead of .registerGlobal — is separate, and matters for the Blueprint item instead,
+        // which has no Interactions override and so falls through to that path directly).
+        RuneCoreItemManager.register("Baby", (player, playerRef) -> {
+            if (playerRef.getReference() == null || !playerRef.getReference().isValid()) {
+                return;
+            }
+            Ref<EntityStore> pRef = playerRef.getReference();
+            Store<EntityStore> store = pRef.getStore();
+            TransformComponent transform = store.getComponent(pRef, TransformComponent.getComponentType());
+            if (transform == null) {
+                return;
+            }
+            ItemStack heldItem = InventoryComponent.getItemInHand(store, pRef);
+            if (heldItem == null || !"Baby".equals(heldItem.getItemId())) {
+                return;
+            }
+
+            // No target block available from this interaction (unlike a raycasted click) — same
+            // "just in front of the player" placement ImmigrationContract above uses.
+            Vector3d spawnPos = new Vector3d(transform.getPosition()).add(2, 0, 2);
+
+            // Structural write (spawnNPC -> Store.addEntity) from inside the interaction's own
+            // processing window — same deferral ImmigrationContract needs above.
+            WorldUtil.execute(() -> SimTaleEventHandler.placeBabyFromHeldItem(store, pRef, playerRef, heldItem, spawnPos));
+        });
+
         RuneCoreItemManager.register("QuartermastersGlass", (player, playerRef) -> {
             playerRef.sendMessage(Message.raw("🔍 Você está olhando pela Lupa do Intendente!"));
         });

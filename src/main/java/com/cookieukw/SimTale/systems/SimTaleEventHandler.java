@@ -99,83 +99,10 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         if (heldItem != null && heldItem.getItemId().equals("Baby")) {
             Vector3i targetBlock = event.getTargetBlock();
             if (targetBlock != null) {
-                String childIdStr = heldItem.getFromMetadataOrNull("childId", Codec.STRING);
-                if (childIdStr != null) {
-                    UUID childId;
-                    try {
-                        childId = UUID.fromString(childIdStr);
-                    } catch (IllegalArgumentException badId) {
-                        // Corrupt/hand-edited item metadata used to throw straight out of the
-                        // click handler instead of just ignoring the item.
-                        LOGGER.atWarning().log("SimTale: item de bebe com childId invalido: " + childIdStr);
-                        return;
-                    }
-
-                    GrowthComponent childComp = null;
-                    for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
-                        if (child.childId != null && child.childId.equals(childId)) {
-                            childComp = child;
-                            break;
-                        }
-                    }
-
-                    if (childComp == null) {
-                        childComp = Caskara.load("child_" + childId, GrowthComponent.class);
-                        if (childComp != null) {
-                            LifecycleManager.ACTIVE_CHILDREN.add(childComp);
-                        }
-                    }
-
-                    if (childComp != null) {
-                        if (childComp.stage == GrowthStage.BABY) {
-                            playerRefComp.sendMessage(Message.translation("general.baby.newborn_cannot_place"));
-                            event.setCancelled(true);
-                            return;
-                        }
-
-                        // Spawn baby entity back at target block position (1 block above)
-                        Vector3d spawnPos = new Vector3d(targetBlock.x + 0.5, targetBlock.y + 1, targetBlock.z + 0.5);
-                        Store<EntityStore> store = world.getEntityStore().getStore();
-
-                        SimNPCFactory.NPCType childType = childComp.gender == Gender.MALE
-                            ? SimNPCFactory.NPCType.CHILD_MALE
-                            : SimNPCFactory.NPCType.CHILD_FEMALE;
-
-                        Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
-                        childComp.childId = Objects.requireNonNull(store.getComponent(childRef, UUIDComponent.getComponentType())).getUuid();
-
-                        SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-                        if (childNPCComp != null) {
-                            childNPCComp.name = childComp.getFullName();
-                            store.putComponent(childRef, PersistentDisplayName.getComponentType(),
-                                new PersistentDisplayName(Message.raw(childComp.getFullName())));
-                            store.putComponent(childRef, Nameplate.getComponentType(),
-                                new Nameplate(childComp.getFullName()));
-                        }
-
-                        // Scale baby down visually to match BABY stage
-                        PersistentModel pm = store.getComponent(childRef, PersistentModel.getComponentType());
-                        if (pm != null) {
-                            ModelReference oldRef = pm.getModelReference();
-                            ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), childComp.currentScale, new HashMap<>());
-                            store.replaceComponent(childRef, PersistentModel.getComponentType(), new PersistentModel(newRef));
-                        }
-
-                        // Update baby state and persist
-                        childComp.putDown();
-                        Caskara.save("child_" + childComp.childId.toString(), childComp);
-
-                        // Remove item from hand
-                        InventoryComponent.Hotbar hotbarComponent = playerRef.getStore().getComponent(playerRef, InventoryComponent.Hotbar.getComponentType());
-                        if (hotbarComponent != null && hotbarComponent.getActiveSlot() != -1) {
-                            CombinedItemContainer combinedInventory = InventoryComponent.getCombined(playerRef.getStore(), playerRef, InventoryComponent.HOTBAR_FIRST);
-                            combinedInventory.removeItemStackFromSlot(hotbarComponent.getActiveSlot(), heldItem, 1);
-                        }
-
-                        playerRefComp.sendMessage(Message.raw("Você colocou o bebê " + childComp.getFullName() + " no chão."));
-                        event.setCancelled(true);
-                        return;
-                    }
+                Vector3d spawnPos = new Vector3d(targetBlock.x + 0.5, targetBlock.y + 1, targetBlock.z + 0.5);
+                Store<EntityStore> store = world.getEntityStore().getStore();
+                if (placeBabyFromHeldItem(store, playerRef, playerRefComp, heldItem, spawnPos)) {
+                    event.setCancelled(true);
                 }
             }
         }
@@ -344,5 +271,93 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
         // Open the NPC interaction page
         player.getPageManager().openCustomPage(playerRef, playerRef.getStore(), new NPCInteractionPage(playerRefComp, player, npc));
+    }
+
+    /**
+     * Spawns the child NPC a held "Baby" item refers to at {@code spawnPos}, consumes the item,
+     * and persists the change. Shared by the block-click flow above and
+     * {@code SimTaleCommand}'s {@code forceplacebaby} debug command — the click path turned out
+     * to be unreliable enough (see the ForcePlaceBabySubCommand javadoc) that testing needed a
+     * direct alternative that doesn't depend on it.
+     *
+     * @return true if a child was placed (caller may want to cancel the triggering event/consume
+     *         the click); false if the held item wasn't a valid placeable baby.
+     */
+    public static boolean placeBabyFromHeldItem(Store<EntityStore> store, Ref<EntityStore> playerRef,
+            PlayerRef playerRefComp, ItemStack heldItem, Vector3d spawnPos) {
+        if (heldItem == null || !"Baby".equals(heldItem.getItemId())) {
+            return false;
+        }
+        String childIdStr = heldItem.getFromMetadataOrNull("childId", Codec.STRING);
+        if (childIdStr == null) {
+            return false;
+        }
+        UUID childId;
+        try {
+            childId = UUID.fromString(childIdStr);
+        } catch (IllegalArgumentException badId) {
+            // Corrupt/hand-edited item metadata used to throw straight out of the click handler
+            // instead of just ignoring the item.
+            LOGGER.atWarning().log("SimTale: item de bebe com childId invalido: " + childIdStr);
+            return false;
+        }
+
+        GrowthComponent childComp = null;
+        for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
+            if (child.childId != null && child.childId.equals(childId)) {
+                childComp = child;
+                break;
+            }
+        }
+        if (childComp == null) {
+            childComp = Caskara.load("child_" + childId, GrowthComponent.class);
+            if (childComp != null) {
+                LifecycleManager.ACTIVE_CHILDREN.add(childComp);
+            }
+        }
+        if (childComp == null) {
+            return false;
+        }
+
+        if (childComp.stage == GrowthStage.BABY) {
+            playerRefComp.sendMessage(Message.translation("general.baby.newborn_cannot_place"));
+            return false;
+        }
+
+        SimNPCFactory.NPCType childType = childComp.gender == Gender.MALE
+            ? SimNPCFactory.NPCType.CHILD_MALE
+            : SimNPCFactory.NPCType.CHILD_FEMALE;
+
+        Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
+        childComp.childId = Objects.requireNonNull(store.getComponent(childRef, UUIDComponent.getComponentType())).getUuid();
+
+        SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+        if (childNPCComp != null) {
+            childNPCComp.name = childComp.getFullName();
+            store.putComponent(childRef, PersistentDisplayName.getComponentType(),
+                new PersistentDisplayName(Message.raw(childComp.getFullName())));
+            store.putComponent(childRef, Nameplate.getComponentType(),
+                new Nameplate(childComp.getFullName()));
+        }
+
+        // Scale baby down visually to match its current growth stage
+        PersistentModel pm = store.getComponent(childRef, PersistentModel.getComponentType());
+        if (pm != null) {
+            ModelReference oldRef = pm.getModelReference();
+            ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), childComp.currentScale, new HashMap<>());
+            store.replaceComponent(childRef, PersistentModel.getComponentType(), new PersistentModel(newRef));
+        }
+
+        childComp.putDown();
+        Caskara.save("child_" + childComp.childId.toString(), childComp);
+
+        InventoryComponent.Hotbar hotbarComponent = store.getComponent(playerRef, InventoryComponent.Hotbar.getComponentType());
+        if (hotbarComponent != null && hotbarComponent.getActiveSlot() != -1) {
+            CombinedItemContainer combinedInventory = InventoryComponent.getCombined(store, playerRef, InventoryComponent.HOTBAR_FIRST);
+            combinedInventory.removeItemStackFromSlot(hotbarComponent.getActiveSlot(), heldItem, 1);
+        }
+
+        playerRefComp.sendMessage(Message.raw("Você colocou o bebê " + childComp.getFullName() + " no chão."));
+        return true;
     }
 }
