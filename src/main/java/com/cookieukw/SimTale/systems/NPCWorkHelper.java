@@ -8,6 +8,7 @@ import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
@@ -137,8 +138,11 @@ public class NPCWorkHelper {
         PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
         if (pm != null) {
             ModelReference oldRef = pm.getModelReference();
-            store.replaceComponent(ref, PersistentModel.getComponentType(),
-                    new PersistentModel(new ModelReference(oldRef.getModelAssetId(), EXPEDITION_SCALE, new LinkedHashMap<>())));
+            // replaceComponent is a structural write — same "Store is currently processing!"
+            // issue as spawnNPC earlier this session. This runs from inside RoutineAISystem's own
+            // tick, so it has to be deferred, not called straight from here.
+            WorldUtil.execute(() -> store.replaceComponent(ref, PersistentModel.getComponentType(),
+                    new PersistentModel(new ModelReference(oldRef.getModelAssetId(), EXPEDITION_SCALE, new LinkedHashMap<>()))));
         }
 
         NPCMovementHelper.clearMoveTarget(ref, ai);
@@ -446,8 +450,8 @@ public class NPCWorkHelper {
                 PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
                 if (pm != null) {
                     ModelReference oldRef = pm.getModelReference();
-                    store.replaceComponent(ref, PersistentModel.getComponentType(),
-                            new PersistentModel(new ModelReference(oldRef.getModelAssetId(), NORMAL_NPC_SCALE, new LinkedHashMap<>())));
+                    WorldUtil.execute(() -> store.replaceComponent(ref, PersistentModel.getComponentType(),
+                            new PersistentModel(new ModelReference(oldRef.getModelAssetId(), NORMAL_NPC_SCALE, new LinkedHashMap<>()))));
                 }
 
                 String rewardId = npc.profession == Profession.MINER ? rollOre() : rollHunt();
