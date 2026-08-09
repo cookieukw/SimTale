@@ -233,25 +233,20 @@ public class SimTale extends JavaPlugin {
         this.getEventRegistry().registerGlobal(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class,
                 new SimTaleEventHandler());
         
-        // MobsAndMates: Register chat handler
         this.getEventRegistry().registerGlobal(EventPriority.NORMAL.getValue(), PlayerChatEvent.class,
                 new SimTaleChatHandler());
         
-        // SimTale: Register player join handler
         this.getEventRegistry().registerGlobal(PlayerReadyEvent.class, new PlayerJoinHandler());
 
-        // Register commands
         this.getCommandRegistry()
                 .registerCommand(new SimTaleCommand());
         this.getCommandRegistry().registerCommand(new BuildCommand());
         this.getCommandRegistry().registerCommand(new SimDebugCommand());
 
-        // Register custom UseNPCInteraction to hook interactions
         Interaction.getAssetStore().loadAssets(DefaultAssetMap.DEFAULT_PACK_KEY, List.of(
             new SimTaleUseNPCInteraction(UseNPCInteraction.DEFAULT_ID)
         ));
 
-        // Register custom interaction codecs
         Interaction.CODEC.register(
                 "SimTale_CheckPregnancy",
                 SimTaleCheckPregnancyInteraction.class,

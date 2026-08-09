@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Rotation4;
+import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -34,6 +35,8 @@ import javax.annotation.Nonnull;
  */
 public class ConstructionPreviewTracker extends EntityTickingSystem<EntityStore> {
 
+    private static final SimLog LOGGER = SimLog.forClass(ConstructionPreviewTracker.class);
+
     /** How far in front of the player (along their look direction) the preview anchor sits. */
     private static final double FOLLOW_DISTANCE = 4.0;
 
@@ -59,7 +62,10 @@ public class ConstructionPreviewTracker extends EntityTickingSystem<EntityStore>
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
 
         PlayerRef playerRef = chunk.getComponent(index, PlayerRef.getComponentType());
-        if (playerRef == null) return;
+        if (playerRef == null) {
+            LOGGER.debug("[SimTale] ConstructionPreviewTracker: no PlayerRef this tick for index {}", index);
+            return;
+        }
 
         World world = WorldUtil.first();
         if (world == null) return;
@@ -67,10 +73,16 @@ public class ConstructionPreviewTracker extends EntityTickingSystem<EntityStore>
         if (world.getTick() % UPDATE_INTERVAL_TICKS != 0) return;
 
         ConstructionSiteComponent site = ConstructionPreviewManager.get(playerRef.getUuid());
-        if (site == null) return;
+        if (site == null) {
+            LOGGER.debug("[SimTale] ConstructionPreviewTracker: no active session for {}", playerRef.getUuid());
+            return;
+        }
 
         TransformComponent transform = chunk.getComponent(index, TransformComponent.getComponentType());
-        if (transform == null) return;
+        if (transform == null) {
+            LOGGER.debug("[SimTale] ConstructionPreviewTracker: no TransformComponent for {}", playerRef.getUuid());
+            return;
+        }
 
         Vector3d playerPos = transform.getPosition();
         // Hytale's forward axis is -Z (same convention as RoutineAISystem/NPCInteractionPage's
@@ -100,17 +112,56 @@ public class ConstructionPreviewTracker extends EntityTickingSystem<EntityStore>
         double towardPlayerX = playerPos.x - (anchorX + 0.5);
         double towardPlayerZ = playerPos.z - (anchorZ + 0.5);
         double facingYawDegrees = Math.toDegrees(Math.atan2(-towardPlayerX, -towardPlayerZ));
-        Rotation4 newFacing = Rotation4.fromYawDegrees(facingYawDegrees);
+        // Hysteresis around each 90° boundary: standing still is never perfectly still (the
+        // engine's own resting-state position jitter is enough on its own, with no mouse
+        // movement involved at all), and a raw angle sitting right on a boundary flipped
+        // Rotation4.fromYawDegrees's result back and forth forever. Keep the current facing
+        // unless the angle has moved clearly past the boundary into the other zone.
+        Rotation4 newFacing = resolveFacingWithHysteresis(facingYawDegrees, site.facing);
 
         Vector3i newAnchor = new Vector3i(anchorX, anchorY, anchorZ);
-        if (newAnchor.equals(site.anchor) && newFacing == site.facing) {
+        boolean anchorChanged = !newAnchor.equals(site.anchor);
+        boolean facingChanged = newFacing != site.facing;
+
+        LOGGER.debug("[SimTale] ConstructionPreviewTracker: player=({},{},{}) yaw={} snappedYaw={} "
+                        + "oldAnchor={} newAnchor={} oldFacing={} newFacing={} anchorChanged={} facingChanged={} previewGhost={}",
+                playerPos.x, playerPos.y, playerPos.z, yawDegrees, snappedYawDegrees,
+                site.anchor, newAnchor, site.facing, newFacing, anchorChanged, facingChanged, site.previewGhost);
+
+        if (!anchorChanged && !facingChanged) {
             return; // Nothing visibly changed — skip the redraw.
         }
 
         site.anchor = newAnchor;
-        site.facing = newFacing;
-        site.roofFacing = newFacing;
-        ConstructionHelper.placePreview(world, site);
+
+        if (facingChanged) {
+            // Rotation is baked into the hologram's block offsets, not the entity's own
+            // rotation (see PrefabGhostHelper#buildBlockChanges) — this is the one change that
+            // genuinely needs a rebuild, and the one case where a brief redraw is unavoidable.
+            site.facing = newFacing;
+            site.roofFacing = newFacing;
+            LOGGER.debug("[SimTale] ConstructionPreviewTracker: rebuilding hologram (facing changed) at {}", newAnchor);
+            ConstructionHelper.placePreview(world, site);
+        } else {
+            // Position-only move: just slide the existing hologram entity, no despawn/respawn.
+            LOGGER.debug("[SimTale] ConstructionPreviewTracker: moving hologram to {}", newAnchor);
+            PrefabGhostHelper.move(world, site, newAnchor);
+        }
+    }
+
+    /** See the hysteresis comment at the call site. {@code marginDegrees} is how far past a
+     *  90° boundary the angle has to sit before the facing is allowed to actually flip. */
+    private static Rotation4 resolveFacingWithHysteresis(double angleDegrees, Rotation4 current) {
+        double normalized = ((angleDegrees % 360.0) + 360.0) % 360.0;
+        double marginDegrees = 8.0;
+        for (double boundary : new double[]{45.0, 135.0, 225.0, 315.0}) {
+            double delta = Math.abs(normalized - boundary);
+            delta = Math.min(delta, 360.0 - delta);
+            if (delta < marginDegrees) {
+                return current; // Too close to a boundary to trust — keep whatever it already was.
+            }
+        }
+        return Rotation4.fromYawDegrees(normalized);
     }
 
     /** Nearest solid surface to {@code startY} at ({@code x}, {@code z}), searched outward within

@@ -154,8 +154,17 @@ public class SimTaleItemRegistry {
                 return;
             }
 
+            // Same forward offset ConstructionPreviewTracker uses for every update after this
+            // one — placed directly on the player's own feet before, so the very first frame
+            // had the hologram wrapped around the player until the tracker's next tick nudged
+            // it away.
             Vector3d pos = transform.getPosition();
-            Vector3i anchor = new Vector3i((int) pos.x, (int) pos.y, (int) pos.z);
+            double yaw = transform.getRotation().yaw();
+            double dirX = -Math.sin(yaw);
+            double dirZ = -Math.cos(yaw);
+            int anchorX = (int) Math.floor(pos.x + dirX * 4.0);
+            int anchorZ = (int) Math.floor(pos.z + dirZ * 4.0);
+            Vector3i anchor = new Vector3i(anchorX, (int) pos.y, anchorZ);
             Rotation4 facing = Rotation4.fromYawDegrees(Math.toDegrees(transform.getRotation().yaw()));
 
             WorldUtil.execute(() -> {

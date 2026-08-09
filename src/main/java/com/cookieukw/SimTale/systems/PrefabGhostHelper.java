@@ -104,6 +104,52 @@ public final class PrefabGhostHelper {
     }
 
     /**
+     * Repositions an already-shown hologram without destroying and rebuilding it — a plain
+     * {@link TransformComponent} write on the ghost entity, same as any other entity's position
+     * update. Only valid when the facing has not changed: {@link #buildBlockChanges} bakes
+     * rotation into each block's local offset rather than the entity's own rotation, so a facing
+     * change still needs {@link #show} to rebuild that array. But when only the anchor moves, the
+     * existing offsets are still correct relative to the new position — no need to touch
+     * {@code PrefabPreview} at all.
+     * <p>
+     * This exists because {@link ConstructionPreviewTracker} used to call {@link #show} (which
+     * despawns and respawns the hologram entity) on every position update, even a one-block
+     * shuffle — that despawn/respawn cycle is a real, visible flicker on the client, not merely a
+     * server-side no-op, and it fired constantly while the player's aim direction was moving at
+     * all. A plain transform move has none of that.
+     */
+    public static void move(World world, ConstructionSiteComponent site, Vector3i newAnchor) {
+        if (world == null || site == null || site.previewGhost == null) {
+            LOGGER.atInfo().log("SimTale: PrefabGhostHelper.move() bailed — world=" + (world != null)
+                    + " site=" + (site != null) + " previewGhost=" + (site != null ? site.previewGhost : "n/a"));
+            return;
+        }
+        Ref<EntityStore> ref = site.previewGhost;
+        if (!ref.isValid()) {
+            LOGGER.atInfo().log("SimTale: PrefabGhostHelper.move() bailed — ghost ref invalid: " + ref);
+            return;
+        }
+
+        Store<EntityStore> store = world.getEntityStore().getStore();
+        TransformComponent transform = new TransformComponent(
+                new Vector3d(newAnchor.x, newAnchor.y, newAnchor.z), new Rotation3f());
+
+        Runnable apply = () -> {
+            if (ref.isValid()) {
+                store.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                LOGGER.atInfo().log("SimTale: PrefabGhostHelper.move() applied transform " + newAnchor + " to " + ref);
+            } else {
+                LOGGER.atInfo().log("SimTale: PrefabGhostHelper.move() ref went invalid before apply: " + ref);
+            }
+        };
+        if (store.isProcessing()) {
+            world.execute(apply);
+        } else {
+            apply.run();
+        }
+    }
+
+    /**
      * Reveals the hologram only up to {@code visibleLayers} horizontal slices.
      * Lets a site under construction show the part that has not been built yet.
      */
