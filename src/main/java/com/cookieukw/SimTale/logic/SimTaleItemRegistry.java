@@ -119,15 +119,13 @@ public class SimTaleItemRegistry {
             WorldUtil.execute(() -> SimTaleEventHandler.placeBabyFromHeldItem(store, pRef, playerRef, heldItem, spawnPos));
         });
 
-        // Preview + rotate, same as the old click-hologram flow, but routed entirely through
-        // RuneCoreItemManager instead of the raw PlayerMouseButtonEvent path — this interaction
-        // API has no target-block/raycast info, so there is no "click near the preview to
-        // confirm" step here. Using the item with no preview active places one at the player's
-        // feet, facing the way they're facing; using it again while a preview is already active
-        // rotates it instead of starting a second one. Confirming and clearing both stay on the
-        // existing '/build start' / '/build clear' commands (BuildCommand.java, untouched) — they
-        // already operate on the same ConstructionPreviewManager session this starts, so nothing
-        // extra was needed there to make the two interoperate.
+        // Preview follows the player and self-orients (ConstructionPreviewTracker.java) instead
+        // of being placed once and left static — walking around it is the rotation control now,
+        // so a second use no longer needs to mean "rotate" (the tracker would just override a
+        // manual rotation on its very next update anyway). Instead: no active preview -> start
+        // one; active preview -> confirm it where it currently stands, same as '/build start'.
+        // '/build clear' (BuildCommand.java, untouched) still cancels — both commands operate on
+        // the same ConstructionPreviewManager session this starts.
         RuneCoreItemManager.register("Blueprint_TavernHouse", (player, playerRef) -> {
             if (playerRef.getReference() == null || !playerRef.getReference().isValid()) {
                 return;
@@ -142,9 +140,16 @@ public class SimTaleItemRegistry {
 
             ConstructionSiteComponent activePreview = ConstructionPreviewManager.get(playerRef.getUuid());
             if (activePreview != null) {
+                if (!activePreview.isClear) {
+                    playerRef.sendMessage(Message.raw("Construção negada! A área está obstruída (marcada em vermelho)."));
+                    return;
+                }
                 WorldUtil.execute(() -> {
-                    ConstructionPreviewManager.rotate(playerRef.getUuid(), world);
-                    playerRef.sendMessage(Message.raw("🔄 Holograma girado. Use o item de novo pra girar mais, ou '/build start' pra confirmar."));
+                    ConstructionSiteComponent committed = ConstructionPreviewManager.commit(playerRef.getUuid(), world);
+                    if (committed != null) {
+                        committed.isBuilding = true;
+                        playerRef.sendMessage(Message.raw("🏗️ Construção da Tavern House iniciada!"));
+                    }
                 });
                 return;
             }
@@ -158,7 +163,7 @@ public class SimTaleItemRegistry {
                 site.facing = facing;
                 site.roofFacing = facing;
                 ConstructionHelper.placePreview(world, site);
-                playerRef.sendMessage(Message.raw("🏗️ Holograma da Tavern House posicionado. Use o item de novo pra girar, ou '/build start' pra confirmar."));
+                playerRef.sendMessage(Message.raw("🏗️ Holograma posicionado — ele segue você e vira de frente pra você sozinho. Use o item de novo pra confirmar, ou '/build clear' pra cancelar."));
             });
         });
 
