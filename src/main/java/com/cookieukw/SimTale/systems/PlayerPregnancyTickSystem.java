@@ -24,11 +24,14 @@ import javax.annotation.Nonnull;
  * expires.
  * <p>
  * Used to also drive the construction-preview hologram's real-time follow (every tick, no
- * throttle, no ground-height scan) — moved out to {@link ConstructionPreviewTracker}, which does
- * the same job properly. The two ran concurrently against the same
- * {@code ConstructionPreviewManager} session for a while — each recomputing a different anchor
- * from a different formula and stomping the other's write — which is almost certainly what an
- * unbounded hologram despawn/respawn loop from this class crashed the server over.
+ * throttle, no ground-height scan) — that logic briefly lived in its own class,
+ * {@code ConstructionPreviewTracker}, which ran concurrently against the same
+ * {@code ConstructionPreviewManager} session as this class for a while — each recomputing a
+ * different anchor from a different formula and stomping the other's write — which is almost
+ * certainly what an unbounded hologram despawn/respawn loop from this class crashed the server
+ * over. Both the tracker and this class's copy of the same logic are gone now: the whole
+ * live-follow design was scrapped in favor of a placeable marker block
+ * (see {@link BedPlaceBlockEventSystem}) with a one-shot obstruction check at place time.
  */
 public class PlayerPregnancyTickSystem extends EntityTickingSystem<EntityStore> {
 

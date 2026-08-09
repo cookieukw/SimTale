@@ -172,9 +172,15 @@ public final class ConstructionHelper {
             for (int ly = 0; ly < size.sizeY(); ly++) {
                 for (int lz = 0; lz < size.sizeZ(); lz++) {
                     Vector3i offset = mapper.offset(lx, ly, lz);
-                    if (isOccupied(world, site.anchor.x + offset.x,
-                                          site.anchor.y + offset.y,
-                                          site.anchor.z + offset.z)) {
+                    int wx = site.anchor.x + offset.x;
+                    int wy = site.anchor.y + offset.y;
+                    int wz = site.anchor.z + offset.z;
+                    // The anchor cell itself is where whatever placed this preview is standing
+                    // (a player, or — for a marker-block-triggered site — the marker block
+                    // itself). Either way it's occupied on purpose and will be consumed/replaced
+                    // once building actually starts, not a real obstruction to warn about.
+                    if (wx == site.anchor.x && wy == site.anchor.y && wz == site.anchor.z) continue;
+                    if (isOccupied(world, wx, wy, wz)) {
                         return true;
                     }
                 }

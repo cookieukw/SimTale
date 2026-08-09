@@ -17,7 +17,6 @@ import com.cookieukw.SimTale.logic.SimTaleUseNPCInteraction;
 import com.cookieukw.SimTale.logic.SimTaleItemRegistry;
 import com.cookieukw.SimTale.systems.BabyCareTickSystem;
 import com.cookieukw.SimTale.systems.ConstructionSystem;
-import com.cookieukw.SimTale.systems.ConstructionPreviewTracker;
 import com.cookieukw.SimTale.systems.MoodAnimationSystem;
 import com.cookieukw.SimTale.systems.PlayerJoinHandler;
 import com.cookieukw.SimTale.systems.PlayerPregnancyTickSystem;
@@ -207,7 +206,6 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new PlumbobSystem());
         this.getEntityStoreRegistry().registerSystem(new MoodAnimationSystem());
         this.getEntityStoreRegistry().registerSystem(new ConstructionSystem());
-        this.getEntityStoreRegistry().registerSystem(new ConstructionPreviewTracker());
         this.getEntityStoreRegistry().registerSystem(new PregnancyTickSystem());
         this.getEntityStoreRegistry().registerSystem(new PlayerPregnancyTickSystem());
         this.getEntityStoreRegistry().registerSystem(new BabyCareTickSystem());

@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
@@ -23,6 +24,7 @@ import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.MouseButtonState;
 import com.hypixel.hytale.protocol.MouseButtonType;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import com.hypixel.hytale.server.core.entity.ItemUtils;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
@@ -104,6 +106,34 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             }
         }
 
+        // --- Confirm a blueprint marker's construction on right-click ---
+        // Placing Blueprint_TavernHouse (BedPlaceBlockEventSystem) shows the hologram; this is
+        // the other half — right-clicking that same marker block starts the real build, the same
+        // way '/build start' commits a command-driven preview. Breaking the marker instead
+        // (BedBlockEventSystem) cancels it.
+        Vector3i confirmTarget = event.getTargetBlock();
+        if (confirmTarget != null) {
+            BlockType confirmType = world.getBlockType(confirmTarget.x, confirmTarget.y, confirmTarget.z);
+            if (confirmType != null && "Blueprint_TavernHouse".equals(confirmType.getId())) {
+                UUID siteId = ConstructionPreviewManager.idForBlock(confirmTarget);
+                ConstructionSiteComponent pendingSite = ConstructionPreviewManager.get(siteId);
+                if (pendingSite != null && !pendingSite.isBuilding) {
+                    if (!pendingSite.isClear) {
+                        playerRefComp.sendMessage(Message.raw(
+                                "[SimTale] Não é possível iniciar a construção: a área ao redor do marcador ainda está obstruída."));
+                    } else {
+                        ConstructionSiteComponent committedSite = ConstructionPreviewManager.commit(siteId, world);
+                        if (committedSite != null) {
+                            committedSite.isBuilding = true;
+                            playerRefComp.sendMessage(Message.raw(
+                                    "[SimTale] Construção iniciada! NPCs virão construir a TavernHouse."));
+                        }
+                    }
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
 
         Ref<EntityStore> targetRef = event.getTargetEntityRef();
         

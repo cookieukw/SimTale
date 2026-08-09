@@ -2,13 +2,9 @@ package com.cookieukw.SimTale.logic;
 
 import com.cookie.runecore.api.RuneCoreItemManager;
 import com.cookieukw.SimTale.SimTale;
-import com.cookieukw.SimTale.core.ConstructionSiteComponent;
-import com.cookieukw.SimTale.core.Rotation4;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.WorldUtil;
-import com.cookieukw.SimTale.systems.ConstructionHelper;
-import com.cookieukw.SimTale.systems.ConstructionPreviewManager;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -17,7 +13,6 @@ import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import org.joml.Vector3d;
@@ -119,62 +114,12 @@ public class SimTaleItemRegistry {
             WorldUtil.execute(() -> SimTaleEventHandler.placeBabyFromHeldItem(store, pRef, playerRef, heldItem, spawnPos));
         });
 
-        // Preview follows the player and self-orients (ConstructionPreviewTracker.java) instead
-        // of being placed once and left static — walking around it is the rotation control now,
-        // so a second use no longer needs to mean "rotate" (the tracker would just override a
-        // manual rotation on its very next update anyway). Instead: no active preview -> start
-        // one; active preview -> confirm it where it currently stands, same as '/build start'.
-        // '/build clear' (BuildCommand.java, untouched) still cancels — both commands operate on
-        // the same ConstructionPreviewManager session this starts.
-        RuneCoreItemManager.register("Blueprint_TavernHouse", (player, playerRef) -> {
-            if (playerRef.getReference() == null || !playerRef.getReference().isValid()) {
-                return;
-            }
-            Ref<EntityStore> pRef = playerRef.getReference();
-            Store<EntityStore> store = pRef.getStore();
-            TransformComponent transform = store.getComponent(pRef, TransformComponent.getComponentType());
-            World world = store.getExternalData() != null ? store.getExternalData().getWorld() : null;
-            if (transform == null || world == null) {
-                return;
-            }
-
-            ConstructionSiteComponent activePreview = ConstructionPreviewManager.get(playerRef.getUuid());
-            if (activePreview != null) {
-                if (!activePreview.isClear) {
-                    playerRef.sendMessage(Message.raw("Construção negada! A área está obstruída (marcada em vermelho)."));
-                    return;
-                }
-                WorldUtil.execute(() -> {
-                    ConstructionSiteComponent committed = ConstructionPreviewManager.commit(playerRef.getUuid(), world);
-                    if (committed != null) {
-                        committed.isBuilding = true;
-                        playerRef.sendMessage(Message.raw("🏗️ Construção da Tavern House iniciada!"));
-                    }
-                });
-                return;
-            }
-
-            // Same forward offset ConstructionPreviewTracker uses for every update after this
-            // one — placed directly on the player's own feet before, so the very first frame
-            // had the hologram wrapped around the player until the tracker's next tick nudged
-            // it away.
-            Vector3d pos = transform.getPosition();
-            double yaw = transform.getRotation().yaw();
-            double dirX = -Math.sin(yaw);
-            double dirZ = -Math.cos(yaw);
-            int anchorX = (int) Math.floor(pos.x + dirX * 4.0);
-            int anchorZ = (int) Math.floor(pos.z + dirZ * 4.0);
-            Vector3i anchor = new Vector3i(anchorX, (int) pos.y, anchorZ);
-            Rotation4 facing = Rotation4.fromYawDegrees(Math.toDegrees(transform.getRotation().yaw()));
-
-            WorldUtil.execute(() -> {
-                ConstructionSiteComponent site = ConstructionPreviewManager.start(playerRef.getUuid(), "TavernHouse", anchor);
-                site.facing = facing;
-                site.roofFacing = facing;
-                ConstructionHelper.placePreview(world, site);
-                playerRef.sendMessage(Message.raw("🏗️ Holograma posicionado — ele segue você e vira de frente pra você sozinho. Use o item de novo pra confirmar, ou '/build clear' pra cancelar."));
-            });
-        });
+        // Blueprint_TavernHouse is a real placeable block now (BedPlaceBlockEventSystem/
+        // BedBlockEventSystem react to it being placed/broken, and SimTaleEventHandler reacts to
+        // it being right-clicked), not an item interaction — see those classes for why: a
+        // live-following hologram (tried first) turned out to cost a full obstruction re-scan of
+        // the whole prefab on every rotation, which was expensive enough to bog down the server
+        // for the one active preview alone. Nothing to register here anymore.
 
         RuneCoreItemManager.register("QuartermastersGlass", (player, playerRef) -> {
             playerRef.sendMessage(Message.raw("🔍 Você está olhando pela Lupa do Intendente!"));

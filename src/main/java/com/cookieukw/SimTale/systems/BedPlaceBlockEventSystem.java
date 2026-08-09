@@ -1,16 +1,20 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.SimLog;
 
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.system.WorldEventSystem;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.event.events.ecs.PlaceBlockEvent;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3i;
 
+import java.util.UUID;
 import javax.annotation.Nonnull;
 
 public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, PlaceBlockEvent> {
@@ -73,6 +77,27 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
             // its own separate (and redundant) registered post.
             Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
             FarmPostRegistry.registerAt(scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
+        }
+
+        // Blueprint marker block: the hologram preview shows up the instant this is placed, and
+        // the obstruction check runs exactly once, right here — not continuously. An earlier
+        // version had the preview follow the placing player around and re-check on every turn,
+        // which meant re-scanning the whole prefab's footprint for obstructions several times a
+        // second; expensive enough on its own to visibly stall the server. A block sidesteps all
+        // of that: it just sits where it was placed, same as a scarecrow or a fishing post.
+        if ("Blueprint_TavernHouse".equals(type.getId())) {
+            UUID siteId = ConstructionPreviewManager.idForBlock(pos);
+            ConstructionSiteComponent site = ConstructionPreviewManager.start(siteId, "TavernHouse", pos);
+            ConstructionHelper.placePreview(world, site);
+
+            if (!site.isClear) {
+                // The hologram *does* tint red/green (PrefabGhostHelper.TINT_BLOCKED/CLEAR), but
+                // that is a biome tint — it only recolours grass/leaves/foliage, so on a
+                // stone-and-wood prefab like this one the difference is barely visible. A chat
+                // message is the only reliable way to actually tell the player.
+                Message warning = Message.raw("[SimTale] A área ao redor do marcador de construção está obstruída — libere o espaço ou remova o bloco pra tentar em outro lugar.");
+                Universe.get().getPlayers().forEach(p -> p.sendMessage(warning));
+            }
         }
     }
 }

@@ -21,6 +21,17 @@ public final class ConstructionPreviewManager {
     private ConstructionPreviewManager() {
     }
 
+    /**
+     * Deterministic session key for a marker-block-triggered site (TavernBlueprint's place/break
+     * handlers) — the {@code UUID} key here has never actually had to be a real player id, just
+     * something stable and unique per site. A block only ever exists at one position at a time,
+     * so the position itself is a fine identity: the same block always maps to the same key,
+     * with no bookkeeping needed to remember which key went with which position.
+     */
+    public static UUID idForBlock(Vector3i pos) {
+        return new UUID(0L, ((long) pos.x << 40) ^ ((long) pos.z << 20) ^ (long) (pos.y & 0xFFFFF));
+    }
+
     public static ConstructionSiteComponent start(UUID playerId, String prefabName, Vector3i anchor) {
         ConstructionSiteComponent site = new ConstructionSiteComponent(prefabName, new Vector3i(anchor));
         site.ownerId = playerId;
