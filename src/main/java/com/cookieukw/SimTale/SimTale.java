@@ -30,6 +30,7 @@ import com.cookieukw.SimTale.systems.BedEntityRegistrySystem;
 import com.cookieukw.SimTale.systems.BedBlockEventSystem;
 import com.cookieukw.SimTale.systems.BedPlaceBlockEventSystem;
 import com.cookieukw.SimTale.systems.GrowthTickSystem;
+import com.cookieukw.SimTale.systems.ConstructionPreviewSweepSystem;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.event.EventPriority;
@@ -206,6 +207,7 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new PlumbobSystem());
         this.getEntityStoreRegistry().registerSystem(new MoodAnimationSystem());
         this.getEntityStoreRegistry().registerSystem(new ConstructionSystem());
+        this.getEntityStoreRegistry().registerSystem(new ConstructionPreviewSweepSystem());
         this.getEntityStoreRegistry().registerSystem(new PregnancyTickSystem());
         this.getEntityStoreRegistry().registerSystem(new PlayerPregnancyTickSystem());
         this.getEntityStoreRegistry().registerSystem(new BabyCareTickSystem());

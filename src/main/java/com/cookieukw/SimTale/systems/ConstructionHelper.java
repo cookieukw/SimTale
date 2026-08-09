@@ -80,6 +80,33 @@ public final class ConstructionHelper {
     }
 
     /**
+     * Re-runs the obstruction scan for a preview that is already showing, and touches the
+     * hologram only if clear/blocked actually flipped since the last check.
+     *
+     * <p>Called periodically by {@link ConstructionPreviewSweepSystem} so a preview reflects
+     * blocks placed or removed near it after it first went up — {@link #placePreview} only ever
+     * checks once, at the moment the preview appears. Comparing before writing matters here in a
+     * way it didn't for {@link #placePreview}: that runs once per user action, but this runs on a
+     * timer against every pending site, so re-spawning the hologram (via {@link PrefabGhostHelper#show})
+     * on every sweep instead of only on an actual change would mean periodic despawn/respawn
+     * churn for every preview in the world, all over again.
+     */
+    public static void recheckObstruction(World world, ConstructionSiteComponent site) {
+        if (site == null) return;
+
+        Prefab prefab = PrefabManager.getPrefab(site.prefabName);
+        if (prefab == null || prefab.getBlocks() == null || prefab.getBlocks().isEmpty()) {
+            return;
+        }
+
+        boolean nowClear = !hasObstruction(world, site, prefab);
+        if (nowClear == site.isClear) return;
+
+        site.isClear = nowClear;
+        PrefabGhostHelper.show(world, site, prefab, site.isClear);
+    }
+
+    /**
      * Maps prefab-local coordinates to offsets from the site anchor, applying a facing.
      *
      * <p>Shared on purpose. The preview and the builders used to derive positions independently:

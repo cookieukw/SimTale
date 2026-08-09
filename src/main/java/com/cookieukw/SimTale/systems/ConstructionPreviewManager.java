@@ -114,4 +114,17 @@ public final class ConstructionPreviewManager {
     public static ConstructionSiteComponent get(UUID playerId) {
         return SESSIONS.get(playerId);
     }
+
+    /**
+     * Every session still pending confirmation — i.e. still just a hologram, not yet committed to
+     * a real build. {@code commit()} removes a session from {@code SESSIONS} the moment it stops
+     * being a preview, so nothing further to filter here.
+     *
+     * <p>Backed directly by the live map (a {@link ConcurrentHashMap}, so iterating it while
+     * another thread calls {@code start}/{@code clear}/{@code commit} is safe — no snapshot copy
+     * needed) for {@link ConstructionPreviewSweepSystem}'s periodic obstruction recheck.
+     */
+    public static java.util.Collection<ConstructionSiteComponent> allPending() {
+        return SESSIONS.values();
+    }
 }
