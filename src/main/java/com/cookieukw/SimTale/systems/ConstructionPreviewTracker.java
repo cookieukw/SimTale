@@ -40,11 +40,13 @@ public class ConstructionPreviewTracker extends EntityTickingSystem<EntityStore>
     /** How far in front of the player (along their look direction) the preview anchor sits. */
     private static final double FOLLOW_DISTANCE = 4.0;
 
-    /** Re-check every few ticks rather than every single one — the hologram redraw this can
-     *  trigger (a full re-scan of the prefab's footprint for obstructions) is not cheap enough
-     *  to run 20x/second for a value that only visibly changes when the player crosses a block
-     *  boundary or flips which cardinal direction is nearest. */
-    private static final int UPDATE_INTERVAL_TICKS = 5;
+    /** Re-check every few ticks rather than every single one. A facing change triggers a full
+     *  rebuild — clearPreview + placePreview, which re-scans the entire prefab footprint block
+     *  by block for obstructions (a house-sized prefab is easily thousands of block reads) and
+     *  despawns/respawns the hologram entity — expensive enough that running it several times a
+     *  second visibly bogged down the whole server, not just this feature. This only needs to
+     *  feel responsive to a deliberate turn, not to camera micro-motion. */
+    private static final int UPDATE_INTERVAL_TICKS = 20;
 
     /** How far up/down from the player's own feet to look for solid ground at the anchor's X/Z.
      *  Bounded on purpose — an unbounded scan is a real cost run this often, and a preview more
@@ -104,7 +106,14 @@ public class ConstructionPreviewTracker extends EntityTickingSystem<EntityStore>
 
         int anchorX = (int) Math.floor(playerPos.x + dirX * FOLLOW_DISTANCE);
         int anchorZ = (int) Math.floor(playerPos.z + dirZ * FOLLOW_DISTANCE);
-        int anchorY = findGroundY(world, anchorX, (int) Math.floor(playerPos.y), anchorZ);
+        // The ground scan (up to GROUND_SCAN_RANGE*2 block reads) is the expensive part of this
+        // check — skip it unless the anchor is actually moving to a new column. Turning to look
+        // around without walking anywhere used to re-scan for ground on every 10-tick check for
+        // no visible benefit, since the column (and so the correct ground level) hadn't changed.
+        boolean columnChanged = site.anchor == null || anchorX != site.anchor.x || anchorZ != site.anchor.z;
+        int anchorY = columnChanged
+                ? findGroundY(world, anchorX, (int) Math.floor(playerPos.y), anchorZ)
+                : site.anchor.y;
 
         // Face back toward the player from the new anchor — the direction the front of the
         // house should point is the opposite of "anchor relative to player", i.e. straight at
@@ -153,7 +162,10 @@ public class ConstructionPreviewTracker extends EntityTickingSystem<EntityStore>
      *  90° boundary the angle has to sit before the facing is allowed to actually flip. */
     private static Rotation4 resolveFacingWithHysteresis(double angleDegrees, Rotation4 current) {
         double normalized = ((angleDegrees % 360.0) + 360.0) % 360.0;
-        double marginDegrees = 8.0;
+        // Wide on purpose: a rebuild is expensive (see UPDATE_INTERVAL_TICKS), so this needs to
+        // filter out everything except a clear, deliberate turn — not just tip the scales away
+        // from boundary jitter.
+        double marginDegrees = 20.0;
         for (double boundary : new double[]{45.0, 135.0, 225.0, 315.0}) {
             double delta = Math.abs(normalized - boundary);
             delta = Math.min(delta, 360.0 - delta);
