@@ -83,7 +83,12 @@ public final class ConstructionPreviewManager {
             return null;
         }
 
-        ConstructionHelper.clearPreview(world, site);
+        // Deliberately NOT clearing the hologram here. Confirming does not mean a single block
+        // exists yet — ConstructionSystem only starts placing real blocks once a builder NPC is
+        // actually nearby and working (effectiveBuilders == 0 && !forceBuild is a no-op tick),
+        // so clearing the ghost at this exact moment used to leave nothing at all visible for
+        // however long that took. The ghost now stays up as a placeholder and is cleared once
+        // the real building finishes (ConstructionSystem's "Finished construction" branch).
 
         Store<EntityStore> eStore = world.getEntityStore().getStore();
         Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();

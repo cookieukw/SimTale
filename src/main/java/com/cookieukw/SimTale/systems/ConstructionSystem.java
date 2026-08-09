@@ -108,7 +108,10 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
             site.ticksSinceLastBlock = 0;
 
             if (site.currentIndex >= prefab.getBlocks().size()) {
-                // Finished construction
+                // Finished construction — this is the one place the hologram should actually
+                // disappear now (see ConstructionPreviewManager.commit): the real building has
+                // fully replaced it, there is nothing left for the ghost to stand in for.
+                ConstructionHelper.clearPreview(world, site);
                 commandBuffer.removeComponent(chunk.getReferenceTo(index), SimTale.CONSTRUCTION_COMPONENT_TYPE);
                 SimTale.ACTIVE_SITES.remove(site);
                 return;

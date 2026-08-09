@@ -76,7 +76,17 @@ public class ConstructionPreviewTracker extends EntityTickingSystem<EntityStore>
         // Hytale's forward axis is -Z (same convention as RoutineAISystem/NPCInteractionPage's
         // atan2(-dx, -dz) — see those for the fuller explanation), so walking "forward" moves
         // along (-sin(yaw), -cos(yaw)).
-        double yaw = transform.getRotation().yaw();
+        //
+        // Snapped to the nearest 22.5° instead of using the raw continuous look yaw: mouse look
+        // never holds perfectly still, and with a floor()'d block-position result even a
+        // sub-degree wobble right at a boundary flipped the anchor back and forth between two
+        // adjacent blocks — a redraw (hide+show the hologram) every time, which read as
+        // constant flickering rather than smooth following. 22.5° buckets still give 16 distinct
+        // aim directions — fine enough to steer, coarse enough that ordinary hand tremor stays
+        // inside one bucket.
+        double yawDegrees = Math.toDegrees(transform.getRotation().yaw());
+        double snappedYawDegrees = Math.round(yawDegrees / 22.5) * 22.5;
+        double yaw = Math.toRadians(snappedYawDegrees);
         double dirX = -Math.sin(yaw);
         double dirZ = -Math.cos(yaw);
 
