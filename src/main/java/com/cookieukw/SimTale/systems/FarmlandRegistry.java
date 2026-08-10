@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.AssetIds;
+
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,13 +14,10 @@ public final class FarmlandRegistry {
 
     /** Matches vanilla Hytale planting, which doesn't require tilled soil — any grass/dirt-type
      *  ground block works, not just Soil_Dirt_Tilled. */
+    // Watered tilled soil comes back as "*soil_dirt_tilled_state_definitions_watered", so the
+    // match has to ignore both the leading marker and the state suffix.
     public static boolean isFarmlandId(String id) {
-        if (id == null) return false;
-        String lower = id.toLowerCase();
-        // Hytale prefixes state-variant ids with "*" (e.g. watered tilled soil comes back as
-        // "*soil_dirt_tilled_state_definitions_watered") — contains() instead of startsWith()
-        // so that leading marker doesn't hide the match, same fix as CropRegistry.isCropId.
-        return lower.contains("tilled") || lower.contains("grass") || lower.contains("soil_dirt") || lower.contains("soil_mud");
+        return AssetIds.containsAny(id, "tilled", "grass", "soil_dirt", "soil_mud");
     }
 
     public static void add(int x, int y, int z) {
