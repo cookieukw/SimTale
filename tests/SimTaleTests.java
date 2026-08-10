@@ -1,7 +1,6 @@
 package com.cookieukw.SimTale.tests;
 
 import com.cookieukw.SimTale.core.Gender;
-import com.cookieukw.SimTale.core.Needs;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -10,39 +9,51 @@ import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareData;
-import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
 
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.GeneticsData;
-import com.cookieukw.SimTale.core.Gender;
-import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 
-import java.util.HashSet;
 import java.util.UUID;
 
+/**
+ * Test runner: {@code ./gradlew runTests}.
+ *
+ * <p>Only pure logic is covered. Anything needing a {@code World}, a {@code Store} or a live entity
+ * is out of scope here and belongs in {@code testing_checklist.md} as an in-game check — that split
+ * is deliberate, not a gap.
+ */
 public class SimTaleTests {
 
     public static void main(String[] args) {
         System.out.println("========================================");
-        System.out.println("Iniciando Testes Unitários do SimTale...");
+        System.out.println("SimTale — unit tests");
         System.out.println("========================================");
 
         try {
+            System.out.println("Asset ids");
+            AssetIdsTests.run();
+
+            System.out.println("Geometry");
+            GeometryTests.run();
+
+            System.out.println("Mood");
+            MoodTests.run();
+
+            System.out.println("Lifecycle");
             testPregnancyComponent();
             testLifecycleManagerPregnancy();
             testRelationships();
-            testNeedsDecay();
             testBabyCareSharing();
             testChildGrowth();
             testDatabaseShellIsolation();
-            
+
             System.out.println("========================================");
-            System.out.println("Todos os testes passaram com sucesso!");
+            System.out.println("All tests passed (" + Assert.checks + " assertions)");
             System.out.println("========================================");
         } catch (Throwable t) {
             System.out.println("========================================");
-            System.out.println("FALHA NOS TESTES!");
+            System.out.println("TEST FAILURE");
             t.printStackTrace();
             System.out.println("========================================");
             System.exit(1);
@@ -174,40 +185,15 @@ public class SimTaleTests {
         System.out.println("OK");
     }
 
-    private static void testNeedsDecay() {
-        System.out.print("Testando Decaimento de Necessidades... ");
-        Needs needs = new Needs();
-
-        // Inicial
-        assertEqual(needs.hunger, 100f, "Fome inicial");
-        assertEqual(needs.energy, 100f, "Energia inicial");
-
-        // Decaimento normal (sem traits)
-        needs.tickDecay(new HashSet<>());
-        // hunger cai 0.0001f, energy cai 0.0002f
-        assertFloatEqual(needs.hunger, 99.9999f, "Decaimento fome");
-        assertFloatEqual(needs.energy, 99.9998f, "Decaimento energia");
-
-        // Decaimento gravidez acelerado
-        SimNPCComponent mother = new SimNPCComponent(UUID.randomUUID(), "Maria");
-        mother.gender = Gender.FEMALE;
-        mother.needs = new Needs();
-        mother.pregnancy = new PregnancyComponent();
-        mother.pregnancy.start(UUID.randomUUID(), 100L);
-        mother.pregnancy.trimester = 3; // Trimestre 3 = Multiplicador máximo
-
-        // Aplicar comportamento de gravidez
-        float preHunger = mother.needs.hunger;
-        float preEnergy = mother.needs.energy;
-
-        LifecycleManager.applyPregnancyBehavior(mother);
-
-        // Fome extra decai: 0.0001f * (mult - 1.0f) onde mult = 1.0f + (3 * 0.3f) = 1.9f
-        // Então decai 0.0001f * 0.9 = 0.00009f
-        assertFloatEqual(mother.needs.hunger, preHunger - 0.00009f, "Decaimento fome gravidez T3");
-        assertFloatEqual(mother.needs.energy, preEnergy - 0.00018f, "Decaimento energia gravidez T3");
-        System.out.println("OK");
-    }
+    // testNeedsDecay was removed, not ported.
+    //
+    // It exercised com.cookieukw.SimTale.core.Needs, which no longer exists: needs moved to the
+    // engine's native EntityStats, so reading or writing one now requires a live Store and an
+    // entity that carries an EntityStatMap. The same applies to applyPregnancyBehavior, which the
+    // old test also called — it is now three NeedsHelper calls against a real entity.
+    //
+    // Keeping the test compiling would have meant faking the ECS. The decay rates it guarded are
+    // instead checked in game, through the calibration table in testing_checklist.md.
 
     private static void testBabyCareSharing() {
         System.out.print("Testando Cuidado Compartilhado (BabyCare)... ");
@@ -290,7 +276,17 @@ public class SimTaleTests {
         System.out.println("OK");
     }
 
+    // Kept as thin wrappers so the pre-existing suites read unchanged, while the assertion count
+    // reported at the end covers everything rather than only the newer files.
     private static void assertEqual(Object actual, Object expected, String message) {
+        Assert.equal(actual, expected, message);
+    }
+
+    private static void assertFloatEqual(float actual, float expected, String message) {
+        Assert.floatEqual(actual, expected, message);
+    }
+
+    private static void unusedAssertEqual(Object actual, Object expected, String message) {
         if (actual == null && expected == null) return;
         if (actual == null || !actual.equals(expected)) {
             throw new AssertionError(message + " - Esperado: " + expected + ", Encontrado: " + actual);
