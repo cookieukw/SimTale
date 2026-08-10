@@ -78,6 +78,14 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
 
 
 
+        // Map markers attach here rather than at plugin startup, where the world does not exist
+        // yet. Idempotent per world, so every join is safe.
+        try {
+            SimTaleMarkerProvider.ensureRegistered(player.getWorld());
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] Error registering map marker provider: " + e.getMessage());
+        }
+
         // Populate the furniture registries for the area the player just loaded into.
         //
         // Nothing else does this on join: the place events only cover furniture put down while the
