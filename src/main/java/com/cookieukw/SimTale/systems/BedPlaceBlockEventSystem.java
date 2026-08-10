@@ -83,17 +83,21 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
         // target position returns whatever was there previously (usually air). Every id test
         // below was therefore being run against the wrong block, which is why nothing was ever
         // registered on placement even once the event started arriving.
-        String placedId = null;
+        String resolvedId = null;
         ItemStack inHand = event.getItemInHand();
         if (inHand != null) {
-            placedId = inHand.getItemId();
+            resolvedId = inHand.getItemId();
         }
-        if (placedId == null) {
+        if (resolvedId == null) {
             // Fallback for any path that fires post-placement after all.
             BlockType existing = world.getBlockType(pos.x, pos.y, pos.z);
-            if (existing != null) placedId = existing.getId();
+            if (existing != null) resolvedId = existing.getId();
         }
-        if (placedId == null) return;
+        if (resolvedId == null) return;
+
+        // Copied into a final local because the deferred registration below captures it, and the
+        // resolution above assigns in two branches.
+        final String placedId = resolvedId;
 
         LOGGER.debug("[SimTale] Block placed: " + placedId + " isBed=" + BedRegistry.isBedId(placedId));
 
