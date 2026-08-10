@@ -116,6 +116,14 @@ public final class AssetIdsTests {
         Assert.isTrue(FarmPostRegistry.isFarmPostId("Deco_Scarecrow"), "farm post");
         Assert.isTrue(FarmPostRegistry.isFarmPostId("*Deco_Scarecrow_State_Definitions_Middle"),
                 "scarecrow is 3 blocks tall — the non-anchor blocks arrive decorated");
+
+        // NPCWorkHelper.isSeed is private, but it is this exact comparison, and the rule decides
+        // whether a Farmer deposits the seeds she was about to plant.
+        Assert.isTrue(AssetIds.containsAny("Plant_Seeds_Carrot", "plant_seeds"), "carrot seeds");
+        Assert.isTrue(AssetIds.containsAny("Plant_Seeds_Wheat", "plant_seeds"), "wheat seeds");
+        Assert.isFalse(AssetIds.containsAny("Plant_Crop_Carrot_Block", "plant_seeds"),
+                "a planted crop is not seed stock");
+        Assert.isFalse(AssetIds.containsAny("Food_Bread", "plant_seeds"), "harvest is depositable");
     }
 
     private static void nullSafety() {
