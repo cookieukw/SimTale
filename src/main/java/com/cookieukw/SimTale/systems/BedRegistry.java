@@ -5,7 +5,7 @@ import com.cookieukw.SimTale.core.SimLog;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Locale;
+import com.cookieukw.SimTale.core.AssetIds;
 import java.util.Set;
 
 public final class BedRegistry {
@@ -20,10 +20,7 @@ public final class BedRegistry {
     public static final Set<BedPos> BEDS = Collections.synchronizedSet(new HashSet<>());
 
     public static boolean isBedId(String id) {
-        if (id == null) return false;
-        String name = id.toLowerCase(Locale.ROOT);
-        if (name.contains("bedrock")) return false;
-        return name.contains("bed");
+        return AssetIds.containsNone(id, "bedrock") && AssetIds.containsAny(id, "bed");
     }
 
     public static void addOrReplace(int x, int y, int z, float yaw) {
