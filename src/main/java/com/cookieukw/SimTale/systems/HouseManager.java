@@ -65,6 +65,57 @@ public class HouseManager {
         }
     }
 
+    /**
+     * Drops owners whose NPC record no longer exists.
+     *
+     * <p>Houses never released an owner: registration deliberately carries the previous list over
+     * so an update does not evict the current residents, and nothing removes an entry on
+     * {@code /simtale forget}, {@code clearall} or death. The list therefore only grew, and the
+     * chest debug screen ended up showing bare UUID fragments for NPCs that had not existed for
+     * hours.
+     *
+     * <p>The check is deliberately against the database and not {@code ACTIVE_NPCS}. An NPC in an
+     * unloaded chunk is absent from that list and is very much alive — pruning by it would evict
+     * real residents from their own homes, which is a far worse bug than the one being fixed.
+     *
+     * <p>Runs once at load, where the record set is already being read, rather than on a tick.
+     */
+    private static void pruneOrphanOwners() {
+        int removed = 0;
+        int housesTouched = 0;
+
+        for (HouseData house : HOUSES_BY_ID.values()) {
+            if (house.owners == null || house.owners.isEmpty()) continue;
+
+            List<String> orphans = new ArrayList<>();
+            for (String ownerStr : house.owners) {
+                try {
+                    if (SimNPCPersistence.loadData(UUID.fromString(ownerStr)) == null) {
+                        orphans.add(ownerStr);
+                    }
+                } catch (IllegalArgumentException notAUuid) {
+                    orphans.add(ownerStr);
+                }
+            }
+
+            if (orphans.isEmpty()) continue;
+
+            // Leaving a house with zero owners would make its chests unusable by everyone, which
+            // is worse than a stale name. The bed claim path will adopt it again.
+            unindexHouse(house);
+            house.owners.removeAll(orphans);
+            indexHouse(house);
+            saveHouse(house);
+
+            removed += orphans.size();
+            housesTouched++;
+        }
+
+        if (removed > 0) {
+            LOGGER.info("[SimTale] Removidos {} dono(s) orfao(s) de {} casa(s)", removed, housesTouched);
+        }
+    }
+
     public static void saveHouse(HouseData house) {
         if (house == null || house.houseId == null) return;
         SimNPCPersistence.worldShell().core(HouseData.class).preserve("house_" + house.houseId, house);

@@ -4,7 +4,6 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.SimBedDebugPage;
 import com.cookieukw.SimTale.logic.SimChestDebugPage;
-import com.cookieukw.SimTale.systems.BedWorldBootstrap;
 import com.cookieukw.SimTale.systems.FurnitureAnchorHelper;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
 
