@@ -176,11 +176,10 @@ public class SimTale extends JavaPlugin {
 
         // Set default active provider according to config selection
         if (config.provider != null && !config.provider.isBlank()) {
-            if (!aiManager.setDefaultProvider(config.provider)) {
-                LOGGER.atWarning().log("Configured AI provider '" + config.provider
-                        + "' is not registered (missing API key?). Keeping the first available provider.");
-            }
+            aiManager.setDefaultProvider(config.provider);
         }
+
+        logAiStartupState(config);
 
         // Register data components
         // registerComponent(Class, Supplier) is the available method in
@@ -269,5 +268,48 @@ public class SimTale extends JavaPlugin {
             return custom;
         }
         return defaultValue;
+    }
+
+    /**
+     * Reports, in one place, everything needed to tell why the AI is or is not answering.
+     *
+     * <p>The old single line — "Configured AI provider 'gemini' is not registered (missing API
+     * key?)" — fired on a completely untouched install, because the default config ships with
+     * {@code provider = "gemini"}, {@code enabled = false} and an empty key. So the message that
+     * was supposed to flag a misconfiguration appeared on every boot of every server that had
+     * never opted into AI, and became noise. It also never said where {@code simtale-ai.json}
+     * actually is: the path is relative, so it resolves against the server's working directory,
+     * which is not the world folder and not something the player can guess.
+     */
+    private static void logAiStartupState(AiConfig config) {
+        java.util.Set<String> registered = aiManager.registeredProviderIds();
+        boolean selectedIsUp = aiManager.defaultProviderId() != null
+                && aiManager.defaultProviderId().equalsIgnoreCase(config.provider);
+
+        if (!config.enabled) {
+            LOGGER.atInfo().log("[SimTale] IA generativa desligada (enabled=false em "
+                    + AiConfigManager.configFilePath() + "). As NPCs usam so as respostas prontas.");
+            return;
+        }
+
+        if (registered.isEmpty()) {
+            LOGGER.atWarning().log("[SimTale] IA generativa LIGADA mas nenhum provedor subiu:"
+                    + " nenhuma chave de API foi encontrada. Preencha geminiKey/openaiKey/openrouterKey em "
+                    + AiConfigManager.configFilePath()
+                    + " ou exporte GEMINI_API_KEY/OPENAI_API_KEY/OPENROUTER_API_KEY."
+                    + " Enquanto isso as NPCs respondem so com as falas prontas.");
+            return;
+        }
+
+        if (!selectedIsUp) {
+            LOGGER.atWarning().log("[SimTale] Provedor escolhido '" + config.provider
+                    + "' nao subiu (chave ausente?); usando '" + aiManager.defaultProviderId()
+                    + "'. Provedores ativos: " + String.join(", ", registered)
+                    + ". Config: " + AiConfigManager.configFilePath());
+            return;
+        }
+
+        LOGGER.atInfo().log("[SimTale] IA generativa pronta com '" + aiManager.defaultProviderId()
+                + "'. Provedores ativos: " + String.join(", ", registered));
     }
 }

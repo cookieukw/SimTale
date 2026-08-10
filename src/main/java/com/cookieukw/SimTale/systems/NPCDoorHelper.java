@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
@@ -11,6 +12,7 @@ import com.hypixel.hytale.server.core.modules.interaction.DoorBlockUtils;
 import com.hypixel.hytale.server.core.modules.interaction.DoorBlockUtils.DoorState;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.server.DoorInteraction;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.accessor.BlockAccessor;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
@@ -105,7 +107,19 @@ public final class NPCDoorHelper {
                                       double forwardX, double forwardZ, Vector3d destination,
                                       int x, int y, int z, Set<Vector3i> handled) {
         try {
-            BlockType type = world.getBlockType(x, y, z);
+            // world.getBlockType() blocks and drains the world's task queue when the chunk isn't
+            // already resident — safe from a command or a plain call, but this runs from inside
+            // RoutineAISystem's own tick, and draining the queue mid-tick can run a chunk's
+            // "start ticking" callback while the store is still processing, which throws
+            // "Store is currently processing!" deep in engine code (visible as "[ChunkStore]
+            // Failed to set chunk ticking!" in the log, over and over as NPCs keep wandering near
+            // unloaded chunks). getChunkIfLoaded never blocks or queues anything — it just returns
+            // null for a chunk that isn't already in memory, which here simply means "nothing to
+            // check yet", same as any other position with no door.
+            BlockAccessor chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(x, z));
+            if (chunk == null) return;
+
+            BlockType type = chunk.getBlockType(x, y, z);
             if (type == null || !type.isDoor()) return;
 
             ChunkStore chunkStore = world.getChunkStore();
@@ -227,7 +241,12 @@ public final class NPCDoorHelper {
 
     private static void closeDoor(World world, HouseBlockPos pos) {
         try {
-            BlockType type = world.getBlockType(pos.x, pos.y, pos.z);
+            // Same reasoning as tryOpenDoorAt: avoid world.getBlockType() triggering a mid-tick
+            // chunk load wait. tickAutoClose runs from the same NPC-tick call chain.
+            BlockAccessor chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
+            if (chunk == null) return;
+
+            BlockType type = chunk.getBlockType(pos.x, pos.y, pos.z);
             if (type == null || !type.isDoor()) return;
 
             ChunkStore chunkStore = world.getChunkStore();

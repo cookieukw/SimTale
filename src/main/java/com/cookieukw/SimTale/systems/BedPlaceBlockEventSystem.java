@@ -6,6 +6,7 @@ import com.cookieukw.SimTale.core.SimLog;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.system.WorldEventSystem;
+import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.event.events.ecs.PlaceBlockEvent;
@@ -14,11 +15,15 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3i;
 
+import java.util.Locale;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 
 public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, PlaceBlockEvent> {
     private static final SimLog LOGGER = SimLog.forClass(BedPlaceBlockEventSystem.class);
+    // Unconditional (not gated behind /simtale debug) — temporary, to confirm handle() itself is
+    // being invoked at all before chasing anything further downstream.
+    private static final HytaleLogger RAW_LOGGER = HytaleLogger.forEnclosingClass();
 
     public BedPlaceBlockEventSystem() {
         super(PlaceBlockEvent.class);
@@ -26,6 +31,8 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
 
     @Override
     public void handle(@Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer, @Nonnull PlaceBlockEvent event) {
+        RAW_LOGGER.atInfo().log("SimTale Debug: BedPlaceBlockEventSystem.handle() fired, targetBlock=" + event.getTargetBlock());
+
         Vector3i pos = event.getTargetBlock();
 
         World world = store.getExternalData().getWorld();
@@ -85,7 +92,9 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
         // which meant re-scanning the whole prefab's footprint for obstructions several times a
         // second; expensive enough on its own to visibly stall the server. A block sidesteps all
         // of that: it just sits where it was placed, same as a scarecrow or a fishing post.
-        if ("Blueprint_TavernHouse".equals(type.getId())) {
+        if (isBlueprintMarker(type.getId())) {
+            LOGGER.info("[SimTale] Blueprint marker placed at ({},{},{}), block id '{}'",
+                    pos.x, pos.y, pos.z, type.getId());
             UUID siteId = ConstructionPreviewManager.idForBlock(pos);
             ConstructionSiteComponent site = ConstructionPreviewManager.start(siteId, "TavernHouse", pos);
             ConstructionHelper.placePreview(world, site);
@@ -99,5 +108,25 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
                 Universe.get().getPlayers().forEach(p -> p.sendMessage(warning));
             }
         }
+    }
+
+    /**
+     * Matches the blueprint marker no matter how the engine decorates the id.
+     *
+     * <p>This was an exact {@code "Blueprint_TavernHouse".equals(id)} — the only check in this
+     * whole handler that did not go through a tolerant helper, and the only one that silently did
+     * nothing. Hytale hands back state-variant ids with a {@code *} in front and the variant name
+     * appended, and this block declares {@code "VariantRotation": "NESW"}, so what comes out of
+     * {@code getBlockType} on a placed marker is not the bare asset name. Same family of bug as
+     * {@code CropRegistry.isCropId} and {@code FarmlandRegistry.isFarmlandId}, which is why both
+     * of those use {@code contains} instead of {@code startsWith}.
+     *
+     * <p>Stripping everything that is not a letter or digit also covers the {@code _} in the
+     * asset name disappearing or being replaced, which is how the wedding ring id evaded three
+     * separate guesses.
+     */
+    static boolean isBlueprintMarker(String id) {
+        if (id == null) return false;
+        return id.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "").contains("blueprinttavernhouse");
     }
 }

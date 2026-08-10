@@ -114,7 +114,9 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         Vector3i confirmTarget = event.getTargetBlock();
         if (confirmTarget != null) {
             BlockType confirmType = world.getBlockType(confirmTarget.x, confirmTarget.y, confirmTarget.z);
-            if (confirmType != null && "Blueprint_TavernHouse".equals(confirmType.getId())) {
+            // Same tolerant match the placement half uses — an exact equals here would confirm
+            // nothing for exactly the ids that the placement half already failed to recognise.
+            if (confirmType != null && BedPlaceBlockEventSystem.isBlueprintMarker(confirmType.getId())) {
                 UUID siteId = ConstructionPreviewManager.idForBlock(confirmTarget);
                 ConstructionSiteComponent pendingSite = ConstructionPreviewManager.get(siteId);
                 if (pendingSite != null && !pendingSite.isBuilding) {

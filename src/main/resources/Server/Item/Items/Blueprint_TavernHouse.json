@@ -2,26 +2,49 @@
   "TranslationProperties": {
     "Name": "TavernHouse Blueprint"
   },
-  "ItemLevel": 1,
+  "PlayerAnimationsId": "Block",
   "Categories": [
-    "Items.Utilities"
+    "Blocks.Deco"
   ],
-  "Icon": "Icons/ItemsGenerated/Ingredient_Stick.png",
+  "Icon": "Icons/ItemsGenerated/Furniture_InConstruction_Sign.png",
   "BlockType": {
-    "CustomModel": "Items/Ingredients/Stick.blockymodel",
+    "BlockParticleSetId": "Wood",
+    "BlockSoundSetId": "Wood",
+    "PhysicalMaterialId": "Wood",
+    "CustomModel": "Blocks/Hypixel/In_Construction/Construction_Sign.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Items/Ingredients/Stick_Texture.png",
+        "Texture": "Blocks/Hypixel/In_Construction/Construction_Sign_Texture.png",
         "Weight": 1
       }
     ],
-    "CustomModelScale": 1,
-    "DrawType": "Model"
+    "DrawType": "Model",
+    "Flags": {},
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Woods"
+      }
+    },
+    "HitboxType": "Plant_Tall_Medium",
+    "Material": "Solid",
+    "Opacity": "Transparent",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "VariantRotation": "NESW",
+    "ParticleColor": "#3a2014",
+    "TextureComputedColor": "#7D500F"
   },
   "Tags": {
     "Type": [
       "Utility"
     ]
   },
+  "Scale": 0.6,
+  "ItemSoundSetId": "ISS_Blocks_Wood",
   "MaxStack": 1
 }
