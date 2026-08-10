@@ -1,5 +1,6 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;

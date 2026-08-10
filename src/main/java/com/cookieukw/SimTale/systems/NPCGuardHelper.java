@@ -15,6 +15,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
+import org.joml.Vector3i;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +94,16 @@ public class NPCGuardHelper {
                 ai.currentTask = TaskType.MOVING_TO_FIGHT;
                 ai.taskStartTime = world.getTick();
                 NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                return;
             }
+
+            // Nothing to fight: walk the village edge instead of standing still.
+            //
+            // The perimeter is where the threats arrive from, so patrolling it puts the guard's
+            // scan radius over the frontier rather than over the middle of town, where it overlaps
+            // everyone else's. It also gives the village a visible garrison, which is most of the
+            // point of having guards at all.
+            patrolPerimeter(ref, npc, ai, transform, world, store);
             return;
         }
 
@@ -189,6 +199,52 @@ public class NPCGuardHelper {
         }
 
         return best;
+    }
+
+    /** How far around the circle a guard advances each leg. Twelve stops make a full circuit. */
+    private static final double PATROL_STEP_RADIANS = Math.PI / 6.0;
+
+    /** Close enough to call a patrol stop reached. */
+    private static final double PATROL_REACH_SQ = 3.0 * 3.0;
+
+    /**
+     * Sends the guard to the next stop around its village's edge.
+     *
+     * <p>Reuses {@code WANDERING} rather than adding a task type: from the routine's point of view
+     * this *is* a walk to a point that ends by returning to IDLE, and the existing state already
+     * carries the timeout and give-up handling. What makes it a patrol is that the destination
+     * advances by a fixed angle each time instead of being drawn at random.
+     *
+     * <p>A guard with no village stays put. Wandering off to guard nothing is what the old
+     * behaviour effectively did.
+     */
+    private static void patrolPerimeter(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
+            TransformComponent transform, World world, Store<EntityStore> store) {
+
+        Vector3d pos = transform.getPosition();
+        VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
+        if (village == null) return;
+
+        // Start the circuit where the guard already stands, so it does not march across town to
+        // reach an arbitrary "stop one".
+        if (ai.patrolAngle == 0) {
+            ai.patrolAngle = Math.atan2(pos.z - village.centerZ(), pos.x - village.centerX());
+        }
+
+        double targetX = village.centerX() + Math.cos(ai.patrolAngle) * village.radius();
+        double targetZ = village.centerZ() + Math.sin(ai.patrolAngle) * village.radius();
+
+        double dx = targetX - pos.x;
+        double dz = targetZ - pos.z;
+        if (dx * dx + dz * dz < PATROL_REACH_SQ) {
+            ai.patrolAngle += PATROL_STEP_RADIANS;
+            return;
+        }
+
+        ai.currentTask = TaskType.WANDERING;
+        ai.wanderTimer = 0;
+        ai.targetBlockPosition = new Vector3i((int) targetX, (int) pos.y, (int) targetZ);
+        NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
     }
 
     /** A hostile's identity and where it was when the snapshot was taken. */
