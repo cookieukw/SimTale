@@ -443,7 +443,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("Could not get your position."));
                 return;
             }
-            Vector3d pos = transform.getPosition().add(2, 0, 2);
+            // Copied first: joml's add mutates in place, so offsetting the live transform vector
+            // teleports the player instead of picking a spot beside them.
+            Vector3d pos = new Vector3d(transform.getPosition()).add(2, 0, 2);
 
             Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
             SimNPCComponent comp = store.getComponent(npcRef, SimTale.SIM_NPC_COMPONENT_TYPE);
@@ -592,7 +594,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("Could not get your position."));
                 return;
             }
-            Vector3d pos = transform.getPosition().add(2, 0, 2);
+            // Copied first: joml's add mutates in place, so offsetting the live transform vector
+            // teleports the player instead of picking a spot beside them.
+            Vector3d pos = new Vector3d(transform.getPosition()).add(2, 0, 2);
 
             Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
             SimNPCComponent comp = store.getComponent(npcRef, SimTale.SIM_NPC_COMPONENT_TYPE);
@@ -982,7 +986,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("[SimTale] Nao foi possivel obter sua posicao."));
                 return;
             }
-            Vector3d spawnPos = transform.getPosition().add(2, 0, 2);
+            // Copied first: joml's add mutates in place, so offsetting the live transform vector
+            // teleports the player instead of picking a spot beside them.
+            Vector3d spawnPos = new Vector3d(transform.getPosition()).add(2, 0, 2);
 
             boolean placed = SimTaleEventHandler.placeBabyFromHeldItem(store, ref, playerRef, heldItem, spawnPos);
             if (!placed) {

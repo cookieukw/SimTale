@@ -265,7 +265,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 // even see or interact with either of them. REAPING already walks her in from
                 // wherever she starts if she's more than 2 blocks out, so this also means she
                 // visibly approaches instead of just appearing glued to the body.
-                Vector3d deathPos = transform.getPosition().add(3, 0, 3);
+                // Copy before offsetting. joml's add(x,y,z) mutates the receiver and returns it,
+                // and getPosition() hands back the component's live vector — so this was not
+                // "three blocks from the corpse", it was *moving the corpse three blocks* and
+                // spawning the Reaper on top of it. From the outside it read as the dying NPC
+                // teleporting onto Death the moment she appeared.
+                Vector3d deathPos = new Vector3d(transform.getPosition()).add(3, 0, 3);
                 UUID dyingId = npc.entityId;
                 WorldUtil.execute(() -> {
                     Ref<EntityStore> reaperRef = SimNPCFactory.spawnNPC(store, deathPos, SimNPCFactory.NPCType.REAPER);
