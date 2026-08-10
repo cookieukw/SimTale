@@ -129,7 +129,16 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     }
 
     private static volatile List<NpcMarker> snapshot = List.of();
-    private static volatile long snapshotTick = Long.MIN_VALUE;
+
+    /**
+     * Tick of the last capture, or {@code -1} when there has not been one.
+     *
+     * <p>Not {@code Long.MIN_VALUE}: the throttle below computes {@code tick - snapshotTick}, and
+     * subtracting {@code MIN_VALUE} overflows to a large negative number, which is always less
+     * than the interval. The guard therefore returned on every single call and the snapshot stayed
+     * empty forever — "0 NPC(s) no snapshot" with a world full of NPCs.
+     */
+    private static volatile long snapshotTick = -1L;
 
     /** How often the snapshot is rebuilt. The map redraws slower than this anyway. */
     private static final int SNAPSHOT_INTERVAL_TICKS = 10;
@@ -149,7 +158,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         if (world == null || store == null) return;
 
         long tick = world.getTick();
-        if (tick - snapshotTick < SNAPSHOT_INTERVAL_TICKS) return;
+        if (snapshotTick >= 0 && tick - snapshotTick < SNAPSHOT_INTERVAL_TICKS) return;
         snapshotTick = tick;
 
         List<NpcMarker> captured = new ArrayList<>();

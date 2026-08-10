@@ -263,12 +263,22 @@ public class NPCGuardHelper {
      * build one — wasteful but harmless, and cheaper than locking on every read.
      */
     private static volatile List<Hostile> hostileCache = List.of();
-    private static volatile long hostileCacheTick = Long.MIN_VALUE;
     private static volatile World hostileCacheWorld = null;
+
+    /**
+     * Tick of the last sweep, or {@code -1} when there has not been one.
+     *
+     * <p>Not {@code Long.MIN_VALUE}. {@code tick - Long.MIN_VALUE} overflows to a large negative
+     * number, which is always below the interval, so the freshness check passed forever and the
+     * cache was never built — every guard would have read the same empty list and seen no hostiles
+     * at all. The map provider shipped with the identical mistake and proved it in the log.
+     */
+    private static volatile long hostileCacheTick = -1L;
 
     private static List<Hostile> hostiles(World world, Store<EntityStore> store) {
         long tick = world.getTick();
-        if (world == hostileCacheWorld && tick - hostileCacheTick < HOSTILE_CACHE_TICKS) {
+        if (world == hostileCacheWorld && hostileCacheTick >= 0
+                && tick - hostileCacheTick < HOSTILE_CACHE_TICKS) {
             return hostileCache;
         }
 

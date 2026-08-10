@@ -90,15 +90,33 @@ public class BabyCareManager {
         return Caskara.load("babycare_" + childId, BabyCareData.class);
     }
 
+    /**
+     * Sets up shared custody for a newborn.
+     *
+     * <p>A child can legitimately have no father. {@code /simtale forcepreg --target=me} starts a
+     * solo pregnancy and deliberately stores a null father rather than inventing a UUID that would
+     * match nobody — so this blew up with
+     * {@code Cannot invoke "java.util.UUID.toString()" because "child.fatherId" is null} and the
+     * birth failed outright, which is a far worse outcome than a baby with one parent.
+     *
+     * <p>With no second parent there is no custody to share: the mother simply keeps the child, and
+     * the swap logic has nobody to hand it to.
+     */
     public static void initializeForChild(GrowthComponent child) {
         if (child == null || child.childId == null) return;
+        if (child.motherId == null) {
+            LOGGER.atWarning().log("SimTale: bebê sem mãe registrada; co-parenting não inicializado.");
+            return;
+        }
+
         BabyCareData data = new BabyCareData(
             child.childId.toString(),
             child.motherId.toString(),
-            child.fatherId.toString()
+            child.fatherId != null ? child.fatherId.toString() : null
         );
         save(data);
-        LOGGER.atInfo().log("SimTale: Co-parenting inicializado para o bebê " + child.getFullName());
+        LOGGER.atInfo().log("SimTale: Co-parenting inicializado para o bebê " + child.getFullName()
+                + (child.fatherId == null ? " (sem segundo responsável)" : ""));
     }
 
     public static void simulateOfflineTime(Ref<EntityStore> playerRef, SimPlayerComponent playerComp) {
