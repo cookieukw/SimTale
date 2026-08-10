@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nonnull;
 
 /**
@@ -45,6 +46,22 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
 
     /** Name the provider is registered under, and the prefix of every marker id it produces. */
     public static final String PROVIDER_ID = "simtale_npcs";
+
+    /**
+     * Sprite drawn for an NPC.
+     *
+     * <p>This was {@code null}, on the assumption that the client would fall back to a default
+     * marker. It does not — a marker with no image draws nothing, which is why the map stayed empty
+     * even after the provider was registered and the thread violation was fixed. Every vanilla
+     * provider names a file: {@code OtherPlayersMarkerProvider} uses {@code Player.png},
+     * {@code SpawnMarkerProvider} uses {@code Spawn.png}, {@code DeathMarkerProvider} uses
+     * {@code Death.png}, all confirmed in the server jar.
+     *
+     * <p>Reusing the vanilla player sprite is deliberate: it is guaranteed to resolve, and an NPC
+     * is a person. A custom icon means shipping the asset and getting its path right, which is a
+     * separate problem from making markers appear at all.
+     */
+    private static final String MARKER_IMAGE = "Player.png";
 
     /**
      * Worlds already carrying the provider, so a re-registration is a no-op instead of a stack.
@@ -166,25 +183,52 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         PlayerRef playerRef = player.getPlayerRef();
         UUID viewerId = playerRef != null ? playerRef.getUuid() : null;
 
-        for (NpcMarker npc : snapshot) {
+        List<NpcMarker> current = snapshot;
+        int emitted = 0;
+        int outOfRange = 0;
+
+        for (NpcMarker npc : current) {
             try {
                 TintComponent tint = new TintComponent();
                 tint.color = colorFor(npc, viewerId);
 
+                Transform markerTransform = new Transform(npc.position());
+                if (!collector.isInViewDistance(npc.position())) {
+                    outOfRange++;
+                }
+
                 // Position and icon go through the constructor, not through with* calls: the
                 // builder keeps id, image and transform as fixed state and only the optional parts
-                // are chainable. A null image leaves the client's default marker sprite in place.
-                collector.add(new MapMarkerBuilder(PROVIDER_ID + ":" + npc.id(), null,
-                                new Transform(npc.position()))
-                        .withName(Message.raw(npc.name()))
-                        .withComponent(tint)
-                        .build());
+                // are chainable.
+                //
+                // addIgnoreViewDistance, not add: `add` silently drops anything the collector
+                // considers out of view, and villagers are exactly the thing you want to find on a
+                // map without already being next to them. It is also what the vanilla
+                // OtherPlayersMarkerProvider uses, for the same reason — POIMarkerProvider is the
+                // one that opts into the distance filter.
+                collector.addIgnoreViewDistance(
+                        new MapMarkerBuilder(PROVIDER_ID + ":" + npc.id(), MARKER_IMAGE, markerTransform)
+                                .withName(Message.raw(npc.name()))
+                                .withComponent(tint)
+                                .build());
+                emitted++;
             } catch (RuntimeException e) {
                 // One malformed NPC must not cost every other marker on the map.
                 LOGGER.debug("[MAPA] falha ao marcar '{}': {}", npc.name(), e.toString());
             }
         }
+
+        // Separates "we are not producing markers" from "we are producing them and the client is
+        // not drawing them" — the two have looked identical through three rounds of guessing.
+        // Throttled so an every-frame provider does not flood the log.
+        if (LOG_PASSES.incrementAndGet() % 100 == 1) {
+            LOGGER.info("[SimTale] Mapa: {} NPC(s) no snapshot, {} marcador(es) emitido(s), {} fora da distancia de visao",
+                    current.size(), emitted, outOfRange);
+        }
     }
+
+    /** Counts update passes so the diagnostic above logs once in a while, not every frame. */
+    private static final AtomicLong LOG_PASSES = new AtomicLong();
 
     /**
      * Marker colour, from this NPC's relationship with the player currently looking at the map.
