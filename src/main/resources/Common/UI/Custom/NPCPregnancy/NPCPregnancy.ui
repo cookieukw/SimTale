@@ -61,7 +61,7 @@ Group {
       Padding: (Top: 16, Bottom: 16, Horizontal: 16);
 
       Label #GestationHeader {
-        Text: %ui.pregnancy.section_gestation;
+        Text: %ui.pregnancy.sectionGestation;
         Anchor: (Height: 20, Bottom: 8);
         Style: $T.@SectionHeaderStyle;
       }
@@ -74,7 +74,7 @@ Group {
         Style: (...$T.@BodyStrong, FontSize: 19, TextColor: $T.@AccentRomance);
       }
 
-      @ReportRow { @Caption = %ui.pregnancy.caption_father;
+      @ReportRow { @Caption = %ui.pregnancy.captionFather;
         Label #FatherName {
           Text: "—";
           FlexWeight: 1;
@@ -133,7 +133,7 @@ Group {
       $T.@Separator { @Anchor = (Bottom: 10); }
 
       Label #FamilyHeader {
-        Text: %ui.pregnancy.section_family;
+        Text: %ui.pregnancy.sectionFamily;
         Anchor: (Height: 20, Bottom: 8);
         Style: $T.@SectionHeaderStyle;
       }
