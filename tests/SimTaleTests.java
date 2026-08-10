@@ -286,16 +286,4 @@ public class SimTaleTests {
         Assert.floatEqual(actual, expected, message);
     }
 
-    private static void unusedAssertEqual(Object actual, Object expected, String message) {
-        if (actual == null && expected == null) return;
-        if (actual == null || !actual.equals(expected)) {
-            throw new AssertionError(message + " - Esperado: " + expected + ", Encontrado: " + actual);
-        }
-    }
-
-    private static void assertFloatEqual(float actual, float expected, String message) {
-        if (Math.abs(actual - expected) > 0.00001f) {
-            throw new AssertionError(message + " - Esperado: " + expected + ", Encontrado: " + actual);
-        }
-    }
 }
