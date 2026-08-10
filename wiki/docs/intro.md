@@ -19,6 +19,9 @@ they do depends on their state and on the world around them.
   one: cooked food beats raw meat, and it avoids what it hates.
 - **Lives in a house.** Claims a bed and treats that place as its own. Opens and closes the door on
   the way in and out.
+- **Belongs to a village.** Houses built near each other form one, worked out from the buildings
+  themselves — so it grows as you build and disappears if you tear it down. NPCs without a house
+  stay near it instead of wandering off, and guards patrol its edge.
 - **Works.** Farmers harvest and replant; hunters hunt and store the meat in the house chest.
 - **Talks.** Seeks out other NPCs after too long alone, and mood is contagious.
 - **Has a hobby.** Someone who likes fishing walks to the water; a reader goes home.

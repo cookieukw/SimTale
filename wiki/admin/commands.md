@@ -30,6 +30,7 @@ rejects decimal points.
 | `/simtale debugbeds` | Screen listing registered beds, owners, teleport and unclaim |
 | `/simtale debugchests` | Screen listing registered chests, their house and their contents |
 | `/simtale debugnear` | Dumps nearby blocks and entities |
+| `/simtale village` | Lists the villages derived from the houses: centre, radius, house count, and whether you are inside |
 | `/simtale npcstate` | State of the nearest NPC |
 | `/simtale search` | Finds NPCs |
 | `/simtale housecheck` | Validates the house you are aiming at, and reports what is missing |
@@ -39,6 +40,13 @@ rejects decimal points.
 :::tip Prefer `debugchests` over `chestcheck`
 `chestcheck` only describes the nearest chest, so it cannot tell "nothing is registered" apart from
 "nothing registered near where I am standing". That ambiguity cost real debugging time.
+:::
+
+:::note These screens no longer rescan
+`debugbeds` and `debugchests` used to sweep a 32-block radius before opening — around 139 thousand
+block reads, which is why they took seconds to appear. That sweep was covering for furniture not
+being registered on placement; with the placement event fixed, the registries are already current.
+Use `/simtale rescan` for worlds built before that fix.
 :::
 
 ## Forcing routines

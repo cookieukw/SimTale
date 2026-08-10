@@ -12,7 +12,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Houses',
-      items: ['houses/building-a-house', 'houses/beds-and-residents'],
+      items: ['houses/building-a-house', 'houses/beds-and-residents', 'houses/villages'],
     },
     {
       type: 'category',
