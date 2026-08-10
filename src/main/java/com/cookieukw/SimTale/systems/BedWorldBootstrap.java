@@ -1,5 +1,6 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.SimLog;
 
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
@@ -95,6 +96,9 @@ public final class BedWorldBootstrap {
         int newFarmPosts = FarmPostRegistry.POSTS.size() - farmPostsFound;
         int newFarmland = FarmlandRegistry.FARMLAND.size() - farmlandFound;
         int newCrops = CropRegistry.CROPS.size() - cropsFound;
+        if (markersFound > 0) {
+            LOGGER.info("[SimTale] Scan restored {} blueprint marker preview(s) from blocks left in the world", markersFound);
+        }
         if (newBeds > 0 || newChests > 0 || newFishingPosts > 0 || newLumberPosts > 0 || newFarmPosts > 0
                 || newFarmland > 0 || newCrops > 0) {
             // At info level: this now runs on join, and it is the one line that tells whether the
