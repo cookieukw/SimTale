@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.AssetIds;
+
 import com.cookieukw.SimTale.core.SimLog;
 
 import java.util.Collections;
@@ -36,8 +38,10 @@ public final class FarmPostRegistry {
         return x + "," + y + "," + z;
     }
 
+    // The scarecrow is three blocks tall, so its non-anchor blocks arrive as state variants —
+    // equalsIgnoreCase only ever matched one of the three.
     public static boolean isFarmPostId(String id) {
-        return id != null && id.equalsIgnoreCase("Deco_Scarecrow");
+        return AssetIds.matchesAsset(id, "Deco_Scarecrow");
     }
 
     /** Unlike fishing/lumber, no nearby-resource validation: farmland doesn't have to exist yet
