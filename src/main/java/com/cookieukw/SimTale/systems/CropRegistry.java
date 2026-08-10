@@ -32,16 +32,23 @@ public final class CropRegistry {
     }
 
     public static void add(int x, int y, int z) {
-        synchronized (CROPS) {
-            HouseBlockPos pos = new HouseBlockPos(x, y, z);
-            CROPS.add(pos);
-        }
+        CROPS.add(new HouseBlockPos(x, y, z));
     }
 
+    /**
+     * {@code HouseBlockPos} implements {@code equals}/{@code hashCode}, so removing by value is a
+     * single hash lookup. This was a {@code removeIf} scanning the whole set for a match the hash
+     * already knew how to find — linear where it could be constant, on the registry that grows
+     * largest (a farm is hundreds of blocks) and from the block-break handler, which as of the
+     * event-system fix actually runs now. {@code ChestRegistry} already did it this way.
+     *
+     * <p>The surrounding {@code synchronized} block went with it: {@code CROPS} comes from
+     * {@link java.util.Collections#synchronizedSet}, which already makes each single call atomic.
+     * Manual locking is only required to iterate — which is why the loops in {@code NPCWorkHelper}
+     * keep theirs.
+     */
     public static void removeAt(int x, int y, int z) {
-        synchronized (CROPS) {
-            CROPS.removeIf(b -> b.x == x && b.y == y && b.z == z);
-        }
+        CROPS.remove(new HouseBlockPos(x, y, z));
     }
 
     public static int size() {

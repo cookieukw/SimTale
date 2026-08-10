@@ -21,15 +21,12 @@ public final class FarmlandRegistry {
     }
 
     public static void add(int x, int y, int z) {
-        synchronized (FARMLAND) {
-            FARMLAND.add(new HouseBlockPos(x, y, z));
-        }
+        FARMLAND.add(new HouseBlockPos(x, y, z));
     }
 
+    /** Hash lookup instead of a full scan — see {@link CropRegistry#removeAt} for the reasoning. */
     public static void removeAt(int x, int y, int z) {
-        synchronized (FARMLAND) {
-            FARMLAND.removeIf(b -> b.x == x && b.y == y && b.z == z);
-        }
+        FARMLAND.remove(new HouseBlockPos(x, y, z));
     }
 
     public static int size() {
