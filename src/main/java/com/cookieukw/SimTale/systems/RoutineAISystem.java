@@ -443,17 +443,35 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
                 }
             } else if (ai.currentTask == TaskType.IDLE && Math.random() < 0.02) {
-                // Anchor the stroll on the NPC's home so the village stays together;
-                // NPCs without a bed wander around wherever they happen to be.
+                // Anchor the stroll, in order of preference: own bed, then the nearest village,
+                // then the current position.
+                //
+                // That last case is what made homeless NPCs walk off the map and need fetching.
+                // Anchoring on "where I am" is not a leash at all: each stroll moves the NPC, the
+                // next one anchors on the new spot, and the result is a random walk with no
+                // restoring force — unbounded drift, given enough time. A village centre gives
+                // them somewhere to belong until they claim a bed of their own.
                 double centerX = transform.getPosition().x;
                 double centerZ = transform.getPosition().z;
+                double wanderRadius = WANDER_RADIUS;
+
                 if (npc.bedLocation != null) {
                     centerX = npc.bedLocation.x;
                     centerZ = npc.bedLocation.z;
+                } else {
+                    VillageManager.Village village =
+                            VillageManager.nearest(centerX, centerZ);
+                    if (village != null) {
+                        centerX = village.centerX();
+                        centerZ = village.centerZ();
+                        // Roam the whole village rather than a private patch of it, so the homeless
+                        // spread out instead of piling onto the centre tile.
+                        wanderRadius = village.radius();
+                    }
                 }
 
                 double angle = Math.random() * Math.PI * 2.0;
-                double radius = 2.0 + Math.random() * (WANDER_RADIUS - 2.0);
+                double radius = 2.0 + Math.random() * (wanderRadius - 2.0);
 
                 ai.currentTask = TaskType.WANDERING;
                 ai.wanderTimer = 0; // handler stamps the deadline on first tick

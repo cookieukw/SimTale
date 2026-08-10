@@ -59,6 +59,7 @@ public class HouseManager {
                 LOGGER.info("[SimTale] Carregadas {} casas com sucesso da persistência Caskara", HOUSES_BY_ID.size());
                 pruneOrphanOwners();
                 dedupeHousesByBed();
+                VillageManager.markDirty();
             }
         } catch (Exception e) {
             LOGGER.error("[SimTale] Falha ao carregar as casas da persistência Caskara: ", e);
@@ -121,11 +122,57 @@ public class HouseManager {
         SimNPCPersistence.worldShell().core(HouseData.class).preserve("house_" + house.houseId, house);
     }
 
+    /**
+     * Removes the house whose bed sits at {@code bedPos}, if any.
+     *
+     * <p>A house is identified by its bed, so breaking the bed ends the house. Nothing did this
+     * before: {@code deleteHouse} was reachable only from the duplicate sweep, which meant a house
+     * record outlived its own demolition — the bed gone, the walls gone, and the registry still
+     * insisting the place was a home. That is exactly the stale-village problem this project set
+     * out not to have.
+     *
+     * @return true when a house was removed
+     */
+    public static boolean deleteHouseByBed(HouseBlockPos bedPos) {
+        if (bedPos == null) return false;
+
+        UUID target = null;
+        for (Map.Entry<UUID, HouseData> entry : HOUSES_BY_ID.entrySet()) {
+            HouseData house = entry.getValue();
+            if (house.bedPos != null && house.bedPos.equals(bedPos)) {
+                target = entry.getKey();
+                break;
+            }
+        }
+        if (target == null) return false;
+
+        // The residents lose their claim: leaving bedLocation pointing at a bed that no longer
+        // exists would send them walking to it every night.
+        HouseData house = HOUSES_BY_ID.get(target);
+        if (house != null) {
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.bedLocation != null
+                        && npc.bedLocation.x == bedPos.x
+                        && npc.bedLocation.y == bedPos.y
+                        && npc.bedLocation.z == bedPos.z) {
+                    npc.bedLocation = null;
+                    npc.family.hasSharedHome = false;
+                    SimNPCPersistence.saveNPC(npc);
+                    LOGGER.info("[SimTale] NPC '{}' perdeu a cama; vai procurar outra.", npc.name);
+                }
+            }
+        }
+
+        deleteHouse(target);
+        return true;
+    }
+
     public static void deleteHouse(UUID houseId) {
         HouseData house = HOUSES_BY_ID.remove(houseId);
         if (house != null) {
             unindexHouse(house);
             SimNPCPersistence.worldShell().core(HouseData.class).discard("house_" + houseId.toString());
+            VillageManager.markDirty();
             LOGGER.info("[SimTale] Casa {} deletada.", houseId);
         }
     }
@@ -142,6 +189,7 @@ public class HouseManager {
         }
         indexHouse(house);
         saveHouse(house);
+        VillageManager.markDirty();
     }
 
     /** Populates BLOCK_TO_HOUSE_ID and OWNER_TO_HOUSE_ID from a house's interior/owners. */

@@ -51,6 +51,12 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         BedRegistry.removeAt(anchor.x, anchor.y, anchor.z);
         ChestRegistry.removeAt(anchor.x, anchor.y, anchor.z);
 
+        // A house is identified by its bed, so losing the bed ends the house — and with it, the
+        // house's contribution to whatever village it belonged to. Without this the registry kept
+        // insisting a demolished building was a home, which is precisely the stale-village
+        // behaviour the village system exists to avoid.
+        HouseManager.deleteHouseByBed(new HouseBlockPos(anchor.x, anchor.y, anchor.z));
+
         // Crops and farmland are single blocks, so they use the hit position directly.
         CropRegistry.removeAt(pos.x, pos.y, pos.z);
         FarmlandRegistry.removeAt(pos.x, pos.y, pos.z);
