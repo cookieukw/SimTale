@@ -48,6 +48,56 @@ item.getInteractions().get(InteractionType.Secondary)  // Root_Secondary_Consume
 BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, x, y, z) != null
 ```
 
+### 2b. When you must compare an id, normalize it
+
+Some things have no engine-side question to ask, and the id is all there is. Nine such checks had
+grown across the project, each written from scratch: two used `toLowerCase()` without a locale, three
+used `equalsIgnoreCase`, two stripped punctuation, and the rest used `contains`.
+
+An id almost never arrives in the shape the asset file suggests:
+
+| Shape | Example |
+|---|---|
+| State variant, prefixed | `*plant_crop_carrot_block_state_definitions_stagefinal` |
+| Rotation variant | a `VariantRotation: NESW` block is not its bare asset name |
+| Namespaced | `simtale:WeddingRing` |
+| Re-cased | `WeddingRing` vs `wedding_ring` |
+
+`equalsIgnoreCase` fails on all four and fails **silently** — the block simply is not recognised.
+That is what made the blueprint marker do nothing, and it was still live in the fishing, lumber and
+farm post checks.
+
+`core/AssetIds` is now the single answer: lowercase with `Locale.ROOT`, drop everything that is not
+a letter or a digit, then `contains`. That collapses all four shapes into one comparison.
+
+:::warning Locale.ROOT is not decoration
+The default-locale `toLowerCase()` maps `I` to a dotless `ı` under a Turkish locale. A server
+started with that locale would stop recognising every id containing an uppercase I.
+:::
+
+---
+
+## 2c. Know whether an event fires before or after the thing happens
+
+`PlaceBlockEvent` and `BreakBlockEvent` extend `CancellableEcsEvent` and expose setters for the
+target block. An event that can still be cancelled, and whose target you can still change, is by
+definition delivered **before** the action.
+
+Two separate bugs came out of ignoring that:
+
+- The handler read `world.getBlockType(targetBlock)` to decide what had been placed. That cell still
+  held air. The fix is `event.getItemInHand()` — the event carries what is being placed.
+- Anything needing real geometry (multi-block anchor, bed yaw, "does this block have a container")
+  has to be deferred past the placement. `WorldUtil.execute` does that, and the deferred task
+  re-reads the cell first so a cancelled placement registers nothing.
+
+A related trap in the same API: those two events are delivered through `EntityEventSystem`, not
+`WorldEventSystem`, because they have an actor. Across the whole server jar, every consumer of
+`PlaceBlockEvent` is an entity system. The clearest proof is one vanilla file where
+`TriggerVolumeBlockEventSystems$BlockPlaced` is an entity system while its sibling
+`$EnvironmentBlockBroken` — the actor-less variant — is a world system. Registering on the wrong
+base is silent: the handler is simply never called.
+
 The chest fix has a second benefit worth copying: it uses **the same component NPCs already read**
 when looking for food, so registration and consumption cannot disagree.
 
