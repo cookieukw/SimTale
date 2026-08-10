@@ -3,13 +3,17 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.SimLog;
 
+import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.component.system.WorldEventSystem;
+import com.hypixel.hytale.component.query.Query;
+import com.hypixel.hytale.component.system.EntityEventSystem;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.event.events.ecs.PlaceBlockEvent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -19,7 +23,27 @@ import java.util.Locale;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 
-public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, PlaceBlockEvent> {
+/**
+ * Registers furniture the moment it is placed.
+ *
+ * <p>This was a {@link com.hypixel.hytale.component.system.WorldEventSystem} and therefore never
+ * ran. {@code PlaceBlockEvent} is fired *at* the entity that placed the block — it carries no
+ * entity reference of its own, only the item, position and rotation — so it is delivered through
+ * the entity dispatch path, to systems with a query. Across the 37k classes of the server jar,
+ * every consumer of this event ({@code BlockHealthModule$PlaceBlockEventSystem},
+ * {@code TriggerVolumeBlockEventSystems$BlockPlaced}) extends {@code EntityEventSystem}, and none
+ * extends {@code WorldEventSystem}. The clearest proof is inside one vanilla file:
+ * {@code TriggerVolumeBlockEventSystems$BlockPlaced} is an entity system while its sibling
+ * {@code $EnvironmentBlockBroken} is a world system — the difference being whether the event has
+ * an actor.
+ *
+ * <p>The failure was invisible for a long time because every way of inspecting the registries
+ * ({@code debugbeds}, {@code debugchests}, {@code housecheck}, {@code chestcheck}, {@code rescan},
+ * and the join handler) runs a radius scan first, so furniture always looked registered "on
+ * placement". The blueprint marker was the first consumer with no scan behind it, which is why it
+ * was the one that visibly did nothing.
+ */
+public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, PlaceBlockEvent> {
     private static final SimLog LOGGER = SimLog.forClass(BedPlaceBlockEventSystem.class);
     // Unconditional (not gated behind /simtale debug) — temporary, to confirm handle() itself is
     // being invoked at all before chasing anything further downstream.
@@ -29,24 +53,53 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
         super(PlaceBlockEvent.class);
     }
 
+    /**
+     * Matches the placer. {@code UUIDComponent} is what vanilla's own block-placed system queries
+     * on; anything that can place a block carries one.
+     */
     @Override
-    public void handle(@Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer, @Nonnull PlaceBlockEvent event) {
+    @Nonnull
+    public Query<EntityStore> getQuery() {
+        return UUIDComponent.getComponentType();
+    }
+
+    @Override
+    public void handle(int index, @Nonnull ArchetypeChunk<EntityStore> chunk,
+            @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer,
+            @Nonnull PlaceBlockEvent event) {
         RAW_LOGGER.atInfo().log("SimTale Debug: BedPlaceBlockEventSystem.handle() fired, targetBlock=" + event.getTargetBlock());
 
         Vector3i pos = event.getTargetBlock();
 
         World world = store.getExternalData().getWorld();
-        BlockType type = world.getBlockType(pos.x, pos.y, pos.z);
-        if (type == null || type.getId() == null) return;
 
-        LOGGER.debug("[SimTale] Block placed: " + type.getId() + " isBed=" + BedRegistry.isBedId(type.getId()));
+        // What is being placed comes from the item, not from the world.
+        //
+        // PlaceBlockEvent extends CancellableEcsEvent and exposes setTargetBlock/setRotation/
+        // setConsumeItem — it fires *before* the block exists, so reading getBlockType at the
+        // target position returns whatever was there previously (usually air). Every id test
+        // below was therefore being run against the wrong block, which is why nothing was ever
+        // registered on placement even once the event started arriving.
+        String placedId = null;
+        ItemStack inHand = event.getItemInHand();
+        if (inHand != null) {
+            placedId = inHand.getItemId();
+        }
+        if (placedId == null) {
+            // Fallback for any path that fires post-placement after all.
+            BlockType existing = world.getBlockType(pos.x, pos.y, pos.z);
+            if (existing != null) placedId = existing.getId();
+        }
+        if (placedId == null) return;
+
+        LOGGER.debug("[SimTale] Block placed: " + placedId + " isBed=" + BedRegistry.isBedId(placedId));
 
         // Without this a bed placed by hand was never registered. The only paths that populated
         // BedRegistry were the radius scan (which runs solely inside /simtale housecheck) and the
         // entity system (which covers beds that are entities, not blocks), so in a fresh world no
         // NPC could ever claim a bed. It looked like it worked in older worlds only because the
         // registries are static and a housecheck had already been run there.
-        if (BedRegistry.isBedId(type.getId())) {
+        if (BedRegistry.isBedId(placedId)) {
             BedWorldBootstrap.registerBedAt(world, pos.x, pos.y, pos.z);
         }
 
@@ -55,31 +108,31 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
         // call chest/barrel/cupboard/cabinet, which is why chestcheck reported nothing after
         // three chests had been placed.
         if (ChestRegistry.isContainerAt(world, pos.x, pos.y, pos.z)
-                || ChestRegistry.isChestId(type.getId())) {
+                || ChestRegistry.isChestId(placedId)) {
             // Register the anchor so placement and removal agree on one position per chest.
             Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
             ChestRegistry.add(anchor.x, anchor.y, anchor.z);
             LOGGER.debug("[SimTale] Chest registered from placement: {} at ({},{},{})",
-                    type.getId(), anchor.x, anchor.y, anchor.z);
+                    placedId, anchor.x, anchor.y, anchor.z);
         }
 
-        if (CropRegistry.isCropId(type.getId())) {
+        if (CropRegistry.isCropId(placedId)) {
             CropRegistry.add(pos.x, pos.y, pos.z);
         }
         
-        if (FarmlandRegistry.isFarmlandId(type.getId())) {
+        if (FarmlandRegistry.isFarmlandId(placedId)) {
             FarmlandRegistry.add(pos.x, pos.y, pos.z);
         }
 
-        if (FishingPostRegistry.isFishingPostId(type.getId())) {
+        if (FishingPostRegistry.isFishingPostId(placedId)) {
             FishingPostRegistry.registerAt(world, pos.x, pos.y, pos.z);
         }
 
-        if (LumberPostRegistry.isLumberPostId(type.getId())) {
+        if (LumberPostRegistry.isLumberPostId(placedId)) {
             LumberPostRegistry.registerAt(world, pos.x, pos.y, pos.z);
         }
 
-        if (FarmPostRegistry.isFarmPostId(type.getId())) {
+        if (FarmPostRegistry.isFarmPostId(placedId)) {
             // The scarecrow is 3 blocks tall — anchor first, or each constituent block becomes
             // its own separate (and redundant) registered post.
             Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
@@ -92,9 +145,9 @@ public class BedPlaceBlockEventSystem extends WorldEventSystem<EntityStore, Plac
         // which meant re-scanning the whole prefab's footprint for obstructions several times a
         // second; expensive enough on its own to visibly stall the server. A block sidesteps all
         // of that: it just sits where it was placed, same as a scarecrow or a fishing post.
-        if (isBlueprintMarker(type.getId())) {
+        if (isBlueprintMarker(placedId)) {
             LOGGER.info("[SimTale] Blueprint marker placed at ({},{},{}), block id '{}'",
-                    pos.x, pos.y, pos.z, type.getId());
+                    pos.x, pos.y, pos.z, placedId);
             UUID siteId = ConstructionPreviewManager.idForBlock(pos);
             ConstructionSiteComponent site = ConstructionPreviewManager.start(siteId, "TavernHouse", pos);
             ConstructionHelper.placePreview(world, site);

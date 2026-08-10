@@ -1,22 +1,45 @@
 package com.cookieukw.SimTale.systems;
 
+import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.component.system.WorldEventSystem;
+import com.hypixel.hytale.component.query.Query;
+import com.hypixel.hytale.component.system.EntityEventSystem;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.event.events.ecs.BreakBlockEvent;
 import org.joml.Vector3i;
 import javax.annotation.Nonnull;
 
-public class BedBlockEventSystem extends WorldEventSystem<EntityStore, BreakBlockEvent> {
+/**
+ * Deregisters furniture when its block is broken.
+ *
+ * <p>Same conversion, same reason as {@link BedPlaceBlockEventSystem}: {@code BreakBlockEvent}
+ * also has an actor (it carries the item in hand) and is delivered through the entity path.
+ * {@code EnvironmentBreakBlockEvent} is the actor-less sibling and is the one that belongs on a
+ * world system — which is exactly the split vanilla makes.
+ *
+ * <p>Consequence while this was broken: breaking a bed or a chest left the registry entry behind,
+ * so NPCs kept walking to furniture that no longer existed until the next radius scan rebuilt the
+ * registry from the world.
+ */
+public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlockEvent> {
 
     public BedBlockEventSystem() {
         super(BreakBlockEvent.class);
     }
 
     @Override
-    public void handle(@Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer, @Nonnull BreakBlockEvent event) {
+    @Nonnull
+    public Query<EntityStore> getQuery() {
+        return UUIDComponent.getComponentType();
+    }
+
+    @Override
+    public void handle(int index, @Nonnull ArchetypeChunk<EntityStore> chunk,
+            @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer,
+            @Nonnull BreakBlockEvent event) {
         Vector3i pos = event.getTargetBlock();
         World world = store.getExternalData().getWorld();
 
