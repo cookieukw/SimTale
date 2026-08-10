@@ -30,11 +30,28 @@ import com.hypixel.hytale.server.core.inventory.InventoryComponent;
  */
 public class SimNPCFactory {
 
-    /** REAPER spawns on the "SimTale_Human_Male" role (behavior only — the role's own
-     *  "Appearance" is a normal human) and gets this model applied on top of it. Exposed so
-     *  {@code RoutineAISystem} can reassert it if the role's own appearance system stomps it
-     *  back to human on a later tick. */
-    public static final String REAPER_MODEL_ASSET_ID = "Common/NPC/Void/Necromancer_Void/Models/Model.blockymodel";
+    /**
+     * REAPER spawns on the "SimTale_Human_Male" role (behavior only — the role's own "Appearance"
+     * is a normal human) and gets this model applied on top of it. Exposed so
+     * {@code RoutineAISystem} can reassert it if the role's own appearance system stomps it back
+     * to human on a later tick.
+     *
+     * <p>This is a <em>ModelAsset id</em>, not a file path. It was
+     * {@code "Common/NPC/Void/Necromancer_Void/Models/Model.blockymodel"} — the raw geometry —
+     * which is why the Reaper still looked like a villager wearing a costume.
+     *
+     * <p>{@code Server/Models/Void/Necromancer_Void.json} is the asset that actually describes
+     * her: it points at that same {@code .blockymodel}, but also carries the texture, the four
+     * default attachments (braids, bracers, chest, skull head) and every animation set. Naming the
+     * geometry directly skips all of it — no texture, no attachments — and leaves the human role's
+     * cosmetics layered on top, which is exactly what the client was complaining about with
+     * {@code Couldn't find attachment target: R-Ear-EarAccessory}.
+     *
+     * <p>The id is the file name without extension or namespace, the same rule the item assets
+     * follow. Confirmed against {@code Server/Models/Undead/Skeleton.json}, whose id
+     * {@code /simtale debugnear} reports as exactly {@code Skeleton}.
+     */
+    public static final String REAPER_MODEL_ASSET_ID = "Necromancer_Void";
 
     public enum NPCType {
         SLOTHIAN("SimTale_Slothian"),
