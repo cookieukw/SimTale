@@ -43,6 +43,7 @@ item.town_bell.name = Town Bell
 item.town_bell.description = Calls the residents together.
 pregtest.not_npc = The pregnancy test only works on villagers.
 pregtest.npc_not_female = {name} cannot be pregnant.
+pregtest.child = {name} is a child.
 pregtest.player_not_female = You cannot be pregnant.
 pregtest.no_gender = You have not chosen a gender yet. Use /simtale setgender first.
 cmd.village.header = --- Villages: {count} ---

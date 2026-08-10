@@ -658,7 +658,13 @@ public class InteractionManager {
         return new DailyState(rel.interactionsToday >= INTERACTIONS_PER_DAY, missedLongTime);
     }
 
-    private static boolean isNpcAChild(SimNPCComponent npc) {
+    /**
+     * Whether this NPC is a minor.
+     *
+     * <p>Public because the pregnancy test needs the same answer, and a second copy of this check
+     * is how two callers end up disagreeing about who is a child.
+     */
+    public static boolean isNpcAChild(SimNPCComponent npc) {
         if (npc.entityRef != null) {
             NPCEntity npcEntity = npc.entityRef.getStore().getComponent(npc.entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
             if (npcEntity != null && npcEntity.getRoleName() != null && 

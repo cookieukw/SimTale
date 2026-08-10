@@ -70,6 +70,12 @@ public class SimTaleCheckPregnancyInteraction extends SimpleInstantInteraction {
 
         Ref<EntityStore> targetRef = context.getTargetEntity();
 
+        // A pregnancy test reports a state; it does not decide who is allowed to be in one.
+        //
+        // Gender was checked first, so a pregnancy forced through /simtale forcepreg on a male
+        // subject was invisible to the very item meant to reveal it — the test denied a pregnancy
+        // that demonstrably existed. Actual state now wins, and gender is only the fallback for
+        // "you are not pregnant, and here is why you were never going to be".
         if (targetRef != null) {
             SimNPCComponent targetNPC = store.getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
             if (targetNPC == null) {
@@ -77,30 +83,44 @@ public class SimTaleCheckPregnancyInteraction extends SimpleInstantInteraction {
                 context.getState().state = InteractionState.Failed;
                 return;
             }
-            if (targetNPC.gender != Gender.FEMALE) {
+
+            // Children are off limits regardless of anything else, and before any state check —
+            // the panel this opens is a pregnancy panel.
+            if (InteractionManager.isNpcAChild(targetNPC)) {
+                playerRefComponent.sendMessage(Message.translation("general.pregtest.child").param("name", targetNPC.name));
+                context.getState().state = InteractionState.Failed;
+                return;
+            }
+
+            boolean npcIsPregnant = targetNPC.pregnancy != null && targetNPC.pregnancy.pregnant;
+            if (!npcIsPregnant && targetNPC.gender != Gender.FEMALE) {
                 playerRefComponent.sendMessage(Message.translation("general.pregtest.npc_not_female").param("name", targetNPC.name));
                 context.getState().state = InteractionState.Failed;
                 return;
             }
-            
+
             // Execute on main thread
             final SimNPCComponent finalNPC = targetNPC;
             store.getExternalData().getWorld().execute(() -> {
                 player.getPageManager().openCustomPage(playerRef, store, new NPCPregnancyPage(playerRefComponent, player, finalNPC));
             });
-            
+
         } else {
-            if (playerComp.gender == null) {
-                playerRefComponent.sendMessage(Message.translation("general.pregtest.no_gender"));
-                context.getState().state = InteractionState.Failed;
-                return;
+            boolean playerIsPregnant = playerComp.pregnancy != null && playerComp.pregnancy.pregnant;
+
+            if (!playerIsPregnant) {
+                if (playerComp.gender == null) {
+                    playerRefComponent.sendMessage(Message.translation("general.pregtest.no_gender"));
+                    context.getState().state = InteractionState.Failed;
+                    return;
+                }
+                if (playerComp.gender != Gender.FEMALE) {
+                    playerRefComponent.sendMessage(Message.translation("general.pregtest.player_not_female"));
+                    context.getState().state = InteractionState.Failed;
+                    return;
+                }
             }
-            if (playerComp.gender != Gender.FEMALE) {
-                playerRefComponent.sendMessage(Message.translation("general.pregtest.player_not_female"));
-                context.getState().state = InteractionState.Failed;
-                return;
-            }
-            
+
             // Execute on main thread
             final SimPlayerComponent finalPlayerComp = playerComp;
             store.getExternalData().getWorld().execute(() -> {
