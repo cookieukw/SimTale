@@ -6,6 +6,7 @@ import com.cookieukw.SimTale.logic.SimBedDebugPage;
 import com.cookieukw.SimTale.logic.SimChestDebugPage;
 import com.cookieukw.SimTale.systems.FurnitureAnchorHelper;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
+import com.cookieukw.SimTale.systems.VillageManager;
 
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.Ref;
@@ -148,6 +149,57 @@ final class DebugCommands {
             // '/simtale rescan' are for, and rescan stays explicit so the cost is asked for.
             player.getPageManager().openCustomPage(ref, store,
                     new SimChestDebugPage(playerRef, player));
+        }
+    }
+
+    /**
+     * Lists the villages the mod currently believes in.
+     *
+     * <p>Villages are derived from houses and never stored, so there is nothing to open a file and
+     * inspect. Without this command the whole system is invisible: an NPC anchoring its walk or a
+     * guard patrolling an edge look identical whether the village is what you intended or an
+     * artefact of two houses that happen to be 39 blocks apart.
+     */
+    static class VillageSubCommand extends AbstractPlayerCommand {
+        public VillageSubCommand() {
+            super("village", "Lists the villages derived from the registered houses");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            List<VillageManager.Village> villages = VillageManager.villages();
+
+            ctx.sendMessage(Message.translation("general.cmd.village.header")
+                    .param("count", String.valueOf(villages.size())));
+
+            if (villages.isEmpty()) {
+                ctx.sendMessage(Message.translation("general.cmd.village.none"));
+                return;
+            }
+
+            TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
+            Vector3d pos = tc != null ? tc.getPosition() : null;
+
+            int index = 1;
+            for (VillageManager.Village village : villages) {
+                ctx.sendMessage(Message.translation("general.cmd.village.entry")
+                        .param("index", String.valueOf(index++))
+                        .param("x", String.valueOf(Math.round(village.centerX())))
+                        .param("z", String.valueOf(Math.round(village.centerZ())))
+                        .param("radius", String.valueOf(Math.round(village.radius())))
+                        .param("houses", String.valueOf(village.houses())));
+
+                if (pos == null) continue;
+
+                // Saying where the player stands relative to each village is what turns the
+                // numbers into something checkable while walking around.
+                double distance = Math.sqrt(village.distanceSqTo(pos.x, pos.z));
+                ctx.sendMessage(village.contains(pos.x, pos.z)
+                        ? Message.translation("general.cmd.village.inside")
+                        : Message.translation("general.cmd.village.outside")
+                                .param("distance", String.valueOf(Math.round(distance))));
+            }
         }
     }
 

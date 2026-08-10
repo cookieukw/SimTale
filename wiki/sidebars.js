@@ -49,6 +49,7 @@ const sidebars = {
         'systems/furniture-registry',
         'systems/hunger-and-sleep',
         'systems/houses',
+        'systems/villages',
         'systems/persistence',
       ],
     },

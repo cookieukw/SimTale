@@ -118,6 +118,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new DebugCommands.ForgetSubCommand());
         this.addSubCommand(new PregnancySubCommand());
         this.addSubCommand(new DebugCommands.DebugNearSubCommand());
+        this.addSubCommand(new DebugCommands.VillageSubCommand());
         this.addSubCommand(new SetMoodSubCommand());
         this.addSubCommand(new SearchSubCommand());
         this.addSubCommand(new ToggleAiSubCommand());
