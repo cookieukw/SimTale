@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.logic;
 
+import com.cookieukw.SimTale.core.AssetIds;
+
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookie.runecore.api.StatHelper;
@@ -316,9 +318,7 @@ public class InteractionManager {
      * comparing the tail covers all four shapes at once.
      */
     private static boolean isWeddingRing(String rawItemId) {
-        if (rawItemId == null) return false;
-        String normalized = rawItemId.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
-        return normalized.endsWith("weddingring");
+        return AssetIds.matchesAsset(rawItemId, "WeddingRing");
     }
 
     /** Hunger level at or below which a gift of food is eaten on the spot instead of pocketed. */
