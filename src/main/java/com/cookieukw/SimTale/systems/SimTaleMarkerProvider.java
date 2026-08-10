@@ -2,7 +2,10 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Relationship;
+import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.cookieukw.SimTale.core.SimLog;
 import com.hypixel.hytale.math.vector.Transform;
 import com.hypixel.hytale.protocol.Color;
@@ -17,6 +20,12 @@ import com.hypixel.hytale.server.core.universe.world.worldmap.WorldMapManager;
 import com.hypixel.hytale.server.core.universe.world.worldmap.markers.MapMarkerBuilder;
 import com.hypixel.hytale.server.core.universe.world.worldmap.markers.MarkersCollector;
 
+import org.joml.Vector3d;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -92,43 +101,89 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         return color;
     }
 
-    @Override
-    public void update(@Nonnull World world, @Nonnull Player player, @Nonnull MarkersCollector collector) {
-        PlayerRef playerRef = player.getReference() != null
-                ? player.getReference().getStore().getComponent(
-                        player.getReference(), Universe.get().getPlayerRefComponentType())
-                : null;
-        UUID viewerId = playerRef != null ? playerRef.getUuid() : null;
-
-        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-            try {
-                addMarker(collector, npc, viewerId);
-            } catch (RuntimeException e) {
-                // One malformed NPC must not cost every other marker on the map.
-                LOGGER.debug("[MAPA] falha ao marcar '{}': {}", npc.name, e.toString());
-            }
-        }
+    /**
+     * What the map needs to draw one NPC, captured on the world thread.
+     *
+     * <p>{@code statuses} is a copy rather than the live relationship map: the marker thread must
+     * not read a collection another thread is writing to.
+     */
+    private record NpcMarker(UUID id, String name, Vector3d position,
+                             Map<UUID, RelationshipStatus> statuses) {
     }
 
-    private void addMarker(MarkersCollector collector, SimNPCComponent npc, UUID viewerId) {
-        if (npc.entityId == null || npc.entityRef == null || !npc.entityRef.isValid()) return;
+    private static volatile List<NpcMarker> snapshot = List.of();
+    private static volatile long snapshotTick = Long.MIN_VALUE;
 
-        TransformComponent transform = npc.entityRef.getStore()
-                .getComponent(npc.entityRef, TransformComponent.getComponentType());
-        if (transform == null) return;
+    /** How often the snapshot is rebuilt. The map redraws slower than this anyway. */
+    private static final int SNAPSHOT_INTERVAL_TICKS = 10;
 
-        TintComponent tint = new TintComponent();
-        tint.color = colorFor(npc, viewerId);
+    /**
+     * Copies what the map needs, from the world thread.
+     *
+     * <p>This exists because {@code update} does not run on the world thread — the server gives the
+     * world map its own {@code WorldMap - <world>} thread. Touching the ECS from there trips
+     * {@code Store.assertThread} and the whole marker pass dies with
+     * {@code IllegalStateException: Assert not in thread!}, which is exactly what happened once the
+     * provider was finally registered: the markers were being computed and thrown away.
+     *
+     * <p>Called from {@link SimTaleTickSystem}, which is on the world thread by construction.
+     */
+    public static void captureSnapshot(World world, Store<EntityStore> store) {
+        if (world == null || store == null) return;
 
-        // Position and icon go through the constructor, not through with* calls: the builder keeps
-        // id, image and transform as fixed state and only the optional parts are chainable.
-        // A null image leaves the client's default marker sprite in place.
-        Transform markerTransform = new Transform(transform.getPosition());
+        long tick = world.getTick();
+        if (tick - snapshotTick < SNAPSHOT_INTERVAL_TICKS) return;
+        snapshotTick = tick;
 
-        collector.add(new MapMarkerBuilder(PROVIDER_ID + ":" + npc.entityId, null, markerTransform)
-                .withName(Message.raw(npc.name))
-                .withComponent(tint)
-                .build());
+        List<NpcMarker> captured = new ArrayList<>();
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc.entityId == null || npc.entityRef == null || !npc.entityRef.isValid()) continue;
+
+            TransformComponent transform =
+                    store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+            if (transform == null) continue;
+
+            Map<UUID, RelationshipStatus> statuses = new HashMap<>();
+            if (npc.relationships != null) {
+                for (Map.Entry<UUID, Relationship> entry : npc.relationships.entrySet()) {
+                    if (entry.getValue() != null) {
+                        statuses.put(entry.getKey(), entry.getValue().status);
+                    }
+                }
+            }
+
+            captured.add(new NpcMarker(npc.entityId, npc.name,
+                    new Vector3d(transform.getPosition()), statuses));
+        }
+
+        snapshot = List.copyOf(captured);
+    }
+
+    @Override
+    public void update(@Nonnull World world, @Nonnull Player player, @Nonnull MarkersCollector collector) {
+        // getPlayerRef() reads a field on the Player object; the previous getComponent call was an
+        // ECS lookup, and the first thing to blow up on this thread.
+        PlayerRef playerRef = player.getPlayerRef();
+        UUID viewerId = playerRef != null ? playerRef.getUuid() : null;
+
+        for (NpcMarker npc : snapshot) {
+            try {
+                TintComponent tint = new TintComponent();
+                tint.color = colorFor(npc, viewerId);
+
+                // Position and icon go through the constructor, not through with* calls: the
+                // builder keeps id, image and transform as fixed state and only the optional parts
+                // are chainable. A null image leaves the client's default marker sprite in place.
+                collector.add(new MapMarkerBuilder(PROVIDER_ID + ":" + npc.id(), null,
+                                new Transform(npc.position()))
+                        .withName(Message.raw(npc.name()))
+                        .withComponent(tint)
+                        .build());
+            } catch (RuntimeException e) {
+                // One malformed NPC must not cost every other marker on the map.
+                LOGGER.debug("[MAPA] falha ao marcar '{}': {}", npc.name(), e.toString());
+            }
+        }
     }
 
     /**
@@ -138,13 +193,13 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
      * {@code update} is already called once per player, so the map costs nothing extra to
      * personalise.
      */
-    private Color colorFor(SimNPCComponent npc, UUID viewerId) {
+    private Color colorFor(NpcMarker npc, UUID viewerId) {
         if (viewerId == null) return COLOR_STRANGER;
 
-        Relationship rel = npc.getRelationship(viewerId);
-        if (rel == null) return COLOR_STRANGER;
+        RelationshipStatus status = npc.statuses().get(viewerId);
+        if (status == null) return COLOR_STRANGER;
 
-        return switch (rel.status) {
+        return switch (status) {
             case MARRIED, ENGAGED, PARTNER, DATING, CRUSH -> COLOR_ROMANCE;
             case ENEMIES -> COLOR_ENEMY;
             case BEST_FRIEND, GOOD_FRIEND -> COLOR_CLOSE;

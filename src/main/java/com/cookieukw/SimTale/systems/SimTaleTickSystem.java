@@ -61,6 +61,11 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         World world = WorldUtil.first();
         if (world == null) return;
         long absoluteTick = world.getTick();
+
+        // The world map runs on its own thread and cannot touch the ECS, so it reads a snapshot
+        // taken here instead. Self-throttled; calling it from every NPC's tick is cheap because
+        // all but one call returns immediately.
+        SimTaleMarkerProvider.captureSnapshot(world, store);
         
         if (npc == null) {
             UUIDComponent uuidComp = chunk.getComponent(index, UUIDComponent.getComponentType());
