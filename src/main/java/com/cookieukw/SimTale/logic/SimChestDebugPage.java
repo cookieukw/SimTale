@@ -136,14 +136,16 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
         if (house == null) return Message.translation("ui.debugchests.ownerNoData").param("id", shortId(houseId));
         if (house.owners.isEmpty()) return Message.translation("ui.debugchests.ownerNoOwners").param("id", shortId(houseId));
 
+        // One database read per owner, not two: resolving the name and classifying the state both
+        // need the same record, and this runs for every row every time the page renders.
         List<String> names = new ArrayList<>();
         boolean anyOrphan = false;
         boolean anyOffline = false;
         for (String owner : house.owners) {
-            names.add(resolveName(owner));
-            OwnerState state = stateOf(owner);
-            if (state == OwnerState.ORPHAN) anyOrphan = true;
-            if (state == OwnerState.OFFLINE) anyOffline = true;
+            ResolvedOwner resolved = resolveOwner(owner);
+            names.add(resolved.label());
+            if (resolved.state() == OwnerState.ORPHAN) anyOrphan = true;
+            if (resolved.state() == OwnerState.OFFLINE) anyOffline = true;
         }
 
         // The worst state wins the label: an orphan is a data problem worth acting on, while an

@@ -121,21 +121,21 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             refreshUI(storeRef, store);
             return;
         }
+        // Neither view rescans any more.
+        //
+        // Both ran bootstrapLoadedRadius at radius 96, which is a 193x193x33 box: about 1.2
+        // million getBlockType calls, each followed by an ItemContainerBlock component lookup,
+        // synchronously on a button press. That is nine times the radius-32 scan that already made
+        // /simtale debugchests take seconds to answer.
+        //
+        // Like that one, it was a workaround for furniture not being registered on placement. With
+        // the placement event actually reaching its handler, the registries are current and the
+        // sweep buys nothing. '/simtale rescan' remains for worlds built before the fix.
         if (eventData.contains("view_beds")) {
-            TransformComponent tc = store.getComponent(storeRef, TransformComponent.getComponentType());
-            if (tc != null) {
-                BedWorldBootstrap.bootstrapLoadedRadius(store.getExternalData().getWorld(), tc.getPosition(), 96);
-            }
             player.getPageManager().openCustomPage(storeRef, store, new SimBedDebugPage(playerRefComp, player));
             return;
         }
         if (eventData.contains("view_chests")) {
-            // Same wide rescan the bed view does, so a chest placed before the server came up
-            // shows here without the player having to walk over and replace it.
-            TransformComponent tc = store.getComponent(storeRef, TransformComponent.getComponentType());
-            if (tc != null) {
-                BedWorldBootstrap.bootstrapLoadedRadius(store.getExternalData().getWorld(), tc.getPosition(), 96);
-            }
             player.getPageManager().openCustomPage(storeRef, store, new SimChestDebugPage(playerRefComp, player));
             return;
         }
