@@ -57,6 +57,7 @@ public class HouseManager {
                     indexHouse(house);
                 }
                 LOGGER.info("[SimTale] Carregadas {} casas com sucesso da persistência Caskara", HOUSES_BY_ID.size());
+                pruneOrphanOwners();
                 dedupeHousesByBed();
             }
         } catch (Exception e) {
