@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.AssetIds;
+
 import com.cookieukw.SimTale.core.SimLog;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -38,8 +40,10 @@ public final class FishingPostRegistry {
         return x + "," + y + "," + z;
     }
 
+    // Was equalsIgnoreCase, which is the same trap the blueprint marker fell into: a rotation or
+    // state variant comes back decorated and equality silently stops matching.
     public static boolean isFishingPostId(String id) {
-        return id != null && id.equalsIgnoreCase("Tool_Fishing_Trap");
+        return AssetIds.matchesAsset(id, "Tool_Fishing_Trap");
     }
 
     private static boolean isWater(BlockType type) {
