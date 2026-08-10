@@ -41,9 +41,12 @@ public final class GeometryTests {
         Assert.equal(Rotation4.fromYawDegrees(46), Rotation4.WEST, "just past the boundary");
 
         // Yaw arrives from a live transform and is not pre-wrapped.
-        Assert.equal(Rotation4.fromYawDegrees(-90), Rotation4.EAST, "negative yaw wraps");
+        Assert.equal(Rotation4.fromYawDegrees(-90), Rotation4.EAST, "negative yaw wraps to 270");
         Assert.equal(Rotation4.fromYawDegrees(720), Rotation4.SOUTH, "yaw beyond a full turn wraps");
-        Assert.equal(Rotation4.fromYawDegrees(-810), Rotation4.WEST, "several negative turns wrap");
+        Assert.equal(Rotation4.fromYawDegrees(-630), Rotation4.WEST,
+                "several negative turns wrap: -630 + 720 = 90");
+        Assert.equal(Rotation4.fromYawDegrees(-810), Rotation4.EAST,
+                "-810 + 720 = -90, which is 270 — the same answer as -90");
     }
 
     private static void offsets() {
