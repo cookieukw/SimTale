@@ -165,6 +165,9 @@ public class GrowthManager {
                 toddlerNpc.name = child.getFullName();
                 childRef.getStore().putComponent(childRef, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(toddlerNpc.name)));
                 childRef.getStore().putComponent(childRef, Nameplate.getComponentType(), new Nameplate(toddlerNpc.name));
+                // Growing up respawns the entity under a new id, so the family bond has to be
+                // rebuilt or the child becomes a stranger to its parents every promotion.
+                FamilyBonds.linkToFamily(toddlerNpc, child);
                 SimNPCPersistence.saveNPC(toddlerNpc);
             }
             
@@ -237,6 +240,9 @@ public class GrowthManager {
                 }
                 teenRef.getStore().putComponent(teenRef, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(teenNpc.name)));
                 teenRef.getStore().putComponent(teenRef, Nameplate.getComponentType(), new Nameplate(teenNpc.name));
+                // Personality and preferences are carried over above; the family bond has to be
+                // carried over too, or growing up costs the teenager its parents.
+                FamilyBonds.linkToFamily(teenNpc, child);
                 SimNPCPersistence.saveNPC(teenNpc);
             }
             

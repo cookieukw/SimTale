@@ -10,6 +10,7 @@ import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.db.SimNPCData;
+import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.cookieukw.SimTale.logic.NPCPregnancyPage;
