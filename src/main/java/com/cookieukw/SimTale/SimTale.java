@@ -212,12 +212,15 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new BabyCareTickSystem());
         this.getEntityStoreRegistry().registerSystem(new GrowthTickSystem());
 
-        // Map markers are per-world, so the provider is registered once per world rather than as a
-        // system. Registering it under a stable id lets a reload replace it instead of stacking.
-        for (World mapWorld : Universe.get().getWorlds().values()) {
-            mapWorld.getWorldMapManager().addMarkerProvider(
-                    SimTaleMarkerProvider.PROVIDER_ID, new SimTaleMarkerProvider());
-        }
+        // Map markers are NOT registered here.
+        //
+        // This was a loop over Universe.get().getWorlds().values(), and it ran during registry
+        // setup — about a minute before the first world is loaded, as the server log shows. The
+        // collection was empty, the loop body never executed, and no provider was ever attached,
+        // so the NPC markers could not appear no matter what the provider did.
+        //
+        // Registration moved to PlayerJoinHandler, which by definition has a world in hand. See
+        // SimTaleMarkerProvider.ensureRegistered.
 
         // Register event handlers
         //
