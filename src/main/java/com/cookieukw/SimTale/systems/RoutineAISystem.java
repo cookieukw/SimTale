@@ -988,6 +988,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     // NPC (which also used to require /simtale spawn reaper to exist ahead of
                     // time or the corpse never got collected at all).
                     SimTale.untrackNpc(npc);
+                    // The Reaper's own plumbob has to go with her. Untracking only the deceased's
+                    // left hers registered under a UUID whose entity no longer exists, which is
+                    // worse than leaking: the orphan sweep skips anything still tracked, so it
+                    // hung in the air permanently, at the exact spot of every death.
+                    if (npc.entityId != null) {
+                        PlumbobSystem.removePlumbob(npc.entityId);
+                    }
                     commandBuffer.removeEntity(ref, RemoveReason.REMOVE);
                 }
             }

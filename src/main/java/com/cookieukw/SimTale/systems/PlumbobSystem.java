@@ -92,9 +92,15 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         }
         
         boolean isPlayer = chunk.getComponent(index, Player.getComponentType()) != null;
-        boolean isNpc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE) != null;
-        
+        SimNPCComponent npcHere = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
+        boolean isNpc = npcHere != null;
+
         if (!isPlayer && !isNpc) return;
+
+        // The Reaper is a ceremonial entity that exists for one death and is despawned when the
+        // ritual ends — a mood indicator over Death itself reads as a bug even when it works, and
+        // the plumbob outliving her was one.
+        if (npcHere != null && npcHere.isReaper) return;
         
         UUID entityUuid = uuidComp.getUuid();
         TransformComponent entityTransform = chunk.getComponent(index, TransformComponent.getComponentType());
