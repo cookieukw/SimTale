@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.AssetIds;
+
 import com.cookieukw.SimTale.core.SimLog;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -35,7 +37,7 @@ public final class LumberPostRegistry {
     }
 
     public static boolean isLumberPostId(String id) {
-        return id != null && id.equalsIgnoreCase("Bench_Lumbermill");
+        return AssetIds.matchesAsset(id, "Bench_Lumbermill");
     }
 
     /** World-generated trunks are {@code Wood_<Species>_Trunk} / {@code _Trunk_Full}. Half-blocks
