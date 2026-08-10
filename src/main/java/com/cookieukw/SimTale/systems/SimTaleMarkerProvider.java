@@ -35,6 +35,45 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     /** Name the provider is registered under, and the prefix of every marker id it produces. */
     public static final String PROVIDER_ID = "simtale_npcs";
 
+    /**
+     * Worlds already carrying the provider, so a re-registration is a no-op instead of a stack.
+     *
+     * <p>Keyed by name because {@code World} exposes {@code getName()} and no id getter — checked
+     * against the server jar rather than assumed.
+     */
+    private static final Set<String> REGISTERED_WORLDS = ConcurrentHashMap.newKeySet();
+
+    /**
+     * Attaches the provider to {@code world}, once.
+     *
+     * <p>This used to happen in the plugin's registry setup, looping over
+     * {@code Universe.get().getWorlds().values()}. That loop ran before any world existed, so it
+     * iterated nothing and no provider was ever registered — the markers could not appear no
+     * matter what this class did. The server log shows the gap plainly: "Setting up SimTale
+     * registries" lands about a minute before the first world is loaded.
+     *
+     * <p>Same shape as the {@code register} versus {@code registerGlobal} bug documented next to
+     * that loop: a registration call that silently succeeds while attaching to nothing.
+     *
+     * <p>Called from the join handler, which by definition has a world in hand.
+     */
+    public static void ensureRegistered(World world) {
+        if (world == null) return;
+
+        String worldName = world.getName();
+        if (worldName == null || !REGISTERED_WORLDS.add(worldName)) return;
+
+        WorldMapManager manager = world.getWorldMapManager();
+        if (manager == null) {
+            // Nothing to attach to yet; let a later join try again.
+            REGISTERED_WORLDS.remove(worldName);
+            return;
+        }
+
+        manager.addMarkerProvider(PROVIDER_ID, new SimTaleMarkerProvider());
+        LOGGER.info("[SimTale] Marcadores de mapa registrados no mundo '{}'", worldName);
+    }
+
     private static final Color COLOR_ENEMY = rgb(220, 70, 70);
     private static final Color COLOR_STRANGER = rgb(200, 200, 200);
     private static final Color COLOR_FRIEND = rgb(90, 210, 120);
