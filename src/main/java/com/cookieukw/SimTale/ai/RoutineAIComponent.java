@@ -71,6 +71,15 @@ public class RoutineAIComponent implements Component<EntityStore> {
     public boolean socializeHost = false;
     /** Tick at which the current wander destination is abandoned. 0 = not started. */
     public long wanderTimer = 0;
+
+    /**
+     * Where a Guard is around the village perimeter, in radians.
+     *
+     * <p>Kept per guard and advanced by a fixed step each leg, which is what turns a series of
+     * independent destinations into a circuit that reads as patrolling. Randomising the angle
+     * instead would look like ordinary wandering that happens to stay near the edge.
+     */
+    public double patrolAngle = 0;
     
     // Debug
     public boolean forcedByDebug = false;
