@@ -4,6 +4,8 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.db.SimNPCData;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.systems.ChestRegistry;
 import com.cookieukw.SimTale.systems.HouseManager;
 import com.cookieukw.SimTale.systems.NPCFoodHelper;
@@ -135,21 +137,79 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
         if (house.owners.isEmpty()) return Message.translation("ui.debugchests.ownerNoOwners").param("id", shortId(houseId));
 
         List<String> names = new ArrayList<>();
+        boolean anyOrphan = false;
+        boolean anyOffline = false;
         for (String owner : house.owners) {
             names.add(resolveName(owner));
+            OwnerState state = stateOf(owner);
+            if (state == OwnerState.ORPHAN) anyOrphan = true;
+            if (state == OwnerState.OFFLINE) anyOffline = true;
         }
-        return Message.translation("ui.debugchests.ownerNames").param("owners", String.join(", ", names));
+
+        // The worst state wins the label: an orphan is a data problem worth acting on, while an
+        // owner that is merely out of range is normal and should not raise an alarm.
+        String joined = String.join(", ", names);
+        if (anyOrphan) {
+            return Message.translation("ui.debugchests.ownerNamesOrphan").param("owners", joined);
+        }
+        if (anyOffline) {
+            return Message.translation("ui.debugchests.ownerNamesOffline").param("owners", joined);
+        }
+        return Message.translation("ui.debugchests.ownerNames").param("owners", joined);
+    }
+
+    /** Whether an owner id still corresponds to something. */
+    private enum OwnerState { LOADED, OFFLINE, ORPHAN }
+
+    private OwnerState stateOf(String ownerUuid) {
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc.entityId != null && npc.entityId.toString().equals(ownerUuid)) {
+                return OwnerState.LOADED;
+            }
+        }
+        try {
+            return SimNPCPersistence.loadData(UUID.fromString(ownerUuid)) != null
+                    ? OwnerState.OFFLINE
+                    : OwnerState.ORPHAN;
+        } catch (IllegalArgumentException malformed) {
+            return OwnerState.ORPHAN;
+        }
     }
 
 
-    /** Owners are stored as UUID strings; show the NPC name when one matches. */
+    /**
+     * Names an owner, and says why when it cannot.
+     *
+     * <p>This used to fall straight back to the first eight characters of the UUID, which read as
+     * a glitch and hid the only question worth asking: is that owner an NPC that merely is not
+     * loaded right now, or one that no longer exists at all?
+     *
+     * <p>The distinction matters because houses never release an owner — the registration path
+     * deliberately carries previous owners over, and nothing removes one on {@code /simtale forget},
+     * {@code clearall} or death — so the list accumulates. It also rules out the tempting wrong
+     * fix: {@code ACTIVE_NPCS} alone cannot answer it, because an NPC in an unloaded chunk is
+     * absent from it and still very much alive. Only the database can tell those two apart.
+     */
     private String resolveName(String ownerUuid) {
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc.entityId != null && npc.entityId.toString().equals(ownerUuid)) {
                 return npc.name;
             }
         }
-        return ownerUuid.length() >= 8 ? ownerUuid.substring(0, 8) : ownerUuid;
+
+        String shortForm = ownerUuid.length() >= 8 ? ownerUuid.substring(0, 8) : ownerUuid;
+
+        // The record still carries the name of an NPC that is simply not loaded, which is far more
+        // useful than eight hex characters. An orphan has no record and keeps the short id.
+        try {
+            SimNPCData stored = SimNPCPersistence.loadData(UUID.fromString(ownerUuid));
+            if (stored != null && stored.name != null && !stored.name.isBlank()) {
+                return stored.name;
+            }
+        } catch (IllegalArgumentException malformed) {
+            // Not even a UUID — corrupt entry, fall through to the short form.
+        }
+        return shortForm;
     }
 
     private static String shortId(UUID id) {

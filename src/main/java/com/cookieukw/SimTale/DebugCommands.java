@@ -59,14 +59,7 @@ final class DebugCommands {
             Player player = store.getComponent(ref, Player.getComponentType());
             if (player == null) return;
 
-            // Scan before opening, like housecheck and the SimDebug button already do. Without it
-            // this command showed an empty list for any bed outside the radius swept when the
-            // player joined, which reads as "nothing is registered" rather than "nothing here yet".
-            TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
-            if (tc != null) {
-                BedWorldBootstrap.bootstrapLoadedRadius(world, tc.getPosition(), 32);
-            }
-
+            // No scan here — see DebugChestsSubCommand for why it was removed.
             player.getPageManager().openCustomPage(ref, store, new SimBedDebugPage(playerRef, player));
         }
     }
@@ -142,14 +135,18 @@ final class DebugCommands {
             Player player = store.getComponent(ref, Player.getComponentType());
             if (player == null) return;
 
-            // Same scan debugbeds does. Without it this screen only ever showed chests that
-            // happened to be within the radius swept when the player joined the world, which
-            // reads as "nothing is registered" — the exact ambiguity this page exists to remove.
-            TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
-            if (tc != null) {
-                BedWorldBootstrap.bootstrapLoadedRadius(world, tc.getPosition(), 32);
-            }
-
+            // The radius scan that used to run here is gone, and it is why the command took
+            // seconds to answer: radius 32 is a 65x65x33 box, about 139 thousand getBlockType
+            // calls, each followed by an ItemContainerBlock component lookup — all synchronous,
+            // before a single row was drawn.
+            //
+            // It was only ever a workaround. Furniture was not registered on placement because
+            // PlaceBlockEvent never reached the handler, so these pages scanned on every open to
+            // hide that. With placement registering correctly, the registry is already right and
+            // the scan is redundant work that also made the bug invisible.
+            //
+            // Worlds that predate the fix still need one sweep: that is what the join scan and
+            // '/simtale rescan' are for, and rescan stays explicit so the cost is asked for.
             player.getPageManager().openCustomPage(ref, store,
                     new SimChestDebugPage(playerRef, player));
         }
