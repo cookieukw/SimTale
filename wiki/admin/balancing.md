@@ -26,28 +26,26 @@ At 20 ticks per second, hunger takes roughly 13.9 in-game hours to fall from 100
 
 | Constant | Value | Effect |
 |---|---|---|
-| Idle search | 50 | Looks for food when idle |
+| Idle search | 70 | Looks for food when idle |
+| `HUNGRY_ENOUGH_TO_EAT` | 70 | Eats a gift on the spot instead of pocketing it |
 | `HUNGER_INTERRUPT_THRESHOLD` | 25 | Drops its current task to eat |
-| `STARVATION_THRESHOLD` | 5 | Starts losing health |
+| `STARVATION_THRESHOLD` | 5 | Stops working and cries |
 
 ## Starvation
 
-| Constant | Value | Meaning |
-|---|---|---|
-| `STARVATION_DAMAGE` | 4 | Health lost per hit |
-| `STARVATION_INTERVAL_TICKS` | 2880 | One hit every 2.4 minutes |
-| `LETHAL_STARVATION_DAMAGE` | 200 | Total damage that kills |
+Starvation costs an NPC its usefulness, not its life. Below `STARVATION_THRESHOLD` it abandons its
+job, its hobby and its social life, turns `SAD` and plays the crying animation. It stays that way
+indefinitely until someone feeds it.
 
-200 damage at 4 per hit is 50 hits, spread over 144000 ticks — **two hours** from full health to
-death, matching the `MaxHealth: 200` the NPC roles declare.
+It still walks to a chest and eats — the "stop everything" rule excludes the tasks that lead to
+food, and excludes sleep.
 
-Damage is staggered by entity id so a starving village does not take damage in lockstep.
+:::info Hunger does not kill
+Aging and disease will own death. A second cause competing with them would make both harder to
+reason about, so hunger was deliberately taken out of that role.
 
-:::info Why a counter and not real health
-RuneCore exposes `addHealth` and `subtractHealth` but no reliable health getter, so death is driven
-by accumulated starvation damage stored in `Needs.starvationDamage`. Real damage is still applied,
-so the health bar reflects it. The trade-off: an NPC already wounded by something else does not
-starve to death any sooner.
+Earlier versions of this page described a `starvationDamage` counter that killed at 200 damage.
+That system was removed along with `Needs.java`; the constants it named no longer exist.
 :::
 
 ## Food values

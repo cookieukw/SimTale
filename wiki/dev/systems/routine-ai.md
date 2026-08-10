@@ -9,7 +9,7 @@ The autonomy engine. One tick per NPC, three phases.
 
 ```
 RoutineAISystem (tick per NPC)
-├── Evaluation  — is anything critical? (starvation damage >= 200 -> DYING)
+├── Evaluation  — self-heal stuck flags, then sleep/hunger interrupts
 ├── Decision    — pick the task
 └── Action      — delegate to a helper
     ├── NPCHungerHelper  → FINDING_FOOD, MOVING_TO_FOOD, EATING
@@ -28,7 +28,7 @@ Two conditions can drop whatever the NPC is doing.
 
 ```java
 boolean sleepWindowOpen = NPCSleepHelper.isSleepPeriod(npc, world);
-boolean exhausted = npc.needs.energy < sleepThreshold;
+boolean exhausted = NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < sleepThreshold;
 
 if ((sleepWindowOpen || exhausted)
         && world.getTick() >= ai.nextBedSearchTick

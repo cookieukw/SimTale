@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.core.AssetIds;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Rotation4;
 import com.cookieukw.SimTale.core.SimLog;
+import com.cookieukw.SimTale.core.WorldUtil;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -96,51 +97,25 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
 
         LOGGER.debug("[SimTale] Block placed: " + placedId + " isBed=" + BedRegistry.isBedId(placedId));
 
-        // Without this a bed placed by hand was never registered. The only paths that populated
-        // BedRegistry were the radius scan (which runs solely inside /simtale housecheck) and the
-        // entity system (which covers beds that are entities, not blocks), so in a fresh world no
-        // NPC could ever claim a bed. It looked like it worked in older worlds only because the
-        // registries are static and a housecheck had already been run there.
-        if (BedRegistry.isBedId(placedId)) {
-            BedWorldBootstrap.registerBedAt(world, pos.x, pos.y, pos.z);
-        }
+        // Everything below reads the world at the target position, and the block is not there yet.
+        //
+        // PlaceBlockEvent is a pre-event (see the class javadoc), so this handler runs in the
+        // window where the placement can still be cancelled. Identifying *what* is being placed
+        // works, because that comes off the item — but resolving the multi-block anchor, the bed
+        // yaw, or asking the engine whether the block carries an item container all query a cell
+        // that still holds air. Registration was landing on the wrong anchor, and chests fell
+        // through to the name heuristic that was the original bug this handler exists to fix.
+        //
+        // Deferring to the world thread puts the work one step after the placement completes.
+        // The deferred task re-reads the block first: if the event was cancelled downstream, or
+        // the player broke it immediately, there is nothing to register and it bails.
+        final Vector3i placedAt = new Vector3i(pos);
+        WorldUtil.execute(() -> registerPlacedBlock(world, placedAt, placedId));
 
-        // Ask the engine whether the block holds an item container instead of guessing from its
-        // name. The name heuristic silently missed any storage block Hytale does not happen to
-        // call chest/barrel/cupboard/cabinet, which is why chestcheck reported nothing after
-        // three chests had been placed.
-        if (ChestRegistry.isContainerAt(world, pos.x, pos.y, pos.z)
-                || ChestRegistry.isChestId(placedId)) {
-            // Register the anchor so placement and removal agree on one position per chest.
-            Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
-            ChestRegistry.add(anchor.x, anchor.y, anchor.z);
-            LOGGER.debug("[SimTale] Chest registered from placement: {} at ({},{},{})",
-                    placedId, anchor.x, anchor.y, anchor.z);
-        }
-
-        if (CropRegistry.isCropId(placedId)) {
-            CropRegistry.add(pos.x, pos.y, pos.z);
-        }
-        
-        if (FarmlandRegistry.isFarmlandId(placedId)) {
-            FarmlandRegistry.add(pos.x, pos.y, pos.z);
-        }
-
-        if (FishingPostRegistry.isFishingPostId(placedId)) {
-            FishingPostRegistry.registerAt(world, pos.x, pos.y, pos.z);
-        }
-
-        if (LumberPostRegistry.isLumberPostId(placedId)) {
-            LumberPostRegistry.registerAt(world, pos.x, pos.y, pos.z);
-        }
-
-        if (FarmPostRegistry.isFarmPostId(placedId)) {
-            // The scarecrow is 3 blocks tall — anchor first, or each constituent block becomes
-            // its own separate (and redundant) registered post.
-            Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
-            FarmPostRegistry.registerAt(scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
-        }
-
+        // The blueprint preview stays on this side on purpose: it needs no world lookup at the
+        // marker cell (the obstruction scan skips the anchor by design), and showing the hologram
+        // in the same frame as the click is what makes the placement feel responsive.
+        //
         // Blueprint marker block: the hologram preview shows up the instant this is placed, and
         // the obstruction check runs exactly once, right here — not continuously. An earlier
         // version had the preview follow the placing player around and re-check on every turn,
@@ -197,5 +172,64 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
      */
     static boolean isBlueprintMarker(String id) {
         return AssetIds.matchesAsset(id, "Blueprint_TavernHouse");
+    }
+
+    /**
+     * Registers furniture once the block genuinely exists, one step after the placement event.
+     *
+     * <p>{@code placedId} comes from the item in hand rather than being re-read here: state and
+     * rotation variants mean the id in the world can differ from the id that was placed, and the
+     * checks are calibrated against the latter.
+     */
+    private static void registerPlacedBlock(World world, Vector3i pos, String placedId) {
+        if (world == null) return;
+
+        // The event is cancellable. If something downstream vetoed the placement — or the player
+        // broke the block in the meantime — the cell is empty and there is nothing to register.
+        BlockType placed = world.getBlockType(pos.x, pos.y, pos.z);
+        if (placed == null || placed.getId() == null || placed.getId().equalsIgnoreCase("Empty")) {
+            return;
+        }
+
+        if (BedRegistry.isBedId(placedId)) {
+            BedWorldBootstrap.registerBedAt(world, pos.x, pos.y, pos.z);
+        }
+
+        // Ask the engine whether the block holds an item container instead of guessing from its
+        // name. The name heuristic silently missed any storage block Hytale does not happen to
+        // call chest/barrel/cupboard/cabinet, which is why chestcheck reported nothing after
+        // three chests had been placed — and it is exactly what this check fell back to while it
+        // was running before the block existed.
+        if (ChestRegistry.isContainerAt(world, pos.x, pos.y, pos.z)
+                || ChestRegistry.isChestId(placedId)) {
+            // Register the anchor so placement and removal agree on one position per chest.
+            Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
+            ChestRegistry.add(anchor.x, anchor.y, anchor.z);
+            LOGGER.debug("[SimTale] Chest registered from placement: {} at ({},{},{})",
+                    placedId, anchor.x, anchor.y, anchor.z);
+        }
+
+        if (CropRegistry.isCropId(placedId)) {
+            CropRegistry.add(pos.x, pos.y, pos.z);
+        }
+
+        if (FarmlandRegistry.isFarmlandId(placedId)) {
+            FarmlandRegistry.add(pos.x, pos.y, pos.z);
+        }
+
+        if (FishingPostRegistry.isFishingPostId(placedId)) {
+            FishingPostRegistry.registerAt(world, pos.x, pos.y, pos.z);
+        }
+
+        if (LumberPostRegistry.isLumberPostId(placedId)) {
+            LumberPostRegistry.registerAt(world, pos.x, pos.y, pos.z);
+        }
+
+        if (FarmPostRegistry.isFarmPostId(placedId)) {
+            // The scarecrow is 3 blocks tall — anchor first, or each constituent block becomes
+            // its own separate (and redundant) registered post.
+            Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
+            FarmPostRegistry.registerAt(scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
+        }
     }
 }

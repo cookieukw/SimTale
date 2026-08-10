@@ -42,28 +42,33 @@ beloved slab of raw beef, which is the behaviour a village sim wants.
 `get("Secondary")` compiles and classifies every item as inedible.
 :::
 
-## Death
+## Starvation
 
-```java
-if (npc.needs.starvationDamage >= NPCHungerHelper.LETHAL_STARVATION_DAMAGE) {
-    ai.currentTask = TaskType.DYING;
-```
+Hunger is not lethal, by design. Aging and disease will own death; a third cause competing with them
+would make all three harder to reason about.
 
-Death comes from accumulated starvation damage, not from the hunger bar. `hunger <= 0` used to kill
-instantly, which made the whole starvation system decorative — the NPC died the moment her stomach
-emptied, long before damage mattered, and healing from food changed nothing.
+`NPCHungerHelper.tickStarvation` breaks a starving NPC out of whatever it was doing, sets `SAD` and
+plays the crying animation. What it costs the NPC is its usefulness, not its life — job, hobby and
+social life stop until someone feeds it.
 
-### Why a counter
+Three families of task are excluded from the interruption:
 
-RuneCore exposes `addHealth` and `subtractHealth` but no reliable health getter, and the stat-map
-read path could not be confirmed in the bytecode. Real damage is still applied, so the health bar
-reflects it; the counter drives death.
+| Excluded | Why |
+|---|---|
+| `FINDING_FOOD`, `MOVING_TO_FOOD`, `EATING` | Otherwise it finds a chest and is pulled back to `IDLE` before reaching it |
+| The five sleep tasks | Yanking a sleeping NPC to `IDLE` leaves the `sleeping` flag orphaned |
+| `DYING`, `DEAD`, `REAPING` | Dying is not a task to interrupt |
 
-- Limit is 200, matching `MaxHealth` in the NPC roles
-- Lives in `Needs`, which is persisted — so it survives a relog
-- Eating resets it to zero
+The `DYING → DEAD → REAPING` flow is intact and has **no automatic trigger** — only
+`/simtale forcekill` reaches it today. It is the foundation for aging and disease.
 
-Cost: an NPC wounded by something else does not starve any sooner.
+:::note Removed system
+Earlier versions of this page documented a `Needs.starvationDamage` counter that killed at 200
+accumulated damage. `Needs.java` was removed in the migration to native `EntityStats`, and the
+leftover `hunger <= 0 → DYING` trigger — which killed instantly, the opposite of the intent — went
+with it, along with the now-unreferenced `STARVATION_DAMAGE`, `STARVATION_INTERVAL_TICKS` and
+`LETHAL_STARVATION_DAMAGE`.
+:::
 
 ## Feeding by hand
 

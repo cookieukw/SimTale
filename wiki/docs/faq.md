@@ -27,8 +27,8 @@ is small enough that collisions between NPCs are common.
 
 ### Why is everything so slow?
 
-By design. An NPC takes around seven in-game hours to get hungry and fifteen to starve. The mod is
-built to run in the background while you play, not to be supervised.
+By design. An NPC takes around four in-game hours to start looking for food and thirteen to hit
+rock bottom. The mod is built to run in the background while you play, not to be supervised.
 
 ### Do guards ever sleep?
 

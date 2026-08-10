@@ -51,11 +51,13 @@ offline simulation so time away from the server still counts.
 
 ## Death
 
-NPCs die of starvation, and the SimTale death flow takes over: the body stays, the Grim Reaper
-appears on its own, walks to it, performs the soul-collection ritual, leaves a gravestone and
-removes the record cleanly.
+When an NPC dies, the SimTale death flow takes over: the body stays, the Grim Reaper appears on its
+own, walks to it, performs the soul-collection ritual, leaves a gravestone and removes the record
+cleanly. Interacting with the Reaper mid-ritual while holding an `Ingredient_Voidheart` cancels the
+collection and revives the NPC.
 
-:::note Hard to test on purpose
-There is no command to kill an NPC, and waiting for starvation takes around fifteen in-game hours.
-The reaper flow has therefore not been fully validated yet.
+:::note Nothing kills an NPC yet
+Hunger deliberately does not kill (see [Needs](needs.md)), and aging and disease are not implemented.
+The death flow is complete and reachable only through `/simtale forcekill`, which exists so the
+Reaper can be tested without waiting for a cause of death that does not exist.
 :::

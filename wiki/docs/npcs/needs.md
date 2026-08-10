@@ -9,7 +9,7 @@ Every NPC carries five needs, all starting at 100 and decaying over time.
 
 | Need | What it drives |
 |---|---|
-| **Hunger** | Looking for food; at the bottom, starvation and death |
+| **Hunger** | Looking for food; at the bottom, it stops doing anything else |
 | **Energy** | Going to bed |
 | **Social** | Seeking out other NPCs to talk to |
 | **Fun** | Going off to do a hobby |
@@ -33,19 +33,22 @@ hunger used to be checked only while idle.
 
 ### Timeline
 
-Starting from full hunger and 200 health:
+Starting from full hunger:
 
 | Milestone | Hunger | Elapsed |
 |---|---|---|
-| Looks for food when idle | 50 | ~6.9 h |
+| Looks for food when idle | 70 | ~4.2 h |
 | Interrupts its task | 25 | ~10.4 h |
-| Starts losing health | 5 | ~13.2 h |
-| Dies | — | ~15.2 h |
+| Stops working and cries | 5 | ~13.2 h |
 
-### Death comes from health, not from the bar
+### Hunger does not kill
 
-Reaching 0 hunger does not kill. What kills is the health that starvation drains — about two hours
-from full health to death. Feeding an NPC calls the countdown off entirely.
+An NPC that runs out of food does not die. It becomes miserable and useless: it drops its job, its
+hobby and its social life, and stays that way until someone feeds it. Death is reserved for aging
+and disease, which are not implemented yet.
+
+It can still reach food on its own — being starving does not stop it from walking to a chest, and
+it does not interrupt sleep.
 
 ## What food restores
 

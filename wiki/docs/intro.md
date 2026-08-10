@@ -23,7 +23,8 @@ they do depends on their state and on the world around them.
 - **Talks.** Seeks out other NPCs after too long alone, and mood is contagious.
 - **Has a hobby.** Someone who likes fishing walks to the water; a reader goes home.
 - **Ages.** Marries, gets pregnant, has children, and those children grow from baby to adult.
-- **Dies.** Of old age or of starvation — and Death comes to collect.
+- **Starves.** Runs out of food and stops working entirely, until someone feeds it. It does not
+  die of hunger — death is reserved for aging and disease, which are still to come.
 
 ## Where to start
 
