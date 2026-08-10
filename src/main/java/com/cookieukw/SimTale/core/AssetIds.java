@@ -1,7 +1,5 @@
 package com.cookieukw.SimTale.core;
 
-import java.util.Locale;
-
 /**
  * One way to compare a Hytale asset id.
  *
@@ -29,15 +27,33 @@ public final class AssetIds {
     }
 
     /**
-     * Lowercases and drops every character that is not a letter or a digit.
+     * Lowercases and drops every character that is not an ASCII letter or digit.
      *
-     * <p>{@code Locale.ROOT} is not decoration: the default-locale {@code toLowerCase()} maps
-     * {@code I} to a dotless {@code ı} under a Turkish locale, so a server started with that
-     * locale would stop recognising every id containing an uppercase I.
+     * <p>Written as a character loop rather than
+     * {@code toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "")}, which is what this was.
+     * {@code String.replaceAll} compiles the regular expression on every single call, and these
+     * predicates run inside the radius scan — around 139 thousand blocks at radius 32, each one
+     * asking whether it is a bed, a chest, a crop, farmland and three kinds of work post. That is
+     * hundreds of thousands of regex compilations for a job that is a handful of character
+     * comparisons.
+     *
+     * <p>Doing the case fold by hand also removes the Turkish-locale hazard entirely instead of
+     * merely guarding against it: {@code 'A'..'Z'} is mapped arithmetically, so no locale is
+     * consulted at all. Non-ASCII characters are dropped, exactly as the character class did.
      */
     public static String normalize(String id) {
-        if (id == null) return "";
-        return id.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
+        if (id == null || id.isEmpty()) return "";
+
+        StringBuilder out = new StringBuilder(id.length());
+        for (int i = 0; i < id.length(); i++) {
+            char c = id.charAt(i);
+            if (c >= 'A' && c <= 'Z') {
+                out.append((char) (c + ('a' - 'A')));
+            } else if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) {
+                out.append(c);
+            }
+        }
+        return out.toString();
     }
 
     /** True when {@code id} contains any of {@code keywords}, comparing normalized forms. */
