@@ -45,6 +45,23 @@ public class NPCGuardHelper {
      *  "contains creature" filter permanently broken (it never matched anything real). */
     private static final String[] HOSTILE_MODEL_KEYWORDS = { "skeleton" };
 
+    /** How often a given guard looks around. One second, as before. */
+    private static final int GUARD_SCAN_PERIOD_TICKS = 20;
+
+    /** How long a world-wide hostile snapshot is reused across all guards. */
+    private static final int HOSTILE_CACHE_TICKS = 20;
+
+    /**
+     * Spreads guards across the scan period so they never all check on the same tick.
+     *
+     * <p>Derived from the NPC's own id so it is stable: a phase that changed between ticks would
+     * let a guard skip its turn entirely or take several in a row.
+     */
+    private static int guardPhase(SimNPCComponent npc) {
+        if (npc.entityId == null) return 0;
+        return Math.floorMod(npc.entityId.hashCode(), GUARD_SCAN_PERIOD_TICKS);
+    }
+
     private static boolean isHostileModelId(String modelAssetId) {
         if (modelAssetId == null) return false;
         String lower = modelAssetId.toLowerCase(java.util.Locale.ROOT);
