@@ -303,6 +303,12 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                 new PersistentDisplayName(Message.raw(childComp.getFullName())));
             store.putComponent(childRef, Nameplate.getComponentType(),
                 new Nameplate(childComp.getFullName()));
+
+            // A child used to be born a social stranger to its own parents: the family data lived
+            // in GrowthComponent and was never projected onto the relationship map that gifts,
+            // dialogue and the map tint actually read.
+            FamilyBonds.linkToFamily(childNPCComp, childComp);
+            SimNPCPersistence.saveNPC(childNPCComp);
         }
 
         // Scale baby down visually to match its current growth stage
