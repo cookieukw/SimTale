@@ -47,12 +47,7 @@ public class PregnancyTickSystem extends EntityTickingSystem<EntityStore> {
         PregnancyComponent pregnancy = npc.pregnancy;
         if (pregnancy == null || !pregnancy.pregnant) return;
 
-        // Get current world tick
-        World world = null;
-        for (World w : Universe.get().getWorlds().values()) {
-            world = w;
-            break;
-        }
+        World world = WorldUtil.first();
         if (world == null) return;
         long worldTick = world.getTick();
 

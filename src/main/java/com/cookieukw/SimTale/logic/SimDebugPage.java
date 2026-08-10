@@ -185,7 +185,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             ai.forcedByDebug = true;
 
             World world = null;
-            for (World w : Universe.get().getWorlds().values()) { world = w; break; }
+            world = WorldUtil.first();
             if (world != null) {
                 ai.taskStartTime = world.getTick();
             }

@@ -23,10 +23,7 @@ public final class PregnancyDisplayUtil {
     private PregnancyDisplayUtil() {}
 
     public static long getCurrentWorldTick() {
-        for (World world : Universe.get().getWorlds().values()) {
-            return world.getTick();
-        }
-        return 0L;
+        return WorldUtil.tick();
     }
 
     public static String resolveParentName(UUID parentId) {

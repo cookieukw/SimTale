@@ -530,7 +530,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                 if (Math.random() < 0.5) {
                     playerRefComp.sendMessage(Message.raw("Dona Morte acenou a cabeca. A vida foi poupada... desta vez."));
                     World w = null;
-                    for (World world : Universe.get().getWorlds().values()) { w = world; break; }
+                    w = WorldUtil.first();
                     if (w != null) {
                         Ref<EntityStore> dyingRef = w.getEntityStore().getRefFromUUID(reaperAi.dyingEntityId);
                         if (dyingRef != null) {

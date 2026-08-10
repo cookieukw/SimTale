@@ -48,11 +48,7 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
         // Run only once per interval, at the first index
         if (index != 0) return;
 
-        World world = null;
-        for (World w : Universe.get().getWorlds().values()) {
-            world = w;
-            break;
-        }
+        World world = WorldUtil.first();
         if (world == null) return;
         long worldTick = world.getTick();
 

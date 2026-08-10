@@ -65,12 +65,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             return;
         }
 
-        World world = null;
-        for (World w : Universe.get().getWorlds().values()) {
-            world = w;
-            break;
-        }
-
+        World world = WorldUtil.first();
         if (world == null)
             return;
 

@@ -213,11 +213,7 @@ public class BabyCareManager {
     }
 
     private static void removeBabyEntityFromWorld(UUID babyId) {
-        World world = null;
-        for (World w : Universe.get().getWorlds().values()) {
-            world = w;
-            break;
-        }
+        World world = WorldUtil.first();
         if (world == null) return;
         
         Ref<EntityStore> ref = world.getEntityStore().getRefFromUUID(babyId);
