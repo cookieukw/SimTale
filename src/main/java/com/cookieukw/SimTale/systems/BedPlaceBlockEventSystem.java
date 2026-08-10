@@ -1,5 +1,6 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.AssetIds;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Rotation4;
 import com.cookieukw.SimTale.core.SimLog;
@@ -21,7 +22,6 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3i;
 
-import java.util.Locale;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 
@@ -196,7 +196,6 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
      * separate guesses.
      */
     static boolean isBlueprintMarker(String id) {
-        if (id == null) return false;
-        return id.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "").contains("blueprinttavernhouse");
+        return AssetIds.matchesAsset(id, "Blueprint_TavernHouse");
     }
 }
