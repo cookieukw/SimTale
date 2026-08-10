@@ -163,55 +163,46 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
     /** Whether an owner id still corresponds to something. */
     private enum OwnerState { LOADED, OFFLINE, ORPHAN }
 
-    private OwnerState stateOf(String ownerUuid) {
-        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-            if (npc.entityId != null && npc.entityId.toString().equals(ownerUuid)) {
-                return OwnerState.LOADED;
-            }
-        }
-        try {
-            return SimNPCPersistence.loadData(UUID.fromString(ownerUuid)) != null
-                    ? OwnerState.OFFLINE
-                    : OwnerState.ORPHAN;
-        } catch (IllegalArgumentException malformed) {
-            return OwnerState.ORPHAN;
-        }
+    private record ResolvedOwner(String label, OwnerState state) {
     }
 
-
     /**
-     * Names an owner, and says why when it cannot.
+     * Names an owner and classifies it in one pass.
      *
      * <p>This used to fall straight back to the first eight characters of the UUID, which read as
      * a glitch and hid the only question worth asking: is that owner an NPC that merely is not
      * loaded right now, or one that no longer exists at all?
      *
-     * <p>The distinction matters because houses never release an owner — the registration path
-     * deliberately carries previous owners over, and nothing removes one on {@code /simtale forget},
-     * {@code clearall} or death — so the list accumulates. It also rules out the tempting wrong
-     * fix: {@code ACTIVE_NPCS} alone cannot answer it, because an NPC in an unloaded chunk is
-     * absent from it and still very much alive. Only the database can tell those two apart.
+     * <p>The distinction matters because houses never released an owner, so the list accumulated.
+     * It also rules out the tempting wrong fix: {@code ACTIVE_NPCS} alone cannot answer it, because
+     * an NPC in an unloaded chunk is absent from it and still very much alive. Only the database
+     * can tell those two apart.
      */
-    private String resolveName(String ownerUuid) {
+    private ResolvedOwner resolveOwner(String ownerUuid) {
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc.entityId != null && npc.entityId.toString().equals(ownerUuid)) {
-                return npc.name;
+                return new ResolvedOwner(npc.name, OwnerState.LOADED);
             }
         }
 
         String shortForm = ownerUuid.length() >= 8 ? ownerUuid.substring(0, 8) : ownerUuid;
 
-        // The record still carries the name of an NPC that is simply not loaded, which is far more
-        // useful than eight hex characters. An orphan has no record and keeps the short id.
+        SimNPCData stored;
         try {
-            SimNPCData stored = SimNPCPersistence.loadData(UUID.fromString(ownerUuid));
-            if (stored != null && stored.name != null && !stored.name.isBlank()) {
-                return stored.name;
-            }
+            stored = SimNPCPersistence.loadData(UUID.fromString(ownerUuid));
         } catch (IllegalArgumentException malformed) {
-            // Not even a UUID — corrupt entry, fall through to the short form.
+            // Not even a UUID — corrupt entry, and there is nothing to look up.
+            return new ResolvedOwner(shortForm, OwnerState.ORPHAN);
         }
-        return shortForm;
+
+        if (stored == null) {
+            return new ResolvedOwner(shortForm, OwnerState.ORPHAN);
+        }
+
+        // The record still carries the name of an NPC that is simply not loaded, which is far more
+        // useful than eight hex characters.
+        String name = stored.name != null && !stored.name.isBlank() ? stored.name : shortForm;
+        return new ResolvedOwner(name, OwnerState.OFFLINE);
     }
 
     private static String shortId(UUID id) {
