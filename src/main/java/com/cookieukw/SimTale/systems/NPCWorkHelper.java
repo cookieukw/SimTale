@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
+import com.cookieukw.SimTale.core.AssetIds;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.MemoryEvent;
@@ -728,6 +729,19 @@ public class NPCWorkHelper {
             if (item != null && !item.isEmpty()) return true;
         }
         return false;
+    }
+
+    /**
+     * Whether an item is planting stock rather than harvest.
+     *
+     * <p>The rule was written out three separate times as
+     * {@code getItemId().toLowerCase(Locale.ROOT).contains("plant_seeds_")}. Three copies of a
+     * classification is how the id checks drifted apart everywhere else in this project, and this
+     * one is load-bearing: get it wrong in one place and the Farmer deposits the seeds she was
+     * about to plant.
+     */
+    private static boolean isSeed(String itemId) {
+        return AssetIds.containsAny(itemId, "plant_seeds");
     }
 
     /** Same as {@link #hasAnyItem}, but ignores seeds — those are supplies a Farmer is holding

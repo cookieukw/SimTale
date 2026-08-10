@@ -40,6 +40,11 @@ public final class AssetIdsTests {
     private static void normalize() {
         Assert.equal(AssetIds.normalize("Blueprint_TavernHouse"), "blueprinttavernhouse",
                 "underscores and case are dropped");
+        Assert.equal(AssetIds.normalize("Plant_Seeds_Carrot"), "plantseedscarrot",
+                "seed ids normalize the same way — the Farmer's deposit rule depends on it");
+        Assert.equal(AssetIds.normalize("ÁÉÍ"), "",
+                "non-ASCII is dropped, as the old character class did");
+        Assert.equal(AssetIds.normalize(""), "", "empty stays empty");
         Assert.equal(AssetIds.normalize("simtale:WeddingRing"), "simtaleweddingring",
                 "namespace separator is dropped");
         Assert.equal(AssetIds.normalize(GROWN_CARROT),
