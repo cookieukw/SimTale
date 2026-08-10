@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
+import com.cookieukw.SimTale.core.Rotation4;
 import com.cookieukw.SimTale.core.SimLog;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
@@ -14,6 +15,7 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.event.events.ecs.PlaceBlockEvent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -150,6 +152,21 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
                     pos.x, pos.y, pos.z, placedId);
             UUID siteId = ConstructionPreviewManager.idForBlock(pos);
             ConstructionSiteComponent site = ConstructionPreviewManager.start(siteId, "TavernHouse", pos);
+
+            // Orient the house by where the placer is looking.
+            //
+            // ConstructionSiteComponent.facing defaults to NORTH and nothing on this path ever
+            // changed it, so every marker-placed house came out facing north regardless of the
+            // player. '/build' already did this correctly (BuildCommand:152) — this is the same
+            // two lines, which is the point: the two entry points should not disagree about
+            // orientation.
+            TransformComponent placer = chunk.getComponent(index, TransformComponent.getComponentType());
+            if (placer != null) {
+                Rotation4 facing = Rotation4.fromYawDegrees(Math.toDegrees(placer.getRotation().yaw()));
+                site.facing = facing;
+                site.roofFacing = facing;
+            }
+
             ConstructionHelper.placePreview(world, site);
 
             if (!site.isClear) {

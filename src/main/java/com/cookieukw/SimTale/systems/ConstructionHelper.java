@@ -119,18 +119,27 @@ public final class ConstructionHelper {
      * prefab's bounds and the facing, so recomputing it inside the loop would rescan every block
      * for every block.
      */
-    public record OffsetMapper(Rotation4 facing, int minRotX, int minRotZ) {
+    public record OffsetMapper(Rotation4 facing) {
         public Vector3i offset(int lx, int ly, int lz) {
-            Vector3i rotated = rotate(new Vector3i(lx, ly, lz), facing);
-            return new Vector3i(rotated.x - minRotX, rotated.y, rotated.z - minRotZ);
+            return rotate(new Vector3i(lx, ly, lz), facing);
         }
     }
 
-    /** Builds the {@link OffsetMapper} for a prefab rotated to {@code facing}. */
+    /**
+     * Builds the {@link OffsetMapper} for a prefab rotated to {@code facing}.
+     *
+     * <p>The anchor is the prefab's own local origin — the house rotates <em>around the marker</em>
+     * instead of being re-normalised to sit in the +X/+Z quadrant of it.
+     *
+     * <p>It used to subtract the rotated box's minimum corner, which kept the whole footprint on
+     * the positive side of the anchor no matter which way it faced. That is tidy in world
+     * coordinates and useless in practice: the house always grew towards +X/+Z, so which part of
+     * it landed next to the marker changed with every rotation, and the player had no way to
+     * predict where the walls would end up before committing. Anchoring the local origin instead
+     * means the same corner of the house is always the block you placed.
+     */
     public static OffsetMapper mapperFor(Prefab prefab, Rotation4 facing) {
-        BoxSize size = computeBoxSize(prefab);
-        RotationOffset offset = computeRotationOffset(size.sizeX(), size.sizeZ(), facing);
-        return new OffsetMapper(facing, offset.minRotX(), offset.minRotZ());
+        return new OffsetMapper(facing);
     }
 
     /** Rotates a local offset around the Y axis to match one of the four cardinal facings. */
@@ -149,8 +158,6 @@ public final class ConstructionHelper {
 
     private record BoxSize(int sizeX, int sizeY, int sizeZ) {}
 
-    private record RotationOffset(int minRotX, int minRotZ) {}
-
     private static BoxSize computeBoxSize(Prefab prefab) {
         int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
         int minY = Integer.MAX_VALUE, maxY = Integer.MIN_VALUE;
@@ -166,25 +173,6 @@ public final class ConstructionHelper {
         }
 
         return new BoxSize(maxX - minX + 1, maxY - minY + 1, maxZ - minZ + 1);
-    }
-
-    /**
-     * Finds the offset needed to keep a rotated box anchored at its original corner.
-     * Only the four XZ corners are checked since rotation around Y never changes the Y component.
-     */
-    private static RotationOffset computeRotationOffset(int sizeX, int sizeZ, Rotation4 facing) {
-        int minRotX = Integer.MAX_VALUE;
-        int minRotZ = Integer.MAX_VALUE;
-
-        for (int dx : new int[]{0, sizeX - 1}) {
-            for (int dz : new int[]{0, sizeZ - 1}) {
-                Vector3i rotated = rotate(new Vector3i(dx, 0, dz), facing);
-                minRotX = Math.min(minRotX, rotated.x);
-                minRotZ = Math.min(minRotZ, rotated.z);
-            }
-        }
-
-        return new RotationOffset(minRotX, minRotZ);
     }
 
     // ---------------------------------------------------------------------

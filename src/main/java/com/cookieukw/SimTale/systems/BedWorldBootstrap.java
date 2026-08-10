@@ -67,6 +67,22 @@ public final class BedWorldBootstrap {
                     } else if (CropRegistry.isCropId(type.getId())) {
                         CropRegistry.add(x, y, z);
                     }
+
+                    // Preview sessions live only in memory, so a marker block survived a restart
+                    // with no hologram and no site behind it — the block was still standing but
+                    // nothing could be confirmed or forced from it. Rebuilding the session from
+                    // the block is the same trick the beds, chests and posts above already use:
+                    // the world is the source of truth, the registry is just a cache of it.
+                    if (BedPlaceBlockEventSystem.isBlueprintMarker(type.getId())) {
+                        Vector3i markerPos = new Vector3i(x, y, z);
+                        java.util.UUID siteId = ConstructionPreviewManager.idForBlock(markerPos);
+                        if (ConstructionPreviewManager.get(siteId) == null) {
+                            ConstructionSiteComponent site =
+                                    ConstructionPreviewManager.start(siteId, "TavernHouse", markerPos);
+                            ConstructionHelper.placePreview(world, site);
+                            markersFound++;
+                        }
+                    }
                 }
             }
         }
