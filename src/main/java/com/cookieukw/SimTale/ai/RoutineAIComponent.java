@@ -142,6 +142,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.socializeTargetId = this.socializeTargetId;
         comp.socializeHost = this.socializeHost;
         comp.wanderTimer = this.wanderTimer;
+        comp.patrolAngle = this.patrolAngle;
         comp.lastLeashPos = this.lastLeashPos;
         comp.lastLeashTick = this.lastLeashTick;
         comp.forcedByDebug = this.forcedByDebug;
