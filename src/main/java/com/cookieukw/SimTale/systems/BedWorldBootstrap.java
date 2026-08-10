@@ -25,6 +25,7 @@ public final class BedWorldBootstrap {
         int farmPostsFound = FarmPostRegistry.POSTS.size();
         int farmlandFound = FarmlandRegistry.FARMLAND.size();
         int cropsFound = CropRegistry.CROPS.size();
+        int markersFound = 0;
         LOGGER.debug("[SimTale-DEBUG] Starting simple radius scan around (" + px + "," + py + "," + pz + ") with radius " + radius);
 
         // Scan a cube around the player position
