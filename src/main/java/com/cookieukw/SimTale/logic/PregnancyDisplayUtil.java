@@ -7,6 +7,7 @@ import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 
