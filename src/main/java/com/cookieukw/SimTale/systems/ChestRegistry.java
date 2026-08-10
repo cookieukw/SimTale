@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.AssetIds;
+
 import com.cookieukw.SimTale.core.SimLog;
 
 import com.cookieukw.SimTale.core.HouseBlockPos;
@@ -24,9 +26,7 @@ public final class ChestRegistry {
      * {@link #isContainerAt} whenever a world reference is available.
      */
     public static boolean isChestId(String id) {
-        if (id == null) return false;
-        String name = id.toLowerCase();
-        return name.contains("chest") || name.contains("barrel") || name.contains("cupboard") || name.contains("cabinet");
+        return AssetIds.containsAny(id, "chest", "barrel", "cupboard", "cabinet");
     }
 
     /**
