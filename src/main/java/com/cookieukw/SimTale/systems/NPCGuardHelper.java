@@ -60,9 +60,12 @@ public class NPCGuardHelper {
         if (npc.profession != Profession.GUARD) return;
 
         if (ai.currentTask == TaskType.IDLE) {
-            // Same staggering as the other professions' IDLE dispatch — bypassed instantly by a
-            // debug command forcing this NPC.
-            if (world.getTick() % 20 != 0 && !ai.forcedByDebug) return;
+            // Staggered per guard rather than on a shared tick boundary: every guard checking on
+            // the same tick meant the whole squad's work landed in one frame, which is the shape
+            // that produces a visible hitch even when the total work is modest.
+            if (!ai.forcedByDebug && (world.getTick() + guardPhase(npc)) % GUARD_SCAN_PERIOD_TICKS != 0) {
+                return;
+            }
 
             Vector3d pos = transform.getPosition();
             UUID hostileId = scanForHostile(pos, world, store);
@@ -138,15 +141,63 @@ public class NPCGuardHelper {
         }
     }
 
-    /** Nearest hostile within {@link #GUARD_SCAN_RADIUS} of {@code center}, or null. Iterates
-     *  every modelled entity in the world (there is no dedicated hostile/faction component to
-     *  query against) via {@code store.forEachChunk}, which — unlike the tick systems elsewhere
-     *  in this codebase — can be called from a one-shot context, not just from inside another
-     *  system's own tick. */
+    /**
+     * Nearest hostile within {@link #GUARD_SCAN_RADIUS} of {@code center}, or null.
+     *
+     * <p>Reads a shared snapshot instead of sweeping the world. The sweep itself visits every
+     * modelled entity there is — mobs, dropped items, projectiles, the other NPCs — because there
+     * is no hostile or faction component to query against, so the model id can only be checked
+     * after the entity has already been visited. Doing that once per guard per second meant the
+     * cost scaled with the number of guards while answering the same question every time.
+     *
+     * <p>Now the sweep runs at most once per {@link #HOSTILE_CACHE_TICKS} for the whole world and
+     * every guard filters the resulting handful of positions, which is the part that legitimately
+     * differs between them.
+     */
     private static UUID scanForHostile(Vector3d center, World world, Store<EntityStore> store) {
-        double[] bestDistSq = { GUARD_SCAN_RADIUS * GUARD_SCAN_RADIUS };
-        UUID[] best = { null };
+        double bestDistSq = GUARD_SCAN_RADIUS * GUARD_SCAN_RADIUS;
+        UUID best = null;
 
+        for (Hostile hostile : hostiles(world, store)) {
+            double dx = hostile.x() - center.x;
+            double dy = hostile.y() - center.y;
+            double dz = hostile.z() - center.z;
+            double distSq = dx * dx + dy * dy + dz * dz;
+            if (distSq < bestDistSq) {
+                bestDistSq = distSq;
+                best = hostile.id();
+            }
+        }
+
+        return best;
+    }
+
+    /** A hostile's identity and where it was when the snapshot was taken. */
+    private record Hostile(UUID id, double x, double y, double z) {
+    }
+
+    /**
+     * Snapshot of every hostile in the world, rebuilt at most once per {@link #HOSTILE_CACHE_TICKS}.
+     *
+     * <p>Deliberately stale by up to a second. A guard reacting to where a skeleton was a moment
+     * ago is indistinguishable in play from one reacting instantly, and the target is re-resolved
+     * by id before the guard commits to anything.
+     *
+     * <p>The fields are {@code volatile} and the list is replaced whole rather than mutated, so a
+     * reader always sees a complete snapshot. Two ticking threads racing here would at worst each
+     * build one — wasteful but harmless, and cheaper than locking on every read.
+     */
+    private static volatile List<Hostile> hostileCache = List.of();
+    private static volatile long hostileCacheTick = Long.MIN_VALUE;
+    private static volatile World hostileCacheWorld = null;
+
+    private static List<Hostile> hostiles(World world, Store<EntityStore> store) {
+        long tick = world.getTick();
+        if (world == hostileCacheWorld && tick - hostileCacheTick < HOSTILE_CACHE_TICKS) {
+            return hostileCache;
+        }
+
+        List<Hostile> found = new ArrayList<>();
         store.forEachChunk(PersistentModel.getComponentType(), (chunk, cb) -> {
             for (int i = 0; i < chunk.size(); i++) {
                 PersistentModel pm = chunk.getComponent(i, PersistentModel.getComponentType());
@@ -158,17 +209,14 @@ public class NPCGuardHelper {
                 UUIDComponent uuidComp = chunk.getComponent(i, UUIDComponent.getComponentType());
                 if (t == null || uuidComp == null) continue;
 
-                double dx = t.getPosition().x - center.x;
-                double dy = t.getPosition().y - center.y;
-                double dz = t.getPosition().z - center.z;
-                double distSq = dx * dx + dy * dy + dz * dz;
-                if (distSq < bestDistSq[0]) {
-                    bestDistSq[0] = distSq;
-                    best[0] = uuidComp.getUuid();
-                }
+                Vector3d p = t.getPosition();
+                found.add(new Hostile(uuidComp.getUuid(), p.x, p.y, p.z));
             }
         });
 
-        return best[0];
+        hostileCache = List.copyOf(found);
+        hostileCacheTick = tick;
+        hostileCacheWorld = world;
+        return hostileCache;
     }
 }
