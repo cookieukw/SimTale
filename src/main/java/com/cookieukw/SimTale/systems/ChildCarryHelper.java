@@ -18,11 +18,14 @@ import com.hypixel.hytale.protocol.MovementStates;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
+import com.hypixel.hytale.server.core.modules.entity.component.BoundingBox;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3f;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Carrying a small child on your shoulders.
@@ -50,6 +53,15 @@ public final class ChildCarryHelper {
 
     /** Beyond this the child is too big to be carried, whoever is asking. */
     private static final GrowthStage OLDEST_CARRIABLE = GrowthStage.CHILD;
+
+    /**
+     * Collision boxes parked while their owner is being carried, keyed by child.
+     * <p>
+     * Kept rather than rebuilt: the box is derived from the model and the current scale, and a
+     * child who grows a stage mid-carry would come back down with the wrong one. Storing the exact
+     * component removes the question.
+     */
+    private static final Map<UUID, BoundingBox> PARKED_BOXES = new ConcurrentHashMap<>();
 
     private ChildCarryHelper() {
     }
@@ -109,6 +121,18 @@ public final class ChildCarryHelper {
             MountedComponent mounted = new MountedComponent(
                     carrier, new Vector3f(0f, SHOULDER_HEIGHT, 0f), MountController.Minecart);
             store.putComponent(childRef, MountedComponent.getComponentType(), mounted);
+
+            // The collision box has to go while she is up there.
+            //
+            // Riding on your shoulders puts her hitbox right where your own attack and block
+            // raycasts start, so every swing and every mined block hit the child instead. This is
+            // the same lesson the plumbob taught: anything parked in front of the player's camera
+            // must not carry a real bounding box. Restored on put down.
+            BoundingBox box = store.getComponent(childRef, BoundingBox.getComponentType());
+            if (box != null && npc.entityId != null) {
+                PARKED_BOXES.put(npc.entityId, box);
+                store.tryRemoveComponent(childRef, BoundingBox.getComponentType());
+            }
         });
 
         // Freeze plus stop the action animation.
@@ -150,6 +174,14 @@ public final class ChildCarryHelper {
         WorldUtil.execute(() -> {
             if (childRef != null && childRef.isValid()) {
                 store.tryRemoveComponent(childRef, MountedComponent.getComponentType());
+
+                // Her hitbox comes back, or she stays permanently unhittable and walks through
+                // things.
+                BoundingBox parked = carried.entityId != null ? PARKED_BOXES.remove(carried.entityId) : null;
+                if (parked != null) {
+                    store.putComponent(childRef, BoundingBox.getComponentType(), parked);
+                }
+
                 // Unfreezing has to happen here, not before the deferral: dropping Frozen while the
                 // mount is still attached would let the role start steering a body that is still
                 // pinned, which is the sliding-NPC failure again.
@@ -161,6 +193,11 @@ public final class ChildCarryHelper {
                 .param("name", carried.name));
         LOGGER.info("[SimTale] {} foi colocada no chao", carried.name);
         return true;
+    }
+
+    /** Whether this player currently has one of our children on their shoulders. */
+    public static boolean isCarryingSomeone(Store<EntityStore> store, Ref<EntityStore> carrier) {
+        return findCarriedBy(store, carrier) != null;
     }
 
     /**
