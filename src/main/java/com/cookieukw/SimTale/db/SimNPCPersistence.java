@@ -119,6 +119,53 @@ public class SimNPCPersistence {
         }
     }
 
+    /** Every archived record in the graveyard, newest-first ordering not guaranteed. Never null. */
+    public static List<SimNPCData> listGraveyard() {
+        try {
+            List<SimNPCData> all = graveyardShell().core(SimNPCData.class).extractAll();
+            return all != null ? all : new ArrayList<>();
+        } catch (Exception e) {
+            HytaleLogger.forEnclosingClass().atWarning()
+                .log("SimTale: falha ao listar o cemiterio: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /** One archived record, or null when that id was never buried. */
+    public static SimNPCData loadFromGraveyard(UUID entityId) {
+        if (entityId == null) return null;
+        try {
+            return graveyardShell().core(SimNPCData.class).extract(entityId.toString()).sync().orElse(null);
+        } catch (Exception e) {
+            HytaleLogger.forEnclosingClass().atWarning()
+                .log("SimTale: falha ao ler o registro " + entityId + " do cemiterio: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /** Drops a record from the graveyard. Called once a revival has actually succeeded. */
+    public static void removeFromGraveyard(UUID entityId) {
+        if (entityId == null) return;
+        try {
+            graveyardShell().core(SimNPCData.class).discard(entityId.toString());
+        } catch (Exception e) {
+            HytaleLogger.forEnclosingClass().atWarning()
+                .log("SimTale: falha ao remover " + entityId + " do cemiterio: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Copies an archived record onto a freshly spawned component.
+     * <p>
+     * Public because revival is the one legitimate caller from outside this class: it has to build
+     * the body first (which mints a new entity UUID — see SimNPCRevival for why the old one cannot
+     * be reused) and only then pour the saved life into it.
+     */
+    public static void applyArchivedData(SimNPCComponent component, SimNPCData data) {
+        if (component == null || data == null) return;
+        applyData(component, data);
+    }
+
     /** Wipes every NPC record. Returns how many were removed. */
     public static int deleteAll() {
         int removed = 0;
