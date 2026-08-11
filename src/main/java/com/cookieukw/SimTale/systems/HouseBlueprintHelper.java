@@ -58,20 +58,27 @@ public final class HouseBlueprintHelper {
     private HouseBlueprintHelper() {
     }
 
+    /** Beds further than this from the player are not what they meant to inspect. */
+    private static final int SEARCH_RADIUS = 8;
+
     /**
-     * Handles a right-click on {@code clicked} while holding the blueprint.
+     * Inspects the house whose bed is nearest the player.
+     *
+     * <p>Nearest, and not the bed the player pointed at, which is what this was written to do
+     * first. RuneCore's item callback carries the player and nothing else — no target block, no
+     * target entity — and every custom item in this mod goes through it. Pointing was the nicer
+     * design and simply is not reachable from here; the radius is kept tight so "nearest" stays
+     * unambiguous in practice.
      *
      * @return true when the click was consumed
      */
-    public static boolean inspect(World world, PlayerRef playerRef, Vector3i clicked) {
-        if (world == null || playerRef == null || clicked == null) return false;
+    public static boolean inspect(World world, PlayerRef playerRef, Vector3d playerPos) {
+        if (world == null || playerRef == null || playerPos == null) return false;
 
-        // The bed is the identity of a house, so the blueprint only has an answer when pointed at
-        // one. Anywhere else it would have to guess which room you meant, which is the ambiguity
-        // this item exists to remove.
-        HouseBlockPos bed = resolveBed(world, clicked);
+        HouseBlockPos bed = nearestBed(playerPos);
         if (bed == null) {
-            playerRef.sendMessage(Message.translation("general.blueprint.not_a_bed"));
+            playerRef.sendMessage(Message.translation("general.blueprint.no_bed_nearby")
+                    .param("radius", SEARCH_RADIUS));
             return true;
         }
 
