@@ -1002,8 +1002,13 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             // yet. The stage/scale take effect the moment it's placed down (SimTaleEventHandler
             // reads childComp.currentScale/stage at that point) or picked up again.
             childComp.stage = targetStage;
-            childComp.currentScale = targetStage.getScale();
             childComp.birthTick = world.getTick() - (targetStage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
+            // Age first, then ask the growth code for the matching scale — the same correction
+            // setstage already got. GrowthStage.getScale() is a second, coarser table
+            // (0.35/0.50/0.70/0.90/1.00) that disagrees with calculateTargetScale's interpolation,
+            // and since GrowthTickSystem recomputes with the latter every tick, anything written
+            // from the enum table was overwritten within a frame.
+            childComp.currentScale = LifecycleManager.calculateTargetScale(childComp, world.getTick());
             Caskara.save("child_" + childId, childComp);
 
             ctx.sendMessage(Message.raw("[SimTale] Stage do bebe carregado (" + childComp.getFullName() + ") definido para "

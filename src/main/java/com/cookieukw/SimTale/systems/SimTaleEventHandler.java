@@ -321,11 +321,30 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             return false;
         }
 
-        SimNPCFactory.NPCType childType = childComp.gender == Gender.MALE
-            ? SimNPCFactory.NPCType.CHILD_MALE
-            : SimNPCFactory.NPCType.CHILD_FEMALE;
+        // The body follows the stage, not the fact that this came out of a "Baby" item.
+        //
+        // It was always a child model, which is fine while the item is what it says on the tin.
+        // /simtale babystage can hand you a teenager or an adult still in item form, and placing
+        // one of those produced an adult in a child body — the same mismatch GrowthManager had at
+        // the ADULT branch, reached by a different door. Nothing corrects it afterwards either:
+        // the body swap hangs off a stage *change*, and this one already happened in the item.
+        boolean grownBody = childComp.stage != null
+                && childComp.stage.ordinal() >= GrowthStage.TEEN.ordinal();
+        SimNPCFactory.NPCType childType;
+        if (grownBody) {
+            childType = childComp.gender == Gender.MALE
+                ? SimNPCFactory.NPCType.HUMAN_MALE
+                : SimNPCFactory.NPCType.HUMAN_FEMALE;
+        } else {
+            childType = childComp.gender == Gender.MALE
+                ? SimNPCFactory.NPCType.CHILD_MALE
+                : SimNPCFactory.NPCType.CHILD_FEMALE;
+        }
 
-        Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
+        // Scale at spawn rather than a resize afterwards: the resize below left a frame where she
+        // was drawn full size before shrinking, which is the flash reported during carry testing.
+        Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType,
+                LifecycleManager.calculateTargetScale(childComp, WorldUtil.tick()));
         childComp.childId = Objects.requireNonNull(store.getComponent(childRef, UUIDComponent.getComponentType())).getUuid();
 
         SimNPCComponent childNPCComp = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
@@ -343,12 +362,9 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             SimNPCPersistence.saveNPC(childNPCComp);
         }
 
-        // Scale baby down visually to match its current growth stage.
-        //
-        // Still a resize rather than a spawn-time scale, because this entity was not spawned here —
-        // it is the baby item becoming a body. The promotion paths in GrowthManager do spawn, and
-        // those pass the scale to spawnNPC so the child never appears full size for an instant.
-        LifecycleManager.applyVisualScale(childRef, childComp.currentScale);
+        // Kept in sync with what the entity was actually spawned at, so the growth tick and the
+        // saved record start from the same number.
+        childComp.currentScale = LifecycleManager.calculateTargetScale(childComp, WorldUtil.tick());
 
         childComp.putDown();
         Caskara.save("child_" + childComp.childId.toString(), childComp);
