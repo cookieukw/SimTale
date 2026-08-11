@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.SimBedDebugPage;
 import com.cookieukw.SimTale.logic.SimChestDebugPage;
+import com.cookieukw.SimTale.logic.SimGraveyardPage;
 import com.cookieukw.SimTale.systems.FurnitureAnchorHelper;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.cookieukw.SimTale.systems.VillageManager;
@@ -61,6 +62,22 @@ final class DebugCommands {
 
             // No scan here — see DebugChestsSubCommand for why it was removed.
             player.getPageManager().openCustomPage(ref, store, new SimBedDebugPage(playerRef, player));
+        }
+    }
+
+    /** Opens the graveyard browser: everyone the Reaper collected, with a revive button each. */
+    static class GraveyardSubCommand extends AbstractPlayerCommand {
+        public GraveyardSubCommand() {
+            super("graveyard", "Opens the graveyard and revives collected NPCs");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            Player player = store.getComponent(ref, Player.getComponentType());
+            if (player == null) return;
+
+            player.getPageManager().openCustomPage(ref, store, new SimGraveyardPage(playerRef, player));
         }
     }
 
