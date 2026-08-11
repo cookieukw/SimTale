@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.logic;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.DebugAccess;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -101,6 +102,11 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
         this.selectedIndex = initialIndex;
         this.readOnly = readOnly;
         this.fromHub = fromHub;
+    }
+
+    /** Teleport and Remove need both an editing entry point and creative mode. */
+    private boolean canEdit() {
+        return !readOnly && DebugAccess.canEdit(player);
     }
 
     /**
@@ -288,10 +294,11 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
 
 
             // Hidden as well as unbound: a button that does nothing reads as broken.
-            cmd.set(rowSelector + " #BtnTp.Visible", !readOnly);
-            cmd.set(rowSelector + " #BtnForget.Visible", !readOnly);
+            boolean canEdit = canEdit();
+            cmd.set(rowSelector + " #BtnTp.Visible", canEdit);
+            cmd.set(rowSelector + " #BtnForget.Visible", canEdit);
 
-            if (!readOnly) {
+            if (canEdit) {
                 eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp",
                         new EventData().append("action", "tp_" + chestIndex), false);
                 eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnForget",
@@ -340,6 +347,12 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
             } else {
                 player.getPageManager().setPage(storeRef, store, Page.None);
             }
+            return;
+        }
+
+        // The bindings are already withheld, but the client sends the action string, so the guard
+        // belongs here too rather than only on the button that produced it.
+        if ((eventData.contains("tp_") || eventData.contains("forget_")) && !canEdit()) {
             return;
         }
 

@@ -58,20 +58,34 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
      */
     private final boolean readOnly;
 
+    /** Whether the control panel opened this screen, which is the only case where Back leads back. */
+    private final boolean fromHub;
+
     public SimBedDebugPage(@Nonnull PlayerRef playerRefComp, Player player) {
-        this(playerRefComp, player, 0, false);
+        this(playerRefComp, player, 0, false, false);
     }
 
     public SimBedDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex) {
-        this(playerRefComp, player, initialIndex, false);
+        this(playerRefComp, player, initialIndex, false, false);
     }
 
     public SimBedDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex, boolean readOnly) {
+        this(playerRefComp, player, initialIndex, readOnly, false);
+    }
+
+    public SimBedDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex,
+                           boolean readOnly, boolean fromHub) {
         super(playerRefComp, CustomPageLifetime.CanDismiss, BuilderCodec.builder(String.class, String::new).build());
         this.player = player;
         this.playerRefComp = playerRefComp;
         this.selectedIndex = initialIndex;
         this.readOnly = readOnly;
+        this.fromHub = fromHub;
+    }
+
+    /** Teleport and Unclaim need both an editing entry point and creative mode. */
+    private boolean canEdit() {
+        return !readOnly && DebugAccess.canEdit(player);
     }
 
     private List<BedPos> getBeds(World world) {
@@ -163,10 +177,11 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
 
                 // Hidden as well as unbound in read-only mode: leaving the buttons on screen with
                 // nothing behind them reads as broken, which is worse than not offering them.
-                cmd.set(rowSelector + " #BtnTp.Visible", !readOnly);
-                cmd.set(rowSelector + " #BtnUnclaim.Visible", !readOnly);
+                boolean canEdit = canEdit();
+                cmd.set(rowSelector + " #BtnTp.Visible", canEdit);
+                cmd.set(rowSelector + " #BtnUnclaim.Visible", canEdit);
 
-                if (!readOnly) {
+                if (canEdit) {
                     // Bind buttons uniquely for this row's bed index
                     eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp", new EventData().append("action", "tp_" + bedIndex), false);
                     eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnUnclaim", new EventData().append("action", "unclaim_" + bedIndex), false);
@@ -225,14 +240,20 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             return;
         }
         if (eventData.contains("back")) {
-            // Opened from an item there is nothing to go back to — the debug hub is not somewhere
-            // the player came from, and dropping them into it would be handing over the developer
-            // panel through a craftable item.
-            if (readOnly) {
-                player.getPageManager().setPage(storeRef, store, Page.None);
-            } else {
+            // Only a screen the hub opened has anywhere to go back to. An item or a direct command
+            // did not come from the developer panel, and dropping the player into it is how the
+            // force-sleep controls kept surfacing in a survival session.
+            if (fromHub) {
                 player.getPageManager().openCustomPage(storeRef, store, new SimDebugPage(playerRefComp, player));
+            } else {
+                player.getPageManager().setPage(storeRef, store, Page.None);
             }
+            return;
+        }
+
+        // The bindings are already withheld, but the client sends the action string, so the guard
+        // belongs here too rather than only on the button that produced it.
+        if ((eventData.contains("tp_") || eventData.contains("unclaim_")) && !canEdit()) {
             return;
         }
 
@@ -290,6 +311,6 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
 
     private void refreshUI(Ref<EntityStore> storeRef, Store<EntityStore> store) {
         player.getPageManager().setPage(storeRef, store, Page.None);
-        player.getPageManager().openCustomPage(storeRef, store, new SimBedDebugPage(playerRefComp, player, selectedIndex, readOnly));
+        player.getPageManager().openCustomPage(storeRef, store, new SimBedDebugPage(playerRefComp, player, selectedIndex, readOnly, fromHub));
     }
 }
