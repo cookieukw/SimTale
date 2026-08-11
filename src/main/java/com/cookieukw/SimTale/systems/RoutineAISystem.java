@@ -194,7 +194,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // walks to the leash point), and those steer the body continuously. The NPC therefore
         // drifted to face wherever the role was taking it — which is why it ended up looking
         // off to the side and why the camera framed something different every time.
-        if (npc.isInteractingViaUI) {
+        //
+        // The death flow is exempt. DYING -> DEAD -> REAPING is a ceremony on a timer that ends by
+        // despawning both the corpse and the Reaper, and this early return sits above it, so
+        // opening any page on either of them halted the ritual for as long as the page stayed open
+        // — and permanently if the page ever failed to fire onDismiss, which is a bug this project
+        // has already hit once. The result was a Reaper left standing in the world for good. No UI
+        // should be able to deadlock a state machine that owns entity cleanup.
+        boolean inDeathCeremony = ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.DEAD
+                || ai.currentTask == TaskType.REAPING;
+        if (npc.isInteractingViaUI && !inDeathCeremony) {
             faceConversationPartner(ref, npc, transform, world, store);
             return;
         }
@@ -990,7 +999,17 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             Ref<EntityStore> dyingRef = world.getEntityStore().getRefFromUUID(ai.dyingEntityId);
             TransformComponent dyingTransform = (dyingRef != null) ? store.getComponent(dyingRef, TransformComponent.getComponentType()) : null;
             if (dyingTransform == null) {
-                ai.currentTask = TaskType.IDLE;
+                // The corpse is gone (already collected, chunk unloaded, removed by a command).
+                // This used to drop the Reaper to IDLE, which quietly turned Death into a
+                // permanent villager: she is spawned per-death and has no other exit, so nothing
+                // was ever going to despawn her again. She then wandered and socialised like
+                // anyone else — and, because the model self-heal above only runs while REAPING,
+                // the role's own Appearance system put the human model back on her within a few
+                // ticks. That is the "Reaper still in the world" and almost certainly the "Reaper
+                // is still using the player model" report too. Her target is gone, so her reason
+                // to exist is gone: she leaves.
+                LOGGER.info("[SimTale] Reaper's target is gone — despawning her instead of leaving her in the world");
+                dismissReaper(npc, ref, commandBuffer);
                 return;
             }
 
@@ -1033,19 +1052,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     }
                     commandBuffer.removeEntity(dyingRef, RemoveReason.REMOVE);
 
-                    // The Reaper herself is ephemeral — spawned fresh for this one death, gone
-                    // once the ritual is done, instead of lingering in the world as a permanent
-                    // NPC (which also used to require /simtale spawn reaper to exist ahead of
-                    // time or the corpse never got collected at all).
-                    SimTale.untrackNpc(npc);
-                    // The Reaper's own plumbob has to go with her. Untracking only the deceased's
-                    // left hers registered under a UUID whose entity no longer exists, which is
-                    // worse than leaking: the orphan sweep skips anything still tracked, so it
-                    // hung in the air permanently, at the exact spot of every death.
-                    if (npc.entityId != null) {
-                        PlumbobSystem.removePlumbob(npc.entityId);
-                    }
-                    commandBuffer.removeEntity(ref, RemoveReason.REMOVE);
+                    dismissReaper(npc, ref, commandBuffer);
                 }
             }
         }
@@ -1113,6 +1120,26 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     }
 
     @NullableDecl
+    /**
+     * Sends the Reaper away for good: untracked, plumbob released, entity removed.
+     * <p>
+     * She is spawned per-death and has no other way out, so every path that ends her involvement
+     * has to go through here — the ritual completing, and her target disappearing before it could.
+     * Missing either one leaves Death standing in the world permanently.
+     * <p>
+     * The plumbob matters as much as the entity: untracking only the deceased's left hers
+     * registered under a UUID whose entity no longer exists, and the orphan sweep deliberately
+     * skips anything still tracked, so it hung in the air at the exact spot of every death.
+     */
+    private static void dismissReaper(SimNPCComponent npc, Ref<EntityStore> ref,
+                                      CommandBuffer<EntityStore> commandBuffer) {
+        SimTale.untrackNpc(npc);
+        if (npc.entityId != null) {
+            PlumbobSystem.removePlumbob(npc.entityId);
+        }
+        commandBuffer.removeEntity(ref, RemoveReason.REMOVE);
+    }
+
     private static BedPos getBedPos(TransformComponent transform) {
         BedPos bestBed = null;
         double closestDistSq = Double.MAX_VALUE;

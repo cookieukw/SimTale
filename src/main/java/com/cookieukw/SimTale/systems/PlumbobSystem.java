@@ -100,9 +100,17 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         // The Reaper is a ceremonial entity that exists for one death and is despawned when the
         // ritual ends — a mood indicator over Death itself reads as a bug even when it works, and
         // the plumbob outliving her was one.
-        if (npcHere != null && npcHere.isReaper) return;
-
+        //
+        // Despawning rather than just skipping: this system can tick the Reaper once in the window
+        // between her entity being added and isReaper being set, and that one tick is enough to
+        // give her a plumbob. Returning early from then on meant the crystal was never updated and
+        // never cleaned either — it stayed in trackedPlumbobRefs, which is exactly what the orphan
+        // sweep above refuses to touch — so it hung at her spawn point forever, outliving her.
         UUID entityUuid = uuidComp.getUuid();
+        if (npcHere != null && npcHere.isReaper) {
+            despawnPlumbob(entityUuid, commandBuffer);
+            return;
+        }
 
         // Away on an expedition. Skipping the update is not enough — the plumbob already exists and
         // would simply stop being moved, leaving a mood crystal parked in mid-air over an NPC the

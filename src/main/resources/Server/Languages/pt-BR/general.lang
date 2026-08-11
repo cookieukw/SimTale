@@ -44,6 +44,7 @@ item.town_bell.description = Reúne os moradores.
 pregtest.not_npc = O teste de gravidez só funciona em moradores.
 pregtest.npc_not_female = {name} não pode engravidar.
 pregtest.child = {name} é uma criança.
+pregtest.reaper = O Grim Reaper não tem uso para isso.
 pregtest.player_not_female = Você não pode engravidar.
 pregtest.no_gender = Você ainda não escolheu um gênero. Use /simtale setgender primeiro.
 cmd.village.header = --- Vilas: {count} ---
