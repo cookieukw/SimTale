@@ -110,15 +110,18 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         // blocks or opening a chest, and crouch *alone* was rejected because players hold it
         // constantly near ledges.
         Store<EntityStore> carryStore = world.getEntityStore().getStore();
-        if (ChildCarryHelper.isCarryingSomeone(carryStore, playerRef)) {
-            // Logged only while actually carrying, so it costs nothing the rest of the time. This
-            // exists because the gesture failed silently on the first test and there was no way to
-            // tell "the event never fired" from "crouch read false" from "nobody was being
-            // carried" — three very different bugs that all look identical in game.
-            boolean crouching = ChildCarryHelper.isCrouching(playerRef.getStore(), playerRef);
-            LOGGER.atInfo().log("[SimTale] carry: clique direito com filho no colo, agachado=" + crouching);
+        // Crouch is read first, and it is what gates the log.
+        //
+        // The order matters for diagnosis, not for behaviour: the previous version only logged once
+        // isCarryingSomeone had already returned true, so a false there produced complete silence —
+        // indistinguishable from the event never firing. Crouching while right-clicking is rare
+        // enough that logging on it costs nothing and tells us which half failed.
+        boolean crouching = ChildCarryHelper.isCrouching(playerRef.getStore(), playerRef);
+        if (crouching) {
+            boolean carrying = ChildCarryHelper.isCarryingSomeone(carryStore, playerRef);
+            LOGGER.atInfo().log("[SimTale] carry: clique direito agachado, carregando=" + carrying);
 
-            if (crouching && ChildCarryHelper.putDown(carryStore, playerRef, playerRefComp)) {
+            if (carrying && ChildCarryHelper.putDown(carryStore, playerRef, playerRefComp)) {
                 event.setCancelled(true);
                 return;
             }
