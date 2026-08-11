@@ -182,6 +182,31 @@ public final class PrefabGhostHelper {
      * {@code PersistentPrefabPreview.spawn} assembles internally — a network id so the entity can
      * be streamed, a transform so it has somewhere to be, the preview payload, and a UUID.
      */
+    /**
+     * Spawns a hologram of arbitrary blocks, not tied to a construction site.
+     * <p>
+     * Exists so the house blueprint can outline a room without inventing a fake
+     * ConstructionSiteComponent to carry the reference. Caller owns the returned ref and is
+     * responsible for removing it.
+     *
+     * @param blocks offsets relative to {@code anchor}
+     * @return the hologram entity, or null if it could not be created
+     */
+    public static Ref<EntityStore> showRaw(World world, Vector3i anchor, BlockChange[] blocks, int tint) {
+        if (world == null || anchor == null || blocks == null || blocks.length == 0) return null;
+        return spawnGhost(world, anchor, blocks, tint, Integer.MAX_VALUE);
+    }
+
+    /** Removes a hologram created by {@link #showRaw}. Safe to call with null or a stale ref. */
+    public static void hideRaw(World world, Ref<EntityStore> ref) {
+        if (world == null || ref == null || !ref.isValid()) return;
+        try {
+            world.getEntityStore().getStore().removeEntity(ref, RemoveReason.REMOVE);
+        } catch (Exception e) {
+            LOGGER.atWarning().log("SimTale: falha ao remover o holograma: " + e);
+        }
+    }
+
     private static Ref<EntityStore> spawnGhost(World world, Vector3i anchor, BlockChange[] blocks,
                                                int biomeTint, int layers) {
         try {
