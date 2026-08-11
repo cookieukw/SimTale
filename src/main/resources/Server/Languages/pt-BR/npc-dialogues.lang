@@ -1,3 +1,4 @@
+carry.nobody = Você não está carregando ninguém.
 carry.picked_up = Você pega {name} no colo.
 carry.put_down = Você coloca {name} de volta no chão.
 carry.already = {name} já está no colo de alguém.

@@ -1,3 +1,4 @@
+carry.nobody = You are not carrying anyone.
 carry.picked_up = You lift {name} onto your shoulders.
 carry.put_down = You set {name} back down.
 carry.already = {name} is already being carried.
