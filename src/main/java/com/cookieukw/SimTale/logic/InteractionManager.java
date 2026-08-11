@@ -13,6 +13,8 @@ import com.cookieukw.SimTale.ai.NpcContextBuilder;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
+import com.cookieukw.SimTale.core.lifecycle.ParentChildBond;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
@@ -133,6 +135,7 @@ public class InteractionManager {
             case FUNNY -> handleFunny(npc, rel);
             case ROMANTIC -> handleRomantic(npc, rel);
             case MEAN -> handleMean(npc, rel);
+            case SCOLD -> handleScold(npc, playerUuid, rel);
             case RANDOM -> handleRandom(rel);
             case GIFT -> handleGift(npc, playerUuid, playerRef, rel, isChild);
             case ASSIGN_PROFESSION -> handleProfession(npc, playerRef, rel);
@@ -264,6 +267,81 @@ public class InteractionManager {
             .findFirst()
             .map(r -> r.outcome().apply(ctx))
             .orElseGet(() -> InteractionOutcome.of(-5, 0, -15, -15, pickRandomTranslation("npc-dialogues.mean.normal", 5, npc.name), MemoryEvent.INSULTED));
+    }
+
+    /**
+     * How many scoldings in one day stop being a bad moment and start being a pattern.
+     * <p>
+     * Below it only the mood takes the hit and the relationship is untouched: a parent raising
+     * their voice once should not cost affinity, or every player who ever clicks the button is
+     * quietly punished for roleplaying.
+     */
+    private static final int SCOLDING_PATIENCE = 3;
+
+    /**
+     * Telling off your own child.
+     *
+     * <p>The reaction is chosen by life stage, because that is the whole point of separating this
+     * from an insult:
+     * <ul>
+     *   <li><b>Child</b> — goes sad. No answering back, and the mood hit is the largest.</li>
+     *   <li><b>Teen</b> — goes angry. Same telling-off, opposite reaction.</li>
+     *   <li><b>Adult</b> — barely moves. They are grown and you are still their parent, so it
+     *       lands as an awkward moment rather than a wound.</li>
+     * </ul>
+     *
+     * <p>Nothing here is permanent. Repeated scoldings in the same day start costing trust and
+     * affinity, and both recover with time and ordinary kindness — this is a consequence, not a
+     * trap the player can fall into without a way back.
+     */
+    private static InteractionOutcome handleScold(SimNPCComponent npc, UUID playerUuid, Relationship rel) {
+        GrowthStage stage = ParentChildBond.stageOf(npc, playerUuid);
+        if (stage == null) {
+            // Not this player's child after all — the page should not have offered the button, so
+            // fall back rather than inventing a parental reaction between strangers.
+            return handleMean(npc, rel);
+        }
+
+        rel.scoldingsToday++;
+        boolean excessive = rel.scoldingsToday > SCOLDING_PATIENCE;
+        long tick = com.cookieukw.SimTale.core.WorldUtil.tick();
+
+        Mood reaction;
+        float intensity;
+        int trustHit;
+        int affinityHit;
+        String key;
+
+        switch (stage) {
+            case TEEN -> {
+                reaction = Mood.ANGRY;
+                intensity = excessive ? 0.9f : 0.6f;
+                trustHit = excessive ? -8 : 0;
+                affinityHit = excessive ? -10 : -2;
+                key = excessive ? "npc-dialogues.scold.teen_excessive" : "npc-dialogues.scold.teen";
+            }
+            case ADULT -> {
+                reaction = Mood.BORED;
+                intensity = 0.3f;
+                trustHit = excessive ? -3 : 0;
+                affinityHit = excessive ? -4 : 0;
+                key = excessive ? "npc-dialogues.scold.adult_excessive" : "npc-dialogues.scold.adult";
+            }
+            // BABY and TODDLER are cared for, not argued with; they read as CHILD here.
+            default -> {
+                reaction = Mood.SAD;
+                intensity = excessive ? 1.0f : 0.7f;
+                trustHit = excessive ? -10 : 0;
+                affinityHit = excessive ? -12 : -3;
+                key = excessive ? "npc-dialogues.scold.child_excessive" : "npc-dialogues.scold.child";
+            }
+        }
+
+        npc.setEmotion(reaction, intensity, "scold", tick);
+
+        return InteractionOutcome.of(0, 0, trustHit, affinityHit,
+                Message.translation(key).param("name", npc.name),
+                excessive ? MemoryEvent.INSULTED : null);
     }
 
     private static InteractionOutcome handleRandom(Relationship rel) {
@@ -650,8 +728,10 @@ public class InteractionManager {
         if (rel.lastInteractionDayIndex > 0 && rel.lastInteractionDayIndex < currentDayIndex) {
             missedLongTime = (currentDayIndex - rel.lastInteractionDayIndex) >= MISSED_DAYS_THRESHOLD;
             rel.interactionsToday = 0;
+            rel.scoldingsToday = 0;
         } else if (rel.lastInteractionDayIndex == 0) {
             rel.interactionsToday = 0;
+            rel.scoldingsToday = 0;
         }
         rel.lastInteractionDayIndex = currentDayIndex;
 

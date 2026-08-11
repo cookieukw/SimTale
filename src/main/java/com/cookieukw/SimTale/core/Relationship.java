@@ -21,6 +21,16 @@ public class Relationship {
     // Cooldown and memory
     public int interactionsToday = 0;
     public long lastInteractionDayIndex = 0;
+
+    /**
+     * Scoldings received from this person today. Reset by the same daily rollover as
+     * {@link #interactionsToday}.
+     * <p>
+     * Counted separately because it drives an escalation the generic counter cannot express: one
+     * telling-off is a bad moment, the fourth in the same day is a pattern, and only the second
+     * kind should be eating away at trust and affinity.
+     */
+    public int scoldingsToday = 0;
     
     public RelationshipStatus status = RelationshipStatus.UNKNOWN;
 
