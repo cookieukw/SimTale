@@ -53,10 +53,25 @@ $Game = "Common.ui";
 // @SimpleContainer with ContainerPanelPatch at Border 4, and its pages use
 // ContainerBackgroundSecondary at Border 5. ContainerFullPatch at 20 was already right — that
 // texture is 132x132, which is why the outer frame always looked fine while the insets did not.
-@PanelSurface = (TexturePath: "Common/ContainerFullPatch.png", Border: 20);
-@InsetSurface = (TexturePath: "Common/ContainerPanelPatch.png", Border: 4);
-@WellSurface  = (TexturePath: "Common/ContainerBackgroundSecondary.png", Border: 5);
-@ProgressFill = (TexturePath: "Common/ProgressBarFill.png", Border: 6);
+// ---------------------------------------------------------------- wood tint
+// SimTale's panels are the game's own frames tinted warm, rather than the blue-grey every other
+// mod leaves them. Tinting instead of shipping new textures keeps the bevels, the runes and the
+// corner ornaments the artists drew — a flat brown rectangle would look worse than the blue.
+//
+// Multiplicative: the tint darkens and warms what is already there, so these sit bright. Anything
+// below ~#8 goes muddy on the darker slices.
+@WoodPanel = #C89A63;
+@WoodInset = #B08553;
+@WoodWell  = #9C7648;
+
+@PanelSurface = (TexturePath: "Common/ContainerFullPatch.png", Border: 20, Color: @WoodPanel);
+@InsetSurface = (TexturePath: "Common/ContainerPanelPatch.png", Border: 4, Color: @WoodInset);
+@WellSurface  = (TexturePath: "Common/ContainerBackgroundSecondary.png", Border: 5, Color: @WoodWell);
+
+// 284x8, so the vertical borders have 8px to share. Border 6 meant 6+6=12 and the two end caps
+// overlapped — those were the stray white marks in the pregnancy bar, which no amount of resizing
+// the track was ever going to fix.
+@ProgressFill = (TexturePath: "Common/ProgressBarFill.png", Border: 3);
 
 // Hairline plus centre ornament — the same separator the game puts between panel sections.
 @Separator = Group {
