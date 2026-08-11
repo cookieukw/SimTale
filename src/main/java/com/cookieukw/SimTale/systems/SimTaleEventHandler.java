@@ -13,8 +13,6 @@ import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
-import com.cookieukw.SimTale.logic.SimBedDebugPage;
-import com.cookieukw.SimTale.logic.SimChestDebugPage;
 import com.cookieukw.SimTale.logic.NPCPregnancyPage;
 import com.cookieukw.SimTale.logic.PlayerPregnancyPage;
 import com.cookieukw.SimTale.core.SimPlayerComponent;

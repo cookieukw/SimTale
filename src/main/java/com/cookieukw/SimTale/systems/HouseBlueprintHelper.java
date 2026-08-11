@@ -9,6 +9,7 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import org.joml.Vector3d;
 import org.joml.Vector3i;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The House Blueprint item: right-click a bed to see whether that room counts as a house, and to
+ * The House Blueprint item: use it next to a bed to see whether that room counts as a house, and to
  * see how far it reaches.
  *
  * <p>Deliberately read-only. It answers "is this a house yet, and where does it end" and changes
@@ -28,9 +29,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * accident while checking, which is the opposite of what the item is for. Houses are still created
  * by an NPC claiming the bed.
  *
- * <p>It is not a reskin of {@code /simtale housecheck} either, on one point that matters in a
- * village: the command guesses which bed you meant by taking the nearest within 16 blocks, while
- * the item knows, because you pointed at it.
+ * <p>The outline is what the item adds over {@code /simtale housecheck}: the command can tell you a
+ * room is too large or not enclosed, and leaves you to guess which wall it meant. Targeting is the
+ * same nearest-bed search in both, because RuneCore's item callback exposes no click target — see
+ * {@link #inspect}.
  */
 public final class HouseBlueprintHelper {
 

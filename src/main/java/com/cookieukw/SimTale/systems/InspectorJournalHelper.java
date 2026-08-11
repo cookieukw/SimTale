@@ -9,10 +9,12 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import org.joml.Vector3d;
 
 /**
- * The Inspector's Journal item: right-click an NPC to read her needs, mood and current task.
+ * The Inspector's Journal item: use it near a villager to read her needs, mood and current task.
  *
  * <p>The player-facing half of {@code /simtale npcstate}. That command dumps role state, animation
  * slots, movement flags and search cooldowns — the things you want when the AI is misbehaving, and
