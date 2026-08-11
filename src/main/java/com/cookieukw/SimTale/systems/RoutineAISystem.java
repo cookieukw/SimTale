@@ -44,6 +44,7 @@ import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.cookie.runecore.api.StatusEffectHelper;
 import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
@@ -181,6 +182,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // ends up sliding across the floor, which is the failure this project already spent a
         // session diagnosing once.
         if (ChildCarryHelper.isBeingCarried(store, npc)) {
+            // Topped up rather than set once at pickup: moods decay, and a single HAPPY at the
+            // moment she was lifted would have faded back to BORED while she was still up there.
+            // Cheap because it only runs for a carried child, and only every few seconds.
+            if (world.getTick() % 40 == 0) {
+                npc.setEmotion(Mood.HAPPY, 0.7f, "carried", world.getTick());
+            }
             return;
         }
 
