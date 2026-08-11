@@ -63,9 +63,19 @@ public final class FarmPostRegistry {
         CLAIMED_BY.remove(key(x, y, z));
     }
 
+    /**
+     * How far an NPC will look for a scarecrow to work at.
+     * <p>
+     * There was no limit at all: the search took the nearest <em>unclaimed post in the world</em>,
+     * so a farmer could claim a plot on the far side of the map and set off walking to it. In
+     * practice she never arrived — MOVING_TO_WORK times out after 30s — so the visible symptom was
+     * a farmer marching off in a straight line and then giving up, over and over.
+     */
+    private static final double CLAIM_SEARCH_RADIUS = 48.0;
+
     public static FarmPost claimNearest(double x, double y, double z, UUID npcId) {
         FarmPost chosen = null;
-        double closestDistSq = Double.MAX_VALUE;
+        double closestDistSq = CLAIM_SEARCH_RADIUS * CLAIM_SEARCH_RADIUS;
         synchronized (POSTS) {
             for (FarmPost p : POSTS) {
                 UUID holder = CLAIMED_BY.get(key(p.postX(), p.postY(), p.postZ()));
