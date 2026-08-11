@@ -107,6 +107,21 @@ public final class ChildCarryHelper {
             store.putComponent(childRef, MountedComponent.getComponentType(), mounted);
         });
 
+        // Freeze plus stop the action animation.
+        //
+        // Standing the routine down is not enough on its own: the Hytale role keeps running its own
+        // Idle instructions underneath, which is what kept a carried child walking on the spot and
+        // turning to look around while pinned to a shoulder. This is the same pair the dialogue
+        // lock already uses for exactly the same reason.
+        NpcFreezeUtil.freeze(store, npc.entityRef);
+        AnimationUtils.stopAnimation(npc.entityRef, AnimationSlot.Action, true, store);
+        AnimationUtils.stopAnimation(npc.entityRef, AnimationSlot.Status, true, store);
+
+        // Being carried by a parent is a happy thing. Without this the mood kept decaying while she
+        // rode along, and the plumbob overhead settled on BORED — which reads as the game telling
+        // you the child hates being picked up.
+        npc.setEmotion(Mood.HAPPY, 0.7f, "carried", WorldUtil.tick());
+
         carrierRef.sendMessage(Message.translation("npc-dialogues.carry.picked_up")
                 .param("name", npc.name));
         // Said once, at the moment it becomes relevant: a gesture nobody is told about is a
@@ -131,6 +146,10 @@ public final class ChildCarryHelper {
         WorldUtil.execute(() -> {
             if (childRef != null && childRef.isValid()) {
                 store.tryRemoveComponent(childRef, MountedComponent.getComponentType());
+                // Unfreezing has to happen here, not before the deferral: dropping Frozen while the
+                // mount is still attached would let the role start steering a body that is still
+                // pinned, which is the sliding-NPC failure again.
+                NpcFreezeUtil.unfreeze(store, childRef);
             }
         });
 
