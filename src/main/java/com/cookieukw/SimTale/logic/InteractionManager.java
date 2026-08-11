@@ -304,7 +304,7 @@ public class InteractionManager {
 
         rel.scoldingsToday++;
         boolean excessive = rel.scoldingsToday > SCOLDING_PATIENCE;
-        long tick = com.cookieukw.SimTale.core.WorldUtil.tick();
+        long tick = WorldUtil.tick();
 
         Mood reaction;
         float intensity;
