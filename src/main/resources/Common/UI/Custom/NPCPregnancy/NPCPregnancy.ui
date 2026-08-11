@@ -1,40 +1,17 @@
 // Pregnancy details.
 //
-// Ids are the contract with PregnancyDisplayUtil / NPCPregnancyPage: labels are written via
-// "#X.TextSpans", the two footer buttons are toggled via "#BackButton.Visible" /
+// Ids are the contract with PregnancyDisplayUtil / NPCPregnancyPage / PlayerPregnancyPage: labels
+// are written via "#X.TextSpans", the two footer buttons are toggled via "#BackButton.Visible" /
 // "#CloseButton.Visible", and the bar is driven by resizing #ProgressBarFill. All preserved.
 
 $T = "../SimTaleTheme.ui";
 
-// One line of the report: a muted caption on the left, the value on the right.
-//
-// The old layout stacked seven identical full-width labels, so "Father", "State" and "Symptoms"
-// all carried the same weight and the eye had nowhere to land. Splitting caption from value gives
-// the panel a column to scan down, which is what the other SimTale screens already do.
-@ReportRow = Group {
-  @Anchor = ();
-  @Caption = "";
-  @ValueId = "";
-  Anchor: (...@Anchor, Height: 26, Bottom: $T.@RowGap);
-  LayoutMode: Left;
-
-  Label {
-    Text: @Caption;
-    Anchor: (Width: 150, Height: 26);
-    Style: (...$T.@BodyStyle, FontSize: 14, TextColor: $T.@TextMuted);
-  }
-};
-
 Group {
   LayoutMode: MiddleCenter;
-  // Slightly deeper scrim than before so the panel reads as a modal rather than a sticker.
   Background: #05070C(0.72);
 
-  // 748 was far taller than the content, and the inset well carried FlexWeight: 1, so the extra
-  // ~300px became a single empty box under the last row. Sized close to the content now; the
-  // remaining slack is still absorbed by the well rather than left as a gap.
   Group #MainPanel {
-    Anchor: (Width: 560, Height: 620);
+    Anchor: (Width: 560, Height: 640);
     LayoutMode: Top;
     Background: $T.@PanelSurface;
     Padding: (Top: 24, Bottom: 22, Horizontal: $T.@GutterOuter);
@@ -74,7 +51,14 @@ Group {
         Style: (...$T.@BodyStrong, FontSize: 19, TextColor: $T.@AccentRomance);
       }
 
-      @ReportRow { @Caption = %ui.pregnancy.captionFather;
+      Group {
+        Anchor: (Height: 26, Bottom: $T.@RowGap);
+        LayoutMode: Left;
+        Label {
+          Text: %ui.pregnancy.captionFather;
+          Anchor: (Width: 150, Height: 26);
+          Style: (...$T.@BodyStyle, FontSize: 14, TextColor: $T.@TextMuted);
+        }
         Label #FatherName {
           Text: "—";
           FlexWeight: 1;
@@ -83,7 +67,14 @@ Group {
         }
       }
 
-      @ReportRow { @Caption = %ui.pregnancy.captionDays; @Anchor = (Bottom: 12);
+      Group {
+        Anchor: (Height: 26, Bottom: 12);
+        LayoutMode: Left;
+        Label {
+          Text: %ui.pregnancy.captionDays;
+          Anchor: (Width: 150, Height: 26);
+          Style: (...$T.@BodyStyle, FontSize: 14, TextColor: $T.@TextMuted);
+        }
         Label #ElapsedDays {
           Text: "—";
           FlexWeight: 1;
@@ -114,14 +105,20 @@ Group {
 
         Group #ProgressBarFill {
           Anchor: (Width: 0, Height: 20);
-          // Via the theme so this file stays free of ../ paths — those are resolved relative
-          // to the file that declares them, and every other texture here comes from
-          // SimTaleTheme.ui, which sits one level up.
+          // Via the theme so this file stays free of ../ paths — those resolve relative to the
+          // file that declares them, and SimTaleTheme.ui sits one level up.
           Background: $T.@ProgressFill;
         }
       }
 
-      @ReportRow { @Caption = %ui.pregnancy.captionRemaining; @Anchor = (Bottom: 12);
+      Group {
+        Anchor: (Height: 26, Bottom: 12);
+        LayoutMode: Left;
+        Label {
+          Text: %ui.pregnancy.captionRemaining;
+          Anchor: (Width: 150, Height: 26);
+          Style: (...$T.@BodyStyle, FontSize: 14, TextColor: $T.@TextMuted);
+        }
         Label #TimeRemaining {
           Text: "—";
           FlexWeight: 1;
@@ -144,7 +141,14 @@ Group {
         Style: (...$T.@BodyStyle, FontSize: 14, VerticalAlignment: Start);
       }
 
-      @ReportRow { @Caption = %ui.pregnancy.captionChildren; @Anchor = (Bottom: 0);
+      Group {
+        Anchor: (Height: 26);
+        LayoutMode: Left;
+        Label {
+          Text: %ui.pregnancy.captionChildren;
+          Anchor: (Width: 150, Height: 26);
+          Style: (...$T.@BodyStyle, FontSize: 14, TextColor: $T.@TextMuted);
+        }
         Label #TotalChildren {
           Text: "—";
           FlexWeight: 1;
