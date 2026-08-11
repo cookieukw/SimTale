@@ -59,6 +59,15 @@ public final class NPCDoorHelper {
      */
     private static final double FACING_DOT_THRESHOLD = 0.5;
 
+    /**
+     * How far ahead of the NPC to look when asking "am I about to cross this door's plane?".
+     *
+     * <p>Longer than a step so the answer is about where the NPC is heading rather than where it is
+     * standing, and short enough that it stays within the doorway it is walking into instead of
+     * reaching the far side of the room.
+     */
+    private static final double CROSSING_PROBE_DISTANCE = 1.5;
+
     /** Open doors with remaining ticks before closing. */
     public static final Map<HouseBlockPos, Integer> OPENED_DOORS = new ConcurrentHashMap<>();
 
@@ -134,19 +143,39 @@ public final class NPCDoorHelper {
            Vector3i doorPos = FurnitureAnchorHelper.anchorOf(world, door.getBlockPosition());
             if (doorPos == null || !handled.add(new Vector3i(doorPos))) return;
 
-            // Does the NPC actually need to go through THIS door, or is it merely nearby/facing it?
+            // Does the NPC actually need to go through THIS door, or is it merely walking past it?
             //
-            // A facing cone alone said nothing about intent — an NPC walking along a wall, or just
-            // loitering in a room after arriving, faces every door it passes within 60 degrees, and
-            // used to open (or keep open) every one of them. The precise question is geometric: is
-            // the destination on the opposite side of this specific door from the NPC? If so, the
-            // NPC has to cross it; if not, this door is irrelevant no matter how it is facing.
-            // Falls back to the facing cone only when there is no destination to compare against.
-            boolean intentToCross = destination != null
-                    ? DoorBlockUtils.isInFrontOfDoor(doorPos, yaw, npcPos)
-                            != DoorBlockUtils.isInFrontOfDoor(doorPos, yaw, destination)
-                    : isFacing(npcPos, forwardX, forwardZ, doorPos);
-            if (!intentToCross) return;
+            // Three questions, all of which have to answer yes. Each one alone lets a whole class of
+            // false positive through, and both of the first two have already shipped as "the fix":
+            //
+            //  1. Is the door ahead of me?  A cone alone says nothing about intent: an NPC loitering
+            //     in a room faces every door in it as it turns around.
+            //  2. Is my destination on the other side of it?  isInFrontOfDoor is a half-space test
+            //     against the door's *infinite* plane, not against the doorway. A house with four
+            //     doors along one wall puts all four between an NPC outside and anything inside, so
+            //     walking along that wall opened every one of them in turn — which is the bug this
+            //     comment is being written for.
+            //  3. Am I about to cross that plane?  Probing where the NPC will be shortly is what
+            //     separates "heading through" from "walking alongside": a step taken parallel to a
+            //     wall stays on the same side of it, a step taken into a doorway does not.
+            //
+            // Reusing isInFrontOfDoor as the oracle for (3) instead of deriving the door's normal
+            // keeps this free of assumptions about how Rotation maps to a direction.
+            boolean facing = isFacing(npcPos, forwardX, forwardZ, doorPos);
+            if (!facing) return;
+
+            boolean npcSide = DoorBlockUtils.isInFrontOfDoor(doorPos, yaw, npcPos);
+
+            if (destination != null
+                    && npcSide == DoorBlockUtils.isInFrontOfDoor(doorPos, yaw, destination)) {
+                return;
+            }
+
+            Vector3d probe = new Vector3d(
+                    npcPos.x + forwardX * CROSSING_PROBE_DISTANCE,
+                    npcPos.y,
+                    npcPos.z + forwardZ * CROSSING_PROBE_DISTANCE);
+            if (npcSide == DoorBlockUtils.isInFrontOfDoor(doorPos, yaw, probe)) return;
 
             DoorState current = door.getDoorState();
             if (current != DoorState.CLOSED) {
