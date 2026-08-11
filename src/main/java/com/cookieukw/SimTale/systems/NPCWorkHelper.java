@@ -1,5 +1,6 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.AssetIds;
