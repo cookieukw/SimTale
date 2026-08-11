@@ -409,11 +409,26 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
             }
 
-            if (ai.currentTask == TaskType.IDLE && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < 70) {
+            // The nextXSearchTick guards are what keep an unsatisfiable need from eating the whole
+            // chain. These checks are one else-if ladder, so a branch that fires and then fails
+            // silently costs the NPC every behaviour below it: an NPC that is dirty with no water
+            // in range, or hungry with no reachable food, re-entered its search every single tick
+            // and therefore never socialised and never wandered. From the outside that is an NPC
+            // standing perfectly still for hours with nothing at all in the logs.
+            //
+            // Backdating taskStartTime here is deliberate — it skips the handler's own cooldown so
+            // the search runs this tick — which is exactly why the cooldown has to be enforced up
+            // front instead. On failure each handler stamps its nextXSearchTick, and during that
+            // window the ladder falls through to strolling like normal.
+            if (ai.currentTask == TaskType.IDLE
+                    && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < 70
+                    && world.getTick() >= ai.nextFoodSearchTick) {
                 ai.currentTask = TaskType.FINDING_FOOD;
                 ai.targetBlockPosition = null;
                 ai.taskStartTime = world.getTick() - NPCHungerHelper.FOOD_SEARCH_COOLDOWN_TICKS;
-            } else if (ai.currentTask == TaskType.IDLE && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) < 40) {
+            } else if (ai.currentTask == TaskType.IDLE
+                    && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) < 40
+                    && world.getTick() >= ai.nextBathSearchTick) {
                 ai.currentTask = TaskType.FINDING_BATH;
                 ai.targetBlockPosition = null;
                 ai.taskStartTime = world.getTick() - BATH_SEARCH_COOLDOWN_TICKS;
@@ -890,7 +905,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     }
                 }
             }
-            if (!found) ai.currentTask = TaskType.IDLE;
+            if (!found) {
+                // Back off before returning to IDLE. Without this the IDLE branch re-enters the
+                // search on the very next tick and this ~10.500-block sweep runs at 20 Hz per
+                // dirty NPC, with the NPC frozen in place the whole time.
+                ai.nextBathSearchTick = world.getTick() + BATH_SEARCH_RETRY_COOLDOWN_TICKS;
+                ai.currentTask = TaskType.IDLE;
+            }
         }
 
         if (ai.currentTask == TaskType.MOVING_TO_BATH) {
