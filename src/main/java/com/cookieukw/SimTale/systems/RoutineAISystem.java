@@ -74,6 +74,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     /** Horizontal/vertical half-extent of the water scan. 15x15x5 ≈ 10.500 blocos por varredura. */
     private static final int BATH_SEARCH_RADIUS = 15;
     private static final int BATH_SEARCH_HEIGHT = 5;
+    /**
+     * How long a failed bath search waits before trying again. Longer than the bed retry because
+     * a world with no water nearby will keep failing, and the sweep is the most expensive one the
+     * routine runs. Ten seconds of strolling between attempts costs nothing and the NPC stays
+     * visibly alive.
+     */
+    private static final int BATH_SEARCH_RETRY_COOLDOWN_TICKS = 200;
     private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 60;
     /** Hunger low enough to drop whatever the NPC is doing. Well under the idle-time threshold of 50. */
     private static final float HUNGER_INTERRUPT_THRESHOLD = 25f;
@@ -920,9 +927,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 return;
             }
             if (world.getTick() - ai.taskStartTime > MOVE_TIMEOUT_TICKS) {
-                LOGGER.debug("[SimTale] NPC '{}' desistiu de chegar na agua", npc.name);
+                LOGGER.debug("[SimTale] NPC '{}' gave up reaching the water", npc.name);
                 clearMoveTarget(ref, ai);
                 ai.targetBlockPosition = null;
+                // Unreachable water still scores as the best option, so without the backoff the
+                // NPC is sent straight back to it on the next tick, forever.
+                ai.nextBathSearchTick = world.getTick() + BATH_SEARCH_RETRY_COOLDOWN_TICKS;
                 ai.currentTask = TaskType.IDLE;
                 return;
             }
