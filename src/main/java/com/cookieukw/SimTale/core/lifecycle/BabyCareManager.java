@@ -60,6 +60,44 @@ public class BabyCareManager {
         return NPC_CARRIED_BABIES.getOrDefault(npcId, java.util.Collections.emptyList());
     }
 
+    /**
+     * Rebuilds {@link LifecycleState#ACTIVE_CHILDREN} from disk.
+     *
+     * <p>That list is plain memory and nothing ever refilled it. Growth records were being written
+     * to Caskara as {@code child_<id>} all along — several places read individual ones back — but no
+     * boot path read them into the list, so every restart emptied it. Everything that asks "is this
+     * NPC a child, and how old" answers from that list, so after a restart:
+     *
+     * <ul>
+     *   <li>children stopped growing entirely — {@code GrowthTickSystem} iterates the list</li>
+     *   <li>{@code /simtale setstage} reported "no active children nearby"</li>
+     *   <li>Scold and Pick Up never appeared, because {@code ParentChildBond} found no parent</li>
+     * </ul>
+     *
+     * <p>The missing buttons were the symptom that surfaced first; the frozen growth is the part
+     * that actually mattered.
+     */
+    public static void loadActiveChildren() {
+        LifecycleState.ACTIVE_CHILDREN.clear();
+        try {
+            List<GrowthComponent> all = Caskara.list(GrowthComponent.class);
+            if (all == null) return;
+
+            int restored = 0;
+            for (GrowthComponent child : all) {
+                if (child == null || child.childId == null) continue;
+                // An adult is done growing and does not belong in the growth list; it is also the
+                // state most records end in, so skipping them keeps the tick short.
+                if (child.stage == GrowthStage.ADULT) continue;
+                LifecycleState.ACTIVE_CHILDREN.add(child);
+                restored++;
+            }
+            LOGGER.atInfo().log("SimTale: " + restored + " filho(s) em crescimento recarregados do banco.");
+        } catch (Exception e) {
+            LOGGER.atWarning().log("SimTale: erro ao recarregar os filhos em crescimento: " + e.getMessage());
+        }
+    }
+
     public static void loadCache() {
         NPC_CARRIED_BABIES.clear();
         try {

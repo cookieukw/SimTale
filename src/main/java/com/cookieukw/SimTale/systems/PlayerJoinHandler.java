@@ -76,6 +76,15 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
             LOGGER.debug("[SimTale] Error loading houses: " + e.getMessage());
         }
 
+        // Same gap the houses had, on the growth records: they were written to disk but nothing
+        // ever read them back into the in-memory list every age check consults. A restart left it
+        // empty, which froze every child's growth and hid the parent-only interactions.
+        try {
+            BabyCareManager.loadActiveChildren();
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] Error loading growing children: " + e.getMessage());
+        }
+
 
 
         // Map markers attach here rather than at plugin startup, where the world does not exist
