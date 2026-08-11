@@ -37,6 +37,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * mounted entities along when the mount moves or teleports ({@code MountSystems$TeleportMountedEntity})
  * and cleans up if the carrier dies.
  *
+ * <p><b>The gesture needs a target.</b> Confirmed from a log: right-clicking at open air produced
+ * no {@code PlayerMouseButtonEvent} at all — not a single one of the unconditional "event fired"
+ * lines at the top of SimTaleEventHandler appeared, while {@code /simtale putdown} worked in the
+ * same session. The event only reaches the server when the click hits something, which is why the
+ * hint tells the player to aim at the ground and why the command exists as the guaranteed way out.
+ *
  * <p><b>Releasing.</b> Crouch and right-click. That gesture rather than a button, because the
  * interaction panel is exactly what you cannot reach while the child is riding on you — she is not
  * in front of the camera to be clicked. Crouch alone was rejected: players hold crouch constantly to

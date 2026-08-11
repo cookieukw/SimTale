@@ -2,7 +2,7 @@ carry.nobody = Você não está carregando ninguém.
 carry.picked_up = Você pega {name} no colo.
 carry.put_down = Você coloca {name} de volta no chão.
 carry.already = {name} já está no colo de alguém.
-carry.hint = Agache e clique com o botão direito para colocar no chão.
+carry.hint = Agache e clique com o botão direito mirando no chão para colocar no chão. Se não funcionar, use /simtale putdown.
 
 # Falas ditas por NPCs fora do painel de interação: ao sair para o trabalho, ao voltar,
 # ao desistir de uma conversa, e a fala do cônjuge passando o bebê. Vieram do general.lang,
