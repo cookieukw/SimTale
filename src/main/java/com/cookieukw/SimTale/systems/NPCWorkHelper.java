@@ -230,18 +230,28 @@ public class NPCWorkHelper {
             // call returns, not here, so every caller of the flag gets cleared, not just this one.
             if (world.getTick() % 100 == 0 || ai.forcedByDebug) {
                 if (npc.profession == Profession.FARMER) {
-                    // A registered Deco_Scarecrow plot lets her find work from anywhere, not only
-                    // within scanning range of wherever she happens to be standing. Falls back to
-                    // scanning around her own position when no plot is registered (or every plot
-                    // is already claimed), so farming still works without placing a scarecrow.
+                    // A registered Deco_Scarecrow is what makes a patch of ground "the farm", the
+                    // same way a bed is what makes a room a house. No scarecrow, no farming.
+                    //
+                    // There used to be a fallback that scanned 15 blocks around the NPC herself
+                    // whenever no post was claimed, so that farming worked without placing one.
+                    // That fallback was the bug: FarmlandRegistry is global and the boot scan sweeps
+                    // the loaded world for tilled soil — one real world reported 16.873 entries, all
+                    // of it terrain the generator made. "Nearby farmland" therefore meant any
+                    // world-generated soil the NPC happened to wander past, which is exactly what
+                    // "planting outside the farm" looked like. Children showed it first because
+                    // they stroll further than an adult with a bed to go home to.
                     Vector3d npcPos = transform.getPosition();
-                    Vector3d scanCenter = npcPos;
-                    double scanRadius = 15.0;
                     FarmPostRegistry.FarmPost claimedPost = FarmPostRegistry.claimNearest(npcPos.x, npcPos.y, npcPos.z, npc.entityId);
+
+                    // Scoped rather than returned: this runs inside the IDLE branch, and an early
+                    // return would also skip the MOVING_TO_WORK / PLANTING handling further down
+                    // for every farmer with no plot — including one already walking to a plot she
+                    // claimed on an earlier tick.
                     if (claimedPost != null) {
-                        scanCenter = new Vector3d(claimedPost.postX() + 0.5, claimedPost.postY(), claimedPost.postZ() + 0.5);
-                        scanRadius = FARM_POST_WORK_RADIUS;
-                    }
+                    Vector3d scanCenter = new Vector3d(
+                            claimedPost.postX() + 0.5, claimedPost.postY(), claimedPost.postZ() + 0.5);
+                    double scanRadius = FARM_POST_WORK_RADIUS;
 
                     // Try to harvest first
                     Vector3i cropPos = scanForCrops(scanCenter, scanRadius, world);
