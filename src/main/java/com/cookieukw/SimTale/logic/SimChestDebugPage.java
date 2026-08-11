@@ -58,15 +58,29 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
     private final PlayerRef playerRefComp;
     private int selectedIndex;
 
+    /**
+     * Read-only mode: hides Teleport and Remove.
+     * <p>
+     * Set when the screen is opened by the Quartermaster's Glass item rather than by
+     * {@code /simtale debugchests}. Seeing what the village has stored is the point of the item;
+     * teleporting and dropping registry entries are developer tools.
+     */
+    private final boolean readOnly;
+
     public SimChestDebugPage(@Nonnull PlayerRef playerRefComp, Player player) {
-        this(playerRefComp, player, 0);
+        this(playerRefComp, player, 0, false);
     }
 
     public SimChestDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex) {
+        this(playerRefComp, player, initialIndex, false);
+    }
+
+    public SimChestDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex, boolean readOnly) {
         super(playerRefComp, CustomPageLifetime.CanDismiss, BuilderCodec.builder(String.class, String::new).build());
         this.player = player;
         this.playerRefComp = playerRefComp;
         this.selectedIndex = initialIndex;
+        this.readOnly = readOnly;
     }
 
     /**
@@ -253,10 +267,16 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
             cmd.set(rowSelector + " #Contents.Style.TextColor", "#44ff88");
 
 
-            eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp",
-                    new EventData().append("action", "tp_" + chestIndex), false);
-            eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnForget",
-                    new EventData().append("action", "forget_" + chestIndex), false);
+            // Hidden as well as unbound: a button that does nothing reads as broken.
+            cmd.set(rowSelector + " #BtnTp.Visible", !readOnly);
+            cmd.set(rowSelector + " #BtnForget.Visible", !readOnly);
+
+            if (!readOnly) {
+                eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp",
+                        new EventData().append("action", "tp_" + chestIndex), false);
+                eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnForget",
+                        new EventData().append("action", "forget_" + chestIndex), false);
+            }
         }
 
         cmd.set("#PageIndex.TextSpans", Message.translation("ui.debugchests.pageIndex")
@@ -294,7 +314,13 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
             return;
         }
         if (eventData.contains("back")) {
-            player.getPageManager().openCustomPage(storeRef, store, new SimDebugPage(playerRefComp, player));
+            // Nothing to go back to when an item opened this, and the debug hub is not somewhere
+            // a craftable item should lead.
+            if (readOnly) {
+                player.getPageManager().setPage(storeRef, store, Page.None);
+            } else {
+                player.getPageManager().openCustomPage(storeRef, store, new SimDebugPage(playerRefComp, player));
+            }
             return;
         }
 
@@ -351,6 +377,6 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
     private void refreshUI(Ref<EntityStore> storeRef, Store<EntityStore> store) {
         player.getPageManager().setPage(storeRef, store, Page.None);
         player.getPageManager().openCustomPage(storeRef, store,
-                new SimChestDebugPage(playerRefComp, player, selectedIndex));
+                new SimChestDebugPage(playerRefComp, player, selectedIndex, readOnly));
     }
 }
