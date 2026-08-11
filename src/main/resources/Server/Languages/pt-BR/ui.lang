@@ -182,6 +182,19 @@ debugchests.btnBack = Voltar para Debug de NPCs
 debugchests.msgTpSuccess = [SimChestDebug] Teletransportado para o Baú #{index}
 debugchests.msgForgetSuccess = [SimChestDebug] Baú #{index} removido do registro. O bloco continua no mundo e volta ao registro no proximo scan.
 
+graveyard.title = CEMITERIO - Almas Coletadas
+graveyard.empty = Ninguem enterrado ainda. NPCs coletados pelo Grim Reaper aparecem aqui.
+graveyard.entry = {index}. {name}
+graveyard.detail = {children} filho(s)
+graveyard.btnRevive = Ressuscitar
+graveyard.btnPrev = < Anterior
+graveyard.btnNext = Proximo >
+graveyard.btnBack = Voltar para Debug de NPCs
+graveyard.pageIndex = Pagina {current} / {total}  ({count} enterrados)
+graveyard.msgRevived = {name} voltou. Sem cama — vai procurar uma como qualquer outro.
+graveyard.msgRevivedWithBed = {name} voltou e reaveu a cama antiga.
+graveyard.msgFailed = [SimTale] Falha ao ressuscitar. Confira o log do servidor.
+
 job.none = nenhum
 job.mine = minerar
 job.farm = farmar

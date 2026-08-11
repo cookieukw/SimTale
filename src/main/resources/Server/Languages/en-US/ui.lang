@@ -182,6 +182,19 @@ debugchests.btnBack = Back to NPC Debug
 debugchests.msgTpSuccess = [SimChestDebug] Teleported to Chest #{index}
 debugchests.msgForgetSuccess = [SimChestDebug] Chest #{index} removed from registry. Block remains in world and will return on next scan.
 
+graveyard.title = GRAVEYARD - Collected Souls
+graveyard.empty = Nobody is buried yet. NPCs collected by the Grim Reaper show up here.
+graveyard.entry = {index}. {name}
+graveyard.detail = {children} child(ren)
+graveyard.btnRevive = Revive
+graveyard.btnPrev = < Previous
+graveyard.btnNext = Next >
+graveyard.btnBack = Back to NPC Debug
+graveyard.pageIndex = Page {current} / {total}  ({count} buried)
+graveyard.msgRevived = {name} is back. No bed — they will look for one like anyone else.
+graveyard.msgRevivedWithBed = {name} is back and reclaimed their old bed.
+graveyard.msgFailed = [SimTale] Revival failed. Check the server log.
+
 job.none = nothing
 job.mine = mining
 job.farm = farming
