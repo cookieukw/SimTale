@@ -39,9 +39,23 @@ $Game = "Common.ui";
 // ---------------------------------------------------------------- surfaces
 // ContainerFullPatch is the frame the game uses for its own dialogs; ContainerPanelPatch is
 // the inset well it uses for grouped content inside one.
+//
+// THE BORDER NUMBERS ARE NOT FREE. A 9-slice needs the two opposite borders to fit inside the
+// texture with something left over for the middle; past that the corner slices overlap and the
+// surface renders as smears and stray bands instead of a panel. These were guessed originally and
+// two of the three were impossible:
+//
+//   ContainerPanelPatch.png          is 24x24 — Border was 16, so 16+16=32 overflowed it
+//   ContainerBackgroundSecondary.png is 48x48 — Border was 12, which left the fill nothing to
+//                                               stretch and produced the marks in the progress bar
+//
+// The values below are the game's own, read out of Common.ui rather than estimated: it draws
+// @SimpleContainer with ContainerPanelPatch at Border 4, and its pages use
+// ContainerBackgroundSecondary at Border 5. ContainerFullPatch at 20 was already right — that
+// texture is 132x132, which is why the outer frame always looked fine while the insets did not.
 @PanelSurface = (TexturePath: "Common/ContainerFullPatch.png", Border: 20);
-@InsetSurface = (TexturePath: "Common/ContainerPanelPatch.png", Border: 16);
-@WellSurface  = (TexturePath: "Common/ContainerBackgroundSecondary.png", Border: 12);
+@InsetSurface = (TexturePath: "Common/ContainerPanelPatch.png", Border: 4);
+@WellSurface  = (TexturePath: "Common/ContainerBackgroundSecondary.png", Border: 5);
 @ProgressFill = (TexturePath: "Common/ProgressBarFill.png", Border: 6);
 
 // Hairline plus centre ornament — the same separator the game puts between panel sections.
