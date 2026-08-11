@@ -5,6 +5,7 @@ import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.SimBedDebugPage;
 import com.cookieukw.SimTale.logic.SimChestDebugPage;
 import com.cookieukw.SimTale.logic.SimGraveyardPage;
+import com.cookieukw.SimTale.systems.ChildCarryHelper;
 import com.cookieukw.SimTale.systems.FurnitureAnchorHelper;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.cookieukw.SimTale.systems.VillageManager;
@@ -62,6 +63,27 @@ final class DebugCommands {
 
             // No scan here — see DebugChestsSubCommand for why it was removed.
             player.getPageManager().openCustomPage(ref, store, new SimBedDebugPage(playerRef, player));
+        }
+    }
+
+    /**
+     * Puts down a carried child without the crouch gesture.
+     *
+     * <p>Same reasoning as every other {@code force*} command here: the gesture is the intended
+     * path, and this is the way out when it does not fire. A child stuck on your shoulders with no
+     * reachable interaction panel is not a situation the player can recover from alone.
+     */
+    static class PutDownSubCommand extends AbstractPlayerCommand {
+        public PutDownSubCommand() {
+            super("putdown", "Puts down the child you are carrying");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            if (!ChildCarryHelper.putDown(world.getEntityStore().getStore(), ref, playerRef)) {
+                ctx.sendMessage(Message.translation("npc-dialogues.carry.nobody"));
+            }
         }
     }
 
