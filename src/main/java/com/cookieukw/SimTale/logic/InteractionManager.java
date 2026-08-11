@@ -132,7 +132,7 @@ public class InteractionManager {
 
         InteractionOutcome outcome = switch (type) {
             case FRIENDLY -> handleFriendly(npc, playerUuid, playerRef, rel, daily.missedLongTime());
-            case FUNNY -> handleFunny(npc, rel);
+            case FUNNY -> handleFunny(npc, playerUuid, rel);
             case ROMANTIC -> handleRomantic(npc, rel);
             case MEAN -> handleMean(npc, rel);
             case SCOLD -> handleScold(npc, playerUuid, rel);
@@ -214,7 +214,17 @@ public class InteractionManager {
                       ctx -> InteractionOutcome.of(5, 0, 2, 15, pickRandomTranslation("npc-dialogues.funny.trait", 5, ctx.npc().name), MemoryEvent.JOKED))
     );
 
-    private static InteractionOutcome handleFunny(SimNPCComponent npc, Relationship rel) {
+    private static InteractionOutcome handleFunny(SimNPCComponent npc, UUID playerUuid, Relationship rel) {
+        // The young voices come before the rule table on purpose. Those rules branch on mood and
+        // relationship status, which are the right axes for an adult — but a nine-year-old finding
+        // a bad joke hilarious is funnier and truer than the same "ENEMIES so they scoff" line
+        // everyone else gets.
+        String youngKey = ChildDialogue.keyFor(npc, playerUuid, "joke");
+        if (youngKey != null) {
+            return InteractionOutcome.of(4, 0, 2, 7,
+                    pickRandomTranslation(youngKey, YOUNG_LINE_VARIANTS, npc.name), MemoryEvent.JOKED);
+        }
+
         FunnyContext ctx = new FunnyContext(npc, rel, npc.getMood());
         return FUNNY_RULES.stream()
             .filter(r -> r.condition().test(ctx))
@@ -222,6 +232,9 @@ public class InteractionManager {
             .map(r -> r.outcome().apply(ctx))
             .orElseGet(() -> InteractionOutcome.of(3, 0, 1, 5, pickRandomTranslation("npc-dialogues.funny.normal", 5, npc.name), MemoryEvent.JOKED));
     }
+
+    /** How many variants each young-voice line set ships with. */
+    private static final int YOUNG_LINE_VARIANTS = 5;
 
     private record RomanticContext(SimNPCComponent npc, Relationship rel, Mood mood) {}
     private record RomanticRule(Predicate<RomanticContext> condition, Function<RomanticContext, InteractionOutcome> outcome) {}
@@ -786,6 +799,14 @@ public class InteractionManager {
     // --- Helpers de UI e Mensagens ---
 
     private static Message getContextualGreeting(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, Relationship rel) {
+        // Ahead of every contextual rule below, which are all written for adults: they check the
+        // player's health, recent insults, what happened to a friend. A small child does not open
+        // with any of that — she opens with whatever she is looking at.
+        String youngKey = ChildDialogue.keyFor(npc, playerUuid, "chat");
+        if (youngKey != null) {
+            return pickRandomTranslation(youngKey, YOUNG_LINE_VARIANTS, npc.name);
+        }
+
         if (playerRef != null) {
             try {
                 Ref<EntityStore> pRef = playerRef.getReference();
