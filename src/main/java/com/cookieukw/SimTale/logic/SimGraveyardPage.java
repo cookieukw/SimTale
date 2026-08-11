@@ -6,7 +6,6 @@ import com.cookieukw.SimTale.db.SimNPCData;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
@@ -108,9 +107,11 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
                 ? Message.translation("ui.prof." + data.profession.name().toLowerCase())
                 : Message.translation("ui.prof.unemployed");
         int children = data.family != null && data.family.children != null ? data.family.children.size() : 0;
-        return Message.translation("ui.graveyard.detail")
-                .insert(profession)
-                .param("children", children);
+        // Composed rather than one string with a {profession} slot: the profession is itself a
+        // translation, and the separator lives in raw() so neither .lang value has to carry
+        // leading or trailing whitespace that a parser is free to trim.
+        return profession.insert(Message.raw(" · "))
+                .insert(Message.translation("ui.graveyard.detail").param("children", children));
     }
 
     @Override
@@ -171,9 +172,12 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
             playerRefComp.sendMessage(Message.translation(
                             result.reclaimedBed() ? "ui.graveyard.msgRevivedWithBed" : "ui.graveyard.msgRevived")
                     .param("name", result.npc().name));
-        });
 
-        refreshUI(storeRef, store);
+            // Redrawn in here, not after scheduling: the revival is deferred, so refreshing
+            // straight away rebuilds the list from a graveyard that still holds the record and
+            // the row the player just clicked stays on screen as if nothing happened.
+            refreshUI(storeRef, store);
+        });
     }
 
     /** The client sometimes delivers the payload as JSON rather than the bare action string. */
