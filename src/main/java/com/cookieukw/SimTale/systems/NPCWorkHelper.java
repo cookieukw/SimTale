@@ -127,6 +127,24 @@ public class NPCWorkHelper {
     private static final float NORMAL_NPC_SCALE = 1.0f;
 
     /**
+     * True while this NPC is away on an expedition, and therefore should not be drawn anywhere.
+     * <p>
+     * "Away" is faked by shrinking the model to {@link #EXPEDITION_SCALE}, because the engine has
+     * no invisibility flag — so anything that renders <em>next to</em> the model rather than as
+     * part of it survives the trick and gives the position away. The plumbob and the map marker
+     * both did: a mood crystal hovering over nothing, and an arrow pointing at an NPC the player
+     * cannot see. Both ask this instead of repeating the task check, so a future third one only
+     * has to find this method.
+     *
+     * @param ref may be null, in which case the answer is false
+     */
+    public static boolean isAwayOnExpedition(Store<EntityStore> store, Ref<EntityStore> ref) {
+        if (store == null || ref == null || !ref.isValid()) return false;
+        RoutineAIComponent ai = store.getComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+        return ai != null && ai.currentTask == TaskType.EXPEDITION;
+    }
+
+    /**
      * Hunter and Miner share this: no real-time chase/dig, no risk of the NPC wandering into a
      * hostile mob or falling down a hole — it just leaves for a while and comes back with
      * something. Doesn't start right as the sleep window is opening, so it can't seriously delay

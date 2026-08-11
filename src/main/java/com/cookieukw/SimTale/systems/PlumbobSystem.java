@@ -101,8 +101,17 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         // ritual ends — a mood indicator over Death itself reads as a bug even when it works, and
         // the plumbob outliving her was one.
         if (npcHere != null && npcHere.isReaper) return;
-        
+
         UUID entityUuid = uuidComp.getUuid();
+
+        // Away on an expedition. Skipping the update is not enough — the plumbob already exists and
+        // would simply stop being moved, leaving a mood crystal parked in mid-air over an NPC the
+        // player was told had left. It has to actually go, and come back when she does.
+        if (npcHere != null && NPCWorkHelper.isAwayOnExpedition(store, chunk.getReferenceTo(index))) {
+            despawnPlumbob(entityUuid, commandBuffer);
+            return;
+        }
+
         TransformComponent entityTransform = chunk.getComponent(index, TransformComponent.getComponentType());
         if (entityTransform == null) return;
         
@@ -188,6 +197,23 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
             } else {
                 LOGGER.atWarning().log("[SimTale-ERROR] Plumbob ModelAsset not found!");
             }
+        }
+    }
+
+    /**
+     * Untracks and removes the plumbob owned by an entity, if it has one.
+     * <p>
+     * Untracking alone would work eventually — the orphan sweep at the top of the tick reaps
+     * plumbobs nobody claims — but only once that entity's chunk happens to be ticked again, so the
+     * crystal lingers visibly in the meantime. Removing it here makes it disappear on the same tick
+     * the NPC does.
+     */
+    private static void despawnPlumbob(UUID entityUuid, CommandBuffer<EntityStore> commandBuffer) {
+        Ref<EntityStore> existing = playerPlumbobs.remove(entityUuid);
+        if (existing == null) return;
+        trackedPlumbobRefs.remove(existing);
+        if (existing.isValid()) {
+            commandBuffer.removeEntity(existing, RemoveReason.REMOVE);
         }
     }
 
