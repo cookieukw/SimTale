@@ -47,6 +47,54 @@ romantic.normal.2 = {name} winks: Really? Who knows, if you insist a little more
 romantic.normal.3 = {name} smirks: Well look at that, a charmer around here. Interesting.
 romantic.normal.4 = {name} smiles confidently: I know I'm amazing, but it's always good to hear it from you.
 romantic.normal.5 = {name} gives a charming smile: You really know how to charm someone, don't you?
+young.chat.village_child.1 = {name} stares up at you: You're HUGE. Were you ever little?
+young.chat.village_child.2 = {name}: My mum said not to talk to strangers. But you look alright.
+young.chat.village_child.3 = {name} points at the sky: Look at that bird! Does it live up there?
+young.chat.village_child.4 = {name}: I found a rock today. It's my best rock.
+young.chat.village_child.5 = {name} runs around you twice and stops, out of breath: Hi!
+
+young.chat.own_child.1 = {name} tugs your sleeve: Dad, look at that bird! It's looking at me!
+young.chat.own_child.2 = {name}: When I grow up I'm going to be just like you. But taller.
+young.chat.own_child.3 = {name} holds up two muddy hands: Look what I found! It's a bug. I'm going to name it.
+young.chat.own_child.4 = {name}: Will you be back before dark? I don't like it when it's dark and you're not here.
+young.chat.own_child.5 = {name} hugs your leg and says nothing for a little while.
+
+young.chat.own_teen.1 = {name} shrugs: Hey. I'm fine, you can stop asking.
+young.chat.own_teen.2 = {name}: I can handle myself, you know. I'm not a kid.
+young.chat.own_teen.3 = {name} looks away: ...I saw you across the village today. I didn't say anything, there were people.
+young.chat.own_teen.4 = {name}: This place is too small. One day I want to see what's on the other side.
+young.chat.own_teen.5 = {name} almost smiles: Fine. It was nice having you around today. Don't tell anyone.
+
+young.chat.own_adult.1 = {name} greets you with a nod: All good here. You looking after yourself?
+young.chat.own_adult.2 = {name}: Remember when I was small and thought that hill was the end of the world?
+young.chat.own_adult.3 = {name} smiles: I've started talking like you. Noticed it the other day and it terrified me.
+young.chat.own_adult.4 = {name}: If you ever need anything, just say. I mean it.
+young.chat.own_adult.5 = {name}: I'm building my life here. It worked out, in the end.
+
+young.joke.village_child.1 = {name} bursts out laughing and can't stop. It wasn't even that funny.
+young.joke.village_child.2 = {name} laughs and immediately tries to tell it back to you, ruining the ending.
+young.joke.village_child.3 = {name} wheezes: I'm telling my mum that one!
+young.joke.village_child.4 = {name} laughs so hard they get hiccups.
+young.joke.village_child.5 = {name}: I don't get it. — pause — Oh! I GET IT! — and laughs alone.
+
+young.joke.own_child.1 = {name} howls with laughter: Dad, tell it again! TELL IT AGAIN!
+young.joke.own_child.2 = {name} laughs and sits down in the grass from laughing.
+young.joke.own_child.3 = {name}: You're the funniest one in the whole village. I asked everyone already.
+young.joke.own_child.4 = {name} quietly repeats the joke to themselves so they won't forget it.
+young.joke.own_child.5 = {name} laughs, then goes serious. Wait. Is that true?
+
+young.joke.own_teen.1 = {name} holds back a laugh: That joke's ancient. — the corner of their mouth gives it away.
+young.joke.own_teen.2 = {name}: Not funny. — laughs three seconds later, against their will.
+young.joke.own_teen.3 = {name} rolls their eyes and smiles at the same time, which takes some effort.
+young.joke.own_teen.4 = {name}: If you tell that one near my friends I'm leaving the village.
+young.joke.own_teen.5 = {name} properly laughs, and seems annoyed at themselves about it.
+
+young.joke.own_adult.1 = {name} laughs: That's the same joke from when I was six. Still bad.
+young.joke.own_adult.2 = {name}: I tell that one around, you know. And I say I made it up.
+young.joke.own_adult.3 = {name} shakes their head, smiling: You really don't change.
+young.joke.own_adult.4 = {name} laughs, then goes quiet for a moment. Good memory.
+young.joke.own_adult.5 = {name}: Saving that one for my own kids some day.
+
 scold.child = {name} looks at the floor and says nothing. Their lip is trembling.
 scold.child_excessive = {name} bursts into tears: You're always angry at me! I didn't even do anything!
 scold.teen = {name} rolls their eyes: Fine. Whatever you say.

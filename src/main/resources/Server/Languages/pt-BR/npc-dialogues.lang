@@ -47,6 +47,54 @@ romantic.normal.2 = {name} pisca: É mesmo? Quem sabe se você insistir um pouqu
 romantic.normal.3 = {name} dá um sorriso de canto: Olha só, um galanteador por aqui. Interessante.
 romantic.normal.4 = {name} sorri confiante: Eu sei que sou incrível, mas é sempre bom ouvir de você.
 romantic.normal.5 = {name} dá um sorriso charmoso: Você sabe mesmo como encantar alguém, não é?
+young.chat.village_child.1 = {name} te encara de baixo pra cima: Você é ENORME. Você já foi criança?
+young.chat.village_child.2 = {name}: Minha mãe falou pra eu não falar com estranho. Mas você parece legal.
+young.chat.village_child.3 = {name} aponta pro céu: Olha aquele passarinho! Ele mora lá em cima?
+young.chat.village_child.4 = {name}: Eu achei uma pedra hoje. Ela é a minha melhor pedra.
+young.chat.village_child.5 = {name} corre em volta de você duas vezes e para, ofegante: Oi!
+
+young.chat.own_child.1 = {name} puxa sua manga: Pai, olha aquele passarinho! Ele tá me olhando!
+young.chat.own_child.2 = {name}: Quando eu crescer eu vou ser igualzinho a você. Só que mais alto.
+young.chat.own_child.3 = {name} mostra as mãos sujas de terra: Olha o que eu achei! É um bicho. Eu vou dar um nome pra ele.
+young.chat.own_child.4 = {name}: Você volta antes de escurecer? Eu não gosto quando escurece e você não tá.
+young.chat.own_child.5 = {name} abraça sua perna e não fala nada por um tempinho.
+
+young.chat.own_teen.1 = {name} dá de ombros: Oi. Tá tudo bem, pode parar de perguntar.
+young.chat.own_teen.2 = {name}: Eu sei me virar sozinho, sabia? Já não sou criança.
+young.chat.own_teen.3 = {name} desvia o olhar: ...eu te vi lá longe hoje. Não falei nada porque tinha gente.
+young.chat.own_teen.4 = {name}: A vila é pequena demais. Um dia eu quero ver o que tem do outro lado.
+young.chat.own_teen.5 = {name} quase sorri: Tá bom, foi legal ter você por perto hoje. Não conta pra ninguém.
+
+young.chat.own_adult.1 = {name} te cumprimenta com um aceno de cabeça: Tudo certo por aqui. E você, tá se cuidando?
+young.chat.own_adult.2 = {name}: Lembra quando eu era pequeno e achava que aquele morro era o fim do mundo?
+young.chat.own_adult.3 = {name} sorri: Eu ando falando igual você. Percebi outro dia e me assustei.
+young.chat.own_adult.4 = {name}: Se precisar de alguma coisa, é só falar. Sério.
+young.chat.own_adult.5 = {name}: Tô construindo a minha vida aqui. Deu certo, no fim.
+
+young.joke.village_child.1 = {name} cai na gargalhada e não consegue parar. Nem era tão engraçado assim.
+young.joke.village_child.2 = {name} ri e imediatamente tenta contar a mesma piada de volta, errando o final.
+young.joke.village_child.3 = {name} bufa de rir: Eu vou contar essa pra minha mãe!
+young.joke.village_child.4 = {name} ri tão forte que soluça.
+young.joke.village_child.5 = {name}: Não entendi. — pausa — Ah! ENTENDI! — e ri sozinho.
+
+young.joke.own_child.1 = {name} morre de rir: Pai, conta de novo! CONTA DE NOVO!
+young.joke.own_child.2 = {name} ri e cai sentado na grama de tanto rir.
+young.joke.own_child.3 = {name}: Você é o mais engraçado da vila inteira. Eu já perguntei pra todo mundo.
+young.joke.own_child.4 = {name} tenta repetir a piada pra si mesmo, baixinho, pra não esquecer.
+young.joke.own_child.5 = {name} ri e depois fica sério: Espera. Isso é verdade?
+
+young.joke.own_teen.1 = {name} segura o riso: Que piada velha. — mas o canto da boca entrega.
+young.joke.own_teen.2 = {name}: Não tem graça. — ri três segundos depois, contra a vontade.
+young.joke.own_teen.3 = {name} revira os olhos e sorri ao mesmo tempo, o que dá bastante trabalho.
+young.joke.own_teen.4 = {name}: Se você contar isso perto dos meus amigos eu me mudo da vila.
+young.joke.own_teen.5 = {name} ri de verdade e parece meio irritado consigo mesmo por isso.
+
+young.joke.own_adult.1 = {name} ri: Essa é a mesma piada de quando eu tinha seis anos. Continua ruim.
+young.joke.own_adult.2 = {name}: Eu conto essa por aí, sabia? E falo que fui eu que inventei.
+young.joke.own_adult.3 = {name} balança a cabeça sorrindo: Você não muda mesmo.
+young.joke.own_adult.4 = {name} ri e fica quieto um pouco depois. Boa lembrança.
+young.joke.own_adult.5 = {name}: Guarda essa pra contar pros meus filhos um dia.
+
 scold.child = {name} olha para o chão e não diz nada. O lábio treme.
 scold.child_excessive = {name} desaba no choro: Você vive bravo comigo! Eu nem fiz nada!
 scold.teen = {name} revira os olhos: Tá. O que você mandar.
