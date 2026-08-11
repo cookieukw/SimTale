@@ -70,6 +70,6 @@ public class BabyBabbleSystem extends EntityTickingSystem<EntityStore> {
         if (player == null) return;
 
         int variant = ThreadLocalRandom.current().nextInt(1, BABBLE_VARIANTS + 1);
-        player.sendMessage(Message.translation("general.baby.babble." + variant));
+        player.sendMessage(Message.translation("npc-dialogues.baby.babble." + variant));
     }
 }

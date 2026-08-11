@@ -1,3 +1,14 @@
+# Lines for the baby you are carrying. They live here rather than in general.lang
+# because they are a character speaking; general.lang is for system messages.
+baby.babble.1 = The baby in your arms: goo... goo-goo... gaga!
+baby.babble.2 = The baby giggles and grabs your finger.
+baby.babble.3 = The baby: aaaaa-booo!
+baby.babble.4 = The baby yawns very slowly and settles in.
+baby.babble.5 = The baby blows a spit bubble and seems very pleased with it.
+baby.babble.6 = The baby: da-da? da-da!
+baby.babble.7 = The baby stares at you, solemnly, for an uncomfortable while. Then smiles.
+baby.babble.8 = The baby whimpers softly and stops the moment you rock them a little.
+
 friendly.greeting.1 = {name} smiles: Hello! Good to see you around today.
 friendly.greeting.2 = {name} waves: Hey! How are things?
 friendly.greeting.3 = {name}: Hey there! Any news in Orbis?

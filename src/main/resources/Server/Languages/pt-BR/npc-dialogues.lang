@@ -1,3 +1,14 @@
+# Falas do bebê de colo. Ficam aqui e não no general porque são fala de personagem:
+# o general é para mensagem de sistema.
+baby.babble.1 = O bebê no seu colo: gu... gugu... gagá!
+baby.babble.2 = O bebê solta uma risadinha e agarra o seu dedo.
+baby.babble.3 = O bebê: aaaaa-buuuu!
+baby.babble.4 = O bebê boceja bem devagarinho e se aconchega.
+baby.babble.5 = O bebê faz uma bolha de saliva e parece bem satisfeito com ela.
+baby.babble.6 = O bebê: da-da? da-da!
+baby.babble.7 = O bebê fica te encarando, sério, por um tempo desconfortável. Depois sorri.
+baby.babble.8 = O bebê choraminga baixinho e para assim que você balança um pouquinho.
+
 friendly.greeting.1 = {name} sorri: Olá! Bom te ver por aqui hoje.
 friendly.greeting.2 = {name} acena: Ei! Como estão as coisas?
 friendly.greeting.3 = {name}: Opa! Alguma novidade em Orbis?
