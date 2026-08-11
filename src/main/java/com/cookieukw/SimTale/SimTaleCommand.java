@@ -65,7 +65,6 @@ import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareData;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
-import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
@@ -86,8 +85,6 @@ import com.hypixel.hytale.logger.HytaleLogger;
 import java.util.Objects;
 
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 /**
@@ -877,26 +874,44 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             if (nearestChild == null) {
-                ctx.sendMessage(Message.raw("No active children found nearby."));
+                // Says how many candidates there were: an empty ACTIVE_CHILDREN ("no children in
+                // this world at all") and a full one whose entities are out of reach are the same
+                // message otherwise, and they need opposite fixes.
+                String miss = "[SimTale] setstage: nenhum filho ativo por perto (ACTIVE_CHILDREN="
+                        + LifecycleManager.ACTIVE_CHILDREN.size() + ")";
+                HytaleLogger.forEnclosingClass().atInfo().log(miss);
+                ctx.sendMessage(Message.raw(miss));
                 return;
             }
 
             nearestChild.stage = targetStage;
-            nearestChild.currentScale = targetStage.getScale();
             nearestChild.birthTick = world.getTick() - (targetStage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
 
-            // update the visual scale of the child entity model
+            // The scale comes from GrowthManager, not from GrowthStage.getScale().
+            //
+            // There were two different scale tables and this command used the wrong one. The enum
+            // says 0.35/0.50/0.70/0.90/1.00; GrowthManager.calculateTargetScale interpolates inside
+            // each stage and yields 0.45/0.55/0.75 at the start of TODDLER/CHILD/TEEN. Since
+            // GrowthTickSystem recomputes with its own table every tick, whatever this command
+            // wrote was overwritten within a frame — the command looked like it did nothing, or
+            // like it resized by a bit and then refused to go back.
+            //
+            // Setting the age above and asking the growth code for the matching scale leaves one
+            // source of truth, so the command and the passage of time can no longer disagree.
+            nearestChild.currentScale = LifecycleManager.calculateTargetScale(nearestChild, world.getTick());
+
             Ref<EntityStore> childRef = world.getEntityStore().getRefFromUUID(nearestChild.childId);
-            if (childRef != null) {
-                PersistentModel pm = store.getComponent(childRef, PersistentModel.getComponentType());
-                if (pm != null) {
-                    ModelReference oldRef = pm.getModelReference();
-                    ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), nearestChild.currentScale, new HashMap<>());
-                    store.replaceComponent(childRef, PersistentModel.getComponentType(), new PersistentModel(newRef));
-                }
+            if (childRef != null && childRef.isValid()) {
+                LifecycleManager.applyVisualScale(childRef, nearestChild.currentScale);
             }
 
-            ctx.sendMessage(Message.raw("Stage of " + nearestChild.getFullName() + " definido para " + targetStage.name() + " (escala: " + nearestChild.currentScale + ")."));
+            // Logged, not only sent to chat: seven setstage runs in one session left no trace in
+            // the server log at all, so there was no way to tell a command that silently found no
+            // child from one that ran and was undone a tick later.
+            String report = "[SimTale] setstage: " + nearestChild.getFullName() + " -> " + targetStage.name()
+                    + " (escala " + nearestChild.currentScale + ", idade " + nearestChild.getAgeDays(world.getTick()) + "d)";
+            HytaleLogger.forEnclosingClass().atInfo().log(report);
+            ctx.sendMessage(Message.raw(report));
         }
     }
 
