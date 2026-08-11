@@ -76,6 +76,30 @@ baby.generic = o bebê
 baby.generic.prep = o bebê
 baby.custody.inventory_full = Seu inventário está cheio! Abra espaço para pegar o bebê de volta.
 
+blueprint.not_a_bed = Aponte a planta para uma cama registrada — é a cama que faz de um cômodo uma casa.
+blueprint.summary = Interior: {interior} blocos | Portas: {doors} | Baús: {chests}
+
+journal.no_target = Aponte o diário para um morador.
+journal.not_npc = Isso não é um dos seus moradores.
+journal.header = --- {name} ---
+journal.needs = Fome {hunger} | Energia {energy} | Higiene {hygiene} | Diversão {fun} | Social {social}
+journal.mood = Humor:
+journal.profession = Profissão:
+journal.doing = Agora:
+journal.home = Casa: ({x}, {y}, {z})
+journal.homeless = Casa: nenhuma ainda — ainda procurando cama.
+journal.task.idle = nada em particular
+journal.task.eating = procurando comida
+journal.task.sleeping = indo dormir
+journal.task.bathing = se lavando
+journal.task.leisure = indo curtir o hobby
+journal.task.socializing = indo conversar com alguém
+journal.task.wandering = passeando por aí
+journal.task.away = fora, numa expedição
+journal.task.dying = em maus lençóis
+journal.task.building = trabalhando numa construção
+journal.task.working = trabalhando
+
 house.check.unenclosed = A casa não está totalmente cercada por paredes ou é grande demais!
 house.check.too_small = A casa é muito pequena! O volume interno deve ser de pelo menos 50 blocos.
 house.check.no_entrance = A casa não possui nenhuma porta de entrada!

@@ -76,6 +76,30 @@ baby.generic = the baby
 baby.generic.prep = the baby
 baby.custody.inventory_full = Your inventory is full! Make space to take the baby back.
 
+blueprint.not_a_bed = Point the blueprint at a registered bed — the bed is what makes a room a house.
+blueprint.summary = Interior: {interior} blocks | Doors: {doors} | Chests: {chests}
+
+journal.no_target = Point the journal at a villager.
+journal.not_npc = That is not one of your villagers.
+journal.header = --- {name} ---
+journal.needs = Hunger {hunger} | Energy {energy} | Hygiene {hygiene} | Fun {fun} | Social {social}
+journal.mood = Mood:
+journal.profession = Job:
+journal.doing = Right now:
+journal.home = Home: ({x}, {y}, {z})
+journal.homeless = Home: none yet — still looking for a bed.
+journal.task.idle = nothing in particular
+journal.task.eating = looking for food
+journal.task.sleeping = heading to bed
+journal.task.bathing = washing up
+journal.task.leisure = off to enjoy a hobby
+journal.task.socializing = going to talk to someone
+journal.task.wandering = strolling around
+journal.task.away = away on an expedition
+journal.task.dying = in a bad way
+journal.task.building = working on a construction
+journal.task.working = working
+
 house.check.unenclosed = The house is not fully enclosed by walls or is too large!
 house.check.too_small = The house is too small! The interior volume must be at least 50 blocks.
 house.check.no_entrance = The house has no entrance doors!
