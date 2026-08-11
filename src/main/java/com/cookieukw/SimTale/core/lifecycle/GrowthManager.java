@@ -31,6 +31,8 @@ import org.joml.Vector3d;
 import java.util.Objects;
 import java.util.UUID;
 
+import java.util.Map;
+
 public class GrowthManager {
 
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
@@ -101,14 +103,6 @@ public class GrowthManager {
         // createStaticScaledModel takes the attachments map, so cosmetics survive the resize —
         // createScaledModel would have rebuilt the model from the asset defaults and quietly
         // undressed the child.
-        ModelAsset asset = ModelAsset.getAssetMap().getAsset(oldRef.getModelAssetId());
-        if (asset == null) {
-            LOGGER.atWarning().log("SimTale: modelo '" + oldRef.getModelAssetId()
-                    + "' nao encontrado; escala nao aplicada.");
-            return;
-        }
-        Model scaled = Model.createStaticScaledModel(asset, scale, oldRef.getRandomAttachmentIds());
-
         // Nothing is mutated before the write lands. The previous version called
         // pm.setModelReference(newRef) first and only then queued the write, which meant the guard
         // above already read the new scale on the next tick and returned early — so a write that
@@ -116,12 +110,9 @@ public class GrowthManager {
         //
         // The detour off the tick stays: these are structural writes and growth runs from inside
         // GrowthTickSystem, where the Store refuses them.
-        runOutsideTick(store, () -> {
-            if (!ref.isValid()) return;
-            store.replaceComponent(ref, PersistentModel.getComponentType(),
-                    new PersistentModel(scaled.toReference()));
-            store.replaceComponent(ref, ModelComponent.getComponentType(), new ModelComponent(scaled));
-        });
+        String modelId = oldRef.getModelAssetId();
+        Map<String, String> attachments = oldRef.getRandomAttachmentIds();
+        runOutsideTick(store, () -> SimNPCFactory.applyModel(store, ref, modelId, scale, attachments));
     }
 
     public static void tickGrowth(GrowthComponent child, long worldTick) {

@@ -159,10 +159,14 @@ public class NPCWorkHelper {
         if (pm != null) {
             ModelReference oldRef = pm.getModelReference();
             // replaceComponent is a structural write — same "Store is currently processing!"
-            // issue as spawnNPC earlier this session. This runs from inside RoutineAISystem's own
-            // tick, so it has to be deferred, not called straight from here.
-            WorldUtil.execute(() -> store.replaceComponent(ref, PersistentModel.getComponentType(),
-                    new PersistentModel(new ModelReference(oldRef.getModelAssetId(), EXPEDITION_SCALE, new LinkedHashMap<>()))));
+            // issue as spawnNPC. This runs from inside RoutineAISystem's own tick, so it has to be
+            // deferred, not called straight from here.
+            //
+            // Attachments are carried over now, and applyModel writes the drawn component too:
+            // rewriting only PersistentModel left the shrink invisible, so "away on an expedition"
+            // was an NPC standing there at full size with her plumbob and map marker on.
+            WorldUtil.execute(() -> SimNPCFactory.applyModel(
+                    store, ref, oldRef.getModelAssetId(), EXPEDITION_SCALE, oldRef.getRandomAttachmentIds()));
         }
 
         NPCMovementHelper.clearMoveTarget(ref, ai);
@@ -532,8 +536,8 @@ public class NPCWorkHelper {
                 PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
                 if (pm != null) {
                     ModelReference oldRef = pm.getModelReference();
-                    WorldUtil.execute(() -> store.replaceComponent(ref, PersistentModel.getComponentType(),
-                            new PersistentModel(new ModelReference(oldRef.getModelAssetId(), NORMAL_NPC_SCALE, new LinkedHashMap<>()))));
+                    WorldUtil.execute(() -> SimNPCFactory.applyModel(
+                            store, ref, oldRef.getModelAssetId(), NORMAL_NPC_SCALE, oldRef.getRandomAttachmentIds()));
                 }
 
                 String rewardId = npc.profession == Profession.MINER ? rollOre() : rollHunt();

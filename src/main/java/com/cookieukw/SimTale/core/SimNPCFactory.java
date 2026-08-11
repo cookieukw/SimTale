@@ -10,6 +10,9 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.npc.systems.NewSpawnStartTickingSystem;
+import com.hypixel.hytale.server.core.asset.type.model.config.Model;
+import com.hypixel.hytale.server.core.asset.type.model.config.ModelAsset;
+import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
 import com.hypixel.hytale.server.core.modules.entity.component.Interactable;
 import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
@@ -20,6 +23,7 @@ import com.hypixel.hytale.logger.HytaleLogger;
 import it.unimi.dsi.fastutil.Pair;
 import java.util.UUID;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
@@ -189,6 +193,44 @@ public class SimNPCFactory {
         }
 
         return ref;
+    }
+
+    /**
+     * Swaps an entity's model, its scale, or both — and makes the change actually show up.
+     *
+     * <p>There are two model components and they are not interchangeable. {@code PersistentModel}
+     * is what gets saved and restored; {@code ModelComponent} is what is drawn, and it is the one
+     * carrying the network-outdated flag that makes the server resend the model to clients. Writing
+     * only the first changes the saved value and nothing visible — the server is convinced the
+     * entity looks different and every client keeps drawing the old one until the entity is
+     * reloaded from disk.
+     *
+     * <p>That single mistake was behind three separate reports: {@code /simtale setstage} appearing
+     * to do nothing, newborns spawning at adult size, and the Grim Reaper keeping the player model
+     * however many times the self-heal reapplied "Necromancer_Void".
+     *
+     * <p>Uses {@code createStaticScaledModel} so the attachments map survives; the plain
+     * {@code createScaledModel} rebuilds from the asset defaults and silently drops cosmetics.
+     *
+     * @param attachments pass the current reference's attachments to keep them
+     * @return true when the model was applied
+     */
+    public static boolean applyModel(Store<EntityStore> store, Ref<EntityStore> ref,
+                                     String modelAssetId, float scale, Map<String, String> attachments) {
+        if (store == null || ref == null || !ref.isValid() || modelAssetId == null) return false;
+
+        ModelAsset asset = ModelAsset.getAssetMap().getAsset(modelAssetId);
+        if (asset == null) {
+            HytaleLogger.forEnclosingClass().atWarning()
+                    .log("SimTale: modelo '" + modelAssetId + "' nao encontrado; aparencia nao aplicada.");
+            return false;
+        }
+
+        Model model = Model.createStaticScaledModel(asset, scale,
+                attachments != null ? attachments : new HashMap<>());
+        store.replaceComponent(ref, PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
+        store.replaceComponent(ref, ModelComponent.getComponentType(), new ModelComponent(model));
+        return true;
     }
 
     /**

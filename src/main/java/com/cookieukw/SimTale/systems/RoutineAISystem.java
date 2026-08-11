@@ -995,8 +995,14 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             // matter when the conflicting system runs relative to spawn.
             PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
             if (pm != null && !SimNPCFactory.REAPER_MODEL_ASSET_ID.equals(pm.getModelReference().getModelAssetId())) {
-                commandBuffer.replaceComponent(ref, PersistentModel.getComponentType(),
-                        new PersistentModel(new ModelReference(SimNPCFactory.REAPER_MODEL_ASSET_ID, 1.0f, new HashMap<>())));
+                // Through applyModel, which writes ModelComponent as well as PersistentModel.
+                //
+                // This self-heal ran every tick and kept "correcting" a model that visually never
+                // changed, because only the persisted component was being rewritten — the drawn
+                // one was never touched and never marked for resend. That is almost certainly the
+                // whole of the "Reaper still uses the player model" report: the id stored was
+                // right the entire time.
+                SimNPCFactory.applyModel(store, ref, SimNPCFactory.REAPER_MODEL_ASSET_ID, 1.0f, new HashMap<>());
             }
 
             Ref<EntityStore> dyingRef = world.getEntityStore().getRefFromUUID(ai.dyingEntityId);
