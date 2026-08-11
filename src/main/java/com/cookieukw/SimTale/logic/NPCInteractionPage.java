@@ -13,6 +13,7 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
+import com.cookieukw.SimTale.core.lifecycle.ParentChildBond;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
