@@ -1,3 +1,8 @@
+carry.picked_up = You lift {name} onto your shoulders.
+carry.put_down = You set {name} back down.
+carry.already = {name} is already being carried.
+carry.hint = Crouch and right-click to put them down.
+
 # Lines spoken by NPCs outside the interaction panel: leaving for work, coming back,
 # giving up on a conversation, and the spouse handing the baby over. Moved out of
 # general.lang, which is for system messages — these are a character speaking.
