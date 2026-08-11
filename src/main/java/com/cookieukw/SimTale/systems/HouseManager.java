@@ -521,7 +521,13 @@ public class HouseManager {
             return Message.translation("general.house.check.valid");
         }
 
-        Message missingList = Message.raw("");
+        // The separating space is raw(), not the end of the .lang value.
+        //
+        // "Precisa de: " ended with a space in both language files and it rendered as
+        // "Precisa de:uma cadeira" — the .lang parser trims trailing whitespace, so a value can
+        // never carry its own spacing. Any string that has to butt up against another one has to
+        // put the gap here, on the Java side.
+        Message missingList = Message.raw(" ");
         boolean first = true;
         for (FurnitureRequirement missing : result.furniture().missingMandatory()) {
             if (!first) {
