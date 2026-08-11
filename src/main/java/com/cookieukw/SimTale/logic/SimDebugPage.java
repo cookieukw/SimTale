@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.logic;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
+import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
@@ -79,8 +80,15 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     private void populateNPCData(UICommandBuilder cmd, SimNPCComponent npc, Store<EntityStore> store) {
-        cmd.set("#NpcName.Text", npc.name);
-        cmd.set("#NpcGender.Text", npc.gender != null ? npc.gender.getDisplayName() : "Indefinido");
+        cmd.set("#NpcName.TextSpans", Message.raw(npc.name));
+
+        String genderKey = "ui.simdebug.genderUnknown";
+        if (npc.gender == Gender.MALE) {
+            genderKey = "ui.simdebug.genderMale";
+        } else if (npc.gender == Gender.FEMALE) {
+            genderKey = "ui.simdebug.genderFemale";
+        }
+        cmd.set("#NpcGender.TextSpans", Message.translation(genderKey));
 
         // Get current AI task
         String taskName = "IDLE";
@@ -93,16 +101,26 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
                 }
             }
         }
-        cmd.set("#NpcTask.Text", "Task: " + taskName);
+        cmd.set("#NpcTask.TextSpans", Message.translation("ui.simdebug.taskLine").param("task", taskName));
 
         // Needs stats
-        cmd.set("#StatsHunger.Text", "Fome: " + String.format("%.0f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID)));
-        cmd.set("#StatsEnergy.Text", "Energia: " + String.format("%.0f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.ENERGY_ID)));
-        cmd.set("#StatsSocial.Text", "Social: " + String.format("%.0f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.SOCIAL_ID)));
-        cmd.set("#StatsHygiene.Text", "Higiene: " + String.format("%.0f", NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HYGIENE_ID)));
+        cmd.set("#StatsHunger.TextSpans", Message.translation("ui.simdebug.statHunger")
+                .param("value", formatNeed(npc, NeedsHelper.HUNGER_ID)));
+        cmd.set("#StatsEnergy.TextSpans", Message.translation("ui.simdebug.statEnergy")
+                .param("value", formatNeed(npc, NeedsHelper.ENERGY_ID)));
+        cmd.set("#StatsSocial.TextSpans", Message.translation("ui.simdebug.statSocial")
+                .param("value", formatNeed(npc, NeedsHelper.SOCIAL_ID)));
+        cmd.set("#StatsHygiene.TextSpans", Message.translation("ui.simdebug.statHygiene")
+                .param("value", formatNeed(npc, NeedsHelper.HYGIENE_ID)));
 
         // Index display
-        cmd.set("#NpcIndex.Text", (selectedIndex + 1) + " / " + SimTale.ACTIVE_NPCS.size());
+        cmd.set("#NpcIndex.TextSpans", Message.translation("ui.simdebug.pageIndex")
+                .param("current", selectedIndex + 1)
+                .param("total", SimTale.ACTIVE_NPCS.size()));
+    }
+
+    private String formatNeed(SimNPCComponent npc, String needId) {
+        return String.format("%.0f", NeedsHelper.getNeed(null, npc.entityRef, needId));
     }
 
     @Override
