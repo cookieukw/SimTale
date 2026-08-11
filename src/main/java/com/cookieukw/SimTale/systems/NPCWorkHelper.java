@@ -11,6 +11,7 @@ import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;

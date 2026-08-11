@@ -13,7 +13,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.MountController;
 import com.hypixel.hytale.protocol.MovementStates;
 import com.hypixel.hytale.server.core.Message;
-import com.hypixel.hytale.server.core.modules.entity.component.MovementStatesComponent;
+import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3f;

@@ -209,8 +209,9 @@ public class SimNPCFactory {
      * to do nothing, newborns spawning at adult size, and the Grim Reaper keeping the player model
      * however many times the self-heal reapplied "Necromancer_Void".
      *
-     * <p>Uses {@code createStaticScaledModel} so the attachments map survives; the plain
-     * {@code createScaledModel} rebuilds from the asset defaults and silently drops cosmetics.
+     * <p>Uses the {@code createScaledModel(asset, scale, attachments)} overload so the cosmetics
+     * survive the swap — the two-argument versions rebuild from the asset defaults and would
+     * quietly undress the NPC on every resize.
      *
      * @param attachments pass the current reference's attachments to keep them
      * @return true when the model was applied
@@ -226,7 +227,7 @@ public class SimNPCFactory {
             return false;
         }
 
-        Model model = Model.createStaticScaledModel(asset, scale,
+        Model model = Model.createScaledModel(asset, scale,
                 attachments != null ? attachments : new HashMap<>());
         store.replaceComponent(ref, PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
         store.replaceComponent(ref, ModelComponent.getComponentType(), new ModelComponent(model));
