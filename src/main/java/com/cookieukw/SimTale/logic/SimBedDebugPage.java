@@ -46,8 +46,15 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
      * Read-only mode: hides Teleport and Unclaim.
      * <p>
      * Set when the screen is opened by the Innkeeper's Ledger item rather than by
-     * {@code /simtale debugbeds}. The information is the same; teleporting and breaking a
-     * resident's claim are developer tools and have no business being village mechanics.
+     * {@code /simtale debugbeds}. The information is the same; the actions are not.
+     * <p>
+     * Teleport is the clear-cut one, and not merely for tidiness: the registry holds every bed in
+     * the world, so a craftable item that teleports to any entry is a free long-distance warp. It
+     * would stop being a village tool and become the fastest travel in the game.
+     * <p>
+     * Unclaim is the closer call, since breaking the bed already achieves it in survival. It is
+     * hidden anyway so the item stays a lens and not a lever — a thing you read, never a thing that
+     * changes the village while you are reading it.
      */
     private final boolean readOnly;
 

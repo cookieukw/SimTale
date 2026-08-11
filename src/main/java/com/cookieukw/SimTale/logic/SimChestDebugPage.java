@@ -62,8 +62,12 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
      * Read-only mode: hides Teleport and Remove.
      * <p>
      * Set when the screen is opened by the Quartermaster's Glass item rather than by
-     * {@code /simtale debugchests}. Seeing what the village has stored is the point of the item;
-     * teleporting and dropping registry entries are developer tools.
+     * {@code /simtale debugchests}. Seeing what the village has stored is the point of the item.
+     * <p>
+     * Teleport especially: the registry holds every chest in the world, so shipping that button on
+     * a craftable item hands the player a free long-distance warp to anywhere they have ever
+     * stored something. Remove is merely pointless here — the block stays and the next scan puts
+     * the entry straight back.
      */
     private final boolean readOnly;
 
