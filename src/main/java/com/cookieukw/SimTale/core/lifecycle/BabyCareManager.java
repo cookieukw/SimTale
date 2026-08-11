@@ -84,13 +84,30 @@ public class BabyCareManager {
             if (all == null) return;
 
             int restored = 0;
+            int orphans = 0;
             for (GrowthComponent child : all) {
                 if (child == null || child.childId == null) continue;
                 // An adult is done growing and does not belong in the growth list; it is also the
                 // state most records end in, so skipping them keeps the tick short.
                 if (child.stage == GrowthStage.ADULT) continue;
+
+                // A BABY is an item in somebody's hands, never an entity, so the only thing that
+                // proves it still exists is its care record. Restoring one without that record
+                // resurrects a baby from a test session that ended long ago — and because its
+                // birthTick is ancient, it is instantly overdue and grows up the moment the list is
+                // populated. Five of those came back at once, promoted in the same tick, and landed
+                // stacked on the same block.
+                if (child.stage == GrowthStage.BABY && load(child.childId) == null) {
+                    orphans++;
+                    continue;
+                }
+
                 LifecycleState.ACTIVE_CHILDREN.add(child);
                 restored++;
+            }
+            if (orphans > 0) {
+                LOGGER.atInfo().log("SimTale: " + orphans
+                        + " registro(s) de bebe orfao ignorados (sem registro de cuidado).");
             }
             LOGGER.atInfo().log("SimTale: " + restored + " filho(s) em crescimento recarregados do banco.");
         } catch (Exception e) {

@@ -160,6 +160,15 @@ public class GrowthManager {
                 }
             }
 
+            // Scattered around the holder instead of exactly on them.
+            //
+            // Several children promoted in the same tick landed on identical coordinates, and five
+            // toddlers sharing one point look like one glitched entity: the nameplates draw on top
+            // of each other and they walk in perfect lockstep because they are all being pushed by
+            // the same physics from the same spot.
+            double angle = Math.random() * Math.PI * 2.0;
+            spawnPos.add(Math.cos(angle) * 1.5, 0, Math.sin(angle) * 1.5);
+
             SimNPCFactory.NPCType type = child.gender == Gender.MALE 
                 ? SimNPCFactory.NPCType.CHILD_MALE 
                 : SimNPCFactory.NPCType.CHILD_FEMALE;

@@ -70,6 +70,16 @@ public class GrowthComponent {
      *
      * @return true if the stage changed
      */
+    /**
+     * Whether {@link #updateStage} would change the stage, without changing anything.
+     * <p>
+     * Lets the caller decide when a promotion happens instead of finding out afterwards — needed
+     * to keep a backlog of overdue children from all growing up in the same tick.
+     */
+    public boolean wouldChangeStage(long currentTick) {
+        return GrowthStage.fromAge(getAgeDays(currentTick)) != this.stage;
+    }
+
     public boolean updateStage(long currentTick) {
         int ageDays = getAgeDays(currentTick);
         GrowthStage newStage = GrowthStage.fromAge(ageDays);

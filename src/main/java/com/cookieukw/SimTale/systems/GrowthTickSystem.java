@@ -57,8 +57,26 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
         lastTick = worldTick;
 
         // Iterate all active children
+        //
+        // One promotion per pass. A batch of records loaded from disk is typically far past due —
+        // their birthTick is old, so every one of them qualifies to grow the instant the list is
+        // populated. Promoting them all in a single tick spawned five entities at once, on top of
+        // each other, and printed five "your baby grew up" lines in the same frame. Spreading them
+        // across passes costs nothing (this system is already throttled) and keeps a backlog
+        // looking like a sequence of events rather than one glitch.
+        boolean promotedThisPass = false;
+
         for (int i = LifecycleManager.ACTIVE_CHILDREN.size() - 1; i >= 0; i--) {
             GrowthComponent child = LifecycleManager.ACTIVE_CHILDREN.get(i);
+
+            boolean willPromote = child.wouldChangeStage(worldTick);
+            if (willPromote && promotedThisPass) {
+                continue;
+            }
+            if (willPromote) {
+                promotedThisPass = true;
+            }
+
             LifecycleManager.tickGrowth(child, worldTick);
 
             // Proximity AI: Children and teenagers follow their parents
