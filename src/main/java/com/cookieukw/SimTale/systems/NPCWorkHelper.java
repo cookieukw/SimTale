@@ -250,47 +250,47 @@ public class NPCWorkHelper {
                     // claimed on an earlier tick.
                     if (claimedPost != null) {
                     Vector3d scanCenter = new Vector3d(
-                            claimedPost.postX() + 0.5, claimedPost.postY(), claimedPost.postZ() + 0.5);
-                    double scanRadius = FARM_POST_WORK_RADIUS;
+                                claimedPost.postX() + 0.5, claimedPost.postY(), claimedPost.postZ() + 0.5);
+                        double scanRadius = FARM_POST_WORK_RADIUS;
 
-                    // Try to harvest first
-                    Vector3i cropPos = scanForCrops(scanCenter, scanRadius, world);
-                    if (cropPos != null) {
-                        ai.targetBlockPosition = cropPos;
-                        ai.claimedWorkPost = new Vector3i(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ());
-                        ai.currentTask = TaskType.MOVING_TO_WORK;
-                        ai.taskStartTime = world.getTick();
-                        playWalk(ref, store);
-                    } else {
-                        String seed = findSeedInInventory(inventory);
-                        Vector3i farmPos = seed != null ? scanForFarmland(scanCenter, scanRadius, world) : null;
-                        if (farmPos != null) {
-                            ai.targetBlockPosition = farmPos;
+                        // Try to harvest first
+                        Vector3i cropPos = scanForCrops(scanCenter, scanRadius, world);
+                        if (cropPos != null) {
+                            ai.targetBlockPosition = cropPos;
                             ai.claimedWorkPost = new Vector3i(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ());
                             ai.currentTask = TaskType.MOVING_TO_WORK;
                             ai.taskStartTime = world.getTick();
                             playWalk(ref, store);
-                        } else if (seed == null) {
-                            // Out of seeds and nothing to harvest — go restock from a chest she
-                            // can open, instead of standing at the claimed post doing nothing.
-                            HouseBlockPos seedChest = findSeedChest(npc, world);
-                            if (seedChest != null) {
-                                ai.targetBlockPosition = new Vector3i(seedChest.x, seedChest.y, seedChest.z);
-                                // Release the plot claim — fetching seeds may take a while and
-                                // another farmer shouldn't be blocked from using it meanwhile.
-                                FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
-                                ai.currentTask = TaskType.MOVING_TO_SEEDS;
+                        } else {
+                            String seed = findSeedInInventory(inventory);
+                            Vector3i farmPos = seed != null ? scanForFarmland(scanCenter, scanRadius, world) : null;
+                            if (farmPos != null) {
+                                ai.targetBlockPosition = farmPos;
+                                ai.claimedWorkPost = new Vector3i(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ());
+                                ai.currentTask = TaskType.MOVING_TO_WORK;
                                 ai.taskStartTime = world.getTick();
                                 playWalk(ref, store);
+                            } else if (seed == null) {
+                                // Out of seeds and nothing to harvest — go restock from a chest she
+                                // can open, instead of standing at the claimed post doing nothing.
+                                HouseBlockPos seedChest = findSeedChest(npc, world);
+                                if (seedChest != null) {
+                                    ai.targetBlockPosition = new Vector3i(seedChest.x, seedChest.y, seedChest.z);
+                                    // Release the plot claim — fetching seeds may take a while and
+                                    // another farmer shouldn't be blocked from using it meanwhile.
+                                    FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
+                                    ai.currentTask = TaskType.MOVING_TO_SEEDS;
+                                    ai.taskStartTime = world.getTick();
+                                    playWalk(ref, store);
+                                } else {
+                                    FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
+                                }
                             } else {
+                                // Nothing to do at this plot right now — don't sit on the claim,
+                                // another farmer (or this one, next cycle) might find work there.
                                 FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
                             }
-                        } else {
-                            // Nothing to do at this plot right now — don't sit on the claim,
-                            // another farmer (or this one, next cycle) might find work there.
-                            FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
                         }
-                    }
                     }
                 } else if (npc.profession == Profession.HUNTER || npc.profession == Profession.MINER) {
                     startExpedition(ref, ai, npc, world, store);
