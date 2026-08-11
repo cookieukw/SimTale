@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
+import com.cookieukw.SimTale.core.lifecycle.WorkEligibility;
 import com.cookieukw.SimTale.core.AssetIds;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.Profession;
@@ -200,6 +201,11 @@ public class NPCWorkHelper {
             World world,
             Store<EntityStore> store
     ) {
+        // Too young for this particular job — see WorkEligibility. Checked before the state
+        // machine rather than inside it so a child never enters a work state at all, instead of
+        // entering one and being pulled out mid-way with a claimed post or a shrunken model.
+        if (!WorkEligibility.canWork(npc)) return;
+
         // Evaluate Transition to Work/Deposit from IDLE
         if (ai.currentTask == TaskType.IDLE && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK || npc.profession == Profession.MINER)) {
             ItemContainer inventory = getInventory(store, ref);

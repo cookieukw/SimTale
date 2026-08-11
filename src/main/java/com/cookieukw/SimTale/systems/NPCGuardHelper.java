@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
+import com.cookieukw.SimTale.core.lifecycle.WorkEligibility;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -78,6 +79,10 @@ public class NPCGuardHelper {
             TransformComponent transform, World world, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
 
         if (npc.profession != Profession.GUARD) return;
+
+        // A child guard would patrol the perimeter looking for skeletons at roughly half height.
+        // The job stays hers; she just starts doing it at TEEN.
+        if (!WorkEligibility.canWork(npc)) return;
 
         if (ai.currentTask == TaskType.IDLE) {
             // Staggered per guard rather than on a shared tick boundary: every guard checking on
