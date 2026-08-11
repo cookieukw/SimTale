@@ -55,6 +55,43 @@ after its component is stripped. `/simtale forget` therefore deletes the record 
 
 Step 3 is the one that gets missed, and it fails silently.
 
+## The graveyard, and why revival changes the UUID
+
+Death is not destructive: `archiveToGraveyard` moves the record into a separate per-world shell,
+`simtale_graveyard`, instead of deleting it. `/simtale graveyard` browses that shell and
+`SimNPCRevival` brings a record back.
+
+The revived NPC gets a **new entity UUID**, and that is not a shortcut — the engine forbids the
+alternative:
+
+```
+EntityStore$UUIDSystem  (a RefSystem)
+  onEntityAdded -> entitiesByUuid.putIfAbsent(uuidComponent.getUuid(), ref)
+                   "Removing duplicate entity with UUID: %s" -> removeEntity(newcomer)
+```
+
+Two consequences. The index is filled **when the entity is added**, so putting the old UUIDComponent
+back after the spawn never reaches `entitiesByUuid` and `getRefFromUUID` would keep answering with
+the wrong ref forever. And colliding on the key on purpose gets the revived body deleted by the
+engine, silently.
+
+So the id changes and `SimNPCRevival.remapReferences` rewrites everything pointing at the old one:
+
+| Where | What |
+|---|---|
+| Live `SimNPCComponent` | `relationships` keys, `family.spouseId`, `family.children[].id` |
+| Records in the `simtale` shell | the same two, for NPCs not loaded right now |
+| `LifecycleManager.ACTIVE_CHILDREN` | `childId`, `motherId`, `fatherId`, `carriedBy` |
+| `HouseManager` | `HouseData.owners` **and** `OWNER_TO_HOUSE_ID`, together |
+
+:::danger This list is the fragile part
+Anything that stores an NPC UUID and is not remapped keeps pointing at a grave, silently. If you add
+a new place that holds one, add it to `remapReferences` in the same commit.
+:::
+
+The bed is deliberately excluded from the restore and handled afterwards: it is reclaimed only if it
+still exists and is still free, so a revival never evicts whoever moved in while she was dead.
+
 ## No migration
 
 The mod is in testing with no public users, so breaking the save format is acceptable. That changes
