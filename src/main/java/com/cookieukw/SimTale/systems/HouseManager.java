@@ -34,8 +34,17 @@ public class HouseManager {
         NO_ENTRANCE
     }
 
+    /**
+     * @param furnitureBlocks solid blocks touching the interior — chairs, tables, lamps on a post.
+     *        Separate from {@code interiorBlocks} because the fill must not walk through them, but
+     *        the furniture check has to be able to see them. Without this set the mandatory
+     *        requirements were unsatisfiable: a chair and a table are solid, the fill skipped them
+     *        as walls without recording anything, and the check then looked for them in a set that
+     *        by construction only ever held air, beds and chests.
+     */
     public record HouseScanResult(Set<HouseBlockPos> interiorBlocks, Set<HouseBlockPos> doorBlocks,
-                                  Set<HouseBlockPos> otherBeds, Set<HouseBlockPos> chestBlocks, boolean overflowed,
+                                  Set<HouseBlockPos> otherBeds, Set<HouseBlockPos> chestBlocks,
+                                  Set<HouseBlockPos> furnitureBlocks, boolean overflowed,
                                   boolean hitUnloaded) {
     }
 
@@ -220,6 +229,7 @@ public class HouseManager {
     public static HouseScanResult scanHouseFromBed(World world, HouseBlockPos bedPos) {
         Set<HouseBlockPos> visited = new HashSet<>();
         Set<HouseBlockPos> doors = new HashSet<>();
+        Set<HouseBlockPos> furniture = new HashSet<>();
         Set<HouseBlockPos> otherBeds = new HashSet<>();
         Set<HouseBlockPos> chestBlocks = new HashSet<>();
         Deque<HouseBlockPos> queue = new ArrayDeque<>();
@@ -230,7 +240,7 @@ public class HouseManager {
 
         while (!queue.isEmpty()) {
             if (visited.size() > MAX_INTERIOR_BLOCKS) {
-                return new HouseScanResult(visited, doors, otherBeds, chestBlocks, true, hitUnloaded);
+                return new HouseScanResult(visited, doors, otherBeds, chestBlocks, furniture, true, hitUnloaded);
             }
 
             HouseBlockPos current = queue.poll();
@@ -281,7 +291,15 @@ public class HouseManager {
                     continue;
                 }
                 if (isSolid(type)) {
-                    continue; 
+                    // Still a wall for the fill — but if it is recognisable furniture, remember
+                    // where it was. Chairs, tables and most lamps are solid, so skipping them
+                    // silently is what made "needs a chair, a table" impossible to clear even in a
+                    // room that had both.
+                    if (type.getId() != null
+                            && FurnitureRequirement.classify(type.getId().toLowerCase()).isPresent()) {
+                        furniture.add(neighbor);
+                    }
+                    continue;
                 }
 
                 visited.add(neighbor);
@@ -289,7 +307,7 @@ public class HouseManager {
             }
         }
 
-        return new HouseScanResult(visited, doors, otherBeds, chestBlocks, false, hitUnloaded);
+        return new HouseScanResult(visited, doors, otherBeds, chestBlocks, furniture, false, hitUnloaded);
     }
 
     public static ScanReport scanAndClassify(World world, HouseBlockPos bedPos, UUID scanningOwner) {
@@ -502,7 +520,12 @@ public class HouseManager {
             return new HouseCompatibilityResult(structural.outcome, null, false);
         }
 
-        FurnitureScanResult furniture = scanFurniture(world, structural.raw.interiorBlocks, HouseRequirementSet.DEFAULT);
+        // Interior plus the furniture found in the walls of that interior. Passing only the
+        // interior is what made "needs a chair, a table" permanent.
+        Set<HouseBlockPos> scanArea = new HashSet<>(structural.raw.interiorBlocks);
+        scanArea.addAll(structural.raw.furnitureBlocks);
+
+        FurnitureScanResult furniture = scanFurniture(world, scanArea, HouseRequirementSet.DEFAULT);
         return new HouseCompatibilityResult(structural.outcome, furniture, furniture.compatible());
     }
 
