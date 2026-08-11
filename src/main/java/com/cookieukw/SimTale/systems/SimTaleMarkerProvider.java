@@ -165,6 +165,11 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc.entityId == null || npc.entityRef == null || !npc.entityRef.isValid()) continue;
 
+            // An NPC away on an expedition is meant to read as gone. She is still standing in the
+            // world at scale 0.001 because the engine has no invisibility flag, so leaving her on
+            // the map draws an arrow onto an NPC the player cannot find.
+            if (NPCWorkHelper.isAwayOnExpedition(store, npc.entityRef)) continue;
+
             TransformComponent transform =
                     store.getComponent(npc.entityRef, TransformComponent.getComponentType());
             if (transform == null) continue;
