@@ -19,6 +19,7 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.BoundingBox;
+import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3f;
@@ -151,6 +152,14 @@ public final class ChildCarryHelper {
         AnimationUtils.stopAnimation(npc.entityRef, AnimationSlot.Action, true, store);
         AnimationUtils.stopAnimation(npc.entityRef, AnimationSlot.Status, true, store);
 
+        // Queued after the freeze, which defers itself the same way, so the settle is the last
+        // word on her pose.
+        WorldUtil.execute(() -> {
+            if (childRef.isValid()) {
+                settleMovementStates(store, childRef);
+            }
+        });
+
         // Being carried by a parent is a happy thing. Without this the mood kept decaying while she
         // rode along, and the plumbob overhead settled on BORED — which reads as the game telling
         // you the child hates being picked up.
@@ -199,6 +208,53 @@ public final class ChildCarryHelper {
                 .param("name", carried.name));
         LOGGER.info("[SimTale] {} foi colocada no chao", carried.name);
         return true;
+    }
+
+    /**
+     * Stops the walk cycle a carried child kept playing on someone's shoulders.
+     *
+     * <p>Freezing and clearing the AI stops her from <em>moving</em>, but the walk animation is not
+     * driven by either. The client plays whatever {@code MovementStates} says, and those flags come
+     * from {@code MovementStatesSystem}, which hands the role the entity's {@code Velocity} every
+     * tick and lets it decide. Nothing zeroes that velocity when an NPC is frozen mid-stride, so
+     * the role kept being told she was moving and kept setting {@code walking} — she walked on the
+     * spot for the whole ride.
+     *
+     * <p>Hence both halves: the velocity so the role stops deriving a walk, and the states so the
+     * current frame is corrected instead of waiting for the next recompute. The sync is a plain
+     * equals() diff against {@code sentMovementStates}
+     * ({@code MovementStatesSystems$TickingSystem}), so the write does reach the client. Only the
+     * locomotion flags are touched; crouching, sitting and the fluid flags stay as the engine set
+     * them.
+     */
+    public static void settleMovementStates(Store<EntityStore> store, Ref<EntityStore> childRef) {
+        Velocity velocity = store.getComponent(childRef, Velocity.getComponentType());
+        if (velocity != null) {
+            velocity.setZero();
+            velocity.setClient(0.0, 0.0, 0.0);
+        }
+
+        MovementStatesComponent msc =
+                store.getComponent(childRef, MovementStatesComponent.getComponentType());
+        if (msc == null) return;
+
+        MovementStates settled = new MovementStates(msc.getMovementStates());
+        settled.walking = false;
+        settled.running = false;
+        settled.sprinting = false;
+        settled.jumping = false;
+        settled.falling = false;
+        settled.fallingFar = false;
+        settled.sliding = false;
+        settled.climbing = false;
+        settled.swimming = false;
+        settled.swimJumping = false;
+        settled.gliding = false;
+        settled.mantling = false;
+        settled.rolling = false;
+        settled.idle = true;
+        settled.horizontalIdle = true;
+        msc.setMovementStates(settled);
     }
 
     /** Whether this player currently has one of our children on their shoulders. */

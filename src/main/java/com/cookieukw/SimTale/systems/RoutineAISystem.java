@@ -188,6 +188,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             if (world.getTick() % 40 == 0) {
                 npc.setEmotion(Mood.HAPPY, 0.7f, "carried", world.getTick());
             }
+            // Re-settled on the same cadence rather than only at pickup: anything that pushes the
+            // entity — a shove, a fluid, a knockback the carrier walked into — would put velocity
+            // back and the role would start the walk cycle again with nothing to stop it.
+            if (world.getTick() % 40 == 0 && npc.entityRef != null && npc.entityRef.isValid()) {
+                ChildCarryHelper.settleMovementStates(store, npc.entityRef);
+            }
             return;
         }
 

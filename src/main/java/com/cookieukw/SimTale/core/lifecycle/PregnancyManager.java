@@ -181,19 +181,31 @@ public class PregnancyManager {
         NeedsHelper.setNeed(null, mother.entityRef, NeedsHelper.ENERGY_ID, Math.max(0, NeedsHelper.getNeed(null, mother.entityRef, NeedsHelper.ENERGY_ID) - 0.0002f * (mult - 1.0f)));
     }
 
+    /**
+     * Speed for a given trimester, as an absolute value rather than a subtraction.
+     *
+     * <p>The old version read {@code s.baseSpeed} and subtracted from it, and the callers re-run
+     * this every 100 ticks. Each pass therefore subtracted again from the already-reduced value:
+     * 5.5 → 4.0 → 2.5 → 1.0 in about fifteen seconds, where it stuck on the floor. Second and
+     * third trimester ended up identical, both at a crawl, which is why the debuff read as "the
+     * slow is broken" rather than "the slow is mild".
+     *
+     * <p>Reading the live value was wrong in principle too: anything else that touches movement —
+     * a potion, a mount, another mod — became part of the pregnancy formula.
+     */
+    private static float speedForTrimester(int trimester) {
+        if (trimester == 3) return EffectHelper.DEFAULT_SPEED - 3.0f;
+        if (trimester == 2) return EffectHelper.DEFAULT_SPEED - 1.5f;
+        return EffectHelper.DEFAULT_SPEED;
+    }
+
     public static void applyPregnancySpeedDebuff(Ref<EntityStore> entityRef, PregnancyComponent pregnancy) {
         if (entityRef == null || pregnancy == null) return;
-        if (!pregnancy.pregnant) {
-            EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);
-            return;
-        }
-        if (pregnancy.trimester == 2) {
-            EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = Math.max(1.0f, s.baseSpeed - 1.5f));
-        } else if (pregnancy.trimester == 3) {
-            EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = Math.max(1.0f, s.baseSpeed - 3.0f));
-        } else {
-            EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);
-        }
+
+        final float target = pregnancy.pregnant
+                ? speedForTrimester(pregnancy.trimester)
+                : EffectHelper.DEFAULT_SPEED;
+        EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = target);
     }
 
     public static void applyPlayerPregnancyBehavior(Ref<EntityStore> playerRef, SimPlayerComponent playerComp) {
