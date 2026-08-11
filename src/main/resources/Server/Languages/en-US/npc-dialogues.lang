@@ -1,3 +1,17 @@
+# Lines spoken by NPCs outside the interaction panel: leaving for work, coming back,
+# giving up on a conversation, and the spouse handing the baby over. Moved out of
+# general.lang, which is for system messages — these are a character speaking.
+tick.job.depart.1 = {name}: I'm leaving now! I'll be back as soon as I finish.
+tick.job.depart.2 = {name}: I'm off! I'll be back later.
+tick.job.depart.3 = {name}: Off to work! I'll finish up shortly.
+tick.job.complete.1 = {name}: I finished my {job_name} work and came back!
+tick.job.complete.2 = {name}: Phew, done with the {job_name} work. I'm back!
+tick.job.complete.3 = {name}: Mission accomplished! The {job_name} job is complete.
+tick.chat.timeout.1 = {name}: Hmm, I think you're busy. Let's talk later!
+tick.chat.timeout.2 = {name}: You seem distracted... we can talk later!
+tick.chat.timeout.3 = {name}: I see you're not in a chatting mood today. Bye!
+baby.custody.spouse_reject = <{spouse}> Now it's your turn to take care of {name} for a while.
+
 # Lines for the baby you are carrying. They live here rather than in general.lang
 # because they are a character speaking; general.lang is for system messages.
 baby.babble.1 = The baby in your arms: goo... goo-goo... gaga!

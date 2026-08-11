@@ -142,7 +142,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
                                 if (nowMs - lastMsg > 10000) {
                                     GrowthComponent child = Caskara.load("child_" + care.childId, GrowthComponent.class);
                                     Message childMsg = child != null ? Message.raw(child.getFullName()) : Message.translation("general.baby.generic");
-                                    playerRef.sendMessage(Message.translation("general.baby.custody.spouse_reject")
+                                    playerRef.sendMessage(Message.translation("npc-dialogues.baby.custody.spouse_reject")
                                         .param("spouse", spouseNpc.name)
                                         .param("name", childMsg));
                                     MESSAGE_COOLDOWNS.put(playerUuid, nowMs);

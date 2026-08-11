@@ -1,3 +1,17 @@
+# Falas ditas por NPCs fora do painel de interação: ao sair para o trabalho, ao voltar,
+# ao desistir de uma conversa, e a fala do cônjuge passando o bebê. Vieram do general.lang,
+# que é para mensagem de sistema — estas são personagem falando.
+tick.job.depart.1 = {name}: Estou saindo agora! Volto assim que terminar.
+tick.job.depart.2 = {name}: Fui! Logo mais eu tô de volta.
+tick.job.depart.3 = {name}: Partiu trabalho! Daqui a pouco eu termino.
+tick.job.complete.1 = {name}: Terminei meu trabalho de {job_name} e voltei!
+tick.job.complete.2 = {name}: Ufa, acabei o trabalho de {job_name}. Tô de volta!
+tick.job.complete.3 = {name}: Missão cumprida! O serviço de {job_name} tá finalizado.
+tick.chat.timeout.1 = {name}: Hmm, acho que você está ocupado. Depois nos falamos!
+tick.chat.timeout.2 = {name}: Você parece distraído... a gente se fala depois!
+tick.chat.timeout.3 = {name}: Já vi que você não tá a fim de papo hoje. Tchau!
+baby.custody.spouse_reject = <{spouse}> Agora é a sua vez de cuidar de {name} por um tempo.
+
 # Falas do bebê de colo. Ficam aqui e não no general porque são fala de personagem:
 # o general é para mensagem de sistema.
 baby.babble.1 = O bebê no seu colo: gu... gugu... gagá!

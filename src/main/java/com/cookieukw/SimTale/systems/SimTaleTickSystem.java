@@ -210,7 +210,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             if (absoluteTick > npc.conversationTimeoutTick) {
                 for (PlayerRef pr : Universe.get().getPlayers()) {
                     if (pr.getUuid().equals(npc.currentConversationPartner)) {
-                        pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("general.tick.chat.timeout", 3)).param("name", npc.name));
+                        pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("npc-dialogues.tick.chat.timeout", 3)).param("name", npc.name));
                     }
                 }
                 npc.currentConversationPartner = null;
@@ -222,7 +222,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                 npc.isAway = true;
                 for (PlayerRef pr : Universe.get().getPlayers()) {
                     if (pr.getUuid().equals(npc.jobEmployer)) {
-                        pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("general.tick.job.depart", 3)).param("name", npc.name));
+                        pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("npc-dialogues.tick.job.depart", 3)).param("name", npc.name));
                     }
                 }
                 Ref<EntityStore> ref = world.getEntityStore().getRefFromUUID(npc.entityId);
@@ -270,7 +270,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         try {
             for (PlayerRef pr : Universe.get().getPlayers()) {
                 if (pr.getUuid().equals(npc.jobEmployer)) {
-                    pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("general.tick.job.complete", 3)).param("name", npc.name).param("job_name", Message.translation(npc.currentJob.translationKey())));
+                    pr.sendMessage(Message.translation(SimTaleChatHandler.getRandomVariant("npc-dialogues.tick.job.complete", 3)).param("name", npc.name).param("job_name", Message.translation(npc.currentJob.translationKey())));
                     
                     List<JobLootTable.LootEntry> loots = JobLootTable.getLootForJob(npc.currentJob);
                     for (JobLootTable.LootEntry loot : loots) {
