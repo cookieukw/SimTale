@@ -13,7 +13,10 @@ import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.asset.type.model.config.Model;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
+import com.hypixel.hytale.server.core.asset.type.model.config.ModelAsset;
+import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
@@ -81,28 +84,43 @@ public class GrowthManager {
         ModelReference oldRef = pm.getModelReference();
         if (Math.abs(oldRef.getScale() - scale) <= 0.01f) return;
 
-        // Attachments are carried over deliberately: dropping them (passing a fresh empty map)
-        // strips the child's cosmetics along with the resize.
-        ModelReference newRef =
-                new ModelReference(oldRef.getModelAssetId(), scale, oldRef.getRandomAttachmentIds());
+        // BOTH components have to be written, and this is the whole reason resizing never showed
+        // up in game.
+        //
+        // PersistentModel is what gets saved and respawned; ModelComponent is what is drawn, and it
+        // is the one carrying the isNetworkOutdated flag that makes the server resend the model to
+        // clients. Writing only PersistentModel changes the saved size and nothing else — the
+        // server believes the NPC is smaller, the client keeps drawing the old one, and it stays
+        // that way until the entity is reloaded from disk. That is why /simtale setstage appeared
+        // to do nothing at all, and why newborns kept spawning at adult size even though the
+        // placement code sets 0.35 on them.
+        //
+        // PlumbobSystem is the one place in the mod that already wrote both, and the plumbob is
+        // also the one model that visibly changes on demand. That was the tell.
+        //
+        // createStaticScaledModel takes the attachments map, so cosmetics survive the resize —
+        // createScaledModel would have rebuilt the model from the asset defaults and quietly
+        // undressed the child.
+        ModelAsset asset = ModelAsset.getAssetMap().getAsset(oldRef.getModelAssetId());
+        if (asset == null) {
+            LOGGER.atWarning().log("SimTale: modelo '" + oldRef.getModelAssetId()
+                    + "' nao encontrado; escala nao aplicada.");
+            return;
+        }
+        Model scaled = Model.createStaticScaledModel(asset, scale, oldRef.getRandomAttachmentIds());
 
-        // Nothing is mutated before the write lands, and the write replaces the component rather
-        // than re-putting the same object.
+        // Nothing is mutated before the write lands. The previous version called
+        // pm.setModelReference(newRef) first and only then queued the write, which meant the guard
+        // above already read the new scale on the next tick and returned early — so a write that
+        // never reached the client was never retried either.
         //
-        // The previous version called pm.setModelReference(newRef) here and only then queued the
-        // put. That mutates the live component immediately, so on the very next tick the guard
-        // above already read the new scale and returned early — if the queued write had not
-        // actually reached the client, nothing ever retried it. The entity was the old size
-        // forever while the server was convinced it had resized, which is exactly how this looked
-        // in game: one change appeared to take, and every command after that did nothing.
-        //
-        // replaceComponent is what the expedition shrink uses, and that one demonstrably reaches
-        // the client. The detour off the tick stays: this is a structural write and growth runs
-        // from inside GrowthTickSystem, where the Store refuses them.
+        // The detour off the tick stays: these are structural writes and growth runs from inside
+        // GrowthTickSystem, where the Store refuses them.
         runOutsideTick(store, () -> {
-            if (ref.isValid()) {
-                store.replaceComponent(ref, PersistentModel.getComponentType(), new PersistentModel(newRef));
-            }
+            if (!ref.isValid()) return;
+            store.replaceComponent(ref, PersistentModel.getComponentType(),
+                    new PersistentModel(scaled.toReference()));
+            store.replaceComponent(ref, ModelComponent.getComponentType(), new ModelComponent(scaled));
         });
     }
 
