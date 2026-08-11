@@ -42,18 +42,29 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
     private final PlayerRef playerRefComp;
     private int selectedIndex; // Represents current Page Index
 
+    /**
+     * Read-only mode: hides Teleport and Unclaim.
+     * <p>
+     * Set when the screen is opened by the Innkeeper's Ledger item rather than by
+     * {@code /simtale debugbeds}. The information is the same; teleporting and breaking a
+     * resident's claim are developer tools and have no business being village mechanics.
+     */
+    private final boolean readOnly;
+
     public SimBedDebugPage(@Nonnull PlayerRef playerRefComp, Player player) {
-        super(playerRefComp, CustomPageLifetime.CanDismiss, BuilderCodec.builder(String.class, String::new).build());
-        this.player = player;
-        this.playerRefComp = playerRefComp;
-        this.selectedIndex = 0;
+        this(playerRefComp, player, 0, false);
     }
 
     public SimBedDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex) {
+        this(playerRefComp, player, initialIndex, false);
+    }
+
+    public SimBedDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex, boolean readOnly) {
         super(playerRefComp, CustomPageLifetime.CanDismiss, BuilderCodec.builder(String.class, String::new).build());
         this.player = player;
         this.playerRefComp = playerRefComp;
         this.selectedIndex = initialIndex;
+        this.readOnly = readOnly;
     }
 
     private List<BedPos> getBeds(World world) {
@@ -143,9 +154,16 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                 }
 
 
-                // Bind buttons uniquely for this row's bed index
-                eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp", new EventData().append("action", "tp_" + bedIndex), false);
-                eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnUnclaim", new EventData().append("action", "unclaim_" + bedIndex), false);
+                // Hidden as well as unbound in read-only mode: leaving the buttons on screen with
+                // nothing behind them reads as broken, which is worse than not offering them.
+                cmd.set(rowSelector + " #BtnTp.Visible", !readOnly);
+                cmd.set(rowSelector + " #BtnUnclaim.Visible", !readOnly);
+
+                if (!readOnly) {
+                    // Bind buttons uniquely for this row's bed index
+                    eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp", new EventData().append("action", "tp_" + bedIndex), false);
+                    eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnUnclaim", new EventData().append("action", "unclaim_" + bedIndex), false);
+                }
             } else {
                 // Hide unused rows
                 cmd.set(rowSelector + ".Visible", false);
