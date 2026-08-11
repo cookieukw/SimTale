@@ -47,6 +47,13 @@ romantic.normal.2 = {name} pisca: É mesmo? Quem sabe se você insistir um pouqu
 romantic.normal.3 = {name} dá um sorriso de canto: Olha só, um galanteador por aqui. Interessante.
 romantic.normal.4 = {name} sorri confiante: Eu sei que sou incrível, mas é sempre bom ouvir de você.
 romantic.normal.5 = {name} dá um sorriso charmoso: Você sabe mesmo como encantar alguém, não é?
+scold.child = {name} olha para o chão e não diz nada. O lábio treme.
+scold.child_excessive = {name} desaba no choro: Você vive bravo comigo! Eu nem fiz nada!
+scold.teen = {name} revira os olhos: Tá. O que você mandar.
+scold.teen_excessive = {name} grita de volta: Você nunca escuta! Eu não sou mais criança! — e sai pisando duro.
+scold.adult = {name} suspira: Tá bom, tá bom. Você é meu pai, afinal.
+scold.adult_excessive = {name} levanta a sobrancelha: Eu sou adulto. Dá pra pegar leve, né.
+
 mean.aggressive.1 = {name} saca a arma: Você quer resolver isso agora mesmo?!
 mean.aggressive.2 = {name} cerra os punhos: Repete isso na minha cara se for homem!
 mean.aggressive.3 = {name} te empurra: Quem você acha que é pra falar assim comigo?!

@@ -47,6 +47,13 @@ romantic.normal.2 = {name} winks: Really? Who knows, if you insist a little more
 romantic.normal.3 = {name} smirks: Well look at that, a charmer around here. Interesting.
 romantic.normal.4 = {name} smiles confidently: I know I'm amazing, but it's always good to hear it from you.
 romantic.normal.5 = {name} gives a charming smile: You really know how to charm someone, don't you?
+scold.child = {name} looks at the floor and says nothing. Their lip is trembling.
+scold.child_excessive = {name} bursts into tears: You're always angry at me! I didn't even do anything!
+scold.teen = {name} rolls their eyes: Fine. Whatever you say.
+scold.teen_excessive = {name} shouts back: You never listen! I'm not a kid anymore! — and storms off.
+scold.adult = {name} sighs: Alright, alright. You're still my parent, after all.
+scold.adult_excessive = {name} raises an eyebrow: I'm a grown adult. Maybe ease off a little.
+
 mean.aggressive.1 = {name} draws their weapon: You want to settle this right now?!
 mean.aggressive.2 = {name} clenches their fists: Repeat that to my face if you have the guts!
 mean.aggressive.3 = {name} pushes you: Who do you think you are to talk to me like that?!
