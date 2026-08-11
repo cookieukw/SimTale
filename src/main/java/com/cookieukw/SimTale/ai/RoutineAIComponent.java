@@ -119,6 +119,19 @@ public class RoutineAIComponent implements Component<EntityStore> {
     public long nextBathSearchTick = 0;
 
     /**
+     * Tick the NPC last got out of bed. Zero means "never slept in this session".
+     * <p>
+     * Replaces the energy cap that used to guard the scheduled sleep. That cap was asking "did this
+     * one just wake up?" through a proxy that does not hold: sleeping refills energy to 100 and it
+     * drains at 0.0002/tick, so getting back under the 90 threshold took roughly forty real minutes
+     * — far longer than a full day/night cycle. After their first night everybody sat permanently
+     * above the cap and the whole village stopped sleeping, which is the exact problem the schedule
+     * was added to solve. Recording the wake time answers the question directly and stops the sleep
+     * schedule from depending on how the needs happen to be tuned.
+     */
+    public long lastWakeTick = 0;
+
+    /**
      * True when the NPC went to bed because its sleeping window opened, not because it was
      * exhausted.
      * <p>
@@ -161,6 +174,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.nextBedSearchTick = this.nextBedSearchTick;
         comp.nextFoodSearchTick = this.nextFoodSearchTick;
         comp.nextBathSearchTick = this.nextBathSearchTick;
+        comp.lastWakeTick = this.lastWakeTick;
         comp.sleepingOnSchedule = this.sleepingOnSchedule;
         comp.eatingTier = this.eatingTier;
         comp.eatingWasHated = this.eatingWasHated;

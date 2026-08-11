@@ -97,13 +97,15 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     private static final int REAP_PLEAD_WINDOW_TICKS = 20 * 20;
 
     /**
-     * An NPC with more energy than this will not go to bed just because its sleep window opened.
+     * How long after getting up an NPC refuses to go back to bed on schedule. Two real minutes.
      *
-     * <p>Sits high on purpose: it is not a second tiredness threshold, only a sanity check. Someone
-     * who has been awake a while turns in when night falls; someone who just woke up, or who just
-     * changed profession and inherited a different schedule, does not walk straight back to bed.
+     * <p>This is a sanity check, not a second tiredness threshold: it exists so that someone who
+     * wakes up inside their own sleeping window — or who changes profession mid-nap and inherits a
+     * different shift — does not turn around and walk straight back to bed. Anything longer than the
+     * gap between waking and the next window would start suppressing real nights of sleep, so it is
+     * deliberately short.
      */
-    private static final float SCHEDULED_SLEEP_MAX_ENERGY = 90f;
+    private static final int WAKE_GRACE_TICKS = 20 * 60 * 2;
     /** Look for a chat partner within 20 blocks. */
     private static final double SOCIALIZE_SEARCH_RANGE_SQ = 20.0 * 20.0;
     /** Max distance from home an idle stroll may take the NPC. */
@@ -311,8 +313,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         // little tired. An NPC with full energy going to sleep looks broken no matter what the
         // schedule says — and it produced a real dead end, where a guard switched to another
         // profession mid-nap stayed in bed with 100 energy on its first day in the new job.
-        boolean tiredEnoughToTurnIn = NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < SCHEDULED_SLEEP_MAX_ENERGY;
-        boolean sleepWindowOpen = NPCSleepHelper.isSleepPeriod(npc, world) && tiredEnoughToTurnIn;
+        boolean justWokeUp = ai.lastWakeTick != 0
+                && world.getTick() - ai.lastWakeTick < WAKE_GRACE_TICKS;
+        boolean sleepWindowOpen = NPCSleepHelper.isSleepPeriod(npc, world) && !justWokeUp;
         boolean exhausted = NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < sleepThreshold;
 
         boolean alreadyHeadedToBed = ai.currentTask == TaskType.FINDING_BED
@@ -805,6 +808,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 ai.sleepingOnSchedule = false;
                 ai.currentTask = TaskType.WAKING;
                 ai.taskStartTime = world.getTick();
+                ai.lastWakeTick = world.getTick();
             }
         }
 

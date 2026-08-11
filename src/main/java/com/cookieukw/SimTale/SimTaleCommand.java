@@ -234,7 +234,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                   .append("  target=").append(ai.targetBlockPosition)
                   .append("  lastLeash=").append(ai.lastLeashPos)
                   .append("\n  scheduledSleep=").append(ai.sleepingOnSchedule)
-                  .append("  forcedByDebug=").append(ai.forcedByDebug);
+                  .append("  forcedByDebug=").append(ai.forcedByDebug)
+                  .append("  sinceWake=")
+                  .append(ai.lastWakeTick == 0 ? "never" : String.valueOf(world.getTick() - ai.lastWakeTick));
 
                 // Ticks left on each search backoff, which is the difference between "idle because
                 // it has nothing to do" and "idle because a need it cannot satisfy keeps pulling it
@@ -262,7 +264,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
               .append(com.cookieukw.SimTale.systems.NPCSleepHelper.isSleepPeriod(best, world))
               .append("  night=")
               .append(com.cookieukw.SimTale.systems.NPCSleepHelper.isNight(world))
-              .append("  dayProgress=")
+              // currentHour returns 0..24, not the 0..1 progress it is derived from.
+              .append("  hour=")
               .append(com.cookieukw.SimTale.systems.NPCSleepHelper.currentHour(world))
               .append("\n  bed=").append(best.bedLocation);
 
