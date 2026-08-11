@@ -71,20 +71,36 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
      */
     private final boolean readOnly;
 
+    /**
+     * Whether the control panel opened this screen, which is the only case where Back has a
+     * destination.
+     *
+     * <p>Separate from {@code readOnly} because {@code /simtale debugchests} is neither: it wants
+     * the editing buttons, but it was not reached through the hub, so sending Back there dropped
+     * the player into the force-sleep/force-eat panel they never asked for.
+     */
+    private final boolean fromHub;
+
     public SimChestDebugPage(@Nonnull PlayerRef playerRefComp, Player player) {
-        this(playerRefComp, player, 0, false);
+        this(playerRefComp, player, 0, false, false);
     }
 
     public SimChestDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex) {
-        this(playerRefComp, player, initialIndex, false);
+        this(playerRefComp, player, initialIndex, false, false);
     }
 
     public SimChestDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex, boolean readOnly) {
+        this(playerRefComp, player, initialIndex, readOnly, false);
+    }
+
+    public SimChestDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex,
+                             boolean readOnly, boolean fromHub) {
         super(playerRefComp, CustomPageLifetime.CanDismiss, BuilderCodec.builder(String.class, String::new).build());
         this.player = player;
         this.playerRefComp = playerRefComp;
         this.selectedIndex = initialIndex;
         this.readOnly = readOnly;
+        this.fromHub = fromHub;
     }
 
     /**
@@ -318,12 +334,11 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
             return;
         }
         if (eventData.contains("back")) {
-            // Nothing to go back to when an item opened this, and the debug hub is not somewhere
-            // a craftable item should lead.
-            if (readOnly) {
-                player.getPageManager().setPage(storeRef, store, Page.None);
-            } else {
+            // Only a screen the hub opened has anywhere to go back to.
+            if (fromHub) {
                 player.getPageManager().openCustomPage(storeRef, store, new SimDebugPage(playerRefComp, player));
+            } else {
+                player.getPageManager().setPage(storeRef, store, Page.None);
             }
             return;
         }
@@ -381,6 +396,6 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
     private void refreshUI(Ref<EntityStore> storeRef, Store<EntityStore> store) {
         player.getPageManager().setPage(storeRef, store, Page.None);
         player.getPageManager().openCustomPage(storeRef, store,
-                new SimChestDebugPage(playerRefComp, player, selectedIndex, readOnly));
+                new SimChestDebugPage(playerRefComp, player, selectedIndex, readOnly, fromHub));
     }
 }
