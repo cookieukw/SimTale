@@ -196,7 +196,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             sb.append("=== ").append(best.name).append(" (").append(String.format("%.1f", Math.sqrt(bestDist))).append("m) ===");
 
             StateSupport ss = StateSupport.get(nref, store);
-            sb.append("\n  role state: ").append(ss != null ? ss.getStateName() : "<sem StateSupport>");
+            sb.append("\n  role state: ").append(ss != null ? ss.getStateName() : "<no StateSupport>");
             if (ss != null) sb.append("  busy=").append(ss.isInBusyState());
 
             ActiveAnimationComponent anim = store.getComponent(nref, ActiveAnimationComponent.getComponentType());
@@ -208,7 +208,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     if (i < slots.length && slots[i] != null) sb.append(" ").append(s).append("=").append(slots[i]);
                 }
             } else {
-                sb.append("\n  anim: <sem ActiveAnimationComponent>");
+                sb.append("\n  anim: <no ActiveAnimationComponent>");
             }
 
             MovementStatesComponent msc = store.getComponent(nref, MovementStatesComponent.getComponentType());
