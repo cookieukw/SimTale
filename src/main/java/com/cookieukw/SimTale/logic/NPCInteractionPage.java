@@ -14,6 +14,7 @@ import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.ParentChildBond;
+import com.cookieukw.SimTale.systems.ChildCarryHelper;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
@@ -505,6 +506,20 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         if (isChild) {
             commandBuilder.set("#FlirtButton.Visible", false);
             commandBuilder.set("#AssignProfessionButton.Visible", false);
+        }
+
+        // Carrying is offered only for the player's own small children, and only while she is not
+        // already on somebody's shoulders — the button would otherwise promise a second pick-up
+        // that ChildCarryHelper refuses.
+        boolean canCarry = ChildCarryHelper.isCarriable(npc, playerRefComp.getUuid())
+                && !ChildCarryHelper.isBeingCarried(store, npc);
+        commandBuilder.set("#CarryButton.Visible", canCarry);
+        if (canCarry) {
+            eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#CarryButton",
+                    new EventData().append("button", "CarryButton"), false);
+        }
+
+        if (isChild) {
             commandBuilder.set("#PregnancyButton.Visible", false);
         }
         if (!isChild && npc.pregnancy != null && npc.pregnancy.pregnant) {
@@ -595,6 +610,11 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             playerRefComp.sendMessage(resp);
         } else if (eventData.contains("PregnancyButton")) {
             player.getPageManager().openCustomPage(storeRef, store, new NPCPregnancyPage(playerRefComp, player, npc));
+        } else if (eventData.contains("CarryButton")) {
+            // Closes the panel: the child is about to be on the player's shoulders, and leaving a
+            // screen open about someone who is now riding you reads as broken.
+            player.getPageManager().setPage(storeRef, store, Page.None);
+            ChildCarryHelper.pickUp(store, storeRef, playerRefComp, npc);
         } else if (eventData.contains("InventoryButton")) {
             openNpcInventory(storeRef, store);
         }

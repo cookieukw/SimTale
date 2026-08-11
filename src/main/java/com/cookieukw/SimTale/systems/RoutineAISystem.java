@@ -170,6 +170,20 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         World world = WorldUtil.first();
         if (world == null) return;
 
+        // Being carried by a player suspends the routine entirely.
+        //
+        // This has to come before the mount cleanup below, which exists for beds and would rip a
+        // carried child straight off the player's shoulders on the very next tick — the NPC is
+        // mounted and not in a sleep state, which is exactly the condition that block reacts to.
+        //
+        // Standing the AI down matters as much as keeping the mount: a routine that keeps setting
+        // leash points and walking states on a body pinned to someone's shoulders is how an NPC
+        // ends up sliding across the floor, which is the failure this project already spent a
+        // session diagnosing once.
+        if (ChildCarryHelper.isBeingCarried(store, npc)) {
+            return;
+        }
+
         // unmounts and clears MountedComponent if the distant NPC is no longer in active sleep state
         // or if its bed chunk has been unloaded, avoiding crashes in Hytale's ChunkUnloadingSystem.
         if (ai.currentTask != TaskType.SLEEPING && ai.currentTask != TaskType.ENTERING_BED) {

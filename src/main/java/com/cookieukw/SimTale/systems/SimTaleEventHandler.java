@@ -100,6 +100,23 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             }
         }
 
+        // --- Put down a carried child: crouch + right-click ---
+        //
+        // Before anything else that consumes a click. The gesture has to work with the child on
+        // your shoulders, which is precisely when her interaction panel is unreachable — she is not
+        // in front of the camera to be clicked on.
+        //
+        // Crouch is required rather than a bare right-click so this cannot fire while placing
+        // blocks or opening a chest, and crouch *alone* was rejected because players hold it
+        // constantly near ledges.
+        if (ChildCarryHelper.isCrouching(playerRef.getStore(), playerRef)) {
+            Store<EntityStore> carryStore = world.getEntityStore().getStore();
+            if (ChildCarryHelper.putDown(carryStore, playerRef, playerRefComp)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
         // The tool items are NOT handled here — see SimTaleItemRegistry.
         //
         // They were, briefly, on the assumption that none of them declared an "Interactions" block.
