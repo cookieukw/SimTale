@@ -469,7 +469,17 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     ai.taskStartTime = world.getTick();
                     playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
                 }
-            } else if (ai.currentTask == TaskType.IDLE && Math.random() < 0.02) {
+            }
+
+            // Deliberately its own statement rather than the tail of the ladder above.
+            //
+            // Every branch up there can claim the tick and then not set a task: the searches fail
+            // silently, and the socialise roll can win with nobody available to talk to. As the
+            // last `else if` the stroll was only ever reached when none of them fired, so a need
+            // the NPC could not satisfy took its wandering away too. Guarding on "still IDLE"
+            // instead means the fallback is reached whenever nothing above it actually committed,
+            // and any branch added later inherits that safety net for free.
+            if (ai.currentTask == TaskType.IDLE && Math.random() < 0.02) {
                 // Anchor the stroll, in order of preference: own bed, then the nearest village,
                 // then the current position.
                 //
