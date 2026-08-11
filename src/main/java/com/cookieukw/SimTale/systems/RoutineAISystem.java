@@ -719,18 +719,21 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 // without repeating that test.
                 setSleepingState(ref, store, commandBuffer, true);
 
-                // The role does not declare the "Sleep" state, so this call generates
-                // "State 'Sleep.null' ... does not exist" in the log. It stays because it is harmless
-                // and because declaring the state requires a BlockSet asset that we still haven't
-                // figured out how to register by mod — see docs/sistemas/npc-comportamento.md.
-                NPCEntity npcEntityComponent = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
-                if (npcEntityComponent != null) {
-                    StateSupport stateSupport = StateSupport.get(ref, store);
-                    if (stateSupport != null) {
-                        stateSupport.setState(ref, "Sleep", null, store);
-                    }
-                }
-
+                // There is deliberately no setState("Sleep") here.
+                //
+                // A call used to sit at this spot and it never did anything: our roles declare only
+                // Idle and ReturnHome, so the engine refused it every time with "State 'Sleep.null'
+                // does not exist and was set by an external call" — one log line per NPC per night,
+                // for no effect. Sleeping works because of the two calls around this comment:
+                // MovementStates.sleeping lays the body down and the animation holds the pose, while
+                // pinLeashAt above parks the leash on the NPC's own position so the role's Leash
+                // sensor stops firing and it settles back into Idle on its own.
+                //
+                // Giving the roles a real Sleep state is possible (vanilla does it with
+                // StateTransitions -> Laydown/Wake) and would let the role own the pose instead. It
+                // needs every state to be both sensed and set or the role fails to validate and
+                // spawning breaks server-wide — see scripts/add_returnhome_state.py for the time
+                // that already cost us. Not worth it while the mod drives sleep entirely from Java.
                 playAnim(ref, AnimationSlot.Status, "Characters/Animations/Flavor/Sleep.blockyanim", "Sleep", store);
 
                 ai.currentTask = TaskType.SLEEPING;

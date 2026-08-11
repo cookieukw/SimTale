@@ -82,6 +82,25 @@ records in one world.
 
 ## `State 'Sleep.null' does not exist`
 
-Harmless. It appears while NPCs sleep and depends on registering a `BlockSet` asset from the mod —
-an earlier attempt at that broke spawning entirely by creating the asset with the wrong type, so it
-was reverted.
+Gone since 10/08 — the call that produced it was removed. If you see it again on an older build:
+harmless, one line per NPC per night, no effect on sleeping.
+
+The message meant exactly what it said. States exist because the role JSON references them, and our
+roles declare only `Idle` and `ReturnHome`, so `setState(ref, "Sleep", null, store)` named something
+the role had never registered and the engine refused it. `.null` is the sub-state, which we passed
+as null.
+
+:::note It was never about a BlockSet
+An earlier version of this page blamed a missing `BlockSet` asset. That was wrong, and worth
+correcting because it made the fix look far more expensive than it is. Vanilla does use a
+`BedBlockSet`, but only for the part where the NPC **finds a bed by itself** (`Sensor: Block`,
+`Blocks: {Compute: "BedBlockSet"}`). SimTale never needed that: the mod already knows where the bed
+is, mounts the NPC and drives the whole sequence.
+:::
+
+Giving the roles a real `Sleep` state is possible — vanilla wires `StateTransitions` with
+`From: ["Idle"] To: ["Sleep"]` playing `Laydown`, and the reverse playing `Wake` — and would let the
+role own the pose instead of `MovementStates.sleeping` plus a manual animation. The catch is
+validation: `StateMappingHelper` xors `stateSensors` against `stateSetters` and rejects the role if a
+state is one but not the other, and a rejected role means `spawnNPC` returns null for **every** NPC.
+See `scripts/add_returnhome_state.py` for the session that lesson cost.
