@@ -17,6 +17,7 @@ import com.hypixel.hytale.protocol.MountController;
 import com.hypixel.hytale.protocol.MovementStates;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.BoundingBox;
 import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
@@ -283,6 +284,9 @@ public final class ChildCarryHelper {
      * there is no second piece of state to keep in sync with the mount.
      */
     private static SimNPCComponent findCarriedBy(Store<EntityStore> store, Ref<EntityStore> carrier) {
+        UUID carrierId = uuidOf(store, carrier);
+        if (carrierId == null) return null;
+
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) continue;
 
@@ -290,8 +294,27 @@ public final class ChildCarryHelper {
             if (mounted == null) continue;
 
             Ref<EntityStore> mount = mounted.getMountedToEntity();
-            if (mount != null && mount.equals(carrier)) return npc;
+            if (mount == null || !mount.isValid()) continue;
+            if (carrierId.equals(uuidOf(store, mount))) return npc;
         }
         return null;
+    }
+
+    /**
+     * Identity of an entity, for comparing two references to the same thing.
+     *
+     * <p>{@code Ref} does not override {@code equals} — it has no {@code equals} method at all, so
+     * two references are only "equal" when they are literally the same object. The mount stored one
+     * reference at pickup and {@code Player.getReference()} hands out another later, so the old
+     * {@code mount.equals(carrier)} test was false for the very player who was carrying the child.
+     * That is why crouch + right-click did nothing and why even the diagnostic log line never
+     * printed: the whole branch was skipped before crouch was ever read.
+     *
+     * <p>The index is no substitute — {@code Ref.setIndex} exists, so it moves. The UUID does not.
+     */
+    private static UUID uuidOf(Store<EntityStore> store, Ref<EntityStore> ref) {
+        if (ref == null || !ref.isValid()) return null;
+        UUIDComponent uuid = store.getComponent(ref, UUIDComponent.getComponentType());
+        return uuid != null ? uuid.getUuid() : null;
     }
 }
