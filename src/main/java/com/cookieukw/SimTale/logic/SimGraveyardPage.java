@@ -132,7 +132,9 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
             return;
         }
         if (eventData.contains("back")) {
-            player.getPageManager().openCustomPage(storeRef, store, new SimDebugPage(playerRefComp, player));
+            // Closes rather than opening the control panel: nothing opens the graveyard from the
+            // hub, so "back" there was a one-way door into the developer screen.
+            player.getPageManager().setPage(storeRef, store, Page.None);
             return;
         }
         if (eventData.contains("revive_")) {
