@@ -100,6 +100,50 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             }
         }
 
+        // --- SimTale tool items ---
+        //
+        // Handled here rather than through an item Interaction + RootInteraction JSON, like the
+        // pregnancy test is, for one reason: none of these items declares an "Interactions" block,
+        // and that is on purpose. The Baby item taught this the hard way — declaring one handed the
+        // click to RuneCore's generic handler, which did not recognise the item and marked the
+        // whole interaction Failed before SimTale ever saw it. This event fires on every right
+        // click regardless of the item, so keeping the tools out of the interaction system avoids
+        // that class of bug entirely.
+        if (heldItem != null && heldItem.getItemId() != null) {
+            String itemId = heldItem.getItemId();
+
+            if (HouseBlueprintHelper.ITEM_ID.equals(itemId)) {
+                Vector3i target = event.getTargetBlock();
+                if (target != null && HouseBlueprintHelper.inspect(world, playerRefComp, target)) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+
+            // Three read-only lenses over data the mod already keeps. Each opens the screen the
+            // matching debug command opens, minus the developer buttons — the item is meant to
+            // show the village's state, not to hand out teleports and registry surgery.
+            if ("InnkeepersLedger".equals(itemId)) {
+                player.getPageManager().openCustomPage(playerRef, playerRef.getStore(),
+                        new SimBedDebugPage(playerRefComp, player, 0, true));
+                event.setCancelled(true);
+                return;
+            }
+            if ("QuartermastersGlass".equals(itemId)) {
+                player.getPageManager().openCustomPage(playerRef, playerRef.getStore(),
+                        new SimChestDebugPage(playerRefComp, player, 0, true));
+                event.setCancelled(true);
+                return;
+            }
+            if ("InspectorsJournal".equals(itemId)) {
+                Ref<EntityStore> inspected = event.getTargetEntityRef();
+                if (InspectorJournalHelper.inspect(world, playerRefComp, inspected)) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+
         // --- Confirm a blueprint marker's construction on right-click ---
         // Placing Blueprint_TavernHouse (BedPlaceBlockEventSystem) shows the hologram; this is
         // the other half — right-clicking that same marker block starts the real build, the same
