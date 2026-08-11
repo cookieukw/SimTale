@@ -91,6 +91,8 @@ pregnancy.symptoms_npc_t1 = Fome e energia aumentadas levemente.
 pregnancy.symptoms_npc_t2 = Fome e energia aumentadas, lentidão moderada.
 pregnancy.symptoms_npc_t3 = Fome e energia intensas, lentidão severa.
 pregnancy.children = {count}
+button.carry = Pegar no Colo
+button.inventory = Inventário
 button.pregnancy = Ver Gestação
 
 parents = Pais:

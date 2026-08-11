@@ -91,6 +91,8 @@ pregnancy.symptoms_npc_t1 = Slightly increased hunger and energy drain.
 pregnancy.symptoms_npc_t2 = Increased hunger and energy drain, moderate slowness.
 pregnancy.symptoms_npc_t3 = Intense hunger and energy drain, severe slowness.
 pregnancy.children = {count}
+button.carry = Pick Up
+button.inventory = Inventory
 button.pregnancy = View Pregnancy
 
 parents = Parents:

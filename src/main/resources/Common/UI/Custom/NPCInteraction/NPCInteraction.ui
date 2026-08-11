@@ -281,7 +281,20 @@ Group {
           Style: $T.@BtnTertiary;
           Visible: false;
           Label #InventoryButtonText {
-            Text: "Inventário";
+            Text: %ui.button.inventory;
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+        // Only ever shown for a small child of the player's — see ChildCarryHelper. Shares the row
+        // with the two above because all three are conditional, and no NPC ever qualifies for more
+        // than two of them at once.
+        Button #CarryButton {
+          Anchor: (Width: 250, Height: $T.@ButtonH);
+          Style: $T.@BtnSecondary;
+          Visible: false;
+          Label #CarryButtonText {
+            Text: %ui.button.carry;
             Anchor: (Full: 0);
             Style: $T.@ButtonLabelStyle;
           }
