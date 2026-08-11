@@ -100,10 +100,7 @@ public class GrowthManager {
         // PlumbobSystem is the one place in the mod that already wrote both, and the plumbob is
         // also the one model that visibly changes on demand. That was the tell.
         //
-        // createStaticScaledModel takes the attachments map, so cosmetics survive the resize —
-        // createScaledModel would have rebuilt the model from the asset defaults and quietly
-        // undressed the child.
-        // Nothing is mutated before the write lands. The previous version called
+        // Nothing is mutated before the write lands either. The previous version called
         // pm.setModelReference(newRef) first and only then queued the write, which meant the guard
         // above already read the new scale on the next tick and returned early — so a write that
         // never reached the client was never retried either.
