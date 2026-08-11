@@ -21,7 +21,33 @@ public final class PregnancyDisplayUtil {
 
     private static final int PROGRESS_BAR_MAX_WIDTH = 480;
 
+    /**
+     * Narrowest the fill may be drawn. @ProgressFill is a 9-slice with Border 6, so it needs room
+     * for a left and a right cap; below 12px the two caps overlap and the texture renders as a
+     * couple of stray marks floating in the track. That is what "Não grávida" looked like, because
+     * that path sets the width to 0 and a zero-width 9-slice still draws its corners.
+     */
+    private static final int PROGRESS_BAR_MIN_WIDTH = 12;
+
     private PregnancyDisplayUtil() {}
+
+    /**
+     * Sizes the bar's fill, hiding it outright when there is nothing to show.
+     * <p>
+     * Hiding is not the same as sizing it to zero: only Visible actually removes the 9-slice from
+     * the draw pass.
+     */
+    private static void setProgressFill(UICommandBuilder cmd, int width) {
+        if (width < PROGRESS_BAR_MIN_WIDTH) {
+            cmd.set("#ProgressBarFill.Visible", false);
+            return;
+        }
+        cmd.set("#ProgressBarFill.Visible", true);
+        Anchor anchor = new Anchor();
+        anchor.setWidth(Value.of(width));
+        anchor.setHeight(Value.of(20));
+        cmd.setObject("#ProgressBarFill.Anchor", anchor);
+    }
 
     public static long getCurrentWorldTick() {
         return WorldUtil.tick();
@@ -70,10 +96,7 @@ public final class PregnancyDisplayUtil {
             cmd.set("#TimeRemaining.TextSpans", Message.translation("ui.pregnancy.time_none"));
             cmd.set("#Symptoms.TextSpans", Message.translation("ui.pregnancy.symptoms_none"));
             cmd.set("#TotalChildren.TextSpans", Message.translation("ui.pregnancy.children").param("count", String.valueOf(totalChildren)));
-            Anchor anchor = new Anchor();
-            anchor.setWidth(Value.of(0));
-            anchor.setHeight(Value.of(20));
-            cmd.setObject("#ProgressBarFill.Anchor", anchor); 
+            setProgressFill(cmd, 0);
             return;
         }
 
@@ -127,9 +150,11 @@ public final class PregnancyDisplayUtil {
         cmd.set("#TotalChildren.TextSpans", Message.translation("ui.pregnancy.children").param("count", String.valueOf(totalChildren)));
 
         int fillWidth = Math.clamp(Math.round(progress * PROGRESS_BAR_MAX_WIDTH), 0, PROGRESS_BAR_MAX_WIDTH);
-        Anchor anchor = new Anchor();
-        anchor.setWidth(Value.of(fillWidth));
-        anchor.setHeight(Value.of(20));
-        cmd.setObject("#ProgressBarFill.Anchor", anchor);
+        // Round a sliver up to the minimum the 9-slice can draw, rather than hiding it: on day one
+        // of a pregnancy the bar should read as "just started", not as "no bar at all".
+        if (fillWidth > 0 && fillWidth < PROGRESS_BAR_MIN_WIDTH) {
+            fillWidth = PROGRESS_BAR_MIN_WIDTH;
+        }
+        setProgressFill(cmd, fillWidth);
     }
 }
