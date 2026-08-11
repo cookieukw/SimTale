@@ -942,23 +942,37 @@ public class SimTaleCommand extends AbstractPlayerCommand {
      * backing {@link GrowthComponent} directly, by its {@code childId} metadata, with no entity
      * spawn involved.
      */
+    /**
+     * Ages the Baby item in your hand so it can be placed.
+     *
+     * <p>Shares its argument with {@code setstage}, which reads as duplication but is not: the two
+     * commands never see the same subject. {@code setstage} searches for the nearest child
+     * <em>entity</em>, and a baby in your hand has none — it is metadata on an item until someone
+     * puts it down. This is the only way to reach a child at that point in its life.
+     *
+     * <p>The argument is optional because the everyday use is "skip the wait, let me place it",
+     * which is TODDLER — the first stage {@code placeBabyFromHeldItem} accepts.
+     */
     private static class BabyStageSubCommand extends AbstractPlayerCommand {
-        private final RequiredArg<String> stageArg;
+        private final OptionalArg<String> stageArg;
 
         public BabyStageSubCommand() {
-            super("babystage", "Sets the growth stage of the Baby item held in your hand (no need to place it down first)");
-            this.stageArg = this.withRequiredArg("stage", "BABY|TODDLER|CHILD|TEEN|ADULT", ArgTypes.STRING);
+            super("babystage", "Ages the Baby item held in your hand so it can be placed (default: TODDLER)");
+            this.stageArg = this.withOptionalArg("stage", "BABY|TODDLER|CHILD|TEEN|ADULT", ArgTypes.STRING);
         }
 
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
-            GrowthStage targetStage;
-            try {
-                targetStage = GrowthStage.valueOf(ctx.get(this.stageArg).toUpperCase());
-            } catch (IllegalArgumentException e) {
-                ctx.sendMessage(Message.raw("Invalid stage. Choose from: BABY, TODDLER, CHILD, TEEN, ADULT"));
-                return;
+            String stageName = ctx.get(this.stageArg);
+            GrowthStage targetStage = GrowthStage.TODDLER;
+            if (stageName != null) {
+                try {
+                    targetStage = GrowthStage.valueOf(stageName.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    ctx.sendMessage(Message.raw("Invalid stage. Choose from: BABY, TODDLER, CHILD, TEEN, ADULT"));
+                    return;
+                }
             }
 
             ItemStack heldItem = InventoryComponent.getItemInHand(store, ref);
@@ -1011,8 +1025,13 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             childComp.currentScale = LifecycleManager.calculateTargetScale(childComp, world.getTick());
             Caskara.save("child_" + childId, childComp);
 
+            // BABY is accepted but says so: placeBabyFromHeldItem refuses it, so the command would
+            // otherwise report success on something that still cannot be put down.
+            String tail = targetStage == GrowthStage.BABY
+                    ? " Recem-nascido ainda nao pode ser colocado no chao."
+                    : " Ja pode colocar no chao.";
             ctx.sendMessage(Message.raw("[SimTale] Stage do bebe carregado (" + childComp.getFullName() + ") definido para "
-                    + targetStage.name() + " (escala: " + childComp.currentScale + "). Ja pode colocar no chao."));
+                    + targetStage.name() + " (escala: " + childComp.currentScale + ")." + tail));
         }
     }
 
