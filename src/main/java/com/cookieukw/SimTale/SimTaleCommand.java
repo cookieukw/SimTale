@@ -149,7 +149,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Uso: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|babystage|forceplacebaby|forceconstruct>"));
+        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|babystage|forceplacebaby|forceconstruct>"));
     }
 
     /**
@@ -268,6 +268,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             ctx.sendMessage(Message.raw(sb.toString()));
             HytaleLogger.forEnclosingClass().atInfo().log(sb.toString());
+        }
+
+        private static String fmt(float value) {
+            return String.format("%.0f", value);
         }
     }
 
