@@ -73,8 +73,24 @@ public class SimNPCFactory {
         }
     }
 
-    @SuppressWarnings("null")
     public static Ref<EntityStore> spawnNPC(Store<EntityStore> store, Vector3d position, NPCType type) {
+        return spawnNPC(store, position, type, 1.0f);
+    }
+
+    /**
+     * Spawns an NPC already at {@code scale}.
+     *
+     * <p>The scale belongs here rather than in a resize right after the call. A child promoted to
+     * the next stage was spawned at 1.0 and shrunk a moment later, and the client had already drawn
+     * her — so every promotion flashed a full-size adult for an instant before she popped down to
+     * child height. Applying it before the entity starts ticking is the earliest point this code
+     * controls.
+     *
+     * <p>If a flash still shows after this, it is the client seeing the spawn packet before the
+     * model packet, and the real fix would be for the role's own Appearance to carry the scale.
+     */
+    @SuppressWarnings("null")
+    public static Ref<EntityStore> spawnNPC(Store<EntityStore> store, Vector3d position, NPCType type, float scale) {
         String roleId = type.roleId;
         
         if (type == NPCType.HUMAN_MALE) {
@@ -161,6 +177,15 @@ public class SimNPCFactory {
         accessor.putComponent(ref, Nameplate.getComponentType(), new Nameplate(simComponent.name));
         accessor.putComponent(ref, Interactable.getComponentType(), Interactable.INSTANCE);
 
+
+        // Before ticking starts and before anything else can read the model.
+        if (Math.abs(scale - 1.0f) > 0.01f) {
+            PersistentModel current = accessor.getComponent(ref, PersistentModel.getComponentType());
+            if (current != null) {
+                ModelReference currentRef = current.getModelReference();
+                applyModel(store, ref, currentRef.getModelAssetId(), scale, currentRef.getRandomAttachmentIds());
+            }
+        }
 
         // 4. ACTIVATE AI: Queue for ticking
         // This is mandatory for NPCs spawned via API to start their AI logic.

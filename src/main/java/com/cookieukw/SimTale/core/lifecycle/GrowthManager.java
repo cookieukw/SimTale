@@ -170,7 +170,8 @@ public class GrowthManager {
                 return;
             }
             Store<EntityStore> store = world.getEntityStore().getStore();
-            Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, type);
+            Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, type,
+                    calculateTargetScale(child, WorldUtil.tick()));
             
             UUID newEntityId = Objects.requireNonNull(childRef.getStore().getComponent(childRef, UUIDComponent.getComponentType())).getUuid();
             
@@ -239,7 +240,8 @@ public class GrowthManager {
                 : SimNPCFactory.NPCType.HUMAN_FEMALE;
                 
             Store<EntityStore> store = world.getEntityStore().getStore();
-            Ref<EntityStore> teenRef = SimNPCFactory.spawnNPC(store, spawnPos, type);
+            Ref<EntityStore> teenRef = SimNPCFactory.spawnNPC(store, spawnPos, type,
+                    calculateTargetScale(child, WorldUtil.tick()));
             
             UUID newEntityId = Objects.requireNonNull(teenRef.getStore().getComponent(teenRef, UUIDComponent.getComponentType())).getUuid();
             

@@ -335,9 +335,9 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
         // Scale baby down visually to match its current growth stage.
         //
-        // Through the growth code so there is a single place that knows how to resize a child. The
-        // inline copy that used to live here also passed a fresh empty attachment map, which
-        // resized the model and stripped its cosmetics in the same write.
+        // Still a resize rather than a spawn-time scale, because this entity was not spawned here —
+        // it is the baby item becoming a body. The promotion paths in GrowthManager do spawn, and
+        // those pass the scale to spawnNPC so the child never appears full size for an instant.
         LifecycleManager.applyVisualScale(childRef, childComp.currentScale);
 
         childComp.putDown();
