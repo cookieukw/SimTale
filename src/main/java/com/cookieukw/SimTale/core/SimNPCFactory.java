@@ -190,4 +190,19 @@ public class SimNPCFactory {
 
         return ref;
     }
+
+    /**
+     * Rewrites the two labels the world shows above an NPC.
+     * <p>
+     * Spawning always stamps them with whatever name the factory rolled, so anything that renames
+     * an NPC after the fact has to redo both — the floating nameplate and the display name — or the
+     * body walks around introducing itself as someone else. Revival hits this: the record is poured
+     * in after the body exists.
+     */
+    public static void refreshNameplate(Store<EntityStore> store, Ref<EntityStore> ref, String name) {
+        if (store == null || ref == null || !ref.isValid() || name == null) return;
+        store.putComponent(ref, PersistentDisplayName.getComponentType(),
+                new PersistentDisplayName(Message.raw(name)));
+        store.putComponent(ref, Nameplate.getComponentType(), new Nameplate(name));
+    }
 }

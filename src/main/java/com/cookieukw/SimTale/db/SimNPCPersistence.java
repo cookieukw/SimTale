@@ -119,6 +119,23 @@ public class SimNPCPersistence {
         }
     }
 
+    /**
+     * Writes a record back as-is, without going through a live component.
+     * <p>
+     * Needed when a revival rewrites references inside NPCs that are not loaded right now: their
+     * data has to be corrected in the database directly, or they come back later still married to
+     * a UUID that no longer exists.
+     */
+    public static void saveData(SimNPCData data) {
+        if (data == null || data.id == null) return;
+        try {
+            worldShell().core(SimNPCData.class).preserve(data.id, data);
+        } catch (Exception e) {
+            HytaleLogger.forEnclosingClass().atWarning()
+                .log("SimTale: falha ao salvar o registro " + data.id + ": " + e.getMessage());
+        }
+    }
+
     /** Every archived record in the graveyard, newest-first ordering not guaranteed. Never null. */
     public static List<SimNPCData> listGraveyard() {
         try {
