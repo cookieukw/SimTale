@@ -93,31 +93,53 @@ $Game = "Common.ui";
   }
 };
 
+// ---------------------------------------------------------------- button tint
+// Amber, not yellow and not red, and the reasoning is worth keeping:
+//
+//   * Red is already spoken for. @BtnDestructive is the game's red button, and it is the single
+//     most important signal in these screens — "this one unclaims a bed / deletes a registry
+//     entry". Tinting the ordinary buttons red would erase that distinction, which is a real cost
+//     for a purely decorative gain.
+//   * Yellow sits too close to the panel. The surfaces are already warm light brown; a yellow
+//     button on top of them has almost no contrast and the button stops reading as a raised
+//     control.
+//
+// Amber leaning terracotta lands between the two: clearly warmer and more saturated than the wood
+// behind it, clearly not the red that means danger. Secondary goes a shade deeper so the two
+// button weights stay distinguishable now that they share a hue.
+@BtnTintPrimary   = #E0913C;
+@BtnTintSecondary = #C4713A;
+@BtnTintTertiary  = #B8875A;
+
+// Destructive is pushed deeper and cooler than the amber above rather than left alone: with warm
+// buttons everywhere, the shipped red was close enough to the primary tint to lose its urgency.
+@BtnTintDestructive = #B03A2E;
+
 // ---------------------------------------------------------------- button styles
 // ButtonStyle, not TextButtonStyle: every SimTale button keeps a child Label with its own id,
 // because the Java writes text through "#ChatButtonText.TextSpans" while binding the click to
 // "#ChatButton". Switching to TextButton would move the text into the button itself and break
 // every one of those bindings.
 @BtnNeutral = ButtonStyle(
-  Default:  (Background: (TexturePath: "Common/Buttons/Primary_Square.png", Border: 12)),
-  Hovered:  (Background: (TexturePath: "Common/Buttons/Primary_Square_Hovered.png", Border: 12)),
-  Pressed:  (Background: (TexturePath: "Common/Buttons/Primary_Square_Pressed.png", Border: 12)),
+  Default:  (Background: (TexturePath: "Common/Buttons/Primary_Square.png", Border: 12, Color: @BtnTintPrimary)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Primary_Square_Hovered.png", Border: 12, Color: @BtnTintPrimary)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Primary_Square_Pressed.png", Border: 12, Color: @BtnTintPrimary)),
   Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
   Sounds: $Game.@ButtonSounds,
 );
 
 @BtnSecondary = ButtonStyle(
-  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12)),
-  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12)),
-  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12)),
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12, Color: @BtnTintSecondary)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12, Color: @BtnTintSecondary)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12, Color: @BtnTintSecondary)),
   Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
   Sounds: $Game.@ButtonSounds,
 );
 
 @BtnTertiary = ButtonStyle(
-  Default:  (Background: (TexturePath: "Common/Buttons/Tertiary.png", Border: 12)),
-  Hovered:  (Background: (TexturePath: "Common/Buttons/Tertiary_Hovered.png", Border: 12)),
-  Pressed:  (Background: (TexturePath: "Common/Buttons/Tertiary_Pressed.png", Border: 12)),
+  Default:  (Background: (TexturePath: "Common/Buttons/Tertiary.png", Border: 12, Color: @BtnTintTertiary)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Tertiary_Hovered.png", Border: 12, Color: @BtnTintTertiary)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Tertiary_Pressed.png", Border: 12, Color: @BtnTintTertiary)),
   Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
   Sounds: $Game.@ButtonSounds,
 );
@@ -131,9 +153,9 @@ $Game = "Common.ui";
 // for the game itself; the moment this theme referenced it, world join died with
 // "Could not find an expression named ButtonsDestructive in document Sounds.ui".
 @BtnDestructive = ButtonStyle(
-  Default:  (Background: (TexturePath: "Common/Buttons/Destructive.png", Border: 12)),
-  Hovered:  (Background: (TexturePath: "Common/Buttons/Destructive_Hovered.png", Border: 12)),
-  Pressed:  (Background: (TexturePath: "Common/Buttons/Destructive_Pressed.png", Border: 12)),
+  Default:  (Background: (TexturePath: "Common/Buttons/Destructive.png", Border: 12, Color: @BtnTintDestructive)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Destructive_Hovered.png", Border: 12, Color: @BtnTintDestructive)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Destructive_Pressed.png", Border: 12, Color: @BtnTintDestructive)),
   Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
   Sounds: $Game.@ButtonSounds,
 );
