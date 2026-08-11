@@ -5,11 +5,15 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.WorldUtil;
+import com.cookieukw.SimTale.systems.HouseBlueprintHelper;
+import com.cookieukw.SimTale.systems.InspectorJournalHelper;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -138,5 +142,45 @@ public class SimTaleItemRegistry {
         RuneCoreItemManager.register("WeddingRing", (player, playerRef) -> {
             playerRef.sendMessage(Message.raw("💍 Você está segurando uma aliança de casamento!"));
         });
+    }
+
+    /**
+     * Runs {@code action} with the player's current position, or does nothing if it cannot be read.
+     * <p>
+     * RuneCore's callback hands over the player and nothing else — no target block, no target
+     * entity. Items that need to know "which bed" or "which villager" therefore have to work from
+     * where the player is standing.
+     */
+    private static void withPlayerPosition(PlayerRef playerRef, java.util.function.Consumer<Vector3d> action) {
+        Ref<EntityStore> pRef = playerRef.getReference();
+        if (pRef == null || !pRef.isValid()) return;
+
+        TransformComponent transform = pRef.getStore()
+                .getComponent(pRef, TransformComponent.getComponentType());
+        if (transform == null) return;
+
+        action.accept(new Vector3d(transform.getPosition()));
+    }
+
+    /**
+     * Opens a custom page from an item interaction.
+     * <p>
+     * Deferred onto the world thread for the same reason every other structural operation in this
+     * class is: item interactions run inside the store's processing window.
+     */
+    private static void openPage(Player player, PlayerRef playerRef, PageFactory factory) {
+        Ref<EntityStore> pRef = playerRef.getReference();
+        if (pRef == null || !pRef.isValid()) return;
+
+        Store<EntityStore> store = pRef.getStore();
+        WorldUtil.execute(() -> {
+            if (!pRef.isValid()) return;
+            player.getPageManager().openCustomPage(pRef, store, factory.create(pRef, store));
+        });
+    }
+
+    @FunctionalInterface
+    private interface PageFactory {
+        InteractiveCustomUIPage<String> create(Ref<EntityStore> playerRef, Store<EntityStore> store);
     }
 }
