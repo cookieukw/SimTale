@@ -76,22 +76,34 @@ public class GrowthManager {
     public static void applyVisualScale(Ref<EntityStore> ref, float scale) {
         Store<EntityStore> store = ref.getStore();
         PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
-        if (pm != null) {
-            ModelReference oldRef = pm.getModelReference();
-            if (Math.abs(oldRef.getScale() - scale) > 0.01f) {
-                ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), scale, oldRef.getRandomAttachmentIds());
-                pm.setModelReference(newRef);
-                // putComponent and structural write, and this runs every tick coming from
-                // GrowthTickSystem. Without the detour below, the child's visual scale was
-                // never applied — the exception rose and took down the rest of the growth
-                // tick along with it.
-                runOutsideTick(store, () -> {
-                    if (ref.isValid()) {
-                        store.putComponent(ref, PersistentModel.getComponentType(), pm);
-                    }
-                });
+        if (pm == null) return;
+
+        ModelReference oldRef = pm.getModelReference();
+        if (Math.abs(oldRef.getScale() - scale) <= 0.01f) return;
+
+        // Attachments are carried over deliberately: dropping them (passing a fresh empty map)
+        // strips the child's cosmetics along with the resize.
+        ModelReference newRef =
+                new ModelReference(oldRef.getModelAssetId(), scale, oldRef.getRandomAttachmentIds());
+
+        // Nothing is mutated before the write lands, and the write replaces the component rather
+        // than re-putting the same object.
+        //
+        // The previous version called pm.setModelReference(newRef) here and only then queued the
+        // put. That mutates the live component immediately, so on the very next tick the guard
+        // above already read the new scale and returned early — if the queued write had not
+        // actually reached the client, nothing ever retried it. The entity was the old size
+        // forever while the server was convinced it had resized, which is exactly how this looked
+        // in game: one change appeared to take, and every command after that did nothing.
+        //
+        // replaceComponent is what the expedition shrink uses, and that one demonstrably reaches
+        // the client. The detour off the tick stays: this is a structural write and growth runs
+        // from inside GrowthTickSystem, where the Store refuses them.
+        runOutsideTick(store, () -> {
+            if (ref.isValid()) {
+                store.replaceComponent(ref, PersistentModel.getComponentType(), new PersistentModel(newRef));
             }
-        }
+        });
     }
 
     public static void tickGrowth(GrowthComponent child, long worldTick) {
