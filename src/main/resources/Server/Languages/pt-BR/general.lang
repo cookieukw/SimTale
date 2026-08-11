@@ -76,7 +76,15 @@ baby.generic = o bebê
 baby.generic.prep = o bebê
 baby.custody.inventory_full = Seu inventário está cheio! Abra espaço para pegar o bebê de volta.
 
-blueprint.not_a_bed = Aponte a planta para uma cama registrada — é a cama que faz de um cômodo uma casa.
+bell.rang = O sino da vila ecoa por toda a redondeza.
+contract.village_full = A vila já está cheia — não há espaço para mais um morador agora.
+contract.failed = O contrato não encontrou ninguém disposto a se mudar agora. Tente de novo.
+contract.arrived = {name} chegou para morar na vila!
+contract.arrived_unnamed = Um novo morador chegou à vila!
+cake.placeholder = Um bolo de aniversário. Ainda não faz nada.
+ring.holding = Entregue a aliança a um morador por perto, em vez de usá-la sozinha.
+
+blueprint.no_bed_nearby = Nenhuma cama registrada num raio de {radius} blocos. Fique perto da cama da casa que você quer conferir.
 blueprint.summary = Interior: {interior} blocos | Portas: {doors} | Baús: {chests}
 
 journal.no_target = Aponte o diário para um morador.

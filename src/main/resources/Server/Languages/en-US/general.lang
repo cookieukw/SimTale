@@ -76,7 +76,15 @@ baby.generic = the baby
 baby.generic.prep = the baby
 baby.custody.inventory_full = Your inventory is full! Make space to take the baby back.
 
-blueprint.not_a_bed = Point the blueprint at a registered bed — the bed is what makes a room a house.
+bell.rang = The town bell rings out across the village.
+contract.village_full = The village is full — there is no room for another resident right now.
+contract.failed = The contract found nobody willing to move in. Try again.
+contract.arrived = {name} has arrived to live in the village!
+contract.arrived_unnamed = A new resident has arrived in the village!
+cake.placeholder = A birthday cake. It does not do anything yet.
+ring.holding = Give the ring to a villager you are close to, rather than using it on its own.
+
+blueprint.no_bed_nearby = No registered bed within {radius} blocks. Stand next to the bed of the house you want to check.
 blueprint.summary = Interior: {interior} blocks | Doors: {doors} | Chests: {chests}
 
 journal.no_target = Point the journal at a villager.

@@ -32,9 +32,10 @@ public class SimTaleItemRegistry {
     private static final int MAX_ACTIVE_NPCS = 10;
 
     public static void init() {
-        RuneCoreItemManager.register("TownBell", (player, playerRef) -> {
-            playerRef.sendMessage(Message.raw("🔔 O sino da cidade soou!"));
-        });
+        // Still a placeholder, but a translated one. The emoji went with the hardcoded string:
+        // the client renders it as "??".
+        RuneCoreItemManager.register("TownBell", (player, playerRef) ->
+                playerRef.sendMessage(Message.translation("general.bell.rang")));
         
         // The three lenses below replace placeholder handlers that only printed a line of hardcoded
         // Portuguese with an emoji the client renders as "??".
@@ -52,7 +53,7 @@ public class SimTaleItemRegistry {
         
         RuneCoreItemManager.register("ImmigrationContract", (player, playerRef) -> {
             if (SimTale.ACTIVE_NPCS.size() >= MAX_ACTIVE_NPCS) {
-                playerRef.sendMessage(Message.raw("A vila já está cheia — não há espaço para mais um morador agora."));
+                playerRef.sendMessage(Message.translation("general.contract.village_full"));
                 return;
             }
 
@@ -87,12 +88,14 @@ public class SimTaleItemRegistry {
             WorldUtil.execute(() -> {
                 Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
                 if (npcRef == null) {
-                    playerRef.sendMessage(Message.raw("O contrato não encontrou ninguém disposto a se mudar agora. Tente de novo."));
+                    playerRef.sendMessage(Message.translation("general.contract.failed"));
                     return;
                 }
                 SimNPCComponent npc = store.getComponent(npcRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-                String name = npc != null ? npc.name : "Alguém";
-                playerRef.sendMessage(Message.raw(name + " chegou para morar na vila!"));
+                Message arrival = npc != null
+                        ? Message.translation("general.contract.arrived").param("name", npc.name)
+                        : Message.translation("general.contract.arrived_unnamed");
+                playerRef.sendMessage(arrival);
             });
         });
         
@@ -135,13 +138,13 @@ public class SimTaleItemRegistry {
                 openPage(player, playerRef, (pRef, store) ->
                         new SimChestDebugPage(playerRef, player, 0, true)));
         
-        RuneCoreItemManager.register("BirthdayCake", (player, playerRef) -> {
-            playerRef.sendMessage(Message.raw("🎂 Que delícia! Bolo de aniversário!"));
-        });
+        RuneCoreItemManager.register("BirthdayCake", (player, playerRef) ->
+                playerRef.sendMessage(Message.translation("general.cake.placeholder")));
         
-        RuneCoreItemManager.register("WeddingRing", (player, playerRef) -> {
-            playerRef.sendMessage(Message.raw("💍 Você está segurando uma aliança de casamento!"));
-        });
+        // The ring's real behaviour lives in the gift path (InteractionManager); this only fires
+        // when it is used on nothing.
+        RuneCoreItemManager.register("WeddingRing", (player, playerRef) ->
+                playerRef.sendMessage(Message.translation("general.ring.holding")));
     }
 
     /**
