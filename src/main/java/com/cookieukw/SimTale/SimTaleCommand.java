@@ -114,6 +114,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new SetStageSubCommand());
         this.addSubCommand(new ForceMarrySubCommand());
         this.addSubCommand(new DebugCommands.DebugBedsSubCommand());
+        this.addSubCommand(new DebugCommands.GraveyardSubCommand());
         this.addSubCommand(new DebugCommands.DebugChestsSubCommand());
         this.addSubCommand(new DebugCommands.ForgetSubCommand());
         this.addSubCommand(new PregnancySubCommand());
@@ -149,7 +150,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|babystage|forceplacebaby|forceconstruct>"));
+        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|babystage|forceplacebaby|forceconstruct|graveyard>"));
     }
 
     /**
