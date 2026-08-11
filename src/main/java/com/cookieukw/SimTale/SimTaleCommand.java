@@ -223,7 +223,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             sb.append("\n  frozen=").append(store.getComponent(nref, Frozen.getComponentType()) != null)
-              .append("  interagindoUI=").append(best.isInteractingViaUI);
+              .append("  interactingUI=").append(best.isInteractingViaUI);
 
             NPCEntity ne = store.getComponent(nref, Objects.requireNonNull(NPCEntity.getComponentType()));
             if (ne != null) sb.append("\n  leash=").append(ne.getLeashPoint());
@@ -231,21 +231,40 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             RoutineAIComponent ai = store.getComponent(nref, SimTale.ROUTINE_AI_COMPONENT_TYPE);
             if (ai != null) {
                 sb.append("\n  ai task=").append(ai.currentTask)
-                  .append("  alvo=").append(ai.targetBlockPosition)
+                  .append("  target=").append(ai.targetBlockPosition)
                   .append("  lastLeash=").append(ai.lastLeashPos)
-                  .append("\n  sonoAgendado=").append(ai.sleepingOnSchedule);
+                  .append("\n  scheduledSleep=").append(ai.sleepingOnSchedule)
+                  .append("  forcedByDebug=").append(ai.forcedByDebug);
+
+                // Ticks left on each search backoff, which is the difference between "idle because
+                // it has nothing to do" and "idle because a need it cannot satisfy keeps pulling it
+                // back". An NPC that stood still for an entire session was unreadable without
+                // these: every branch involved fails silently.
+                long tick = world.getTick();
+                sb.append("\n  cooldowns: bed=").append(Math.max(0, ai.nextBedSearchTick - tick))
+                  .append(" food=").append(Math.max(0, ai.nextFoodSearchTick - tick))
+                  .append(" bath=").append(Math.max(0, ai.nextBathSearchTick - tick));
             }
+
+            // The needs drive every IDLE decision, so without them the dump shows the outcome and
+            // hides the reason.
+            sb.append("\n  needs: hunger=").append(fmt(NeedsHelper.getNeed(store, nref, NeedsHelper.HUNGER_ID)))
+              .append(" energy=").append(fmt(NeedsHelper.getNeed(store, nref, NeedsHelper.ENERGY_ID)))
+              .append(" hygiene=").append(fmt(NeedsHelper.getNeed(store, nref, NeedsHelper.HYGIENE_ID)))
+              .append(" fun=").append(fmt(NeedsHelper.getNeed(store, nref, NeedsHelper.FUN_ID)))
+              .append(" social=").append(fmt(NeedsHelper.getNeed(store, nref, NeedsHelper.SOCIAL_ID)));
 
             // Everything needed to tell "guard on the day shift" apart from "stuck in bed": the
             // profession, whether the world clock says this NPC's sleep window is open, and the
             // raw day progress behind that answer.
-            sb.append("\n  profissao=").append(best.profession)
-              .append("  janelaDeSono=")
+            sb.append("\n  profession=").append(best.profession)
+              .append("  sleepWindow=")
               .append(com.cookieukw.SimTale.systems.NPCSleepHelper.isSleepPeriod(best, world))
-              .append("  noite=")
+              .append("  night=")
               .append(com.cookieukw.SimTale.systems.NPCSleepHelper.isNight(world))
-              .append("  hora=")
-              .append(com.cookieukw.SimTale.systems.NPCSleepHelper.currentHour(world));
+              .append("  dayProgress=")
+              .append(com.cookieukw.SimTale.systems.NPCSleepHelper.currentHour(world))
+              .append("\n  bed=").append(best.bedLocation);
 
             ctx.sendMessage(Message.raw(sb.toString()));
             HytaleLogger.forEnclosingClass().atInfo().log(sb.toString());
