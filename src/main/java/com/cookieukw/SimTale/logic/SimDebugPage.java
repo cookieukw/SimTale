@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.logic;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
+import com.cookieukw.SimTale.core.DebugAccess;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.NeedsHelper;
@@ -66,13 +67,21 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             populateNPCData(cmd, npc, store);
         }
 
-        // Register buttons
-        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnForceEat", new EventData().append("action", "force_eat"), false);
-        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnForceSleep", new EventData().append("action", "force_sleep"), false);
-        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnForceBath", new EventData().append("action", "force_bath"), false);
-        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnForceSocial", new EventData().append("action", "force_social"), false);
-        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnSetHungerZero", new EventData().append("action", "hunger_zero"), false);
-        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnResetNeeds", new EventData().append("action", "reset_needs"), false);
+        // The whole action panel is a set of cheats — forcing a routine, and killing an NPC
+        // outright. Outside creative the screen stays open as an inspector: paging and the two
+        // registry views are reading, not editing.
+        boolean canEdit = DebugAccess.canEdit(player);
+        cmd.set("#ActionPanel.Visible", canEdit);
+
+        if (canEdit) {
+            eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnForceEat", new EventData().append("action", "force_eat"), false);
+            eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnForceSleep", new EventData().append("action", "force_sleep"), false);
+            eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnForceBath", new EventData().append("action", "force_bath"), false);
+            eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnForceSocial", new EventData().append("action", "force_social"), false);
+            eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnSetHungerZero", new EventData().append("action", "hunger_zero"), false);
+            eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnResetNeeds", new EventData().append("action", "reset_needs"), false);
+        }
+
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnPrevNpc", new EventData().append("action", "prev_npc"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnNextNpc", new EventData().append("action", "next_npc"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnViewBeds", new EventData().append("action", "view_beds"), false);
@@ -149,11 +158,13 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
         // the placement event actually reaching its handler, the registries are current and the
         // sweep buys nothing. '/simtale rescan' remains for worlds built before the fix.
         if (eventData.contains("view_beds")) {
-            player.getPageManager().openCustomPage(storeRef, store, new SimBedDebugPage(playerRefComp, player));
+            player.getPageManager().openCustomPage(storeRef, store,
+                    new SimBedDebugPage(playerRefComp, player, 0, false, true));
             return;
         }
         if (eventData.contains("view_chests")) {
-            player.getPageManager().openCustomPage(storeRef, store, new SimChestDebugPage(playerRefComp, player));
+            player.getPageManager().openCustomPage(storeRef, store,
+                    new SimChestDebugPage(playerRefComp, player, 0, false, true));
             return;
         }
 
@@ -164,7 +175,12 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             return;
         }
 
-        // Force actions
+        // Force actions, creative only — the bindings are withheld above, but the client still
+        // sends whatever action string it likes.
+        if (!DebugAccess.canEdit(player)) {
+            return;
+        }
+
         if (eventData.contains("force_eat")) {
             forceTask(npc, TaskType.FINDING_FOOD, store);
             playerRefComp.sendMessage(Message.translation("ui.simdebug.msgForcedEat").param("name", npc.name));

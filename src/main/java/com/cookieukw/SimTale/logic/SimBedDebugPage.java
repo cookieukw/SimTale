@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.logic;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.DebugAccess;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
