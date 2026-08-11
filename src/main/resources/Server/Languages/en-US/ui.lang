@@ -185,6 +185,37 @@ debugchests.btnBack = < Back
 debugchests.msgTpSuccess = Teleported to chest #{index}
 debugchests.msgForgetSuccess = Chest #{index} removed from the registry. The block stays in the world and returns on the next scan.
 
+simdebug.title = SIMDEBUG - Control Panel
+simdebug.npcNone = Select an NPC
+simdebug.genderMale = Male
+simdebug.genderFemale = Female
+simdebug.genderUnknown = Undefined
+simdebug.taskPlaceholder = Task: —
+simdebug.taskLine = Task: {task}
+simdebug.statPlaceholder = —
+simdebug.statHunger = Hunger: {value}
+simdebug.statEnergy = Energy: {value}
+simdebug.statSocial = Social: {value}
+simdebug.statHygiene = Hygiene: {value}
+simdebug.btnForceEat = Force Eat
+simdebug.btnForceSleep = Force Sleep
+simdebug.btnForceBath = Force Bath
+simdebug.btnForceSocial = Force Social
+simdebug.btnHungerZero = Hunger = 0 (Death)
+simdebug.btnResetNeeds = Reset (100)
+simdebug.btnPrev = < Previous
+simdebug.btnNext = Next >
+simdebug.btnViewBeds = View Beds
+simdebug.btnViewChests = View Chests
+simdebug.pageIndex = {current} / {total}
+simdebug.msgNoNpc = [SimDebug] No NPC available.
+simdebug.msgForcedEat = [SimDebug] {name} forced to eat!
+simdebug.msgForcedSleep = [SimDebug] {name} forced to sleep!
+simdebug.msgForcedBath = [SimDebug] {name} forced to bathe!
+simdebug.msgForcedSocial = [SimDebug] {name} forced to socialise/wander!
+simdebug.msgHungerZero = [SimDebug] {name}'s hunger zeroed! (death test)
+simdebug.msgResetNeeds = [SimDebug] {name}'s needs reset to 100!
+
 graveyard.title = GRAVEYARD
 graveyard.empty = Nobody is buried yet. NPCs collected by the Grim Reaper show up here.
 graveyard.entry = {index}. {name}

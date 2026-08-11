@@ -185,6 +185,37 @@ debugchests.btnBack = < Voltar
 debugchests.msgTpSuccess = Teletransportado para o baú #{index}
 debugchests.msgForgetSuccess = Baú #{index} removido do registro. O bloco continua no mundo e volta na próxima varredura.
 
+simdebug.title = SIMDEBUG - Painel de Controle
+simdebug.npcNone = Selecione um NPC
+simdebug.genderMale = Masculino
+simdebug.genderFemale = Feminino
+simdebug.genderUnknown = Indefinido
+simdebug.taskPlaceholder = Tarefa: —
+simdebug.taskLine = Tarefa: {task}
+simdebug.statPlaceholder = —
+simdebug.statHunger = Fome: {value}
+simdebug.statEnergy = Energia: {value}
+simdebug.statSocial = Social: {value}
+simdebug.statHygiene = Higiene: {value}
+simdebug.btnForceEat = Forçar Comer
+simdebug.btnForceSleep = Forçar Dormir
+simdebug.btnForceBath = Forçar Banho
+simdebug.btnForceSocial = Forçar Social
+simdebug.btnHungerZero = Fome = 0 (Morte)
+simdebug.btnResetNeeds = Resetar (100)
+simdebug.btnPrev = < Anterior
+simdebug.btnNext = Próximo >
+simdebug.btnViewBeds = Ver Camas
+simdebug.btnViewChests = Ver Baús
+simdebug.pageIndex = {current} / {total}
+simdebug.msgNoNpc = [SimDebug] Nenhum NPC disponível.
+simdebug.msgForcedEat = [SimDebug] {name} forçado a comer!
+simdebug.msgForcedSleep = [SimDebug] {name} forçado a dormir!
+simdebug.msgForcedBath = [SimDebug] {name} forçado a tomar banho!
+simdebug.msgForcedSocial = [SimDebug] {name} forçado a socializar/andar!
+simdebug.msgHungerZero = [SimDebug] Fome de {name} zerada! (teste de morte)
+simdebug.msgResetNeeds = [SimDebug] Needs de {name} resetados para 100!
+
 graveyard.title = CEMITÉRIO
 graveyard.empty = Ninguem enterrado ainda. NPCs coletados pelo Grim Reaper aparecem aqui.
 graveyard.entry = {index}. {name}

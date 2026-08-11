@@ -159,7 +159,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
 
         SimNPCComponent npc = getSelectedNPC();
         if (npc == null) {
-            playerRefComp.sendMessage(Message.raw("[SimDebug] Nenhum NPC disponivel."));
+            playerRefComp.sendMessage(Message.translation("ui.simdebug.msgNoNpc"));
             player.getPageManager().setPage(storeRef, store, Page.None);
             return;
         }
@@ -167,27 +167,27 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
         // Force actions
         if (eventData.contains("force_eat")) {
             forceTask(npc, TaskType.FINDING_FOOD, store);
-            playerRefComp.sendMessage(Message.raw("[SimDebug] " + npc.name + " forcado a comer!"));
+            playerRefComp.sendMessage(Message.translation("ui.simdebug.msgForcedEat").param("name", npc.name));
         } else if (eventData.contains("force_sleep")) {
             NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.ENERGY_ID, 0f);
             forceTask(npc, TaskType.FINDING_BED, store);
-            playerRefComp.sendMessage(Message.raw("[SimDebug] " + npc.name + " forcado a dormir!"));
+            playerRefComp.sendMessage(Message.translation("ui.simdebug.msgForcedSleep").param("name", npc.name));
         } else if (eventData.contains("force_bath")) {
             forceTask(npc, TaskType.FINDING_BATH, store);
-            playerRefComp.sendMessage(Message.raw("[SimDebug] " + npc.name + " forcado a tomar banho!"));
+            playerRefComp.sendMessage(Message.translation("ui.simdebug.msgForcedBath").param("name", npc.name));
         } else if (eventData.contains("force_social")) {
             forceTask(npc, TaskType.WANDERING, store);
-            playerRefComp.sendMessage(Message.raw("[SimDebug] " + npc.name + " forcado a socializar/andar!"));
+            playerRefComp.sendMessage(Message.translation("ui.simdebug.msgForcedSocial").param("name", npc.name));
         } else if (eventData.contains("hunger_zero")) {
             NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID, 0f);
-            playerRefComp.sendMessage(Message.raw("[SimDebug] Fome de " + npc.name + " zerada! (Teste de morte)"));
+            playerRefComp.sendMessage(Message.translation("ui.simdebug.msgHungerZero").param("name", npc.name));
         } else if (eventData.contains("reset_needs")) {
             NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID, 100f);
             NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.ENERGY_ID, 100f);
             NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.SOCIAL_ID, 100f);
             NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, 100f);
             NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.HYGIENE_ID, 100f);
-            playerRefComp.sendMessage(Message.raw("[SimDebug] Needs de " + npc.name + " resetados para 100!"));
+            playerRefComp.sendMessage(Message.translation("ui.simdebug.msgResetNeeds").param("name", npc.name));
         }
 
         refreshUI(storeRef, store);
