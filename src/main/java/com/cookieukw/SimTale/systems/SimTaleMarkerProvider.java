@@ -233,10 +233,11 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         }
 
         // Separates "we are not producing markers" from "we are producing them and the client is
-        // not drawing them" — the two have looked identical through three rounds of guessing.
-        // Throttled so an every-frame provider does not flood the log.
+        // not drawing them" — the two looked identical through three rounds of guessing while the
+        // markers were broken. Now that they work it is pure noise on a provider that runs every
+        // frame, so it is down at debug with the rest.
         if (LOG_PASSES.incrementAndGet() % 100 == 1) {
-            LOGGER.info("[SimTale] Mapa: {} NPC(s) no snapshot, {} marcador(es) emitido(s), {} fora da distancia de visao",
+            LOGGER.debug("[MAPA] {} NPC(s) no snapshot, {} marcador(es) emitido(s), {} fora da distancia de visao",
                     current.size(), emitted, outOfRange);
         }
     }
