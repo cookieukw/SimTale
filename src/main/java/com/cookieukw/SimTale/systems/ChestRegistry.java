@@ -5,11 +5,15 @@ import com.cookieukw.SimTale.core.AssetIds;
 import com.cookieukw.SimTale.core.SimLog;
 
 import com.cookieukw.SimTale.core.HouseBlockPos;
+import com.cookieukw.SimTale.db.ChestData;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.universe.world.World;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public final class ChestRegistry {
@@ -47,12 +51,67 @@ public final class ChestRegistry {
     }
 
     public static void add(int x, int y, int z) {
-        CHESTS.add(new HouseBlockPos(x, y, z));
+        if (CHESTS.add(new HouseBlockPos(x, y, z))) {
+            // Only on a genuine addition: the boot sweep re-registers everything it walks past, and
+            // writing on every one of those would be a disk write per chest per join.
+            persist(x, y, z);
+        }
         LOGGER.debug("[SimTale] Chest registered at (" + x + ", " + y + ", " + z + "). Total: " + CHESTS.size());
     }
 
     public static void removeAt(int x, int y, int z) {
         CHESTS.remove(new HouseBlockPos(x, y, z));
+        try {
+            SimNPCPersistence.worldShell().core(ChestData.class).discard(ChestData.key(x, y, z));
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] falha ao apagar o registro do bau ({},{},{}): {}", x, y, z, e.getMessage());
+        }
+    }
+
+    private static void persist(int x, int y, int z) {
+        try {
+            SimNPCPersistence.worldShell().core(ChestData.class)
+                    .preserve(ChestData.key(x, y, z), new ChestData(x, y, z));
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] falha ao salvar o registro do bau ({},{},{}): {}", x, y, z, e.getMessage());
+        }
+    }
+
+    /**
+     * Reloads the registry from disk, dropping entries whose block is gone.
+     *
+     * <p>The validation is the important half. Restoring a saved list blindly is what brought five
+     * dead babies back to life earlier in this project — a stale record is worse than a missing one,
+     * because the rest of the mod trusts the registry completely. A chest whose chunk is not loaded
+     * is kept: absent is not the same as gone, and dropping it would quietly un-register every chest
+     * away from spawn on each join.
+     */
+    public static void loadAll(World world) {
+        try {
+            List<ChestData> all = SimNPCPersistence.worldShell().core(ChestData.class).extractAll();
+            if (all == null) return;
+
+            int restored = 0;
+            int dropped = 0;
+            for (ChestData data : all) {
+                if (data == null) continue;
+
+                if (world != null
+                        && world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(data.x, data.z)) != null
+                        && !isContainerAt(world, data.x, data.y, data.z)) {
+                    removeAt(data.x, data.y, data.z);
+                    dropped++;
+                    continue;
+                }
+
+                CHESTS.add(new HouseBlockPos(data.x, data.y, data.z));
+                restored++;
+            }
+            LOGGER.info("[SimTale] {} bau(s) recarregado(s) do banco, {} descartado(s) por nao existirem mais",
+                    restored, dropped);
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] falha ao recarregar os baus: {}", e.getMessage());
+        }
     }
 
     public static int size() {

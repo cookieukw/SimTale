@@ -85,6 +85,18 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
             LOGGER.warn("[SimTale] Error loading growing children: " + e.getMessage());
         }
 
+        // And the same gap again on the chest registry, which was memory only.
+        //
+        // Beds never showed it because every NPC record carries its own bed and re-registers it on
+        // load; a chest has no owner to bring it back. That left the place event and the boot sweep
+        // as the only sources, and the sweep only sees chunks that happen to be loaded — so chests
+        // away from spawn were simply invisible to the mod until placed again.
+        try {
+            ChestRegistry.loadAll(player.getWorld());
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] Error loading chest registry: " + e.getMessage());
+        }
+
 
 
         // Map markers attach here rather than at plugin startup, where the world does not exist
