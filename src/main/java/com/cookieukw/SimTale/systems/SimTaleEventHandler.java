@@ -26,7 +26,6 @@ import com.hypixel.hytale.protocol.MouseButtonState;
 import com.hypixel.hytale.protocol.MouseButtonType;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import com.hypixel.hytale.server.core.entity.ItemUtils;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
@@ -37,7 +36,6 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
-import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.cookieukw.SimTale.core.WorldUtil;
@@ -47,7 +45,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -312,13 +309,12 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             SimNPCPersistence.saveNPC(childNPCComp);
         }
 
-        // Scale baby down visually to match its current growth stage
-        PersistentModel pm = store.getComponent(childRef, PersistentModel.getComponentType());
-        if (pm != null) {
-            ModelReference oldRef = pm.getModelReference();
-            ModelReference newRef = new ModelReference(oldRef.getModelAssetId(), childComp.currentScale, new HashMap<>());
-            store.replaceComponent(childRef, PersistentModel.getComponentType(), new PersistentModel(newRef));
-        }
+        // Scale baby down visually to match its current growth stage.
+        //
+        // Through the growth code so there is a single place that knows how to resize a child. The
+        // inline copy that used to live here also passed a fresh empty attachment map, which
+        // resized the model and stripped its cosmetics in the same write.
+        LifecycleManager.applyVisualScale(childRef, childComp.currentScale);
 
         childComp.putDown();
         Caskara.save("child_" + childComp.childId.toString(), childComp);
