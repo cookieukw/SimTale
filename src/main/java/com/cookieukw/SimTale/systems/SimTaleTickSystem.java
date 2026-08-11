@@ -66,6 +66,10 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         // taken here instead. Self-throttled; calling it from every NPC's tick is cheap because
         // all but one call returns immediately.
         SimTaleMarkerProvider.captureSnapshot(world, store);
+
+        // Same free ride: a no-op unless somebody has a house outline up, and it needs a tick from
+        // somewhere to expire on its own rather than lingering until the next inspection.
+        HouseBlueprintHelper.tickExpiry(world);
         
         if (npc == null) {
             UUIDComponent uuidComp = chunk.getComponent(index, UUIDComponent.getComponentType());
