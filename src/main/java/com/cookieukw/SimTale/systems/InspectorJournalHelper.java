@@ -24,24 +24,34 @@ public final class InspectorJournalHelper {
     private InspectorJournalHelper() {
     }
 
+    /** Villagers further than this from the player are not who they meant to inspect. */
+    private static final double SEARCH_RADIUS_SQ = 8.0 * 8.0;
+
     /**
-     * @param target the entity that was right-clicked, or null when the click hit nothing
+     * Reads the villager nearest the player.
+     *
+     * <p>Nearest, not the one pointed at: RuneCore's item callback hands over the player and
+     * nothing else, so there is no target entity to read. Same constraint the House Blueprint ran
+     * into, and the same mitigation — a tight radius, so in practice "nearest" is whoever you are
+     * standing in front of.
+     *
      * @return true when the click was consumed
      */
-    public static boolean inspect(World world, PlayerRef playerRef, Ref<EntityStore> target) {
-        if (world == null || playerRef == null) return false;
+    public static boolean inspect(World world, PlayerRef playerRef, Vector3d playerPos) {
+        if (world == null || playerRef == null || playerPos == null) return false;
 
-        if (target == null || !target.isValid()) {
+        SimNPCComponent npc = nearestNpc(playerPos);
+        if (npc == null) {
             playerRef.sendMessage(Message.translation("general.journal.no_target"));
             return true;
         }
 
-        Store<EntityStore> store = target.getStore();
-        SimNPCComponent npc = store.getComponent(target, SimTale.SIM_NPC_COMPONENT_TYPE);
-        if (npc == null) {
-            playerRef.sendMessage(Message.translation("general.journal.not_npc"));
+        Ref<EntityStore> target = npc.entityRef;
+        if (target == null || !target.isValid()) {
+            playerRef.sendMessage(Message.translation("general.journal.no_target"));
             return true;
         }
+        Store<EntityStore> store = target.getStore();
 
         playerRef.sendMessage(Message.translation("general.journal.header").param("name", npc.name));
 
@@ -106,6 +116,27 @@ public final class InspectorJournalHelper {
             case IDLE -> Message.translation("general.journal.task.idle");
             default -> Message.translation("general.journal.task.working");
         };
+    }
+
+    /** Closest live villager within {@link #SEARCH_RADIUS_SQ}, or null. */
+    private static SimNPCComponent nearestNpc(Vector3d from) {
+        SimNPCComponent best = null;
+        double bestDist = SEARCH_RADIUS_SQ;
+
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) continue;
+
+            TransformComponent transform = npc.entityRef.getStore()
+                    .getComponent(npc.entityRef, TransformComponent.getComponentType());
+            if (transform == null) continue;
+
+            double distSq = from.distanceSquared(transform.getPosition());
+            if (distSq <= bestDist) {
+                bestDist = distSq;
+                best = npc;
+            }
+        }
+        return best;
     }
 
     private static String round(float value) {

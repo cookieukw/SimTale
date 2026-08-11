@@ -98,24 +98,24 @@ public final class HouseBlueprintHelper {
         return true;
     }
 
-    /**
-     * Finds the bed for the clicked block.
-     *
-     * <p>A bed spans several blocks and the registry stores only the anchor, so clicking the foot
-     * of your own bed has to resolve to the same house as clicking the head. Falls back to the
-     * registry within a block, which is what {@code FurnitureAnchorHelper} normalises to.
-     */
-    private static HouseBlockPos resolveBed(World world, Vector3i clicked) {
+    /** Closest registered bed within {@link #SEARCH_RADIUS}, or null when there is none. */
+    private static HouseBlockPos nearestBed(Vector3d from) {
+        HouseBlockPos best = null;
+        double bestDist = (double) SEARCH_RADIUS * SEARCH_RADIUS;
+
         synchronized (BedRegistry.BEDS) {
             for (com.cookieukw.SimTale.db.SimBedData.BedPos bed : BedRegistry.BEDS) {
-                if (Math.abs(bed.x - clicked.x) <= 1
-                        && Math.abs(bed.y - clicked.y) <= 1
-                        && Math.abs(bed.z - clicked.z) <= 1) {
-                    return new HouseBlockPos(bed.x, bed.y, bed.z);
+                double dx = from.x - (bed.x + 0.5);
+                double dy = from.y - (bed.y + 0.5);
+                double dz = from.z - (bed.z + 0.5);
+                double distSq = dx * dx + dy * dy + dz * dz;
+                if (distSq <= bestDist) {
+                    bestDist = distSq;
+                    best = new HouseBlockPos(bed.x, bed.y, bed.z);
                 }
             }
         }
-        return null;
+        return best;
     }
 
     /**

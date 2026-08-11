@@ -32,13 +32,19 @@ public class SimTaleItemRegistry {
             playerRef.sendMessage(Message.raw("🔔 O sino da cidade soou!"));
         });
         
-        RuneCoreItemManager.register("InspectorsJournal", (player, playerRef) -> {
-            playerRef.sendMessage(Message.raw("📖 Você abriu o Diário do Inspetor!"));
-        });
-        
-        RuneCoreItemManager.register("InnkeepersLedger", (player, playerRef) -> {
-            playerRef.sendMessage(Message.raw("📒 Você abriu o Livro do Estalajadeiro!"));
-        });
+        // The three lenses below replace placeholder handlers that only printed a line of hardcoded
+        // Portuguese with an emoji the client renders as "??".
+        RuneCoreItemManager.register("InspectorsJournal", (player, playerRef) ->
+                withPlayerPosition(playerRef, pos ->
+                        InspectorJournalHelper.inspect(WorldUtil.first(), playerRef, pos)));
+
+        RuneCoreItemManager.register("InnkeepersLedger", (player, playerRef) ->
+                openPage(player, playerRef, (pRef, store) ->
+                        new SimBedDebugPage(playerRef, player, 0, true)));
+
+        RuneCoreItemManager.register("HouseBlueprint", (player, playerRef) ->
+                withPlayerPosition(playerRef, pos ->
+                        HouseBlueprintHelper.inspect(WorldUtil.first(), playerRef, pos)));
         
         RuneCoreItemManager.register("ImmigrationContract", (player, playerRef) -> {
             if (SimTale.ACTIVE_NPCS.size() >= MAX_ACTIVE_NPCS) {
@@ -121,9 +127,9 @@ public class SimTaleItemRegistry {
         // the whole prefab on every rotation, which was expensive enough to bog down the server
         // for the one active preview alone. Nothing to register here anymore.
 
-        RuneCoreItemManager.register("QuartermastersGlass", (player, playerRef) -> {
-            playerRef.sendMessage(Message.raw("🔍 Você está olhando pela Lupa do Intendente!"));
-        });
+        RuneCoreItemManager.register("QuartermastersGlass", (player, playerRef) ->
+                openPage(player, playerRef, (pRef, store) ->
+                        new SimChestDebugPage(playerRef, player, 0, true)));
         
         RuneCoreItemManager.register("BirthdayCake", (player, playerRef) -> {
             playerRef.sendMessage(Message.raw("🎂 Que delícia! Bolo de aniversário!"));
