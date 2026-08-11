@@ -375,7 +375,7 @@ public class HouseManager {
      * is part of a recognised house, which is the intended trade.
      */
     public static boolean canOpenChest(UUID npcId, HouseBlockPos chestPos) {
-        UUID houseId = BLOCK_TO_HOUSE_ID.get(chestPos);
+        UUID houseId = findHouseIdForChest(chestPos);
         if (houseId == null) {
             return false;
         }
@@ -386,6 +386,32 @@ public class HouseManager {
         // aborting the whole hunger/deposit scan for that NPC.
         if (npcId == null) return false;
         return house.owners.contains(npcId.toString());
+    }
+
+    /**
+     * Resolves the house a storage block belongs to, accepting a chest that only touches it.
+     *
+     * <p>The exact-position lookup alone was wrong for any chest placed after the house was
+     * registered. {@code house.interior} is a snapshot taken by the flood fill at claim time, and
+     * nothing rescans a room afterwards — so a chest put down later was never in
+     * {@code BLOCK_TO_HOUSE_ID}, {@code canOpenChest} refused it forever, and the chest panel
+     * reported "no house" for a chest standing in the middle of a registered bedroom.
+     *
+     * <p>Touching the interior is a sound substitute: the fill records every free block of the
+     * room, so a chest inside one necessarily has a face against a recorded block, and a chest
+     * outside has none — the loot chests in the world stay excluded.
+     */
+    public static UUID findHouseIdForChest(HouseBlockPos chestPos) {
+        if (chestPos == null) return null;
+
+        UUID direct = BLOCK_TO_HOUSE_ID.get(chestPos);
+        if (direct != null) return direct;
+
+        for (HouseBlockPos neighbor : get6Neighbors(chestPos)) {
+            UUID houseId = BLOCK_TO_HOUSE_ID.get(neighbor);
+            if (houseId != null) return houseId;
+        }
+        return null;
     }
 
     private static UUID getBedOwnerUuid(HouseBlockPos pos) {

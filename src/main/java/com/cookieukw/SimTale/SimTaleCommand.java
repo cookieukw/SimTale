@@ -1571,7 +1571,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             ctx.sendMessage(Message.translation("general.cmd.chestcheck.located")
                 .param("x", nearestChest.x).param("y", nearestChest.y).param("z", nearestChest.z));
 
-            UUID houseId = HouseManager.BLOCK_TO_HOUSE_ID.get(nearestChest);
+            UUID houseId = HouseManager.findHouseIdForChest(nearestChest);
             if (houseId != null) {
                 HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
                 if (house != null) {

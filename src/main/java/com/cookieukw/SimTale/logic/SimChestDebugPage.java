@@ -147,7 +147,7 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
     private Message describeOwner(HouseBlockPos pos) {
         // Chests outside a house are unusable by design — that is what keeps NPCs out of the
         // world generator's loot chests — so say so instead of calling them "public".
-        UUID houseId = HouseManager.BLOCK_TO_HOUSE_ID.get(pos);
+        UUID houseId = HouseManager.findHouseIdForChest(pos);
         if (houseId == null) return Message.translation("ui.debugchests.ownerNoHouse");
 
         HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
@@ -262,7 +262,7 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
             Message ownerMsg = describeOwner(cp);
             cmd.set(rowSelector + " #Owner.TextSpans", ownerMsg);
             cmd.set(rowSelector + " #Owner.Style.TextColor",
-                    HouseManager.BLOCK_TO_HOUSE_ID.get(cp) != null ? "#ffaa55" : "#44ff88");
+                    HouseManager.findHouseIdForChest(cp) != null ? "#ffaa55" : "#44ff88");
 
             Message contentsMsg = describeContents(world, cp);
             cmd.set(rowSelector + " #Contents.TextSpans", contentsMsg);
