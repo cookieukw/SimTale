@@ -121,6 +121,22 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
             return;
         }
 
+        // Being carried hides the crystal entirely, third case after the Reaper and the expedition.
+        //
+        // The first attempt made it follow the carrier instead, which fixed the stale position but
+        // produced a worse picture: the child's plumbob and the carrier's own ended up side by side
+        // over one head. Two mood crystals on one player reads as a bug even though both are
+        // "correct". A carried child is not going about her business anyway, which is what the
+        // crystal is there to report.
+        //
+        // (The stale position is real and worth remembering: a mounted entity is drawn attached to
+        // its mount, but its own TransformComponent stays where it was when it mounted. Anything
+        // that follows a carried NPC has to read the carrier, not her.)
+        if (chunk.getComponent(index, MountedComponent.getComponentType()) != null) {
+            despawnPlumbob(entityUuid, commandBuffer);
+            return;
+        }
+
         TransformComponent entityTransform = chunk.getComponent(index, TransformComponent.getComponentType());
         if (entityTransform == null) return;
         
@@ -141,25 +157,6 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         BoundingBox box = chunk.getComponent(index, BoundingBox.getComponentType());
         if (box != null) {
             height = box.getBoundingBox().height() + 0.35;
-        }
-
-        // A mounted entity is drawn attached to its mount, but its own TransformComponent stays
-        // wherever it was when it mounted — the engine moves the visual, not the server-side
-        // position. Following that stale transform is why a carried child's plumbob stayed
-        // hovering over the patch of ground she was standing on when you picked her up.
-        //
-        // So the plumbob follows the carrier instead, offset by however high she is riding.
-        MountedComponent mounted = chunk.getComponent(index, MountedComponent.getComponentType());
-        if (mounted != null) {
-            Ref<EntityStore> mount = mounted.getMountedToEntity();
-            if (mount != null && mount.isValid()) {
-                TransformComponent mountTransform =
-                        store.getComponent(mount, TransformComponent.getComponentType());
-                if (mountTransform != null) {
-                    entityTransform = mountTransform;
-                    height = mounted.getAttachmentOffset().y() + height * 0.5;
-                }
-            }
         }
 
         boolean needsNewPlumbob = false;
