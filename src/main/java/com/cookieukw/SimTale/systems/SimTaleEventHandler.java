@@ -109,9 +109,16 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         // Crouch is required rather than a bare right-click so this cannot fire while placing
         // blocks or opening a chest, and crouch *alone* was rejected because players hold it
         // constantly near ledges.
-        if (ChildCarryHelper.isCrouching(playerRef.getStore(), playerRef)) {
-            Store<EntityStore> carryStore = world.getEntityStore().getStore();
-            if (ChildCarryHelper.putDown(carryStore, playerRef, playerRefComp)) {
+        Store<EntityStore> carryStore = world.getEntityStore().getStore();
+        if (ChildCarryHelper.isCarryingSomeone(carryStore, playerRef)) {
+            // Logged only while actually carrying, so it costs nothing the rest of the time. This
+            // exists because the gesture failed silently on the first test and there was no way to
+            // tell "the event never fired" from "crouch read false" from "nobody was being
+            // carried" — three very different bugs that all look identical in game.
+            boolean crouching = ChildCarryHelper.isCrouching(playerRef.getStore(), playerRef);
+            LOGGER.atInfo().log("[SimTale] carry: clique direito com filho no colo, agachado=" + crouching);
+
+            if (crouching && ChildCarryHelper.putDown(carryStore, playerRef, playerRefComp)) {
                 event.setCancelled(true);
                 return;
             }
