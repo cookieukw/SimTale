@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.SimLog;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.protocol.packets.interface_.BlockChange;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -137,7 +138,12 @@ public final class HouseBlueprintHelper {
 
         HouseBlockPos anchorPos = footprint.iterator().next();
         Vector3i anchor = new Vector3i(anchorPos.x, anchorPos.y, anchorPos.z);
-        String blockId = valid ? OUTLINE_VALID : OUTLINE_INVALID;
+
+        // BlockChange takes the numeric block id, not the name — resolved once for the whole
+        // footprint rather than per block.
+        String blockName = valid ? OUTLINE_VALID : OUTLINE_INVALID;
+        int blockId = BlockType.getBlockIdOrUnknown(
+                blockName, "SimTale: bloco de contorno desconhecido: %s", blockName);
 
         List<BlockChange> blocks = new ArrayList<>(footprint.size());
         for (HouseBlockPos pos : footprint) {
