@@ -27,6 +27,24 @@ private static final List<String> FOOD_POOL = List.of(
         "Food_Kebab_Meat"
 );
 
+/**
+ * Items an NPC can name as a favourite.
+ *
+ * <p>Everything here has to be <em>giftable</em>, which is a narrower thing than "exists". An item
+ * that carries its own interaction never reaches the gift path at all, so naming it a favourite
+ * describes a wish the player can never grant.
+ *
+ * <p>Two used to be in this list and were removed for exactly that:
+ * <ul>
+ *   <li>{@code WeddingRing} — {@code handleGift} intercepts it and turns the gesture into a
+ *       marriage proposal before any gift scoring happens. It was also handed out to children,
+ *       which is worse than merely impossible.</li>
+ *   <li>{@code Blueprint_TavernHouse} — a placeable construction marker, handled on placement.</li>
+ * </ul>
+ *
+ * <p>Anything added here should be checked the same way: if the mod reacts to the item somewhere
+ * else, it does not belong.
+ */
 private static final List<String> ITEM_POOL = List.of(
         "Ingredient_Bar_Gold",
         "Ore_Gold",
@@ -34,8 +52,10 @@ private static final List<String> ITEM_POOL = List.of(
         "Plant_Leaves_Goldentree",
         "Alchemy_Cauldron",
         "Deco_Lantern",
-        "Blueprint_TavernHouse",
-        "WeddingRing"
+        "Ingredient_Bar_Iron",
+        "Ingredient_Bar_Silver",
+        "Plant_Flower_Common_Violet",
+        "Deco_Trophy_Harvest"
 );
 
 private static final List<String> HATED_ITEM_POOL = List.of(
