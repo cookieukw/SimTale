@@ -107,6 +107,18 @@ public class RoutineAIComponent implements Component<EntityStore> {
     public long nextFoodSearchTick = 0;
 
     /**
+     * Same guard as {@link #nextFoodSearchTick}, for the bath search.
+     * <p>
+     * This one was missing entirely, and its absence froze NPCs solid. The IDLE branch routes a
+     * dirty NPC into FINDING_BATH while deliberately backdating taskStartTime to skip the search
+     * cooldown; the search then sweeps ~10.500 blocks and, finding no water, drops straight back
+     * to IDLE without recording anything. The next tick repeats it, forever. Because the IDLE
+     * checks are one else-if chain, the NPC also never reached the socialise and wander branches
+     * below — it just stood still, silently, for as long as it stayed dirty.
+     */
+    public long nextBathSearchTick = 0;
+
+    /**
      * True when the NPC went to bed because its sleeping window opened, not because it was
      * exhausted.
      * <p>
@@ -148,6 +160,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.forcedByDebug = this.forcedByDebug;
         comp.nextBedSearchTick = this.nextBedSearchTick;
         comp.nextFoodSearchTick = this.nextFoodSearchTick;
+        comp.nextBathSearchTick = this.nextBathSearchTick;
         comp.sleepingOnSchedule = this.sleepingOnSchedule;
         comp.eatingTier = this.eatingTier;
         comp.eatingWasHated = this.eatingWasHated;
