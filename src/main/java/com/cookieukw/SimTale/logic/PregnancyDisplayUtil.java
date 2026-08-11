@@ -86,7 +86,7 @@ public final class PregnancyDisplayUtil {
             case 3 -> "ui.pregnancy.trimester3";
             default -> "ui.pregnancy.trimester_unknown";
         };
-        cmd.set("#GestationStage.TextSpans", Message.translation("ui.pregnancy.stage").insert(Message.raw(" ")).insert(Message.translation(trimesterKey)));
+        cmd.set("#GestationStage.TextSpans", Message.translation(trimesterKey));
 
         float progress = preg.getProgress(currentTick);
         int percentage = Math.round(progress * 100);

@@ -83,7 +83,7 @@ Group {
         }
       }
 
-      @ReportRow { @Caption = %ui.pregnancy.caption_days; @Anchor = (Bottom: 12);
+      @ReportRow { @Caption = %ui.pregnancy.captionDays; @Anchor = (Bottom: 12);
         Label #ElapsedDays {
           Text: "—";
           FlexWeight: 1;
@@ -121,7 +121,7 @@ Group {
         }
       }
 
-      @ReportRow { @Caption = %ui.pregnancy.caption_remaining; @Anchor = (Bottom: 12);
+      @ReportRow { @Caption = %ui.pregnancy.captionRemaining; @Anchor = (Bottom: 12);
         Label #TimeRemaining {
           Text: "—";
           FlexWeight: 1;
@@ -144,7 +144,7 @@ Group {
         Style: (...$T.@BodyStyle, FontSize: 14, VerticalAlignment: Start);
       }
 
-      @ReportRow { @Caption = %ui.pregnancy.caption_children; @Anchor = (Bottom: 0);
+      @ReportRow { @Caption = %ui.pregnancy.captionChildren; @Anchor = (Bottom: 0);
         Label #TotalChildren {
           Text: "—";
           FlexWeight: 1;
