@@ -401,7 +401,12 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         commandBuilder.set("#JokeButtonText.TextSpans", Message.translation("ui.button.joke"));
         commandBuilder.set("#FlirtButtonText.TextSpans", Message.translation("ui.button.flirt"));
         commandBuilder.set("#GiftButtonText.TextSpans", Message.translation("ui.button.gift"));
-        commandBuilder.set("#InsultButtonText.TextSpans", Message.translation("ui.button.insult"));
+        // Your own child gets "Scold" where everyone else gets "Insult". Same button, because the
+        // slot is the same social gesture — but insulting your daughter and insulting a stranger
+        // are not the same act, and the panel should not pretend they are.
+        boolean ownChild = ParentChildBond.isChildOf(npc, playerRefComp.getUuid());
+        commandBuilder.set("#InsultButtonText.TextSpans",
+                Message.translation(ownChild ? "ui.button.scold" : "ui.button.insult"));
         commandBuilder.set("#AssignProfessionButtonText.TextSpans", Message.translation("ui.button.prof"));
         commandBuilder.set("#PregnancyButtonText.TextSpans", Message.translation("ui.button.pregnancy"));
 
@@ -574,7 +579,12 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.ROMANTIC);
             playerRefComp.sendMessage(resp);
         } else if (eventData.contains("InsultButton")) {
-            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.MEAN);
+            // Resolved here rather than trusted from the label: the page could have been built
+            // before the child grew up, and the two paths score very differently.
+            InteractionType type = ParentChildBond.isChildOf(npc, playerRefComp.getUuid())
+                    ? InteractionType.SCOLD
+                    : InteractionType.MEAN;
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, type);
             playerRefComp.sendMessage(resp);
         } else if (eventData.contains("GiftButton")) {
             Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.GIFT);

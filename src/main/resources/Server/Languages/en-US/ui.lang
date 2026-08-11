@@ -9,6 +9,7 @@ button.chat = Chat
 button.joke = Tell Joke
 button.flirt = Flirt
 button.insult = Insult
+button.scold = Scold
 button.gift = Give Gift
 button.prof = Assign Job
 info = INFORMATION
