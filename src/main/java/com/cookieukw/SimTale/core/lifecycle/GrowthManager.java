@@ -221,71 +221,113 @@ public class GrowthManager {
             }
         } 
         else if (child.stage == GrowthStage.TEEN) {
-            World world = WorldUtil.first();
-            if (world == null) {
-                LOGGER.atWarning().log("SimTale: nenhum mundo carregado; promocao para TEEN adiada.");
-                return;
-            }
+            promoteToAdultBody(child, true);
+        }
+        else if (child.isAdult()) {
+            // Also here, not only on TEEN.
+            //
+            // The stage branches read the stage the child landed on, not the one it came from, so
+            // jumping straight to ADULT — which is exactly what /simtale setstage does — skipped
+            // the only branch that swaps the body. The result was an adult wearing the child model
+            // scaled up: right size, wrong proportions. Growing up naturally passed through TEEN
+            // and hid it.
+            //
+            // Guarded so the normal path does not respawn twice: promoteToAdultBody is a no-op
+            // once the entity is already on an adult body.
+            promoteToAdultBody(child, false);
+            onBecameAdult(child);
+        }
+    }
 
-            Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
-            Vector3d spawnPos = new Vector3d(0, 100, 0);
-            if (childRef != null && childRef.isValid()) {
-                TransformComponent t = childRef.getStore().getComponent(childRef, TransformComponent.getComponentType());
-                if (t != null) spawnPos = new Vector3d(t.getPosition());
-                world.getEntityStore().getStore().removeEntity(childRef, RemoveReason.REMOVE);
-            }
+    /**
+     * Whether this entity is still wearing a child model.
+     *
+     * <p>Read from the model asset id because that is the only thing that survives every path into
+     * here: the role names its appearance {@code SimTale_Human_Child_<gender>_<variant>}, and the
+     * adult roles have no {@code Child} segment. A missing model counts as "needs the adult body" —
+     * something is wrong with the entity either way, and respawning is the recovery.
+     */
+    private static boolean usesChildBody(Ref<EntityStore> ref) {
+        if (ref == null || !ref.isValid()) return false;
+        PersistentModel pm = ref.getStore().getComponent(ref, PersistentModel.getComponentType());
+        if (pm == null || pm.getModelReference() == null) return true;
+        String assetId = pm.getModelReference().getModelAssetId();
+        return assetId == null || assetId.contains("Child");
+    }
 
-            SimNPCComponent oldNpc = null;
-            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityId != null && npc.entityId.equals(child.childId)) {
-                    oldNpc = npc;
-                    SimTale.untrackNpc(npc);
-                    break;
-                }
+    /**
+     * Respawns the child on an adult human body, carrying its identity across.
+     *
+     * @param announceTeen true when this is the teenage promotion, which has its own message
+     */
+    private static void promoteToAdultBody(GrowthComponent child, boolean announceTeen) {
+        World world = WorldUtil.first();
+        if (world == null) {
+            LOGGER.atWarning().log("SimTale: nenhum mundo carregado; promocao de corpo adiada.");
+            return;
+        }
+
+        if (!usesChildBody(LifecycleUtils.getEntityRef(child.childId))) {
+            return;
+        }
+
+        Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
+        Vector3d spawnPos = new Vector3d(0, 100, 0);
+        if (childRef != null && childRef.isValid()) {
+            TransformComponent t = childRef.getStore().getComponent(childRef, TransformComponent.getComponentType());
+            if (t != null) spawnPos = new Vector3d(t.getPosition());
+            world.getEntityStore().getStore().removeEntity(childRef, RemoveReason.REMOVE);
+        }
+
+        SimNPCComponent oldNpc = null;
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc.entityId != null && npc.entityId.equals(child.childId)) {
+                oldNpc = npc;
+                SimTale.untrackNpc(npc);
+                break;
             }
+        }
+        
+        SimNPCFactory.NPCType type = child.gender == Gender.MALE 
+            ? SimNPCFactory.NPCType.HUMAN_MALE 
+            : SimNPCFactory.NPCType.HUMAN_FEMALE;
             
-            SimNPCFactory.NPCType type = child.gender == Gender.MALE 
-                ? SimNPCFactory.NPCType.HUMAN_MALE 
-                : SimNPCFactory.NPCType.HUMAN_FEMALE;
-                
-            Store<EntityStore> store = world.getEntityStore().getStore();
-            Ref<EntityStore> teenRef = SimNPCFactory.spawnNPC(store, spawnPos, type,
-                    calculateTargetScale(child, WorldUtil.tick()));
-            
-            UUID newEntityId = Objects.requireNonNull(teenRef.getStore().getComponent(teenRef, UUIDComponent.getComponentType())).getUuid();
-            
-            UUID oldChildId = child.childId;
-            child.childId = newEntityId;
-            Caskara.delete("child_" + oldChildId.toString(), GrowthComponent.class);
-            Caskara.save("child_" + newEntityId, child);
-            
-            SimNPCComponent teenNpc = store.getComponent(teenRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-            if (teenNpc != null) {
-                teenNpc.name = child.getFullName();
-                if (oldNpc != null) {
-                    teenNpc.personality = oldNpc.personality;
-                    teenNpc.preferences = oldNpc.preferences;
-                    teenNpc.profession = oldNpc.profession;
-                }
-                teenRef.getStore().putComponent(teenRef, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(teenNpc.name)));
-                teenRef.getStore().putComponent(teenRef, Nameplate.getComponentType(), new Nameplate(teenNpc.name));
-                // Personality and preferences are carried over above; the family bond has to be
-                // carried over too, or growing up costs the teenager its parents.
-                FamilyBonds.linkToFamily(teenNpc, child);
-                SimNPCPersistence.saveNPC(teenNpc);
+        Store<EntityStore> store = world.getEntityStore().getStore();
+        Ref<EntityStore> teenRef = SimNPCFactory.spawnNPC(store, spawnPos, type,
+                calculateTargetScale(child, WorldUtil.tick()));
+        
+        UUID newEntityId = Objects.requireNonNull(teenRef.getStore().getComponent(teenRef, UUIDComponent.getComponentType())).getUuid();
+        
+        UUID oldChildId = child.childId;
+        child.childId = newEntityId;
+        Caskara.delete("child_" + oldChildId.toString(), GrowthComponent.class);
+        Caskara.save("child_" + newEntityId, child);
+        
+        SimNPCComponent teenNpc = store.getComponent(teenRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+        if (teenNpc != null) {
+            teenNpc.name = child.getFullName();
+            if (oldNpc != null) {
+                teenNpc.personality = oldNpc.personality;
+                teenNpc.preferences = oldNpc.preferences;
+                teenNpc.profession = oldNpc.profession;
             }
-            
-            LifecycleUtils.updateFamilyChildId(child.motherId, oldChildId, newEntityId);
-            LifecycleUtils.updateFamilyChildId(child.fatherId, oldChildId, newEntityId);
-            
+            teenRef.getStore().putComponent(teenRef, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(teenNpc.name)));
+            teenRef.getStore().putComponent(teenRef, Nameplate.getComponentType(), new Nameplate(teenNpc.name));
+            // Personality and preferences are carried over above; the family bond has to be
+            // carried over too, or growing up costs the teenager its parents.
+            FamilyBonds.linkToFamily(teenNpc, child);
+            SimNPCPersistence.saveNPC(teenNpc);
+        }
+        
+        LifecycleUtils.updateFamilyChildId(child.motherId, oldChildId, newEntityId);
+        LifecycleUtils.updateFamilyChildId(child.fatherId, oldChildId, newEntityId);
+        
+        if (announceTeen) {
             PlayerRef pRef = LifecycleUtils.getPlayerRef(child.motherId);
             if (pRef == null) pRef = LifecycleUtils.getPlayerRef(child.fatherId);
             if (pRef != null) {
                 pRef.sendMessage(Message.raw("Seu filho " + child.getFullName() + " virou um adolescente!"));
             }
-        }
-        else if (child.isAdult()) {
-            onBecameAdult(child);
         }
     }
 
