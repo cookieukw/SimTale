@@ -574,7 +574,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     count++;
                 }
                 PlumbobSystem.removePlumbob(npc.entityId);
-                SimNPCPersistence.deleteNPC(npc.entityId);
+                // Buried, not deleted. Everything the Reaper collects ends up in the graveyard and
+                // can be brought back; clearing the village by command used to be the one way to
+                // destroy an NPC outright, which made it a trap — one command and a whole village
+                // of histories was gone with no way back.
+                SimNPCPersistence.archiveToGraveyard(npc.entityId);
             }
             SimTale.clearActiveNpcs();
 
@@ -583,6 +587,17 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             // from earlier sessions) would otherwise survive and be resurrected. This used to be
             // guaranteed to leak, because Caskara.delete() targeted the "default" shell while
             // the records live in "simtale".
+            //
+            // Archived first, one by one, so the untracked ones reach the graveyard too instead of
+            // being the only NPCs the command can still destroy for good.
+            for (com.cookieukw.SimTale.db.SimNPCData data : SimNPCPersistence.listAll()) {
+                if (data.id == null) continue;
+                try {
+                    SimNPCPersistence.archiveToGraveyard(java.util.UUID.fromString(data.id));
+                } catch (IllegalArgumentException ignored) {
+                    // Malformed id: nothing to archive, deleteAll below still clears it.
+                }
+            }
             int purged = SimNPCPersistence.deleteAll();
 
             ctx.sendMessage(Message.raw("Removed " + count + " NPCs from the world and "
