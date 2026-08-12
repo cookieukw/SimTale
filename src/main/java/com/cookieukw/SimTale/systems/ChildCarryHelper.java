@@ -75,11 +75,11 @@ public final class ChildCarryHelper {
     /**
      * How tall the tower may get.
      *
-     * <p>Not a technical limit — the mount system does not care — but past three the top child is
-     * above the block the camera clips against, and a tower nobody can see the top of is worse than
-     * a refusal that says why.
+     * <p>Ten puts the top child around 9.2 blocks up, well past anything the camera frames at once.
+     * The cap exists so the refusal explains itself instead of the eleventh child silently vanishing
+     * into the ceiling — not because the mount system objects.
      */
-    private static final int MAX_STACK = 3;
+    private static final int MAX_STACK = 10;
 
     /** Beyond this the child is too big to be carried, whoever is asking. */
     private static final GrowthStage OLDEST_CARRIABLE = GrowthStage.CHILD;
