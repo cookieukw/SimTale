@@ -56,8 +56,27 @@ public final class ChildCarryHelper {
 
     private static final SimLog LOGGER = SimLog.forClass(ChildCarryHelper.class);
 
-    /** Where the child sits, relative to the carrier: on the shoulders. */
+    /** Where the first child sits, relative to the carrier: on the shoulders. */
     private static final float SHOULDER_HEIGHT = 1.55f;
+
+    /**
+     * Vertical gap between one child and the next one up.
+     *
+     * <p>Three children all took {@code SHOULDER_HEIGHT}, so they were drawn in exactly the same
+     * place and read as one glitched entity with three nameplates. A child at the CHILD stage is
+     * about 0.70 of an adult, which is roughly 1.2 blocks tall; 0.85 leaves them clearly separated
+     * without a visible gap between feet and shoulders.
+     */
+    private static final float STACK_STEP = 0.85f;
+
+    /**
+     * How tall the tower may get.
+     *
+     * <p>Not a technical limit — the mount system does not care — but past three the top child is
+     * above the block the camera clips against, and a tower nobody can see the top of is worse than
+     * a refusal that says why.
+     */
+    private static final int MAX_STACK = 3;
 
     /** Beyond this the child is too big to be carried, whoever is asking. */
     private static final GrowthStage OLDEST_CARRIABLE = GrowthStage.CHILD;
