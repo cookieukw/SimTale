@@ -945,63 +945,30 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     /**
      * Ages the Baby item in your hand so it can be placed.
      *
-     * <p>Shares its argument with {@code setstage}, which reads as duplication but is not: the two
-     * commands never see the same subject. {@code setstage} searches for the nearest child
-     * <em>entity</em>, and a baby in your hand has none — it is metadata on an item until someone
-     * puts it down. This is the only way to reach a child at that point in its life.
+     * <p>Not a variant of {@code setstage}: the two never see the same subject. {@code setstage}
+     * searches for the nearest child <em>entity</em>, and a baby in your hand has none — it is
+     * metadata on an item until someone puts it down. This is the only way to reach a child at that
+     * point in its life.
      *
-     * <p>Named {@code growbaby} rather than {@code babystage} for exactly that reason: two commands
-     * called {@code setstage} and {@code babystage} taking the same stage list invite the reading
-     * that one is a variant of the other, when what actually differs is whether the child is an
-     * item or a body. A verb says what it does to the thing in your hand.
-     *
-     * <p>The values are outcome words, not the internal stage names. "growbaby adult" reads as a
-     * contradiction — a baby that is an adult — and that is what made the command look wrong even
-     * though it was doing the right thing. "grow baby [until] grown" reads as an instruction.
-     * The stage names are still accepted so old habits and old notes keep working.
-     *
-     * <p>The argument is optional because the everyday use is "skip the wait, let me place it",
-     * which is {@code ready} — the first stage {@code placeBabyFromHeldItem} accepts.
+     * <p>No argument, on purpose. The command has exactly one job — skip the four days a newborn
+     * has to wait before {@code placeBabyFromHeldItem} will accept it — and every attempt to also
+     * expose the later stages here produced a command that read as nonsense, because the subject is
+     * a baby item. Aging a child further is what {@code setstage} is for, and it works the moment
+     * this one has put a body in the world.
      */
     private static class GrowBabySubCommand extends AbstractPlayerCommand {
-        private final OptionalArg<String> stageArg;
+
+        /** The first stage a held baby is allowed to be placed at. */
+        private static final GrowthStage PLACEABLE = GrowthStage.TODDLER;
 
         public GrowBabySubCommand() {
-            super("growbaby", "Grows the Baby item held in your hand so it can be placed (default: ready)");
-            this.stageArg = this.withOptionalArg("until", "ready|kid|teen|grown", ArgTypes.STRING);
-        }
-
-        /** Outcome word to stage, with the stage names kept as aliases. */
-        private static GrowthStage parseTarget(String value) {
-            switch (value.toLowerCase()) {
-                case "ready":
-                case "toddler":
-                    return GrowthStage.TODDLER;
-                case "kid":
-                case "child":
-                    return GrowthStage.CHILD;
-                case "teen":
-                    return GrowthStage.TEEN;
-                case "grown":
-                case "adult":
-                    return GrowthStage.ADULT;
-                default:
-                    return null;
-            }
+            super("growbaby", "Skips the newborn wait on the Baby item in your hand so it can be placed");
         }
 
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
-            String stageName = ctx.get(this.stageArg);
-            GrowthStage targetStage = GrowthStage.TODDLER;
-            if (stageName != null) {
-                targetStage = parseTarget(stageName);
-                if (targetStage == null) {
-                    ctx.sendMessage(Message.raw("[SimTale] Valor invalido. Use: ready, kid, teen ou grown."));
-                    return;
-                }
-            }
+            GrowthStage targetStage = PLACEABLE;
 
             ItemStack heldItem = InventoryComponent.getItemInHand(store, ref);
             if (heldItem == null || !heldItem.getItemId().equals("Baby")) {
