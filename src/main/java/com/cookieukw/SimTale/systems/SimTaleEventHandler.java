@@ -100,32 +100,12 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             }
         }
 
-        // --- Put down a carried child: crouch + right-click ---
+        // The crouch gesture that used to live here is now ChildPutDownSystem, on UseBlockEvent.
         //
-        // Before anything else that consumes a click. The gesture has to work with the child on
-        // your shoulders, which is precisely when her interaction panel is unreachable — she is not
-        // in front of the camera to be clicked on.
-        //
-        // Crouch is required rather than a bare right-click so this cannot fire while placing
-        // blocks or opening a chest, and crouch *alone* was rejected because players hold it
-        // constantly near ledges.
-        Store<EntityStore> carryStore = world.getEntityStore().getStore();
-        // Crouch is read first, and it is what gates the log.
-        //
-        // The order matters for diagnosis, not for behaviour: the previous version only logged once
-        // isCarryingSomeone had already returned true, so a false there produced complete silence —
-        // indistinguishable from the event never firing. Crouching while right-clicking is rare
-        // enough that logging on it costs nothing and tells us which half failed.
-        boolean crouching = ChildCarryHelper.isCrouching(playerRef.getStore(), playerRef);
-        if (crouching) {
-            boolean carrying = ChildCarryHelper.isCarryingSomeone(carryStore, playerRef);
-            LOGGER.atInfo().log("[SimTale] carry: clique direito agachado, carregando=" + carrying);
-
-            if (carrying && ChildCarryHelper.putDown(carryStore, playerRef, playerRefComp)) {
-                event.setCancelled(true);
-                return;
-            }
-        }
+        // Not a refactor for tidiness: this handler never runs. Across two full sessions the log
+        // has zero lines from it, including the unconditional one a few lines above, while
+        // /simtale putdown and the interaction panel both worked in those same sessions. Anything
+        // that depends on a player's click has to be delivered some other way.
 
         // The tool items are NOT handled here — see SimTaleItemRegistry.
         //
