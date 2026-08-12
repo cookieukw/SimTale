@@ -2,7 +2,9 @@ carry.nobody = You are not carrying anyone.
 carry.picked_up = You lift {name} onto your shoulders.
 carry.put_down = You set {name} back down.
 carry.already = {name} is already being carried.
-carry.hint = Crouch and right-click while aiming at the ground to put them down. If that does not work, use /simtale putdown.
+carry.hint = Crouch and click a block to put them down. If that does not work, use /simtale putdown.
+carry.stackFull = You can only carry {count} at a time.
+carry.stacked = {name} climbs up onto the ones you are already carrying.
 
 # Lines spoken by NPCs outside the interaction panel: leaving for work, coming back,
 # giving up on a conversation, and the spouse handing the baby over. Moved out of
