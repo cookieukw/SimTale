@@ -955,15 +955,39 @@ public class SimTaleCommand extends AbstractPlayerCommand {
      * that one is a variant of the other, when what actually differs is whether the child is an
      * item or a body. A verb says what it does to the thing in your hand.
      *
+     * <p>The values are outcome words, not the internal stage names. "growbaby adult" reads as a
+     * contradiction — a baby that is an adult — and that is what made the command look wrong even
+     * though it was doing the right thing. "grow baby [until] grown" reads as an instruction.
+     * The stage names are still accepted so old habits and old notes keep working.
+     *
      * <p>The argument is optional because the everyday use is "skip the wait, let me place it",
-     * which is TODDLER — the first stage {@code placeBabyFromHeldItem} accepts.
+     * which is {@code ready} — the first stage {@code placeBabyFromHeldItem} accepts.
      */
     private static class GrowBabySubCommand extends AbstractPlayerCommand {
         private final OptionalArg<String> stageArg;
 
         public GrowBabySubCommand() {
-            super("growbaby", "Ages the Baby item held in your hand so it can be placed (default: TODDLER)");
-            this.stageArg = this.withOptionalArg("stage", "BABY|TODDLER|CHILD|TEEN|ADULT", ArgTypes.STRING);
+            super("growbaby", "Grows the Baby item held in your hand so it can be placed (default: ready)");
+            this.stageArg = this.withOptionalArg("until", "ready|kid|teen|grown", ArgTypes.STRING);
+        }
+
+        /** Outcome word to stage, with the stage names kept as aliases. */
+        private static GrowthStage parseTarget(String value) {
+            switch (value.toLowerCase()) {
+                case "ready":
+                case "toddler":
+                    return GrowthStage.TODDLER;
+                case "kid":
+                case "child":
+                    return GrowthStage.CHILD;
+                case "teen":
+                    return GrowthStage.TEEN;
+                case "grown":
+                case "adult":
+                    return GrowthStage.ADULT;
+                default:
+                    return null;
+            }
         }
 
         @Override
@@ -972,10 +996,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             String stageName = ctx.get(this.stageArg);
             GrowthStage targetStage = GrowthStage.TODDLER;
             if (stageName != null) {
-                try {
-                    targetStage = GrowthStage.valueOf(stageName.toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    ctx.sendMessage(Message.raw("Invalid stage. Choose from: BABY, TODDLER, CHILD, TEEN, ADULT"));
+                targetStage = parseTarget(stageName);
+                if (targetStage == null) {
+                    ctx.sendMessage(Message.raw("[SimTale] Valor invalido. Use: ready, kid, teen ou grown."));
                     return;
                 }
             }
@@ -1030,13 +1053,12 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             childComp.currentScale = LifecycleManager.calculateTargetScale(childComp, world.getTick());
             Caskara.save("child_" + childId, childComp);
 
-            // BABY is accepted but says so: placeBabyFromHeldItem refuses it, so the command would
-            // otherwise report success on something that still cannot be put down.
-            String tail = targetStage == GrowthStage.BABY
-                    ? " Recem-nascido ainda nao pode ser colocado no chao."
-                    : " Ja pode colocar no chao.";
-            ctx.sendMessage(Message.raw("[SimTale] Stage do bebe carregado (" + childComp.getFullName() + ") definido para "
-                    + targetStage.name() + " (escala: " + childComp.currentScale + ")." + tail));
+            // No BABY case any more: none of the accepted values map to it, precisely because
+            // placeBabyFromHeldItem refuses a newborn and the command would be reporting success on
+            // something that still cannot be put down.
+            ctx.sendMessage(Message.raw("[SimTale] " + childComp.getFullName() + " cresceu para "
+                    + targetStage.getDisplayName() + " (escala: " + childComp.currentScale
+                    + "). Ja pode colocar no chao."));
         }
     }
 
