@@ -27,6 +27,7 @@ import com.cookieukw.SimTale.systems.SimTaleChatHandler;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.cookieukw.SimTale.systems.SimTaleTickSystem;
 import com.cookieukw.SimTale.systems.BedEntityRegistrySystem;
+import com.cookieukw.SimTale.systems.ChildPutDownSystem;
 import com.cookieukw.SimTale.systems.BedBlockEventSystem;
 import com.cookieukw.SimTale.systems.BedPlaceBlockEventSystem;
 import com.cookieukw.SimTale.systems.BabyBabbleSystem;
@@ -213,6 +214,10 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new BabyCareTickSystem());
         this.getEntityStoreRegistry().registerSystem(new GrowthTickSystem());
         this.getEntityStoreRegistry().registerSystem(new BabyBabbleSystem());
+        // Crouch + use a block to put a carried child down. An EntityEventSystem rather than an
+        // event-registry listener because UseBlockEvent is an EcsEvent — see the class doc for why
+        // the PlayerMouseButtonEvent version had to be abandoned.
+        this.getEntityStoreRegistry().registerSystem(new ChildPutDownSystem());
 
         // Map markers are NOT registered here.
         //
