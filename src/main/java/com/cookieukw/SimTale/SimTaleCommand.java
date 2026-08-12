@@ -855,6 +855,29 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             this.stageArg = this.withRequiredArg("stage", "BABY|TODDLER|CHILD|TEEN|ADULT", ArgTypes.STRING);
         }
 
+        /**
+         * Entity for a growth record, with the mod's own roster as a fallback.
+         *
+         * <p>{@code getRefFromUUID} reads {@code EntityStore}'s UUID index, which is filled when an
+         * entity is <em>added</em> to the store. A world restored from disk repopulates it as
+         * chunks load, so there is a window — and, for anything that was re-registered rather than
+         * re-added, a permanent gap — where an NPC is perfectly alive in the world and absent from
+         * that map. SimTale keeps its own reference on {@code SimNPCComponent.entityRef}, updated
+         * by the systems that spawn and track NPCs, so it answers when the index does not.
+         */
+        private static Ref<EntityStore> resolveChildRef(World world, UUID childId) {
+            Ref<EntityStore> byIndex = world.getEntityStore().getRefFromUUID(childId);
+            if (byIndex != null && byIndex.isValid()) return byIndex;
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc != null && childId.equals(npc.entityId)
+                        && npc.entityRef != null && npc.entityRef.isValid()) {
+                    return npc.entityRef;
+                }
+            }
+            return null;
+        }
+
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
@@ -867,34 +890,59 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
+            // Self-heal before searching.
+            //
+            // The list is rebuilt from disk in PlayerJoinHandler, and anything that stops that from
+            // running — an early return, a join that fired before the world was ready, a reload of
+            // the mod without a rejoin — leaves it empty for the rest of the session with no way to
+            // recover short of relogging. Refilling here is idempotent and costs one database read
+            // on a command nobody spams.
+            if (LifecycleManager.ACTIVE_CHILDREN.isEmpty()) {
+                BabyCareManager.loadActiveChildren();
+            }
+
             TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
             GrowthComponent nearestChild = null;
             double minDistance = Double.MAX_VALUE;
+            int unresolved = 0;
 
             for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
-                if (child.childId != null) {
-                    Ref<EntityStore> childRef = world.getEntityStore().getRefFromUUID(child.childId);
-                    if (childRef != null) {
-                        TransformComponent childTransform = store.getComponent(childRef, TransformComponent.getComponentType());
-                        if (playerTransform != null && childTransform != null) {
-                            Vector3d pPos = playerTransform.getPosition();
-                            Vector3d cPos = childTransform.getPosition();
-                            double distSq = pPos.distanceSquared(cPos);
-                            if (distSq < minDistance) {
-                                minDistance = distSq;
-                                nearestChild = child;
-                            }
-                        }
-                    }
+                if (child.childId == null) continue;
+
+                Ref<EntityStore> childRef = resolveChildRef(world, child.childId);
+                if (childRef == null || !childRef.isValid()) {
+                    unresolved++;
+                    continue;
+                }
+
+                TransformComponent childTransform =
+                        store.getComponent(childRef, TransformComponent.getComponentType());
+                if (playerTransform == null || childTransform == null) {
+                    unresolved++;
+                    continue;
+                }
+
+                double distSq = playerTransform.getPosition().distanceSquared(childTransform.getPosition());
+                if (distSq < minDistance) {
+                    minDistance = distSq;
+                    nearestChild = child;
                 }
             }
 
             if (nearestChild == null) {
-                // Says how many candidates there were: an empty ACTIVE_CHILDREN ("no children in
-                // this world at all") and a full one whose entities are out of reach are the same
-                // message otherwise, and they need opposite fixes.
-                String miss = "[SimTale] setstage: nenhum filho ativo por perto (ACTIVE_CHILDREN="
-                        + LifecycleManager.ACTIVE_CHILDREN.size() + ")";
+                // Three failures wore the same message and need opposite fixes: no growth records
+                // at all, records whose entities are not in the world, and a player with no
+                // transform. Saying which one it is turns a guess into a lookup.
+                int total = LifecycleManager.ACTIVE_CHILDREN.size();
+                String miss;
+                if (total == 0) {
+                    miss = "[SimTale] setstage: nenhum registro de crescimento neste mundo. "
+                            + "Filhos que ja viraram ADULT saem da lista de proposito.";
+                } else {
+                    miss = "[SimTale] setstage: " + total + " registro(s) de filho, mas "
+                            + unresolved + " sem entidade carregada no mundo. "
+                            + "Chegue perto do filho ou confira se ele ainda existe.";
+                }
                 HytaleLogger.forEnclosingClass().atInfo().log(miss);
                 ctx.sendMessage(Message.raw(miss));
                 return;
@@ -916,7 +964,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             // source of truth, so the command and the passage of time can no longer disagree.
             nearestChild.currentScale = LifecycleManager.calculateTargetScale(nearestChild, world.getTick());
 
-            Ref<EntityStore> childRef = world.getEntityStore().getRefFromUUID(nearestChild.childId);
+            Ref<EntityStore> childRef = resolveChildRef(world, nearestChild.childId);
             if (childRef != null && childRef.isValid()) {
                 LifecycleManager.applyVisualScale(childRef, nearestChild.currentScale);
             }
