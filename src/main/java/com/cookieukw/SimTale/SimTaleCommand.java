@@ -64,6 +64,7 @@ import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareData;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleState;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.cookieukw.SimTale.core.SimLog;
@@ -897,9 +898,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             // the mod without a rejoin — leaves it empty for the rest of the session with no way to
             // recover short of relogging. Refilling here is idempotent and costs one database read
             // on a command nobody spams.
-            if (LifecycleManager.ACTIVE_CHILDREN.isEmpty()) {
-                BabyCareManager.loadActiveChildren();
-            }
+            LifecycleState.ensureLoaded();
 
             TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
             GrowthComponent nearestChild = null;
