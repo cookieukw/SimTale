@@ -25,6 +25,9 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -122,6 +125,17 @@ public final class ChildCarryHelper {
             return false;
         }
 
+        // Where this one goes: on the shoulders if she is the first, on the previous child's
+        // shoulders otherwise. Counting the existing stack is what turns "three children occupying
+        // the same point" into a tower.
+        int alreadyCarried = carriedBy(store, carrier).size();
+        if (alreadyCarried >= MAX_STACK) {
+            carrierRef.sendMessage(Message.translation("npc-dialogues.carry.stackFull")
+                    .param("count", MAX_STACK));
+            return false;
+        }
+        final float ridingHeight = SHOULDER_HEIGHT + alreadyCarried * STACK_STEP;
+
         // The routine has to stand down first. A carried child still ticks, and an AI that keeps
         // setting leash points and walking states while its body is pinned to someone's shoulders
         // is how an NPC ends up sliding along the floor — the exact failure mode that took a whole
@@ -146,7 +160,7 @@ public final class ChildCarryHelper {
         WorldUtil.execute(() -> {
             if (!childRef.isValid() || !carrier.isValid()) return;
             MountedComponent mounted = new MountedComponent(
-                    carrier, new Vector3f(0f, SHOULDER_HEIGHT, 0f), MountController.Minecart);
+                    carrier, new Vector3f(0f, ridingHeight, 0f), MountController.Minecart);
             store.putComponent(childRef, MountedComponent.getComponentType(), mounted);
 
             // The collision box has to go while she is up there.
@@ -303,8 +317,24 @@ public final class ChildCarryHelper {
      * there is no second piece of state to keep in sync with the mount.
      */
     private static SimNPCComponent findCarriedBy(Store<EntityStore> store, Ref<EntityStore> carrier) {
+        List<SimNPCComponent> stack = carriedBy(store, carrier);
+        // The one on top comes off first — taking someone out of the middle would leave the rest
+        // floating a step above nothing.
+        return stack.isEmpty() ? null : stack.get(stack.size() - 1);
+    }
+
+    /**
+     * Everyone this player is carrying, ordered from the shoulders upwards.
+     *
+     * <p>The order is read back from each child's own {@code attachmentOffset} rather than tracked
+     * in a map here. That offset is the same value the client draws them at, so the list can never
+     * disagree with what the player sees — and there is no second piece of state to keep in sync
+     * with the mounts, which is the mistake the plumbob and the bounding box both taught.
+     */
+    public static List<SimNPCComponent> carriedBy(Store<EntityStore> store, Ref<EntityStore> carrier) {
+        List<SimNPCComponent> carried = new ArrayList<>();
         UUID carrierId = uuidOf(store, carrier);
-        if (carrierId == null) return null;
+        if (carrierId == null) return carried;
 
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) continue;
@@ -314,9 +344,18 @@ public final class ChildCarryHelper {
 
             Ref<EntityStore> mount = mounted.getMountedToEntity();
             if (mount == null || !mount.isValid()) continue;
-            if (carrierId.equals(uuidOf(store, mount))) return npc;
+            if (carrierId.equals(uuidOf(store, mount))) carried.add(npc);
         }
-        return null;
+
+        carried.sort(Comparator.comparingDouble(npc -> offsetHeight(store, npc)));
+        return carried;
+    }
+
+    /** Height this child is riding at, or 0 when it cannot be read. */
+    private static float offsetHeight(Store<EntityStore> store, SimNPCComponent npc) {
+        MountedComponent mounted = store.getComponent(npc.entityRef, MountedComponent.getComponentType());
+        if (mounted == null || mounted.getAttachmentOffset() == null) return 0f;
+        return mounted.getAttachmentOffset().y();
     }
 
     /**
