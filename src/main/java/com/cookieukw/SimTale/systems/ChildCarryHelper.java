@@ -199,11 +199,15 @@ public final class ChildCarryHelper {
         // you the child hates being picked up.
         npc.setEmotion(Mood.HAPPY, 0.7f, "carried", WorldUtil.tick());
 
-        carrierRef.sendMessage(Message.translation("npc-dialogues.carry.picked_up")
+        carrierRef.sendMessage(Message.translation(
+                        alreadyCarried > 0 ? "npc-dialogues.carry.stacked" : "npc-dialogues.carry.picked_up")
                 .param("name", npc.name));
-        // Said once, at the moment it becomes relevant: a gesture nobody is told about is a
-        // mechanic that does not exist.
-        carrierRef.sendMessage(Message.translation("npc-dialogues.carry.hint"));
+        // Said at the moment it becomes relevant, and only for the first child: a gesture nobody is
+        // told about is a mechanic that does not exist, but repeating it up a three-child tower is
+        // just noise.
+        if (alreadyCarried == 0) {
+            carrierRef.sendMessage(Message.translation("npc-dialogues.carry.hint"));
+        }
         LOGGER.info("[SimTale] {} foi pega no colo", npc.name);
         return true;
     }
