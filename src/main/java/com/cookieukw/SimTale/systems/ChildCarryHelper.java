@@ -259,6 +259,38 @@ public final class ChildCarryHelper {
     }
 
     /**
+     * Re-seats the tower so the heights run shoulders-upward with no gaps.
+     *
+     * <p>Called after anyone leaves. Written as "assign every seat from scratch" rather than "shift
+     * the ones above down", because the second version has to know who left and from where, and
+     * gets it wrong the moment two children leave in the same tick — which is exactly what a batch
+     * of overdue promotions does.
+     *
+     * <p>Rebuilt through the constructor because every field on {@code MountedComponent} is private
+     * with no setters; the mount is replaced, not edited.
+     */
+    public static void reseat(Store<EntityStore> store, Ref<EntityStore> carrier) {
+        List<SimNPCComponent> stack = carriedBy(store, carrier);
+        for (int i = 0; i < stack.size(); i++) {
+            SimNPCComponent npc = stack.get(i);
+            if (npc.entityRef == null || !npc.entityRef.isValid()) continue;
+
+            float target = SHOULDER_HEIGHT + i * STACK_STEP;
+            MountedComponent current =
+                    store.getComponent(npc.entityRef, MountedComponent.getComponentType());
+            if (current == null) continue;
+            if (current.getAttachmentOffset() != null
+                    && Math.abs(current.getAttachmentOffset().y() - target) < 0.01f) {
+                continue;
+            }
+
+            store.putComponent(npc.entityRef, MountedComponent.getComponentType(),
+                    new MountedComponent(carrier, new Vector3f(0f, target, 0f),
+                            MountController.Minecart));
+        }
+    }
+
+    /**
      * Stops the walk cycle a carried child kept playing on someone's shoulders.
      *
      * <p>Freezing and clearing the AI stops her from <em>moving</em>, but the walk animation is not
