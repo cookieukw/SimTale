@@ -19,7 +19,13 @@ const config = {
 
   // A broken link fails the build on purpose. A wiki with dead links is worse than an incomplete one.
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+
+  // onBrokenMarkdownLinks moved under markdown.hooks in Docusaurus 3.9 and is removed in v4.
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
 
   i18n: {
     // English is the wiki language. pt-BR can be added later without restructuring.
@@ -53,7 +59,9 @@ const config = {
         id: 'admin',
         path: 'admin',
         routeBasePath: 'admin',
-        sidebarPath: require.resolve('./sidebars.js'),
+        // Its own file: a docs plugin validates every sidebar in the file it is given against its
+        // own folder, so sharing one file made each track fail on the other two tracks' pages.
+        sidebarPath: require.resolve('./sidebarsAdmin.js'),
       },
     ],
     [
@@ -62,7 +70,7 @@ const config = {
         id: 'dev',
         path: 'dev',
         routeBasePath: 'dev',
-        sidebarPath: require.resolve('./sidebars.js'),
+        sidebarPath: require.resolve('./sidebarsDev.js'),
       },
     ],
   ],
