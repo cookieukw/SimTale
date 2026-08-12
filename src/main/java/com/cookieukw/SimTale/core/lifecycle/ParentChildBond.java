@@ -25,6 +25,10 @@ public final class ParentChildBond {
     public static GrowthComponent findChildOf(SimNPCComponent npc, UUID playerUuid) {
         if (npc == null || npc.entityId == null || playerUuid == null) return null;
 
+        // The panel calling an NPC "your child" while Scold and Pick up are missing is this list
+        // being empty, not the parentage being wrong — the two facts come from different places.
+        LifecycleState.ensureLoaded();
+
         for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
             if (child == null || !npc.entityId.equals(child.childId)) continue;
             if (playerUuid.equals(child.motherId) || playerUuid.equals(child.fatherId)) {
