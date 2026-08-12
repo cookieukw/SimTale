@@ -70,10 +70,16 @@ Use `/simtale rescan` for worlds built before that fix.
 | `/simtale forcebirth` | Forces birth |
 | `/simtale pregnancy` | Opens the gestation panel |
 | `/simtale setstage <stage>` | Sets a child's growth stage: `BABY`, `TODDLER`, `CHILD`, `TEEN`, `ADULT` |
+| `/simtale growbaby` | Skips the newborn wait on the **Baby item in your hand**, so it can be placed |
 
 :::caution `setstage` only sees born children
 It iterates children created through the pregnancy system. An adult NPC spawned by hand never
 appears there, and neither does anything if birth failed.
+
+It also only sees children that already exist **as entities**. A newborn is an item in your
+inventory, not a body in the world, so `setstage` cannot reach it — that is what `growbaby` is for.
+Take no argument: it advances the held baby to the first stage that can be put down. Once it is on
+the ground, `setstage` takes over.
 :::
 
 ## State

@@ -137,14 +137,32 @@ All five phases are drafted. What remains is validating them against a running b
 
 ```bash
 cd wiki
-npm install
-npm run start      # http://localhost:3000, hot reload
-npm run build      # static output in build/
+pnpm install
+pnpm start         # http://localhost:3000, hot reload
+pnpm build         # static output in build/
+pnpm serve         # serves build/ so baseUrl can be checked before publishing
 ```
 
-Suggested publishing: GitHub Pages via an Actions workflow triggered on push to the main branch.
+pnpm, not npm: the lockfile in this folder is `pnpm-lock.yaml`, and CI installs with
+`--frozen-lockfile`. Installing with npm would produce a second lockfile and the two would drift.
 
 `onBrokenLinks: 'throw'` is set deliberately — a dead link fails the build rather than shipping.
+
+### Publishing
+
+`.github/workflows/wiki.yml` builds and deploys to GitHub Pages on every push to `main` that
+touches `wiki/`. It has to be switched on once, by hand:
+
+**Settings → Pages → Source → GitHub Actions.** Leaving it on "Deploy from a branch" makes the
+workflow succeed and publish nothing, which is the confusing failure mode.
+
+The site then lives at `https://cookieukw.github.io/SimTale/`, which is what `url` and `baseUrl` in
+`docusaurus.config.js` already say. Those two must match the real address or every asset 404s while
+the pages themselves load — the classic "site looks unstyled" symptom.
+
+The workflow is path-filtered to `wiki/`, so ordinary code commits do not spend a deploy. Use the
+manual **Run workflow** button for the first publish and after changing repository settings, since
+neither touches a file.
 
 ---
 
