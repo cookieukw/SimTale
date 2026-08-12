@@ -77,6 +77,26 @@ public class BabyCareManager {
      * <p>The missing buttons were the symptom that surfaced first; the frozen growth is the part
      * that actually mattered.
      */
+    /**
+     * Identity that survives a respawn: who the parents are and what the child is called.
+     *
+     * <p>Not the id — the id is exactly what changes on every promotion, which is how the
+     * duplicates were created in the first place.
+     */
+    private static String key(GrowthComponent child) {
+        return child.motherId + "|" + child.fatherId + "|" + child.name + "|" + child.surname;
+    }
+
+    /** Drops a superseded growth record so the pile shrinks instead of being filtered forever. */
+    private static void discardRecord(GrowthComponent child) {
+        try {
+            Caskara.delete("child_" + child.childId, GrowthComponent.class);
+        } catch (Exception e) {
+            LOGGER.atWarning().log("SimTale: falha ao apagar registro duplicado de crescimento: "
+                    + e.getMessage());
+        }
+    }
+
     public static void loadActiveChildren() {
         LifecycleState.markLoaded();
         LifecycleState.ACTIVE_CHILDREN.clear();
@@ -86,6 +106,9 @@ public class BabyCareManager {
 
             int restored = 0;
             int orphans = 0;
+            int duplicates = 0;
+            java.util.Map<String, GrowthComponent> byIdentity = new java.util.LinkedHashMap<>();
+
             for (GrowthComponent child : all) {
                 if (child == null || child.childId == null) continue;
                 // An adult is done growing and does not belong in the growth list; it is also the
@@ -103,12 +126,42 @@ public class BabyCareManager {
                     continue;
                 }
 
-                LifecycleState.ACTIVE_CHILDREN.add(child);
+                // One record per person, keeping the most advanced stage.
+                //
+                // Every promotion respawns the entity under a new UUID and rewrites the record
+                // under a new key, so a child that grew twice leaves three keys on disk. Nothing
+                // read them back until now, which is why the pile was invisible; the moment this
+                // method started restoring everything, the same child appeared in the list several
+                // times over and each copy promoted independently. The log showed it plainly:
+                // "Brasinvus grew to Criancinha" twice, seconds apart — and each promotion
+                // respawns the body, which is what kept yanking a carried child off the player's
+                // shoulders a few seconds after picking her up.
+                //
+                // The identity that survives a respawn is the parents plus the name, not the id.
+                String identity = key(child);
+                GrowthComponent existing = byIdentity.get(identity);
+                if (existing != null) {
+                    GrowthComponent loser = existing.stage.ordinal() >= child.stage.ordinal()
+                            ? child : existing;
+                    GrowthComponent winner = loser == child ? existing : child;
+                    byIdentity.put(identity, winner);
+                    discardRecord(loser);
+                    duplicates++;
+                    continue;
+                }
+                byIdentity.put(identity, child);
                 restored++;
             }
+
+            LifecycleState.ACTIVE_CHILDREN.addAll(byIdentity.values());
+
             if (orphans > 0) {
                 LOGGER.atInfo().log("SimTale: " + orphans
                         + " registro(s) de bebe orfao ignorados (sem registro de cuidado).");
+            }
+            if (duplicates > 0) {
+                LOGGER.atInfo().log("SimTale: " + duplicates
+                        + " registro(s) duplicado(s) de crescimento descartados.");
             }
             LOGGER.atInfo().log("SimTale: " + restored + " filho(s) em crescimento recarregados do banco.");
         } catch (Exception e) {
