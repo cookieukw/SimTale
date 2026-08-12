@@ -324,7 +324,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         // The body follows the stage, not the fact that this came out of a "Baby" item.
         //
         // It was always a child model, which is fine while the item is what it says on the tin.
-        // /simtale babystage can hand you a teenager or an adult still in item form, and placing
+        // /simtale growbaby can hand you a teenager or an adult still in item form, and placing
         // one of those produced an adult in a child body — the same mismatch GrowthManager had at
         // the ADULT branch, reached by a different door. Nothing corrects it afterwards either:
         // the body swap hangs off a stage *change*, and this one already happened in the item.

@@ -133,7 +133,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new CamDebugSubCommand());
         this.addSubCommand(new UnstickSubCommand());
         this.addSubCommand(new RescanSubCommand());
-        this.addSubCommand(new BabyStageSubCommand());
+        this.addSubCommand(new GrowBabySubCommand());
         this.addSubCommand(new ForcePlaceBabySubCommand());
         this.addSubCommand(new ForceConstructSubCommand());
         this.addSubCommand(new NpcStateSubCommand());
@@ -148,7 +148,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|babystage|forceplacebaby|forceconstruct|graveyard|putdown>"));
+        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown>"));
     }
 
     /**
@@ -950,14 +950,19 @@ public class SimTaleCommand extends AbstractPlayerCommand {
      * <em>entity</em>, and a baby in your hand has none — it is metadata on an item until someone
      * puts it down. This is the only way to reach a child at that point in its life.
      *
+     * <p>Named {@code growbaby} rather than {@code babystage} for exactly that reason: two commands
+     * called {@code setstage} and {@code babystage} taking the same stage list invite the reading
+     * that one is a variant of the other, when what actually differs is whether the child is an
+     * item or a body. A verb says what it does to the thing in your hand.
+     *
      * <p>The argument is optional because the everyday use is "skip the wait, let me place it",
      * which is TODDLER — the first stage {@code placeBabyFromHeldItem} accepts.
      */
-    private static class BabyStageSubCommand extends AbstractPlayerCommand {
+    private static class GrowBabySubCommand extends AbstractPlayerCommand {
         private final OptionalArg<String> stageArg;
 
-        public BabyStageSubCommand() {
-            super("babystage", "Ages the Baby item held in your hand so it can be placed (default: TODDLER)");
+        public GrowBabySubCommand() {
+            super("growbaby", "Ages the Baby item held in your hand so it can be placed (default: TODDLER)");
             this.stageArg = this.withOptionalArg("stage", "BABY|TODDLER|CHILD|TEEN|ADULT", ArgTypes.STRING);
         }
 
