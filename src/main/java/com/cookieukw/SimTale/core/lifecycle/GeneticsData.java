@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
+import com.cookieukw.SimTale.core.SimNPCNameGenerator;
+
 import java.util.Random;
 
 /**
@@ -76,18 +78,11 @@ public class GeneticsData {
      * @return inherited surname, or "N/A" if neither parent has a surname
      */
     public static String inheritSurname(String motherName, String fatherName) {
-        String motherSurname = extractSurname(motherName);
-        String fatherSurname = extractSurname(fatherName);
-
-        if (motherSurname.isEmpty() && fatherSurname.isEmpty()) return "";
-        if (motherSurname.isEmpty()) return fatherSurname;
-        if (fatherSurname.isEmpty()) return motherSurname;
-
-        return Math.random() < 0.5 ? motherSurname : fatherSurname;
-    }
-
-    private static String extractSurname(String fullName) {
-        if (fullName == null || !fullName.contains(" ")) return "";
-        return fullName.substring(fullName.lastIndexOf(' ') + 1);
+        // The rule itself lives in SimNPCNameGenerator, next to the halves it cuts on: blending
+        // Greenfield and Steelbinder into Greenbinder only works if the code doing the cutting can
+        // see the same head/tail arrays the names were built from.
+        return SimNPCNameGenerator.inheritSurname(
+                SimNPCNameGenerator.extractSurname(motherName),
+                SimNPCNameGenerator.extractSurname(fatherName));
     }
 }

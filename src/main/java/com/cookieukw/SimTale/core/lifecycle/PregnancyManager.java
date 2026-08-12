@@ -100,10 +100,10 @@ public class PregnancyManager {
 
         Gender childGender = Math.random() < 0.5 ? Gender.MALE : Gender.FEMALE;
 
-        String childFirstName = SimNPCNameGenerator.generate();
-        if (childFirstName.contains(" ")) {
-            childFirstName = childFirstName.substring(0, childFirstName.indexOf(' '));
-        }
+        // generateFirstName instead of generate() plus a substring: the old code built a full name
+        // and threw the surname away, which meant the uniqueness check inside generate() was being
+        // run against a string that was then discarded.
+        String childFirstName = SimNPCNameGenerator.generateFirstName();
 
         String fatherName = father != null ? father.name : "";
         String childSurname = GeneticsData.inheritSurname(mother.name, fatherName);
@@ -235,11 +235,27 @@ public class PregnancyManager {
 
         UUID fatherId = playerComp.pregnancy.fatherId;
         Gender childGender = Math.random() < 0.5 ? Gender.MALE : Gender.FEMALE;
-        String childFirstName = SimNPCNameGenerator.generate();
-        if (childFirstName.contains(" ")) {
-            childFirstName = childFirstName.substring(0, childFirstName.indexOf(' '));
+        String childFirstName = SimNPCNameGenerator.generateFirstName();
+
+        // The family name comes from the NPC parent, not from a constant.
+        //
+        // This was hardcoded to "SimTale", so every child a player ever had shared a surname with
+        // every other player's children and with nobody they were actually related to — the mod's
+        // own name showing up as a family name across the village. The player has no surname to
+        // pass on, so the NPC partner's line is the only real one in the pair, and inheriting it
+        // puts player children on the same footing as everyone else's.
+        String partnerSurname = "";
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc != null && npc.entityId != null && npc.entityId.equals(fatherId)) {
+                partnerSurname = SimNPCNameGenerator.extractSurname(npc.name);
+                break;
+            }
         }
-        String childSurname = "SimTale";
+        // No blending here, because there is only one line to inherit from — blending a name with
+        // itself is either a no-op or noise.
+        String childSurname = partnerSurname.isEmpty()
+                ? SimNPCNameGenerator.generateSurname()
+                : partnerSurname;
 
         GeneticsData childGenetics = GeneticsData.combine(new GeneticsData(), new GeneticsData());
 
