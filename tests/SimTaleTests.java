@@ -40,6 +40,9 @@ public class SimTaleTests {
             System.out.println("Mood");
             MoodTests.run();
 
+            System.out.println("Names");
+            NameTests.run();
+
             System.out.println("Lifecycle");
             testPregnancyComponent();
             testLifecycleManagerPregnancy();
