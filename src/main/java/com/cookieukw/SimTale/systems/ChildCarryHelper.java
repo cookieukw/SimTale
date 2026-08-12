@@ -240,6 +240,16 @@ public final class ChildCarryHelper {
                 // pinned, which is the sliding-NPC failure again.
                 NpcFreezeUtil.unfreeze(store, childRef);
             }
+
+            // Close the gap the departure left.
+            //
+            // Nobody is standing on anybody: each child is mounted to the *player* at an absolute
+            // height, so removing one does not bring the others down and does not shuffle them
+            // along either — it leaves a hole, and the rest keep floating exactly where they were.
+            // Normally the one leaving is the top one and there is no hole to close, but a child
+            // can also leave from the middle without asking: growing a stage respawns her body, and
+            // the mount goes with the old entity.
+            reseat(store, carrier);
         });
 
         carrierRef.sendMessage(Message.translation("npc-dialogues.carry.put_down")
