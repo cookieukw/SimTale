@@ -78,6 +78,7 @@ public class BabyCareManager {
      * that actually mattered.
      */
     public static void loadActiveChildren() {
+        LifecycleState.markLoaded();
         LifecycleState.ACTIVE_CHILDREN.clear();
         try {
             List<GrowthComponent> all = Caskara.list(GrowthComponent.class);
