@@ -27,8 +27,8 @@ import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleState;
 import com.hypixel.hytale.codec.Codec;
+import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
-import com.hypixel.hytale.server.core.util.SoundUtil;
 import com.hypixel.hytale.protocol.SoundCategory;
 
 public class SimTaleItemRegistry {
