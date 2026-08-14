@@ -32,10 +32,45 @@ public class SimTaleItemRegistry {
     private static final int MAX_ACTIVE_NPCS = 10;
 
     public static void init() {
-        // Still a placeholder, but a translated one. The emoji went with the hardcoded string:
-        // the client renders it as "??".
-        RuneCoreItemManager.register("TownBell", (player, playerRef) ->
-                playerRef.sendMessage(Message.translation("general.bell.rang")));
+        RuneCoreItemManager.register("TownBell", (player, playerRef) -> {
+            Ref<EntityStore> pRef = playerRef.getReference();
+            if (pRef == null || !pRef.isValid()) return;
+            Store<EntityStore> store = pRef.getStore();
+
+            InventoryComponent.Hotbar hotbar = store.getComponent(pRef, InventoryComponent.Hotbar.getComponentType());
+            if (hotbar != null) {
+                ItemStack bellItem = hotbar.getInventory().getItemStackInSlot(hotbar.getActiveSlot());
+                if (bellItem != null && "TownBell".equals(bellItem.getItemId())) {
+                    String usesStr = bellItem.getFromMetadataOrNull("simtale_uses_left", com.hypixel.hytale.server.core.data.Codec.STRING);
+                    int usesLeft = 3;
+                    if (usesStr != null) {
+                        try {
+                            usesLeft = Integer.parseInt(usesStr);
+                        } catch (NumberFormatException ignored) {}
+                    }
+                    usesLeft--;
+                    
+                    if (usesLeft <= 0) {
+                        hotbar.getInventory().removeItemStackFromSlot(hotbar.getActiveSlot(), 1);
+                        playerRef.sendMessage(Message.translation("general.bell.broke"));
+                    } else {
+                        bellItem.setMetadata("simtale_uses_left", String.valueOf(usesLeft), com.hypixel.hytale.server.core.data.Codec.STRING);
+                        hotbar.getInventory().putItemStackInSlot(hotbar.getActiveSlot(), bellItem);
+                        playerRef.sendMessage(Message.raw("[SimTale] Sino da Vila tocado! Restam " + usesLeft + " usos."));
+                    }
+                }
+            }
+
+            int count = 0;
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
+                    com.cookieukw.SimTale.systems.NeedsHelper.setNeed(null, npc.entityRef, com.cookieukw.SimTale.systems.NeedsHelper.ENERGY_ID, 0f);
+                    npc.forceSleep = true;
+                    count++;
+                }
+            }
+            playerRef.sendMessage(Message.translation("general.bell.rang").param("count", count));
+        });
         
         // The three lenses below replace placeholder handlers that only printed a line of hardcoded
         // Portuguese with an emoji the client renders as "??".
@@ -138,8 +173,44 @@ public class SimTaleItemRegistry {
                 openPage(player, playerRef, (pRef, store) ->
                         new SimChestDebugPage(playerRef, player, 0, true)));
         
-        RuneCoreItemManager.register("BirthdayCake", (player, playerRef) ->
-                playerRef.sendMessage(Message.translation("general.cake.placeholder")));
+        RuneCoreItemManager.register("BirthdayCake", (player, playerRef) -> {
+            Ref<EntityStore> pRef = playerRef.getReference();
+            if (pRef == null || !pRef.isValid()) return;
+            Store<EntityStore> store = pRef.getStore();
+            TransformComponent playerTransform = store.getComponent(pRef, TransformComponent.getComponentType());
+            if (playerTransform == null) return;
+
+            SimNPCComponent nearestChild = null;
+            com.cookieukw.SimTale.core.lifecycle.GrowthComponent nearestGrowth = null;
+            double minDistance = Double.MAX_VALUE;
+
+            com.cookieukw.SimTale.core.lifecycle.LifecycleState.ensureLoaded();
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
+                    for (com.cookieukw.SimTale.core.lifecycle.GrowthComponent child : com.cookieukw.SimTale.core.lifecycle.LifecycleManager.ACTIVE_CHILDREN) {
+                        if (child.childId != null && child.childId.equals(npc.entityId)) {
+                            TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
+                            if (npcTransform != null) {
+                                double distSq = playerTransform.getPosition().distanceSquared(npcTransform.getPosition());
+                                if (distSq < minDistance) {
+                                    minDistance = distSq;
+                                    nearestChild = npc;
+                                    nearestGrowth = child;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (nearestChild == null || nearestGrowth == null || minDistance > 100.0) { // dentro de 10 blocos aprox
+                playerRef.sendMessage(Message.raw("[SimTale] Nenhuma crianca por perto para verificar o estagio."));
+            } else {
+                playerRef.sendMessage(Message.raw("[SimTale] " + nearestChild.name + " esta no estagio: " + nearestGrowth.stage.name()));
+            }
+        });
         
         // The ring's real behaviour lives in the gift path (InteractionManager); this only fires
         // when it is used on nothing.
