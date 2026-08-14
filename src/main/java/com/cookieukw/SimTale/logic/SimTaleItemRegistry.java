@@ -27,6 +27,9 @@ import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleState;
 import com.hypixel.hytale.codec.Codec;
+import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
+import com.hypixel.hytale.server.core.util.SoundUtil;
+import com.hypixel.hytale.protocol.SoundCategory;
 
 public class SimTaleItemRegistry {
     
@@ -74,6 +77,12 @@ public class SimTaleItemRegistry {
                         hotbar.getInventory().removeItemStackFromSlot(hotbar.getActiveSlot(), 1);
                         hotbar.getInventory().addItemStack(newBell);
                         playerRef.sendMessage(Message.raw("[SimTale] Town bell rung! " + usesLeft + " uses left."));
+                        
+                        TransformComponent transform = store.getComponent(pRef, TransformComponent.getComponentType());
+                        if (transform != null) {
+                            int soundIndex = SoundEvent.getAssetMap().getIndex("Sounds/CreativePlay/Default/Base_Chimes_Stereo");
+                            SoundUtil.playSoundEvent3dToPlayer(pRef, soundIndex, SoundCategory.UI, transform.getPosition(), store);
+                        }
                     }
                 }
             }
