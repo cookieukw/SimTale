@@ -80,7 +80,7 @@ public class SimTaleItemRegistry {
                         
                         TransformComponent transform = store.getComponent(pRef, TransformComponent.getComponentType());
                         if (transform != null) {
-                            int soundIndex = SoundEvent.getAssetMap().getIndex("Sounds/CreativePlay/Default/Base_Chimes_Stereo");
+                            int soundIndex = SoundEvent.getAssetMap().getIndex("SimTale/TownBell");
                             SoundUtil.playSoundEvent3dToPlayer(pRef, soundIndex, SoundCategory.UI, transform.getPosition(), store);
                         }
                     }
