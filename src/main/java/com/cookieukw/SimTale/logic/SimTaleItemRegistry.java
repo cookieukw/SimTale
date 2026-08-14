@@ -22,6 +22,12 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 
+import com.cookieukw.SimTale.core.NeedsHelper;
+import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleState;
+import com.hypixel.hytale.codec.Codec;
+
 public class SimTaleItemRegistry {
     
     private static long lastBellTimeMs = 0;
@@ -49,9 +55,9 @@ public class SimTaleItemRegistry {
 
             InventoryComponent.Hotbar hotbar = store.getComponent(pRef, InventoryComponent.Hotbar.getComponentType());
             if (hotbar != null) {
-                ItemStack bellItem = hotbar.getInventory().getItemStackInSlot(hotbar.getActiveSlot());
+                ItemStack bellItem = InventoryComponent.getItemInHand(store, pRef);
                 if (bellItem != null && "TownBell".equals(bellItem.getItemId())) {
-                    String usesStr = bellItem.getFromMetadataOrNull("simtale_uses_left", com.hypixel.hytale.server.core.data.Codec.STRING);
+                    String usesStr = bellItem.getFromMetadataOrNull("simtale_uses_left", Codec.STRING);
                     int usesLeft = 3;
                     if (usesStr != null) {
                         try {
@@ -64,8 +70,9 @@ public class SimTaleItemRegistry {
                         hotbar.getInventory().removeItemStackFromSlot(hotbar.getActiveSlot(), 1);
                         playerRef.sendMessage(Message.translation("general.bell.broke"));
                     } else {
-                        bellItem.setMetadata("simtale_uses_left", String.valueOf(usesLeft), com.hypixel.hytale.server.core.data.Codec.STRING);
-                        hotbar.getInventory().putItemStackInSlot(hotbar.getActiveSlot(), bellItem);
+                        ItemStack newBell = bellItem.withMetadata("simtale_uses_left", Codec.STRING, String.valueOf(usesLeft));
+                        hotbar.getInventory().removeItemStackFromSlot(hotbar.getActiveSlot(), 1);
+                        hotbar.getInventory().addItemStack(newBell);
                         playerRef.sendMessage(Message.raw("[SimTale] Town bell rung! " + usesLeft + " uses left."));
                     }
                 }
@@ -74,7 +81,7 @@ public class SimTaleItemRegistry {
             int count = 0;
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null && npc.entityRef.isValid()) {
-                    com.cookieukw.SimTale.systems.NeedsHelper.setNeed(null, npc.entityRef, com.cookieukw.SimTale.systems.NeedsHelper.ENERGY_ID, 0f);
+                    NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.ENERGY_ID, 0f);
                     npc.forceSleep = true;
                     count++;
                 }
@@ -191,14 +198,14 @@ public class SimTaleItemRegistry {
             if (playerTransform == null) return;
 
             SimNPCComponent nearestChild = null;
-            com.cookieukw.SimTale.core.lifecycle.GrowthComponent nearestGrowth = null;
+            GrowthComponent nearestGrowth = null;
             double minDistance = Double.MAX_VALUE;
 
-            com.cookieukw.SimTale.core.lifecycle.LifecycleState.ensureLoaded();
+            LifecycleState.ensureLoaded();
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null && npc.entityRef.isValid()) {
-                    for (com.cookieukw.SimTale.core.lifecycle.GrowthComponent child : com.cookieukw.SimTale.core.lifecycle.LifecycleManager.ACTIVE_CHILDREN) {
+                    for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
                         if (child.childId != null && child.childId.equals(npc.entityId)) {
                             TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                             if (npcTransform != null) {
