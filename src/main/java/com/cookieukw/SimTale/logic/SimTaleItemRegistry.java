@@ -37,8 +37,8 @@ public class SimTaleItemRegistry {
     public static void init() {
         RuneCoreItemManager.register("TownBell", (player, playerRef) -> {
             long now = System.currentTimeMillis();
-            if (now < lastBellTimeMs + 300000) {
-                playerRef.sendMessage(Message.raw("[SimTale] O sino ainda esta ecoando... (cooldown ativo)"));
+            if (now < lastBellTimeMs + 300000) { // 5 minute cooldown (1/4 ingame day)
+                playerRef.sendMessage(Message.raw("[SimTale] The bell is still echoing... (cooldown active)"));
                 return;
             }
             lastBellTimeMs = now;
@@ -66,7 +66,7 @@ public class SimTaleItemRegistry {
                     } else {
                         bellItem.setMetadata("simtale_uses_left", String.valueOf(usesLeft), com.hypixel.hytale.server.core.data.Codec.STRING);
                         hotbar.getInventory().putItemStackInSlot(hotbar.getActiveSlot(), bellItem);
-                        playerRef.sendMessage(Message.raw("[SimTale] Sino da Vila tocado! Restam " + usesLeft + " usos."));
+                        playerRef.sendMessage(Message.raw("[SimTale] Town bell rung! " + usesLeft + " uses left."));
                     }
                 }
             }
@@ -215,10 +215,10 @@ public class SimTaleItemRegistry {
                 }
             }
 
-            if (nearestChild == null || nearestGrowth == null || minDistance > 100.0) { // dentro de 10 blocos aprox
-                playerRef.sendMessage(Message.raw("[SimTale] Nenhuma crianca por perto para verificar o estagio."));
+            if (nearestChild == null || nearestGrowth == null || minDistance > 100.0) { // Within approx 10 blocks
+                playerRef.sendMessage(Message.raw("[SimTale] No child nearby to check their stage."));
             } else {
-                playerRef.sendMessage(Message.raw("[SimTale] " + nearestChild.name + " esta no estagio: " + nearestGrowth.stage.name()));
+                playerRef.sendMessage(Message.raw("[SimTale] " + nearestChild.name + " is currently in stage: " + nearestGrowth.stage.name()));
             }
         });
         
