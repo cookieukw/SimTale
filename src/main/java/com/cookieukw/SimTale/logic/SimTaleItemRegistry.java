@@ -23,6 +23,9 @@ import org.joml.Vector3d;
 import org.joml.Vector3i;
 
 public class SimTaleItemRegistry {
+    
+    private static long lastBellTimeMs = 0;
+
 
     /**
      * Same cap {@code SimNPCSpawnSystem} used to enforce before it was removed in favour of this
@@ -33,6 +36,13 @@ public class SimTaleItemRegistry {
 
     public static void init() {
         RuneCoreItemManager.register("TownBell", (player, playerRef) -> {
+            long now = System.currentTimeMillis();
+            if (now < lastBellTimeMs + 300000) {
+                playerRef.sendMessage(Message.raw("[SimTale] O sino ainda esta ecoando... (cooldown ativo)"));
+                return;
+            }
+            lastBellTimeMs = now;
+
             Ref<EntityStore> pRef = playerRef.getReference();
             if (pRef == null || !pRef.isValid()) return;
             Store<EntityStore> store = pRef.getStore();
