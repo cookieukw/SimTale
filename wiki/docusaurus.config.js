@@ -12,7 +12,7 @@ const config = {
 
   // Adjust when publishing: url is the domain, baseUrl is the path within it.
   url: 'https://cookieukw.github.io',
-  baseUrl: '/SimTale/',
+  baseUrl: '/',
 
   organizationName: 'cookieukw',
   projectName: 'SimTale',
