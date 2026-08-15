@@ -22,13 +22,11 @@ Alternatively, if you are testing or have admin privileges, you can spawn one vi
 ```
 Available types: `HUMAN_MALE`, `HUMAN_FEMALE`, `CHILD_MALE`, `CHILD_FEMALE`.
 
-She is born with a name, personality, traits, a job, a hobby, favourite foods and hated foods — all
-rolled at random. No two NPCs are alike.
+The NPC generated will be one of the **800 unique visual variants**, born with a name, personality, traits, a job, a hobby, favourite foods, and hated items — all rolled at random. No two NPCs are exactly alike.
 
 ## 2. Build a house
 
-An NPC without a house wanders aimlessly and never sleeps properly. The minimum that counts as a
-house:
+An NPC without a house wanders aimlessly and never sleeps properly. The minimum that counts as a house:
 
 - walls and a roof enclosing the space
 - a **door**
@@ -39,43 +37,49 @@ house:
 
 To verify your build, point a **House Blueprint** at the bed.
 
+![House Blueprint Placeholder](/path/to/house_blueprint.png)
+
 The tool tells you whether the structure is valid and what is missing. Details in
 [Building a house](houses/building-a-house.md).
 
 ## 3. Let her claim the bed
 
-Once the house is ready, the NPC walks to the bed and registers that place as hers. From then on
-she lives there: she comes back to sleep, eats from that house's chests, and opens the door on her
-way in.
+Once the house is ready, the NPC walks to the bed and registers that place as hers. From then on she lives there: she comes back to sleep, eats from that house's chests, and opens the door on her way in.
 
 Use the **Innkeeper's Ledger** to check who lives where.
 
+![Innkeeper Ledger Placeholder](/path/to/innkeeper_ledger.png)
+
 ## 4. Put out food
 
-Place a chest **inside the house** and leave food in it.
+Place a chest **inside the house** and leave food in it. NPCs will search for a chest within a 24-block radius when hungry.
 
 :::caution The chest must belong to a house
-NPCs only use chests that belong to a recognised house. A chest dropped in an open field is
-ignored — which is also what keeps them out of the treasure chests scattered around the world.
+NPCs only use chests that belong to a recognised house. A chest dropped in an open field is ignored — which is also what keeps them out of the treasure chests scattered around the world.
 :::
 
 See what they can actually reach by using the **Quartermaster's Glass**.
+
+![Quartermaster Glass Placeholder](/path/to/quartermaster_glass.png)
 
 It lists every registered chest, the house it belongs to, and how much food is inside.
 
 ## 5. Talk to her
 
-Aim at the NPC and press **F**, or right-click. That opens the interaction panel, with hunger,
-energy, mood, traits, tastes and the available actions: chat, tell a joke, flirt, give a gift,
-insult, assign a job.
+Aim at the NPC and press **F**, or right-click. That opens the interaction panel, with hunger, energy, mood, traits, tastes, and the available actions.
+
+![NPC Interaction UI Placeholder](/path/to/interaction_ui.png)
+
+The outcomes of interactions are calculated based on relationship status, mood, and traits:
+- **Flirt:** Accepted by partners or shy NPCs; rejected by enemies and angry NPCs.
+- **Joke:** Fails on enemies, cheers up sad/angry partners.
+- **Gift:** Food given below 70 hunger will be eaten immediately, restoring health and altering fun. Giving a **Baby** item to a child accelerates their growth by an entire game day.
 
 See [Interacting with NPCs](interacting.md).
 
 ## 6. Let time pass
 
-The mod is deliberately slow. Starting from 100 hunger, an NPC takes roughly seven in-game hours to
-get genuinely hungry, and fifteen to die if nobody feeds her. It is not meant to be watched — it is
-meant to let the village change on its own while you do something else.
+The mod is deliberately slow. Starting from 100 hunger, an NPC takes roughly seven in-game hours to get genuinely hungry. At 5 hunger, they begin to starve, crying and dropping all tasks until fed. Fifteen in-game hours without food will not kill them, but they will refuse to work.
 
 ---
 
