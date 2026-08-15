@@ -35,13 +35,9 @@ cap exists so an open cave is not mistaken for a mansion.
 
 ## Checking
 
-Aim at the door and run:
+Point a **House Blueprint** at a registered bed.
 
-```
-/simtale housecheck
-```
-
-The reply says whether the structure passed and, when it did not, **what is missing**. It also
+The tool will tell you whether the structure passed and, when it did not, **what is missing**. It also
 reports how many interior blocks were visited, and how many doors and chests were found.
 
 :::tip Unloaded chunks get in the way
