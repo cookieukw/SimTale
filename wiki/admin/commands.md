@@ -90,15 +90,6 @@ the ground, `setstage` takes over.
 | `/simtale setgender` | Sets gender |
 | `/simtale interact` | Opens the interaction panel |
 
-## Known issues
-
-| Command | Issue |
-|---|---|
-| `setmood` | Fixed: intensity was a decimal, which the parser rejects |
-| `debugnear` | Double-counts furniture — one door reads as two |
-| `unstick` | A sleeping NPC walks off still asleep |
-| `forcework` | Runs, but gives no feedback about what it found |
-
 ---
 
 *Verified against the 28 subcommands registered in `SimTaleCommand.java`.*

@@ -26,12 +26,6 @@ Player pregnancy also exists and follows its own path.
 At the end of gestation the baby is born as an **item** that goes into the inventory. You carry the
 baby around, and can hand it to the other parent.
 
-:::warning Known bug
-Birth is currently delivering a corrupted item where the baby should be. The pregnancy flow itself
-works; the problem is in the item that gets created. Until it is fixed, the growth cycle cannot be
-tested end to end.
-:::
-
 ## Growth stages
 
 | Stage | Notes |

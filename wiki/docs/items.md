@@ -18,8 +18,9 @@ game, without typing a debug command.
 | Quartermaster's Glass | anything | Lists every village chest and what is inside |
 | Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
 | Immigration Contract | anything | Invites a new resident to settle in the village |
+| Town Bell | anything | Rings the town bell |
 
-Two more are crafted but do nothing yet: the Town Bell and the Birthday Cake.
+One more item is crafted but does nothing yet: the Birthday Cake.
 
 ## Crafting Recipes
 
