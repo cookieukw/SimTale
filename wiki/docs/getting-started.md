@@ -9,10 +9,17 @@ The shortest path between "I installed the mod" and "I have a living village".
 
 ## 1. Bring in an NPC
 
+In survival mode, you need to invite a resident. Craft an **Immigration Contract** at a Fieldcraft bench using:
+- 1x Map/Scroll (`Deco_Scroll`)
+- 1x Inkwell (`Deco_Inkwell`)
+- 1x Light Leather (`Ingredient_Leather_Light`)
+
+Use the contract to spawn a new resident. 
+
+Alternatively, if you are testing or have admin privileges, you can spawn one via command:
 ```
 /simtale spawn HUMAN_FEMALE
 ```
-
 Available types: `HUMAN_MALE`, `HUMAN_FEMALE`, `CHILD_MALE`, `CHILD_FEMALE`.
 
 She is born with a name, personality, traits, a job, a hobby, favourite foods and hated foods — all
@@ -90,5 +97,5 @@ meant to let the village change on its own while you do something else.
 |---|---|
 | The NPC does not sleep | The bed is not registered, or there is no valid house. Run `/simtale debugbeds`. |
 | The NPC does not eat | The chest does not belong to a house. Run `/simtale debugchests`. |
-| No NPC appears on its own | Wait ~40 s after joining, or use `/simtale forcespawn`. |
+| No NPC appears on its own | NPCs no longer spawn automatically. You must craft and use an Immigration Contract. |
 | The house is rejected | Missing furniture or the space is not enclosed. `/simtale housecheck` says which. |
