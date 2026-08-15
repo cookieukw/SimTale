@@ -63,11 +63,6 @@ It is a known limitation, and turning it into an identifier of its own is on the
 A door occupies four blocks, and two doors side by side form a double door. NPCs open and close
 them as they pass.
 
-:::note Conflict with the player
-If you operate the door at the same time as an NPC — closing it while she opens it, say — the state
-can end up inconsistent. Known bug, not fixed yet.
-:::
-
 ## Next
 
 [Beds and residents](beds-and-residents.md) — how an NPC claims a bed and what happens when two of
