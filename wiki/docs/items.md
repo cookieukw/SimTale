@@ -17,9 +17,23 @@ game, without typing a debug command.
 | Innkeeper's Ledger | anything | Lists every registered bed and who sleeps in it |
 | Quartermaster's Glass | anything | Lists every village chest and what is inside |
 | Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
+| Immigration Contract | anything | Invites a new resident to settle in the village |
 
-Three more are crafted but do nothing yet: the Town Bell, the Immigration Contract and the Birthday
-Cake.
+Two more are crafted but do nothing yet: the Town Bell and the Birthday Cake.
+
+## Crafting Recipes
+
+All items can be crafted at their respective workstations:
+
+| Item | Bench | Ingredients |
+|---|---|---|
+| **Pregnancy Test** | Alchemybench | 1x White Flower, 1x Softwood Planks, 1x Life Essence (Cauliflower) |
+| **House Blueprint** | Fieldcraft | 1x Map, 1x Inkwell, 1x Scroll |
+| **Innkeeper's Ledger** | Fieldcraft | 1x Small Book Pile, 1x Softwood Planks, 1x Light Leather |
+| **Quartermaster's Glass** | Workbench | 1x White Crystal, 1x Copper Bar |
+| **Inspector's Journal** | Fieldcraft | 1x Small Book Pile, 1x Inkwell |
+| **Immigration Contract** | Fieldcraft | 1x Scroll, 1x Inkwell, 1x Light Leather |
+| **Town Bell** | Workbench | 3x Gold Bar, 2x Softwood Planks |
 
 ## House Blueprint
 
