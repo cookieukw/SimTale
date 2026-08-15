@@ -22,22 +22,11 @@ bed, or lying across it like a cross.
 
 The mod now resolves any of the six blocks back to the anchor before putting anyone to bed.
 
-:::note If `debugnear` shows twice as many
-`/simtale debugnear` still double-counts furniture — one door reads as two. It is a reporting bug in
-that one command; sleeping and door handling use the correct anchor.
-:::
-
 ## Who is sleeping where
 
-```
-/simtale debugbeds
-```
+Use the **Innkeeper's Ledger**.
 
-Opens a screen listing every registered bed with its coordinates and its owner, plus two buttons per
-row:
-
-- **Teleport** — jump to that bed
-- **Unclaim** — break the link between the NPC and the bed
+It opens a screen listing every registered bed with its coordinates and its owner.
 
 The screen also shows the total count, so "no beds registered" is distinguishable from "the list
 failed to draw".
