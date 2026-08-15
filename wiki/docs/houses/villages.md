@@ -42,16 +42,3 @@ It just will not wander away for no reason.
 
 **Guards patrol the edge.** A guard with nothing to fight walks a circuit around the village
 boundary, which is where trouble comes from. A guard with no village stays where it is.
-
-## Seeing it
-
-```
-/simtale village
-```
-
-Lists every village with its centre, radius and number of houses, and tells you whether you are
-standing inside one. Since nothing about a village is written down, this is the only way to check
-what the mod currently thinks.
-
-If two clusters you consider separate show up as one village, they are within the 40-block chain —
-move the next house further out, or accept the merge.
