@@ -57,6 +57,5 @@ collection and revives the NPC.
 
 :::note Nothing kills an NPC yet
 Hunger deliberately does not kill. Starving NPCs simply cry and stop working. Aging and disease are not implemented yet.
-The death flow is complete and reachable only through `/simtale forcekill`, which exists so the
-Reaper can be tested without waiting for a cause of death that does not exist.
+The death flow is currently only reachable by administrative testing commands, which exists so the Reaper can be tested without waiting for a cause of death that does not exist.
 :::
