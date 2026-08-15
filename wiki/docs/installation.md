@@ -24,10 +24,7 @@ cannot take or restore health.
 
 1. Drop `SimTale-1.0.0.jar`, `Caskara.jar` and `RuneCore-1.0.12.jar` into the server's `Mods/` folder.
 2. Start the server.
-3. Join a world and wait about 40 seconds.
-
-If everything is right, a founding group of NPCs appears near the spawn point on its own, and the
-log shows a line like:
+3. Join a world and craft your first Immigration Contract.
 
 ```
 [SimTale] Scan found 2 new beds and 1 new chests. Totals: 2 beds, 1 chests
@@ -53,11 +50,7 @@ at all.
 
 ## Verifying it works
 
-Join the game and run:
-
-```
-/simtale spawn HUMAN_FEMALE
-```
+Join the game, craft an **Immigration Contract**, and use it.
 
 If an NPC shows up with a name of its own and a diamond floating above its head (the *plumbob*,
 which shows mood), the mod is live.
