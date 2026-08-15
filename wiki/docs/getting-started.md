@@ -37,13 +37,9 @@ house:
 - a **table**
 - a **bed**
 
-Aim at the door and check:
+To verify your build, point a **House Blueprint** at the bed.
 
-```
-/simtale housecheck
-```
-
-The command tells you whether the structure is valid and what is missing. Details in
+The tool tells you whether the structure is valid and what is missing. Details in
 [Building a house](houses/building-a-house.md).
 
 ## 3. Let her claim the bed
@@ -52,11 +48,7 @@ Once the house is ready, the NPC walks to the bed and registers that place as he
 she lives there: she comes back to sleep, eats from that house's chests, and opens the door on her
 way in.
 
-Check who lives where:
-
-```
-/simtale debugbeds
-```
+Use the **Innkeeper's Ledger** to check who lives where.
 
 ## 4. Put out food
 
@@ -67,13 +59,9 @@ NPCs only use chests that belong to a recognised house. A chest dropped in an op
 ignored — which is also what keeps them out of the treasure chests scattered around the world.
 :::
 
-See what they can actually reach:
+See what they can actually reach by using the **Quartermaster's Glass**.
 
-```
-/simtale debugchests
-```
-
-The screen lists every registered chest, the house it belongs to, and how much food is inside.
+It lists every registered chest, the house it belongs to, and how much food is inside.
 
 ## 5. Talk to her
 
@@ -95,7 +83,7 @@ meant to let the village change on its own while you do something else.
 
 | Symptom | Likely cause |
 |---|---|
-| The NPC does not sleep | The bed is not registered, or there is no valid house. Run `/simtale debugbeds`. |
-| The NPC does not eat | The chest does not belong to a house. Run `/simtale debugchests`. |
+| The NPC does not sleep | The bed is not registered, or there is no valid house. Check with the **Innkeeper's Ledger**. |
+| The NPC does not eat | The chest does not belong to a house. Check with the **Quartermaster's Glass**. |
 | No NPC appears on its own | NPCs no longer spawn automatically. You must craft and use an Immigration Contract. |
-| The house is rejected | Missing furniture or the space is not enclosed. `/simtale housecheck` says which. |
+| The house is rejected | Missing furniture or the space is not enclosed. The **House Blueprint** says which. |
