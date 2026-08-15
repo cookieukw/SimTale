@@ -1,0 +1,5 @@
+[build]
+  base = "wiki"
+  publish = "wiki/build"
+  command = "pnpm run build"
+  functions = "wiki/netlify/functions"
