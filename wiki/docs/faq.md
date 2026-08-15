@@ -37,20 +37,7 @@ energy drains like everyone else's and refills in bed, just on the opposite sche
 
 ### Can NPCs open doors?
 
-Yes. They open on the way through and close behind them. If you operate the same door at the same
-time, the state can end up inconsistent — that is a known bug.
-
-### An animal turned into a villager
-
-That was a bug: interacting with any entity used to adopt it into the mod. It is fixed, but entities
-adopted before the fix keep the component. Run `/simtale forget` to release them.
-
-### I got stuck in a bed and could not get out
-
-Run `/simtale unstick`. It frees you as well as any stuck NPCs.
-
-The likely cause was the same adoption bug above — a player adopted as an NPC starts running the
-villager routine, including being put to bed and frozen there.
+Yes. They open on the way through and close behind them.
 
 ### Do NPCs survive a server restart?
 
@@ -60,3 +47,4 @@ Yes. Names, needs, relationships, houses and jobs are all persisted.
 
 Not from a config file yet — the values are constants in the code. See
 [Balancing](/admin/balancing).
+
