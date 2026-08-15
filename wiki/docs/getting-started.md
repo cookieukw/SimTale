@@ -9,18 +9,12 @@ The shortest path between "I installed the mod" and "I have a living village".
 
 ## 1. Bring in an NPC
 
-In survival mode, you need to invite a resident. Craft an **Immigration Contract** at a Fieldcraft bench using:
+You need to invite a resident to start your village. Craft an **Immigration Contract** at a Fieldcraft bench using:
 - 1x Map/Scroll (`Deco_Scroll`)
 - 1x Inkwell (`Deco_Inkwell`)
 - 1x Light Leather (`Ingredient_Leather_Light`)
 
 Use the contract to spawn a new resident. 
-
-Alternatively, if you are testing or have admin privileges, you can spawn one via command:
-```
-/simtale spawn HUMAN_FEMALE
-```
-Available types: `HUMAN_MALE`, `HUMAN_FEMALE`, `CHILD_MALE`, `CHILD_FEMALE`.
 
 The NPC generated will be one of the **800 unique visual variants**, born with a name, personality, traits, a job, a hobby, favourite foods, and hated items — all rolled at random. No two NPCs are exactly alike.
 
