@@ -1,44 +1,44 @@
 ---
 sidebar_position: 3
-title: Villages
+title: Vilas
 ---
 
-# Villages
+# Vilas
 
-Build houses close together and they become a village. You do not place anything to make it happen,
-and there is no marker to lose.
+Construa casas próximas umas das outras e elas se tornarão uma vila. Você não precisa posicionar nenhum item para que isso aconteça,
+e não há nenhum marcador ou item que possa ser perdido.
 
-## How one forms
+## Como se forma
 
-Two houses belong to the same village when their beds are within about **40 blocks** of each other,
-and that chains: if A is near B and B is near C, all three are one village, even when A and C are
-far apart.
+Duas casas pertencem à mesma vila quando suas camas estão a cerca de **40 blocos** de distância uma da outra,
+e isso gera uma corrente: se a casa A está perto da B, e a B está perto da C, todas as três formam uma vila, mesmo que A e C estejam
+muito distantes entre si.
 
-So a village grows the way you build — outward from what is already there. A long street of houses
-30 blocks apart is one village, however long the street gets.
+Portanto, uma vila cresce à medida que você constrói — expandindo-se a partir do que já existe. Uma longa rua de casas
+com 30 blocos de distância entre elas formará uma única vila, por maior que a rua fique.
 
-The centre sits at the middle of the beds, and the village reaches from there to its furthest house
-plus a little margin.
+O centro fica no meio das camas, e a vila se estende dali até a casa mais distante
+acrescida de uma pequena margem.
 
-## It disappears if you tear it down
+## Ela desaparece se você a destruir
 
-A house exists because of its bed. Break the bed and the house is gone, and the village recalculates
-without it. Break every bed and there is no village left.
+Uma casa só existe por causa de sua cama. Quebre a cama e a casa deixará de existir, e a vila será recalculada
+sem ela. Quebre todas as camas e não sobrará vila alguma.
 
-:::info Different from Minecraft on purpose
-In Minecraft the village centre is a thing that stays put. Flatten every building and the game still
-treats the ruins as a village. Here the village is worked out from the houses that exist at that
-moment, so there is nothing left behind to be wrong.
+:::info Diferente do Minecraft de propósito
+No Minecraft, o centro da vila é algo fixo. Você pode derrubar todas as construções e o jogo ainda
+tratará as ruínas como uma vila. Aqui, a vila é calculada a partir das casas que existem naquele exato
+momento, então não sobra nada para trás que possa estar errado.
 :::
 
-## What it changes
+## O que ela muda
 
-**NPCs without a house stop wandering off.** Previously a homeless NPC drifted — each stroll started
-from wherever the last one ended, so it got further away indefinitely and you had to go and find it.
-Now it strolls around the village instead.
+**NPCs sem casa param de vagar sem rumo.** Anteriormente, um NPC sem-teto ficava à deriva — cada passeio começava
+onde o último terminava, então ele se afastava cada vez mais e você tinha que ir procurá-lo.
+Agora ele passeia apenas ao redor da vila.
 
-The limit is loose on purpose: an NPC still leaves the village to work, to fish, or to fetch food.
-It just will not wander away for no reason.
+O limite é flexível de propósito: um NPC ainda sai da vila para trabalhar, pescar ou buscar comida.
+Ele apenas não vai mais embora à toa.
 
-**Guards patrol the edge.** A guard with nothing to fight walks a circuit around the village
-boundary, which is where trouble comes from. A guard with no village stays where it is.
+**Guardas patrulham a borda.** Um guarda sem inimigos para lutar faz um circuito caminhando pela fronteira da
+vila, que é de onde os problemas geralmente vêm. Um guarda que não pertence a uma vila fica parado onde está.

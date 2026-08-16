@@ -1,61 +1,61 @@
 ---
 sidebar_position: 5
-title: Family and growth
+title: Família e crescimento
 ---
 
-# Family and growth
+# Família e crescimento
 
-## Pregnancy
+## Gravidez
 
-A married NPC can become pregnant. Pregnancy runs through three trimesters, and movement speed drops
-gradually as it advances.
+Um NPC casado pode engravidar. A gravidez se divide em três trimestres, e a velocidade de movimento cai
+gradualmente conforme avança.
 
-| Trimester | Symptoms |
+| Trimestre | Sintomas |
 |---|---|
-| 1st | Slightly increased hunger and energy drain |
-| 2nd | Increased drain, moderate slowness |
-| 3rd | Intense drain, severe slowness |
+| 1º | Ligeiro aumento na perda de fome e energia |
+| 2º | Aumento moderado na perda, lentidão moderada |
+| 3º | Perda intensa, lentidão severa |
 
-Open the **View Pregnancy** panel from the interaction screen to follow the progress: current day,
-percentage, and estimated time remaining in real minutes.
+Abra o painel de **Ver gravidez** (View Pregnancy) na tela de interação para acompanhar o progresso: dia atual,
+porcentagem, e tempo estimado restante em minutos reais.
 
-Player pregnancy also exists and follows its own path.
+A gravidez para o jogador também existe e segue um caminho próprio.
 
-## Birth
+## Nascimento
 
-At the end of gestation the baby is born as an **item** that goes into the inventory. You carry the
-baby around, and can hand it to the other parent.
+No fim da gestação, o bebê nasce como um **item** que vai para o inventário. Você carrega o
+bebê por aí, e pode entregá-lo para o outro pai/mãe.
 
 ![Baby Item Placeholder](/path/to/baby_item.png)
 
-## Growth stages
+## Fases de crescimento
 
-| Stage | Notes |
+| Fase | Notas |
 |---|---|
-| `BABY` | Carried in the inventory |
-| `TODDLER` | |
-| `CHILD` | Model scaled down. Can be given a Baby item to skip 1 game day. |
-| `TEEN` | Model scaled down slightly. |
-| `ADULT` | Full routine: job, house, relationships |
+| `BEBÊ` (`BABY`) | Carregado no inventário |
+| `CRIANÇA PEQUENA` (`TODDLER`) | |
+| `CRIANÇA` (`CHILD`) | Modelo de corpo reduzido. Pode receber o item Bebê para pular 1 dia de jogo. |
+| `ADOLESCENTE` (`TEEN`) | Modelo levemente reduzido. |
+| `ADULTO` (`ADULT`) | Rotina completa: trabalho, casa, relacionamentos |
 
-Children grow over time on their own, with the model scaling up at each stage.
-**Acceleration:** Giving a Baby item to a `CHILD` or `TEEN` immediately advances their growth by one full game day (24,000 ticks). 
+As crianças crescem com o tempo por conta própria, e o tamanho do modelo aumenta a cada fase.
+**Aceleração:** Dar um item Bebê para uma `CRIANÇA` ou `ADOLESCENTE` avança imediatamente o crescimento deles em um dia inteiro do jogo (24.000 ticks). 
 
-## Care
+## Cuidados
 
-Babies need care. Passing the baby back and forth between parents shares the load, and there is an
-offline simulation so time away from the server still counts.
+Bebês precisam de cuidados. Passar o bebê de um pai para o outro divide o fardo, e existe uma
+simulação offline para que o tempo que você passa fora do servidor ainda conte.
 
-## Death
+## Morte
 
-When an NPC dies, the SimTale death flow takes over: the body stays, and starts bleeding visually. The Grim Reaper appears on its
-own, walks to it, performs the soul-collection ritual, leaves a gravestone and removes the record
-cleanly. Interacting with the Reaper mid-ritual while holding an `Ingredient_Voidheart` cancels the
-collection and revives the NPC.
+Quando um NPC morre, o fluxo de morte do SimTale assume o controle: o corpo permanece no local e começa a sangrar visualmente. A Ceifadora (Grim Reaper) aparece
+sozinha, caminha até o corpo, realiza o ritual de coleta de alma, deixa uma lápide e remove os registros
+completamente. Interagir com a Ceifadora no meio do ritual segurando um Coração do Vazio (`Ingredient_Voidheart`) cancela a
+coleta e revive o NPC.
 
 ![Grim Reaper Ceremony Placeholder](/path/to/reaper_ceremony.png)
 
-:::note Nothing kills an NPC yet
-Hunger deliberately does not kill. Starving NPCs simply cry and stop working. Aging and disease are not implemented yet.
-The death flow is currently only reachable by administrative testing commands, which exists so the Reaper can be tested without waiting for a cause of death that does not exist.
+:::note Nada mata um NPC ainda
+A fome, de propósito, não mata. NPCs famintos apenas choram e param de trabalhar. Envelhecimento e doenças ainda não foram implementados.
+Atualmente, o fluxo de morte só pode ser ativado por comandos administrativos de teste, que existem para que a Ceifadora possa ser testada sem precisar esperar por uma causa de morte que ainda não existe no jogo.
 :::

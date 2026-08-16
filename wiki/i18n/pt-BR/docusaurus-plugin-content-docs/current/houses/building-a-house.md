@@ -1,69 +1,69 @@
 ---
 sidebar_position: 1
-title: Building a house
+title: Construindo uma casa
 ---
 
-# Building a house
+# Construindo uma casa
 
-A house is not just any build. The mod validates the structure before accepting it, and an NPC only
-moves into an approved one.
+Uma casa não é apenas qualquer construção. O mod valida a estrutura antes de aceitá-la, e um NPC só
+se muda para uma construção aprovada.
 
-## The requirements
+## Os requisitos
 
-### Structure
+### Estrutura
 
-The space must be **enclosed**: walls and a roof with no gap for the check to leak through. Doors
-count as closed wall.
+O espaço deve estar **fechado**: paredes e um teto sem nenhuma abertura por onde a checagem possa vazar. Portas
+contam como parede fechada.
 
-The interior is capped at **512 blocks**. Past that the check gives up and rejects the house — the
-cap exists so an open cave is not mistaken for a mansion.
+O interior é limitado a **512 blocos**. Passando disso, a checagem desiste e rejeita a casa — esse
+limite existe para que uma caverna aberta não seja confundida com uma mansão.
 
-### Mandatory furniture
+### Mobília obrigatória
 
-| Requirement | Any block whose id contains |
+| Requisito | Qualquer bloco cujo id contenha |
 |---|---|
-| **Light source** | `torch`, `lantern`, `candle`, `campfire`, `glow`, `lamp`, `chandelier` |
-| **Seating** | `chair`, `stool`, `bench`, `seat`, `sofa`, `couch` |
-| **Surface** | `table`, `workbench`, `desk`, `counter` |
+| **Fonte de luz** | `torch` (tocha), `lantern` (lanterna), `candle` (vela), `campfire` (fogueira), `glow` (brilho), `lamp` (lâmpada), `chandelier` (lustre) |
+| **Assento** | `chair` (cadeira), `stool` (banquinho), `bench` (banco), `seat` (assento), `sofa` (sofá), `couch` (sofá) |
+| **Superfície** | `table` (mesa), `workbench` (bancada), `desk` (escrivaninha), `counter` (balcão) |
 
-### Optional, but you will want it
+### Opcional, mas você vai querer
 
-| Item | Why |
+| Item | Por quê |
 |---|---|
-| **Bed** | Without one, nobody lives there. The house is identified *by its bed*. |
-| **Chest** | Without one, residents have nowhere to get food. |
+| **Cama** | Sem uma, ninguém mora lá. A casa é identificada *pela sua cama*. |
+| **Baú** | Sem um, os residentes não têm de onde tirar comida. |
 
-## Checking
+## Checando
 
-Point a **House Blueprint** at a registered bed.
+Aponte um **Projeto de Casa** (House Blueprint) para uma cama registrada.
 
-The tool will tell you whether the structure passed and, when it did not, **what is missing**. It also
-reports how many interior blocks were visited, and how many doors and chests were found.
+A ferramenta dirá se a estrutura passou e, se não, **o que está faltando**. Ela também
+relata quantos blocos do interior foram visitados, e quantas portas e baús foram encontrados.
 
-:::tip Unloaded chunks get in the way
-If part of the house sits in an unloaded chunk, the check flags the result as incomplete rather
-than rejecting it. Stand near the house when checking.
+:::tip Chunks descarregados atrapalham
+Se parte da casa estiver em um chunk descarregado (unloaded chunk), a checagem sinaliza o resultado como incompleto em vez
+de rejeitá-lo. Fique perto da casa ao fazer a checagem.
 :::
 
-## The house is identified by its bed
+## A casa é identificada por sua cama
 
-This is the most important detail and the easiest to trip over: **the house's identity comes from
-the bed**.
+Este é o detalhe mais importante e o mais fácil de errar: **a identidade da casa vem
+da cama**.
 
-What that means in practice:
+O que isso significa na prática:
 
-- Two beds in the same room can become two houses.
-- Breaking the resident's bed releases the house.
-- Moving the bed can read as a different house.
+- Duas camas no mesmo cômodo podem se tornar duas casas.
+- Quebrar a cama do residente libera a casa.
+- Mover a cama pode ser interpretado como uma casa diferente.
 
-It is a known limitation, and turning it into an identifier of its own is on the roadmap.
+Essa é uma limitação conhecida, e transformá-la em um identificador próprio já está nos planos para o futuro.
 
-## Doors
+## Portas
 
-A door occupies four blocks, and two doors side by side form a double door. NPCs open and close
-them as they pass.
+Uma porta ocupa quatro blocos, e duas portas lado a lado formam uma porta dupla. Os NPCs as abrem e as fecham
+enquanto passam.
 
-## Next
+## A seguir
 
-[Beds and residents](beds-and-residents.md) — how an NPC claims a bed and what happens when two of
-them want the same one.
+[Camas e moradores](beds-and-residents.md) — como um NPC reivindica uma cama e o que acontece quando dois
+deles querem a mesma.

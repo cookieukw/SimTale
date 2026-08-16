@@ -1,54 +1,53 @@
 ---
 sidebar_position: 2
-title: Personality and tastes
+title: Personalidade e gostos
 ---
 
-# Personality and tastes
+# Personalidade e gostos
 
-Every NPC is rolled at spawn and never changes. This is what makes two villagers with the same job
-behave differently.
+Cada NPC é gerado (rolado) no momento do spawn e nunca muda. É isso que faz com que dois moradores com o mesmo emprego
+se comportem de forma diferente.
 
-## Traits
+## Traços
 
-| Trait | Effect |
+| Traço | Efeito |
 |---|---|
-| `AGGRESSIVE` | Conversations can turn into arguments |
-| `NEEDY` | — |
-| `SHY` | — |
-| `LAZY` | Loses energy twice as fast |
-| `GREEDY` | Values gifts more highly |
-| `PARANOID` | Reacts badly to gifts |
-| `FUNNY` | Loses fun at half speed |
-| `LOYAL` | — |
+| `AGRESSIVO` (`AGGRESSIVE`) | Conversas podem virar discussões |
+| `CARENTE` (`NEEDY`) | — |
+| `TÍMIDO` (`SHY`) | — |
+| `PREGUIÇOSO` (`LAZY`) | Perde energia duas vezes mais rápido |
+| `GANANCIOSO` (`GREEDY`) | Dá mais valor a presentes |
+| `PARANOICO` (`PARANOID`) | Reage mal a presentes |
+| `ENGRAÇADO` (`FUNNY`) | Perde diversão pela metade da velocidade |
+| `LEAL` (`LOYAL`) | — |
 
-## Tastes
+## Gostos
 
-Each NPC rolls:
+Cada NPC sorteia:
 
-- 2–3 **favourite foods** and 2–3 **hated foods**
-- 2–3 **favourite items** and 2–3 **hated items**
+- 2–3 **comidas favoritas** e 2–3 **comidas odiadas**
+- 2–3 **itens favoritos** e 2–3 **itens odiados**
 
-That is up to six things she dislikes. The interaction panel shows the **whole list** as icons, not
-a sample — showing only the first one made NPCs look like they did not hate something they very
-much did.
+Isso dá até seis coisas de que ele não gosta. O painel de interação mostra a **lista inteira** como ícones, não
+apenas uma amostra — quando o painel mostrava apenas o primeiro item, fazia os NPCs parecerem não odiar algo que, na verdade, odiavam
+muito.
 
-Giving a favourite lands well. Giving something hated costs you affinity and sours her mood.
+Dar um favorito é sempre bom. Dar algo odiado custa afinidade e piora o humor.
 
-:::tip Tastes collide
-The pool of foods is small, so two NPCs hating the same thing is common. If a gift goes badly with
-someone you did not expect, open the panel and check her actual list before assuming a bug.
+:::tip Gostos coincidem
+A variedade de comidas é pequena, então é comum que dois NPCs odeiem a mesma coisa. Se um presente der errado com
+alguém de quem você não esperava, abra o painel e verifique a lista real antes de achar que é um bug.
 :::
 
-## Favourite season and weather
+## Estação e clima favoritos
 
-Cosmetic for now — shown in the panel, used to colour dialogue.
+Por enquanto, é apenas visual — mostrado no painel, usado para dar um tom nos diálogos.
 
-## Mood
+## Humor
 
-Mood is the plumbob above the head: `NEUTRAL`, `HAPPY`, `ANGRY`, `SAD`, `SCARED`, `SLEEPY`,
-`EXCITED`, `BORED`.
+O humor é representado pelo cristal (plumbob) flutuando sobre a cabeça: `NEUTRO` (`NEUTRAL`), `FELIZ` (`HAPPY`), `BRAVO` (`ANGRY`), `TRISTE` (`SAD`), `ASSUSTADO` (`SCARED`), `COM SONO` (`SLEEPY`), `ANIMADO` (`EXCITED`), `ENTEDIADO` (`BORED`).
 
-It reacts to what happens: eating a favourite dish, being insulted, a good conversation, doing a
-hobby. Mood is **contagious** — a happy NPC talking to a sad one can lift her.
+Ele reage ao que acontece: comer o prato favorito, ser insultado, uma boa conversa, praticar um
+hobby. O humor é **contagioso** — um NPC feliz conversando com um triste pode animá-lo.
 
-Any need dropping below 10 makes her miserable regardless of everything else.
+Qualquer necessidade caindo abaixo de 10 o deixará miserável, independentemente de qualquer outra coisa.

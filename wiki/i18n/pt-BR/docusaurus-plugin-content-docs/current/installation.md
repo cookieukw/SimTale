@@ -1,61 +1,60 @@
 ---
 sidebar_position: 2
-title: Installation
+title: Instalação
 ---
 
-# Installation
+# Instalação
 
-## Requirements
+## Requisitos
 
-| Item | Version | Required |
+| Item | Versão | Obrigatório |
 |---|---|---|
-| Hytale server | `>= 0.5.7` | yes |
-| Caskara (database) | `>= 3.0.0` | yes |
-| RuneCore | 1.0.12 | yes — used to apply damage and healing to NPCs |
-| Java | 21+ | only to build |
+| Servidor Hytale | `>= 0.5.7` | sim |
+| Caskara (banco de dados) | `>= 3.0.0` | sim |
+| RuneCore | 1.0.12 | sim — usado para aplicar dano e cura aos NPCs |
+| Java | 21+ | apenas para compilar (build) |
 
-:::info Where these numbers come from
-`ServerVersion` and `Dependencies` in the mod's `manifest.json`. The RuneCore dependency is not
-declared there, but the code calls `com.cookie.runecore.api.StatHelper` — without that jar, hunger
-cannot take or restore health.
+:::info De onde vêm esses números
+`ServerVersion` e `Dependencies` no `manifest.json` do mod. A dependência do RuneCore não
+está declarada lá, mas o código chama `com.cookie.runecore.api.StatHelper` — sem esse jar, a fome
+não consegue tirar nem restaurar a vida.
 :::
 
-## Install
+## Instalar
 
-1. Drop `SimTale-1.0.0.jar`, `Caskara.jar` and `RuneCore-1.0.12.jar` into the server's `Mods/` folder.
-2. Start the server.
-3. Join a world and craft your first Immigration Contract.
+1. Solte `SimTale-1.0.0.jar`, `Caskara.jar` e `RuneCore-1.0.12.jar` na pasta `Mods/` do servidor.
+2. Inicie o servidor.
+3. Entre em um mundo e crafte seu primeiro Contrato de Imigração.
 
 ```
 [SimTale] Scan found 2 new beds and 1 new chests. Totals: 2 beds, 1 chests
 ```
 
-That line is the furniture scan that runs when you join a world. It only appears when it finds
-something new.
+Essa linha é o rastreio de móveis que roda quando você entra em um mundo. Ela só aparece quando encontra
+algo novo.
 
-## Building from source
+## Compilando a partir do código (Build)
 
 ```bash
 ./gradlew deploy
 ```
 
-The `deploy` task builds the jar and copies it into Hytale's `Mods` folder.
+A task `deploy` compila o jar e o copia para a pasta `Mods` do Hytale.
 
-:::warning Close the game before building
-The copy is atomic precisely to avoid this, but building with the game closed is still safer.
-Hytale watches the `Mods` folder and reloads the mod by itself when the file changes — with an
-11 MB jar, a reload fired mid-write produced `ZipException: invalid LOC header` and no NPC loaded
-at all.
+:::warning Feche o jogo antes de compilar
+A cópia é atômica justamente para evitar problemas, mas compilar com o jogo fechado ainda é mais seguro.
+O Hytale monitora a pasta `Mods` e recarrega o mod sozinho quando o arquivo muda — com um
+jar de 11 MB, um recarregamento disparado no meio da gravação gerou um erro `ZipException: invalid LOC header` e nenhum NPC foi carregado.
 :::
 
-## Verifying it works
+## Verificando se funciona
 
-Join the game, craft an **Immigration Contract**, and use it.
+Entre no jogo, faça (craft) um **Contrato de Imigração** (Immigration Contract), e use-o.
 
-If an NPC shows up with a name of its own and a diamond floating above its head (the *plumbob*,
-which shows mood), the mod is live.
+Se um NPC aparecer com um nome próprio e um diamante flutuando sobre a cabeça (o *plumbob*,
+que mostra o humor), o mod está rodando.
 
-## Uninstalling
+## Desinstalação
 
-Remove the jar from `Mods`. NPC data stays in the Caskara database; reinstalling brings everyone
-back.
+Remova o jar da pasta `Mods`. Os dados dos NPCs continuam no banco de dados do Caskara; reinstalar o mod trará todo mundo
+de volta.

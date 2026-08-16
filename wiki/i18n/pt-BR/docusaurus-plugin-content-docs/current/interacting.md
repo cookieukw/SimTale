@@ -1,76 +1,75 @@
 ---
 sidebar_position: 4
-title: Interacting with NPCs
+title: Interagindo com NPCs
 ---
 
-# Interacting with NPCs
+# Interagindo com NPCs
 
-Aim at an NPC and press **F**, or right-click. The interaction panel opens.
+Aponte para um NPC e aperte **F**, ou clique com o botão direito. O painel de interação será aberto.
 
 ![NPC Interaction UI Placeholder](/path/to/interaction_ui.png)
 
-## What the panel shows
+## O que o painel mostra
 
-| Section | Contents |
+| Seção | Conteúdo |
 |---|---|
-| Header | Name, job, mood |
-| Needs | Hunger and energy, colour-coded by severity |
-| Traits | Personality traits |
-| Identity | Job and hobby, as item icons |
-| Tastes | Everything she likes and everything she hates, as icons |
-| Family | Parents and children |
-| Status | Relationship, friendship and affinity percentages |
+| Cabeçalho | Nome, trabalho, humor |
+| Necessidades | Fome e energia, codificadas por cor conforme a gravidade |
+| Traços | Traços de personalidade |
+| Identidade | Trabalho e hobby, como ícones de itens |
+| Gostos | Tudo o que ela gosta e odeia, como ícones |
+| Família | Pais e filhos |
+| Status | Porcentagens de relacionamento, amizade e afinidade |
 
-The colours on the hunger line follow the thresholds the routine actually uses: green above 50,
-yellow below 50, orange below 25, red below 5. At 5, the NPC cries and abandons all tasks.
+As cores na barra de fome seguem os limites que a rotina realmente usa: verde acima de 50, amarelo abaixo de 50, laranja abaixo de 25, vermelho abaixo de 5. No nível 5, o NPC chora e abandona todas as tarefas.
 
-## Actions
+## Ações
 
-| Button | What it does |
+| Botão | O que ele faz |
 |---|---|
-| **Chat** | Conversation. Grants a small boost to Friendship (+5) and Affinity (+5 to +10). If Generative AI is enabled, the NPC will actively write a response back. |
-| **Tell joke** | Lands or flops depending on her humour. Fails entirely if enemies. Cheers up sad/angry partners. NPCs with the `FUNNY` trait give a massive +15 affinity boost. |
-| **Flirt** | Requires a good baseline relationship. Guaranteed to fail and drop relationship points if enemies, strangers, or angry. Readily accepted by partners or NPCs with the `SHY` trait. |
-| **Give gift** | Hands over whatever you are holding. (See below for gift logic) |
-| **Insult** | Costs up to -30 trust and affinity, and she remembers it. Partners will react very poorly. |
-| **Scold** | Specific to your children. Reactions vary by age: Teens become angry, Adults become bored, and Babies/Toddlers become sad. Repeated scolding drops trust and affinity. |
-| **Assign job** | Sets her job from the tool you are holding (e.g., holding a hoe assigns Farmer). |
-| **View pregnancy** | Opens the gestation panel |
-| **Inventory** | Opens her inventory |
+| **Conversar (Chat)** | Bate-papo. Dá um pequeno aumento na Amizade (+5) e Afinidade (+5 a +10). Se a IA Gerativa estiver ativada, o NPC escreverá ativamente uma resposta. |
+| **Contar piada (Joke)** | Dá certo ou fracassa dependendo do senso de humor dela. Falha totalmente se forem inimigos. Anima parceiros tristes/irritados. NPCs com o traço `ENGRAÇADO` (`FUNNY`) dão um aumento massivo de +15 na afinidade. |
+| **Flertar (Flirt)** | Exige uma boa base de relacionamento. Falha garantida e queda de relacionamento se forem inimigos, estranhos ou se o NPC estiver irritado. Facilmente aceito por parceiros ou NPCs com o traço `TÍMIDO` (`SHY`). |
+| **Dar presente (Gift)** | Entrega o que você estiver segurando. (Veja abaixo a lógica de presentes) |
+| **Insultar (Insult)** | Custa até -30 de confiança e afinidade, e ela se lembrará disso. Parceiros vão reagir muito mal. |
+| **Dar bronca (Scold)** | Específico para os seus filhos. As reações variam conforme a idade: Adolescentes ficam com raiva, Adultos ficam entediados, e Bebês/Crianças pequenas ficam tristes. Dar bronca repetidamente reduz a confiança e afinidade. |
+| **Atribuir trabalho (Assign job)** | Define o trabalho dela com base na ferramenta que você está segurando (ex: segurar uma enxada atribui Fazendeiro). |
+| **Ver gravidez (View pregnancy)** | Abre o painel de gestação |
+| **Inventário (Inventory)** | Abre o inventário dela |
 
-## Gifts
+## Presentes
 
-What she thinks of a gift depends, in this order:
+O que ela acha de um presente depende, nesta ordem:
 
-1. **Is it on her favourites list?** Big gain (+30 affinity).
-2. **Is it on her hated list?** Big loss (-25 affinity).
-3. **Is it hobby-related?** Solid gain (+22 affinity) — below an explicit favourite, above anything generic.
-4. **Is it junk?** (dirt, sand, stone, cobweb, bones, poison, scrap) Loss (-20 affinity).
-5. **Personality**: `GREEDY` values it more (+25 affinity); `PARANOID` reacts badly (-10 affinity).
-6. **Anything else**: small polite gain (+15 affinity).
+1. **Está na lista de favoritos?** Grande ganho (+30 afinidade).
+2. **Está na lista de odiados?** Grande perda (-25 afinidade).
+3. **Tem relação com o hobby?** Ganho sólido (+22 afinidade) — abaixo de um favorito explícito, acima de qualquer coisa genérica.
+4. **É lixo?** (terra, areia, pedra, teia de aranha, ossos, veneno, sucata) Perda (-20 afinidade).
+5. **Personalidade**: O traço `GANANCIOSO` (`GREEDY`) valoriza mais (+25 afinidade); o `PARANOICO` (`PARANOID`) reage mal (-10 afinidade).
+6. **Qualquer outra coisa**: pequeno ganho por educação (+15 afinidade).
 
-### Food is a special case
+### Comida é um caso especial
 
-If her hunger is at 70 or below and the gift is edible, she eats it right there instead of putting it away. That restores hunger and health, cancels any starvation, and alters her fun based on her tastes.
+Se a fome dela estiver em 70 ou menos e o presente for comestível, ela o comerá na mesma hora em vez de guardá-lo. Isso restaura a fome e a saúde, cancela o estado de passar fome, e altera sua diversão com base no gosto pessoal dela.
 
-Above 70 hunger, food goes back to being just a gift.
+Acima de 70 de fome, a comida volta a ser tratada como um presente comum.
 
-### The Baby Item
+### O Item Bebê
 
-Giving a **Baby** item to a child NPC will immediately accelerate their growth by 1 entire game day (24,000 ticks). If you try to give a Baby item to an adult, they will reject it and tell you they are not a child.
+Dar um item de **Bebê** para um NPC criança acelerará imediatamente o crescimento dele em 1 dia inteiro de jogo (24.000 ticks). Se você tentar dar um item Bebê para um adulto, ele rejeitará e dirá que não é uma criança.
 
-## Marriage
+## Casamento
 
-To propose to an NPC, you must gift them a **Wedding Ring**.
-The proposal will only be accepted if your relationship with them is at least **80 Romance** and **70 Friendship**. If accepted, the NPC will become your spouse.
+Para pedir um NPC em casamento, você deve dar de presente uma **Aliança de Casamento** (Wedding Ring).
+O pedido só será aceito se o relacionamento de vocês tiver pelo menos **80 de Romance** e **70 de Amizade**. Se aceito, o NPC se tornará seu cônjuge.
 
 ![Wedding Ring Placeholder](/path/to/wedding_ring_icon.png)
 
-## Talking with AI
+## Conversando com IA
 
-The mod can route conversation through a generative AI so replies are written on the fly instead of picked from a list. It has to be enabled in the server config — see
-[Generative AI](/admin/generative-ai).
+O mod pode rotear as conversas através de uma Inteligência Artificial generativa para que as respostas sejam escritas em tempo real, em vez de serem escolhidas de uma lista. Isso deve ser ativado nas configurações do servidor — veja
+[IA Gerativa](/admin/generative-ai).
 
-:::note Only through the panel
-AI replies currently work through the interaction panel. Typing in the normal chat always gives the built-in scripted responses, even with AI enabled.
+:::note Apenas pelo painel
+Atualmente, as respostas por IA funcionam apenas através do painel de interação. Digitar no chat normal do jogo sempre trará as respostas baseadas em roteiros predefinidos, mesmo com a IA ativada.
 :::

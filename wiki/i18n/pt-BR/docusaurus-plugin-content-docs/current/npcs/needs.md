@@ -1,77 +1,76 @@
 ---
 sidebar_position: 1
-title: Needs
+title: Necessidades
 ---
 
-# Needs
+# Necessidades
 
-Every NPC carries five needs, all starting at 100 and decaying over time.
+Todo NPC possui cinco necessidades, todas começando em 100 e caindo com o tempo.
 
-| Need | What it drives |
+| Necessidade | O que ela motiva a fazer |
 |---|---|
-| **Hunger** | Looking for food; at the bottom, it stops doing anything else |
-| **Energy** | Going to bed |
-| **Social** | Seeking out other NPCs to talk to |
-| **Fun** | Going off to do a hobby |
-| **Hygiene** | Getting into water to bathe |
+| **Fome** | Procurar por comida; se chegar no fundo, ele para de fazer qualquer outra coisa |
+| **Energia** | Ir para a cama |
+| **Social** | Procurar outros NPCs para conversar |
+| **Diversão** | Sair para praticar um hobby |
+| **Higiene** | Entrar na água para tomar banho |
 
-Traits change the rates. A `LAZY` NPC burns energy twice as fast; a `FUNNY` one loses fun at half
-speed.
+Os traços alteram a velocidade. Um NPC `PREGUIÇOSO` (`LAZY`) gasta energia duas vezes mais rápido; um `ENGRAÇADO` (`FUNNY`) perde diversão pela metade da velocidade.
 
-## Hunger in detail
+## Fome em detalhes
 
-Hunger is the need with the sharpest consequences, so it has clear thresholds:
+A fome é a necessidade com as consequências mais duras, por isso ela tem limites claros:
 
-| Hunger | What happens |
+| Fome | O que acontece |
 |---|---|
-| below 50 | looks for food **when idle** |
-| below 25 | **drops whatever it is doing** to eat |
-| below 5 | starts losing health |
+| abaixo de 50 | procura comida **quando estiver ocioso** |
+| abaixo de 25 | **larga o que estiver fazendo** para comer |
+| abaixo de 5 | começa a perder vida |
 
-The interruption at 25 exists because a busy NPC would otherwise starve next to a full pantry —
-hunger used to be checked only while idle.
+A interrupção aos 25 existe porque um NPC ocupado acabaria passando fome ao lado de uma despensa cheia —
+antes, a fome só era checada enquanto ele estivesse ocioso.
 
-### Timeline
+### Linha do tempo
 
-Starting from full hunger:
+Começando de barriga cheia:
 
-| Milestone | Hunger | Elapsed |
+| Marco | Fome | Tempo decorrido |
 |---|---|---|
-| Looks for food when idle | 70 | ~4.2 h |
-| Interrupts its task | 25 | ~10.4 h |
-| Stops working and cries | 5 | ~13.2 h |
+| Procura comida se ocioso | 70 | ~4,2 h |
+| Interrompe o que está fazendo | 25 | ~10,4 h |
+| Para de trabalhar e chora | 5 | ~13,2 h |
 
-### Hunger does not kill
+### Fome não mata
 
-An NPC that runs out of food does not die. It becomes miserable and useless: it drops its job, its
-hobby and its social life, and stays that way until someone feeds it. Death is reserved for aging
-and disease, which are not implemented yet.
+Um NPC que fica sem comida não morre. Ele fica miserável e inútil: ele abandona seu emprego, seu
+hobby e sua vida social, e fica desse jeito até que alguém o alimente. A morte é reservada ao envelhecimento
+e a doenças, que ainda não foram implementados.
 
-It can still reach food on its own — being starving does not stop it from walking to a chest, and
-it does not interrupt sleep.
+Ele ainda consegue pegar comida por conta própria — estar passando fome não o impede de caminhar até um baú, e
+isso não interrompe o sono.
 
-## What food restores
+## O que a comida restaura
 
-Food is graded by the game's own item data into three tiers. Raw meat, ingredients and harvested
-crops are tier 1; anything cooked or assembled is tier 2 or 3.
+A comida é classificada pelos próprios dados de item do jogo em três níveis. Carne crua, ingredientes e colheitas
+são de nível 1; qualquer coisa cozida ou preparada é de nível 2 ou 3.
 
-| Tier | Hunger | Health |
+| Nível | Fome | Saúde |
 |---|---|---|
-| 1 (raw) | +25 | +6 |
+| 1 (cru) | +25 | +6 |
 | 2 | +45 | +14 |
-| 3 (cooked) | +65 | +24 |
+| 3 (cozido) | +65 | +24 |
 
-When choosing from a chest, tier wins over taste: a hated pie still beats a beloved slab of raw
-beef.
+Ao escolher de um baú, o nível importa mais que o gosto: uma torta odiada ainda ganha de um suculento, porém cru, pedaço de
+carne que ele ama.
 
-## Feeding by hand
+## Alimentando à mão
 
-Give food to an NPC whose hunger is at 50 or below and she eats it on the spot instead of pocketing
-it — restoring hunger and health, and earning you far more goodwill than an ordinary gift.
+Dê comida para um NPC cuja fome está em 50 ou menos e ela a comerá na mesma hora em vez de guardar
+no bolso — restaurando fome e vida, e rendendo muito mais gratidão a você do que um presente comum.
 
-Hated food still feeds her. She eats it complaining, with a smaller gain and a hit to her mood.
+Comida odiada ainda alimenta. Ela come reclamando, ganha menos status e sofre uma queda no humor.
 
-## Seeing the numbers
+## Vendo os números
 
-Hunger and energy appear at the top of the interaction panel, colour-coded by severity. The colours
-follow the same thresholds the routine uses, so the panel and the behaviour never disagree.
+Fome e energia aparecem no topo do painel de interação, divididas em cores por gravidade. As cores
+seguem os mesmos limites que a rotina usa, assim o painel e o comportamento nunca discordam.

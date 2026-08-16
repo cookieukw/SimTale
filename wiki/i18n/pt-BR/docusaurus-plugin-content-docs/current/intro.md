@@ -1,55 +1,53 @@
 ---
 sidebar_position: 1
-title: What is SimTale
+title: O que é o SimTale
 slug: /
 ---
 
 # SimTale
 
-SimTale is a **social simulation** mod for Hytale. It turns NPCs into residents: people who get
-hungry and tired, who have a personality, tastes, a job, and an opinion about you.
+SimTale é um mod de **simulação social** para Hytale. Ele transforma NPCs em residentes: pessoas que ficam
+com fome e cansadas, que possuem personalidade, gostos, um trabalho e uma opinião sobre você.
 
-This is not a decorative NPC mod with fixed dialogue. NPCs decide what to do on their own, and what
-they do depends on their state and on the world around them.
+Este não é um mod de NPCs decorativos com diálogos fixos. Os NPCs decidem o que fazer por conta própria, e o que
+eles fazem depende do seu estado e do mundo ao seu redor.
 
-There are exactly **800 unique visual variants** of NPCs:
-- 400 Adults (200 Male, 200 Female)
-- 400 Children (200 Male, 200 Female)
+Existem exatamente **800 variantes visuais únicas** de NPCs:
+- 400 Adultos (200 Homens, 200 Mulheres)
+- 400 Crianças (200 Meninos, 200 Meninas)
 
-Each variant is born with a randomly rolled personality, traits, hobbies, favorite foods, and hated items. No two NPCs are exactly alike.
+Cada variante nasce com uma personalidade rolada aleatoriamente, além de traços, hobbies, comidas favoritas e itens odiados. Nenhum NPC é exatamente igual ao outro.
 
 ![NPC Variants Placeholder](/path/to/variants_collage.png)
 
-## What an NPC does on its own
+## O que um NPC faz sozinho
 
-- **Sleeps at night.** When night falls, it drops whatever it is doing and heads for its own bed. NPCs with the "Lazy" trait go to sleep earlier (when energy drops below 60). Guards run the opposite shift: awake at night, asleep during the day.
-- **Eats when hungry.** Looks for food in the chests of the house it lives in (within a 24-block radius), and picks the best one: cooked food beats raw meat, and it avoids what it hates.
-- **Lives in a house.** Claims a bed and treats that place as its own. 
-- **Belongs to a village.** Houses built near each other form one, worked out from the buildings themselves. NPCs without a house stay near the village center instead of wandering off.
-- **Works.** Farmers harvest crops (Carrot, Wheat, Tomato, Corn), replant seeds, and deposit the harvest. Hunters and Miners go on expeditions and return with loot.
-- **Talks.** Seeks out other NPCs within 20 blocks after too long alone, and mood is contagious.
-- **Has a hobby.** Someone who likes fishing walks to the water; a reader goes home.
-- **Ages.** Marries, gets pregnant, has children, and those children grow from baby to adult.
-- **Starves.** If hunger drops below 5, it cries, stops working entirely, and drops all tasks until someone feeds it. It does not die of hunger — death is reserved for aging and disease.
-- **Dies.** When an NPC reaches the end of their life, they enter a dying state. The Grim Reaper spawns to conduct the ceremony and collect their soul.
+- **Dorme à noite.** Quando a noite cai, ele larga o que estiver fazendo e vai para a própria cama. NPCs com o traço "Preguiçoso" vão dormir mais cedo (quando a energia cai abaixo de 60). Guardas fazem o turno oposto: acordados à noite, dormem de dia.
+- **Come quando tem fome.** Procura por comida nos baús da casa onde mora (dentro de um raio de 24 blocos), e escolhe a melhor: comida cozida tem prioridade sobre carne crua, e ele evita o que odeia.
+- **Vive em uma casa.** Reivindica uma cama e trata aquele lugar como seu. 
+- **Pertence a uma vila.** Casas construídas perto umas das outras formam uma vila, calculada a partir das próprias construções. NPCs sem casa ficam perto do centro da vila em vez de vagar sem rumo.
+- **Trabalha.** Fazendeiros colhem plantações (Cenoura, Trigo, Tomate, Milho), replantam sementes e guardam a colheita. Caçadores e Mineradores saem em expedições e voltam com espólios.
+- **Conversa.** Procura outros NPCs em um raio de 20 blocos após ficar muito tempo sozinho, e o humor é contagiante.
+- **Tem um hobby.** Alguém que gosta de pescar caminha até a água; um leitor vai para casa.
+- **Envelhece.** Casa-se, engravida, tem filhos, e essas crianças crescem de bebê a adulto.
+- **Passa fome.** Se a fome cair abaixo de 5, ele chora, para de trabalhar totalmente e abandona todas as tarefas até que alguém o alimente. Ele não morre de fome — a morte é reservada para envelhecimento e doenças.
+- **Morre.** Quando um NPC chega ao fim da vida, ele entra em estado de morte. A Ceifadora (Grim Reaper) aparece para conduzir a cerimônia e coletar sua alma.
 
 ![Grim Reaper Ceremony Placeholder](/path/to/reaper_ceremony.png)
 
-## Where to start
+## Por onde começar
 
-1. [Installation](installation.md)
-2. [Getting started](getting-started.md) — spawn your first NPC and give it a home
-3. [Building a house](houses/building-a-house.md)
+1. [Instalação](installation.md)
+2. [Começando](getting-started.md) — chame seu primeiro NPC e dê a ele uma casa
+3. [Construindo uma casa](houses/building-a-house.md)
 
-## The other tracks
+## As outras trilhas
 
-This section is for **players**. If you run a server or want to work on the code:
+Esta seção é para **jogadores**. Se você gerencia um servidor ou quer trabalhar no código:
 
-- **[Server](/admin/intro)** — commands, generative AI, balancing and troubleshooting
-- **[Developer](/dev/intro)** — architecture, systems, and how to extend the mod
+- **[Servidor](/admin/intro)** — comandos, IA gerativa, balanceamento e solução de problemas
+- **[Desenvolvedor](/dev/intro)** — arquitetura, sistemas e como expandir o mod
 
-:::note Documentation in progress
-The mod is in testing and has no public release. Behaviour described here may change between
-versions, and some parts have not been validated in game yet — where that is the case, the page
-says so.
+:::note Documentação em andamento
+O mod está em fase de testes e não tem um lançamento público. O comportamento descrito aqui pode mudar entre versões, e algumas partes ainda não foram validadas no jogo — onde for o caso, a página informará.
 :::

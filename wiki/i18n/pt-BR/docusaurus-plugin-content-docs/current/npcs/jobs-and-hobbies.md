@@ -1,81 +1,81 @@
 ---
 sidebar_position: 3
-title: Jobs and hobbies
+title: Empregos e hobbies
 ---
 
-# Jobs and hobbies
+# Empregos e hobbies
 
-## Jobs
+## Empregos
 
-| Job | What it does |
+| Emprego | O que faz |
 |---|---|
-| `UNEMPLOYED` | Nothing in particular |
-| `MINER` | Goes on mining expeditions and returns with ores |
-| `FARMER` | Claims a Scarecrow, harvests, and replants specific crops |
-| `FISHERMAN` | Claims a Fishing Post and gathers fish |
-| `LUMBERJACK` | Claims a Lumber Post and gathers wood |
-| `GUARD` | Night watch — sleeps by day |
-| `EXPLORER` | Exploring |
-| `BUILDER` | Walks to construction sites |
-| `HUNTER` | Goes on hunting expeditions and returns with raw meat |
+| `DESEMPREGADO` (`UNEMPLOYED`) | Nada em especial |
+| `MINERADOR` (`MINER`) | Sai em expedições de mineração e volta com minérios |
+| `FAZENDEIRO` (`FARMER`) | Reivindica um Espantalho (Scarecrow), colhe e replanta plantações específicas |
+| `PESCADOR` (`FISHERMAN`) | Reivindica um Posto de Pesca (Fishing Post) e coleta peixes |
+| `LENHADOR` (`LUMBERJACK`) | Reivindica um Posto de Lenhador (Lumber Post) e coleta madeira |
+| `GUARDA` (`GUARD`) | Vigia noturna — dorme de dia |
+| `EXPLORADOR` (`EXPLORER`) | Explora a região |
+| `CONSTRUTOR` (`BUILDER`) | Caminha até os locais de construção |
+| `CAÇADOR` (`HUNTER`) | Sai em expedições de caça e volta com carne crua |
 
-### Assigning a job
+### Atribuindo um emprego
 
-Hold the matching tool and use **Assign Job** in the interaction panel.
+Segure a ferramenta correspondente e use **Atribuir Trabalho** (Assign Job) no painel de interação.
 
-| Job | Trigger item contains |
+| Emprego | Gatilho contém no nome da ferramenta |
 |---|---|
-| Miner | `pickaxe` |
-| Farmer | `hoe` |
-| Fisherman | `fishing_trap` |
-| Lumberjack | `hatchet` |
-| Guard | `sword` |
-| Explorer | `map` |
-| Builder | `hammer` |
-| Hunter | `bow` |
+| Minerador | `pickaxe` (picareta) |
+| Fazendeiro | `hoe` (enxada) |
+| Pescador | `fishing_trap` (armadilha de pesca) |
+| Lenhador | `hatchet` (machadinha) |
+| Guarda | `sword` (espada) |
+| Explorador | `map` (mapa) |
+| Construtor | `hammer` (martelo) |
+| Caçador | `bow` (arco) |
 
-An NPC can refuse: each one rolls jobs she likes and jobs she dislikes.
+Um NPC pode recusar: cada um deles possui uma lista aleatória de trabalhos que gosta e trabalhos que odeia.
 
-:::caution Matching is by item name
-The check looks for those words inside the item id. A sword named without "sword" in its id will not be recognised. This is a known weak spot.
+:::caution A correspondência é feita pelo nome do item
+A checagem procura por essas palavras dentro da ID do item. Uma espada cujo ID não contenha a palavra "sword" não será reconhecida. Esta é uma falha conhecida.
 :::
 
-### The Farmer
+### O Fazendeiro
 
-The Farmer requires a **Scarecrow** to act as their workstation. They will walk to ripe crops, harvest them (dropping 1 produce and 1-2 seeds), and then carry everything to a chest in their own house. If they have seeds and there is empty tilled soil nearby, they will replant. 
-Supported crops are: Carrot, Wheat, Tomato, and Corn.
+O Fazendeiro exige um **Espantalho** (Scarecrow) para atuar como sua estação de trabalho. Ele caminhará até as plantações maduras, irá colhê-las (deixando cair 1 produto e 1-2 sementes), e então levará tudo para um baú em sua própria casa. Se ele tiver sementes e houver solo arado vazio por perto, ele replantará. 
+As plantações suportadas são: Cenoura, Trigo, Tomate e Milho.
 
-### Expeditions: Miners and Hunters
+### Expedições: Mineradores e Caçadores
 
-Miners and Hunters do not actively walk up to rocks or animals. Instead, they go on "Expeditions".
-When their work shift begins, their model scales down (shrinks) and they conceptually disappear for about 2 real minutes. When they return, they spawn back at the Village Center or their house, carrying loot based on a weighted table.
-- **Miners** return with ores (Copper, Iron, Silver, Gold, Adamantite, etc.).
-- **Hunters** return with Raw Meats (Beef, Pork, Chicken).
-They immediately walk to their home chest to deposit the loot.
+Mineradores e Caçadores não caminham ativamente até pedras ou animais. Em vez disso, eles saem em "Expedições".
+Quando o turno de trabalho começa, o modelo deles diminui (encolhe) e eles conceitualmente desaparecem por cerca de 2 minutos reais. Quando retornam, eles surgem de volta no Centro da Vila ou em suas casas, carregando espólios baseados em uma tabela de probabilidades.
+- **Mineradores** voltam com minérios (Cobre, Ferro, Prata, Ouro, Adamantium, etc.).
+- **Caçadores** voltam com Carnes Cruas (Boi, Porco, Frango).
+Eles caminham imediatamente até o baú de suas casas para depositar os espólios.
 
-### Fisherman and Lumberjack
+### Pescador e Lenhador
 
-Both professions require specific workstations to function:
-- Fisherman requires a **Fishing Post**.
-- Lumberjack requires a **Lumber Post**.
-They will walk to these posts, perform their gathering animation, and then deposit their respective resources (Fish or Wood) into their home chest.
+Ambas as profissões exigem estações de trabalho específicas para funcionar:
+- Pescador exige um **Posto de Pesca** (Fishing Post).
+- Lenhador exige um **Posto de Lenhador** (Lumber Post).
+Eles caminharão até esses postos, farão suas animações de coleta, e então depositarão seus respectivos recursos (Peixe ou Madeira) no baú de casa.
 
 ## Hobbies
 
-| Hobby | Where she goes |
+| Hobby | Para onde ela vai |
 |---|---|
-| `FISHING` | nearest water |
-| `MINING` | nearest stone |
-| `GARDENING` | nearest crops |
-| `READING` | home |
-| `SLEEPING` | home |
+| `PESCAR` (`FISHING`) | água mais próxima |
+| `MINERAR` (`MINING`) | pedra mais próxima |
+| `JARDINAGEM` (`GARDENING`) | plantação mais próxima |
+| `LER` (`READING`) | casa |
+| `DORMIR` (`SLEEPING`) | casa |
 
-When fun drops below 40, she goes and does her hobby, and comes back happy.
+Quando a diversão cai abaixo de 40, ela vai e pratica o seu hobby, voltando feliz.
 
-If the scenery does not exist — a fisherman in the desert — she does not get stuck looking. She gives up and relaxes at home, recovering fun more slowly.
+Se o cenário não existir — um pescador no deserto, por exemplo — ela não fica presa procurando infinitamente. Ela desiste e relaxa em casa, recuperando a diversão mais lentamente.
 
-### Hobbies matter socially
+### Hobbies importam socialmente
 
-- **Gifts**: giving a fishing rod to someone whose hobby is fishing is worth far more than an ordinary gift.
-- **Conversation**: two NPCs with the same hobby build friendship faster.
-- **Work**: a farmer whose hobby is gardening *gains* fun from harvesting. One who would rather be reading loses a little.
+- **Presentes**: dar uma vara de pescar para alguém cujo hobby é pescar vale muito mais do que um presente comum.
+- **Conversa**: dois NPCs com o mesmo hobby constroem amizade mais rápido.
+- **Trabalho**: um fazendeiro cujo hobby é jardinagem *ganha* diversão ao colher. Um que preferiria estar lendo perde um pouco de diversão durante o trabalho.

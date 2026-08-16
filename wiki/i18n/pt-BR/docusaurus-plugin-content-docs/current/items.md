@@ -1,62 +1,62 @@
 ---
 sidebar_position: 6
-title: Tools and items
+title: Ferramentas e itens
 ---
 
-# Tools and items
+# Ferramentas e itens
 
-SimTale adds a set of craftable tools. They exist so the village can be understood from inside the game, without typing a debug command.
+SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a vila possa ser compreendida de dentro do jogo, sem a necessidade de digitar comandos de debug.
 
-## What they do
+## O que elas fazem
 
-| Item | Point at | What happens |
+| Item | Apontar para | O que acontece |
 |---|---|---|
-| Pregnancy Test | a villager | Says whether she is expecting, and how far along |
-| House Blueprint | a bed | Reports whether that room counts as a house, and outlines it |
-| Innkeeper's Ledger | anything | Lists every registered bed and who sleeps in it |
-| Quartermaster's Glass | anything | Lists every village chest and what is inside |
-| Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
-| Immigration Contract | anything | Invites a new resident to settle in the village |
-| Town Bell | anything | Rings the town bell, alerting nearby villagers |
+| Teste de Gravidez (Pregnancy Test) | um morador | Diz se ela está esperando um bebê e de quanto tempo |
+| Projeto de Casa (House Blueprint) | uma cama | Informa se o cômodo conta como uma casa e mostra seus contornos |
+| Livro do Estalajadeiro (Innkeeper's Ledger) | qualquer coisa | Lista todas as camas registradas e quem dorme nelas |
+| Lupa do Intendente (Quartermaster's Glass) | qualquer coisa | Lista todos os baús da vila e o que há dentro deles |
+| Diário do Inspetor (Inspector's Journal) | um morador | Mostra suas necessidades, humor, trabalho e o que está fazendo agora |
+| Contrato de Imigração (Immigration Contract) | qualquer coisa | Convida um novo residente para se estabelecer na vila |
+| Sino da Cidade (Town Bell) | qualquer coisa | Toca o sino da cidade, alertando os moradores próximos |
 
-One more item is crafted but does nothing yet: the Birthday Cake.
+Mais um item pode ser craftado, mas ainda não tem função: o Bolo de Aniversário (Birthday Cake).
 
-## Crafting Recipes
+## Receitas de Criação (Crafting)
 
-All items can be crafted at their respective workstations:
+Todos os itens podem ser craftados em suas respectivas bancadas:
 
-| Item | Bench | Ingredients |
+| Item | Bancada | Ingredientes |
 |---|---|---|
-| **Pregnancy Test** | Alchemybench | 1x White Flower, 1x Softwood Planks, 1x Life Essence (Cauliflower) |
-| **House Blueprint** | Fieldcraft | 1x Map, 1x Inkwell, 1x Scroll |
-| **Innkeeper's Ledger** | Fieldcraft | 1x Small Book Pile, 1x Softwood Planks, 1x Light Leather |
-| **Quartermaster's Glass** | Workbench | 1x White Crystal, 1x Copper Bar |
-| **Inspector's Journal** | Fieldcraft | 1x Small Book Pile, 1x Inkwell |
-| **Immigration Contract** | Fieldcraft | 1x Scroll, 1x Inkwell, 1x Light Leather |
-| **Town Bell** | Workbench | 3x Gold Bar, 2x Softwood Planks |
+| **Teste de Gravidez** | Mesa de Alquimia | 1x Flor Branca, 1x Tábuas de Madeira Macia, 1x Essência de Vida (Couve-flor) |
+| **Projeto de Casa** | Fieldcraft | 1x Mapa, 1x Tinteiro, 1x Pergaminho |
+| **Livro do Estalajadeiro** | Fieldcraft | 1x Pilha Pequena de Livros, 1x Tábuas de Madeira Macia, 1x Couro Leve |
+| **Lupa do Intendente** | Bancada de Trabalho | 1x Cristal Branco, 1x Barra de Cobre |
+| **Diário do Inspetor** | Fieldcraft | 1x Pilha Pequena de Livros, 1x Tinteiro |
+| **Contrato de Imigração** | Fieldcraft | 1x Pergaminho, 1x Tinteiro, 1x Couro Leve |
+| **Sino da Cidade** | Bancada de Trabalho | 3x Barra de Ouro, 2x Tábuas de Madeira Macia |
 
-### Item Icons
+### Ícones dos Itens
 
 ![House Blueprint Placeholder](/path/to/house_blueprint.png) ![Innkeeper Ledger Placeholder](/path/to/innkeeper_ledger.png) ![Quartermaster Glass Placeholder](/path/to/quartermaster_glass.png) ![Town Bell Placeholder](/path/to/town_bell.png)
 
-## House Blueprint
+## Projeto de Casa (House Blueprint)
 
-Right-click a **registered bed** — the bed is what makes a room a house, so anywhere else the tool has no way to know which room you mean.
+Clique com o botão direito em uma **cama registrada** — a cama é o que faz um cômodo ser uma casa, então em qualquer outro lugar a ferramenta não tem como saber de qual cômodo você está falando.
 
-You get a verdict (valid, or the list of what is missing), a summary of interior size, doors and chests, and the floor of the room lit up for about twelve seconds: green if the house is valid, red if it is not. The outline is the floor only — filling the whole interior would replace the room with a coloured brick and hide what you are looking at.
+Você recebe um veredito (válida, ou a lista do que está faltando), um resumo do tamanho interior, portas e baús, e o chão do cômodo se ilumina por cerca de doze segundos: verde se a casa for válida, vermelho se não for. O contorno é apenas no chão — preencher todo o interior substituiria o cômodo por um bloco colorido gigante e esconderia o que você está tentando ver.
 
-:::note It deliberately does not register anything
-A tool for checking should not change what it checks. If the blueprint registered the house, you would create residences by accident while inspecting them. Houses are still created by an NPC claiming the bed.
+:::note Ele de propósito não registra nada
+Uma ferramenta de verificação não deve alterar o que ela verifica. Se o projeto registrasse a casa, você criaria residências por acidente enquanto as inspeciona. Casas continuam sendo criadas quando um NPC reivindica a cama.
 :::
 
-The one thing it does perfectly: it knows exactly which bed you mean. Checking proximity by yourself stops being good enough the moment two houses share a wall.
+A única coisa que ele faz com perfeição: ele sabe exatamente a qual cama você se refere. Checar apenas por proximidade deixa de ser bom o suficiente no momento em que duas casas dividem uma parede.
 
-## The three lenses
+## As três lentes
 
-The Ledger, the Glass and the Journal are read-only views over data the mod already keeps. The first two open the bed and chest overview screens.
+O Livro (Ledger), a Lupa (Glass) e o Diário (Journal) são visões apenas de leitura dos dados que o mod já guarda. Os dois primeiros abrem as telas de visão geral de camas e baús.
 
-:::warning Why Teleport is not on them
-The bed and chest registries hold every entry in the world. A craftable item with a teleport button next to each one is not a village tool, it is the fastest travel in the game. Same reasoning, less dramatically, for Unclaim and Remove: these items are lenses, never levers.
+:::warning Por que não há botão de Teleporte neles
+Os registros de camas e baús contêm cada entrada existente no mundo. Um item craftável com um botão de teleporte ao lado de cada entrada não seria uma ferramenta de vila, seria a viagem rápida mais quebrada do jogo. O mesmo raciocínio, embora menos dramático, vale para os botões de Desvincular e Remover: esses itens são lentes, nunca alavancas.
 :::
 
-The Journal does not simply dump internal debug state. A raw dump would show role state, animation slots, movement flags and search cooldowns — what you want when the AI is misbehaving, and noise when you just want to know if someone is hungry. The Journal reports the five needs, mood, job, where she lives, and what she is doing in plain words rather than the internal task name.
+O Diário não faz simplesmente um despejo de estado interno de debug. Um dump bruto mostraria o estado do papel (role state), slots de animação, flags de movimento e tempos de recarga de busca — o que você quer ver quando a IA está com problemas, mas que é puro ruído quando você só quer saber se alguém está com fome. O Diário relata as cinco necessidades, humor, trabalho, onde ela mora e o que está fazendo em palavras claras, em vez do nome interno da tarefa.

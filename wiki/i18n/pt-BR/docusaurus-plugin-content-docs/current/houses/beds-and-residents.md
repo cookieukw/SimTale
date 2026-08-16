@@ -1,55 +1,54 @@
 ---
 sidebar_position: 2
-title: Beds and residents
+title: Camas e moradores
 ---
 
-# Beds and residents
+# Camas e moradores
 
-## Claiming
+## Reivindicando
 
-An NPC without a bed looks for a free one nearby. When it finds one, it walks over, claims it, and
-from then on that house is home.
+Um NPC sem cama procura uma cama vazia por perto. Quando encontra uma, ele vai até lá, reivindica a cama, e
+a partir de então aquela casa passa a ser o seu lar.
 
-Claiming is exclusive: one bed, one resident. Married couples are the exception — they share a home.
+A reivindicação é exclusiva: uma cama, um morador. Casais são a exceção — eles dividem a mesma casa.
 
-## Beds occupy six blocks
+## Camas ocupam seis blocos
 
-A bed is not one block. It spans **six**, and only one of them is the anchor.
+Uma cama não é um único bloco. Ela ocupa **seis**, e apenas um deles é a âncora (anchor).
 
-This matters for a reason you can see in game: the sleeping pose is calculated from the anchor. When
-the mod used to mount an NPC on one of the other five blocks, she slept crooked, floating beside the
-bed, or lying across it like a cross.
+Isso importa por um motivo que você pode notar no jogo: a pose de dormir é calculada a partir da âncora. Quando
+o mod montava um NPC em um dos outros cinco blocos, a pessoa dormia torta, flutuando ao lado da
+cama, ou atravessada nela como uma cruz.
 
-The mod now resolves any of the six blocks back to the anchor before putting anyone to bed.
+Hoje, o mod resolve qualquer um dos seis blocos de volta para a âncora antes de colocar alguém na cama.
 
-## Who is sleeping where
+## Quem está dormindo onde
 
-Use the **Innkeeper's Ledger**.
+Use o **Livro do Estalajadeiro** (Innkeeper's Ledger).
 
-It opens a screen listing every registered bed with its coordinates and its owner.
+Ele abre uma tela listando cada cama registrada com suas coordenadas e seu dono.
 
-The screen also shows the total count, so "no beds registered" is distinguishable from "the list
-failed to draw".
+A tela também mostra a contagem total, assim o aviso "nenhuma cama registrada" pode ser diferenciado de "a lista não carregou".
 
-## Breaking a bed
+## Quebrando uma cama
 
-Breaking the bed of a sleeping NPC wakes her up cleanly and releases the house. She will look for
-another bed.
+Quebrar a cama de um NPC que está dormindo faz com que ele acorde perfeitamente e libere a casa. Ela passará a procurar
+outra cama.
 
-## Sleep schedule
+## Cronograma de sono
 
-| Who | Sleeps |
+| Quem | Dorme |
 |---|---|
-| Everyone else | at night, the whole night |
-| Guards | during the day |
+| Todo o resto da vila | à noite, a noite toda |
+| Guardas | durante o dia |
 
-An NPC with full energy still goes to bed at nightfall — the clock decides, not exhaustion. She
-stays down until morning, so she will not pop out of bed the moment energy fills up.
+Um NPC com a energia no máximo ainda vai para a cama ao anoitecer — quem manda é o relógio, não o cansaço. Ela
+fica dormindo até de manhã, para não pular da cama no exato momento em que a energia chegar em 100%.
 
-Exhaustion is still a separate trigger: an NPC that runs out of energy during the day takes a nap
-and wakes when rested.
+A exaustão ainda é um gatilho separado: um NPC que fica sem energia durante o dia tira um cochilo
+e acorda quando estiver descansado.
 
-:::tip Skipping the night wakes them
-Running `time set day` wakes sleeping NPCs immediately, because waking follows the world clock
-rather than a fixed timer.
+:::tip Pular a noite os acorda
+Executar o comando `time set day` acorda NPCs adormecidos imediatamente, porque acordar segue o relógio do mundo
+em vez de um cronômetro fixo.
 :::
