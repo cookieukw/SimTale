@@ -16,7 +16,7 @@ Você precisa convidar um residente para iniciar sua vila. Faça (craft) um **Co
 
 Use o contrato para invocar um novo residente. 
 
-O NPC gerado será uma das **800 variantes visuais únicas**, nascendo com um nome, personalidade, traços, um trabalho, um hobby, comidas favoritas e itens odiados — tudo rolado aleatoriamente. Nenhum NPC é exatamente igual ao outro.
+O NPC gerado recebe um dos **800 modelos visuais distintos** e é instanciado com propriedades aleatórias para nome, matriz de personalidade, traços comportamentais, ocupação, hobbies e preferências alimentares.
 
 ## 2. Construa uma casa
 
