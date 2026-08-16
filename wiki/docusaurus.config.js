@@ -95,6 +95,7 @@ const config = {
           { type: 'docSidebar', sidebarId: 'player', position: 'left', label: 'Player' },
           { to: '/admin/intro', position: 'left', label: 'Server' },
           { to: '/dev/intro', position: 'left', label: 'Developer' },
+          { type: 'localeDropdown', position: 'right' },
           {
             href: 'https://github.com/cookieukw/SimTale',
             label: 'GitHub',
