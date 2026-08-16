@@ -104,7 +104,7 @@ const config = {
       },
       footer: {
         style: 'dark',
-        copyright: `SimTale — a social simulation mod for Hytale. Documentation in progress.`,
+        copyright: `A social simulation mod for Hytale, currently in development.`,
       },
     }),
 };
