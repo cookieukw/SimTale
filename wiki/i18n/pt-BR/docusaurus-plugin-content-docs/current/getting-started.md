@@ -1,87 +1,87 @@
 ---
 sidebar_position: 3
-title: Getting started
+title: Começando
 ---
 
-# Getting started
+# Começando
 
-The shortest path between "I installed the mod" and "I have a living village".
+O caminho mais curto entre "Instalei o mod" e "Tenho uma vila viva".
 
-## 1. Bring in an NPC
+## 1. Traga um NPC
 
-You need to invite a resident to start your village. Craft an **Immigration Contract** at a Fieldcraft bench using:
-- 1x Map/Scroll (`Deco_Scroll`)
-- 1x Inkwell (`Deco_Inkwell`)
-- 1x Light Leather (`Ingredient_Leather_Light`)
+Você precisa convidar um residente para iniciar sua vila. Faça (craft) um **Contrato de Imigração** (Immigration Contract) em uma bancada Fieldcraft usando:
+- 1x Mapa/Pergaminho (`Deco_Scroll`)
+- 1x Tinteiro (`Deco_Inkwell`)
+- 1x Couro Leve (`Ingredient_Leather_Light`)
 
-Use the contract to spawn a new resident. 
+Use o contrato para invocar um novo residente. 
 
-The NPC generated will be one of the **800 unique visual variants**, born with a name, personality, traits, a job, a hobby, favourite foods, and hated items — all rolled at random. No two NPCs are exactly alike.
+O NPC gerado será uma das **800 variantes visuais únicas**, nascendo com um nome, personalidade, traços, um trabalho, um hobby, comidas favoritas e itens odiados — tudo rolado aleatoriamente. Nenhum NPC é exatamente igual ao outro.
 
-## 2. Build a house
+## 2. Construa uma casa
 
-An NPC without a house wanders aimlessly and never sleeps properly. The minimum that counts as a house:
+Um NPC sem casa vaga sem rumo e nunca dorme direito. O mínimo que conta como uma casa:
 
-- walls and a roof enclosing the space
-- a **door**
-- a **light source**
-- a **seat**
-- a **table**
-- a **bed**
+- paredes e um teto fechando o espaço
+- uma **porta**
+- uma **fonte de luz**
+- um **assento**
+- uma **mesa**
+- uma **cama**
 
-To verify your build, point a **House Blueprint** at the bed.
+Para verificar sua construção, aponte um **Projeto de Casa** (House Blueprint) para a cama.
 
 ![House Blueprint Placeholder](/path/to/house_blueprint.png)
 
-The tool tells you whether the structure is valid and what is missing. Details in
-[Building a house](houses/building-a-house.md).
+A ferramenta dirá se a estrutura é válida e o que está faltando. Detalhes em
+[Construindo uma casa](houses/building-a-house.md).
 
-## 3. Let her claim the bed
+## 3. Deixe que ela reivindique a cama
 
-Once the house is ready, the NPC walks to the bed and registers that place as hers. From then on she lives there: she comes back to sleep, eats from that house's chests, and opens the door on her way in.
+Assim que a casa estiver pronta, o NPC caminhará até a cama e registrará aquele lugar como seu. A partir de então ela mora lá: volta para dormir, come dos baús daquela casa e abre a porta ao entrar.
 
-Use the **Innkeeper's Ledger** to check who lives where.
+Use o **Livro do Estalajadeiro** (Innkeeper's Ledger) para verificar quem mora onde.
 
 ![Innkeeper Ledger Placeholder](/path/to/innkeeper_ledger.png)
 
-## 4. Put out food
+## 4. Coloque comida
 
-Place a chest **inside the house** and leave food in it. NPCs will search for a chest within a 24-block radius when hungry.
+Coloque um baú **dentro da casa** e deixe comida nele. NPCs vão procurar por um baú dentro de um raio de 24 blocos quando estiverem com fome.
 
-:::caution The chest must belong to a house
-NPCs only use chests that belong to a recognised house. A chest dropped in an open field is ignored — which is also what keeps them out of the treasure chests scattered around the world.
+:::caution O baú deve pertencer a uma casa
+NPCs usam apenas baús que pertencem a uma casa reconhecida. Um baú largado no meio do nada é ignorado — e é isso também que os mantém longe dos baús de tesouro espalhados pelo mundo.
 :::
 
-See what they can actually reach by using the **Quartermaster's Glass**.
+Veja o que eles realmente conseguem alcançar usando a **Lupa do Intendente** (Quartermaster's Glass).
 
 ![Quartermaster Glass Placeholder](/path/to/quartermaster_glass.png)
 
-It lists every registered chest, the house it belongs to, and how much food is inside.
+Ela lista cada baú registrado, a que casa ele pertence e quanta comida tem dentro.
 
-## 5. Talk to her
+## 5. Fale com ela
 
-Aim at the NPC and press **F**, or right-click. That opens the interaction panel, with hunger, energy, mood, traits, tastes, and the available actions.
+Aponte para o NPC e aperte **F**, ou clique com o botão direito. Isso abre o painel de interação, com fome, energia, humor, traços, gostos e as ações disponíveis.
 
 ![NPC Interaction UI Placeholder](/path/to/interaction_ui.png)
 
-The outcomes of interactions are calculated based on relationship status, mood, and traits:
-- **Flirt:** Accepted by partners or shy NPCs; rejected by enemies and angry NPCs.
-- **Joke:** Fails on enemies, cheers up sad/angry partners.
-- **Gift:** Food given below 70 hunger will be eaten immediately, restoring health and altering fun. Giving a **Baby** item to a child accelerates their growth by an entire game day.
+Os resultados das interações são calculados com base no status do relacionamento, humor e traços:
+- **Flertar (Flirt):** Aceito por parceiros ou NPCs tímidos; rejeitado por inimigos e NPCs irritados.
+- **Piada (Joke):** Falha totalmente com inimigos, melhora o humor de parceiros tristes/irritados.
+- **Presente (Gift):** Comida dada quando a fome está abaixo de 70 será comida imediatamente, restaurando saúde e alterando a diversão. Dar um item de **Bebê** para uma criança acelera seu crescimento em um dia inteiro do jogo.
 
-See [Interacting with NPCs](interacting.md).
+Veja [Interagindo com NPCs](interacting.md).
 
-## 6. Let time pass
+## 6. Deixe o tempo passar
 
-The mod is deliberately slow. Starting from 100 hunger, an NPC takes roughly seven in-game hours to get genuinely hungry. At 5 hunger, they begin to starve, crying and dropping all tasks until fed. Fifteen in-game hours without food will not kill them, but they will refuse to work.
+O mod é deliberadamente lento. Começando de 100 de fome, um NPC leva cerca de sete horas do jogo para ficar genuinamente com fome. Aos 5 de fome, eles começam a morrer de fome, chorando e largando todas as tarefas até serem alimentados. Quinze horas do jogo sem comida não os matará, mas eles se recusarão a trabalhar.
 
 ---
 
-## Common early problems
+## Problemas iniciais comuns
 
-| Symptom | Likely cause |
+| Sintoma | Causa provável |
 |---|---|
-| The NPC does not sleep | The bed is not registered, or there is no valid house. Check with the **Innkeeper's Ledger**. |
-| The NPC does not eat | The chest does not belong to a house. Check with the **Quartermaster's Glass**. |
-| No NPC appears on its own | NPCs no longer spawn automatically. You must craft and use an Immigration Contract. |
-| The house is rejected | Missing furniture or the space is not enclosed. The **House Blueprint** says which. |
+| O NPC não dorme | A cama não está registrada, ou não há uma casa válida. Verifique com o **Livro do Estalajadeiro**. |
+| O NPC não come | O baú não pertence a uma casa. Verifique com a **Lupa do Intendente**. |
+| Nenhum NPC aparece sozinho | NPCs não nascem mais automaticamente. Você deve craftar e usar um Contrato de Imigração. |
+| A casa é rejeitada | Faltam móveis ou o espaço não está fechado. O **Projeto de Casa** diz qual o problema. |
