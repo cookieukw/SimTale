@@ -6,17 +6,15 @@ slug: /
 
 # SimTale
 
-SimTale is a **social simulation** mod for Hytale. It turns NPCs into residents: people who get
-hungry and tired, who have a personality, tastes, a job, and an opinion about you.
+SimTale is a social simulation mod for Hytale that implements autonomous NPCs with individual state tracking for needs, personalities, schedules, and relationships.
 
-This is not a decorative NPC mod with fixed dialogue. NPCs decide what to do on their own, and what
-they do depends on their state and on the world around them.
+NPC behavior is driven by internal state and environmental queries rather than fixed scripts or dialogue trees.
 
-There are exactly **800 unique visual variants** of NPCs:
+The mod includes **800 distinct visual variants** of NPCs:
 - 400 Adults (200 Male, 200 Female)
 - 400 Children (200 Male, 200 Female)
 
-Each variant is born with a randomly rolled personality, traits, hobbies, favorite foods, and hated items. No two NPCs are exactly alike.
+During instantiation, each NPC is assigned randomized properties for personality, traits, hobbies, and item preferences.
 
 ![NPC Variants Placeholder](/path/to/variants_collage.png)
 
