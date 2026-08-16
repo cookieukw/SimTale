@@ -16,7 +16,7 @@ You need to invite a resident to start your village. Craft an **Immigration Cont
 
 Use the contract to spawn a new resident. 
 
-The NPC generated will be one of the **800 unique visual variants**, born with a name, personality, traits, a job, a hobby, favourite foods, and hated items — all rolled at random. No two NPCs are exactly alike.
+The generated NPC receives one of **800 distinct visual models** and is instantiated with randomized properties for name, personality matrix, behavioral traits, occupation, hobbies, and dietary preferences.
 
 ## 2. Build a house
 
