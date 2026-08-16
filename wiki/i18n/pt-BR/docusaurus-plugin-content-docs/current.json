@@ -1,0 +1,14 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.player.category.Houses": {
+    "message": "Houses",
+    "description": "The label for category 'Houses' in sidebar 'player'"
+  },
+  "sidebar.player.category.The NPCs": {
+    "message": "The NPCs",
+    "description": "The label for category 'The NPCs' in sidebar 'player'"
+  }
+}

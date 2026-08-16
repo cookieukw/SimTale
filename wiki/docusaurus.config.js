@@ -29,9 +29,14 @@ const config = {
   },
 
   i18n: {
-    // English is the wiki language. pt-BR can be added later without restructuring.
     defaultLocale: 'en',
-    locales: ['en'],
+    locales: ['en', 'pt-BR'],
+    localeConfigs: {
+      'pt-BR': {
+        label: 'Português (Brasil)',
+        direction: 'ltr',
+      },
+    },
   },
 
   presets: [
