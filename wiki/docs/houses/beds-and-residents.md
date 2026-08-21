@@ -31,7 +31,7 @@ It opens a screen listing every registered bed with its coordinates and its owne
 The screen also shows the total count, so "no beds registered" is distinguishable from "the list
 failed to draw".
 
-## Breaking a bed
+## <img src="/img/Br.svg" alt="Br" width="38" align="absmiddle" />eaking a bed {#breaking-a-bed}
 
 Breaking the bed of a sleeping NPC wakes her up cleanly and releases the house. She will look for
 another bed.
