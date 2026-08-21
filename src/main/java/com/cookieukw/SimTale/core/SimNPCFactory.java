@@ -137,10 +137,9 @@ public class SimNPCFactory {
         String name;
         if (type == NPCType.REAPER) {
             name = "Grim Reaper";
-            PersistentModel pm = new PersistentModel(
-                new ModelReference(REAPER_MODEL_ASSET_ID, 1.0f, new HashMap<>())
-            );
-            accessor.putComponent(ref, PersistentModel.getComponentType(), pm);
+            // Uses applyModel so both PersistentModel and ModelComponent are updated,
+            // otherwise the client keeps rendering the role's default human model.
+            applyModel(store, ref, REAPER_MODEL_ASSET_ID, 1.0f, new HashMap<>());
         } else {
             name = SimNPCNameGenerator.generate();
         }
