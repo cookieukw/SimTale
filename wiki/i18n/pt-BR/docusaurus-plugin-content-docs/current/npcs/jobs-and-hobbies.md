@@ -13,7 +13,7 @@ title: Empregos e hobbies
 | `MINERADOR` (`MINER`) | Sai em expedições de mineração e volta com minérios |
 | `FAZENDEIRO` (`FARMER`) | Reivindica um Espantalho (Scarecrow), colhe e replanta plantações específicas |
 | `PESCADOR` (`FISHERMAN`) | Reivindica um Posto de Pesca (Fishing Post) e coleta peixes |
-| `LENHADOR` (`LUMBERJACK`) | Reivindica um Posto de Lenhador (Lumber Post) e coleta madeira |
+| `LENHADOR` (`LUMBERJACK`) | Reivindica um Posto de Lenhador (Lumber Post) e coleta madeira. (Ele é um lenhador, mas bem calmo. Sem fúria por favor) |
 | `GUARDA` (`GUARD`) | Vigia noturna — dorme de dia |
 | `EXPLORADOR` (`EXPLORER`) | Explora a região |
 | `CONSTRUTOR` (`BUILDER`) | Caminha até os locais de construção |

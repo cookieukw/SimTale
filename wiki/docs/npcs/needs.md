@@ -9,11 +9,11 @@ Every NPC carries five needs, all starting at 100 and decaying over time.
 
 | Need | What it drives |
 |---|---|
-| **Hunger** | Looking for food; at the bottom, it stops doing anything else |
+| **Hunger** | Looking for food; at the bottom, it stops doing anything else. (The cake may be a lie, but it fills the bar) |
 | **Energy** | Going to bed |
 | **Social** | Seeking out other NPCs to talk to |
-| **Fun** | Going off to do a hobby |
-| **Hygiene** | Getting into water to bathe |
+| **Fun** | Going off to do a hobby. (All work and no play makes the NPC a dull villager) |
+| **Hygiene** | Getting into water to bathe. (Removing the pool ladder won't actually trap them) |
 
 Traits change the rates. A `LAZY` NPC burns energy twice as fast; a `FUNNY` one loses fun at half
 speed.

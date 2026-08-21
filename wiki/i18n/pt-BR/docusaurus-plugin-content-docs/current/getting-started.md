@@ -5,7 +5,7 @@ title: Começando
 
 # Começando
 
-O caminho mais curto entre "Instalei o mod" e "Tenho uma vila viva".
+O caminho mais curto entre "Instalei o mod" e "Tenho uma vila viva". 
 
 ## 1. Traga um NPC
 
@@ -67,7 +67,7 @@ Aponte para o NPC e aperte **F**, ou clique com o botão direito. Isso abre o pa
 Os resultados das interações são calculados com base no status do relacionamento, humor e traços:
 - **Flertar (Flirt):** Aceito por parceiros ou NPCs tímidos; rejeitado por inimigos e NPCs irritados.
 - **Piada (Joke):** Falha totalmente com inimigos, melhora o humor de parceiros tristes/irritados.
-- **Presente (Gift):** Comida dada quando a fome está abaixo de 70 será comida imediatamente, restaurando saúde e alterando a diversão. Dar um item de **Bebê** para uma criança acelera seu crescimento em um dia inteiro do jogo.
+- **Presente (Gift):** Comida dada quando a fome está abaixo de 70 será comida imediatamente, restaurando saúde e alterando a diversão.
 
 Veja [Interagindo com NPCs](interacting.md).
 

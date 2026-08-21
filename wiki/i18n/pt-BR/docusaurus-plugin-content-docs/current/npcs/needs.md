@@ -9,11 +9,11 @@ Todo NPC possui cinco necessidades, todas começando em 100 e caindo com o tempo
 
 | Necessidade | O que ela motiva a fazer |
 |---|---|
-| **Fome** | Procurar por comida; se chegar no fundo, ele para de fazer qualquer outra coisa |
+| **Fome** | Procurar por comida; se chegar no fundo, ele para de fazer qualquer outra coisa. (O bolo pode ser uma mentira, mas ainda enche a barriga) |
 | **Energia** | Ir para a cama |
 | **Social** | Procurar outros NPCs para conversar |
-| **Diversão** | Sair para praticar um hobby |
-| **Higiene** | Entrar na água para tomar banho |
+| **Diversão** | Sair para praticar um hobby. (Muito trabalho e pouca diversão fazem do NPC um aldeão muito chato) |
+| **Higiene** | Entrar na água para tomar banho. (Remover a escada da piscina não vai prendê-los lá dentro de verdade) |
 
 Os traços alteram a velocidade. Um NPC `PREGUIÇOSO` (`LAZY`) gasta energia duas vezes mais rápido; um `ENGRAÇADO` (`FUNNY`) perde diversão pela metade da velocidade.
 

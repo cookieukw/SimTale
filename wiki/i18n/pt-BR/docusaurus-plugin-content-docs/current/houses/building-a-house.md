@@ -16,7 +16,7 @@ O espaço deve estar **fechado**: paredes e um teto sem nenhuma abertura por ond
 contam como parede fechada.
 
 O interior é limitado a **512 blocos**. Passando disso, a checagem desiste e rejeita a casa — esse
-limite existe para que uma caverna aberta não seja confundida com uma mansão.
+limite existe para que uma caverna aberta não seja confundida com uma mansão. (A menos que você esteja tentando construir as minas de Moria, 512 blocos costumam ser mais do que suficientes).
 
 ### Mobília obrigatória
 
@@ -54,7 +54,7 @@ da cama**.
 
 O que isso significa na prática:
 
-- Duas camas no mesmo cômodo podem se tornar duas casas.
+- Duas camas no mesmo cômodo podem se tornar duas casas. (Oh my god, they were roommates...)
 - Quebrar a cama do residente libera a casa.
 - Mover a cama pode ser interpretado como uma casa diferente.
 
@@ -63,7 +63,7 @@ Essa é uma limitação conhecida, e transformá-la em um identificador próprio
 ## Portas
 
 Uma porta ocupa quatro blocos, e duas portas lado a lado formam uma porta dupla. Os NPCs as abrem e as fecham
-enquanto passam.
+enquanto passam. (Hodor ficaria orgulhoso).
 
 ## A seguir
 

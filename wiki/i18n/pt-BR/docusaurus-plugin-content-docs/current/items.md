@@ -13,8 +13,8 @@ SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a
 |---|---|---|
 | Teste de Gravidez (Pregnancy Test) | um morador | Diz se ela está esperando um bebê e de quanto tempo |
 | Projeto de Casa (House Blueprint) | uma cama | Informa se o cômodo conta como uma casa e mostra seus contornos |
-| Livro do Estalajadeiro (Innkeeper's Ledger) | qualquer coisa | Lista todas as camas registradas e quem dorme nelas |
-| Lupa do Intendente (Quartermaster's Glass) | qualquer coisa | Lista todos os baús da vila e o que há dentro deles |
+| Livro do Estalajadeiro (Innkeeper's Ledger) | qualquer coisa | Lista todas as camas registradas e quem dorme nelas. (Os textos sagrados!) |
+| Lupa do Intendente (Quartermaster's Glass) | qualquer coisa | Lista todos os baús da vila e o que há dentro deles. (Enhance... Enhance... Enhance) |
 | Diário do Inspetor (Inspector's Journal) | um morador | Mostra suas necessidades, humor, trabalho e o que está fazendo agora |
 | Contrato de Imigração (Immigration Contract) | qualquer coisa | Convida um novo residente para se estabelecer na vila |
 | Sino da Cidade (Town Bell) | qualquer coisa | Toca o sino da cidade, alertando os moradores próximos |

@@ -6,7 +6,6 @@ title: Getting started
 # Getting started
 
 The shortest path between "I installed the mod" and "I have a living village".
-
 ## 1. Bring in an NPC
 
 You need to invite a resident to start your village. Craft an **Immigration Contract** at a Fieldcraft bench using:
@@ -67,7 +66,7 @@ Aim at the NPC and press **F**, or right-click. That opens the interaction panel
 The outcomes of interactions are calculated based on relationship status, mood, and traits:
 - **Flirt:** Accepted by partners or shy NPCs; rejected by enemies and angry NPCs.
 - **Joke:** Fails on enemies, cheers up sad/angry partners.
-- **Gift:** Food given below 70 hunger will be eaten immediately, restoring health and altering fun. Giving a **Baby** item to a child accelerates their growth by an entire game day.
+- **Gift:** Food given below 70 hunger will be eaten immediately, restoring health and altering fun.
 
 See [Interacting with NPCs](interacting.md).
 

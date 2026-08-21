@@ -16,7 +16,7 @@ The space must be **enclosed**: walls and a roof with no gap for the check to le
 count as closed wall.
 
 The interior is capped at **512 blocks**. Past that the check gives up and rejects the house — the
-cap exists so an open cave is not mistaken for a mansion.
+cap exists so an open cave is not mistaken for a mansion. (Unless you are trying to build the Mines of Moria, 512 blocks is usually more than enough).
 
 ### Mandatory furniture
 
@@ -54,7 +54,7 @@ the bed**.
 
 What that means in practice:
 
-- Two beds in the same room can become two houses.
+- Two beds in the same room can become two houses. (Oh my god, they were roommates...)
 - Breaking the resident's bed releases the house.
 - Moving the bed can read as a different house.
 
@@ -63,7 +63,7 @@ It is a known limitation, and turning it into an identifier of its own is on the
 ## Doors
 
 A door occupies four blocks, and two doors side by side form a double door. NPCs open and close
-them as they pass.
+them as they pass. (Hodor would be proud).
 
 ## Next
 

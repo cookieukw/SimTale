@@ -13,7 +13,7 @@ title: Jobs and hobbies
 | `MINER` | Goes on mining expeditions and returns with ores |
 | `FARMER` | Claims a Scarecrow, harvests, and replants specific crops |
 | `FISHERMAN` | Claims a Fishing Post and gathers fish |
-| `LUMBERJACK` | Claims a Lumber Post and gathers wood |
+| `LUMBERJACK` | Claims a Lumber Post and gathers wood. (He is a lumberjack, but very calm. No rage please) |
 | `GUARD` | Night watch — sleeps by day |
 | `EXPLORER` | Exploring |
 | `BUILDER` | Walks to construction sites |

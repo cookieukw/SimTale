@@ -13,8 +13,8 @@ SimTale adds a set of craftable tools. They exist so the village can be understo
 |---|---|---|
 | Pregnancy Test | a villager | Says whether she is expecting, and how far along |
 | House Blueprint | a bed | Reports whether that room counts as a house, and outlines it |
-| Innkeeper's Ledger | anything | Lists every registered bed and who sleeps in it |
-| Quartermaster's Glass | anything | Lists every village chest and what is inside |
+| Innkeeper's Ledger | anything | Lists every registered bed and who sleeps in it. (The sacred texts!) |
+| Quartermaster's Glass | anything | Lists every village chest and what is inside. (Enhance... Enhance... Enhance) |
 | Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
 | Immigration Contract | anything | Invites a new resident to settle in the village |
 | Town Bell | anything | Rings the town bell, alerting nearby villagers |
