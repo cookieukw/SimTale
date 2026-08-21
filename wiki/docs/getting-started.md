@@ -31,7 +31,7 @@ An NPC without a house wanders aimlessly and never sleeps properly. The minimum 
 
 To verify your build, point a **House Blueprint** at the bed.
 
-![House Blueprint Placeholder](/path/to/house_blueprint.png)
+![House Blueprint](/img/HouseBlueprint.png)
 
 The tool tells you whether the structure is valid and what is missing. Details in
 [Building a house](houses/building-a-house.md).

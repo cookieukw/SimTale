@@ -37,6 +37,8 @@ cap exists so an open cave is not mistaken for a mansion.
 
 Point a **House Blueprint** at a registered bed.
 
+![House Blueprint](/img/HouseBlueprint.png)
+
 The tool will tell you whether the structure passed and, when it did not, **what is missing**. It also
 reports how many interior blocks were visited, and how many doors and chests were found.
 

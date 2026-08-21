@@ -31,7 +31,7 @@ Um NPC sem casa vaga sem rumo e nunca dorme direito. O mínimo que conta como um
 
 Para verificar sua construção, aponte um **Projeto de Casa** (House Blueprint) para a cama.
 
-![House Blueprint Placeholder](/path/to/house_blueprint.png)
+![Projeto de Casa](/img/HouseBlueprint.png)
 
 A ferramenta dirá se a estrutura é válida e o que está faltando. Detalhes em
 [Construindo uma casa](houses/building-a-house.md).

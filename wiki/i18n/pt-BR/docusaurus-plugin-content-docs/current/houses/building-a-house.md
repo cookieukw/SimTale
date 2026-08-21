@@ -37,6 +37,8 @@ limite existe para que uma caverna aberta não seja confundida com uma mansão.
 
 Aponte um **Projeto de Casa** (House Blueprint) para uma cama registrada.
 
+![Projeto de Casa](/img/HouseBlueprint.png)
+
 A ferramenta dirá se a estrutura passou e, se não, **o que está faltando**. Ela também
 relata quantos blocos do interior foram visitados, e quantas portas e baús foram encontrados.
 
