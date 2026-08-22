@@ -17,9 +17,16 @@ public final class LeisureRegistry {
     public static Hobby getHobbyForId(String id) {
         if (id == null) return null;
         String lower = id.toLowerCase();
-        if (lower.contains("leisure_fishing") || lower.contains("leisure_water") || lower.contains("fishing_chair")) return Hobby.FISHING;
-        if (lower.contains("leisure_mining") || lower.contains("leisure_stone") || lower.contains("target_practice")) return Hobby.MINING;
-        if (lower.contains("leisure_gardening") || lower.contains("leisure_crop") || lower.contains("flower_pot")) return Hobby.GARDENING;
+        
+        // Fishing spots marked by buckets or stools
+        if (lower.contains("bucket") || lower.contains("stool")) return Hobby.FISHING;
+        
+        // Mining spots marked by lanterns or campfires
+        if (lower.contains("lantern") || lower.contains("campfire")) return Hobby.MINING;
+        
+        // Gardening spots marked by pots or planters
+        if (lower.contains("pot") || lower.contains("planter")) return Hobby.GARDENING;
+        
         return null;
     }
 
