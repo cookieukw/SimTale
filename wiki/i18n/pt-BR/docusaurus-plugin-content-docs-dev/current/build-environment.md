@@ -79,13 +79,22 @@ find Server/Item/Items -iname "*popcorn*"
 # Server/Item/Items/Food/Food_Popcorn.json  ->  the id is Food_Popcorn
 ```
 
+## Automated UI Validations
+
+O processo de build (`processResources`) executa automaticamente o `tools/check_ui.py`. Esse script é vital porque o cliente do Hytale rejeita **toda a interface customizada** se um único arquivo estiver malformado, falhando a conexão silenciosamente.
+
+O script roda durante o build e falha a compilação imediatamente se detectar:
+- Erros de sintaxe nos arquivos `.ui`.
+- Chaves de tradução faltando (evitando o bug de renderizar a chave crua).
+- Caminhos de assets inválidos (distinguindo texturas do jogo de arquivos não encontrados, usando `HYTALE_ASSETS` do `local.properties`).
+
 ## Language files
 
 `src/main/resources/Server/Languages/<locale>/*.lang`, in `key = value` form.
 
 Both `pt-BR` and `en-US` must be updated together. A key present in one and missing in the other
 renders as the raw key in game — that is how `prof.hunter` went missing for a long time without
-anyone noticing.
+anyone noticing. A validação automatizada de UI agora pega chaves ausentes referenciadas em arquivos de UI, mas o uso manual no código ainda exige cuidado.
 
 ## UI files
 

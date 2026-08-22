@@ -79,13 +79,22 @@ find Server/Item/Items -iname "*popcorn*"
 # Server/Item/Items/Food/Food_Popcorn.json  ->  the id is Food_Popcorn
 ```
 
+## Automated UI Validations
+
+The build process (`processResources`) automatically runs `tools/check_ui.py`. This script is critical because the Hytale client rejects the **entire custom UI** if a single file is malformed, silently failing the connection. 
+
+The script runs during the build and fails it immediately if it detects:
+- Syntax errors in `.ui` files.
+- Missing translation keys (preventing the raw key rendering bug).
+- Invalid asset paths (distinguishing between game textures and missing files, using `HYTALE_ASSETS` from `local.properties`).
+
 ## Language files
 
 `src/main/resources/Server/Languages/<locale>/*.lang`, in `key = value` form.
 
 Both `pt-BR` and `en-US` must be updated together. A key present in one and missing in the other
 renders as the raw key in game — that is how `prof.hunter` went missing for a long time without
-anyone noticing.
+anyone noticing. The automated UI validation now catches missing keys referenced in UI files, but manual usage still requires care.
 
 ## UI files
 
