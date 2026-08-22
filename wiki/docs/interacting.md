@@ -7,7 +7,9 @@ title: Interacting with NPCs
 
 Aim at an NPC and press **F**, or right-click. The interaction panel opens.
 
-![Painel de Interação do NPC](/img/interacting_panel.png)
+<div style={{textAlign: 'center'}}>
+  <img src="/img/interacting_panel.png" alt="Painel de Interação do NPC" />
+</div>
 
 ## What the panel shows
 
