@@ -35,6 +35,7 @@ All items can be crafted at their respective workstations:
 | **Inspector's Journal** | Fieldcraft | 1x <img src="/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Small Book Pile, 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell |
 | **Immigration Contract** | Fieldcraft | 1x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll, 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather |
 | **Town Bell** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 3x Gold Bar, 2x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks |
+| **Birthday Cake** | Workbench | 1x Apple Pie, 1x Orange Light Source |
 
 ### Item Icons
 
