@@ -59,9 +59,12 @@ Eles caminham imediatamente até o baú de suas casas para depositar os espólio
 
 ### Pescador e Lenhador
 
-Ambas as profissões exigem estações de trabalho específicas para funcionar:
-- Pescador exige um **Posto de Pesca** (Fishing Post).
-- Lenhador exige um **Posto de Lenhador** (Lumber Post).
+<div style={{textAlign: 'center'}}>
+  <img src="/img/fisherman_job.png" alt="O Pescador" />
+</div>
+
+- Pescador exige um **Posto de Pesca** (Fishing Post). Para criar um, basta colocar um bloco de **Armadilha de Pesca** (Fishing Trap) perto da água (a até 8 blocos de distância).
+- Lenhador exige um **Posto de Lenhador** (Lumber Post). Para criar um, basta colocar um bloco de **Bancada de Serraria** (Lumbermill Bench) perto de um tronco de árvore (a até 10 blocos de distância).
 Eles caminharão até esses postos, farão suas animações de coleta, e então depositarão seus respectivos recursos (Peixe ou Madeira) no baú de casa.
 
 ## Hobbies
