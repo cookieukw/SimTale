@@ -743,7 +743,7 @@ public class HouseManager {
         for (UUID dup : duplicates) {
             deleteHouse(dup);
         }
-        LOGGER.warn("[SimTale] {} registros de casa duplicados removidos ({} restantes). "
+        LOGGER.warn("[SimTale] {} duplicate house records removed ({} remaining). "
                         + "Eram sobras do id aleatorio gerado a cada reivindicacao de cama.",
                 duplicates.size(), HOUSES_BY_ID.size());
 
