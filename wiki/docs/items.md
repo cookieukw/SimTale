@@ -11,13 +11,13 @@ SimTale adds a set of craftable tools. They exist so the village can be understo
 
 | Item | Point at | What happens |
 |---|---|---|
-| Pregnancy Test | a villager | Says whether she is expecting, and how far along |
-| House Blueprint | a bed | Reports whether that room counts as a house, and outlines it |
-| Innkeeper's Ledger | anything | Lists every registered bed and who sleeps in it. (The sacred texts!) |
-| Quartermaster's Glass | anything | Lists every village chest and what is inside. (Enhance... Enhance... Enhance) |
-| Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
-| Immigration Contract | anything | Invites a new resident to settle in the village |
-| Town Bell | anything | Rings the town bell, alerting nearby villagers |
+| <img src="/img/PregnancyTest.png" width="24" align="absmiddle"/> Pregnancy Test | a villager | Says whether she is expecting, and how far along |
+| <img src="/img/HouseBlueprint.png" width="24" align="absmiddle"/> House Blueprint | a bed | Reports whether that room counts as a house, and outlines it |
+| <img src="/img/InnkeepersLedger.png" width="24" align="absmiddle"/> Innkeeper's Ledger | anything | Lists every registered bed and who sleeps in it. (The sacred texts!) |
+| <img src="/img/QuartermastersGlass.png" width="24" align="absmiddle"/> Quartermaster's Glass | anything | Lists every village chest and what is inside. (Enhance... Enhance... Enhance) |
+| <img src="/img/InspectorsJournal.png" width="24" align="absmiddle"/> Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
+| <img src="/img/ImmigrationContract.png" width="24" align="absmiddle"/> Immigration Contract | anything | Invites a new resident to settle in the village |
+| <img src="/img/TownBell.png" width="24" align="absmiddle"/> Town Bell | anything | Rings the town bell, alerting nearby villagers |
 
 One more item is crafted but does nothing yet: the Birthday Cake.
 

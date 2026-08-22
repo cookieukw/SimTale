@@ -11,13 +11,13 @@ SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a
 
 | Item | Apontar para | O que acontece |
 |---|---|---|
-| Teste de Gravidez (Pregnancy Test) | um morador | Diz se ela está esperando um bebê e de quanto tempo |
-| Projeto de Casa (House Blueprint) | uma cama | Informa se o cômodo conta como uma casa e mostra seus contornos |
-| Livro do Estalajadeiro (Innkeeper's Ledger) | qualquer coisa | Lista todas as camas registradas e quem dorme nelas. (Os textos sagrados!) |
-| Lupa do Intendente (Quartermaster's Glass) | qualquer coisa | Lista todos os baús da vila e o que há dentro deles. (Enhance... Enhance... Enhance) |
-| Diário do Inspetor (Inspector's Journal) | um morador | Mostra suas necessidades, humor, trabalho e o que está fazendo agora |
-| Contrato de Imigração (Immigration Contract) | qualquer coisa | Convida um novo residente para se estabelecer na vila |
-| Sino da Cidade (Town Bell) | qualquer coisa | Toca o sino da cidade, alertando os moradores próximos |
+| <img src="/img/PregnancyTest.png" width="24" align="absmiddle"/> Teste de Gravidez (Pregnancy Test) | um morador | Diz se ela está esperando um bebê e de quanto tempo |
+| <img src="/img/HouseBlueprint.png" width="24" align="absmiddle"/> Projeto de Casa (House Blueprint) | uma cama | Informa se o cômodo conta como uma casa e mostra seus contornos |
+| <img src="/img/InnkeepersLedger.png" width="24" align="absmiddle"/> Livro do Estalajadeiro (Innkeeper's Ledger) | qualquer coisa | Lista todas as camas registradas e quem dorme nelas. (Os textos sagrados!) |
+| <img src="/img/QuartermastersGlass.png" width="24" align="absmiddle"/> Lupa do Intendente (Quartermaster's Glass) | qualquer coisa | Lista todos os baús da vila e o que há dentro deles. (Enhance... Enhance... Enhance) |
+| <img src="/img/InspectorsJournal.png" width="24" align="absmiddle"/> Diário do Inspetor (Inspector's Journal) | um morador | Mostra suas necessidades, humor, trabalho e o que está fazendo agora |
+| <img src="/img/ImmigrationContract.png" width="24" align="absmiddle"/> Contrato de Imigração (Immigration Contract) | qualquer coisa | Convida um novo residente para se estabelecer na vila |
+| <img src="/img/TownBell.png" width="24" align="absmiddle"/> Sino da Cidade (Town Bell) | qualquer coisa | Toca o sino da cidade, alertando os moradores próximos |
 
 Mais um item pode ser craftado, mas ainda não tem função: o Bolo de Aniversário (Birthday Cake).
 
