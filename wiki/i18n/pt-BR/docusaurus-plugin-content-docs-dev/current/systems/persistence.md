@@ -17,13 +17,15 @@ Anything not in the codec and not in the Caskara record is gone on reload.
 ## The shell matters
 
 ```java
-public static final Shell DB_SHELL = Caskara.shell("simtale");
+public static Shell worldShell() {
+    World world = WorldUtil.first();
+    return world != null ? Caskara.shell(world, "simtale") : DB_SHELL;
+}
 ```
 
-`Caskara.load()` and the other static helpers resolve to the **`default`** shell. A re-attach path
-once used them and always returned null, so it never ran at all.
+Versões anteriores usavam um shell global `Caskara.shell("simtale")`, o que fazia com que todos os mundos compartilhassem o mesmo banco de dados. Um mundo novinho em folha abria já "cheio" dos NPCs do mundo anterior — o que impedia o grupo inicial de spawnar, já que o jogo achava que a vila já existia.
 
-Always go through `SimNPCPersistence`.
+O shell precisa ter o escopo isolado por mundo (`Caskara.shell(world, "simtale")`). Sempre passe pelo `SimNPCPersistence.worldShell()` em vez de chamar os métodos do Caskara no shell default, senão as leituras retornarão nulo.
 
 ## Saving on spawn
 
