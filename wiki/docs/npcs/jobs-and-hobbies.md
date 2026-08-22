@@ -42,6 +42,10 @@ The check looks for those words inside the item id. A sword named without "sword
 
 ### The Farmer
 
+<div style={{textAlign: 'center'}}>
+  <img src="/img/farmer_job.png" alt="The Farmer" />
+</div>
+
 The Farmer requires a **Scarecrow** to act as their workstation. They will walk to ripe crops, harvest them (dropping 1 produce and 1-2 seeds), and then carry everything to a chest in their own house. If they have seeds and there is empty tilled soil nearby, they will replant. 
 Supported crops are: Carrot, Wheat, Tomato, and Corn.
 

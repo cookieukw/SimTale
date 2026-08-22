@@ -42,6 +42,10 @@ A checagem procura por essas palavras dentro da ID do item. Uma espada cujo ID n
 
 ### O Fazendeiro
 
+<div style={{textAlign: 'center'}}>
+  <img src="/img/farmer_job.png" alt="O Fazendeiro" />
+</div>
+
 O Fazendeiro exige um **Espantalho** (Scarecrow) para atuar como sua estação de trabalho. Ele caminhará até as plantações maduras, irá colhê-las (deixando cair 1 produto e 1-2 sementes), e então levará tudo para um baú em sua própria casa. Se ele tiver sementes e houver solo arado vazio por perto, ele replantará. 
 As plantações suportadas são: Cenoura, Trigo, Tomate e Milho.
 
