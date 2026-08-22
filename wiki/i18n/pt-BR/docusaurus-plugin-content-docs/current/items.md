@@ -22,6 +22,30 @@ SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a
 | <img src="/img/Baby.png" width="32" align="absmiddle"/> Bebê (Baby) | nada | Um bebê carregado no inventário que eventualmente nascerá como um NPC criança |
 | <img src="/img/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake) | qualquer coisa | Pode ser craftado, mas ainda não tem função |
 
+## Aliança de Casamento (Wedding Ring)
+
+<div align="center">
+  <img src="/img/WeddingRing.png" width="128" style={{imageRendering: 'pixelated'}} />
+</div>
+
+A Aliança de Casamento é usada para pedir um morador em casamento. Para que o pedido seja aceito, você precisa ter um relacionamento muito bom com o aldeão (pelo menos 80 de Romance e 70 de Amizade). Se aceitarem, vocês se casam! Caso recusem, continue melhorando a relação de vocês antes de tentar de novo.
+
+## Bebê (Baby)
+
+<div align="center">
+  <img src="/img/Baby.png" width="128" style={{imageRendering: 'pixelated'}} />
+</div>
+
+O Bebê é um item único que representa um recém-nascido. Ele não pode ser craftado. Quando uma moradora dá à luz, um Bebê é gerado no inventário. Após algum tempo, o item do Bebê "cresce" naturalmente e se transforma em um novo NPC criança no mundo!
+
+## Bolo de Aniversário (Birthday Cake)
+
+<div align="center">
+  <img src="/img/BirthdayCake.png" width="128" style={{imageRendering: 'pixelated'}} />
+</div>
+
+Um bolo festivo que pode ser feito na Bancada de Trabalho. Atualmente, o Bolo de Aniversário é apenas um item decorativo e ainda não possui uma função especial, mas quem sabe o que o futuro reserva para as festas da vila!
+
 ## Receitas de Criação (Crafting)
 
 Todos os itens podem ser craftados em suas respectivas bancadas:
@@ -41,7 +65,7 @@ Todos os itens podem ser craftados em suas respectivas bancadas:
 
 ![Projeto de Casa](/img/HouseBlueprint.png) ![Livro do Estalajadeiro](/img/InnkeepersLedger.png) ![Lupa do Intendente](/img/QuartermastersGlass.png) ![Sino da Cidade](/img/TownBell.png)
 
-## <img src="/img/HouseBlueprint.png" width="32" align="absmiddle"/> Projeto de Casa (House Blueprint)
+## Projeto de Casa (House Blueprint)
 
 <div align="center">
   <img src="/img/HouseBlueprint.png" width="128" style={{imageRendering: 'pixelated'}} />
@@ -57,7 +81,13 @@ Uma ferramenta de verificação não deve alterar o que ela verifica. Se o proje
 
 A única coisa que ele faz com perfeição: ele sabe exatamente a qual cama você se refere. Checar apenas por proximidade deixa de ser bom o suficiente no momento em que duas casas dividem uma parede.
 
-## <img src="/img/InnkeepersLedger.png" width="32" align="absmiddle"/> <img src="/img/QuartermastersGlass.png" width="32" align="absmiddle"/> <img src="/img/InspectorsJournal.png" width="32" align="absmiddle"/> As três lentes
+## As três lentes
+
+<div align="center">
+  <img src="/img/InnkeepersLedger.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+  <img src="/img/QuartermastersGlass.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+  <img src="/img/InspectorsJournal.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+</div>
 
 O Livro (Ledger), a Lupa (Glass) e o Diário (Journal) são visões apenas de leitura dos dados que o mod já guarda. Os dois primeiros abrem as telas de visão geral de camas e baús.
 

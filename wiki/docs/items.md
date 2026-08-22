@@ -22,6 +22,30 @@ SimTale adds a set of craftable tools. They exist so the village can be understo
 | <img src="/img/Baby.png" width="32" align="absmiddle"/> Baby | nothing | A carried infant that will eventually spawn as a child NPC |
 | <img src="/img/BirthdayCake.png" width="32" align="absmiddle"/> Birthday Cake | anything | Crafted but does nothing yet |
 
+## Wedding Ring
+
+<div align="center">
+  <img src="/img/WeddingRing.png" width="128" style={{imageRendering: 'pixelated'}} />
+</div>
+
+The Wedding Ring is used to propose marriage to a villager. To successfully propose, you need to have a high relationship with the villager (at least 80 Romance and 70 Friendship). If they accept, they become your spouse! If they reject you, keep trying to improve your relationship before trying again.
+
+## Baby
+
+<div align="center">
+  <img src="/img/Baby.png" width="128" style={{imageRendering: 'pixelated'}} />
+</div>
+
+The Baby is a unique item that represents a newborn child. It cannot be crafted. When a villager gives birth, a Baby is generated. After a certain amount of time passes, the Baby item will naturally "grow up" and transform into a new child NPC in the world! 
+
+## Birthday Cake
+
+<div align="center">
+  <img src="/img/BirthdayCake.png" width="128" style={{imageRendering: 'pixelated'}} />
+</div>
+
+A festive cake that can be crafted at the Workbench. Currently, the Birthday Cake is just a decorative item and doesn't have a special function yet, but who knows what the future holds for village celebrations!
+
 ## Crafting Recipes
 
 All items can be crafted at their respective workstations:
@@ -41,7 +65,7 @@ All items can be crafted at their respective workstations:
 
 ![House Blueprint](/img/HouseBlueprint.png) ![Innkeeper Ledger](/img/InnkeepersLedger.png) ![Quartermaster Glass](/img/QuartermastersGlass.png) ![Town Bell](/img/TownBell.png)
 
-## <img src="/img/HouseBlueprint.png" width="32" align="absmiddle"/> House Blueprint
+## House Blueprint
 
 <div align="center">
   <img src="/img/HouseBlueprint.png" width="128" style={{imageRendering: 'pixelated'}} />
@@ -57,7 +81,13 @@ A tool for checking should not change what it checks. If the blueprint registere
 
 The one thing it does perfectly: it knows exactly which bed you mean. Checking proximity by yourself stops being good enough the moment two houses share a wall.
 
-## <img src="/img/InnkeepersLedger.png" width="32" align="absmiddle"/> <img src="/img/QuartermastersGlass.png" width="32" align="absmiddle"/> <img src="/img/InspectorsJournal.png" width="32" align="absmiddle"/> The three lenses
+## The three lenses
+
+<div align="center">
+  <img src="/img/InnkeepersLedger.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+  <img src="/img/QuartermastersGlass.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+  <img src="/img/InspectorsJournal.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+</div>
 
 The Ledger, the Glass and the Journal are read-only views over data the mod already keeps. The first two open the bed and chest overview screens.
 
