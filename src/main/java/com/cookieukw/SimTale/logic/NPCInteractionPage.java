@@ -645,7 +645,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         BabyCareManager.registerInventoryListener(npc.entityId, container, playerRefComp.getUuid());
 
         ContainerWindow window = new ContainerWindow(container);
-        player.getPageManager().setPageWithWindows(playerRef, store, Page.Bench, true, new Window[]{window});
+        player.getPageManager().setPageWithWindows(playerRef, store, Page.Inventory, true, new Window[]{window});
     }
 
     @Override
