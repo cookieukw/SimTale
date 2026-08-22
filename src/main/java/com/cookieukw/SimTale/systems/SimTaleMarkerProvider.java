@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.cookieukw.SimTale.core.SimLog;
@@ -11,6 +12,7 @@ import com.hypixel.hytale.math.vector.Transform;
 import com.hypixel.hytale.protocol.Color;
 import com.hypixel.hytale.protocol.packets.worldmap.TintComponent;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -192,9 +194,11 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
 
     @Override
     public void update(@Nonnull World world, @Nonnull Player player, @Nonnull MarkersCollector collector) {
-        // getUuid() reads a field on the Player object; the previous getComponent call was an
-        // ECS lookup, and the first thing to blow up on this thread.
-        UUID viewerId = player.getPlayerRef().getUuid();
+        Ref<EntityStore> playerRef = player.getReference();
+        if (playerRef == null || !playerRef.isValid()) return;
+        UUIDComponent uuidComp = playerRef.getStore().getComponent(playerRef, UUIDComponent.getComponentType());
+        if (uuidComp == null) return;
+        UUID viewerId = uuidComp.getUuid();
 
         List<NpcMarker> current = snapshot;
         int emitted = 0;
