@@ -16,7 +16,12 @@ O mod inclui **800 variantes visuais distintas** de NPCs:
 
 Durante a instanciação, cada NPC recebe propriedades aleatórias de personalidade, traços, hobbies e preferências de itens.
 
-![NPC Variants Placeholder](/path/to/variants_collage.png)
+<div style={{display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center'}}>
+  <img src="/img/variant_1.png" width="48%" alt="Variante NPC 1" />
+  <img src="/img/variant_2.png" width="48%" alt="Variante NPC 2" />
+  <img src="/img/variant_3.png" width="48%" alt="Variante NPC 3" />
+  <img src="/img/variant_4.png" width="48%" alt="Variante NPC 4" />
+</div>
 
 ## O que um NPC faz sozinho
 
