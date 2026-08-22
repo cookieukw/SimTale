@@ -235,5 +235,15 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
             Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
             FarmPostRegistry.registerAt(scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
         }
+
+        if (BathRegistry.isBathId(placedId)) {
+            Vector3i bathAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
+            BathRegistry.add(bathAnchor.x, bathAnchor.y, bathAnchor.z);
+        }
+
+        if (LeisureRegistry.isLeisureId(placedId)) {
+            Vector3i leisureAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
+            LeisureRegistry.add(leisureAnchor.x, leisureAnchor.y, leisureAnchor.z, LeisureRegistry.getHobbyForId(placedId));
+        }
     }
 }

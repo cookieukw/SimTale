@@ -26,6 +26,8 @@ public final class BedWorldBootstrap {
         int farmPostsFound = FarmPostRegistry.POSTS.size();
         int farmlandFound = FarmlandRegistry.FARMLAND.size();
         int cropsFound = CropRegistry.CROPS.size();
+        int bathsFound = BathRegistry.BATHS.size();
+        int leisureFound = LeisureRegistry.LEISURE_BLOCKS.size();
         int markersFound = 0;
         LOGGER.debug("[SimTale-DEBUG] Starting simple radius scan around (" + px + "," + py + "," + pz + ") with radius " + radius);
 
@@ -58,6 +60,15 @@ public final class BedWorldBootstrap {
                     } else if (FarmPostRegistry.isFarmPostId(type.getId())) {
                         Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
                         FarmPostRegistry.registerAt(scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
+                    }
+                    
+                    if (BathRegistry.isBathId(type.getId())) {
+                        Vector3i bathAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
+                        BathRegistry.add(bathAnchor.x, bathAnchor.y, bathAnchor.z);
+                    }
+                    if (LeisureRegistry.isLeisureId(type.getId())) {
+                        Vector3i leisureAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
+                        LeisureRegistry.add(leisureAnchor.x, leisureAnchor.y, leisureAnchor.z, LeisureRegistry.getHobbyForId(type.getId()));
                     }
 
                     // Same gap again, this time on the farmland/crops themselves — tilled soil or
@@ -96,17 +107,19 @@ public final class BedWorldBootstrap {
         int newFarmPosts = FarmPostRegistry.POSTS.size() - farmPostsFound;
         int newFarmland = FarmlandRegistry.FARMLAND.size() - farmlandFound;
         int newCrops = CropRegistry.CROPS.size() - cropsFound;
+        int newBaths = BathRegistry.BATHS.size() - bathsFound;
+        int newLeisure = LeisureRegistry.LEISURE_BLOCKS.size() - leisureFound;
         if (markersFound > 0) {
             LOGGER.info("[SimTale] Scan restored {} blueprint marker preview(s) from blocks left in the world", markersFound);
         }
         if (newBeds > 0 || newChests > 0 || newFishingPosts > 0 || newLumberPosts > 0 || newFarmPosts > 0
-                || newFarmland > 0 || newCrops > 0) {
+                || newFarmland > 0 || newCrops > 0 || newBaths > 0 || newLeisure > 0) {
             // At info level: this now runs on join, and it is the one line that tells whether the
             // world's existing furniture was picked up at all.
-            LOGGER.info("[SimTale] Scan found {} new beds, {} new chests, {} new fishing posts, {} new lumber posts, {} new farm posts, {} new farmland, {} new crops. Totals: {} beds, {} chests, {} fishing, {} lumber, {} farm, {} farmland, {} crops",
-                    newBeds, newChests, newFishingPosts, newLumberPosts, newFarmPosts, newFarmland, newCrops,
+            LOGGER.info("[SimTale] Scan found {} new beds, {} new chests, {} new fishing posts, {} new lumber posts, {} new farm posts, {} new farmland, {} new crops, {} new baths, {} new leisure. Totals: {} beds, {} chests, {} fishing, {} lumber, {} farm, {} farmland, {} crops, {} baths, {} leisure",
+                    newBeds, newChests, newFishingPosts, newLumberPosts, newFarmPosts, newFarmland, newCrops, newBaths, newLeisure,
                     BedRegistry.size(), ChestRegistry.size(), FishingPostRegistry.POSTS.size(), LumberPostRegistry.POSTS.size(), FarmPostRegistry.POSTS.size(),
-                    FarmlandRegistry.FARMLAND.size(), CropRegistry.CROPS.size());
+                    FarmlandRegistry.FARMLAND.size(), CropRegistry.CROPS.size(), BathRegistry.BATHS.size(), LeisureRegistry.LEISURE_BLOCKS.size());
         } else {
             LOGGER.debug("[SimTale-DEBUG] Scan finished: nothing new. Totals: "
                     + BedRegistry.size() + " beds, " + ChestRegistry.size() + " chests");
