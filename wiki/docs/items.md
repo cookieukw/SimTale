@@ -27,7 +27,7 @@ All items can be crafted at their respective workstations:
 
 | Item | Bench | Ingredients |
 |---|---|---|
-| **Pregnancy Test** | <img src="/img/Bench_Alchemy.png" width="24" align="absmiddle"/> Alchemybench | 1x <img src="/img/Plant_Flower_Common_White.png" width="24" align="absmiddle"/> White Flower, 1x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks, 1x <img src="/img/Ingredient_Life_Essence_Cauliflower.png" width="24" align="absmiddle"/> Life Essence (Cauliflower) |
+| **Pregnancy Test** | <img src="/img/Bench_Alchemy.png" width="24" align="absmiddle"/> Alchemybench | 1x <img src="/img/Plant_Flower_Common_White.png" width="24" align="absmiddle"/> White Flower, 1x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks, 1x <img src="/img/Ingredient_Life_Essence_Cauliflower.png" width="24" align="absmiddle"/> Cauliflower |
 | **House Blueprint** | Fieldcraft | 1x <img src="/img/Deco_Map.png" width="24" align="absmiddle"/> Map, 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll |
 | **Innkeeper's Ledger** | Fieldcraft | 1x <img src="/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Small Book Pile, 1x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks, 1x <img src="/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather |
 | **Quartermaster's Glass** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 1x <img src="/img/Rock_Crystal_White.png" width="24" align="absmiddle"/> White Crystal, 1x <img src="/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Copper Bar |
