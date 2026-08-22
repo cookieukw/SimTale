@@ -51,7 +51,7 @@ Uma ferramenta de verificação não deve alterar o que ela verifica. Se o proje
 
 A única coisa que ele faz com perfeição: ele sabe exatamente a qual cama você se refere. Checar apenas por proximidade deixa de ser bom o suficiente no momento em que duas casas dividem uma parede.
 
-## As três lentes
+## <img src="/img/InnkeepersLedger.png" width="32" align="absmiddle"/> <img src="/img/QuartermastersGlass.png" width="32" align="absmiddle"/> <img src="/img/InspectorsJournal.png" width="32" align="absmiddle"/> As três lentes
 
 O Livro (Ledger), a Lupa (Glass) e o Diário (Journal) são visões apenas de leitura dos dados que o mod já guarda. Os dois primeiros abrem as telas de visão geral de camas e baús.
 
