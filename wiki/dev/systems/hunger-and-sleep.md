@@ -10,7 +10,9 @@ title: Hunger, sleep and death
 `NPCSleepHelper.isSleepPeriod` answers whether this NPC's sleep window is open:
 
 ```java
-boolean night = progress < 0.25f || progress > 0.75f;
+Float hour = currentHour(world);
+if (hour == null) return false;
+boolean night = hour < DAY_START_HOUR || hour >= NIGHT_START_HOUR;
 return isNightWatch(npc) ? !night : night;
 ```
 
@@ -59,8 +61,7 @@ Three families of task are excluded from the interruption:
 | The five sleep tasks | Yanking a sleeping NPC to `IDLE` leaves the `sleeping` flag orphaned |
 | `DYING`, `DEAD`, `REAPING` | Dying is not a task to interrupt |
 
-The `DYING → DEAD → REAPING` flow is intact and has **no automatic trigger** — only
-`/simtale forcekill` reaches it today. It is the foundation for aging and disease.
+The `DYING → DEAD → REAPING` flow is fully wired to the engine's health system. Whenever an NPC reaches `0 HP` — through combat, fall damage, or `/simtale forcekill` — `RoutineAISystem` intercepts it and routes it into the death flow, rather than leaving a broken, not-quite-dead entity wandering around.
 
 :::note Removed system
 Earlier versions of this page documented a `Needs.starvationDamage` counter that killed at 200
