@@ -25,14 +25,14 @@ Hold the matching tool and use **Assign Job** in the interaction panel.
 
 | Job | Trigger item contains |
 |---|---|
-| Miner | `pickaxe` |
-| Farmer | `hoe` |
-| Fisherman | `fishing_trap` |
-| Lumberjack | `hatchet` |
-| Guard | `sword` |
-| Explorer | `map` |
-| Builder | `hammer` |
-| Hunter | `bow` |
+| Miner | `Pickaxe` |
+| Farmer | `Hoe` |
+| Fisherman | `Tool_Fishing_Trap` |
+| Lumberjack | `Hatchet` |
+| Guard | `Sword` |
+| Explorer | `Map` |
+| Builder | `Hammer` |
+| Hunter | `Bow` |
 
 An NPC can refuse: each one rolls jobs she likes and jobs she dislikes.
 

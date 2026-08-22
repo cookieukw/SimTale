@@ -25,14 +25,14 @@ Segure a ferramenta correspondente e use **Atribuir Trabalho** (Assign Job) no p
 
 | Emprego | Gatilho contém no nome da ferramenta |
 |---|---|
-| Minerador | `pickaxe` (picareta) |
-| Fazendeiro | `hoe` (enxada) |
-| Pescador | `fishing_trap` (armadilha de pesca) |
-| Lenhador | `hatchet` (machadinha) |
-| Guarda | `sword` (espada) |
-| Explorador | `map` (mapa) |
-| Construtor | `hammer` (martelo) |
-| Caçador | `bow` (arco) |
+| Minerador | `Pickaxe` (picareta) |
+| Fazendeiro | `Hoe` (enxada) |
+| Pescador | `Tool_Fishing_Trap` (armadilha de pesca) |
+| Lenhador | `Hatchet` (machadinha) |
+| Guarda | `Sword` (espada) |
+| Explorador | `Map` (mapa) |
+| Construtor | `Hammer` (martelo) |
+| Caçador | `Bow` (arco) |
 
 Um NPC pode recusar: cada um deles possui uma lista aleatória de trabalhos que gosta e trabalhos que odeia.
 
