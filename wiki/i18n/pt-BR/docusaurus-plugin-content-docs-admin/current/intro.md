@@ -31,7 +31,7 @@ After starting the server and joining a world, look for these lines:
 The furniture scan worked. Only appears when it finds something new.
 
 ```
-N registros de casa duplicados removidos
+N duplicate house records removed
 ```
 
 House deduplication on boot. Should appear once and never again.

@@ -75,7 +75,7 @@ Debug-level lines only appear after `/simtale debug on`.
 
 ## Duplicate houses
 
-On boot, look for `N registros de casa duplicados removidos`. It should appear once and never again.
+On boot, look for `N duplicate house records removed`. It should appear once and never again.
 
 The original cause was a fresh `UUID.randomUUID()` on every bed claim, which produced 109 duplicate
 records in one world.
