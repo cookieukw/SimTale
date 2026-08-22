@@ -13,13 +13,13 @@ se comportem de forma diferente.
 | Traço | Efeito |
 |---|---|
 | `AGRESSIVO` (`AGGRESSIVE`) | Conversas podem virar discussões |
-| `CARENTE` (`NEEDY`) | — |
-| `TÍMIDO` (`SHY`) | — |
+| `CARENTE` (`NEEDY`) | Leva insultos muito a sério, perdendo muita afinidade |
+| `TÍMIDO` (`SHY`) | Diálogos e reações únicas a flertes românticos |
 | `PREGUIÇOSO` (`LAZY`) | Perde energia duas vezes mais rápido |
 | `GANANCIOSO` (`GREEDY`) | Dá mais valor a presentes |
 | `PARANOICO` (`PARANOID`) | Reage mal a presentes |
 | `ENGRAÇADO` (`FUNNY`) | Perde diversão pela metade da velocidade |
-| `LEAL` (`LOYAL`) | — |
+| `LEAL` (`LOYAL`) | Amizades não decaem com o tempo (Planejado) |
 
 ## Gostos
 

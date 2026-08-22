@@ -13,13 +13,13 @@ behave differently.
 | Trait | Effect |
 |---|---|
 | `AGGRESSIVE` | Conversations can turn into arguments |
-| `NEEDY` | — |
-| `SHY` | — |
+| `NEEDY` | Takes insults very heavily, losing massive affinity |
+| `SHY` | Unique dialogue and reactions to romantic flirting |
 | `LAZY` | Loses energy twice as fast |
 | `GREEDY` | Values gifts more highly |
 | `PARANOID` | Reacts badly to gifts |
 | `FUNNY` | Loses fun at half speed |
-| `LOYAL` | — |
+| `LOYAL` | Friendships do not decay over time (Planned) |
 
 ## Tastes
 
