@@ -7,7 +7,7 @@ title: Interacting with NPCs
 
 Aim at an NPC and press **F**, or right-click. The interaction panel opens.
 
-![NPC Interaction UI Placeholder](/path/to/interaction_ui.png)
+![Painel de Interação do NPC](/img/interacting_panel.png)
 
 ## What the panel shows
 
