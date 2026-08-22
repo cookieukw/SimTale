@@ -49,7 +49,7 @@ simulação offline para que o tempo que você passa fora do servidor ainda cont
 
 Quando um NPC morre, o fluxo de morte do SimTale assume o controle: o corpo permanece no local e começa a sangrar visualmente. A Ceifadora (Grim Reaper) aparece
 sozinha, caminha até o corpo, realiza o ritual de coleta de alma, deixa uma lápide e remove os registros
-completamente. Interagir com a Ceifadora no meio do ritual segurando um Coração do Vazio (`Ingredient_Voidheart`) cancela a
+completamente. Interagir com a Ceifadora no meio do ritual segurando um Coração do Vazio (<img src="/img/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> `Ingredient_Voidheart`) cancela a
 coleta e revive o NPC.
 
 ![Grim Reaper Ceremony Placeholder](/path/to/reaper_ceremony.png)

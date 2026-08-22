@@ -49,7 +49,7 @@ offline simulation so time away from the server still counts.
 
 When an NPC dies, the SimTale death flow takes over: the body stays, and starts bleeding visually. The Grim Reaper appears on its
 own, walks to it, performs the soul-collection ritual, leaves a gravestone and removes the record
-cleanly. Interacting with the Reaper mid-ritual while holding an `Ingredient_Voidheart` cancels the
+cleanly. Interacting with the Reaper mid-ritual while holding an <img src="/img/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> `Ingredient_Voidheart` cancels the
 collection and revives the NPC.
 
 ![Grim Reaper Ceremony Placeholder](/path/to/reaper_ceremony.png)
