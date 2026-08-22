@@ -57,7 +57,7 @@ mid-conversation, she abandons the chat and goes to bed — the partner left beh
 
 ## Marriage
 
-Give a wedding ring (`simtale:wedding_ring`) to an NPC with high romance and friendship and she
+Give a wedding ring (`WeddingRing`) to an NPC with high romance and friendship and she
 accepts. Married NPCs share a home.
 
 If the numbers are not high enough, she turns you down.

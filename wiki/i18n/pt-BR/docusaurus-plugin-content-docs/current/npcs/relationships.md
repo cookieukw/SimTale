@@ -57,7 +57,7 @@ meio da conversa, ela abandona o bate-papo e vai para a cama — o parceiro que 
 
 ## Casamento
 
-Dê uma aliança de casamento (`simtale:wedding_ring`) para um NPC com alto nível de romance e amizade e ela
+Dê uma aliança de casamento (`WeddingRing`) para um NPC com alto nível de romance e amizade e ela
 aceitará. NPCs casados dividem a mesma casa.
 
 Se os números não forem altos o suficiente, ela te rejeitará.
