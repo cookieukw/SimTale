@@ -12,14 +12,16 @@ This track is for whoever works on the code.
 SimTale is a Hytale server mod built on the engine's **ECS**. There is no central game loop of our
 own: behaviour lives in systems that tick over entities carrying our components.
 
-```
+```text
 com.cookieukw.SimTale
 ├── SimTale.java              entry point, system registration, ACTIVE_NPCS
-├── SimTaleCommand.java       28 subcommands
-├── core/                     components and data (SimNPCComponent, Needs, Profession...)
+├── *Command.java             CLI entry points (SimTaleCommand, DebugCommands...)
+├── core/                     components and data (SimNPCComponent, NeedsHelper, Profession, lifecycle...)
 ├── systems/                  ticking systems and helpers
 ├── logic/                    UI pages and interaction rules
 ├── ai/                       generative AI providers and config
+├── engine/                   magic engine, quizzes and core systems
+├── pages/                    UI pages testing (TestPage)
 └── db/                       Caskara persistence
 ```
 
