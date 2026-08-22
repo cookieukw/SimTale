@@ -12,7 +12,7 @@ import com.hypixel.hytale.server.core.modules.interaction.DoorBlockUtils;
 import com.hypixel.hytale.server.core.modules.interaction.DoorBlockUtils.DoorState;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.server.DoorInteraction;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.accessor.BlockAccessor;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
@@ -125,14 +125,14 @@ public final class NPCDoorHelper {
             // unloaded chunks). getChunkIfLoaded never blocks or queues anything — it just returns
             // null for a chunk that isn't already in memory, which here simply means "nothing to
             // check yet", same as any other position with no door.
-            BlockAccessor chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(x, z));
+            WorldChunk chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(x, z));
             if (chunk == null) return;
 
             BlockType type = chunk.getBlockType(x, y, z);
             if (type == null || !type.isDoor()) return;
 
             ChunkStore chunkStore = world.getChunkStore();
-            Rotation yaw = RotationTuple.get(world.getBlockRotationIndex(x, y, z)).yaw();
+            Rotation yaw = RotationTuple.get(chunk.getRotationIndex(x, y, z)).yaw();
 
             DoorInteraction.DoorInfo door =
                     DoorInteraction.getDoorAtPosition(chunkStore, x, y, z, yaw);
@@ -272,14 +272,14 @@ public final class NPCDoorHelper {
         try {
             // Same reasoning as tryOpenDoorAt: avoid world.getBlockType() triggering a mid-tick
             // chunk load wait. tickAutoClose runs from the same NPC-tick call chain.
-            BlockAccessor chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
+            WorldChunk chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
             if (chunk == null) return;
 
             BlockType type = chunk.getBlockType(pos.x, pos.y, pos.z);
             if (type == null || !type.isDoor()) return;
 
             ChunkStore chunkStore = world.getChunkStore();
-            Rotation yaw = RotationTuple.get(world.getBlockRotationIndex(pos.x, pos.y, pos.z)).yaw();
+            Rotation yaw = RotationTuple.get(chunk.getRotationIndex(pos.x, pos.y, pos.z)).yaw();
 
             DoorInteraction.DoorInfo door =
                     DoorInteraction.getDoorAtPosition(chunkStore, pos.x, pos.y, pos.z, yaw);
