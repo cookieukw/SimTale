@@ -57,15 +57,23 @@ Quando o turno de trabalho começa, o modelo deles diminui (encolhe) e eles conc
 - **Caçadores** voltam com Carnes Cruas (Boi, Porco, Frango).
 Eles caminham imediatamente até o baú de suas casas para depositar os espólios.
 
-### Pescador e Lenhador
+### O Pescador
 
 <div style={{textAlign: 'center'}}>
   <img src="/img/fisherman_job.png" alt="O Pescador" />
 </div>
 
-- Pescador exige um **Posto de Pesca** (Fishing Post). Para criar um, basta colocar um bloco de **Armadilha de Pesca** (Fishing Trap) perto da água (a até 8 blocos de distância).
-- Lenhador exige um **Posto de Lenhador** (Lumber Post). Para criar um, basta colocar um bloco de **Bancada de Serraria** (Lumbermill Bench) perto de um tronco de árvore (a até 10 blocos de distância).
-Eles caminharão até esses postos, farão suas animações de coleta, e então depositarão seus respectivos recursos (Peixe ou Madeira) no baú de casa.
+O Pescador exige um **Posto de Pesca** (Fishing Post). Para criar um, basta colocar um bloco de **Armadilha de Pesca** (Fishing Trap) perto da água (a até 8 blocos de distância).
+Ele caminhará até esse posto, fará sua animação de coleta, e então depositará os peixes coletados no baú de casa.
+
+### O Lenhador
+
+<div style={{textAlign: 'center'}}>
+  <img src="/img/lumberjack_job.png" alt="O Lenhador" />
+</div>
+
+O Lenhador exige um **Posto de Lenhador** (Lumber Post). Para criar um, basta colocar um bloco de **Bancada de Serraria** (Lumbermill Bench) perto de um tronco de árvore (a até 10 blocos de distância).
+Ele caminhará até esse posto, fará sua animação de coleta, e então depositará a madeira coletada no baú de casa.
 
 ## Hobbies
 

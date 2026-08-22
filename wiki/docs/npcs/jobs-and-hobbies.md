@@ -57,15 +57,23 @@ When their work shift begins, their model scales down (shrinks) and they concept
 - **Hunters** return with Raw Meats (Beef, Pork, Chicken).
 They immediately walk to their home chest to deposit the loot.
 
-### Fisherman and Lumberjack
+### The Fisherman
 
 <div style={{textAlign: 'center'}}>
   <img src="/img/fisherman_job.png" alt="The Fisherman" />
 </div>
 
-- Fisherman requires a **Fishing Post**. You create one simply by placing a **Fishing Trap** block near water (within 8 blocks).
-- Lumberjack requires a **Lumber Post**. You create one simply by placing a **Lumbermill Bench** block near a tree trunk (within 10 blocks).
-They will walk to these posts, perform their gathering animation, and then deposit their respective resources (Fish or Wood) into their home chest.
+The Fisherman requires a **Fishing Post**. You create one simply by placing a **Fishing Trap** block near water (within 8 blocks).
+They will walk to this post, perform their gathering animation, and then deposit their catch into their home chest.
+
+### The Lumberjack
+
+<div style={{textAlign: 'center'}}>
+  <img src="/img/lumberjack_job.png" alt="The Lumberjack" />
+</div>
+
+The Lumberjack requires a **Lumber Post**. You create one simply by placing a **Lumbermill Bench** block near a tree trunk (within 10 blocks).
+They will walk to this post, perform their gathering animation, and then deposit the gathered wood into their home chest.
 
 ## Hobbies
 
