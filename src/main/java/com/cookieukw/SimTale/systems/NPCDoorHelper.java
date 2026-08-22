@@ -125,7 +125,7 @@ public final class NPCDoorHelper {
             // unloaded chunks). getChunkIfLoaded never blocks or queues anything — it just returns
             // null for a chunk that isn't already in memory, which here simply means "nothing to
             // check yet", same as any other position with no door.
-            WorldChunk chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(x, z));
+            WorldChunk chunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunkFromBlock(x, z), WorldChunk.getComponentType());
             if (chunk == null) return;
 
             BlockType type = chunk.getBlockType(x, y, z);
@@ -272,7 +272,7 @@ public final class NPCDoorHelper {
         try {
             // Same reasoning as tryOpenDoorAt: avoid world.getBlockType() triggering a mid-tick
             // chunk load wait. tickAutoClose runs from the same NPC-tick call chain.
-            WorldChunk chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
+            WorldChunk chunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunkFromBlock(pos.x, pos.z), WorldChunk.getComponentType());
             if (chunk == null) return;
 
             BlockType type = chunk.getBlockType(pos.x, pos.y, pos.z);

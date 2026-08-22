@@ -120,7 +120,7 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
         synchronized (ChestRegistry.CHESTS) {
             if (world != null) {
                 ChestRegistry.CHESTS.removeIf(cp -> {
-                    WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(cp.x, cp.z));
+                    WorldChunk chunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunkFromBlock(cp.x, cp.z), WorldChunk.getComponentType());
                     if (chunk == null) return false;
                     return !ChestRegistry.isContainerAt(world, cp.x, cp.y, cp.z);
                 });

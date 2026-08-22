@@ -95,7 +95,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             if (world != null) {
                 // Self-healing: prune bed ONLY if chunk is loaded AND block is no longer a bed block
                 BedRegistry.BEDS.removeIf(bp -> {
-                    WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(bp.x, bp.z));
+                    WorldChunk chunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunkFromBlock(bp.x, bp.z), WorldChunk.getComponentType());
                     if (chunk != null) {
                         BlockType type = world.getBlockType(bp.x, bp.y, bp.z);
                         return type == null || type.getId() == null || !BedRegistry.isBedId(type.getId());

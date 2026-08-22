@@ -281,7 +281,7 @@ public final class NPCLeisureHelper {
      * Scans loaded chunks around the NPC for a block whose id contains {@code keyword}.
      * <p>
      * Mirrors the bath search: a single reusable cursor and an allocation-free id comparison,
-     * and {@code getChunkIfInMemory} so the scan never forces a chunk load from the tick loop.
+     * and {@code getChunkComponent} so the scan never forces a chunk load from the tick loop.
      */
     private static Vector3i scanForBlock(Vector3d from, World world, String keyword) {
         int sx = (int) from.x;
@@ -291,7 +291,7 @@ public final class NPCLeisureHelper {
 
         for (int cx = (sx - SEARCH_RADIUS) >> 4; cx <= (sx + SEARCH_RADIUS) >> 4; cx++) {
             for (int cz = (sz - SEARCH_RADIUS) >> 4; cz <= (sz + SEARCH_RADIUS) >> 4; cz++) {
-                WorldChunk chunkAt = world.getChunkIfInMemory(ChunkUtil.indexChunk(cx, cz));
+                WorldChunk chunkAt = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunk(cx, cz), WorldChunk.getComponentType());
                 if (chunkAt == null) continue;
 
                 int minX = Math.max(sx - SEARCH_RADIUS, cx << 4);

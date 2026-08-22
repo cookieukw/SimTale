@@ -613,7 +613,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             Vector3i bedPos = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
 
             // Validate bed still exists by checking the actual world block, and self-heal BedRegistry if missing
-            WorldChunk bedChunk = world.getChunkIfInMemory(ChunkUtil.indexChunk(bedPos.x >> 4, bedPos.z >> 4));
+            WorldChunk bedChunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunk(bedPos.x >> 4, bedPos.z >> 4), WorldChunk.getComponentType());
             if (bedChunk != null) {
                 BlockType type = world.getBlockType(bedPos.x, bedPos.y, bedPos.z);
                 if (type == null || type.getId() == null || !BedRegistry.isBedId(type.getId())) {
@@ -932,14 +932,14 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             // This scan touches ~31x31x11 ≈ 10.500 blocos por NPC. It used to allocate a
             // Vector3i *and* a lowercased String per block (≈21.000 objetos descartáveis por
             // varredura, por NPC). The cursor below is reused and the id match is
-            // allocation-free. getChunkIfInMemory replaces getChunk so the scan never forces
+            // allocation-free. getChunkComponent replaces getChunk so the scan never forces
             // a chunk load from inside the tick loop.
             Vector3i cursor = new Vector3i();
 
             bathSearch:
             for (int cx = (sx - BATH_SEARCH_RADIUS) >> 4; cx <= (sx + BATH_SEARCH_RADIUS) >> 4; cx++) {
                 for (int cz = (sz - BATH_SEARCH_RADIUS) >> 4; cz <= (sz + BATH_SEARCH_RADIUS) >> 4; cz++) {
-                    WorldChunk chunkAt = world.getChunkIfInMemory(ChunkUtil.indexChunk(cx, cz));
+                    WorldChunk chunkAt = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunk(cx, cz), WorldChunk.getComponentType());
                     if (chunkAt == null) continue;
 
                     int minX = Math.max(sx - BATH_SEARCH_RADIUS, cx << 4);
