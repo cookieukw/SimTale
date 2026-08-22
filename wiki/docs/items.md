@@ -41,6 +41,10 @@ All items can be crafted at their respective workstations:
 
 ## <img src="/img/HouseBlueprint.png" width="32" align="absmiddle"/> House Blueprint
 
+<div align="center">
+  <img src="/img/HouseBlueprint.png" width="128" style={{imageRendering: 'pixelated'}} />
+</div>
+
 Right-click a **registered bed** — the bed is what makes a room a house, so anywhere else the tool has no way to know which room you mean.
 
 You get a verdict (valid, or the list of what is missing), a summary of interior size, doors and chests, and the floor of the room lit up for about twelve seconds: green if the house is valid, red if it is not. The outline is the floor only — filling the whole interior would replace the room with a coloured brick and hide what you are looking at.

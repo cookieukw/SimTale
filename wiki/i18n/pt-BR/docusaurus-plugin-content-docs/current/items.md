@@ -41,6 +41,10 @@ Todos os itens podem ser craftados em suas respectivas bancadas:
 
 ## <img src="/img/HouseBlueprint.png" width="32" align="absmiddle"/> Projeto de Casa (House Blueprint)
 
+<div align="center">
+  <img src="/img/HouseBlueprint.png" width="128" style={{imageRendering: 'pixelated'}} />
+</div>
+
 Clique com o botão direito em uma **cama registrada** — a cama é o que faz um cômodo ser uma casa, então em qualquer outro lugar a ferramenta não tem como saber de qual cômodo você está falando.
 
 Você recebe um veredito (válida, ou a lista do que está faltando), um resumo do tamanho interior, portas e baús, e o chão do cômodo se ilumina por cerca de doze segundos: verde se a casa for válida, vermelho se não for. O contorno é apenas no chão — preencher todo o interior substituiria o cômodo por um bloco colorido gigante e esconderia o que você está tentando ver.
