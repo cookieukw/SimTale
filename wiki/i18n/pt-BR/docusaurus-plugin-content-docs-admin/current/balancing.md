@@ -10,7 +10,7 @@ rebuilding. They are documented here so you know what the numbers mean before yo
 
 ## Need decay
 
-Per tick, from `Needs.tickDecay`:
+Per tick, from `NeedsHelper.tickDecay` (Adultos):
 
 | Need | Rate | With trait |
 |---|---|---|
@@ -20,7 +20,15 @@ Per tick, from `Needs.tickDecay`:
 | Fun | 0.0001 | 0.00005 if `FUNNY` |
 | Hygiene | 0.0002 | — |
 
-At 20 ticks per second, hunger takes roughly 13.9 in-game hours to fall from 100 to 0.
+Per tick, from `BabyNeeds.tickDecay` (Bebês/Crianças):
+
+| Need | Rate | Condição |
+|---|---|---|
+| Hunger | 0.0003 | — |
+| Affection | 0.0002 | — |
+| Health | 0.0001 | 0.0004 se Hunger < 20 |
+
+At 20 ticks per second, adult hunger takes roughly 13.9 in-game hours to fall from 100 to 0.
 
 ## Hunger thresholds
 
