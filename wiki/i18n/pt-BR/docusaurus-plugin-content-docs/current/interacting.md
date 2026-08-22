@@ -58,6 +58,10 @@ Acima de 70 de fome, a comida volta a ser tratada como um presente comum.
 
 ### O Item Bebê
 
+<div style={{textAlign: 'center'}}>
+  <img src="/img/baby_care.png" alt="O Item Bebê" />
+</div>
+
 O <img src="/img/Baby.png" width="24" align="absmiddle"/> **Bebê** é inicialmente um item. Após algum tempo, ele se transformará e nascerá como um NPC criança. (Só não esqueça ele dentro de um baú, a menos que você queira uma criança muito confusa nascendo no seu estoque!)
 
 ## Casamento

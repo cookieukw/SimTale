@@ -59,6 +59,10 @@ Above 70 hunger, food goes back to being just a gift.
 
 ### The Baby Item
 
+<div style={{textAlign: 'center'}}>
+  <img src="/img/baby_care.png" alt="Baby Item" />
+</div>
+
 The <img src="/img/Baby.png" width="24" align="absmiddle"/> **Baby** is initially an item. After some time, it will transform and spawn into a child NPC. (Just make sure you don't leave it inside a chest, unless you want a very confused child spawning in your storage!)
 
 ## Marriage
