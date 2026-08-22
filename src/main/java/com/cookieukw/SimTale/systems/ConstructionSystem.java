@@ -14,7 +14,6 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.PlaceBlockSettings;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.accessor.BlockAccessor;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import org.joml.Vector3d;
@@ -144,18 +143,7 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
                     world.setBlock(worldX, worldY, worldZ, "Empty");
                 } else {
                     int rotVal = blockInfo.getRotation() != null ? blockInfo.getRotation() : 0;
-                    RotationTuple rotationTuple = RotationTuple.get(rotVal);
-                    
-                    int placeFlags = PlaceBlockSettings.PERFORM_BLOCK_UPDATE 
-                                   | PlaceBlockSettings.UPDATE_CONNECTIONS;
-                    
-                    long chunkKey = ChunkUtil.indexChunkFromBlock(worldX, worldZ);
-                    BlockAccessor blockAccessor = world.getChunk(chunkKey);
-                    if (blockAccessor != null) {
-                        blockAccessor.placeBlock(worldX, worldY, worldZ, type, rotationTuple, placeFlags, true);
-                    } else {
-                        world.setBlock(worldX, worldY, worldZ, type, rotVal);
-                    }
+                    world.setBlock(worldX, worldY, worldZ, type, rotVal);
                 }
                 site.currentIndex++;
             }
