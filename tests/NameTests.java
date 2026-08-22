@@ -61,7 +61,7 @@ public final class NameTests {
 
     private static void inheritance() {
         String mother = "Greenfield";
-        String father = "Steelbinder";
+        String father = "Ironforge";
 
         Set<String> seen = new HashSet<>();
         for (int i = 0; i < 2000; i++) {
@@ -71,24 +71,24 @@ public final class NameTests {
         // Only four names are reachable: either parent whole, or the two halves swapped. Anything
         // else means the blend cut somewhere it should not have.
         for (String result : seen) {
-            boolean expected = result.equals("Greenfield") || result.equals("Steelbinder")
-                    || result.equals("Greenbinder") || result.equals("Steelfield");
+            boolean expected = result.equals("Greenfield") || result.equals("Ironforge")
+                    || result.equals("Greenforge") || result.equals("Ironfield");
             Assert.isTrue(expected, "inherited surname is a parent's or a clean blend: " + result);
         }
 
         Assert.isTrue(seen.contains("Greenfield"), "the mother's name is reachable");
-        Assert.isTrue(seen.contains("Steelbinder"), "the father's name is reachable");
-        Assert.isTrue(seen.contains("Greenbinder") || seen.contains("Steelfield"),
+        Assert.isTrue(seen.contains("Ironforge"), "the father's name is reachable");
+        Assert.isTrue(seen.contains("Greenforge") || seen.contains("Ironfield"),
                 "blending happens: a new family name appears over 2000 births");
 
         // One parent missing a surname is not a reason to invent one — the other line is right there.
         Assert.equal(SimNPCNameGenerator.inheritSurname("Greenfield", ""), "Greenfield",
                 "a child of one named parent takes that name");
-        Assert.equal(SimNPCNameGenerator.inheritSurname(null, "Steelbinder"), "Steelbinder",
+        Assert.equal(SimNPCNameGenerator.inheritSurname(null, "Ironforge"), "Ironforge",
                 "null is treated as absent, not as a name");
 
         // GeneticsData is what the birth code calls, and it takes full names rather than surnames.
-        String fromFullNames = GeneticsData.inheritSurname("Luna Greenfield", "Kori Steelbinder");
+        String fromFullNames = GeneticsData.inheritSurname("Luna Greenfield", "Kori Ironforge");
         Assert.isFalse(fromFullNames.contains(" "),
                 "inheriting from full names yields a surname, not a whole name: " + fromFullNames);
     }
