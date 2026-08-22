@@ -4,6 +4,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -72,7 +73,8 @@ public class NeedsHelper {
         if (map == null) return DEFAULT_VALUE;
 
         try {
-            EntityStatValue val = map.get(statId);
+            int statIndex = EntityStatType.getAssetMap().getIndex(statId);
+            EntityStatValue val = map.get(statIndex);
             return val != null ? val.get() : DEFAULT_VALUE;
         } catch (RuntimeException e) {
             warnOnce(statId);
@@ -89,7 +91,8 @@ public class NeedsHelper {
         if (map == null) return;
 
         try {
-            EntityStatValue val = map.get(statId);
+            int statIndex = EntityStatType.getAssetMap().getIndex(statId);
+            EntityStatValue val = map.get(statIndex);
             if (val != null) {
                 map.setStatValue(val.getIndex(), Math.max(0f, Math.min(100f, value)));
             }
