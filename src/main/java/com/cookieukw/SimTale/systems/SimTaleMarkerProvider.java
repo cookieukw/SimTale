@@ -197,7 +197,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         Ref<EntityStore> targetRef = player.getReference();
         UUID viewerId = null;
         if (targetRef != null) {
-            for (PlayerRef pRef : world.getUniverse().getPlayers()) {
+            for (PlayerRef pRef : Universe.get().getPlayers()) {
                 if (targetRef.equals(pRef.getReference())) {
                     viewerId = pRef.getUuid();
                     break;
