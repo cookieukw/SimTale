@@ -22,6 +22,10 @@ java {
     withSourcesJar()
 }
 
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation"
+}
+
 sourceSets {
     test {
         java {
