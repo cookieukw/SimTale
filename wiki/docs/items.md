@@ -63,7 +63,7 @@ All items can be crafted at their respective workstations:
 
 ### Item Icons
 
-![House Blueprint](/img/HouseBlueprint.png) ![Innkeeper Ledger](/img/InnkeepersLedger.png) ![Quartermaster Glass](/img/QuartermastersGlass.png) ![Town Bell](/img/TownBell.png)
+![Pregnancy Test](/img/PregnancyTest.png) ![House Blueprint](/img/HouseBlueprint.png) ![Innkeeper Ledger](/img/InnkeepersLedger.png) ![Quartermaster Glass](/img/QuartermastersGlass.png) ![Inspector's Journal](/img/InspectorsJournal.png) ![Immigration Contract](/img/ImmigrationContract.png) ![Town Bell](/img/TownBell.png) ![Wedding Ring](/img/WeddingRing.png) ![Baby](/img/Baby.png) ![Birthday Cake](/img/BirthdayCake.png)
 
 ## House Blueprint
 

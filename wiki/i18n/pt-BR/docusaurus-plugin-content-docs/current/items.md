@@ -63,7 +63,7 @@ Todos os itens podem ser craftados em suas respectivas bancadas:
 
 ### Ícones dos Itens
 
-![Projeto de Casa](/img/HouseBlueprint.png) ![Livro do Estalajadeiro](/img/InnkeepersLedger.png) ![Lupa do Intendente](/img/QuartermastersGlass.png) ![Sino da Cidade](/img/TownBell.png)
+![Teste de Gravidez](/img/PregnancyTest.png) ![Projeto de Casa](/img/HouseBlueprint.png) ![Livro do Estalajadeiro](/img/InnkeepersLedger.png) ![Lupa do Intendente](/img/QuartermastersGlass.png) ![Diário do Inspetor](/img/InspectorsJournal.png) ![Contrato de Imigração](/img/ImmigrationContract.png) ![Sino da Cidade](/img/TownBell.png) ![Aliança de Casamento](/img/WeddingRing.png) ![Bebê](/img/Baby.png) ![Bolo de Aniversário](/img/BirthdayCake.png)
 
 ## Projeto de Casa (House Blueprint)
 
