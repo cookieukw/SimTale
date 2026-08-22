@@ -64,7 +64,7 @@ The **Baby** is initially an item. After some time, it will transform and spawn 
 To propose to an NPC, you must gift them a **Wedding Ring**. (One Ring to rule them all... wait, wrong franchise).
 The proposal will only be accepted if your relationship with them is at least **80 Romance** and **70 Friendship**. If accepted, the NPC will become your spouse.
 
-![Wedding Ring Placeholder](/path/to/wedding_ring_icon.png)
+![Wedding Ring](/img/WeddingRing.png)
 
 ## Talking with AI
 

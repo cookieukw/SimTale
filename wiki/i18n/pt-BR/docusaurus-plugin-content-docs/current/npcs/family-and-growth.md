@@ -26,7 +26,7 @@ A gravidez para o jogador também existe e segue um caminho próprio.
 No fim da gestação, o bebê nasce como um **item** que vai para o inventário. Você carrega o
 bebê por aí, e pode entregá-lo para o outro pai/mãe.
 
-![Baby Item Placeholder](/path/to/baby_item.png)
+![Item Bebê](/img/Baby.png)
 
 ## Fases de crescimento
 
@@ -34,12 +34,11 @@ bebê por aí, e pode entregá-lo para o outro pai/mãe.
 |---|---|
 | `BEBÊ` (`BABY`) | Carregado no inventário |
 | `CRIANÇA PEQUENA` (`TODDLER`) | |
-| `CRIANÇA` (`CHILD`) | Modelo de corpo reduzido. Pode receber o item Bebê para pular 1 dia de jogo. |
+| `CRIANÇA` (`CHILD`) | Modelo de corpo reduzido. |
 | `ADOLESCENTE` (`TEEN`) | Modelo levemente reduzido. |
 | `ADULTO` (`ADULT`) | Rotina completa: trabalho, casa, relacionamentos |
 
 As crianças crescem com o tempo por conta própria, e o tamanho do modelo aumenta a cada fase.
-**Aceleração:** Dar um item Bebê para uma `CRIANÇA` ou `ADOLESCENTE` avança imediatamente o crescimento deles em um dia inteiro do jogo (24.000 ticks). 
 
 ## Cuidados
 

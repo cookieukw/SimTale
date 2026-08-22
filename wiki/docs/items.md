@@ -37,7 +37,7 @@ All items can be crafted at their respective workstations:
 
 ### Item Icons
 
-![House Blueprint](/img/HouseBlueprint.png) ![Innkeeper Ledger Placeholder](/path/to/innkeeper_ledger.png) ![Quartermaster Glass Placeholder](/path/to/quartermaster_glass.png) ![Town Bell Placeholder](/path/to/town_bell.png)
+![House Blueprint](/img/HouseBlueprint.png) ![Innkeeper Ledger](/img/InnkeepersLedger.png) ![Quartermaster Glass](/img/QuartermastersGlass.png) ![Town Bell](/img/TownBell.png)
 
 ## House Blueprint
 

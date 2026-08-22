@@ -42,7 +42,7 @@ Assim que a casa estiver pronta, o NPC caminhará até a cama e registrará aque
 
 Use o **Livro do Estalajadeiro** (Innkeeper's Ledger) para verificar quem mora onde.
 
-![Innkeeper Ledger Placeholder](/path/to/innkeeper_ledger.png)
+![Livro do Estalajadeiro](/img/InnkeepersLedger.png)
 
 ## 4. Coloque comida
 
@@ -54,7 +54,7 @@ NPCs usam apenas baús que pertencem a uma casa reconhecida. Um baú largado no 
 
 Veja o que eles realmente conseguem alcançar usando a **Lupa do Intendente** (Quartermaster's Glass).
 
-![Quartermaster Glass Placeholder](/path/to/quartermaster_glass.png)
+![Lupa do Intendente](/img/QuartermastersGlass.png)
 
 Ela lista cada baú registrado, a que casa ele pertence e quanta comida tem dentro.
 

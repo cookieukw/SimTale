@@ -63,7 +63,7 @@ O **Bebê** é inicialmente um item. Após algum tempo, ele se transformará e n
 Para pedir um NPC em casamento, você deve dar de presente uma **Aliança de Casamento** (Wedding Ring). (Um Anel para a todos governar... não, espera, franquia errada).
 O pedido só será aceito se o relacionamento de vocês tiver pelo menos **80 de Romance** e **70 de Amizade**. Se aceito, o NPC se tornará seu cônjuge.
 
-![Wedding Ring Placeholder](/path/to/wedding_ring_icon.png)
+![Aliança de Casamento](/img/WeddingRing.png)
 
 ## Conversando com IA
 

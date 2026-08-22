@@ -41,7 +41,7 @@ Once the house is ready, the NPC walks to the bed and registers that place as he
 
 Use the **Innkeeper's Ledger** to check who lives where.
 
-![Innkeeper Ledger Placeholder](/path/to/innkeeper_ledger.png)
+![Innkeeper Ledger](/img/InnkeepersLedger.png)
 
 ## 4. Put out food
 
@@ -53,7 +53,7 @@ NPCs only use chests that belong to a recognised house. A chest dropped in an op
 
 See what they can actually reach by using the **Quartermaster's Glass**.
 
-![Quartermaster Glass Placeholder](/path/to/quartermaster_glass.png)
+![Quartermaster Glass](/img/QuartermastersGlass.png)
 
 It lists every registered chest, the house it belongs to, and how much food is inside.
 

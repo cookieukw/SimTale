@@ -37,7 +37,7 @@ Todos os itens podem ser craftados em suas respectivas bancadas:
 
 ### Ícones dos Itens
 
-![Projeto de Casa](/img/HouseBlueprint.png) ![Innkeeper Ledger Placeholder](/path/to/innkeeper_ledger.png) ![Quartermaster Glass Placeholder](/path/to/quartermaster_glass.png) ![Town Bell Placeholder](/path/to/town_bell.png)
+![Projeto de Casa](/img/HouseBlueprint.png) ![Livro do Estalajadeiro](/img/InnkeepersLedger.png) ![Lupa do Intendente](/img/QuartermastersGlass.png) ![Sino da Cidade](/img/TownBell.png)
 
 ## Projeto de Casa (House Blueprint)
 

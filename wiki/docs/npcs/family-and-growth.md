@@ -26,7 +26,7 @@ Player pregnancy also exists and follows its own path.
 At the end of gestation the baby is born as an **item** that goes into the inventory. You carry the
 baby around, and can hand it to the other parent.
 
-![Baby Item Placeholder](/path/to/baby_item.png)
+![Baby Item](/img/Baby.png)
 
 ## Growth stages
 
@@ -34,12 +34,11 @@ baby around, and can hand it to the other parent.
 |---|---|
 | `BABY` | Carried in the inventory |
 | `TODDLER` | |
-| `CHILD` | Model scaled down. Can be given a Baby item to skip 1 game day. |
+| `CHILD` | Model scaled down. |
 | `TEEN` | Model scaled down slightly. |
 | `ADULT` | Full routine: job, house, relationships |
 
 Children grow over time on their own, with the model scaling up at each stage.
-**Acceleration:** Giving a Baby item to a `CHILD` or `TEEN` immediately advances their growth by one full game day (24,000 ticks). 
 
 ## Care
 
