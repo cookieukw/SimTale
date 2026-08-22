@@ -60,6 +60,10 @@ No. A village forms automatically when you build houses close to each other (aro
 
 Married NPCs that share a home can have babies. Babies need care, and you (or the parents) can carry them on your shoulders or back while performing other tasks.
 
+### How do I put a child down?
+
+Crouch and right-click on any block (you must actually click a block, right-clicking the air will not work). If for any reason that fails, you can always use the command `/simtale putdown` in the chat.
+
 ### An NPC died. Can I bring them back?
 
 Yes. When the Grim Reaper appears to collect their soul, interact with her during the ritual while holding a Void Heart (`Ingredient_Voidheart`) to cancel the collection and revive the NPC.

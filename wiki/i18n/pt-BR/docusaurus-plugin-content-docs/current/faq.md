@@ -60,6 +60,10 @@ Não. Uma vila se forma automaticamente quando você constrói casas próximas u
 
 NPCs casados que moram juntos podem ter filhos. Os bebês precisam de cuidados, e você (ou os pais) podem carregá-los nos ombros ou nas costas enquanto realizam outras tarefas.
 
+### Como faço para colocar a criança de volta no chão?
+
+Fique agachado (crouch) e clique com o botão direito **em um bloco**. É obrigatório mirar em um bloco; clicar no ar não envia o comando para o servidor. Se mesmo assim não funcionar, basta digitar o comando `/simtale putdown` no chat para forçar a descida.
+
 ### Um NPC morreu. Tem como trazê-lo de volta?
 
 Sim. Quando a Ceifadora (Grim Reaper) aparecer para coletar a alma, interaja com ela durante o ritual segurando um Coração do Vazio (`Ingredient_Voidheart`) para cancelar a coleta e reviver o NPC.
