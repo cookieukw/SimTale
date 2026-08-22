@@ -59,7 +59,7 @@ Use `/simtale rescan` for worlds built before that fix.
 | `/simtale forcework` | Forces the nearest NPC to do its job |
 | `/simtale forceplant` | Gives seeds to a farmer and sends her to plant |
 | `/simtale unstick` | Frees stuck NPCs **and the player** |
-| `/simtale toggleai` | Enables/disables the routine AI |
+| `/simtale toggleai` | Enables/disables the AI API (does not disable the NPC's routine AI) |
 
 ## Family
 
