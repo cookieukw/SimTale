@@ -25,8 +25,8 @@ plus a little margin.
 A house exists because of its bed. Break the bed and the house is gone, and the village recalculates
 without it. Break every bed and there is no village left.
 
-:::info Different from Minecraft on purpose
-In Minecraft the village centre is a thing that stays put. Flatten every building and the game still
+:::info Different from other games on purpose
+In other block-building games, the village centre is often a thing that stays put. Flatten every building and the game still
 treats the ruins as a village. Here the village is worked out from the houses that exist at that
 moment, so there is nothing left behind to be wrong.
 :::

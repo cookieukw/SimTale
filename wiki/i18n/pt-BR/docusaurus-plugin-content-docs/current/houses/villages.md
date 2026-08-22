@@ -25,8 +25,8 @@ acrescida de uma pequena margem.
 Uma casa só existe por causa de sua cama. Quebre a cama e a casa deixará de existir, e a vila será recalculada
 sem ela. Quebre todas as camas e não sobrará vila alguma.
 
-:::info Diferente do Minecraft de propósito
-No Minecraft, o centro da vila é algo fixo. Você pode derrubar todas as construções e o jogo ainda
+:::info Diferente de outros jogos de propósito
+Em outros jogos de construção de blocos, o centro da vila costuma ser algo fixo. Você pode derrubar todas as construções e o jogo ainda
 tratará as ruínas como uma vila. Aqui, a vila é calculada a partir das casas que existem naquele exato
 momento, então não sobra nada para trás que possa estar errado.
 :::

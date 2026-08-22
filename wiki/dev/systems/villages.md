@@ -12,11 +12,10 @@ Nothing about a village is persisted and nothing is placed by the player. `Villa
 next to the others and the village grows to include it. Break the beds and the houses cease to
 exist, so the village shrinks and eventually stops being one.
 
-:::info Why not a placed marker
-Minecraft's village centre is an object that outlives the village. Level every building and the
-game still treats the crater as a settlement. Deriving the village instead of storing it makes that
-failure mode impossible to write — there is no record that could go stale, because there is no
-record.
+:::info Different from other games on purpose
+In other block-building games, the village centre is often an object that outlives the village. Level every building and the
+game still treats the ruins as a village. Here the village is worked out from the houses that exist
+at that moment, so there is nothing left behind to be wrong.
 :::
 
 ## Grouping
