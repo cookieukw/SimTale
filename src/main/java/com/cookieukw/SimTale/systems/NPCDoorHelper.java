@@ -129,7 +129,7 @@ public final class NPCDoorHelper {
             if (chunk == null) return;
 
             BlockType type = chunk.getBlockType(x, y, z);
-            if (type == null || !type.isDoor()) return;
+            if (type == null || !DoorBlockUtils.isHorizontalDoor(type)) return;
 
             ChunkStore chunkStore = world.getChunkStore();
             Rotation yaw = RotationTuple.get(chunk.getRotationIndex(x, y, z)).yaw();
@@ -276,7 +276,7 @@ public final class NPCDoorHelper {
             if (chunk == null) return;
 
             BlockType type = chunk.getBlockType(pos.x, pos.y, pos.z);
-            if (type == null || !type.isDoor()) return;
+            if (type == null || !DoorBlockUtils.isHorizontalDoor(type)) return;
 
             ChunkStore chunkStore = world.getChunkStore();
             Rotation yaw = RotationTuple.get(chunk.getRotationIndex(pos.x, pos.y, pos.z)).yaw();
