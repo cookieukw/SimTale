@@ -27,19 +27,19 @@ Todos os itens podem ser craftados em suas respectivas bancadas:
 
 | Item | Bancada | Ingredientes |
 |---|---|---|
-| **Teste de Gravidez** | Mesa de Alquimia | 1x Flor Branca, 1x Tábuas de Madeira Macia, 1x Essência de Vida (Couve-flor) |
-| **Projeto de Casa** | Fieldcraft | 1x Mapa, 1x Tinteiro, 1x Pergaminho |
-| **Livro do Estalajadeiro** | Fieldcraft | 1x Pilha Pequena de Livros, 1x Tábuas de Madeira Macia, 1x Couro Leve |
-| **Lupa do Intendente** | Bancada de Trabalho | 1x Cristal Branco, 1x Barra de Cobre |
-| **Diário do Inspetor** | Fieldcraft | 1x Pilha Pequena de Livros, 1x Tinteiro |
-| **Contrato de Imigração** | Fieldcraft | 1x Pergaminho, 1x Tinteiro, 1x Couro Leve |
-| **Sino da Cidade** | Bancada de Trabalho | 3x Barra de Ouro, 2x Tábuas de Madeira Macia |
+| **Teste de Gravidez** | <img src="/img/Bench_Alchemy.png" width="24" align="absmiddle"/> Bancada de Alquimia (Alchemybench) | 1x <img src="/img/Plant_Flower_Common_White.png" width="24" align="absmiddle"/> Flor Branca (White Flower), 1x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="/img/Ingredient_Life_Essence_Cauliflower.png" width="24" align="absmiddle"/> Essência de Vida (Life Essence - Cauliflower) |
+| **Projeto de Casa** | Artesanato de Campo (Fieldcraft) | 1x <img src="/img/Deco_Map.png" width="24" align="absmiddle"/> Mapa (Map), 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll) |
+| **Livro do Estalajadeiro** | Artesanato de Campo (Fieldcraft) | 1x <img src="/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
+| **Lupa do Intendente** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 1x <img src="/img/Rock_Crystal_White.png" width="24" align="absmiddle"/> Cristal Branco (White Crystal), 1x <img src="/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Barra de Cobre (Copper Bar) |
+| **Diário do Inspetor** | Artesanato de Campo (Fieldcraft) | 1x <img src="/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell) |
+| **Contrato de Imigração** | Artesanato de Campo (Fieldcraft) | 1x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll), 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
+| **Sino da Cidade** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 3x Barra de Ouro (Gold Bar), 2x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks) |
 
 ### Ícones dos Itens
 
 ![Projeto de Casa](/img/HouseBlueprint.png) ![Livro do Estalajadeiro](/img/InnkeepersLedger.png) ![Lupa do Intendente](/img/QuartermastersGlass.png) ![Sino da Cidade](/img/TownBell.png)
 
-## Projeto de Casa (House Blueprint)
+## <img src="/img/HouseBlueprint.png" width="32" align="absmiddle"/> Projeto de Casa (House Blueprint)
 
 Clique com o botão direito em uma **cama registrada** — a cama é o que faz um cômodo ser uma casa, então em qualquer outro lugar a ferramenta não tem como saber de qual cômodo você está falando.
 

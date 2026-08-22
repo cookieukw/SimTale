@@ -11,13 +11,13 @@ SimTale adds a set of craftable tools. They exist so the village can be understo
 
 | Item | Point at | What happens |
 |---|---|---|
-| <img src="/img/PregnancyTest.png" width="24" align="absmiddle"/> Pregnancy Test | a villager | Says whether she is expecting, and how far along |
-| <img src="/img/HouseBlueprint.png" width="24" align="absmiddle"/> House Blueprint | a bed | Reports whether that room counts as a house, and outlines it |
-| <img src="/img/InnkeepersLedger.png" width="24" align="absmiddle"/> Innkeeper's Ledger | anything | Lists every registered bed and who sleeps in it. (The sacred texts!) |
-| <img src="/img/QuartermastersGlass.png" width="24" align="absmiddle"/> Quartermaster's Glass | anything | Lists every village chest and what is inside. (Enhance... Enhance... Enhance) |
-| <img src="/img/InspectorsJournal.png" width="24" align="absmiddle"/> Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
-| <img src="/img/ImmigrationContract.png" width="24" align="absmiddle"/> Immigration Contract | anything | Invites a new resident to settle in the village |
-| <img src="/img/TownBell.png" width="24" align="absmiddle"/> Town Bell | anything | Rings the town bell, alerting nearby villagers |
+| <img src="/img/PregnancyTest.png" width="32" align="absmiddle"/> Pregnancy Test | a villager | Says whether she is expecting, and how far along |
+| <img src="/img/HouseBlueprint.png" width="32" align="absmiddle"/> House Blueprint | a bed | Reports whether that room counts as a house, and outlines it |
+| <img src="/img/InnkeepersLedger.png" width="32" align="absmiddle"/> Innkeeper's Ledger | anything | Lists every registered bed and who sleeps in it. (The sacred texts!) |
+| <img src="/img/QuartermastersGlass.png" width="32" align="absmiddle"/> Quartermaster's Glass | anything | Lists every village chest and what is inside. (Enhance... Enhance... Enhance) |
+| <img src="/img/InspectorsJournal.png" width="32" align="absmiddle"/> Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
+| <img src="/img/ImmigrationContract.png" width="32" align="absmiddle"/> Immigration Contract | anything | Invites a new resident to settle in the village |
+| <img src="/img/TownBell.png" width="32" align="absmiddle"/> Town Bell | anything | Rings the town bell, alerting nearby villagers |
 
 One more item is crafted but does nothing yet: the Birthday Cake.
 
@@ -27,19 +27,19 @@ All items can be crafted at their respective workstations:
 
 | Item | Bench | Ingredients |
 |---|---|---|
-| **Pregnancy Test** | Alchemybench | 1x White Flower, 1x Softwood Planks, 1x Life Essence (Cauliflower) |
-| **House Blueprint** | Fieldcraft | 1x Map, 1x Inkwell, 1x Scroll |
-| **Innkeeper's Ledger** | Fieldcraft | 1x Small Book Pile, 1x Softwood Planks, 1x Light Leather |
-| **Quartermaster's Glass** | Workbench | 1x White Crystal, 1x Copper Bar |
-| **Inspector's Journal** | Fieldcraft | 1x Small Book Pile, 1x Inkwell |
-| **Immigration Contract** | Fieldcraft | 1x Scroll, 1x Inkwell, 1x Light Leather |
-| **Town Bell** | Workbench | 3x Gold Bar, 2x Softwood Planks |
+| **Pregnancy Test** | <img src="/img/Bench_Alchemy.png" width="24" align="absmiddle"/> Alchemybench | 1x <img src="/img/Plant_Flower_Common_White.png" width="24" align="absmiddle"/> White Flower, 1x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks, 1x <img src="/img/Ingredient_Life_Essence_Cauliflower.png" width="24" align="absmiddle"/> Life Essence (Cauliflower) |
+| **House Blueprint** | Fieldcraft | 1x <img src="/img/Deco_Map.png" width="24" align="absmiddle"/> Map, 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll |
+| **Innkeeper's Ledger** | Fieldcraft | 1x <img src="/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Small Book Pile, 1x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks, 1x <img src="/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather |
+| **Quartermaster's Glass** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 1x <img src="/img/Rock_Crystal_White.png" width="24" align="absmiddle"/> White Crystal, 1x <img src="/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Copper Bar |
+| **Inspector's Journal** | Fieldcraft | 1x <img src="/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Small Book Pile, 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell |
+| **Immigration Contract** | Fieldcraft | 1x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll, 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather |
+| **Town Bell** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 3x Gold Bar, 2x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks |
 
 ### Item Icons
 
 ![House Blueprint](/img/HouseBlueprint.png) ![Innkeeper Ledger](/img/InnkeepersLedger.png) ![Quartermaster Glass](/img/QuartermastersGlass.png) ![Town Bell](/img/TownBell.png)
 
-## House Blueprint
+## <img src="/img/HouseBlueprint.png" width="32" align="absmiddle"/> House Blueprint
 
 Right-click a **registered bed** — the bed is what makes a room a house, so anywhere else the tool has no way to know which room you mean.
 
