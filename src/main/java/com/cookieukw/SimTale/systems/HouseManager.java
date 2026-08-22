@@ -744,7 +744,7 @@ public class HouseManager {
             deleteHouse(dup);
         }
         LOGGER.warn("[SimTale] {} duplicate house records removed ({} remaining). "
-                        + "Eram sobras do id aleatorio gerado a cada reivindicacao de cama.",
+                        + "They were leftovers from the random id generated on every bed claim.",
                 duplicates.size(), HOUSES_BY_ID.size());
 
         // Reindexa: os registros apagados podem ter sobrescrito entradas do que ficou.
