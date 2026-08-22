@@ -12,14 +12,15 @@ Worked example: adding a `BAKER`.
 `core/Profession.java`:
 
 ```java
-BAKER("Padeiro", EnumSet.of(JobType.CRAFT), "rolling_pin"),
+BAKER("Padeiro", EnumSet.of(JobType.CRAFT), "rolling_pin", true),
 ```
 
 | Argument | Meaning |
 |---|---|
-| `ptName` | Legacy display name — the UI now reads from `.lang`, so this is a fallback |
-| `allowedJobs` | Which `JobType`s the profession may perform |
-| `triggerItemKeyword` | Substring of the item id that assigns the job |
+| `ptName` | Nome de exibição legado — a UI agora lê do `.lang`, então este é um fallback |
+| `allowedJobs` | Quais `JobType`s a profissão pode executar |
+| `triggerItemKeyword` | Substring do id do item que atribui o emprego |
+| `safeForChildren` | `true` se crianças podem exercer o emprego, `false` caso contrário (espera até virar TEEN) |
 
 :::caution Verify the keyword against real ids
 `fromItemId` matches by substring on the item id. Check that an item containing your keyword

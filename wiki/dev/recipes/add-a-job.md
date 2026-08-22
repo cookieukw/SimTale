@@ -12,7 +12,7 @@ Worked example: adding a `BAKER`.
 `core/Profession.java`:
 
 ```java
-BAKER("Padeiro", EnumSet.of(JobType.CRAFT), "rolling_pin"),
+BAKER("Padeiro", EnumSet.of(JobType.CRAFT), "rolling_pin", true),
 ```
 
 | Argument | Meaning |
@@ -20,6 +20,7 @@ BAKER("Padeiro", EnumSet.of(JobType.CRAFT), "rolling_pin"),
 | `ptName` | Legacy display name — the UI now reads from `.lang`, so this is a fallback |
 | `allowedJobs` | Which `JobType`s the profession may perform |
 | `triggerItemKeyword` | Substring of the item id that assigns the job |
+| `safeForChildren` | `true` if children can perform the job, `false` otherwise (wait until TEEN) |
 
 :::caution Verify the keyword against real ids
 `fromItemId` matches by substring on the item id. Check that an item containing your keyword
