@@ -47,3 +47,19 @@ Sim. Nomes, necessidades, relacionamentos, casas e empregos são todos mantidos 
 
 Ainda não é possível fazer isso por um arquivo de configuração (config) — os valores são constantes no código. Veja
 [Balanceamento](/admin/balancing).
+
+### Como faço para os NPCs praticarem hobbies?
+
+Você não precisa dar ordens. Apenas coloque blocos que contenham `leisure_fishing` (pesca), `leisure_mining` (mineração) ou `leisure_gardening` (jardinagem) no mapa. Se o NPC tiver aquele hobby e sua diversão estiver baixa, ele irá interagir com o bloco sozinho.
+
+### Como eu crio uma vila? Preciso de um bloco central?
+
+Não. Uma vila se forma automaticamente quando você constrói casas próximas umas das outras (cerca de 40 blocos entre as camas). A vila se expande naturalmente conforme você constrói mais casas na mesma região.
+
+### Como os NPCs têm filhos e como cuidar deles?
+
+NPCs casados que moram juntos podem ter filhos. Os bebês precisam de cuidados, e você (ou os pais) podem carregá-los nos ombros ou nas costas enquanto realizam outras tarefas.
+
+### Um NPC morreu. Tem como trazê-lo de volta?
+
+Sim. Quando a Ceifadora (Grim Reaper) aparecer para coletar a alma, interaja com ela durante o ritual segurando um Coração do Vazio (`Ingredient_Voidheart`) para cancelar a coleta e reviver o NPC.

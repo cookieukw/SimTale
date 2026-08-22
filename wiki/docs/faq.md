@@ -48,3 +48,18 @@ Yes. Names, needs, relationships, houses and jobs are all persisted.
 Not from a config file yet — the values are constants in the code. See
 [Balancing](/admin/balancing).
 
+### How do I make NPCs do hobbies?
+
+You don't need to order them. Just place blocks that contain `leisure_fishing`, `leisure_mining`, or `leisure_gardening` in the world. If the NPC has that hobby and their fun need is low, they will interact with the block on their own.
+
+### How do I create a village? Do I need a center block?
+
+No. A village forms automatically when you build houses close to each other (around 40 blocks between beds). The village expands naturally as you build more houses in the same area.
+
+### How do NPCs have babies and how do I care for them?
+
+Married NPCs that share a home can have babies. Babies need care, and you (or the parents) can carry them on your shoulders or back while performing other tasks.
+
+### An NPC died. Can I bring them back?
+
+Yes. When the Grim Reaper appears to collect their soul, interact with her during the ritual while holding a Void Heart (`Ingredient_Voidheart`) to cancel the collection and revive the NPC.
