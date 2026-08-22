@@ -13,9 +13,10 @@ RoutineAISystem (tick per NPC)
 ├── Decision    — pick the task
 └── Action      — delegate to a helper
     ├── NPCHungerHelper  → FINDING_FOOD, MOVING_TO_FOOD, EATING
-    ├── NPCWorkHelper    → MOVING_TO_WORK, FARMING, HUNTING, PLANTING, MOVING_TO_DEPOSIT
+    ├── NPCWorkHelper    → MOVING_TO_WORK, FARMING, HUNTING, FISHING, CHOPPING, EXPEDITION, PLANTING, MOVING_TO_DEPOSIT, MOVING_TO_SEEDS
     ├── NPCSocialHelper  → MOVING_TO_SOCIALIZE, SOCIALIZING, WANDERING
-    └── NPCLeisureHelper → FINDING_LEISURE, MOVING_TO_LEISURE, DOING_HOBBY
+    ├── NPCLeisureHelper → FINDING_LEISURE, MOVING_TO_LEISURE, DOING_HOBBY
+    └── (inline)         → FINDING_BATH, MOVING_TO_BATH, BATHING, FINDING_CONSTRUCTION, MOVING_TO_CONSTRUCTION, BUILDING
 ```
 
 Query: `SimTale.SIM_NPC_COMPONENT_TYPE`.
@@ -42,13 +43,15 @@ scheduled sleepers stay down until the window closes; naps end when energy fills
 
 Same shape, threshold 25, guarded by `nextFoodSearchTick`.
 
-## Three guards every interrupt needs
+## Three guards every interrupt (and heavy search) needs
 
 | Guard | Without it |
 |---|---|
 | Not already in that task chain | Restarts the task every tick |
 | `nextXSearchTick` cooldown | Search storm when the target is unreachable — 3447/sec observed |
 | `!inDeathFlow` | Yanks the NPC out of `DYING`; the death broadcast repeats forever |
+
+*(Note: Bath and Leisure searches also rely on the `nextXSearchTick` cooldown to prevent search storms, even though they are routed from IDLE instead of being global interrupts.)*
 
 ## Movement
 
