@@ -2,15 +2,15 @@
   "Layers": [
     {
       "Files": [
-        "SimTale/town_bell_1",
-        "SimTale/town_bell_2",
-        "SimTale/town_bell_3",
-        "SimTale/town_bell_4",
-        "SimTale/town_bell_5",
-        "SimTale/town_bell_6",
-        "SimTale/town_bell_7",
-        "SimTale/town_bell_8",
-        "SimTale/town_bell_9"
+        "Sounds/SimTale/town_bell_1.ogg",
+        "Sounds/SimTale/town_bell_2.ogg",
+        "Sounds/SimTale/town_bell_3.ogg",
+        "Sounds/SimTale/town_bell_4.ogg",
+        "Sounds/SimTale/town_bell_5.ogg",
+        "Sounds/SimTale/town_bell_6.ogg",
+        "Sounds/SimTale/town_bell_7.ogg",
+        "Sounds/SimTale/town_bell_8.ogg",
+        "Sounds/SimTale/town_bell_9.ogg"
       ],
       "RoundRobinHistorySize": 4,
       "RandomSettings": {
