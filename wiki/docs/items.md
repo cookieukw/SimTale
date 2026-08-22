@@ -11,7 +11,7 @@ SimTale adds a set of craftable tools. They exist so the village can be understo
 
 | Item | Point at | What happens |
 |---|---|---|
-| <img src="/img/PregnancyTest.png" width="32" align="absmiddle"/> Pregnancy Test | a villager | Says whether she is expecting, and how far along |
+| <img src="/img/PregnancyTest.png" width="32" align="absmiddle"/> Pregnancy Test | a female villager or female player | Says whether she is expecting, and how far along |
 | <img src="/img/HouseBlueprint.png" width="32" align="absmiddle"/> House Blueprint | a bed | Reports whether that room counts as a house, and outlines it |
 | <img src="/img/InnkeepersLedger.png" width="32" align="absmiddle"/> Innkeeper's Ledger | anything | Lists every registered bed and who sleeps in it. (The sacred texts!) |
 | <img src="/img/QuartermastersGlass.png" width="32" align="absmiddle"/> Quartermaster's Glass | anything | Lists every village chest and what is inside. (Enhance... Enhance... Enhance) |

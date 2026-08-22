@@ -11,7 +11,7 @@ SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a
 
 | Item | Apontar para | O que acontece |
 |---|---|---|
-| <img src="/img/PregnancyTest.png" width="24" align="absmiddle"/> Teste de Gravidez (Pregnancy Test) | um morador | Diz se ela está esperando um bebê e de quanto tempo |
+| <img src="/img/PregnancyTest.png" width="24" align="absmiddle"/> Teste de Gravidez (Pregnancy Test) | uma aldeã ou jogadora | Diz se ela está esperando um bebê e de quanto tempo |
 | <img src="/img/HouseBlueprint.png" width="24" align="absmiddle"/> Projeto de Casa (House Blueprint) | uma cama | Informa se o cômodo conta como uma casa e mostra seus contornos |
 | <img src="/img/InnkeepersLedger.png" width="24" align="absmiddle"/> Livro do Estalajadeiro (Innkeeper's Ledger) | qualquer coisa | Lista todas as camas registradas e quem dorme nelas. (Os textos sagrados!) |
 | <img src="/img/QuartermastersGlass.png" width="24" align="absmiddle"/> Lupa do Intendente (Quartermaster's Glass) | qualquer coisa | Lista todos os baús da vila e o que há dentro deles. (Enhance... Enhance... Enhance) |
