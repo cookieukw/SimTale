@@ -18,8 +18,9 @@ SimTale adds a set of craftable tools. They exist so the village can be understo
 | <img src="/img/InspectorsJournal.png" width="32" align="absmiddle"/> Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
 | <img src="/img/ImmigrationContract.png" width="32" align="absmiddle"/> Immigration Contract | anything | Invites a new resident to settle in the village |
 | <img src="/img/TownBell.png" width="32" align="absmiddle"/> Town Bell | anything | Rings the town bell, alerting nearby villagers |
-
-One more item is crafted but does nothing yet: the Birthday Cake.
+| <img src="/img/WeddingRing.png" width="32" align="absmiddle"/> Wedding Ring | a villager | Proposes marriage (requires 80 Romance, 70 Friendship) |
+| <img src="/img/Baby.png" width="32" align="absmiddle"/> Baby | nothing | A carried infant that will eventually spawn as a child NPC |
+| <img src="/img/BirthdayCake.png" width="32" align="absmiddle"/> Birthday Cake | anything | Crafted but does nothing yet |
 
 ## Crafting Recipes
 

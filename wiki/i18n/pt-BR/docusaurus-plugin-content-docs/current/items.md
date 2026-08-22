@@ -16,10 +16,11 @@ SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a
 | <img src="/img/InnkeepersLedger.png" width="24" align="absmiddle"/> Livro do Estalajadeiro (Innkeeper's Ledger) | qualquer coisa | Lista todas as camas registradas e quem dorme nelas. (Os textos sagrados!) |
 | <img src="/img/QuartermastersGlass.png" width="24" align="absmiddle"/> Lupa do Intendente (Quartermaster's Glass) | qualquer coisa | Lista todos os baús da vila e o que há dentro deles. (Enhance... Enhance... Enhance) |
 | <img src="/img/InspectorsJournal.png" width="24" align="absmiddle"/> Diário do Inspetor (Inspector's Journal) | um morador | Mostra suas necessidades, humor, trabalho e o que está fazendo agora |
-| <img src="/img/ImmigrationContract.png" width="24" align="absmiddle"/> Contrato de Imigração (Immigration Contract) | qualquer coisa | Convida um novo residente para se estabelecer na vila |
-| <img src="/img/TownBell.png" width="24" align="absmiddle"/> Sino da Cidade (Town Bell) | qualquer coisa | Toca o sino da cidade, alertando os moradores próximos |
-
-Mais um item pode ser craftado, mas ainda não tem função: o Bolo de Aniversário (Birthday Cake).
+| <img src="/img/ImmigrationContract.png" width="32" align="absmiddle"/> Contrato de Imigração (Immigration Contract) | qualquer coisa | Convida um novo residente para se estabelecer na vila |
+| <img src="/img/TownBell.png" width="32" align="absmiddle"/> Sino da Cidade (Town Bell) | qualquer coisa | Toca o sino da cidade, alertando os moradores próximos |
+| <img src="/img/WeddingRing.png" width="32" align="absmiddle"/> Aliança de Casamento (Wedding Ring) | um morador | Pede em casamento (requer 80 Romance, 70 Amizade) |
+| <img src="/img/Baby.png" width="32" align="absmiddle"/> Bebê (Baby) | nada | Um bebê carregado no inventário que eventualmente nascerá como um NPC criança |
+| <img src="/img/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake) | qualquer coisa | Pode ser craftado, mas ainda não tem função |
 
 ## Receitas de Criação (Crafting)
 
