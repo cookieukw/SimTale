@@ -51,7 +51,7 @@ A tool for checking should not change what it checks. If the blueprint registere
 
 The one thing it does perfectly: it knows exactly which bed you mean. Checking proximity by yourself stops being good enough the moment two houses share a wall.
 
-## The three lenses
+## <img src="/img/InnkeepersLedger.png" width="32" align="absmiddle"/> <img src="/img/QuartermastersGlass.png" width="32" align="absmiddle"/> <img src="/img/InspectorsJournal.png" width="32" align="absmiddle"/> The three lenses
 
 The Ledger, the Glass and the Journal are read-only views over data the mod already keeps. The first two open the bed and chest overview screens.
 
