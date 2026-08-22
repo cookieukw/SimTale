@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.core;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.entity.Frozen;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 /**
@@ -14,7 +15,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
  * systems — a player dying while an NPC page is open makes the death screen replace it from
  * within {@code Store.tick}, and the dismissed page's cleanup then runs mid-tick.
  * <p>
- * {@link Store#isProcessing()} tells us which case we are in; when mid-tick the change is
+ * {@link World#isTicking()} tells us which case we are in; when mid-tick the change is
  * deferred to the world thread instead of throwing.
  */
 public final class NpcFreezeUtil {
@@ -35,7 +36,8 @@ public final class NpcFreezeUtil {
             return;
         }
 
-        if (store.isProcessing()) {
+        World world = WorldUtil.first();
+        if (world != null && world.isTicking()) {
             WorldUtil.execute(() -> {
                 if (npcRef.isValid()) {
                     write(npcRef.getStore(), npcRef, frozen);

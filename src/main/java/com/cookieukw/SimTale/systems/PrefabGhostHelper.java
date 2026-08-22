@@ -257,7 +257,7 @@ public final class PrefabGhostHelper {
      * longer hit "Store is currently processing!".
      */
     private static void runOnWorldThread(World world, Runnable task) {
-        if (world.getEntityStore().getStore().isProcessing()) {
+        if (world.isTicking()) {
             world.execute(task);
         } else {
             task.run();

@@ -194,7 +194,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     public void update(@Nonnull World world, @Nonnull Player player, @Nonnull MarkersCollector collector) {
         // getUuid() reads a field on the Player object; the previous getComponent call was an
         // ECS lookup, and the first thing to blow up on this thread.
-        UUID viewerId = player.getUuid();
+        UUID viewerId = player.getPlayerRef().getUuid();
 
         List<NpcMarker> current = snapshot;
         int emitted = 0;

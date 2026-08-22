@@ -69,7 +69,8 @@ public class GrowthManager {
      * systems tick.
      */
     private static void runOutsideTick(Store<EntityStore> store, Runnable task) {
-        if (store != null && !store.isProcessing()) {
+        World world = WorldUtil.first();
+        if (world != null && !world.isTicking()) {
             task.run();
             return;
         }
