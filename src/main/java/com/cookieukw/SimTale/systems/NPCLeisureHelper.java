@@ -89,18 +89,15 @@ public final class NPCLeisureHelper {
         ai.taskStartTime = world.getTick();
 
         Hobby hobby = hobbyOf(npc);
-        String blockKeyword = blockKeywordFor(hobby);
-
-        // READING and SLEEPING are "indoor" hobbies: no block to look for, the NPC just
-        // settles down at home (or where it stands, if homeless).
-        if (blockKeyword == null) {
+        if (!requiresLeisureBlock(hobby)) {
             ai.targetBlockPosition = homeSpot(npc, transform);
             ai.currentTask = TaskType.MOVING_TO_LEISURE;
             NPCMovementHelper.playAnim(ref, ANIM_WALK, "Walk", store);
             return;
         }
 
-        Vector3i found = scanForBlock(transform.getPosition(), world, blockKeyword);
+        Vector3d pos = transform.getPosition();
+        Vector3i found = LeisureRegistry.nearestTo(pos.x, pos.y, pos.z, hobby);
         if (found != null) {
             ai.targetBlockPosition = found;
             ai.currentTask = TaskType.MOVING_TO_LEISURE;
@@ -176,7 +173,7 @@ public final class NPCLeisureHelper {
             NPCMovementHelper.playAnim(ref, animationFor(hobby), animationNameFor(hobby), store);
         }
 
-        boolean atProperSpot = blockKeywordFor(hobby) != null;
+        boolean atProperSpot = requiresLeisureBlock(hobby);
 
 
         NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) + (atProperSpot ? FUN_PER_TICK : FUN_PER_TICK_AT_HOME));
@@ -201,15 +198,12 @@ public final class NPCLeisureHelper {
     }
 
     /**
-     * Block substring the NPC walks to for this hobby, or {@code null} for hobbies performed
-     * at home with no scenery requirement.
+     * Whether this hobby requires a specific leisure block to be performed at.
      */
-    private static String blockKeywordFor(Hobby hobby) {
+    private static boolean requiresLeisureBlock(Hobby hobby) {
         return switch (hobby) {
-            case FISHING -> "water";
-            case MINING -> "stone";
-            case GARDENING -> "crop";
-            case READING, SLEEPING -> null;
+            case FISHING, MINING, GARDENING -> true;
+            case READING, SLEEPING -> false;
         };
     }
 
@@ -277,54 +271,7 @@ public final class NPCLeisureHelper {
         return new Vector3i((int) pos.x, (int) pos.y, (int) pos.z);
     }
 
-    /**
-     * Scans loaded chunks around the NPC for a block whose id contains {@code keyword}.
-     * <p>
-     * Mirrors the bath search: a single reusable cursor and an allocation-free id comparison,
-     * and {@code getChunkComponent} so the scan never forces a chunk load from the tick loop.
-     */
-    private static Vector3i scanForBlock(Vector3d from, World world, String keyword) {
-        int sx = (int) from.x;
-        int sy = (int) from.y;
-        int sz = (int) from.z;
-        Vector3i cursor = new Vector3i();
 
-        for (int cx = (sx - SEARCH_RADIUS) >> 4; cx <= (sx + SEARCH_RADIUS) >> 4; cx++) {
-            for (int cz = (sz - SEARCH_RADIUS) >> 4; cz <= (sz + SEARCH_RADIUS) >> 4; cz++) {
-                WorldChunk chunkAt = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunk(cx, cz), WorldChunk.getComponentType());
-                if (chunkAt == null) continue;
-
-                int minX = Math.max(sx - SEARCH_RADIUS, cx << 4);
-                int maxX = Math.min(sx + SEARCH_RADIUS, (cx << 4) + 15);
-                int minZ = Math.max(sz - SEARCH_RADIUS, cz << 4);
-                int maxZ = Math.min(sz + SEARCH_RADIUS, (cz << 4) + 15);
-
-                for (int x = minX; x <= maxX; x++) {
-                    for (int z = minZ; z <= maxZ; z++) {
-                        for (int y = sy - SEARCH_HEIGHT; y <= sy + SEARCH_HEIGHT; y++) {
-                            BlockType bType = chunkAt.getBlockType(cursor.set(x, y, z));
-                            if (bType == null) continue;
-                            if (containsIgnoreCase(bType.getId(), keyword)) {
-                                return new Vector3i(x, y, z);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private static boolean containsIgnoreCase(String haystack, String needle) {
-        if (haystack == null) return false;
-        int limit = haystack.length() - needle.length();
-        for (int i = 0; i <= limit; i++) {
-            if (haystack.regionMatches(true, i, needle, 0, needle.length())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private static void stop(Ref<EntityStore> ref, RoutineAIComponent ai, Store<EntityStore> store) {
         NPCMovementHelper.clearMoveTarget(ref, ai);

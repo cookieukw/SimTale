@@ -929,40 +929,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             int sx = (int) pos.x; int sy = (int) pos.y; int sz = (int) pos.z;
             boolean found = false;
 
-            // This scan touches ~31x31x11 ≈ 10.500 blocos por NPC. It used to allocate a
-            // Vector3i *and* a lowercased String per block (≈21.000 objetos descartáveis por
-            // varredura, por NPC). The cursor below is reused and the id match is
-            // allocation-free. getChunkComponent replaces getChunk so the scan never forces
-            // a chunk load from inside the tick loop.
-            Vector3i cursor = new Vector3i();
-
-            bathSearch:
-            for (int cx = (sx - BATH_SEARCH_RADIUS) >> 4; cx <= (sx + BATH_SEARCH_RADIUS) >> 4; cx++) {
-                for (int cz = (sz - BATH_SEARCH_RADIUS) >> 4; cz <= (sz + BATH_SEARCH_RADIUS) >> 4; cz++) {
-                    WorldChunk chunkAt = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunk(cx, cz), WorldChunk.getComponentType());
-                    if (chunkAt == null) continue;
-
-                    int minX = Math.max(sx - BATH_SEARCH_RADIUS, cx << 4);
-                    int maxX = Math.min(sx + BATH_SEARCH_RADIUS, (cx << 4) + 15);
-                    int minZ = Math.max(sz - BATH_SEARCH_RADIUS, cz << 4);
-                    int maxZ = Math.min(sz + BATH_SEARCH_RADIUS, (cz << 4) + 15);
-
-                    for (int x = minX; x <= maxX; x++) {
-                        for (int z = minZ; z <= maxZ; z++) {
-                            for (int y = sy - BATH_SEARCH_HEIGHT; y <= sy + BATH_SEARCH_HEIGHT; y++) {
-                                BlockType bType = chunkAt.getBlockType(cursor.set(x, y, z));
-                                if (bType == null) continue;
-                                if (!containsIgnoreCase(bType.getId(), "water")) continue;
-
-                                ai.targetBlockPosition = new Vector3i(x, y, z);
-                                ai.currentTask = TaskType.MOVING_TO_BATH;
-                                ai.taskStartTime = world.getTick();
-                                playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
-                                found = true;
-                                break bathSearch;
-                            }
-                        }
-                    }
+            Vector3i nearestBath = BathRegistry.nearestTo(pos.x, pos.y, pos.z);
+            if (nearestBath != null) {
+                double dx = nearestBath.x - sx;
+                double dz = nearestBath.z - sz;
+                if (dx * dx + dz * dz <= BATH_SEARCH_RADIUS * BATH_SEARCH_RADIUS) {
+                    ai.targetBlockPosition = nearestBath;
+                    ai.currentTask = TaskType.MOVING_TO_BATH;
+                    ai.taskStartTime = world.getTick();
+                    playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
+                    found = true;
                 }
             }
             if (!found) {
