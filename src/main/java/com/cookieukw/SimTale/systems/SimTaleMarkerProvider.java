@@ -194,11 +194,17 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
 
     @Override
     public void update(@Nonnull World world, @Nonnull Player player, @Nonnull MarkersCollector collector) {
-        Ref<EntityStore> playerRef = player.getReference();
-        if (playerRef == null || !playerRef.isValid()) return;
-        UUIDComponent uuidComp = playerRef.getStore().getComponent(playerRef, UUIDComponent.getComponentType());
-        if (uuidComp == null) return;
-        UUID viewerId = uuidComp.getUuid();
+        Ref<EntityStore> targetRef = player.getReference();
+        UUID viewerId = null;
+        if (targetRef != null) {
+            for (PlayerRef pRef : world.getUniverse().getPlayers()) {
+                if (targetRef.equals(pRef.getReference())) {
+                    viewerId = pRef.getUuid();
+                    break;
+                }
+            }
+        }
+        if (viewerId == null) return;
 
         List<NpcMarker> current = snapshot;
         int emitted = 0;
