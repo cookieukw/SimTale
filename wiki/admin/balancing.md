@@ -27,6 +27,7 @@ Per tick, from `BabyNeeds.tickDecay` (Babies/Children):
 | Hunger | 0.0003 | — |
 | Affection | 0.0002 | — |
 | Health | 0.0001 | 0.0004 if Hunger < 20 |
+| Negative Experiences | +0.001 | if Hunger, Affection, or Health < 30 |
 
 At 20 ticks per second, adult hunger takes roughly 13.9 in-game hours to fall from 100 to 0.
 
