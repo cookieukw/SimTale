@@ -11,6 +11,8 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -97,7 +99,7 @@ public final class ChestRegistry {
                 if (data == null) continue;
 
                 if (world != null
-                        && world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(data.x, data.z)) != null
+                        && world.getChunkStore().getChunkComponent(ChunkUtil.indexChunkFromBlock(data.x, data.z), WorldChunk.getComponentType()) != null
                         && !isContainerAt(world, data.x, data.y, data.z)) {
                     removeAt(data.x, data.y, data.z);
                     dropped++;
