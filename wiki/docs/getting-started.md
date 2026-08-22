@@ -61,7 +61,9 @@ It lists every registered chest, the house it belongs to, and how much food is i
 
 Aim at the NPC and press **F**, or right-click. That opens the interaction panel, with hunger, energy, mood, traits, tastes, and the available actions.
 
-![NPC Interaction UI Placeholder](/path/to/interaction_ui.png)
+<div style={{textAlign: 'center'}}>
+  <img src="/img/interacting_panel.png" alt="NPC Interaction Panel" />
+</div>
 
 The outcomes of interactions are calculated based on relationship status, mood, and traits:
 - **Flirt:** Accepted by partners or shy NPCs; rejected by enemies and angry NPCs.

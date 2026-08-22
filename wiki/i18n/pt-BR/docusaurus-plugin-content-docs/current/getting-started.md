@@ -62,7 +62,9 @@ Ela lista cada baú registrado, a que casa ele pertence e quanta comida tem dent
 
 Aponte para o NPC e aperte **F**, ou clique com o botão direito. Isso abre o painel de interação, com fome, energia, humor, traços, gostos e as ações disponíveis.
 
-![NPC Interaction UI Placeholder](/path/to/interaction_ui.png)
+<div style={{textAlign: 'center'}}>
+  <img src="/img/interacting_panel.png" alt="Painel de Interação do NPC" />
+</div>
 
 Os resultados das interações são calculados com base no status do relacionamento, humor e traços:
 - **Flertar (Flirt):** Aceito por parceiros ou NPCs tímidos; rejeitado por inimigos e NPCs irritados.
