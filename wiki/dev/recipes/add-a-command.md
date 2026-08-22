@@ -5,7 +5,7 @@ title: Adding a command
 
 # Adding a command
 
-All commands are subcommands of `/simtale`, defined as nested classes in `SimTaleCommand.java`.
+All commands are defined as nested classes that extend `AbstractPlayerCommand`. Depending on the purpose of the command, they are placed in one of the command classes in the root package, such as `SimTaleCommand.java` (for general `/simtale` subcommands), `DebugCommands.java`, or `SimDebugCommand.java` (for `/simdebug`).
 
 ## Skeleton
 
