@@ -15,9 +15,9 @@ Along the way it classifies what it meets:
 | Kind | Effect |
 |---|---|
 | Door | Recorded (bottom block only, to avoid double counting) and treated as boundary |
-| Bed | Recorded as another bed if not the origin |
-| Chest | Recorded, and its position joins the interior |
-| Solid | Boundary |
+| Bed | Recorded as another bed if not the origin, and **traversed** (no longer blocks its own scan) |
+| Chest | Recorded and traversed (its position joins the interior) |
+| Solid | Boundary. If it matches a furniture requirement (e.g. chair, table), it is also recorded as furniture to satisfy validation. |
 | Unloaded (`null` type) | Boundary, and the scan is flagged incomplete |
 
 :::caution `null` is not air

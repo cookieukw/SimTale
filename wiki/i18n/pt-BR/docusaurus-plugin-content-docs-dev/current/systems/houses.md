@@ -15,9 +15,9 @@ Along the way it classifies what it meets:
 | Kind | Effect |
 |---|---|
 | Door | Recorded (bottom block only, to avoid double counting) and treated as boundary |
-| Bed | Recorded as another bed if not the origin |
-| Chest | Recorded, and its position joins the interior |
-| Solid | Boundary |
+| Bed | Recorded as another bed if not the origin, and **traversed** (no longer blocks its own scan) |
+| Chest | Recorded and traversed (its position joins the interior) |
+| Solid | Boundary. Se for um móvel reconhecido (ex: cadeira, mesa), ele também é registrado para satisfazer os requisitos da casa. |
 | Unloaded (`null` type) | Boundary, and the scan is flagged incomplete |
 
 :::caution `null` is not air
