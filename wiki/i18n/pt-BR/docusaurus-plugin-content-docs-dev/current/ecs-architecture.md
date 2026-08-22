@@ -90,7 +90,9 @@ were once missing, so every component replacement reset navigation and NPCs froz
 on spawn and unregister on despawn.
 
 `BedRegistry` and `ChestRegistry` are static sets holding furniture anchors. They are **global, with
-no world scope** — two worlds in the same session share them. Rebuilt by the join scan.
+no world scope** — two worlds in the same session share them. While `BedRegistry` is reconstructed
+from saved NPC bed assignments and a join scan, `ChestRegistry` is now explicitly persisted to disk
+per-world to prevent chests from being forgotten when a chunk unloads.
 
 ## Persistence
 
@@ -99,12 +101,10 @@ Two layers, and confusing them causes bugs:
 | Layer | What it stores |
 |---|---|
 | Native ECS codec on `SimNPCComponent` | Only `EntityId` and `Name` |
-| Caskara, shell `simtale` | Everything else: needs, personality, relationships, house |
+| Caskara, per-world shell `simtale` | Everything else: personality, stats, memory, profession, family, pregnancy |
 
-Anything not in the codec and not in the Caskara record is lost on reload. `Needs` goes through
-Caskara — which is why the starvation counter lives there and survives a relog.
+Anything not in the codec and not in the Caskara record is lost on reload.
 
 :::caution Use the right shell
-`Caskara.load()` resolves to the `default` shell. NPC data lives in `simtale`. A re-attach path once
-always returned null for exactly this reason and never ran.
+`Caskara.load()` resolves to the `default` shell. NPC data lives in a **per-world** shell (`Caskara.shell(world, "simtale")`) to prevent NPCs from leaking across worlds, with dead NPCs archived to `simtale_graveyard`. A re-attach path once always returned null because it read from the wrong shell.
 :::
