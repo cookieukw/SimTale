@@ -31,8 +31,15 @@ particular direction.
 |---|---|---|
 | `BedRegistry.BEDS` | `BedPos` (position + lying-axis yaw) | anchor |
 | `ChestRegistry.CHESTS` | `HouseBlockPos` | anchor |
+| `BathRegistry.BATHS` | `HouseBlockPos` | anchor |
+| `CropRegistry.CROPS` | `HouseBlockPos` | anchor |
+| `FarmlandRegistry.FARMLAND` | `HouseBlockPos` | anchor |
+| `FishingPostRegistry.POSTS` | `FishingPost` (post pos + water pos) | anchor |
+| `LumberPostRegistry.POSTS` | `HouseBlockPos` | anchor |
+| `FarmPostRegistry.POSTS` | `HouseBlockPos` | anchor |
+| `LeisureRegistry.LEISURES` | `LeisurePos` (pos + hobby type) | anchor |
 
-Both are static and global, with **no world scope** — known debt.
+Todos são estáticos e globais em memória. Enquanto a maioria é reconstruída exclusivamente pela varredura ao entrar no mundo, o `ChestRegistry` persiste explicitamente seus dados no Caskara por mundo para evitar amnésia quando as chunks descarregam.
 
 ## Who populates them
 

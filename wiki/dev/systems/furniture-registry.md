@@ -31,8 +31,15 @@ particular direction.
 |---|---|---|
 | `BedRegistry.BEDS` | `BedPos` (position + lying-axis yaw) | anchor |
 | `ChestRegistry.CHESTS` | `HouseBlockPos` | anchor |
+| `BathRegistry.BATHS` | `HouseBlockPos` | anchor |
+| `CropRegistry.CROPS` | `HouseBlockPos` | anchor |
+| `FarmlandRegistry.FARMLAND` | `HouseBlockPos` | anchor |
+| `FishingPostRegistry.POSTS` | `FishingPost` (post pos + water pos) | anchor |
+| `LumberPostRegistry.POSTS` | `HouseBlockPos` | anchor |
+| `FarmPostRegistry.POSTS` | `HouseBlockPos` | anchor |
+| `LeisureRegistry.LEISURES` | `LeisurePos` (pos + hobby type) | anchor |
 
-Both are static and global, with **no world scope** — known debt.
+All are static and global in memory. While most are rebuilt purely by the join scan, `ChestRegistry` explicitly persists its data to Caskara per-world to prevent amnesia when chunks unload.
 
 ## Who populates them
 
