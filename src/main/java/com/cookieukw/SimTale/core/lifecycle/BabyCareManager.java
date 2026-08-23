@@ -8,10 +8,11 @@ import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
+import com.hypixel.hytale.logger.HytaleLogger;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.logger.HytaleLogger;
+
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
@@ -96,8 +97,7 @@ public class BabyCareManager {
         try {
             Caskara.delete("child_" + child.childId, GrowthComponent.class);
         } catch (Exception e) {
-            LOGGER.atWarning().log("SimTale: falha ao apagar registro duplicado de crescimento: "
-                    + e.getMessage());
+            LOGGER.atWarning().log("SimTale: Failed to delete duplicate growth record: " + e.getMessage());
         }
     }
 
@@ -158,18 +158,8 @@ public class BabyCareManager {
             }
 
             LifecycleState.ACTIVE_CHILDREN.addAll(byIdentity.values());
-
-            if (orphans > 0) {
-                LOGGER.atInfo().log("SimTale: " + orphans
-                        + " registro(s) de bebe orfao ignorados (sem registro de cuidado).");
-            }
-            if (duplicates > 0) {
-                LOGGER.atInfo().log("SimTale: " + duplicates
-                        + " registro(s) duplicado(s) de crescimento descartados.");
-            }
-            LOGGER.atInfo().log("SimTale: " + restored + " filho(s) em crescimento recarregados do banco.");
         } catch (Exception e) {
-            LOGGER.atWarning().log("SimTale: erro ao recarregar os filhos em crescimento: " + e.getMessage());
+            LOGGER.atWarning().log("SimTale: Error reloading growing children: " + e.getMessage());
         }
     }
 
@@ -189,7 +179,7 @@ public class BabyCareManager {
                 }
             }
         } catch (Exception e) {
-            LOGGER.atWarning().log("SimTale: Erro ao carregar cache de bebês: " + e.getMessage());
+            LOGGER.atWarning().log("SimTale: Error loading babies cache: " + e.getMessage());
         }
     }
 
@@ -218,7 +208,6 @@ public class BabyCareManager {
     public static void initializeForChild(GrowthComponent child) {
         if (child == null || child.childId == null) return;
         if (child.motherId == null) {
-            LOGGER.atWarning().log("SimTale: bebê sem mãe registrada; co-parenting não inicializado.");
             return;
         }
 
@@ -228,8 +217,6 @@ public class BabyCareManager {
             child.fatherId != null ? child.fatherId.toString() : null
         );
         save(data);
-        LOGGER.atInfo().log("SimTale: Co-parenting inicializado para o bebê " + child.getFullName()
-                + (child.fatherId == null ? " (sem segundo responsável)" : ""));
     }
 
     public static void simulateOfflineTime(Ref<EntityStore> playerRef, SimPlayerComponent playerComp) {
@@ -243,7 +230,7 @@ public class BabyCareManager {
         try {
             allCares = Caskara.list(BabyCareData.class);
         } catch (Exception e) {
-            LOGGER.atWarning().log("SimTale: Falha ao carregar registros de cuidado offline: " + e.getMessage());
+            LOGGER.atWarning().log("SimTale: Failed to load offline care records: " + e.getMessage());
             return;
         }
         
