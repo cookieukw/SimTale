@@ -58,7 +58,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             return;
         }
         
-        World world = WorldUtil.first();
+        World world = WorldUtil.fromStore(store);
         if (world == null) return;
         long absoluteTick = world.getTick();
 
