@@ -47,8 +47,8 @@ Durante a instanciação, cada NPC recebe propriedades aleatórias de personalid
 
 Esta seção é para **jogadores**. Se você gerencia um servidor ou quer trabalhar no código:
 
-- **[Servidor](/admin/intro)** — comandos, IA gerativa, balanceamento e solução de problemas
-- **[Desenvolvedor](/dev/intro)** — arquitetura, sistemas e como expandir o mod
+- **[Servidor](https://simtale.kukkie.org/admin/intro)** — comandos, IA gerativa, balanceamento e solução de problemas
+- **[Desenvolvedor](https://simtale.kukkie.org/dev/intro)** — arquitetura, sistemas e como expandir o mod
 
 > **Nota:** Documentação em andamento
 > O mod está em fase de testes e não tem um lançamento público. O comportamento descrito aqui pode mudar entre versões, e algumas partes ainda não foram validadas no jogo — onde for o caso, a página informará.
@@ -435,7 +435,7 @@ O pedido só será aceito se o relacionamento de vocês tiver pelo menos **80 de
 ### Conversando com IA
 
 O mod pode rotear as conversas através de uma Inteligência Artificial generativa para que as respostas sejam escritas em tempo real, em vez de serem escolhidas de uma lista. Isso deve ser ativado nas configurações do servidor — veja
-[IA Gerativa](/admin/generative-ai).
+[IA Gerativa](https://simtale.kukkie.org/admin/generative-ai).
 
 > **Nota:** Apenas pelo painel
 > Atualmente, as respostas por IA funcionam apenas através do painel de interação. Digitar no chat normal do jogo sempre trará as respostas baseadas em roteiros predefinidos, mesmo com a IA ativada.
@@ -803,7 +803,7 @@ SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a
 ### Aliança de Casamento (Wedding Ring)
 
 <div align="center">
-  <img src="wiki/static/img/WeddingRing.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="wiki/static/img/WeddingRing.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
 A Aliança de Casamento é usada para pedir um morador em casamento. Para que o pedido seja aceito, você precisa ter um relacionamento muito bom com o aldeão (pelo menos 80 de Romance e 70 de Amizade). Se aceitarem, vocês se casam! Caso recusem, continue melhorando a relação de vocês antes de tentar de novo.
@@ -811,7 +811,7 @@ A Aliança de Casamento é usada para pedir um morador em casamento. Para que o 
 ### Bebê (Baby)
 
 <div align="center">
-  <img src="wiki/static/img/Baby.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="wiki/static/img/Baby.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
 O Bebê é um item único que representa um recém-nascido. Ele não pode ser craftado. Quando uma moradora dá à luz, um Bebê é gerado no inventário. Após algum tempo, o item do Bebê "cresce" naturalmente e se transforma em um novo NPC criança no mundo!
@@ -819,7 +819,7 @@ O Bebê é um item único que representa um recém-nascido. Ele não pode ser cr
 ### Bolo de Aniversário (Birthday Cake)
 
 <div align="center">
-  <img src="wiki/static/img/BirthdayCake.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="wiki/static/img/BirthdayCake.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
 Um bolo festivo que pode ser feito na Bancada de Trabalho. Atualmente, o Bolo de Aniversário é apenas um item decorativo e ainda não possui uma função especial, mas quem sabe o que o futuro reserva para as festas da vila!
@@ -846,7 +846,7 @@ Todos os itens podem ser craftados em suas respectivas bancadas:
 ### Projeto de Casa (House Blueprint)
 
 <div align="center">
-  <img src="wiki/static/img/HouseBlueprint.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="wiki/static/img/HouseBlueprint.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
 Clique com o botão direito em uma **cama registrada** — a cama é o que faz um cômodo ser uma casa, então em qualquer outro lugar a ferramenta não tem como saber de qual cômodo você está falando.
@@ -862,9 +862,9 @@ A única coisa que ele faz com perfeição: ele sabe exatamente a qual cama voc�
 ### As três lentes
 
 <div align="center">
-  <img src="wiki/static/img/InnkeepersLedger.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
-  <img src="wiki/static/img/QuartermastersGlass.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
-  <img src="wiki/static/img/InspectorsJournal.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+  <img src="wiki/static/img/InnkeepersLedger.png" width="128" style="image-rendering: pixelated; margin: 0 10px;" />
+  <img src="wiki/static/img/QuartermastersGlass.png" width="128" style="image-rendering: pixelated; margin: 0 10px;" />
+  <img src="wiki/static/img/InspectorsJournal.png" width="128" style="image-rendering: pixelated; margin: 0 10px;" />
 </div>
 
 O Livro (Ledger), a Lupa (Glass) e o Diário (Journal) são visões apenas de leitura dos dados que o mod já guarda. Os dois primeiros abrem as telas de visão geral de camas e baús.
@@ -920,7 +920,7 @@ Sim. Nomes, necessidades, relacionamentos, casas e empregos são todos mantidos 
 #### Posso mudar a rapidez com que ficam com fome?
 
 Ainda não é possível fazer isso por um arquivo de configuração (config) — os valores são constantes no código. Veja
-[Balanceamento](/admin/balancing).
+[Balanceamento](https://simtale.kukkie.org/admin/balancing).
 
 #### Como faço para os NPCs praticarem hobbies?
 

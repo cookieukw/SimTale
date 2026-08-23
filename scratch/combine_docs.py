@@ -60,6 +60,14 @@ def process_file(content, is_first, is_pt, is_curseforge=False):
     # Fix React JSX style={{verticalAlign: "middle"}} and similar
     content = re.sub(r'style=\{\{verticalAlign:\s*["\']middle["\']\}\}', 'align="absmiddle"', content)
     content = re.sub(r'style=\{\{textAlign:\s*["\']center["\']\}\}', 'style="text-align: center;"', content)
+    content = re.sub(r'style=\{\{imageRendering:\s*["\']pixelated["\']\}\}', 'style="image-rendering: pixelated;"', content)
+    
+    # Sometimes it has multiple styles like style={{imageRendering: 'pixelated', margin: '0 10px'}}
+    content = re.sub(r'style=\{\{imageRendering:\s*["\']pixelated["\'],\s*margin:\s*["\']0\s+10px["\']\}\}', 'style="image-rendering: pixelated; margin: 0 10px;"', content)
+
+    
+    # Strip explicit Docusaurus heading anchors e.g. {#breaking-a-bed}
+    content = re.sub(r'\{#[^}]+\}', '', content)
 
     # 4. Rewrite internal wiki links to hash anchors
     # e.g., [Getting started](getting-started.md) -> [Getting started](#getting-started)
@@ -67,14 +75,17 @@ def process_file(content, is_first, is_pt, is_curseforge=False):
     def rewrite_link(match):
         text = match.group(1)
         url = match.group(2)
-        if url.startswith('http') or url.startswith('wiki/'):
-            return match.group(0) # Keep external or already fixed
-        # Extract filename without extension to use as anchor
-        basename = os.path.basename(url)
-        if basename.endswith('.md'):
-            anchor = basename[:-3].lower()
+        
+        if url.startswith('http') or url.startswith('wiki/') or url.startswith('#'):
+            return match.group(0)
+            
+        if url.endswith('.md'):
+            anchor = os.path.basename(url)[:-3].lower()
             return f'[{text}](#{anchor})'
-        return match.group(0)
+            
+        # If it's not an .md file, it's a Docusaurus route like /admin/generative-ai
+        clean_url = url if url.startswith('/') else '/' + url
+        return f'[{text}](https://simtale.kukkie.org{clean_url})'
     
     content = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', rewrite_link, content)
     
@@ -91,10 +102,27 @@ def process_file(content, is_first, is_pt, is_curseforge=False):
     
     # Add a language switch at the top of intro.md
     if is_first:
-        if is_pt:
-            content = content.replace("# SimTale", "# SimTale\n\n*Leia em [Inglês](README.md)*\n\n")
+        if is_curseforge:
+            # Remove "Where to start" / "Por onde começar" completely
+            content = re.sub(r'## Where to start.*?(?=## The other tracks)', '', content, flags=re.DOTALL)
+            content = re.sub(r'## Por onde começar.*?(?=## As outras trilhas)', '', content, flags=re.DOTALL)
+            
+            # Remove "The other tracks" / "As outras trilhas" completely
+            content = re.sub(r'## The other tracks.*?(?=:::)', '', content, flags=re.DOTALL)
+            content = re.sub(r'## As outras trilhas.*?(?=:::)', '', content, flags=re.DOTALL)
+            content = re.sub(r'## The other tracks.*?(?=> \*\*Nota)', '', content, flags=re.DOTALL)
+            content = re.sub(r'## As outras trilhas.*?(?=> \*\*Nota)', '', content, flags=re.DOTALL)
+            
+            # Add a global wiki link at the top
+            wiki_link = "*Read the full documentation at [simtale.kukkie.org](https://simtale.kukkie.org/)*\n\n"
+            if is_pt:
+                wiki_link = "*Leia a documentação completa em [simtale.kukkie.org](https://simtale.kukkie.org/)*\n\n"
+            content = content.replace("# SimTale", f"# SimTale\n\n{wiki_link}")
         else:
-            content = content.replace("# SimTale", "# SimTale\n\n*Read this in [Portuguese](README-pt-BR.md)*\n\n")
+            if is_pt:
+                content = content.replace("# SimTale", "# SimTale\n\n*Leia em [Inglês](README.md)*\n\n")
+            else:
+                content = content.replace("# SimTale", "# SimTale\n\n*Read this in [Portuguese](README-pt-BR.md)*\n\n")
 
     return content.strip()
 

@@ -1,6 +1,6 @@
 # SimTale
 
-*Read this in [Portuguese](README-pt-BR.md)*
+*Read the full documentation at [simtale.kukkie.org](https://simtale.kukkie.org/)*
 
 
 
@@ -36,19 +36,6 @@ During instantiation, each NPC is assigned randomized properties for personality
 - **Dies.** When an NPC reaches the end of their life, they enter a dying state. The Grim Reaper spawns to conduct the ceremony and collect their soul.
 
 ![Grim Reaper Ceremony Placeholder](https://simtale.kukkie.org/img/reaper_ceremony.png)
-
-## Where to start
-
-1. [Installation](#installation)
-2. [Getting started](#getting-started) — spawn your first NPC and give it a home
-3. [Building a house](#building-a-house)
-
-## The other tracks
-
-This section is for **players**. If you run a server or want to work on the code:
-
-- **[Server](/admin/intro)** — commands, generative AI, balancing and troubleshooting
-- **[Developer](/dev/intro)** — architecture, systems, and how to extend the mod
 
 > **Nota:** Documentation in progress
 > The mod is in testing and has no public release. Behaviour described here may change between
@@ -241,7 +228,7 @@ It opens a screen listing every registered bed with its coordinates and its owne
 The screen also shows the total count, so "no beds registered" is distinguishable from "the list
 failed to draw".
 
-### <img src="https://simtale.kukkie.org/img/Br.svg" alt="Br" width="38" align="absmiddle" />eaking a bed {#breaking-a-bed}
+### <img src="https://simtale.kukkie.org/img/Br.svg" alt="Br" width="38" align="absmiddle" />eaking a bed 
 
 Breaking the bed of a sleeping NPC wakes her up cleanly and releases the house. She will look for
 another bed.
@@ -380,7 +367,7 @@ The proposal will only be accepted if your relationship with them is at least **
 ### Talking with AI
 
 The mod can route conversation through a generative AI so replies are written on the fly instead of picked from a list. It has to be enabled in the server config — see
-[Generative AI](/admin/generative-ai).
+[Generative AI](https://simtale.kukkie.org/admin/generative-ai).
 
 > **Nota:** Only through the panel
 > AI replies currently work through the interaction panel. Typing in the normal chat always gives the built-in scripted responses, even with AI enabled.
@@ -750,7 +737,7 @@ SimTale adds a set of craftable tools. They exist so the village can be understo
 ### Wedding Ring
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/img/WeddingRing.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="https://simtale.kukkie.org/img/WeddingRing.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
 The Wedding Ring is used to propose marriage to a villager. To successfully propose, you need to have a high relationship with the villager (at least 80 Romance and 70 Friendship). If they accept, they become your spouse! If they reject you, keep trying to improve your relationship before trying again.
@@ -758,7 +745,7 @@ The Wedding Ring is used to propose marriage to a villager. To successfully prop
 ### Baby
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/img/Baby.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="https://simtale.kukkie.org/img/Baby.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
 The Baby is a unique item that represents a newborn child. It cannot be crafted. When a villager gives birth, a Baby is generated. After a certain amount of time passes, the Baby item will naturally "grow up" and transform into a new child NPC in the world! 
@@ -766,7 +753,7 @@ The Baby is a unique item that represents a newborn child. It cannot be crafted.
 ### Birthday Cake
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
 A festive cake that can be crafted at the Workbench. Currently, the Birthday Cake is just a decorative item and doesn't have a special function yet, but who knows what the future holds for village celebrations!
@@ -793,7 +780,7 @@ All items can be crafted at their respective workstations:
 ### House Blueprint
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/img/HouseBlueprint.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="https://simtale.kukkie.org/img/HouseBlueprint.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
 Right-click a **registered bed** — the bed is what makes a room a house, so anywhere else the tool has no way to know which room you mean.
@@ -809,9 +796,9 @@ The one thing it does perfectly: it knows exactly which bed you mean. Checking p
 ### The three lenses
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/img/InnkeepersLedger.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
-  <img src="https://simtale.kukkie.org/img/QuartermastersGlass.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
-  <img src="https://simtale.kukkie.org/img/InspectorsJournal.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+  <img src="https://simtale.kukkie.org/img/InnkeepersLedger.png" width="128" style="image-rendering: pixelated; margin: 0 10px;" />
+  <img src="https://simtale.kukkie.org/img/QuartermastersGlass.png" width="128" style="image-rendering: pixelated; margin: 0 10px;" />
+  <img src="https://simtale.kukkie.org/img/InspectorsJournal.png" width="128" style="image-rendering: pixelated; margin: 0 10px;" />
 </div>
 
 The Ledger, the Glass and the Journal are read-only views over data the mod already keeps. The first two open the bed and chest overview screens.
@@ -867,7 +854,7 @@ Yes. Names, needs, relationships, houses and jobs are all persisted.
 #### Can I change how fast they get hungry?
 
 Not from a config file yet — the values are constants in the code. See
-[Balancing](/admin/balancing).
+[Balancing](https://simtale.kukkie.org/admin/balancing).
 
 #### How do I make NPCs do hobbies?
 
