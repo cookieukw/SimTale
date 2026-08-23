@@ -31,6 +31,22 @@ public final class WorldUtil {
         return null;
     }
 
+    /**
+     * @return the world that owns the given ECS store, or {@code first()} if none matches.
+     *         This fixes bugs where multi-world servers (like a lobby + adventure world)
+     *         cause AI systems to read time and ticks from the wrong world.
+     */
+    public static World fromStore(com.hypixel.hytale.component.Store<?> store) {
+        if (store == null) return first();
+        try {
+            World w = store.getExternalData().getWorld();
+            if (w != null) return w;
+        } catch (Exception e) {
+            // fallback
+        }
+        return first();
+    }
+
     /** @return the current tick of the first loaded world, or {@code 0} when there is none. */
     public static long tick() {
         World world = first();
