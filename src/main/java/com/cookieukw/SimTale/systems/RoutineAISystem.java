@@ -168,7 +168,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // Was `getWorlds().values().stream().findFirst()`, which allocated a stream per NPC
         // per tick.
-        World world = WorldUtil.first();
+        World world = WorldUtil.fromStore(store);
         if (world == null) return;
 
         // Being carried by a player suspends the routine entirely.
