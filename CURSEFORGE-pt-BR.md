@@ -14,12 +14,13 @@ O mod inclui **800 variantes visuais distintas** de NPCs:
 
 Durante a instanciação, cada NPC recebe propriedades aleatórias de personalidade, traços, hobbies e preferências de itens.
 
-<div style={{display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/variant_1.png" width="48%" alt="Variante NPC 1" />
-  <img src="https://simtale.kukkie.org/public/variant_2.png" width="48%" alt="Variante NPC 2" />
-  <img src="https://simtale.kukkie.org/public/variant_3.png" width="48%" alt="Variante NPC 3" />
-  <img src="https://simtale.kukkie.org/public/variant_4.png" width="48%" alt="Variante NPC 4" />
-</div>
+<p align="center">
+  <img src="https://simtale.kukkie.org/img/variant_1.png" width="49%" />
+  <img src="https://simtale.kukkie.org/img/variant_2.png" width="49%" />
+  <br />
+  <img src="https://simtale.kukkie.org/img/variant_3.png" width="49%" />
+  <img src="https://simtale.kukkie.org/img/variant_4.png" width="49%" />
+</p>
 
 ## O que um NPC faz sozinho
 
@@ -34,7 +35,7 @@ Durante a instanciação, cada NPC recebe propriedades aleatórias de personalid
 - **Passa fome.** Se a fome cair abaixo de 5, ele chora, para de trabalhar totalmente e abandona todas as tarefas até que alguém o alimente. Ele não morre de fome — a morte é reservada para envelhecimento e doenças.
 - **Morre.** Quando um NPC chega ao fim da vida, ele entra em estado de morte. A Ceifadora (Grim Reaper) aparece para conduzir a cerimônia e coletar sua alma.
 
-![Grim Reaper Ceremony Placeholder](https://simtale.kukkie.org/public/reaper_ceremony.png)
+![Grim Reaper Ceremony Placeholder](https://simtale.kukkie.org/img/reaper_ceremony.png)
 
 ## Por onde começar
 
@@ -52,64 +53,6 @@ Esta seção é para **jogadores**. Se você gerencia um servidor ou quer trabal
 > **Nota:** Documentação em andamento
 > O mod está em fase de testes e não tem um lançamento público. O comportamento descrito aqui pode mudar entre versões, e algumas partes ainda não foram validadas no jogo — onde for o caso, a página informará.
 >
-
----
-
-### Instalação
-
-### Requisitos
-
-| Item | Versão | Obrigatório |
-|---|---|---|
-| Servidor Hytale | `>= 0.5.7` | sim |
-| Caskara (banco de dados) | `>= 3.0.0` | sim |
-| RuneCore | 1.0.12 | sim — usado para aplicar dano e cura aos NPCs |
-| Java | 21+ | apenas para compilar (build) |
-
-:::info De onde vêm esses números
-`ServerVersion` e `Dependencies` no `manifest.json` do mod. A dependência do RuneCore não
-está declarada lá, mas o código chama `com.cookie.runecore.api.StatHelper` — sem esse jar, a fome
-não consegue tirar nem restaurar a vida.
-:::
-
-### Instalar
-
-1. Solte `SimTale-1.0.0.jar`, `Caskara.jar` e `RuneCore-1.0.12.jar` na pasta `Mods/` do servidor.
-2. Inicie o servidor.
-3. Entre em um mundo e crafte seu primeiro Contrato de Imigração.
-
-```
-[SimTale] Scan found 2 new beds and 1 new chests. Totals: 2 beds, 1 chests
-```
-
-Essa linha é o rastreio de móveis que roda quando você entra em um mundo. Ela só aparece quando encontra
-algo novo.
-
-### Compilando a partir do código (Build)
-
-```bash
-./gradlew deploy
-```
-
-A task `deploy` compila o jar e o copia para a pasta `Mods` do Hytale.
-
-:::warning Feche o jogo antes de compilar
-A cópia é atômica justamente para evitar problemas, mas compilar com o jogo fechado ainda é mais seguro.
-O Hytale monitora a pasta `Mods` e recarrega o mod sozinho quando o arquivo muda — com um
-jar de 11 MB, um recarregamento disparado no meio da gravação gerou um erro `ZipException: invalid LOC header` e nenhum NPC foi carregado.
-:::
-
-### Verificando se funciona
-
-Entre no jogo, faça (craft) um **Contrato de Imigração** (Immigration Contract), e use-o.
-
-Se um NPC aparecer com um nome próprio e um diamante flutuando sobre a cabeça (o *plumbob*,
-que mostra o humor), o mod está rodando.
-
-### Desinstalação
-
-Remova o jar da pasta `Mods`. Os dados dos NPCs continuam no banco de dados do Caskara; reinstalar o mod trará todo mundo
-de volta.
 
 ---
 
@@ -141,7 +84,7 @@ Um NPC sem casa vaga sem rumo e nunca dorme direito. O mínimo que conta como um
 
 Para verificar sua construção, aponte um **Projeto de Casa** (House Blueprint) para a cama.
 
-![Projeto de Casa](https://simtale.kukkie.org/public/HouseBlueprint.png)
+![Projeto de Casa](https://simtale.kukkie.org/img/HouseBlueprint.png)
 
 A ferramenta dirá se a estrutura é válida e o que está faltando. Detalhes em
 [Construindo uma casa](#building-a-house).
@@ -152,7 +95,7 @@ Assim que a casa estiver pronta, o NPC caminhará até a cama e registrará aque
 
 Use o **Livro do Estalajadeiro** (Innkeeper's Ledger) para verificar quem mora onde.
 
-![Livro do Estalajadeiro](https://simtale.kukkie.org/public/InnkeepersLedger.png)
+![Livro do Estalajadeiro](https://simtale.kukkie.org/img/InnkeepersLedger.png)
 
 ### 4. Coloque comida
 
@@ -164,7 +107,7 @@ Coloque um baú **dentro da casa** e deixe comida nele. NPCs vão procurar por u
 
 Veja o que eles realmente conseguem alcançar usando a **Lupa do Intendente** (Quartermaster's Glass).
 
-![Lupa do Intendente](https://simtale.kukkie.org/public/QuartermastersGlass.png)
+![Lupa do Intendente](https://simtale.kukkie.org/img/QuartermastersGlass.png)
 
 Ela lista cada baú registrado, a que casa ele pertence e quanta comida tem dentro.
 
@@ -172,8 +115,8 @@ Ela lista cada baú registrado, a que casa ele pertence e quanta comida tem dent
 
 Aponte para o NPC e aperte **F**, ou clique com o botão direito. Isso abre o painel de interação, com fome, energia, humor, traços, gostos e as ações disponíveis.
 
-<div style={{textAlign: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/interacting_panel.png" alt="Painel de Interação do NPC" />
+<div style="text-align: center;">
+  <img src="https://simtale.kukkie.org/img/interacting_panel.png" alt="Painel de Interação do NPC" />
 </div>
 
 Os resultados das interações são calculados com base no status do relacionamento, humor e traços:
@@ -234,7 +177,7 @@ limite existe para que uma caverna aberta não seja confundida com uma mansão. 
 
 Aponte um **Projeto de Casa** (House Blueprint) para uma cama registrada.
 
-![Projeto de Casa](https://simtale.kukkie.org/public/HouseBlueprint.png)
+![Projeto de Casa](https://simtale.kukkie.org/img/HouseBlueprint.png)
 
 A ferramenta dirá se a estrutura passou e, se não, **o que está faltando**. Ela também
 relata quantos blocos do interior foram visitados, e quantas portas e baús foram encontrados.
@@ -343,11 +286,11 @@ acrescida de uma pequena margem.
 Uma casa só existe por causa de sua cama. Quebre a cama e a casa deixará de existir, e a vila será recalculada
 sem ela. Quebre todas as camas e não sobrará vila alguma.
 
-:::info Diferente de outros jogos de propósito
-Em outros jogos de construção de blocos, o centro da vila costuma ser algo fixo. Você pode derrubar todas as construções e o jogo ainda
-tratará as ruínas como uma vila. Aqui, a vila é calculada a partir das casas que existem naquele exato
-momento, então não sobra nada para trás que possa estar errado.
-:::
+> **Nota:** Diferente de outros jogos de propósito
+> Em outros jogos de construção de blocos, o centro da vila costuma ser algo fixo. Você pode derrubar todas as construções e o jogo ainda
+> tratará as ruínas como uma vila. Aqui, a vila é calculada a partir das casas que existem naquele exato
+> momento, então não sobra nada para trás que possa estar errado.
+> 
 
 ### O que ela muda
 
@@ -367,8 +310,8 @@ vila, que é de onde os problemas geralmente vêm. Um guarda que não pertence a
 
 Aponte para um NPC e aperte **F**, ou clique com o botão direito. O painel de interação será aberto.
 
-<div style={{textAlign: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/interacting_panel.png" alt="Painel de Interação do NPC" />
+<div style="text-align: center;">
+  <img src="https://simtale.kukkie.org/img/interacting_panel.png" alt="Painel de Interação do NPC" />
 </div>
 
 ### O que o painel mostra
@@ -418,18 +361,18 @@ Acima de 70 de fome, a comida volta a ser tratada como um presente comum.
 
 #### O Item Bebê
 
-<div style={{textAlign: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/baby_care.png" alt="O Item Bebê" />
+<div style="text-align: center;">
+  <img src="https://simtale.kukkie.org/img/baby_care.png" alt="O Item Bebê" />
 </div>
 
-O <img src="https://simtale.kukkie.org/public/Baby.png" width="24" align="absmiddle"/> **Bebê** é inicialmente um item. Após algum tempo, ele se transformará e nascerá como um NPC criança. (Só não esqueça ele dentro de um baú, a menos que você queira uma criança muito confusa nascendo no seu estoque!)
+O <img src="https://simtale.kukkie.org/img/Baby.png" width="24" align="absmiddle"/> **Bebê** é inicialmente um item. Após algum tempo, ele se transformará e nascerá como um NPC criança. (Só não esqueça ele dentro de um baú, a menos que você queira uma criança muito confusa nascendo no seu estoque!)
 
 ### Casamento
 
 Para pedir um NPC em casamento, você deve dar de presente uma **Aliança de Casamento** (Wedding Ring). (Um Anel para a todos governar... não, espera, franquia errada).
 O pedido só será aceito se o relacionamento de vocês tiver pelo menos **80 de Romance** e **70 de Amizade**. Se aceito, o NPC se tornará seu cônjuge.
 
-![Aliança de Casamento](https://simtale.kukkie.org/public/WeddingRing.png)
+![Aliança de Casamento](https://simtale.kukkie.org/img/WeddingRing.png)
 
 ### Conversando com IA
 
@@ -651,7 +594,7 @@ A gravidez para o jogador também existe e segue um caminho próprio.
 No fim da gestação, o bebê nasce como um **item** que vai para o inventário. Você carrega o
 bebê por aí, e pode entregá-lo para o outro pai/mãe.
 
-![Item Bebê](https://simtale.kukkie.org/public/Baby.png)
+![Item Bebê](https://simtale.kukkie.org/img/Baby.png)
 
 ### Fases de crescimento
 
@@ -674,10 +617,10 @@ simulação offline para que o tempo que você passa fora do servidor ainda cont
 
 Quando um NPC morre, o fluxo de morte do SimTale assume o controle: o corpo permanece no local e começa a sangrar visualmente. A Ceifadora (Grim Reaper) aparece
 sozinha, caminha até o corpo, realiza o ritual de coleta de alma, deixa uma lápide e remove os registros
-completamente. Interagir com a Ceifadora no meio do ritual segurando um Coração do Vazio (<img src="https://simtale.kukkie.org/public/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> `Ingredient_Voidheart`) cancela a
+completamente. Interagir com a Ceifadora no meio do ritual segurando um Coração do Vazio (<img src="https://simtale.kukkie.org/img/Ingredient_Voidheart.png" width="20" align="absmiddle" /> `Ingredient_Voidheart`) cancela a
 coleta e revive o NPC.
 
-![Grim Reaper Ceremony Placeholder](https://simtale.kukkie.org/public/reaper_ceremony.png)
+![Grim Reaper Ceremony Placeholder](https://simtale.kukkie.org/img/reaper_ceremony.png)
 
 > **Nota:** Nada mata um NPC ainda
 > A fome, de propósito, não mata. NPCs famintos apenas choram e param de trabalhar. Envelhecimento e doenças ainda não foram implementados.
@@ -725,8 +668,8 @@ Um NPC pode recusar: cada um deles possui uma lista aleatória de trabalhos que 
 
 #### O Fazendeiro
 
-<div style={{textAlign: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/farmer_job.png" alt="O Fazendeiro" />
+<div style="text-align: center;">
+  <img src="https://simtale.kukkie.org/img/farmer_job.png" alt="O Fazendeiro" />
 </div>
 
 O Fazendeiro exige um **Espantalho** (Scarecrow) para atuar como sua estação de trabalho. Ele caminhará até as plantações maduras, irá colhê-las (deixando cair 1 produto e 1-2 sementes), e então levará tudo para um baú em sua própria casa. Se ele tiver sementes e houver solo arado vazio por perto, ele replantará. 
@@ -742,8 +685,8 @@ Eles caminham imediatamente até o baú de suas casas para depositar os espólio
 
 #### O Pescador
 
-<div style={{textAlign: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/fisherman_job.png" alt="O Pescador" />
+<div style="text-align: center;">
+  <img src="https://simtale.kukkie.org/img/fisherman_job.png" alt="O Pescador" />
 </div>
 
 O Pescador exige um **Posto de Pesca** (Fishing Post). Para criar um, basta colocar um bloco de **Armadilha de Pesca** (Fishing Trap) perto da água (a até 8 blocos de distância).
@@ -751,8 +694,8 @@ Ele caminhará até esse posto, fará sua animação de coleta, e então deposit
 
 #### O Lenhador
 
-<div style={{textAlign: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/lumberjack_job.png" alt="O Lenhador" />
+<div style="text-align: center;">
+  <img src="https://simtale.kukkie.org/img/lumberjack_job.png" alt="O Lenhador" />
 </div>
 
 O Lenhador exige um **Posto de Lenhador** (Lumber Post). Para criar um, basta colocar um bloco de **Bancada de Serraria** (Lumbermill Bench) perto de um tronco de árvore (a até 10 blocos de distância).
@@ -788,21 +731,21 @@ SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a
 
 | Item | Apontar para | O que acontece |
 |---|---|---|
-| <img src="https://simtale.kukkie.org/public/PregnancyTest.png" width="24" align="absmiddle"/> Teste de Gravidez (Pregnancy Test) | uma aldeã ou jogadora | Diz se ela está esperando um bebê e de quanto tempo |
-| <img src="https://simtale.kukkie.org/public/HouseBlueprint.png" width="24" align="absmiddle"/> Projeto de Casa (House Blueprint) | uma cama | Informa se o cômodo conta como uma casa e mostra seus contornos |
-| <img src="https://simtale.kukkie.org/public/InnkeepersLedger.png" width="24" align="absmiddle"/> Livro do Estalajadeiro (Innkeeper's Ledger) | qualquer coisa | Lista todas as camas registradas e quem dorme nelas. (Os textos sagrados!) |
-| <img src="https://simtale.kukkie.org/public/QuartermastersGlass.png" width="24" align="absmiddle"/> Lupa do Intendente (Quartermaster's Glass) | qualquer coisa | Lista todos os baús da vila e o que há dentro deles. (Enhance... Enhance... Enhance) |
-| <img src="https://simtale.kukkie.org/public/InspectorsJournal.png" width="24" align="absmiddle"/> Diário do Inspetor (Inspector's Journal) | um morador | Mostra suas necessidades, humor, trabalho e o que está fazendo agora |
-| <img src="https://simtale.kukkie.org/public/ImmigrationContract.png" width="32" align="absmiddle"/> Contrato de Imigração (Immigration Contract) | qualquer coisa | Convida um novo residente para se estabelecer na vila |
-| <img src="https://simtale.kukkie.org/public/TownBell.png" width="32" align="absmiddle"/> Sino da Cidade (Town Bell) | qualquer coisa | Toca o sino da cidade, alertando os moradores próximos |
-| <img src="https://simtale.kukkie.org/public/WeddingRing.png" width="32" align="absmiddle"/> Aliança de Casamento (Wedding Ring) | um morador | Pede em casamento (requer 80 Romance, 70 Amizade) |
-| <img src="https://simtale.kukkie.org/public/Baby.png" width="32" align="absmiddle"/> Bebê (Baby) | nada | Um bebê carregado no inventário que eventualmente nascerá como um NPC criança |
-| <img src="https://simtale.kukkie.org/public/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake) | qualquer coisa | Pode ser craftado, mas ainda não tem função |
+| <img src="https://simtale.kukkie.org/img/PregnancyTest.png" width="24" align="absmiddle"/> Teste de Gravidez (Pregnancy Test) | uma aldeã ou jogadora | Diz se ela está esperando um bebê e de quanto tempo |
+| <img src="https://simtale.kukkie.org/img/HouseBlueprint.png" width="24" align="absmiddle"/> Projeto de Casa (House Blueprint) | uma cama | Informa se o cômodo conta como uma casa e mostra seus contornos |
+| <img src="https://simtale.kukkie.org/img/InnkeepersLedger.png" width="24" align="absmiddle"/> Livro do Estalajadeiro (Innkeeper's Ledger) | qualquer coisa | Lista todas as camas registradas e quem dorme nelas. (Os textos sagrados!) |
+| <img src="https://simtale.kukkie.org/img/QuartermastersGlass.png" width="24" align="absmiddle"/> Lupa do Intendente (Quartermaster's Glass) | qualquer coisa | Lista todos os baús da vila e o que há dentro deles. (Enhance... Enhance... Enhance) |
+| <img src="https://simtale.kukkie.org/img/InspectorsJournal.png" width="24" align="absmiddle"/> Diário do Inspetor (Inspector's Journal) | um morador | Mostra suas necessidades, humor, trabalho e o que está fazendo agora |
+| <img src="https://simtale.kukkie.org/img/ImmigrationContract.png" width="32" align="absmiddle"/> Contrato de Imigração (Immigration Contract) | qualquer coisa | Convida um novo residente para se estabelecer na vila |
+| <img src="https://simtale.kukkie.org/img/TownBell.png" width="32" align="absmiddle"/> Sino da Cidade (Town Bell) | qualquer coisa | Toca o sino da cidade, alertando os moradores próximos |
+| <img src="https://simtale.kukkie.org/img/WeddingRing.png" width="32" align="absmiddle"/> Aliança de Casamento (Wedding Ring) | um morador | Pede em casamento (requer 80 Romance, 70 Amizade) |
+| <img src="https://simtale.kukkie.org/img/Baby.png" width="32" align="absmiddle"/> Bebê (Baby) | nada | Um bebê carregado no inventário que eventualmente nascerá como um NPC criança |
+| <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake) | qualquer coisa | Pode ser craftado, mas ainda não tem função |
 
 ### Aliança de Casamento (Wedding Ring)
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/public/WeddingRing.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="https://simtale.kukkie.org/img/WeddingRing.png" width="128" style={{imageRendering: 'pixelated'}} />
 </div>
 
 A Aliança de Casamento é usada para pedir um morador em casamento. Para que o pedido seja aceito, você precisa ter um relacionamento muito bom com o aldeão (pelo menos 80 de Romance e 70 de Amizade). Se aceitarem, vocês se casam! Caso recusem, continue melhorando a relação de vocês antes de tentar de novo.
@@ -810,7 +753,7 @@ A Aliança de Casamento é usada para pedir um morador em casamento. Para que o 
 ### Bebê (Baby)
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/public/Baby.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="https://simtale.kukkie.org/img/Baby.png" width="128" style={{imageRendering: 'pixelated'}} />
 </div>
 
 O Bebê é um item único que representa um recém-nascido. Ele não pode ser craftado. Quando uma moradora dá à luz, um Bebê é gerado no inventário. Após algum tempo, o item do Bebê "cresce" naturalmente e se transforma em um novo NPC criança no mundo!
@@ -818,7 +761,7 @@ O Bebê é um item único que representa um recém-nascido. Ele não pode ser cr
 ### Bolo de Aniversário (Birthday Cake)
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/public/BirthdayCake.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="128" style={{imageRendering: 'pixelated'}} />
 </div>
 
 Um bolo festivo que pode ser feito na Bancada de Trabalho. Atualmente, o Bolo de Aniversário é apenas um item decorativo e ainda não possui uma função especial, mas quem sabe o que o futuro reserva para as festas da vila!
@@ -829,23 +772,23 @@ Todos os itens podem ser craftados em suas respectivas bancadas:
 
 | Item | Bancada | Ingredientes |
 |---|---|---|
-| **Teste de Gravidez** | <img src="https://simtale.kukkie.org/public/Bench_Alchemy.png" width="24" align="absmiddle"/> Bancada de Alquimia (Alchemybench) | 1x <img src="https://simtale.kukkie.org/public/Plant_Flower_Common_White.png" width="24" align="absmiddle"/> Flor Branca (White Flower), 1x <img src="https://simtale.kukkie.org/public/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="https://simtale.kukkie.org/public/Ingredient_Life_Essence_Cauliflower.png" width="24" align="absmiddle"/> Couve-flor (Cauliflower) |
-| **Projeto de Casa** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/public/Deco_Map.png" width="24" align="absmiddle"/> Mapa (Map), 1x <img src="https://simtale.kukkie.org/public/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="https://simtale.kukkie.org/public/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll) |
-| **Livro do Estalajadeiro** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/public/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="https://simtale.kukkie.org/public/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="https://simtale.kukkie.org/public/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
-| **Lupa do Intendente** | <img src="https://simtale.kukkie.org/public/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 1x <img src="https://simtale.kukkie.org/public/Rock_Crystal_White.png" width="24" align="absmiddle"/> Cristal Branco (White Crystal), 1x <img src="https://simtale.kukkie.org/public/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Barra de Cobre (Copper Bar) |
-| **Diário do Inspetor** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/public/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="https://simtale.kukkie.org/public/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell) |
-| **Contrato de Imigração** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/public/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll), 1x <img src="https://simtale.kukkie.org/public/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="https://simtale.kukkie.org/public/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
-| **Sino da Cidade** | <img src="https://simtale.kukkie.org/public/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 3x Barra de Ouro (Gold Bar), 2x <img src="https://simtale.kukkie.org/public/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks) |
+| **Teste de Gravidez** | <img src="https://simtale.kukkie.org/img/Bench_Alchemy.png" width="24" align="absmiddle"/> Bancada de Alquimia (Alchemybench) | 1x <img src="https://simtale.kukkie.org/img/Plant_Flower_Common_White.png" width="24" align="absmiddle"/> Flor Branca (White Flower), 1x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="https://simtale.kukkie.org/img/Ingredient_Life_Essence_Cauliflower.png" width="24" align="absmiddle"/> Couve-flor (Cauliflower) |
+| **Projeto de Casa** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Map.png" width="24" align="absmiddle"/> Mapa (Map), 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll) |
+| **Livro do Estalajadeiro** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
+| **Lupa do Intendente** | <img src="https://simtale.kukkie.org/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 1x <img src="https://simtale.kukkie.org/img/Rock_Crystal_White.png" width="24" align="absmiddle"/> Cristal Branco (White Crystal), 1x <img src="https://simtale.kukkie.org/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Barra de Cobre (Copper Bar) |
+| **Diário do Inspetor** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell) |
+| **Contrato de Imigração** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll), 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
+| **Sino da Cidade** | <img src="https://simtale.kukkie.org/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 3x Barra de Ouro (Gold Bar), 2x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks) |
 | **Bolo de Aniversário** | Bancada de Trabalho (Workbench) | 1x Torta de Maçã (Apple Pie), 1x Fonte de Luz Laranja (Orange Light Source) |
 
 #### Ícones dos Itens
 
-![Teste de Gravidez](https://simtale.kukkie.org/public/PregnancyTest.png) ![Projeto de Casa](https://simtale.kukkie.org/public/HouseBlueprint.png) ![Livro do Estalajadeiro](https://simtale.kukkie.org/public/InnkeepersLedger.png) ![Lupa do Intendente](https://simtale.kukkie.org/public/QuartermastersGlass.png) ![Diário do Inspetor](https://simtale.kukkie.org/public/InspectorsJournal.png) ![Contrato de Imigração](https://simtale.kukkie.org/public/ImmigrationContract.png) ![Sino da Cidade](https://simtale.kukkie.org/public/TownBell.png) ![Aliança de Casamento](https://simtale.kukkie.org/public/WeddingRing.png) ![Bebê](https://simtale.kukkie.org/public/Baby.png) ![Bolo de Aniversário](https://simtale.kukkie.org/public/BirthdayCake.png)
+![Teste de Gravidez](https://simtale.kukkie.org/img/PregnancyTest.png) ![Projeto de Casa](https://simtale.kukkie.org/img/HouseBlueprint.png) ![Livro do Estalajadeiro](https://simtale.kukkie.org/img/InnkeepersLedger.png) ![Lupa do Intendente](https://simtale.kukkie.org/img/QuartermastersGlass.png) ![Diário do Inspetor](https://simtale.kukkie.org/img/InspectorsJournal.png) ![Contrato de Imigração](https://simtale.kukkie.org/img/ImmigrationContract.png) ![Sino da Cidade](https://simtale.kukkie.org/img/TownBell.png) ![Aliança de Casamento](https://simtale.kukkie.org/img/WeddingRing.png) ![Bebê](https://simtale.kukkie.org/img/Baby.png) ![Bolo de Aniversário](https://simtale.kukkie.org/img/BirthdayCake.png)
 
 ### Projeto de Casa (House Blueprint)
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/public/HouseBlueprint.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="https://simtale.kukkie.org/img/HouseBlueprint.png" width="128" style={{imageRendering: 'pixelated'}} />
 </div>
 
 Clique com o botão direito em uma **cama registrada** — a cama é o que faz um cômodo ser uma casa, então em qualquer outro lugar a ferramenta não tem como saber de qual cômodo você está falando.
@@ -861,16 +804,16 @@ A única coisa que ele faz com perfeição: ele sabe exatamente a qual cama voc�
 ### As três lentes
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/public/InnkeepersLedger.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
-  <img src="https://simtale.kukkie.org/public/QuartermastersGlass.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
-  <img src="https://simtale.kukkie.org/public/InspectorsJournal.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+  <img src="https://simtale.kukkie.org/img/InnkeepersLedger.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+  <img src="https://simtale.kukkie.org/img/QuartermastersGlass.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+  <img src="https://simtale.kukkie.org/img/InspectorsJournal.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
 </div>
 
 O Livro (Ledger), a Lupa (Glass) e o Diário (Journal) são visões apenas de leitura dos dados que o mod já guarda. Os dois primeiros abrem as telas de visão geral de camas e baús.
 
-:::warning Por que não há botão de Teleporte neles
-Os registros de camas e baús contêm cada entrada existente no mundo. Um item craftável com um botão de teleporte ao lado de cada entrada não seria uma ferramenta de vila, seria a viagem rápida mais quebrada do jogo. O mesmo raciocínio, embora menos dramático, vale para os botões de Desvincular e Remover: esses itens são lentes, nunca alavancas.
-:::
+> **Atenção:** Por que não há botão de Teleporte neles
+> Os registros de camas e baús contêm cada entrada existente no mundo. Um item craftável com um botão de teleporte ao lado de cada entrada não seria uma ferramenta de vila, seria a viagem rápida mais quebrada do jogo. O mesmo raciocínio, embora menos dramático, vale para os botões de Desvincular e Remover: esses itens são lentes, nunca alavancas.
+> 
 
 O Diário não faz simplesmente um despejo de estado interno de debug. Um dump bruto mostraria o estado do papel (role state), slots de animação, flags de movimento e tempos de recarga de busca — o que você quer ver quando a IA está com problemas, mas que é puro ruído quando você só quer saber se alguém está com fome. O Diário relata as cinco necessidades, humor, trabalho, onde ela mora e o que está fazendo em palavras claras, em vez do nome interno da tarefa.
 

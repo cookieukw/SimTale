@@ -14,12 +14,13 @@ The mod includes **800 distinct visual variants** of NPCs:
 
 During instantiation, each NPC is assigned randomized properties for personality, traits, hobbies, and item preferences.
 
-<div style={{display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/variant_1.png" width="48%" alt="NPC Variant 1" />
-  <img src="https://simtale.kukkie.org/public/variant_2.png" width="48%" alt="NPC Variant 2" />
-  <img src="https://simtale.kukkie.org/public/variant_3.png" width="48%" alt="NPC Variant 3" />
-  <img src="https://simtale.kukkie.org/public/variant_4.png" width="48%" alt="NPC Variant 4" />
-</div>
+<p align="center">
+  <img src="https://simtale.kukkie.org/img/variant_1.png" width="49%" />
+  <img src="https://simtale.kukkie.org/img/variant_2.png" width="49%" />
+  <br />
+  <img src="https://simtale.kukkie.org/img/variant_3.png" width="49%" />
+  <img src="https://simtale.kukkie.org/img/variant_4.png" width="49%" />
+</p>
 
 ## What an NPC does on its own
 
@@ -34,7 +35,7 @@ During instantiation, each NPC is assigned randomized properties for personality
 - **Starves.** If hunger drops below 5, it cries, stops working entirely, and drops all tasks until someone feeds it. It does not die of hunger — death is reserved for aging and disease.
 - **Dies.** When an NPC reaches the end of their life, they enter a dying state. The Grim Reaper spawns to conduct the ceremony and collect their soul.
 
-![Grim Reaper Ceremony Placeholder](https://simtale.kukkie.org/public/reaper_ceremony.png)
+![Grim Reaper Ceremony Placeholder](https://simtale.kukkie.org/img/reaper_ceremony.png)
 
 ## Where to start
 
@@ -49,70 +50,11 @@ This section is for **players**. If you run a server or want to work on the code
 - **[Server](/admin/intro)** — commands, generative AI, balancing and troubleshooting
 - **[Developer](/dev/intro)** — architecture, systems, and how to extend the mod
 
-> **Note:** Documentation in progress
+> **Nota:** Documentation in progress
 > The mod is in testing and has no public release. Behaviour described here may change between
 > versions, and some parts have not been validated in game yet — where that is the case, the page
 > says so.
 >
-
----
-
-### Installation
-
-### Requirements
-
-| Item | Version | Required |
-|---|---|---|
-| Hytale server | `>= 0.5.7` | yes |
-| Caskara (database) | `>= 3.0.0` | yes |
-| RuneCore | 1.0.12 | yes — used to apply damage and healing to NPCs |
-| Java | 21+ | only to build |
-
-:::info Where these numbers come from
-`ServerVersion` and `Dependencies` in the mod's `manifest.json`. The RuneCore dependency is not
-declared there, but the code calls `com.cookie.runecore.api.StatHelper` — without that jar, hunger
-cannot take or restore health.
-:::
-
-### Install
-
-1. Drop `SimTale-1.0.0.jar`, `Caskara.jar` and `RuneCore-1.0.12.jar` into the server's `Mods/` folder.
-2. Start the server.
-3. Join a world and craft your first Immigration Contract.
-
-```
-[SimTale] Scan found 2 new beds and 1 new chests. Totals: 2 beds, 1 chests
-```
-
-That line is the furniture scan that runs when you join a world. It only appears when it finds
-something new.
-
-### Building from source
-
-```bash
-./gradlew deploy
-```
-
-The `deploy` task builds the jar and copies it into Hytale's `Mods` folder.
-
-:::warning Close the game before building
-The copy is atomic precisely to avoid this, but building with the game closed is still safer.
-Hytale watches the `Mods` folder and reloads the mod by itself when the file changes — with an
-11 MB jar, a reload fired mid-write produced `ZipException: invalid LOC header` and no NPC loaded
-at all.
-:::
-
-### Verifying it works
-
-Join the game, craft an **Immigration Contract**, and use it.
-
-If an NPC shows up with a name of its own and a diamond floating above its head (the *plumbob*,
-which shows mood), the mod is live.
-
-### Uninstalling
-
-Remove the jar from `Mods`. NPC data stays in the Caskara database; reinstalling brings everyone
-back.
 
 ---
 
@@ -143,7 +85,7 @@ An NPC without a house wanders aimlessly and never sleeps properly. The minimum 
 
 To verify your build, point a **House Blueprint** at the bed.
 
-![House Blueprint](https://simtale.kukkie.org/public/HouseBlueprint.png)
+![House Blueprint](https://simtale.kukkie.org/img/HouseBlueprint.png)
 
 The tool tells you whether the structure is valid and what is missing. Details in
 [Building a house](#building-a-house).
@@ -154,7 +96,7 @@ Once the house is ready, the NPC walks to the bed and registers that place as he
 
 Use the **Innkeeper's Ledger** to check who lives where.
 
-![Innkeeper Ledger](https://simtale.kukkie.org/public/InnkeepersLedger.png)
+![Innkeeper Ledger](https://simtale.kukkie.org/img/InnkeepersLedger.png)
 
 ### 4. Put out food
 
@@ -166,7 +108,7 @@ Place a chest **inside the house** and leave food in it. NPCs will search for a 
 
 See what they can actually reach by using the **Quartermaster's Glass**.
 
-![Quartermaster Glass](https://simtale.kukkie.org/public/QuartermastersGlass.png)
+![Quartermaster Glass](https://simtale.kukkie.org/img/QuartermastersGlass.png)
 
 It lists every registered chest, the house it belongs to, and how much food is inside.
 
@@ -174,8 +116,8 @@ It lists every registered chest, the house it belongs to, and how much food is i
 
 Aim at the NPC and press **F**, or right-click. That opens the interaction panel, with hunger, energy, mood, traits, tastes, and the available actions.
 
-<div style={{textAlign: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/interacting_panel.png" alt="NPC Interaction Panel" />
+<div style="text-align: center;">
+  <img src="https://simtale.kukkie.org/img/interacting_panel.png" alt="NPC Interaction Panel" />
 </div>
 
 The outcomes of interactions are calculated based on relationship status, mood, and traits:
@@ -236,7 +178,7 @@ cap exists so an open cave is not mistaken for a mansion. (Unless you are trying
 
 Point a **House Blueprint** at a registered bed.
 
-![House Blueprint](https://simtale.kukkie.org/public/HouseBlueprint.png)
+![House Blueprint](https://simtale.kukkie.org/img/HouseBlueprint.png)
 
 The tool will tell you whether the structure passed and, when it did not, **what is missing**. It also
 reports how many interior blocks were visited, and how many doors and chests were found.
@@ -299,7 +241,7 @@ It opens a screen listing every registered bed with its coordinates and its owne
 The screen also shows the total count, so "no beds registered" is distinguishable from "the list
 failed to draw".
 
-### <img src="https://simtale.kukkie.org/public/Br.svg" alt="Br" width="38" align="absmiddle" />eaking a bed {#breaking-a-bed}
+### <img src="https://simtale.kukkie.org/img/Br.svg" alt="Br" width="38" align="absmiddle" />eaking a bed {#breaking-a-bed}
 
 Breaking the bed of a sleeping NPC wakes her up cleanly and releases the house. She will look for
 another bed.
@@ -346,11 +288,11 @@ plus a little margin.
 A house exists because of its bed. Break the bed and the house is gone, and the village recalculates
 without it. Break every bed and there is no village left.
 
-:::info Different from other games on purpose
-In other block-building games, the village centre is often a thing that stays put. Flatten every building and the game still
-treats the ruins as a village. Here the village is worked out from the houses that exist at that
-moment, so there is nothing left behind to be wrong.
-:::
+> **Nota:** Different from other games on purpose
+> In other block-building games, the village centre is often a thing that stays put. Flatten every building and the game still
+> treats the ruins as a village. Here the village is worked out from the houses that exist at that
+> moment, so there is nothing left behind to be wrong.
+> 
 
 ### What it changes
 
@@ -370,8 +312,8 @@ boundary, which is where trouble comes from. A guard with no village stays where
 
 Aim at an NPC and press **F**, or right-click. The interaction panel opens.
 
-<div style={{textAlign: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/interacting_panel.png" alt="Painel de Interação do NPC" />
+<div style="text-align: center;">
+  <img src="https://simtale.kukkie.org/img/interacting_panel.png" alt="Painel de Interação do NPC" />
 </div>
 
 ### What the panel shows
@@ -422,25 +364,25 @@ Above 70 hunger, food goes back to being just a gift.
 
 #### The Baby Item
 
-<div style={{textAlign: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/baby_care.png" alt="Baby Item" />
+<div style="text-align: center;">
+  <img src="https://simtale.kukkie.org/img/baby_care.png" alt="Baby Item" />
 </div>
 
-The <img src="https://simtale.kukkie.org/public/Baby.png" width="24" align="absmiddle"/> **Baby** is initially an item. After some time, it will transform and spawn into a child NPC. (Just make sure you don't leave it inside a chest, unless you want a very confused child spawning in your storage!)
+The <img src="https://simtale.kukkie.org/img/Baby.png" width="24" align="absmiddle"/> **Baby** is initially an item. After some time, it will transform and spawn into a child NPC. (Just make sure you don't leave it inside a chest, unless you want a very confused child spawning in your storage!)
 
 ### Marriage
 
 To propose to an NPC, you must gift them a **Wedding Ring**. (One Ring to rule them all... wait, wrong franchise).
 The proposal will only be accepted if your relationship with them is at least **80 Romance** and **70 Friendship**. If accepted, the NPC will become your spouse.
 
-![Wedding Ring](https://simtale.kukkie.org/public/WeddingRing.png)
+![Wedding Ring](https://simtale.kukkie.org/img/WeddingRing.png)
 
 ### Talking with AI
 
 The mod can route conversation through a generative AI so replies are written on the fly instead of picked from a list. It has to be enabled in the server config — see
 [Generative AI](/admin/generative-ai).
 
-> **Note:** Only through the panel
+> **Nota:** Only through the panel
 > AI replies currently work through the interaction panel. Typing in the normal chat always gives the built-in scripted responses, even with AI enabled.
 >
 
@@ -620,7 +562,7 @@ social need and builds friendship between them, and that friendship survives a s
 Mood spreads through these conversations. An `AGGRESSIVE` NPC, or two who are already enemies, turn
 the conversation into an argument instead: both walk away in a worse mood and like each other less.
 
-> **Note:** Nobody gets dragged out of bed
+> **Nota:** Nobody gets dragged out of bed
 > An NPC who is asleep or working is never picked as a conversation partner. And if energy runs out
 > mid-conversation, she abandons the chat and goes to bed — the partner left behind does not freeze.
 > 
@@ -657,7 +599,7 @@ Player pregnancy also exists and follows its own path.
 At the end of gestation the baby is born as an **item** that goes into the inventory. You carry the
 baby around, and can hand it to the other parent.
 
-![Baby Item](https://simtale.kukkie.org/public/Baby.png)
+![Baby Item](https://simtale.kukkie.org/img/Baby.png)
 
 ### Growth stages
 
@@ -680,12 +622,12 @@ offline simulation so time away from the server still counts.
 
 When an NPC dies, the SimTale death flow takes over: the body stays, and starts bleeding visually. The Grim Reaper appears on its
 own, walks to it, performs the soul-collection ritual, leaves a gravestone and removes the record
-cleanly. Interacting with the Reaper mid-ritual while holding an <img src="https://simtale.kukkie.org/public/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> `Ingredient_Voidheart` cancels the
+cleanly. Interacting with the Reaper mid-ritual while holding an <img src="https://simtale.kukkie.org/img/Ingredient_Voidheart.png" width="20" align="absmiddle" /> `Ingredient_Voidheart` cancels the
 collection and revives the NPC.
 
-![Grim Reaper Ceremony Placeholder](https://simtale.kukkie.org/public/reaper_ceremony.png)
+![Grim Reaper Ceremony Placeholder](https://simtale.kukkie.org/img/reaper_ceremony.png)
 
-> **Note:** Nothing kills an NPC yet
+> **Nota:** Nothing kills an NPC yet
 > Hunger deliberately does not kill. Starving NPCs simply cry and stop working. Aging and disease are not implemented yet.
 > The death flow is currently only reachable by administrative testing commands, which exists so the Reaper can be tested without waiting for a cause of death that does not exist.
 >
@@ -731,8 +673,8 @@ An NPC can refuse: each one rolls jobs she likes and jobs she dislikes.
 
 #### The Farmer
 
-<div style={{textAlign: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/farmer_job.png" alt="The Farmer" />
+<div style="text-align: center;">
+  <img src="https://simtale.kukkie.org/img/farmer_job.png" alt="The Farmer" />
 </div>
 
 The Farmer requires a **Scarecrow** to act as their workstation. They will walk to ripe crops, harvest them (dropping 1 produce and 1-2 seeds), and then carry everything to a chest in their own house. If they have seeds and there is empty tilled soil nearby, they will replant. 
@@ -748,8 +690,8 @@ They immediately walk to their home chest to deposit the loot.
 
 #### The Fisherman
 
-<div style={{textAlign: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/fisherman_job.png" alt="The Fisherman" />
+<div style="text-align: center;">
+  <img src="https://simtale.kukkie.org/img/fisherman_job.png" alt="The Fisherman" />
 </div>
 
 The Fisherman requires a **Fishing Post**. You create one simply by placing a **Fishing Trap** block near water (within 8 blocks).
@@ -757,8 +699,8 @@ They will walk to this post, perform their gathering animation, and then deposit
 
 #### The Lumberjack
 
-<div style={{textAlign: 'center'}}>
-  <img src="https://simtale.kukkie.org/public/lumberjack_job.png" alt="The Lumberjack" />
+<div style="text-align: center;">
+  <img src="https://simtale.kukkie.org/img/lumberjack_job.png" alt="The Lumberjack" />
 </div>
 
 The Lumberjack requires a **Lumber Post**. You create one simply by placing a **Lumbermill Bench** block near a tree trunk (within 10 blocks).
@@ -794,21 +736,21 @@ SimTale adds a set of craftable tools. They exist so the village can be understo
 
 | Item | Point at | What happens |
 |---|---|---|
-| <img src="https://simtale.kukkie.org/public/PregnancyTest.png" width="32" align="absmiddle"/> Pregnancy Test | a female villager or female player | Says whether she is expecting, and how far along |
-| <img src="https://simtale.kukkie.org/public/HouseBlueprint.png" width="32" align="absmiddle"/> House Blueprint | a bed | Reports whether that room counts as a house, and outlines it |
-| <img src="https://simtale.kukkie.org/public/InnkeepersLedger.png" width="32" align="absmiddle"/> Innkeeper's Ledger | anything | Lists every registered bed and who sleeps in it. (The sacred texts!) |
-| <img src="https://simtale.kukkie.org/public/QuartermastersGlass.png" width="32" align="absmiddle"/> Quartermaster's Glass | anything | Lists every village chest and what is inside. (Enhance... Enhance... Enhance) |
-| <img src="https://simtale.kukkie.org/public/InspectorsJournal.png" width="32" align="absmiddle"/> Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
-| <img src="https://simtale.kukkie.org/public/ImmigrationContract.png" width="32" align="absmiddle"/> Immigration Contract | anything | Invites a new resident to settle in the village |
-| <img src="https://simtale.kukkie.org/public/TownBell.png" width="32" align="absmiddle"/> Town Bell | anything | Rings the town bell, alerting nearby villagers |
-| <img src="https://simtale.kukkie.org/public/WeddingRing.png" width="32" align="absmiddle"/> Wedding Ring | a villager | Proposes marriage (requires 80 Romance, 70 Friendship) |
-| <img src="https://simtale.kukkie.org/public/Baby.png" width="32" align="absmiddle"/> Baby | nothing | A carried infant that will eventually spawn as a child NPC |
-| <img src="https://simtale.kukkie.org/public/BirthdayCake.png" width="32" align="absmiddle"/> Birthday Cake | anything | Crafted but does nothing yet |
+| <img src="https://simtale.kukkie.org/img/PregnancyTest.png" width="32" align="absmiddle"/> Pregnancy Test | a female villager or female player | Says whether she is expecting, and how far along |
+| <img src="https://simtale.kukkie.org/img/HouseBlueprint.png" width="32" align="absmiddle"/> House Blueprint | a bed | Reports whether that room counts as a house, and outlines it |
+| <img src="https://simtale.kukkie.org/img/InnkeepersLedger.png" width="32" align="absmiddle"/> Innkeeper's Ledger | anything | Lists every registered bed and who sleeps in it. (The sacred texts!) |
+| <img src="https://simtale.kukkie.org/img/QuartermastersGlass.png" width="32" align="absmiddle"/> Quartermaster's Glass | anything | Lists every village chest and what is inside. (Enhance... Enhance... Enhance) |
+| <img src="https://simtale.kukkie.org/img/InspectorsJournal.png" width="32" align="absmiddle"/> Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
+| <img src="https://simtale.kukkie.org/img/ImmigrationContract.png" width="32" align="absmiddle"/> Immigration Contract | anything | Invites a new resident to settle in the village |
+| <img src="https://simtale.kukkie.org/img/TownBell.png" width="32" align="absmiddle"/> Town Bell | anything | Rings the town bell, alerting nearby villagers |
+| <img src="https://simtale.kukkie.org/img/WeddingRing.png" width="32" align="absmiddle"/> Wedding Ring | a villager | Proposes marriage (requires 80 Romance, 70 Friendship) |
+| <img src="https://simtale.kukkie.org/img/Baby.png" width="32" align="absmiddle"/> Baby | nothing | A carried infant that will eventually spawn as a child NPC |
+| <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="32" align="absmiddle"/> Birthday Cake | anything | Crafted but does nothing yet |
 
 ### Wedding Ring
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/public/WeddingRing.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="https://simtale.kukkie.org/img/WeddingRing.png" width="128" style={{imageRendering: 'pixelated'}} />
 </div>
 
 The Wedding Ring is used to propose marriage to a villager. To successfully propose, you need to have a high relationship with the villager (at least 80 Romance and 70 Friendship). If they accept, they become your spouse! If they reject you, keep trying to improve your relationship before trying again.
@@ -816,7 +758,7 @@ The Wedding Ring is used to propose marriage to a villager. To successfully prop
 ### Baby
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/public/Baby.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="https://simtale.kukkie.org/img/Baby.png" width="128" style={{imageRendering: 'pixelated'}} />
 </div>
 
 The Baby is a unique item that represents a newborn child. It cannot be crafted. When a villager gives birth, a Baby is generated. After a certain amount of time passes, the Baby item will naturally "grow up" and transform into a new child NPC in the world! 
@@ -824,7 +766,7 @@ The Baby is a unique item that represents a newborn child. It cannot be crafted.
 ### Birthday Cake
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/public/BirthdayCake.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="128" style={{imageRendering: 'pixelated'}} />
 </div>
 
 A festive cake that can be crafted at the Workbench. Currently, the Birthday Cake is just a decorative item and doesn't have a special function yet, but who knows what the future holds for village celebrations!
@@ -835,30 +777,30 @@ All items can be crafted at their respective workstations:
 
 | Item | Bench | Ingredients |
 |---|---|---|
-| **Pregnancy Test** | <img src="https://simtale.kukkie.org/public/Bench_Alchemy.png" width="24" align="absmiddle"/> Alchemybench | 1x <img src="https://simtale.kukkie.org/public/Plant_Flower_Common_White.png" width="24" align="absmiddle"/> White Flower, 1x <img src="https://simtale.kukkie.org/public/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks, 1x <img src="https://simtale.kukkie.org/public/Ingredient_Life_Essence_Cauliflower.png" width="24" align="absmiddle"/> Cauliflower |
-| **House Blueprint** | Inventory (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/public/Deco_Map.png" width="24" align="absmiddle"/> Map, 1x <img src="https://simtale.kukkie.org/public/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="https://simtale.kukkie.org/public/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll |
-| **Innkeeper's Ledger** | Inventory (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/public/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Small Book Pile, 1x <img src="https://simtale.kukkie.org/public/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks, 1x <img src="https://simtale.kukkie.org/public/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather |
-| **Quartermaster's Glass** | <img src="https://simtale.kukkie.org/public/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 1x <img src="https://simtale.kukkie.org/public/Rock_Crystal_White.png" width="24" align="absmiddle"/> White Crystal, 1x <img src="https://simtale.kukkie.org/public/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Copper Bar |
-| **Inspector's Journal** | Inventory (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/public/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Small Book Pile, 1x <img src="https://simtale.kukkie.org/public/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell |
-| **Immigration Contract** | Inventory (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/public/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll, 1x <img src="https://simtale.kukkie.org/public/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="https://simtale.kukkie.org/public/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather |
-| **Town Bell** | <img src="https://simtale.kukkie.org/public/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 3x Gold Bar, 2x <img src="https://simtale.kukkie.org/public/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks |
+| **Pregnancy Test** | <img src="https://simtale.kukkie.org/img/Bench_Alchemy.png" width="24" align="absmiddle"/> Alchemybench | 1x <img src="https://simtale.kukkie.org/img/Plant_Flower_Common_White.png" width="24" align="absmiddle"/> White Flower, 1x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks, 1x <img src="https://simtale.kukkie.org/img/Ingredient_Life_Essence_Cauliflower.png" width="24" align="absmiddle"/> Cauliflower |
+| **House Blueprint** | Inventory (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Map.png" width="24" align="absmiddle"/> Map, 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll |
+| **Innkeeper's Ledger** | Inventory (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Small Book Pile, 1x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks, 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather |
+| **Quartermaster's Glass** | <img src="https://simtale.kukkie.org/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 1x <img src="https://simtale.kukkie.org/img/Rock_Crystal_White.png" width="24" align="absmiddle"/> White Crystal, 1x <img src="https://simtale.kukkie.org/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Copper Bar |
+| **Inspector's Journal** | Inventory (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Small Book Pile, 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell |
+| **Immigration Contract** | Inventory (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll, 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather |
+| **Town Bell** | <img src="https://simtale.kukkie.org/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 3x Gold Bar, 2x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks |
 | **Birthday Cake** | Workbench | 1x Apple Pie, 1x Orange Light Source |
 
 #### Item Icons
 
-![Pregnancy Test](https://simtale.kukkie.org/public/PregnancyTest.png) ![House Blueprint](https://simtale.kukkie.org/public/HouseBlueprint.png) ![Innkeeper Ledger](https://simtale.kukkie.org/public/InnkeepersLedger.png) ![Quartermaster Glass](https://simtale.kukkie.org/public/QuartermastersGlass.png) ![Inspector's Journal](https://simtale.kukkie.org/public/InspectorsJournal.png) ![Immigration Contract](https://simtale.kukkie.org/public/ImmigrationContract.png) ![Town Bell](https://simtale.kukkie.org/public/TownBell.png) ![Wedding Ring](https://simtale.kukkie.org/public/WeddingRing.png) ![Baby](https://simtale.kukkie.org/public/Baby.png) ![Birthday Cake](https://simtale.kukkie.org/public/BirthdayCake.png)
+![Pregnancy Test](https://simtale.kukkie.org/img/PregnancyTest.png) ![House Blueprint](https://simtale.kukkie.org/img/HouseBlueprint.png) ![Innkeeper Ledger](https://simtale.kukkie.org/img/InnkeepersLedger.png) ![Quartermaster Glass](https://simtale.kukkie.org/img/QuartermastersGlass.png) ![Inspector's Journal](https://simtale.kukkie.org/img/InspectorsJournal.png) ![Immigration Contract](https://simtale.kukkie.org/img/ImmigrationContract.png) ![Town Bell](https://simtale.kukkie.org/img/TownBell.png) ![Wedding Ring](https://simtale.kukkie.org/img/WeddingRing.png) ![Baby](https://simtale.kukkie.org/img/Baby.png) ![Birthday Cake](https://simtale.kukkie.org/img/BirthdayCake.png)
 
 ### House Blueprint
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/public/HouseBlueprint.png" width="128" style={{imageRendering: 'pixelated'}} />
+  <img src="https://simtale.kukkie.org/img/HouseBlueprint.png" width="128" style={{imageRendering: 'pixelated'}} />
 </div>
 
 Right-click a **registered bed** — the bed is what makes a room a house, so anywhere else the tool has no way to know which room you mean.
 
 You get a verdict (valid, or the list of what is missing), a summary of interior size, doors and chests, and the floor of the room lit up for about twelve seconds: green if the house is valid, red if it is not. The outline is the floor only — filling the whole interior would replace the room with a coloured brick and hide what you are looking at.
 
-> **Note:** It deliberately does not register anything
+> **Nota:** It deliberately does not register anything
 > A tool for checking should not change what it checks. If the blueprint registered the house, you would create residences by accident while inspecting them. Houses are still created by an NPC claiming the bed.
 > 
 
@@ -867,16 +809,16 @@ The one thing it does perfectly: it knows exactly which bed you mean. Checking p
 ### The three lenses
 
 <div align="center">
-  <img src="https://simtale.kukkie.org/public/InnkeepersLedger.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
-  <img src="https://simtale.kukkie.org/public/QuartermastersGlass.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
-  <img src="https://simtale.kukkie.org/public/InspectorsJournal.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+  <img src="https://simtale.kukkie.org/img/InnkeepersLedger.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+  <img src="https://simtale.kukkie.org/img/QuartermastersGlass.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
+  <img src="https://simtale.kukkie.org/img/InspectorsJournal.png" width="128" style={{imageRendering: 'pixelated', margin: '0 10px'}} />
 </div>
 
 The Ledger, the Glass and the Journal are read-only views over data the mod already keeps. The first two open the bed and chest overview screens.
 
-:::warning Why Teleport is not on them
-The bed and chest registries hold every entry in the world. A craftable item with a teleport button next to each one is not a village tool, it is the fastest travel in the game. Same reasoning, less dramatically, for Unclaim and Remove: these items are lenses, never levers.
-:::
+> **Caution:** Why Teleport is not on them
+> The bed and chest registries hold every entry in the world. A craftable item with a teleport button next to each one is not a village tool, it is the fastest travel in the game. Same reasoning, less dramatically, for Unclaim and Remove: these items are lenses, never levers.
+> 
 
 The Journal does not simply dump internal debug state. A raw dump would show role state, animation slots, movement flags and search cooldowns — what you want when the AI is misbehaving, and noise when you just want to know if someone is hungry. The Journal reports the five needs, mood, job, where she lives, and what she is doing in plain words rather than the internal task name.
 

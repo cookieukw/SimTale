@@ -14,12 +14,13 @@ O mod inclui **800 variantes visuais distintas** de NPCs:
 
 Durante a instanciação, cada NPC recebe propriedades aleatórias de personalidade, traços, hobbies e preferências de itens.
 
-<div style={{display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center'}}>
-  <img src="wiki/static/img/variant_1.png" width="48%" alt="Variante NPC 1" />
-  <img src="wiki/static/img/variant_2.png" width="48%" alt="Variante NPC 2" />
-  <img src="wiki/static/img/variant_3.png" width="48%" alt="Variante NPC 3" />
-  <img src="wiki/static/img/variant_4.png" width="48%" alt="Variante NPC 4" />
-</div>
+<p align="center">
+  <img src="wiki/static/img/variant_1.png" width="49%" />
+  <img src="wiki/static/img/variant_2.png" width="49%" />
+  <br />
+  <img src="wiki/static/img/variant_3.png" width="49%" />
+  <img src="wiki/static/img/variant_4.png" width="49%" />
+</p>
 
 ## O que um NPC faz sozinho
 
@@ -66,11 +67,11 @@ Esta seção é para **jogadores**. Se você gerencia um servidor ou quer trabal
 | RuneCore | 1.0.12 | sim — usado para aplicar dano e cura aos NPCs |
 | Java | 21+ | apenas para compilar (build) |
 
-:::info De onde vêm esses números
-`ServerVersion` e `Dependencies` no `manifest.json` do mod. A dependência do RuneCore não
-está declarada lá, mas o código chama `com.cookie.runecore.api.StatHelper` — sem esse jar, a fome
-não consegue tirar nem restaurar a vida.
-:::
+> **Nota:** De onde vêm esses números
+> `ServerVersion` e `Dependencies` no `manifest.json` do mod. A dependência do RuneCore não
+> está declarada lá, mas o código chama `com.cookie.runecore.api.StatHelper` — sem esse jar, a fome
+> não consegue tirar nem restaurar a vida.
+> 
 
 ### Instalar
 
@@ -93,11 +94,11 @@ algo novo.
 
 A task `deploy` compila o jar e o copia para a pasta `Mods` do Hytale.
 
-:::warning Feche o jogo antes de compilar
-A cópia é atômica justamente para evitar problemas, mas compilar com o jogo fechado ainda é mais seguro.
-O Hytale monitora a pasta `Mods` e recarrega o mod sozinho quando o arquivo muda — com um
-jar de 11 MB, um recarregamento disparado no meio da gravação gerou um erro `ZipException: invalid LOC header` e nenhum NPC foi carregado.
-:::
+> **Atenção:** Feche o jogo antes de compilar
+> A cópia é atômica justamente para evitar problemas, mas compilar com o jogo fechado ainda é mais seguro.
+> O Hytale monitora a pasta `Mods` e recarrega o mod sozinho quando o arquivo muda — com um
+> jar de 11 MB, um recarregamento disparado no meio da gravação gerou um erro `ZipException: invalid LOC header` e nenhum NPC foi carregado.
+> 
 
 ### Verificando se funciona
 
@@ -172,7 +173,7 @@ Ela lista cada baú registrado, a que casa ele pertence e quanta comida tem dent
 
 Aponte para o NPC e aperte **F**, ou clique com o botão direito. Isso abre o painel de interação, com fome, energia, humor, traços, gostos e as ações disponíveis.
 
-<div style={{textAlign: 'center'}}>
+<div style="text-align: center;">
   <img src="wiki/static/img/interacting_panel.png" alt="Painel de Interação do NPC" />
 </div>
 
@@ -343,11 +344,11 @@ acrescida de uma pequena margem.
 Uma casa só existe por causa de sua cama. Quebre a cama e a casa deixará de existir, e a vila será recalculada
 sem ela. Quebre todas as camas e não sobrará vila alguma.
 
-:::info Diferente de outros jogos de propósito
-Em outros jogos de construção de blocos, o centro da vila costuma ser algo fixo. Você pode derrubar todas as construções e o jogo ainda
-tratará as ruínas como uma vila. Aqui, a vila é calculada a partir das casas que existem naquele exato
-momento, então não sobra nada para trás que possa estar errado.
-:::
+> **Nota:** Diferente de outros jogos de propósito
+> Em outros jogos de construção de blocos, o centro da vila costuma ser algo fixo. Você pode derrubar todas as construções e o jogo ainda
+> tratará as ruínas como uma vila. Aqui, a vila é calculada a partir das casas que existem naquele exato
+> momento, então não sobra nada para trás que possa estar errado.
+> 
 
 ### O que ela muda
 
@@ -367,7 +368,7 @@ vila, que é de onde os problemas geralmente vêm. Um guarda que não pertence a
 
 Aponte para um NPC e aperte **F**, ou clique com o botão direito. O painel de interação será aberto.
 
-<div style={{textAlign: 'center'}}>
+<div style="text-align: center;">
   <img src="wiki/static/img/interacting_panel.png" alt="Painel de Interação do NPC" />
 </div>
 
@@ -418,7 +419,7 @@ Acima de 70 de fome, a comida volta a ser tratada como um presente comum.
 
 #### O Item Bebê
 
-<div style={{textAlign: 'center'}}>
+<div style="text-align: center;">
   <img src="wiki/static/img/baby_care.png" alt="O Item Bebê" />
 </div>
 
@@ -674,7 +675,7 @@ simulação offline para que o tempo que você passa fora do servidor ainda cont
 
 Quando um NPC morre, o fluxo de morte do SimTale assume o controle: o corpo permanece no local e começa a sangrar visualmente. A Ceifadora (Grim Reaper) aparece
 sozinha, caminha até o corpo, realiza o ritual de coleta de alma, deixa uma lápide e remove os registros
-completamente. Interagir com a Ceifadora no meio do ritual segurando um Coração do Vazio (<img src="wiki/static/img/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> `Ingredient_Voidheart`) cancela a
+completamente. Interagir com a Ceifadora no meio do ritual segurando um Coração do Vazio (<img src="wiki/static/img/Ingredient_Voidheart.png" width="20" align="absmiddle" /> `Ingredient_Voidheart`) cancela a
 coleta e revive o NPC.
 
 ![Grim Reaper Ceremony Placeholder](wiki/static/img/reaper_ceremony.png)
@@ -725,7 +726,7 @@ Um NPC pode recusar: cada um deles possui uma lista aleatória de trabalhos que 
 
 #### O Fazendeiro
 
-<div style={{textAlign: 'center'}}>
+<div style="text-align: center;">
   <img src="wiki/static/img/farmer_job.png" alt="O Fazendeiro" />
 </div>
 
@@ -742,7 +743,7 @@ Eles caminham imediatamente até o baú de suas casas para depositar os espólio
 
 #### O Pescador
 
-<div style={{textAlign: 'center'}}>
+<div style="text-align: center;">
   <img src="wiki/static/img/fisherman_job.png" alt="O Pescador" />
 </div>
 
@@ -751,7 +752,7 @@ Ele caminhará até esse posto, fará sua animação de coleta, e então deposit
 
 #### O Lenhador
 
-<div style={{textAlign: 'center'}}>
+<div style="text-align: center;">
   <img src="wiki/static/img/lumberjack_job.png" alt="O Lenhador" />
 </div>
 
@@ -868,9 +869,9 @@ A única coisa que ele faz com perfeição: ele sabe exatamente a qual cama voc�
 
 O Livro (Ledger), a Lupa (Glass) e o Diário (Journal) são visões apenas de leitura dos dados que o mod já guarda. Os dois primeiros abrem as telas de visão geral de camas e baús.
 
-:::warning Por que não há botão de Teleporte neles
-Os registros de camas e baús contêm cada entrada existente no mundo. Um item craftável com um botão de teleporte ao lado de cada entrada não seria uma ferramenta de vila, seria a viagem rápida mais quebrada do jogo. O mesmo raciocínio, embora menos dramático, vale para os botões de Desvincular e Remover: esses itens são lentes, nunca alavancas.
-:::
+> **Atenção:** Por que não há botão de Teleporte neles
+> Os registros de camas e baús contêm cada entrada existente no mundo. Um item craftável com um botão de teleporte ao lado de cada entrada não seria uma ferramenta de vila, seria a viagem rápida mais quebrada do jogo. O mesmo raciocínio, embora menos dramático, vale para os botões de Desvincular e Remover: esses itens são lentes, nunca alavancas.
+> 
 
 O Diário não faz simplesmente um despejo de estado interno de debug. Um dump bruto mostraria o estado do papel (role state), slots de animação, flags de movimento e tempos de recarga de busca — o que você quer ver quando a IA está com problemas, mas que é puro ruído quando você só quer saber se alguém está com fome. O Diário relata as cinco necessidades, humor, trabalho, onde ela mora e o que está fazendo em palavras claras, em vez do nome interno da tarefa.
 

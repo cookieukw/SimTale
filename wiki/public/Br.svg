@@ -1,7 +1,0 @@
-<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <rect x="5" y="5" width="190" height="190" rx="35" fill="#E8C654" />
-  <rect x="20" y="20" width="160" height="160" rx="25" fill="#F4E2A6" />
-  <path d="M20,60 L140,180 L45,180 A25,25 0 0 1 20,155 Z" fill="#EAD591" opacity="0.6"/>
-  <text x="100" y="68" font-family="sans-serif" font-weight="bold" font-size="45" fill="#4A525A" text-anchor="middle">35</text>
-  <text x="100" y="160" font-family="sans-serif" font-weight="900" font-size="110" fill="#4A525A" text-anchor="middle">Br</text>
-</svg>

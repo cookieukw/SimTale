@@ -14,12 +14,13 @@ The mod includes **800 distinct visual variants** of NPCs:
 
 During instantiation, each NPC is assigned randomized properties for personality, traits, hobbies, and item preferences.
 
-<div style={{display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center'}}>
-  <img src="wiki/static/img/variant_1.png" width="48%" alt="NPC Variant 1" />
-  <img src="wiki/static/img/variant_2.png" width="48%" alt="NPC Variant 2" />
-  <img src="wiki/static/img/variant_3.png" width="48%" alt="NPC Variant 3" />
-  <img src="wiki/static/img/variant_4.png" width="48%" alt="NPC Variant 4" />
-</div>
+<p align="center">
+  <img src="wiki/static/img/variant_1.png" width="49%" />
+  <img src="wiki/static/img/variant_2.png" width="49%" />
+  <br />
+  <img src="wiki/static/img/variant_3.png" width="49%" />
+  <img src="wiki/static/img/variant_4.png" width="49%" />
+</p>
 
 ## What an NPC does on its own
 
@@ -49,7 +50,7 @@ This section is for **players**. If you run a server or want to work on the code
 - **[Server](/admin/intro)** — commands, generative AI, balancing and troubleshooting
 - **[Developer](/dev/intro)** — architecture, systems, and how to extend the mod
 
-> **Note:** Documentation in progress
+> **Nota:** Documentation in progress
 > The mod is in testing and has no public release. Behaviour described here may change between
 > versions, and some parts have not been validated in game yet — where that is the case, the page
 > says so.
@@ -68,11 +69,11 @@ This section is for **players**. If you run a server or want to work on the code
 | RuneCore | 1.0.12 | yes — used to apply damage and healing to NPCs |
 | Java | 21+ | only to build |
 
-:::info Where these numbers come from
-`ServerVersion` and `Dependencies` in the mod's `manifest.json`. The RuneCore dependency is not
-declared there, but the code calls `com.cookie.runecore.api.StatHelper` — without that jar, hunger
-cannot take or restore health.
-:::
+> **Nota:** Where these numbers come from
+> `ServerVersion` and `Dependencies` in the mod's `manifest.json`. The RuneCore dependency is not
+> declared there, but the code calls `com.cookie.runecore.api.StatHelper` — without that jar, hunger
+> cannot take or restore health.
+> 
 
 ### Install
 
@@ -95,12 +96,12 @@ something new.
 
 The `deploy` task builds the jar and copies it into Hytale's `Mods` folder.
 
-:::warning Close the game before building
-The copy is atomic precisely to avoid this, but building with the game closed is still safer.
-Hytale watches the `Mods` folder and reloads the mod by itself when the file changes — with an
-11 MB jar, a reload fired mid-write produced `ZipException: invalid LOC header` and no NPC loaded
-at all.
-:::
+> **Caution:** Close the game before building
+> The copy is atomic precisely to avoid this, but building with the game closed is still safer.
+> Hytale watches the `Mods` folder and reloads the mod by itself when the file changes — with an
+> 11 MB jar, a reload fired mid-write produced `ZipException: invalid LOC header` and no NPC loaded
+> at all.
+> 
 
 ### Verifying it works
 
@@ -174,7 +175,7 @@ It lists every registered chest, the house it belongs to, and how much food is i
 
 Aim at the NPC and press **F**, or right-click. That opens the interaction panel, with hunger, energy, mood, traits, tastes, and the available actions.
 
-<div style={{textAlign: 'center'}}>
+<div style="text-align: center;">
   <img src="wiki/static/img/interacting_panel.png" alt="NPC Interaction Panel" />
 </div>
 
@@ -346,11 +347,11 @@ plus a little margin.
 A house exists because of its bed. Break the bed and the house is gone, and the village recalculates
 without it. Break every bed and there is no village left.
 
-:::info Different from other games on purpose
-In other block-building games, the village centre is often a thing that stays put. Flatten every building and the game still
-treats the ruins as a village. Here the village is worked out from the houses that exist at that
-moment, so there is nothing left behind to be wrong.
-:::
+> **Nota:** Different from other games on purpose
+> In other block-building games, the village centre is often a thing that stays put. Flatten every building and the game still
+> treats the ruins as a village. Here the village is worked out from the houses that exist at that
+> moment, so there is nothing left behind to be wrong.
+> 
 
 ### What it changes
 
@@ -370,7 +371,7 @@ boundary, which is where trouble comes from. A guard with no village stays where
 
 Aim at an NPC and press **F**, or right-click. The interaction panel opens.
 
-<div style={{textAlign: 'center'}}>
+<div style="text-align: center;">
   <img src="wiki/static/img/interacting_panel.png" alt="Painel de Interação do NPC" />
 </div>
 
@@ -422,7 +423,7 @@ Above 70 hunger, food goes back to being just a gift.
 
 #### The Baby Item
 
-<div style={{textAlign: 'center'}}>
+<div style="text-align: center;">
   <img src="wiki/static/img/baby_care.png" alt="Baby Item" />
 </div>
 
@@ -440,7 +441,7 @@ The proposal will only be accepted if your relationship with them is at least **
 The mod can route conversation through a generative AI so replies are written on the fly instead of picked from a list. It has to be enabled in the server config — see
 [Generative AI](/admin/generative-ai).
 
-> **Note:** Only through the panel
+> **Nota:** Only through the panel
 > AI replies currently work through the interaction panel. Typing in the normal chat always gives the built-in scripted responses, even with AI enabled.
 >
 
@@ -620,7 +621,7 @@ social need and builds friendship between them, and that friendship survives a s
 Mood spreads through these conversations. An `AGGRESSIVE` NPC, or two who are already enemies, turn
 the conversation into an argument instead: both walk away in a worse mood and like each other less.
 
-> **Note:** Nobody gets dragged out of bed
+> **Nota:** Nobody gets dragged out of bed
 > An NPC who is asleep or working is never picked as a conversation partner. And if energy runs out
 > mid-conversation, she abandons the chat and goes to bed — the partner left behind does not freeze.
 > 
@@ -680,12 +681,12 @@ offline simulation so time away from the server still counts.
 
 When an NPC dies, the SimTale death flow takes over: the body stays, and starts bleeding visually. The Grim Reaper appears on its
 own, walks to it, performs the soul-collection ritual, leaves a gravestone and removes the record
-cleanly. Interacting with the Reaper mid-ritual while holding an <img src="wiki/static/img/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> `Ingredient_Voidheart` cancels the
+cleanly. Interacting with the Reaper mid-ritual while holding an <img src="wiki/static/img/Ingredient_Voidheart.png" width="20" align="absmiddle" /> `Ingredient_Voidheart` cancels the
 collection and revives the NPC.
 
 ![Grim Reaper Ceremony Placeholder](wiki/static/img/reaper_ceremony.png)
 
-> **Note:** Nothing kills an NPC yet
+> **Nota:** Nothing kills an NPC yet
 > Hunger deliberately does not kill. Starving NPCs simply cry and stop working. Aging and disease are not implemented yet.
 > The death flow is currently only reachable by administrative testing commands, which exists so the Reaper can be tested without waiting for a cause of death that does not exist.
 >
@@ -731,7 +732,7 @@ An NPC can refuse: each one rolls jobs she likes and jobs she dislikes.
 
 #### The Farmer
 
-<div style={{textAlign: 'center'}}>
+<div style="text-align: center;">
   <img src="wiki/static/img/farmer_job.png" alt="The Farmer" />
 </div>
 
@@ -748,7 +749,7 @@ They immediately walk to their home chest to deposit the loot.
 
 #### The Fisherman
 
-<div style={{textAlign: 'center'}}>
+<div style="text-align: center;">
   <img src="wiki/static/img/fisherman_job.png" alt="The Fisherman" />
 </div>
 
@@ -757,7 +758,7 @@ They will walk to this post, perform their gathering animation, and then deposit
 
 #### The Lumberjack
 
-<div style={{textAlign: 'center'}}>
+<div style="text-align: center;">
   <img src="wiki/static/img/lumberjack_job.png" alt="The Lumberjack" />
 </div>
 
@@ -858,7 +859,7 @@ Right-click a **registered bed** — the bed is what makes a room a house, so an
 
 You get a verdict (valid, or the list of what is missing), a summary of interior size, doors and chests, and the floor of the room lit up for about twelve seconds: green if the house is valid, red if it is not. The outline is the floor only — filling the whole interior would replace the room with a coloured brick and hide what you are looking at.
 
-> **Note:** It deliberately does not register anything
+> **Nota:** It deliberately does not register anything
 > A tool for checking should not change what it checks. If the blueprint registered the house, you would create residences by accident while inspecting them. Houses are still created by an NPC claiming the bed.
 > 
 
@@ -874,9 +875,9 @@ The one thing it does perfectly: it knows exactly which bed you mean. Checking p
 
 The Ledger, the Glass and the Journal are read-only views over data the mod already keeps. The first two open the bed and chest overview screens.
 
-:::warning Why Teleport is not on them
-The bed and chest registries hold every entry in the world. A craftable item with a teleport button next to each one is not a village tool, it is the fastest travel in the game. Same reasoning, less dramatically, for Unclaim and Remove: these items are lenses, never levers.
-:::
+> **Caution:** Why Teleport is not on them
+> The bed and chest registries hold every entry in the world. A craftable item with a teleport button next to each one is not a village tool, it is the fastest travel in the game. Same reasoning, less dramatically, for Unclaim and Remove: these items are lenses, never levers.
+> 
 
 The Journal does not simply dump internal debug state. A raw dump would show role state, animation slots, movement flags and search cooldowns — what you want when the AI is misbehaving, and noise when you just want to know if someone is hungry. The Journal reports the five needs, mood, job, where she lives, and what she is doing in plain words rather than the internal task name.
 

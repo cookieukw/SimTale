@@ -31,10 +31,22 @@ def process_file(content, is_first, is_pt, is_curseforge=False):
         content = re.sub(r'^#', '##', content, flags=re.MULTILINE)
         content = re.sub(r'^##\s', '### ', content, flags=re.MULTILINE)
 
+    # 2.5 Replace the React div with the <p> layout
+    react_div = r"<div style=\{\{display:\s*'flex',\s*flexWrap:\s*'wrap',\s*gap:\s*'10px',\s*justifyContent:\s*'center'\}\}>\n\s*<img src=\"/img/variant_1.png\".*?\n\s*<img src=\"/img/variant_2.png\".*?\n\s*<img src=\"/img/variant_3.png\".*?\n\s*<img src=\"/img/variant_4.png\".*?\n</div>"
+    
+    html_layout = """<p align="center">
+  <img src="/img/variant_1.png" width="49%" />
+  <img src="/img/variant_2.png" width="49%" />
+  <br />
+  <img src="/img/variant_3.png" width="49%" />
+  <img src="/img/variant_4.png" width="49%" />
+</p>"""
+    content = re.sub(react_div, html_layout, content, flags=re.DOTALL)
+
     # 3. Fix image paths
     if is_curseforge:
         # CurseForge requires absolute URLs
-        base_img_url = "https://simtale.kukkie.org/public"
+        base_img_url = "https://simtale.kukkie.org/img"
         content = re.sub(r'src="(/img/[^"]+)"', lambda m: f'src="{base_img_url}{m.group(1).replace("/img", "")}"', content)
         content = re.sub(r'!\[(.*?)\]\((/path/to/[^)]+|/img/[^)]+)\)', lambda m: f'![{m.group(1)}]({base_img_url}{m.group(2).replace("/path/to", "").replace("/img", "")})', content)
         
@@ -45,6 +57,10 @@ def process_file(content, is_first, is_pt, is_curseforge=False):
         content = re.sub(r'src="(/img/[^"]+)"', lambda m: f'src="wiki/static{m.group(1)}"', content)
         content = re.sub(r'!\[(.*?)\]\((/path/to/[^)]+|/img/[^)]+)\)', lambda m: f'![{m.group(1)}](wiki/static{m.group(2).replace("/path/to", "/img")})', content)
     
+    # Fix React JSX style={{verticalAlign: "middle"}} and similar
+    content = re.sub(r'style=\{\{verticalAlign:\s*["\']middle["\']\}\}', 'align="absmiddle"', content)
+    content = re.sub(r'style=\{\{textAlign:\s*["\']center["\']\}\}', 'style="text-align: center;"', content)
+
     # 4. Rewrite internal wiki links to hash anchors
     # e.g., [Getting started](getting-started.md) -> [Getting started](#getting-started)
     # e.g., [Building a house](houses/building-a-house.md) -> [Building a house](#building-a-house)
@@ -63,26 +79,15 @@ def process_file(content, is_first, is_pt, is_curseforge=False):
     content = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', rewrite_link, content)
     
     # 5. Docusaurus tags (admonitions)
-    note_text = "**Nota:**" if is_pt else "**Note:**"
+    note_text = "**Nota:**" if is_pt else "**Nota:**"
     caution_text = "**Atenção:**" if is_pt else "**Caution:**"
     tip_text = "**Dica:**" if is_pt else "**Tip:**"
     
     content = re.sub(r':::note\s*(.*?)\n(.*?):::', lambda m: f'> {note_text} {m.group(1)}\n> {m.group(2).replace(chr(10), chr(10)+"> ")}', content, flags=re.DOTALL)
     content = re.sub(r':::caution\s*(.*?)\n(.*?):::', lambda m: f'> {caution_text} {m.group(1)}\n> {m.group(2).replace(chr(10), chr(10)+"> ")}', content, flags=re.DOTALL)
     content = re.sub(r':::tip\s*(.*?)\n(.*?):::', lambda m: f'> {tip_text} {m.group(1)}\n> {m.group(2).replace(chr(10), chr(10)+"> ")}', content, flags=re.DOTALL)
-    
-    # 6. For intro.md, apply the table layout to the variants again because intro.md still has the React div
-    # Replace the React div with the <p> layout we agreed upon
-    react_div = r"<div style={{display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center'}}>\n\s*<img src=\"/img/variant_1.png\".*?\n\s*<img src=\"/img/variant_2.png\".*?\n\s*<img src=\"/img/variant_3.png\".*?\n\s*<img src=\"/img/variant_4.png\".*?\n</div>"
-    
-    html_layout = """<p align="center">
-  <img src="wiki/static/img/variant_1.png" width="49%" />
-  <img src="wiki/static/img/variant_2.png" width="49%" />
-  <br />
-  <img src="wiki/static/img/variant_3.png" width="49%" />
-  <img src="wiki/static/img/variant_4.png" width="49%" />
-</p>"""
-    content = re.sub(react_div, html_layout, content, flags=re.DOTALL)
+    content = re.sub(r':::info\s*(.*?)\n(.*?):::', lambda m: f'> {note_text} {m.group(1)}\n> {m.group(2).replace(chr(10), chr(10)+"> ")}', content, flags=re.DOTALL)
+    content = re.sub(r':::warning\s*(.*?)\n(.*?):::', lambda m: f'> {caution_text} {m.group(1)}\n> {m.group(2).replace(chr(10), chr(10)+"> ")}', content, flags=re.DOTALL)
     
     # Add a language switch at the top of intro.md
     if is_first:
@@ -97,6 +102,10 @@ def build_readme(base_dir, out_file, is_pt, is_curseforge=False):
     combined = []
     
     for i, file in enumerate(FILES):
+        # Skip installation.md for CurseForge
+        if is_curseforge and file == "installation.md":
+            continue
+            
         path = os.path.join(base_dir, file)
         if not os.path.exists(path):
             print(f"Warning: {path} not found")
