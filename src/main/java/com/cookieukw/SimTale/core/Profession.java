@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.core;
 
+
+import java.util.Locale;
 import com.cookieukw.SimTale.logic.JobType;
 import com.hypixel.hytale.server.core.Message;
 import java.util.EnumSet;
@@ -60,7 +62,7 @@ public enum Profession {
      * in English — an English sentence with a Portuguese word dropped in the middle.
      */
     public String translationKey() {
-        return "ui.prof." + name().toLowerCase(java.util.Locale.ROOT);
+        return "ui.prof." + name().toLowerCase(Locale.ROOT);
     }
 
     /** Returns a comma-separated list of Portuguese job names this profession can perform. */

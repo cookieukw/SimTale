@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.logic;
 
+
+import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.DebugAccess;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -36,8 +38,8 @@ import javax.annotation.Nonnull;
 @SuppressWarnings("null")
 public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
 
-    private static final com.cookieukw.SimTale.core.SimLog LOGGER =
-            com.cookieukw.SimTale.core.SimLog.forClass(SimBedDebugPage.class);
+    private static final SimLog LOGGER =
+            SimLog.forClass(SimBedDebugPage.class);
 
     private final Player player;
     private final PlayerRef playerRefComp;

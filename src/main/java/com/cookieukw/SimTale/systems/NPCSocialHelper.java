@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+
+import java.util.UUID;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
@@ -286,7 +288,7 @@ public class NPCSocialHelper {
         return ai.currentTask == TaskType.IDLE || ai.currentTask == TaskType.WANDERING;
     }
 
-    private static SimNPCComponent resolveNpc(java.util.UUID id, World world, Store<EntityStore> store) {
+    private static SimNPCComponent resolveNpc(UUID id, World world, Store<EntityStore> store) {
         if (id == null) {
             return null;
         }

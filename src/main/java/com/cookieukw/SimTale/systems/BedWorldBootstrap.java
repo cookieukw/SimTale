@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+
+import java.util.UUID;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.SimLog;
 
@@ -88,7 +90,7 @@ public final class BedWorldBootstrap {
                     // the world is the source of truth, the registry is just a cache of it.
                     if (BedPlaceBlockEventSystem.isBlueprintMarker(type.getId())) {
                         Vector3i markerPos = new Vector3i(x, y, z);
-                        java.util.UUID siteId = ConstructionPreviewManager.idForBlock(markerPos);
+                        UUID siteId = ConstructionPreviewManager.idForBlock(markerPos);
                         if (ConstructionPreviewManager.get(siteId) == null) {
                             ConstructionSiteComponent site =
                                     ConstructionPreviewManager.start(siteId, "TavernHouse", markerPos);

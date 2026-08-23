@@ -1,5 +1,8 @@
 package com.cookieukw.SimTale.ai;
 
+
+import com.cookieukw.SimTale.logic.JobType;
+import java.util.regex.Pattern;
 import com.cookieukw.SimTale.core.Child;
 import com.cookieukw.SimTale.core.Memory;
 import com.cookieukw.SimTale.core.Mood;
@@ -19,8 +22,8 @@ import java.util.UUID;
 
 public class NpcContextBuilder {
 
-    private static final java.util.regex.Pattern LEADING_NAME_TAG =
-            java.util.regex.Pattern.compile("^\\s*\\[[^\\]]{0,40}\\]:?\\s*");
+    private static final Pattern LEADING_NAME_TAG =
+            Pattern.compile("^\\s*\\[[^\\]]{0,40}\\]:?\\s*");
 
     /**
      * Strips a leading "[Name]" / "[Name]:" tag the model sometimes prepends despite being told
@@ -87,7 +90,7 @@ public class NpcContextBuilder {
         if (npc.profession != null) {
             systemPrompt.append("Your profession: ").append(npc.profession.name()).append(".\n");
         }
-        if (npc.currentJob != null && npc.currentJob != com.cookieukw.SimTale.logic.JobType.NONE) {
+        if (npc.currentJob != null && npc.currentJob != JobType.NONE) {
             systemPrompt.append("Currently, you are working as: ").append(npc.currentJob.name()).append(".\n");
         }
 

@@ -1,5 +1,12 @@
 package com.cookieukw.SimTale;
 
+
+import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.logic.PlayerGenderPage;
+import com.cookieukw.SimTale.systems.FarmPostRegistry;
+import com.cookieukw.SimTale.systems.FarmlandRegistry;
+import com.cookieukw.SimTale.systems.NPCSleepHelper;
+import java.util.Set;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCFactory;
@@ -261,12 +268,12 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             // raw day progress behind that answer.
             sb.append("\n  profession=").append(best.profession)
               .append("  sleepWindow=")
-              .append(com.cookieukw.SimTale.systems.NPCSleepHelper.isSleepPeriod(best, world))
+              .append(NPCSleepHelper.isSleepPeriod(best, world))
               .append("  night=")
-              .append(com.cookieukw.SimTale.systems.NPCSleepHelper.isNight(world))
+              .append(NPCSleepHelper.isNight(world))
               // currentHour returns 0..24, not the 0..1 progress it is derived from.
               .append("  hour=")
-              .append(com.cookieukw.SimTale.systems.NPCSleepHelper.currentHour(world))
+              .append(NPCSleepHelper.currentHour(world))
               .append("\n  bed=").append(best.bedLocation);
 
             ctx.sendMessage(Message.raw(sb.toString()));
@@ -429,7 +436,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("[SimTale] No player transform."));
                 return;
             }
-            com.cookieukw.SimTale.systems.BedWorldBootstrap.bootstrapLoadedRadius(world, pt.getPosition(), 32);
+            BedWorldBootstrap.bootstrapLoadedRadius(world, pt.getPosition(), 32);
             ctx.sendMessage(Message.raw("[SimTale] Rescan done around your position. Check the server log for counts."));
         }
     }
@@ -591,10 +598,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             //
             // Archived first, one by one, so the untracked ones reach the graveyard too instead of
             // being the only NPCs the command can still destroy for good.
-            for (com.cookieukw.SimTale.db.SimNPCData data : SimNPCPersistence.listAll()) {
+            for (SimNPCData data : SimNPCPersistence.listAll()) {
                 if (data.id == null) continue;
                 try {
-                    SimNPCPersistence.archiveToGraveyard(java.util.UUID.fromString(data.id));
+                    SimNPCPersistence.archiveToGraveyard(UUID.fromString(data.id));
                 } catch (IllegalArgumentException ignored) {
                     // Malformed id: nothing to archive, deleteAll below still clears it.
                 }
@@ -1490,7 +1497,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
-            java.util.Set<String> registered = SimTale.aiManager.registeredProviderIds();
+            Set<String> registered = SimTale.aiManager.registeredProviderIds();
             String defaultProviderId = SimTale.aiManager.defaultProviderId();
             ctx.sendMessage(Message.translation("general.cmd.aistatus.registered_providers")
                 .param("providers", registered.isEmpty()
@@ -1712,11 +1719,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             // would set the debug flag on an NPC nothing ever reads it from, and silently do nothing.
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null && npc.entityRef.isValid()
-                        && (npc.profession == com.cookieukw.SimTale.core.Profession.FARMER
-                            || npc.profession == com.cookieukw.SimTale.core.Profession.HUNTER
-                            || npc.profession == com.cookieukw.SimTale.core.Profession.FISHERMAN
-                            || npc.profession == com.cookieukw.SimTale.core.Profession.LUMBERJACK
-                            || npc.profession == com.cookieukw.SimTale.core.Profession.MINER)) {
+                        && (npc.profession == Profession.FARMER
+                            || npc.profession == Profession.HUNTER
+                            || npc.profession == Profession.FISHERMAN
+                            || npc.profession == Profession.LUMBERJACK
+                            || npc.profession == Profession.MINER)) {
                     TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
@@ -1780,9 +1787,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             String profName = ctx.get(this.profArg);
-            com.cookieukw.SimTale.core.Profession profession;
+            Profession profession;
             try {
-                profession = com.cookieukw.SimTale.core.Profession.valueOf(profName.toUpperCase());
+                profession = Profession.valueOf(profName.toUpperCase());
             } catch (IllegalArgumentException e) {
                 ctx.sendMessage(Message.raw("Invalid profession. Choose from: UNEMPLOYED/MINER/FARMER/FISHERMAN/LUMBERJACK/GUARD/EXPLORER/BUILDER/HUNTER"));
                 return;
@@ -1873,7 +1880,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             double minDistance = Double.MAX_VALUE;
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef != null && npc.entityRef.isValid() && npc.profession == com.cookieukw.SimTale.core.Profession.FARMER) {
+                if (npc.entityRef != null && npc.entityRef.isValid() && npc.profession == Profession.FARMER) {
                     TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
@@ -1931,8 +1938,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 // Same registered-plot lookup handleWorkLogic uses: a Deco_Scarecrow lets her
                 // find farmland from anywhere, not just within scanning range of where she's
                 // standing right now.
-                com.cookieukw.SimTale.systems.FarmPostRegistry.FarmPost claimedPost =
-                        com.cookieukw.SimTale.systems.FarmPostRegistry.claimNearest(npcPos.x, npcPos.y, npcPos.z, nearestNPC.entityId);
+                FarmPostRegistry.FarmPost claimedPost =
+                        FarmPostRegistry.claimNearest(npcPos.x, npcPos.y, npcPos.z, nearestNPC.entityId);
                 Vector3d scanCenter = claimedPost != null
                         ? new Vector3d(claimedPost.postX() + 0.5, claimedPost.postY(), claimedPost.postZ() + 0.5)
                         : npcPos;
@@ -1940,7 +1947,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 Vector3i farmPos = NPCWorkHelper.scanForFarmland(scanCenter, world);
                 SIM_LOGGER.debug("[SimTale] forceplant scan for {}: claimedPost={}, scanCenter=({},{},{}), farmPos={}, FarmlandRegistry.size={}",
                         nearestNPC.name, claimedPost, scanCenter.x, scanCenter.y, scanCenter.z, farmPos,
-                        com.cookieukw.SimTale.systems.FarmlandRegistry.FARMLAND.size());
+                        FarmlandRegistry.FARMLAND.size());
                 if (farmPos != null) {
                     ai.targetBlockPosition = farmPos;
                     if (claimedPost != null) {
@@ -1953,7 +1960,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     ctx.sendMessage(Message.translation("general.cmd.forceplant.success").param("name", nearestNPC.name).param("pos", farmPos.toString()));
                 } else {
                     if (claimedPost != null) {
-                        com.cookieukw.SimTale.systems.FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), nearestNPC.entityId);
+                        FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), nearestNPC.entityId);
                     }
                     ctx.sendMessage(Message.translation("general.cmd.forceplant.farmland_not_found").param("name", nearestNPC.name));
                 }
@@ -1986,7 +1993,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 store.addComponent(ref, SimTale.SIM_PLAYER_COMPONENT_TYPE, simPlayer);
             }
 
-            player.getPageManager().openCustomPage(ref, store, new com.cookieukw.SimTale.logic.PlayerGenderPage(playerRef, player, simPlayer));
+            player.getPageManager().openCustomPage(ref, store, new PlayerGenderPage(playerRef, player, simPlayer));
             ctx.sendMessage(Message.raw("Opening gender selection panel..."));
         }
     }

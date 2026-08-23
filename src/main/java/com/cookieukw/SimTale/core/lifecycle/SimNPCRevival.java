@@ -1,5 +1,9 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
+
+import com.cookieukw.SimTale.core.FamilySystem;
+import com.cookieukw.SimTale.core.Gender;
+import com.cookieukw.SimTale.db.SimBedData;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Child;
 import com.cookieukw.SimTale.core.HouseData;
@@ -73,7 +77,7 @@ public final class SimNPCRevival {
 
         // Spawn by the recorded gender so the model matches who she was, rather than rolling a new
         // one and reviving someone visibly different from the person who died.
-        SimNPCFactory.NPCType type = data.gender == com.cookieukw.SimTale.core.Gender.MALE
+        SimNPCFactory.NPCType type = data.gender == Gender.MALE
                 ? SimNPCFactory.NPCType.HUMAN_MALE
                 : SimNPCFactory.NPCType.HUMAN_FEMALE;
 
@@ -94,7 +98,7 @@ public final class SimNPCRevival {
 
         // The bed is handled separately below, so the restore must not quietly re-register the old
         // one as if it were still hers. Everything else about her comes back untouched.
-        com.cookieukw.SimTale.db.SimBedData.BedPos oldBed = data.bedLocation;
+        SimBedData.BedPos oldBed = data.bedLocation;
         data.bedLocation = null;
         SimNPCPersistence.applyArchivedData(npc, data);
         data.bedLocation = oldBed;
@@ -122,7 +126,7 @@ public final class SimNPCRevival {
      * homeless NPC for another and looks like a bug from the inside of the house.
      */
     private static boolean tryReclaimBed(World world, SimNPCComponent npc,
-                                         com.cookieukw.SimTale.db.SimBedData.BedPos oldBed) {
+                                         SimBedData.BedPos oldBed) {
         if (world == null || oldBed == null) return false;
         if (!BedRegistry.exists(oldBed.x, oldBed.y, oldBed.z)) return false;
         return HouseManager.validateAndClaimBed(world, oldBed, npc);
@@ -184,7 +188,7 @@ public final class SimNPCRevival {
         return true;
     }
 
-    private static boolean remapFamily(com.cookieukw.SimTale.core.FamilySystem family,
+    private static boolean remapFamily(FamilySystem family,
                                        UUID oldId, UUID newId) {
         if (family == null) return false;
         boolean touched = false;

@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.core;
 
+
+import java.util.NoSuchElementException;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * SimTale is a single-world mod, but this lookup was duplicated in ~20 places, five of
  * which used {@code getWorlds().values().iterator().next()} and threw
- * {@link java.util.NoSuchElementException} whenever they ran before any world was loaded
+ * {@link NoSuchElementException} whenever they ran before any world was loaded
  * (server boot, world unload, shutdown).
  */
 public final class WorldUtil {

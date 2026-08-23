@@ -621,7 +621,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     LOGGER.info("[SimTale] NPC '{}' bed at ({},{},{}) was destroyed. Releasing.", npc.name, bedPos.x, bedPos.y, bedPos.z);
                     npc.bedLocation = null;
                     npc.family.hasSharedHome = false;
-                    com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
+                    SimNPCPersistence.saveNPC(npc);
                     ai.currentTask = TaskType.IDLE;
                     return;
                 } else {
@@ -818,7 +818,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     LOGGER.info("[SimTale] NPC '{}' bed at ({},{},{}) was destroyed while sleeping. Waking up.", npc.name, bedPos.x, bedPos.y, bedPos.z);
                     npc.bedLocation = null;
                     npc.family.hasSharedHome = false;
-                    com.cookieukw.SimTale.db.SimNPCPersistence.saveNPC(npc);
+                    SimNPCPersistence.saveNPC(npc);
                     
                     setSleepingState(ref, store, commandBuffer, false);
                     playAnim(ref, "Characters/Animations/Default/Idle.blockyanim", "Idle", store);

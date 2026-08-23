@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.logic;
 
+
+import java.util.Locale;
 /**
  * Represents the current job/task of an NPC.
  */
@@ -36,6 +38,6 @@ public enum JobType {
      * only as the enum's own label and leaks Portuguese into sentences in other languages.
      */
     public String translationKey() {
-        return "ui.job." + name().toLowerCase(java.util.Locale.ROOT);
+        return "ui.job." + name().toLowerCase(Locale.ROOT);
     }
 }

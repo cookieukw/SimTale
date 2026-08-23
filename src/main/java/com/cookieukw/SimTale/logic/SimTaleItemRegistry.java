@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.logic;
 
+
+import java.util.function.Consumer;
 import com.cookie.runecore.api.RuneCoreItemManager;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -251,7 +253,7 @@ public class SimTaleItemRegistry {
      * entity. Items that need to know "which bed" or "which villager" therefore have to work from
      * where the player is standing.
      */
-    private static void withPlayerPosition(PlayerRef playerRef, java.util.function.Consumer<Vector3d> action) {
+    private static void withPlayerPosition(PlayerRef playerRef, Consumer<Vector3d> action) {
         Ref<EntityStore> pRef = playerRef.getReference();
         if (pRef == null || !pRef.isValid()) return;
 

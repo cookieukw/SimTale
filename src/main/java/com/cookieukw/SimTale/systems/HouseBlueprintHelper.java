@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+
+import com.cookieukw.SimTale.db.SimBedData;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.SimLog;
 import com.hypixel.hytale.component.Ref;
@@ -106,7 +108,7 @@ public final class HouseBlueprintHelper {
         double bestDist = (double) SEARCH_RADIUS * SEARCH_RADIUS;
 
         synchronized (BedRegistry.BEDS) {
-            for (com.cookieukw.SimTale.db.SimBedData.BedPos bed : BedRegistry.BEDS) {
+            for (SimBedData.BedPos bed : BedRegistry.BEDS) {
                 double dx = from.x - (bed.x + 0.5);
                 double dy = from.y - (bed.y + 0.5);
                 double dz = from.z - (bed.z + 0.5);

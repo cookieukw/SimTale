@@ -1,5 +1,8 @@
 package com.cookieukw.SimTale.core;
 
+
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
@@ -16,7 +19,7 @@ public class NeedsHelper {
 
     private static final SimLog LOGGER = SimLog.forClass(NeedsHelper.class);
 
-    private static final java.util.Set<String> WARNED = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private static final Set<String> WARNED = ConcurrentHashMap.newKeySet();
     /**
      * Stat ids, which are the asset file names under {@code Server/Entity/Stats} — no namespace.
      *
@@ -122,7 +125,7 @@ public class NeedsHelper {
             || getNeed(store, entity, HYGIENE_ID) < 10;
     }
 
-    public static void tickDecay(Store<EntityStore> store, Ref<EntityStore> entity, java.util.Set<Trait> traits) {
+    public static void tickDecay(Store<EntityStore> store, Ref<EntityStore> entity, Set<Trait> traits) {
         boolean lazy = traits != null && traits.contains(Trait.LAZY);
         boolean funny = traits != null && traits.contains(Trait.FUNNY);
         float energyDecay = lazy ? 0.0004f : 0.0002f;

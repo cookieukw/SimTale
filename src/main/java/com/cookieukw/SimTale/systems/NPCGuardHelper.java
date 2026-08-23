@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+
+import java.util.Locale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.lifecycle.WorkEligibility;
@@ -68,7 +70,7 @@ public class NPCGuardHelper {
 
     private static boolean isHostileModelId(String modelAssetId) {
         if (modelAssetId == null) return false;
-        String lower = modelAssetId.toLowerCase(java.util.Locale.ROOT);
+        String lower = modelAssetId.toLowerCase(Locale.ROOT);
         for (String keyword : HOSTILE_MODEL_KEYWORDS) {
             if (lower.contains(keyword)) return true;
         }

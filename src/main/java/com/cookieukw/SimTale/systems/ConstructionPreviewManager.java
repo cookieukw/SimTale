@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+
+import java.util.Collection;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Rotation4;
@@ -124,7 +126,7 @@ public final class ConstructionPreviewManager {
      * another thread calls {@code start}/{@code clear}/{@code commit} is safe — no snapshot copy
      * needed) for {@link ConstructionPreviewSweepSystem}'s periodic obstruction recheck.
      */
-    public static java.util.Collection<ConstructionSiteComponent> allPending() {
+    public static Collection<ConstructionSiteComponent> allPending() {
         return SESSIONS.values();
     }
 }

@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+
+import com.cookieukw.SimTale.core.SimNPCNameGenerator;
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
@@ -189,7 +191,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                     }
                 }
                 if (name == null || name.isEmpty()) {
-                    name = com.cookieukw.SimTale.core.SimNPCNameGenerator.generate();
+                    name = SimNPCNameGenerator.generate();
                 }
 
                 LOGGER.atInfo().log("SimTale: NPC " + name + " remontado apos carregamento do mundo!");

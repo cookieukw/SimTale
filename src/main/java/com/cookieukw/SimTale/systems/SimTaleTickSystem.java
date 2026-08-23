@@ -1,5 +1,8 @@
 package com.cookieukw.SimTale.systems;
 
+
+import com.cookieukw.SimTale.core.MemoryEvent;
+import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
@@ -177,12 +180,12 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         }
 
         // Apply needs-based passive emotion triggers
-        if (npc.memory.remembers(com.cookieukw.SimTale.core.MemoryEvent.ATTACKED, null, 30000)) {
+        if (npc.memory.remembers(MemoryEvent.ATTACKED, null, 30000)) {
             npc.setEmotion(Mood.SCARED, 0.9f, "damage", absoluteTick);
-        } else if (npc.memory.remembers(com.cookieukw.SimTale.core.MemoryEvent.INSULTED, null, 30000)) {
+        } else if (npc.memory.remembers(MemoryEvent.INSULTED, null, 30000)) {
             npc.setEmotion(Mood.ANGRY, 0.8f, "insult", absoluteTick);
         } else {
-            if (npc.personality.traits.contains(com.cookieukw.SimTale.core.Trait.AGGRESSIVE) && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < 50 || NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < 50)) {
+            if (npc.personality.traits.contains(Trait.AGGRESSIVE) && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < 50 || NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < 50)) {
                 npc.setEmotion(Mood.ANGRY, 0.7f, "needs", absoluteTick);
             } else if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < 20) {
                 npc.setEmotion(Mood.SLEEPY, 0.8f, "tiredness", absoluteTick);

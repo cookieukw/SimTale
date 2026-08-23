@@ -1,4 +1,7 @@
 package com.cookieukw.SimTale.logic;
+
+import com.hypixel.hytale.math.vector.Rotation3f;
+import java.util.Locale;
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
@@ -76,7 +79,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     private final SimNPCComponent npc;
     private final Player player;
     private final PlayerRef playerRefComp;
-    private com.hypixel.hytale.math.vector.Rotation3f originalRotation;
+    private Rotation3f originalRotation;
 
     public NPCInteractionPage(@Nonnull PlayerRef playerRefComp, Player player, SimNPCComponent npc) {
         BuilderCodec<String> codec = BuilderCodec.builder(String.class, String::new).build();
@@ -100,7 +103,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     }
 
     private static String fmt(double v) {
-        return String.format(java.util.Locale.ROOT, "%.2f", v);
+        return String.format(Locale.ROOT, "%.2f", v);
     }
 
     private void applyNpcCloseUpCamera(Ref<EntityStore> playerRef, Store<EntityStore> store) {
@@ -118,7 +121,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         }
 
         // Save original player rotation to restore it later
-        this.originalRotation = new com.hypixel.hytale.math.vector.Rotation3f(pTrans.getRotation());
+        this.originalRotation = new Rotation3f(pTrans.getRotation());
 
         Vector3d pPos = pTrans.getPosition();
         Vector3d nPos = nTrans.getPosition();
@@ -330,11 +333,11 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                     double yaw = Math.atan2(-dx, -dz);
                     // In-place mutation, no store.putComponent(): build() also runs inside a
                     // system tick when a page is opened from one (see unfreezeNpc).
-                    nTrans.teleportRotation(new com.hypixel.hytale.math.vector.Rotation3f(0f, (float) yaw, 0f));
+                    nTrans.teleportRotation(new Rotation3f(0f, (float) yaw, 0f));
                 }
                 
                 // 2. Reset NPC movement animation to Idle
-                AnimationUtils.playAnimation(npc.entityRef, com.hypixel.hytale.protocol.AnimationSlot.Movement, "Idle", store);
+                AnimationUtils.playAnimation(npc.entityRef, AnimationSlot.Movement, "Idle", store);
 
                 // 3. Cancel any pending movement BEFORE freezing.
                 // The NPC keeps its leash point (its walk destination) while frozen. On

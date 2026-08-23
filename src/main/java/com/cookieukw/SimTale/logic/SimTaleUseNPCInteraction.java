@@ -1,5 +1,8 @@
 package com.cookieukw.SimTale.logic;
 
+
+import com.cookieukw.SimTale.core.SimNPCNameGenerator;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -93,13 +96,13 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
                 if (uuidComp != null && data != null) {
                     String name = data.name;
                     if (name == null || name.isEmpty()) {
-                        com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName displayName = targetRef.getStore().getComponent(targetRef, com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName.getComponentType());
+                        PersistentDisplayName displayName = targetRef.getStore().getComponent(targetRef, PersistentDisplayName.getComponentType());
                         if (displayName != null && displayName.getDisplayName() != null) {
                             name = displayName.getDisplayName().toString();
                         }
                     }
                     if (name == null || name.isEmpty()) {
-                        name = com.cookieukw.SimTale.core.SimNPCNameGenerator.generate();
+                        name = SimNPCNameGenerator.generate();
                     }
 
                     npc = new SimNPCComponent(uuidComp.getUuid(), name);

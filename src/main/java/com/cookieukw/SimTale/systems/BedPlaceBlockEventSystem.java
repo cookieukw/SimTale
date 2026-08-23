@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+
+import com.hypixel.hytale.component.system.WorldEventSystem;
 import com.cookieukw.SimTale.core.AssetIds;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Rotation4;
@@ -29,7 +31,7 @@ import javax.annotation.Nonnull;
 /**
  * Registers furniture the moment it is placed.
  *
- * <p>This was a {@link com.hypixel.hytale.component.system.WorldEventSystem} and therefore never
+ * <p>This was a {@link WorldEventSystem} and therefore never
  * ran. {@code PlaceBlockEvent} is fired *at* the entity that placed the block — it carries no
  * entity reference of its own, only the item, position and rotation — so it is delivered through
  * the entity dispatch path, to systems with a query. Across the 37k classes of the server jar,

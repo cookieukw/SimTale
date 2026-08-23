@@ -1,5 +1,9 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -41,7 +45,7 @@ public class BabyCareManager {
 
     public static void addCarriedBaby(UUID npcId, UUID childId) {
         if (npcId == null || childId == null) return;
-        NPC_CARRIED_BABIES.computeIfAbsent(npcId, _ -> new java.util.concurrent.CopyOnWriteArrayList<>()).add(childId);
+        NPC_CARRIED_BABIES.computeIfAbsent(npcId, _ -> new CopyOnWriteArrayList<>()).add(childId);
     }
 
     public static void removeCarriedBaby(UUID npcId, UUID childId) {
@@ -56,8 +60,8 @@ public class BabyCareManager {
     }
 
     public static List<UUID> getCarriedBabies(UUID npcId) {
-        if (npcId == null) return java.util.Collections.emptyList();
-        return NPC_CARRIED_BABIES.getOrDefault(npcId, java.util.Collections.emptyList());
+        if (npcId == null) return Collections.emptyList();
+        return NPC_CARRIED_BABIES.getOrDefault(npcId, Collections.emptyList());
     }
 
     /**
@@ -107,7 +111,7 @@ public class BabyCareManager {
             int restored = 0;
             int orphans = 0;
             int duplicates = 0;
-            java.util.Map<String, GrowthComponent> byIdentity = new java.util.LinkedHashMap<>();
+            Map<String, GrowthComponent> byIdentity = new LinkedHashMap<>();
 
             for (GrowthComponent child : all) {
                 if (child == null || child.childId == null) continue;
@@ -205,7 +209,7 @@ public class BabyCareManager {
      * <p>A child can legitimately have no father. {@code /simtale forcepreg --target=me} starts a
      * solo pregnancy and deliberately stores a null father rather than inventing a UUID that would
      * match nobody — so this blew up with
-     * {@code Cannot invoke "java.util.UUID.toString()" because "child.fatherId" is null} and the
+     * {@code Cannot invoke "UUID.toString()" because "child.fatherId" is null} and the
      * birth failed outright, which is a far worse outcome than a baby with one parent.
      *
      * <p>With no second parent there is no custody to share: the mother simply keeps the child, and

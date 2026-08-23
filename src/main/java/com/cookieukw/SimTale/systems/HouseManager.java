@@ -762,7 +762,7 @@ public class HouseManager {
      * entao o que importa e a cama estar livre, nao o comodo.
      */
     private static boolean isBedTakenByAnotherNpc(SimBedData.BedPos bed, SimNPCComponent self) {
-        for (SimNPCComponent other : com.cookieukw.SimTale.SimTale.ACTIVE_NPCS) {
+        for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
             if (other == self) continue;
             if (other.entityId != null && self.entityId != null && other.entityId.equals(self.entityId)) continue;
 

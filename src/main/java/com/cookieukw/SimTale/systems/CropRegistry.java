@@ -43,7 +43,7 @@ public final class CropRegistry {
      * event-system fix actually runs now. {@code ChestRegistry} already did it this way.
      *
      * <p>The surrounding {@code synchronized} block went with it: {@code CROPS} comes from
-     * {@link java.util.Collections#synchronizedSet}, which already makes each single call atomic.
+     * {@link Collections#synchronizedSet}, which already makes each single call atomic.
      * Manual locking is only required to iterate — which is why the loops in {@code NPCWorkHelper}
      * keep theirs.
      */

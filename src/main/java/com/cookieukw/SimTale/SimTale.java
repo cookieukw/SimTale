@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale;
 
+
+import java.util.Set;
 import com.cookieukw.SimTale.systems.SimTaleMarkerProvider;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -292,7 +294,7 @@ public class SimTale extends JavaPlugin {
      * which is not the world folder and not something the player can guess.
      */
     private static void logAiStartupState(AiConfig config) {
-        java.util.Set<String> registered = aiManager.registeredProviderIds();
+        Set<String> registered = aiManager.registeredProviderIds();
         boolean selectedIsUp = aiManager.defaultProviderId() != null
                 && aiManager.defaultProviderId().equalsIgnoreCase(config.provider);
 
