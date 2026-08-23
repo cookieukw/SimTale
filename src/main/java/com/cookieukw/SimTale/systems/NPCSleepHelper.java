@@ -26,7 +26,7 @@ public final class NPCSleepHelper {
      * happened to be an hour and a half early. Keeping the unit honest makes the next correction a
      * one-number edit instead of a conversion puzzle.
      */
-    private static final float DAY_START_HOUR = 6.0f;
+    private static final float DAY_START_HOUR = 5.5f;
     private static final float NIGHT_START_HOUR = 19.5f;
 
     private static final float HOURS_PER_DAY = 24.0f;
