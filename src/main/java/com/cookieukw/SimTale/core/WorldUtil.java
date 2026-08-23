@@ -3,6 +3,11 @@ package com.cookieukw.SimTale.core;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 
+import java.util.UUID;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,13 +41,27 @@ public final class WorldUtil {
      *         This fixes bugs where multi-world servers (like a lobby + adventure world)
      *         cause AI systems to read time and ticks from the wrong world.
      */
-    public static World fromStore(com.hypixel.hytale.component.Store<?> store) {
+    public static World fromStore(Store<EntityStore> store) {
         if (store == null) return first();
         try {
             World w = store.getExternalData().getWorld();
             if (w != null) return w;
         } catch (Exception e) {
             // fallback
+        }
+        return first();
+    }
+
+    /**
+     * @return the world where the player with the given PlayerRef component is located.
+     */
+    public static World findWorldForPlayer(PlayerRef playerRef) {
+        if (playerRef == null) return first();
+        UUID uuid = playerRef.getUuid();
+        for (World w : Universe.get().getWorlds().values()) {
+            if (w.getEntityStore().getRefFromUUID(uuid) != null) {
+                return w;
+            }
         }
         return first();
     }
