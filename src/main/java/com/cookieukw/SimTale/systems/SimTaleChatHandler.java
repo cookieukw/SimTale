@@ -79,7 +79,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
         message = message.toLowerCase(Locale.ROOT);
 
-        final World world = WorldUtil.first();
+        final World world = sender.getWorld();
         if (world == null) {
             return;
         }
