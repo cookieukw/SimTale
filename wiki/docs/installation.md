@@ -9,10 +9,10 @@ title: Installation
 
 | Item | Version | Required |
 |---|---|---|
-| Hytale server | `>= 0.5.7` | yes |
+| Hytale server | `>= 0.5.8` | yes |
 | Caskara (database) | `>= 3.0.0` | yes |
 | RuneCore | 1.0.12 | yes — used to apply damage and healing to NPCs |
-| Java | 21+ | only to build |
+| Java | 25 | only to build |
 
 :::info Where these numbers come from
 `ServerVersion` and `Dependencies` in the mod's `manifest.json`. The RuneCore dependency is not

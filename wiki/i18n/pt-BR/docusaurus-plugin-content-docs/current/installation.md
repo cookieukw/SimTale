@@ -9,10 +9,10 @@ title: Instalação
 
 | Item | Versão | Obrigatório |
 |---|---|---|
-| Servidor Hytale | `>= 0.5.7` | sim |
+| Servidor Hytale | `>= 0.5.8` | sim |
 | Caskara (banco de dados) | `>= 3.0.0` | sim |
 | RuneCore | 1.0.12 | sim — usado para aplicar dano e cura aos NPCs |
-| Java | 21+ | apenas para compilar (build) |
+| Java | 25 | apenas para compilar (build) |
 
 :::info De onde vêm esses números
 `ServerVersion` e `Dependencies` no `manifest.json` do mod. A dependência do RuneCore não
