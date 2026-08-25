@@ -256,8 +256,11 @@ public class BabyCareManager {
                 long turnsPassed = elapsed / TURN_DURATION;
                 if (turnsPassed > 0) {
                     // Toggle turn owner based on how many turns passed
+                    if (care.currentTurnOwnerId == null) {
+                        care.currentTurnOwnerId = care.motherId != null ? care.motherId : playerUuidStr;
+                    }
                     for (int t = 0; t < turnsPassed; t++) {
-                        if (care.currentTurnOwnerId.equals(care.motherId)) {
+                        if (care.motherId != null && care.motherId.equals(care.currentTurnOwnerId)) {
                             care.currentTurnOwnerId = care.fatherId;
                         } else {
                             care.currentTurnOwnerId = care.motherId;
@@ -268,7 +271,7 @@ public class BabyCareManager {
                 }
 
                 // If the turn owner is now the player, but they don't hold the baby currently
-                if (care.currentTurnOwnerId.equals(playerUuidStr) && !playerUuidStr.equals(care.currentHolderId)) {
+                if (playerUuidStr.equals(care.currentTurnOwnerId) && !playerUuidStr.equals(care.currentHolderId)) {
                     // Give baby to player if inventory has space
                     CombinedItemContainer combinedInventory = InventoryComponent.getCombined(store, playerRef, InventoryComponent.HOTBAR_FIRST);
                     ItemStack babyItem = new ItemStack("Baby", 1).withMetadata("childId", Codec.STRING, care.childId);
