@@ -171,7 +171,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         // Was `getWorlds().values().stream().findFirst()`, which allocated a stream per NPC
         // per tick.
-        World world = WorldUtil.fromStore(store);
+        World world = WorldUtil.fromEntityRef(ref);
         if (world == null) return;
 
         // Being carried by a player suspends the routine entirely.
@@ -844,7 +844,15 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                         || world.getTick() - ai.taskStartTime >= SLEEP_DURATION_TICKS;
             }
 
+            if ((world.getTick() - ai.taskStartTime) % 60 == 0) {
+                Float currentHour = NPCSleepHelper.currentHour(world);
+                LOGGER.info("[SimTale-SleepDebug] NPC '{}' tick in SLEEPING | world='{}' | hour={} | sleepPeriodClosed={} | sleepingOnSchedule={} | doneSleeping={}",
+                        npc.name, world != null ? world.getName() : "null", currentHour, sleepPeriodClosed, ai.sleepingOnSchedule, doneSleeping);
+            }
+
             if (doneSleeping) {
+                LOGGER.info("[SimTale-SleepDebug] NPC '{}' finished sleeping! Transitioning to WAKING | world='{}' | hour={}",
+                        npc.name, world != null ? world.getName() : "null", NPCSleepHelper.currentHour(world));
                 NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID)));
                 ai.sleepingOnSchedule = false;
                 ai.currentTask = TaskType.WAKING;
