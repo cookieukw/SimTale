@@ -131,7 +131,7 @@ public final class NPCDoorHelper {
             BlockChunk blockChunk = world.getChunkStore().getChunkComponent(chunkIndex, BlockChunk.getComponentType());
             if (blockChunk == null) return;
 
-            BlockType type = BlockType.getAssetMap().getAsset(blockChunk.getBlock(x, y, z));
+            BlockType type = world.getBlockType(x, y, z);
             if (type == null || !DoorBlockUtils.isHorizontalDoor(type)) return;
 
             ChunkStore chunkStore = world.getChunkStore();
@@ -280,7 +280,7 @@ public final class NPCDoorHelper {
             BlockChunk blockChunk = world.getChunkStore().getChunkComponent(chunkIndex, BlockChunk.getComponentType());
             if (blockChunk == null) return;
 
-            BlockType type = BlockType.getAssetMap().getAsset(blockChunk.getBlock(pos.x, pos.y, pos.z));
+            BlockType type = world.getBlockType(pos.x, pos.y, pos.z);
             if (type == null || !DoorBlockUtils.isHorizontalDoor(type)) return;
 
             ChunkStore chunkStore = world.getChunkStore();
