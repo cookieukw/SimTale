@@ -844,7 +844,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                         || world.getTick() - ai.taskStartTime >= SLEEP_DURATION_TICKS;
             }
 
-            if ((world.getTick() - ai.taskStartTime) % 60 == 0) {
+            if ((world.getTick() - ai.taskStartTime) % 20 == 0) {
                 Float currentHour = NPCSleepHelper.currentHour(world);
                 LOGGER.info("[SimTale-SleepDebug] NPC '{}' tick in SLEEPING | world='{}' | hour={} | sleepPeriodClosed={} | sleepingOnSchedule={} | doneSleeping={}",
                         npc.name, world != null ? world.getName() : "null", currentHour, sleepPeriodClosed, ai.sleepingOnSchedule, doneSleeping);
