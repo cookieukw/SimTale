@@ -37,6 +37,13 @@ import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.joml.Vector3d;
 
+import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
+import com.cookieukw.SimTale.core.SimLog;
+import com.hypixel.hytale.builtin.mounts.MountedComponent;
+import com.hypixel.hytale.protocol.AnimationSlot;
+import com.hypixel.hytale.server.core.entity.AnimationUtils;
+import org.joml.Vector3i;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -73,6 +80,9 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         // Same free ride: a no-op unless somebody has a house outline up, and it needs a tick from
         // somewhere to expire on its own rather than lingering until the next inspection.
         HouseBlueprintHelper.tickExpiry(world);
+
+        // Process mounted/sleeping NPCs whose routine AI ticks are suspended by the engine
+        processMountedSleepingNPCs(world, commandBuffer);
         
         if (npc == null) {
             UUIDComponent uuidComp = chunk.getComponent(index, UUIDComponent.getComponentType());
@@ -292,6 +302,69 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             }
         } catch (Exception e) {
             HytaleLogger.forEnclosingClass().atWarning().log("SimTale: falha ao entregar o loot do trabalho: " + e);
+        }
+    }
+
+    private static final SimLog LOGGER = SimLog.forClass(SimTaleTickSystem.class);
+
+    private static void processMountedSleepingNPCs(World world, CommandBuffer<EntityStore> commandBuffer) {
+        if (world == null || SimTale.ACTIVE_NPCS.isEmpty() || commandBuffer == null) return;
+
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) continue;
+
+            Ref<EntityStore> ref = npc.entityRef;
+            Store<EntityStore> npcStore = ref.getStore();
+            if (npcStore == null) continue;
+
+            RoutineAIComponent ai = npcStore.getComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (ai == null) continue;
+
+            MountedComponent mounted = npcStore.getComponent(ref, MountedComponent.getComponentType());
+            boolean isSleepingTask = ai.currentTask == TaskType.SLEEPING || ai.currentTask == TaskType.WAKING;
+
+            if (mounted == null && !isSleepingTask) continue;
+
+            boolean sleepPeriodClosed = !NPCSleepHelper.isSleepPeriod(npc, world);
+            boolean doneSleeping;
+            if (ai.sleepingOnSchedule) {
+                doneSleeping = sleepPeriodClosed;
+            } else {
+                doneSleeping = sleepPeriodClosed
+                        || NeedsHelper.getNeed(npcStore, ref, NeedsHelper.ENERGY_ID) >= 100
+                        || (world.getTick() - ai.taskStartTime >= RoutineAISystem.SLEEP_DURATION_TICKS);
+            }
+
+            if (doneSleeping || (mounted != null && sleepPeriodClosed)) {
+                LOGGER.info("[SimTale] Sleeping/mounted NPC '{}' waking up! (sleepPeriodClosed={}, doneSleeping={})",
+                        npc.name, sleepPeriodClosed, doneSleeping);
+
+                NeedsHelper.setNeed(npcStore, ref, NeedsHelper.ENERGY_ID, 100f);
+
+                commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
+                NPCMovementHelper.setSleepingState(ref, npcStore, commandBuffer, false);
+
+                AnimationUtils.stopAnimation(ref, AnimationSlot.Status, true, npcStore);
+                NPCMovementHelper.playAnim(ref, "Characters/Animations/Default/Idle.blockyanim", "Idle", npcStore);
+
+                if (npc.bedLocation != null) {
+                    TransformComponent transform = npcStore.getComponent(ref, TransformComponent.getComponentType());
+                    if (transform != null) {
+                        Vector3i bedAnchor = FurnitureAnchorHelper.anchorOf(
+                                world, npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
+                        Vector3i exitPos = NPCMovementHelper.findStandableBeside(bedAnchor, transform, world);
+                        if (exitPos != null) {
+                            transform.teleportPosition(new Vector3d(exitPos.x + 0.5, exitPos.y, exitPos.z + 0.5));
+                            commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
+                        }
+                    }
+                }
+
+                ai.sleepingOnSchedule = false;
+                ai.currentTask = TaskType.IDLE;
+                ai.taskStartTime = world.getTick();
+                ai.lastWakeTick = world.getTick();
+            }
         }
     }
 }
