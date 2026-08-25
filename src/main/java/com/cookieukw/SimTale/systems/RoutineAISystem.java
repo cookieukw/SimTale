@@ -85,7 +85,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 60;
     /** Hunger low enough to drop whatever the NPC is doing. Well under the idle-time threshold of 50. */
     private static final float HUNGER_INTERRUPT_THRESHOLD = 25f;
-    private static final int SLEEP_DURATION_TICKS = 20 * 120;
+    public static final int SLEEP_DURATION_TICKS = 20 * 120;
     private static final int WAKE_ANIM_TICKS = 20;
     private static final double BED_REACH_DISTANCE_SQ = 2.5 * 2.5; // Increased to prevent getting stuck on bed collision
 
