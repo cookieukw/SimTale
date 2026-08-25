@@ -43,6 +43,21 @@ public final class WorldUtil {
      *         This fixes bugs where multi-world servers (like a lobby + adventure world)
      *         cause AI systems to read time and ticks from the wrong world.
      */
+    public static World fromEntityRef(Ref<EntityStore> ref) {
+        if (ref == null || !ref.isValid()) return first();
+        for (World w : Universe.get().getWorlds().values()) {
+            try {
+                if (w.getEntityStore() != null && w.getEntityStore().getStore() != null) {
+                    if (w.getEntityStore().getStore().getComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE) != null) {
+                        return w;
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return fromStore(ref != null ? ref.getStore() : null);
+    }
+
     public static World fromStore(Store<EntityStore> store) {
         if (store == null) return first();
         try {
@@ -53,16 +68,13 @@ public final class WorldUtil {
             }
         } catch (Exception ignored) {
         }
-        try {
-            EntityStore es = store.getExternalData();
-            if (es != null) {
-                for (World w : Universe.get().getWorlds().values()) {
-                    if (w.getEntityStore() == es) {
-                        return w;
-                    }
+        for (World w : Universe.get().getWorlds().values()) {
+            try {
+                if (w.getEntityStore() != null && w.getEntityStore().getStore() == store) {
+                    return w;
                 }
+            } catch (Exception ignored) {
             }
-        } catch (Exception ignored) {
         }
         return first();
     }
