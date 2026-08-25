@@ -655,18 +655,18 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     public void onDismiss(@Nonnull Ref<EntityStore> playerRef, @Nonnull Store<EntityStore> store) {
         super.onDismiss(playerRef, store);
 
-        // NPC state is released FIRST, and in a finally, so that nothing below can strand it.
-        //
-        // This ordering is not cosmetic. Previously the camera/rotation work ran first; when
-        // restorePlayerRotation threw (illegal store write mid-tick), the lines that clear
-        // isInteractingViaUI and remove Frozen never executed. That leaves the NPC permanently
-        // frozen — and because RoutineAISystem's self-heal only strips Frozen when
-        // !isInteractingViaUI, the AI could not recover it either. The NPC kept receiving leash
-        // updates while frozen, which is what "sliding on ice" looks like.
         try {
             if (npc != null) {
                 npc.isInteractingViaUI = false;
                 npc.uiInteractionPlayer = null;
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
+                    AnimationUtils.stopAnimation(npc.entityRef, AnimationSlot.Movement, true, store);
+                    RoutineAIComponent ai = store.getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (ai != null) {
+                        ai.currentTask = RoutineAIComponent.TaskType.IDLE;
+                        ai.taskStartTime = 0;
+                    }
+                }
                 releaseMovementAnimation(store);
                 unfreezeNpc(store);
             }
