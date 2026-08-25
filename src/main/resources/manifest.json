@@ -1,7 +1,7 @@
 {
   "Group": "Cookieukw",
   "Name": "SimTale",
-  "Version": "1.0.0",
+  "Version": "1.1.0",
   "Description": "SimTale mod - is a mod for simulation of life, NPCs, relationships, houses and other things. Interaction with NPCs: chat, jokes, flirt, gifts, insults, job assigning, love, marriage, divorce, birth, death and other things.",
   "Authors": [
     {
@@ -12,7 +12,7 @@
   "Dependencies": {
     "Cookieukw:Caskara": ">=3.0.0"
   },
-  "ServerVersion": ">=0.5.7",
+  "ServerVersion": ">=0.5.8",
   "OptionalDependencies": {},
   "DisabledByDefault": false,
   "Main": "com.cookieukw.SimTale.SimTale",

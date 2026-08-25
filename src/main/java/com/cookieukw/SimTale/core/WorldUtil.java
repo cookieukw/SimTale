@@ -46,10 +46,23 @@ public final class WorldUtil {
     public static World fromStore(Store<EntityStore> store) {
         if (store == null) return first();
         try {
-            World w = store.getExternalData().getWorld();
-            if (w != null) return w;
-        } catch (Exception e) {
-            // fallback
+            EntityStore es = store.getExternalData();
+            if (es != null) {
+                World w = es.getWorld();
+                if (w != null) return w;
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            EntityStore es = store.getExternalData();
+            if (es != null) {
+                for (World w : Universe.get().getWorlds().values()) {
+                    if (w.getEntityStore() == es) {
+                        return w;
+                    }
+                }
+            }
+        } catch (Exception ignored) {
         }
         return first();
     }

@@ -273,18 +273,24 @@ public class NPCMovementHelper {
         return true;
     }
 
+    private static boolean isAir(BlockType type) {
+        if (type == null || type.getId() == null) return true;
+        String id = type.getId();
+        return id.equalsIgnoreCase("Empty") || id.equalsIgnoreCase("Air");
+    }
+
     public static boolean isStandable(Vector3i pos, World world) {
         BlockType atPos = world.getBlockType(pos.x, pos.y, pos.z);
-        if (atPos != null && atPos.getId() != null && !atPos.getId().equalsIgnoreCase("Empty")) {
+        if (!isAir(atPos)) {
             return false;
         }
 
         BlockType above = world.getBlockType(pos.x, pos.y + 1, pos.z);
-        if (above != null && above.getId() != null && !above.getId().equalsIgnoreCase("Empty")) {
+        if (!isAir(above)) {
             return false;
         }
 
         BlockType below = world.getBlockType(pos.x, pos.y - 1, pos.z);
-        return below != null && below.getId() != null && !below.getId().equalsIgnoreCase("Empty");
+        return !isAir(below);
     }
 }

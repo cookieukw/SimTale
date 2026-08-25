@@ -123,7 +123,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
 
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
-        if (npc == null || npc.entityRef == null) return;
+        if (npc == null) return;
+        Ref<EntityStore> ref = chunk.getReferenceTo(index);
+        if (npc.entityRef == null || !npc.entityRef.isValid()) {
+            npc.entityRef = ref;
+        }
 
         // Skip routine AI for babies and toddlers (cared for by parents).
         // The isEmpty() guard matters: without any children in the world this loop still ran
@@ -162,7 +166,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             commandBuffer.addComponent(chunk.getReferenceTo(index), SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
         }
 
-        Ref<EntityStore> ref = chunk.getReferenceTo(index);
         TransformComponent transform = chunk.getComponent(index, TransformComponent.getComponentType());
         if (transform == null) return;
 
@@ -831,14 +834,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             // A scheduled sleeper stays down until its window closes, however rested it is;
             // otherwise it would pop out of bed in the middle of the night as soon as energy
             // filled up. An exhaustion nap still ends on the old rule.
+            boolean sleepPeriodClosed = !NPCSleepHelper.isSleepPeriod(npc, world);
             boolean doneSleeping;
             if (ai.sleepingOnSchedule) {
-                // Re-evaluated every tick against the CURRENT profession, so changing someone's job
-                // while they sleep flips their shift and wakes them instead of leaving them in a
-                // window that no longer applies. A guard turned hunter mid-nap gets up.
-                doneSleeping = !NPCSleepHelper.isSleepPeriod(npc, world);
+                doneSleeping = sleepPeriodClosed;
             } else {
-                doneSleeping = NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) >= 100
+                doneSleeping = sleepPeriodClosed
+                        || NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) >= 100
                         || world.getTick() - ai.taskStartTime >= SLEEP_DURATION_TICKS;
             }
 
