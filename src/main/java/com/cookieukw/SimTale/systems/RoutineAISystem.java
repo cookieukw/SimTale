@@ -82,7 +82,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
      * visibly alive.
      */
     private static final int BATH_SEARCH_RETRY_COOLDOWN_TICKS = 200;
-    private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 60;
+    private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 600;
     /** Hunger low enough to drop whatever the NPC is doing. Well under the idle-time threshold of 50. */
     private static final float HUNGER_INTERRUPT_THRESHOLD = 25f;
     public static final int SLEEP_DURATION_TICKS = 20 * 120;
@@ -521,7 +521,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             // the NPC could not satisfy took its wandering away too. Guarding on "still IDLE"
             // instead means the fallback is reached whenever nothing above it actually committed,
             // and any branch added later inherits that safety net for free.
-            if (ai.currentTask == TaskType.IDLE && Math.random() < 0.02) {
+            if (ai.currentTask == TaskType.IDLE && (Math.random() < 0.05 || (ai.taskStartTime > 0 && world.getTick() - ai.taskStartTime > 40))) {
                 // Anchor the stroll, in order of preference: own bed, then the nearest village,
                 // then the current position.
                 //
@@ -591,16 +591,17 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                         ai.currentTask = TaskType.MOVING_TO_BED;
                         playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
                     } else {
-                        // Segura a proxima busca. Sem isto a interrupcao de cansaco reabria
-                        // FINDING_BED no tick seguinte, com a mesma cama e o mesmo resultado.
+                        // Segura a proxima busca e passa a passear.
                         ai.nextBedSearchTick = world.getTick() + BED_SEARCH_RETRY_COOLDOWN_TICKS;
-                        ai.currentTask = TaskType.IDLE;
+                        ai.taskStartTime = world.getTick();
+                        startWanderingFallback(ref, ai, npc, transform, store, world);
                     }
                 } else {
                     LOGGER.warn("[SimTale] NPC '{}' could not find any bed! BedRegistry.BEDS.size={}",
                             npc.name, BedRegistry.BEDS.size());
                     ai.nextBedSearchTick = world.getTick() + BED_SEARCH_RETRY_COOLDOWN_TICKS;
-                    ai.currentTask = TaskType.IDLE;
+                    ai.taskStartTime = world.getTick();
+                    startWanderingFallback(ref, ai, npc, transform, store, world);
                 }
             }
         }
@@ -1291,6 +1292,36 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
     private static boolean validateAndClaimBed(World world, BedPos bestBed, SimNPCComponent npc) {
         return HouseManager.validateAndClaimBed(world, bestBed, npc);
+    }
+
+    private void startWanderingFallback(Ref<EntityStore> ref, RoutineAIComponent ai, SimNPCComponent npc, TransformComponent transform, Store<EntityStore> store, World world) {
+        double centerX = transform.getPosition().x;
+        double centerZ = transform.getPosition().z;
+        double wanderRadius = WANDER_RADIUS;
+
+        if (npc.bedLocation != null) {
+            centerX = npc.bedLocation.x;
+            centerZ = npc.bedLocation.z;
+        } else {
+            VillageManager.Village village = VillageManager.nearest(centerX, centerZ);
+            if (village != null) {
+                centerX = village.centerX();
+                centerZ = village.centerZ();
+                wanderRadius = village.radius();
+            }
+        }
+
+        double angle = Math.random() * Math.PI * 2.0;
+        double radius = 2.0 + Math.random() * (wanderRadius - 2.0);
+
+        ai.currentTask = TaskType.WANDERING;
+        ai.wanderTimer = 0;
+        ai.targetBlockPosition = new Vector3i(
+                (int) (centerX + Math.cos(angle) * radius),
+                (int) transform.getPosition().y,
+                (int) (centerZ + Math.sin(angle) * radius)
+        );
+        playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
     }
 
 }
