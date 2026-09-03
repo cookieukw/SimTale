@@ -1145,9 +1145,9 @@ once per NPC per tick for nothing.
          * So the call was a per-NPC, per-tick no-op that still allocated a lambda and queued
          * an entry on the command buffer. Dropping it also settles the question of the ~10
          * early `return`s in this method: they never lost state to begin with.
+         */
     }
 
-    @NullableDecl
     /**
      * Sends the Reaper away for good: untracked, plumbob released, entity removed.
      * <p>
@@ -1168,6 +1168,7 @@ once per NPC per tick for nothing.
         commandBuffer.removeEntity(ref, RemoveReason.REMOVE);
     }
 
+    @NullableDecl
     private static BedPos getBedPos(TransformComponent transform) {
         BedPos bestBed = null;
         double closestDistSq = Double.MAX_VALUE;

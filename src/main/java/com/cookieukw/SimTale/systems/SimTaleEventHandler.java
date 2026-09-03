@@ -102,30 +102,34 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             }
         }
 
-        // The crouch gesture that used to live here is now ChildPutDownSystem, on UseBlockEvent.
-        //
-        // Not a refactor for tidiness: this handler never runs. Across two full sessions the log
-        // has zero lines from it, including the unconditional one a few lines above, while
-        // /simtale putdown and the interaction panel both worked in those same sessions. Anything
-        // that depends on a player's click has to be delivered some other way.
+        /* The crouch gesture that used to live here is now ChildPutDownSystem, on UseBlockEvent.
+         *
+         * Not a refactor for tidiness: this handler never runs. Across two full sessions the log
+         * has zero lines from it, including the unconditional one a few lines above, while
+         * /simtale putdown and the interaction panel both worked in those same sessions. Anything
+         * that depends on a player's click has to be delivered some other way.
+         */
 
-        // The tool items are NOT handled here — see SimTaleItemRegistry.
-        //
-        // They were, briefly, on the assumption that none of them declared an "Interactions" block.
-        // Three of the four do: they point at RuneCore_GenericItemUse, whose handler runs first and
-        // consumes the click, so nothing added here ever fired for them. Every custom item in this
-        // mod goes through RuneCoreItemManager, and these are no exception.
+        /* The tool items are NOT handled here — see SimTaleItemRegistry.
+         *
+         * They were, briefly, on the assumption that none of them declared an "Interactions" block.
+         * Three of the four do: they point at RuneCore_GenericItemUse, whose handler runs first and
+         * consumes the click, so nothing added here ever fired for them. Every custom item in this
+         * mod goes through RuneCoreItemManager, and these are no exception.
+         */
 
-        // --- Confirm a blueprint marker's construction on right-click ---
-        // Placing Blueprint_TavernHouse (BedPlaceBlockEventSystem) shows the hologram; this is
-        // the other half — right-clicking that same marker block starts the real build, the same
-        // way '/build start' commits a command-driven preview. Breaking the marker instead
-        // (BedBlockEventSystem) cancels it.
+        /* --- Confirm a blueprint marker's construction on right-click ---
+         * Placing Blueprint_TavernHouse (BedPlaceBlockEventSystem) shows the hologram; this is
+         * the other half — right-clicking that same marker block starts the real build, the same
+         * way '/build start' commits a command-driven preview. Breaking the marker instead
+         * (BedBlockEventSystem) cancels it.
+         */
         Vector3i confirmTarget = event.getTargetBlock();
         if (confirmTarget != null) {
             BlockType confirmType = world.getBlockType(confirmTarget.x, confirmTarget.y, confirmTarget.z);
-            // Same tolerant match the placement half uses — an exact equals here would confirm
-            // nothing for exactly the ids that the placement half already failed to recognise.
+            /* Same tolerant match the placement half uses — an exact equals here would confirm
+             * nothing for exactly the ids that the placement half already failed to recognise.
+             */
             if (confirmType != null && BedPlaceBlockEventSystem.isBlueprintMarker(confirmType.getId())) {
                 UUID siteId = ConstructionPreviewManager.idForBlock(confirmTarget);
                 ConstructionSiteComponent pendingSite = ConstructionPreviewManager.get(siteId);
@@ -149,34 +153,38 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
         Ref<EntityStore> targetRef = event.getTargetEntityRef();
         
-        // This used to log at INFO on *every* right click by *every* player, flooding the
-        // server console. Nothing is logged until an NPC is actually involved.
+        /* This used to log at INFO on *every* right click by *every* player, flooding the
+         * server console. Nothing is logged until an NPC is actually involved.
+         */
         if (targetRef == null)
             return;
 
-        // world.getEntityStore() returns EntityStore, which has getStore() ->
-        // Store<EntityStore>
+        /* world.getEntityStore() returns EntityStore, which has getStore() ->
+         * Store<EntityStore>
+         */
         Store<EntityStore> store = world.getEntityStore().getStore();
         SimNPCComponent npc = store.getComponent(targetRef,
                 SimTale.SIM_NPC_COMPONENT_TYPE);
 
         if (npc == null) {
-            // Re-attach path, for a SimTale NPC whose component did not survive a world reload.
-            //
-            // It used to adopt ANY entity: right-clicking a chicken, a hostile mob or another
-            // player added SIM_NPC_COMPONENT_TYPE to it and gave it a generated name. Since
-            // RoutineAISystem's query is exactly that component, the victim then started running
-            // the villager routine — walking to beds, being mounted, getting Frozen — with no way
-            // out. Two guards now stand in the way of that.
+            /* Re-attach path, for a SimTale NPC whose component did not survive a world reload.
+             *
+             * It used to adopt ANY entity: right-clicking a chicken, a hostile mob or another
+             * player added SIM_NPC_COMPONENT_TYPE to it and gave it a generated name. Since
+             * RoutineAISystem's query is exactly that component, the victim then started running
+             * the villager routine — walking to beds, being mounted, getting Frozen — with no way
+             * out. Two guards now stand in the way of that.
+             */
             if (store.getComponent(targetRef, Player.getComponentType()) != null) {
                 return;
             }
 
             UUIDComponent uuidComp = store.getComponent(targetRef, UUIDComponent.getComponentType());
             if (uuidComp != null) {
-                // "simtale" shell, not Caskara's "default" — see SimNPCPersistence.DB_SHELL.
-                // A record here is the proof that this entity really is one of ours; without it
-                // there is nothing to re-attach and adopting the entity would be an invention.
+                /* "simtale" shell, not Caskara's "default" — see SimNPCPersistence.DB_SHELL.
+                 * A record here is the proof that this entity really is one of ours; without it
+                 * there is nothing to re-attach and adopting the entity would be an invention.
+                 */
                 SimNPCData data = SimNPCPersistence.loadData(uuidComp.getUuid());
                 if (data == null) {
                     LOGGER.atFine().log("SimTale: entidade sem registro no shell simtale, ignorada.");
@@ -207,10 +215,11 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         if (npc == null)
             return;
 
-        // Entities adopted before the guard above still carry the component, so the cow keeps
-        // opening the villager panel until it is cleaned up. Gender is the tell: spawnNPC always
-        // sets it, the old adoption path never did. Same criterion /simtale forget uses, so what
-        // refuses to open here is exactly what that command will clear.
+        /* Entities adopted before the guard above still carry the component, so the cow keeps
+         * opening the villager panel until it is cleaned up. Gender is the tell: spawnNPC always
+         * sets it, the old adoption path never did. Same criterion /simtale forget uses, so what
+         * refuses to open here is exactly what that command will clear.
+         */
         if (npc.gender == null) {
             LOGGER.atFine().log("SimTale: entidade adotada por engano ignorada. Use /simtale forget.");
             return;
@@ -275,8 +284,9 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         try {
             childId = UUID.fromString(childIdStr);
         } catch (IllegalArgumentException badId) {
-            // Corrupt/hand-edited item metadata used to throw straight out of the click handler
-            // instead of just ignoring the item.
+            /* Corrupt/hand-edited item metadata used to throw straight out of the click handler
+             * instead of just ignoring the item.
+             */
             LOGGER.atWarning().log("SimTale: item de bebe com childId invalido: " + childIdStr);
             return false;
         }
@@ -303,13 +313,14 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             return false;
         }
 
-        // The body follows the stage, not the fact that this came out of a "Baby" item.
-        //
-        // It was always a child model, which is fine while the item is what it says on the tin.
-        // /simtale growbaby can hand you a teenager or an adult still in item form, and placing
-        // one of those produced an adult in a child body — the same mismatch GrowthManager had at
-        // the ADULT branch, reached by a different door. Nothing corrects it afterwards either:
-        // the body swap hangs off a stage *change*, and this one already happened in the item.
+        /* The body follows the stage, not the fact that this came out of a "Baby" item.
+         *
+         * It was always a child model, which is fine while the item is what it says on the tin.
+         * /simtale growbaby can hand you a teenager or an adult still in item form, and placing
+         * one of those produced an adult in a child body — the same mismatch GrowthManager had at
+         * the ADULT branch, reached by a different door. Nothing corrects it afterwards either:
+         * the body swap hangs off a stage *change*, and this one already happened in the item.
+         */
         boolean grownBody = childComp.stage != null
                 && childComp.stage.ordinal() >= GrowthStage.TEEN.ordinal();
         SimNPCFactory.NPCType childType;
@@ -323,8 +334,9 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                 : SimNPCFactory.NPCType.CHILD_FEMALE;
         }
 
-        // Scale at spawn rather than a resize afterwards: the resize below left a frame where she
-        // was drawn full size before shrinking, which is the flash reported during carry testing.
+        /* Scale at spawn rather than a resize afterwards: the resize below left a frame where she
+         * was drawn full size before shrinking, which is the flash reported during carry testing.
+         */
         Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType,
                 LifecycleManager.calculateTargetScale(childComp, WorldUtil.tick()));
         childComp.childId = Objects.requireNonNull(store.getComponent(childRef, UUIDComponent.getComponentType())).getUuid();
@@ -337,15 +349,17 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             store.putComponent(childRef, Nameplate.getComponentType(),
                 new Nameplate(childComp.getFullName()));
 
-            // A child used to be born a social stranger to its own parents: the family data lived
-            // in GrowthComponent and was never projected onto the relationship map that gifts,
-            // dialogue and the map tint actually read.
+            /* A child used to be born a social stranger to its own parents: the family data lived
+             * in GrowthComponent and was never projected onto the relationship map that gifts,
+             * dialogue and the map tint actually read.
+             */
             FamilyBonds.linkToFamily(childNPCComp, childComp);
             SimNPCPersistence.saveNPC(childNPCComp);
         }
 
-        // Kept in sync with what the entity was actually spawned at, so the growth tick and the
-        // saved record start from the same number.
+        /* Kept in sync with what the entity was actually spawned at, so the growth tick and the
+         * saved record start from the same number.
+         */
         childComp.currentScale = LifecycleManager.calculateTargetScale(childComp, WorldUtil.tick());
 
         childComp.putDown();
