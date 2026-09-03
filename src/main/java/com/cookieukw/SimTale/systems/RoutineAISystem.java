@@ -129,9 +129,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             npc.entityRef = ref;
         }
 
-        // Skip routine AI for babies and toddlers (cared for by parents).
-        // The isEmpty() guard matters: without any children in the world this loop still ran
-        // once per NPC per tick for nothing.
+        /* Skip routine AI for babies and toddlers (cared for by parents).
+The isEmpty() guard matters: without any children in the world this loop still ran
+once per NPC per tick for nothing.
+*/
         if (npc.entityId != null && !LifecycleManager.ACTIVE_CHILDREN.isEmpty()) {
             for (GrowthComponent gc : LifecycleManager.ACTIVE_CHILDREN) {
                 if (!npc.entityId.equals(gc.childId)) continue;
@@ -157,10 +158,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         RoutineAIComponent ai = chunk.getComponent(index, SimTale.ROUTINE_AI_COMPONENT_TYPE);
         if (ai == null) {
-            // A brand-new component silently resets everything to IDLE/no-target — indistinguishable
-            // from a genuine state change unless logged here. If this fires for an NPC that
-            // already had one going (mid-work, mid-social, etc.), that's the actual bug: something
-            // made the existing RoutineAIComponent invisible to this tick's chunk view.
+            /* A brand-new component silently resets everything to IDLE/no-target — indistinguishable
+            from a genuine state change unless logged here. If this fires for an NPC that
+            already had one going (mid-work, mid-social, etc.), that's the actual bug: something
+            made the existing RoutineAIComponent invisible to this tick's chunk view.
+            */
             LOGGER.info("[SimTale] {} had no RoutineAIComponent this tick — creating a fresh one (state reset to IDLE)", npc.name);
             ai = new RoutineAIComponent();
             commandBuffer.addComponent(chunk.getReferenceTo(index), SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
@@ -169,31 +171,35 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         TransformComponent transform = chunk.getComponent(index, TransformComponent.getComponentType());
         if (transform == null) return;
 
-        // Was `getWorlds().values().stream().findFirst()`, which allocated a stream per NPC
-        // per tick.
+        /* Was `getWorlds().values().stream().findFirst()`, which allocated a stream per NPC
+        per tick.
+        */
         World world = WorldUtil.fromEntityRef(ref);
         if (world == null) return;
 
-        // Being carried by a player suspends the routine entirely.
-        //
-        // This has to come before the mount cleanup below, which exists for beds and would rip a
-        // carried child straight off the player's shoulders on the very next tick — the NPC is
-        // mounted and not in a sleep state, which is exactly the condition that block reacts to.
-        //
-        // Standing the AI down matters as much as keeping the mount: a routine that keeps setting
-        // leash points and walking states on a body pinned to someone's shoulders is how an NPC
-        // ends up sliding across the floor, which is the failure this project already spent a
-        // session diagnosing once.
+        /* Being carried by a player suspends the routine entirely.
+        This has to come before the mount cleanup below, which exists for beds and would rip a
+        carried child straight off the player's shoulders on the very next tick — the NPC is
+        mounted and not in a sleep state, which is exactly the condition that block reacts to.
+        Standing the AI down matters as much as keeping the mount: a routine that keeps setting
+        leash points and walking states on a body pinned to someone's shoulders is how an NPC
+        ends up sliding across the floor, which is the failure this project already spent a
+        session diagnosing once.
+        */
         if (ChildCarryHelper.isBeingCarried(store, npc)) {
-            // Topped up rather than set once at pickup: moods decay, and a single HAPPY at the
-            // moment she was lifted would have faded back to BORED while she was still up there.
-            // Cheap because it only runs for a carried child, and only every few seconds.
+            /*
+            Topped up rather than set once at pickup: moods decay, and a single HAPPY at the
+            moment she was lifted would have faded back to BORED while she was still up there.
+            Cheap because it only runs for a carried child, and only every few seconds.
+            */
             if (world.getTick() % 40 == 0) {
                 npc.setEmotion(Mood.HAPPY, 0.7f, "carried", world.getTick());
             }
-            // Re-settled on the same cadence rather than only at pickup: anything that pushes the
-            // entity — a shove, a fluid, a knockback the carrier walked into — would put velocity
-            // back and the role would start the walk cycle again with nothing to stop it.
+            /*
+            Re-settled on the same cadence rather than only at pickup: anything that pushes the
+            entity — a shove, a fluid, a knockback the carrier walked into — would put velocity
+            back and the role would start the walk cycle again with nothing to stop it.
+            */
             if (world.getTick() % 40 == 0 && npc.entityRef != null && npc.entityRef.isValid()) {
                 ChildCarryHelper.settleMovementStates(store, npc.entityRef);
             }
@@ -215,22 +221,23 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         NPCDoorHelper.handleNpcDoors(world, npc, transform, doorDestination);
 
 
-        // --- Dialogue lock ---
-        // While an interaction page is open the mod's AI stands down entirely and the NPC is
-        // pinned facing the player, re-applied every tick.
-        //
-        // A single teleportRotation when the page opens is not enough: the Hytale role keeps
-        // running its own Idle instructions underneath (WanderInCircle, and now the Seek that
-        // walks to the leash point), and those steer the body continuously. The NPC therefore
-        // drifted to face wherever the role was taking it — which is why it ended up looking
-        // off to the side and why the camera framed something different every time.
-        //
-        // The death flow is exempt. DYING -> DEAD -> REAPING is a ceremony on a timer that ends by
-        // despawning both the corpse and the Reaper, and this early return sits above it, so
-        // opening any page on either of them halted the ritual for as long as the page stayed open
-        // — and permanently if the page ever failed to fire onDismiss, which is a bug this project
-        // has already hit once. The result was a Reaper left standing in the world for good. No UI
-        // should be able to deadlock a state machine that owns entity cleanup.
+        /* Dialogue lock
+        While an interaction page is open the mod's AI stands down entirely and the NPC is
+        pinned facing the player, re-applied every tick.
+        A single teleportRotation when the page opens is not enough: the Hytale role keeps
+        running its own Idle instructions underneath (WanderInCircle, and now the Seek that
+        walks to the leash point), and those steer the body continuously. The NPC therefore
+        drifted to face wherever the role was taking it — which is why it ended up looking
+        off to the side and why the camera framed something different every time.
+        
+        The death flow is exempt. DYING -> DEAD -> REAPING is a ceremony on a timer that ends by
+        despawning both the corpse and the Reaper, and this early return sits above it, so
+        opening any page on either of them halted the ritual for as long as the page stayed open
+        — and permanently if the page ever failed to fire onDismiss, which is a bug this project
+        has already hit once. The result was a Reaper left standing in the world for good. No UI
+        should be able to deadlock a state machine that owns entity cleanup.
+        */
+
         boolean inDeathCeremony = ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.DEAD
                 || ai.currentTask == TaskType.REAPING;
         if (npc.isInteractingViaUI && !inDeathCeremony) {
@@ -246,11 +253,11 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             commandBuffer.tryRemoveComponent(ref, Frozen.getComponentType());
         }
 
-        // Same self-heal for the sleeping movement state.
-        //
-        // Frozen had a guard and the sleep flag did not, so any exit path that forgot to clear it
-        // left the NPC walking around playing the sleep animation. Rather than hunting every exit,
-        // the invariant is asserted here: not a sleep task means not sleeping.
+        /* Same self-heal for the sleeping movement state.
+           Frozen had a guard and the sleep flag did not, so any exit path that forgot to clear it
+           left the NPC walking around playing the sleep animation. Rather than hunting every exit,
+           the invariant is asserted here: not a sleep task means not sleeping.
+        */
         boolean inSleepTask = ai.currentTask == TaskType.SLEEPING
                 || ai.currentTask == TaskType.ENTERING_BED
                 || ai.currentTask == TaskType.WAKING;
@@ -262,15 +269,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // Real combat (a player's weapon, anything dealing damage through the engine's own
-        // health stat) never routed through here at all — SimTale had no hook for it, only for
-        // /simtale forcekill setting DYING directly. An NPC actually killed in melee kept
-        // getting ticked by every system below as if nothing happened: RoutineAISystem kept
-        // walking her around (no death animation exists for that, hence "no walk animation"),
-        // and since the engine already considers her dead/at 0 HP, further hits on her did
-        // nothing. Checking health here, for any task that isn't already part of the death flow,
-        // means any way an NPC reaches 0 HP funnels into the same DYING -> DEAD -> REAPING
-        // pipeline instead of leaving a broken not-quite-dead entity behind.
+        /* Real combat (a player's weapon, anything dealing damage through the engine's own
+        health stat) never routed through here at all — SimTale had no hook for it, only for
+        /simtale forcekill setting DYING directly. An NPC actually killed in melee kept
+        getting ticked by every system below as if nothing happened: RoutineAISystem kept
+        walking her around (no death animation exists for that, hence "no walk animation"),
+        and since the engine already considers her dead/at 0 HP, further hits on her did
+        nothing. Checking health here, for any task that isn't already part of the death flow,
+        means any way an NPC reaches 0 HP funnels into the same DYING -> DEAD -> REAPING
+        pipeline instead of leaving a broken not-quite-dead entity behind.
+        */
         if (ai.currentTask != TaskType.DYING && ai.currentTask != TaskType.DEAD && ai.currentTask != TaskType.REAPING
                 && ai.currentTask != TaskType.EXPEDITION) {
             EntityStatMap statMap = store.getComponent(ref, EntityStatMap.getComponentType());
@@ -286,12 +294,14 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // --- 1. Evaluation Phase ---
-        // Hunger does not kill. An NPC at zero stops working, cries and stays miserable until
-        // someone feeds it; the DYING flow below is reached only by old age, disease or a command.
+        /* 1. Evaluation Phase
+        Hunger does not kill. An NPC at zero stops working, cries and stays miserable until
+        someone feeds it; the DYING flow below is reached only by old age, disease or a command.
+        */
         if (ai.currentTask == TaskType.DYING) {
-            // Visual cue that something is wrong, for the ~10s before the Reaper shows up —
-            // otherwise the NPC just stands there giving no indication anything is happening.
+            /* Visual cue that something is wrong, for the ~10s before the Reaper shows up —
+            otherwise the NPC just stands there giving no indication anything is happening.
+            */
             if (world.getTick() - ai.taskStartTime == 1) {
                 StatusEffectHelper.applyBleeding(ref);
             }
@@ -300,24 +310,24 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 ai.currentTask = TaskType.DEAD;
                 ai.taskStartTime = world.getTick();
 
-                // The Reaper is ephemeral — spawned fresh for this specific death and removed
-                // again once the ritual finishes (REAPING below), rather than needing to already
-                // exist in the world beforehand. Previously nothing spawned her at all: without
-                // running /simtale spawn reaper ahead of time (undocumented outside the
-                // forcekill warning), or if the one Reaper that did exist was already busy with
-                // a different corpse, the body was stuck in DEAD forever. Spawning is a
-                // structural write and this runs from inside the Store's own tick, so it has to
-                // be deferred the same way startExpedition/spawnNPC elsewhere are.
-                // Offset a few blocks away instead of spawning her exactly on top of the
-                // corpse — she was clipping straight into the dying NPC, making it awful to
-                // even see or interact with either of them. REAPING already walks her in from
-                // wherever she starts if she's more than 2 blocks out, so this also means she
-                // visibly approaches instead of just appearing glued to the body.
-                // Copy before offsetting. joml's add(x,y,z) mutates the receiver and returns it,
-                // and getPosition() hands back the component's live vector — so this was not
-                // "three blocks from the corpse", it was *moving the corpse three blocks* and
-                // spawning the Reaper on top of it. From the outside it read as the dying NPC
-                // teleporting onto Death the moment she appeared.
+                /* The Reaper is ephemeral — spawned fresh for this specific death and removed
+                again once the ritual finishes (REAPING below), rather than needing to already
+                exist in the world beforehand. Previously nothing spawned her at all: without
+                running /simtale spawn reaper ahead of time (undocumented outside the
+                forcekill warning), or if the one Reaper that did exist was already busy with
+                a different corpse, the body was stuck in DEAD forever. Spawning is a
+                structural write and this runs from inside the Store's own tick, so it has to
+                be deferred the same way startExpedition/spawnNPC elsewhere are.
+                Offset a few blocks away instead of spawning her exactly on top of the
+                corpse — she was clipping straight into the dying NPC, making it awful to
+                even see or interact with either of them. REAPING already walks her in from
+                wherever she starts if she's more than 2 blocks out, so this also means she
+                visibly approaches instead of just appearing glued to the body.
+                Copy before offsetting. joml's add(x,y,z) mutates the receiver and returns it,
+                and getPosition() hands back the component's live vector — so this was not
+                "three blocks from the corpse", it was *moving the corpse three blocks* and
+                spawning the Reaper on top of it. From the outside it read as the dying NPC
+                teleporting onto Death the moment she appeared.*/
                 Vector3d deathPos = new Vector3d(transform.getPosition()).add(3, 0, 3);
                 UUID dyingId = npc.entityId;
                 WorldUtil.execute(() -> {
@@ -337,21 +347,17 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         if (ai.currentTask == TaskType.DEAD) return;
 
-        // --- Check low energy to go to bed immediately (interrupts current task) ---
+        // Check low energy to go to bed immediately (interrupts current task)
         float sleepThreshold = npc.personality.traits.contains(Trait.LAZY) ? 60f : 30f;
-        // O `world.getTick() >= ai.nextBedSearchTick` impede a tempestade de buscas.
-        //
-        // Sem ele: NPC exausta -> FINDING_BED -> a cama achada nao pode ser reivindicada ->
-        // IDLE -> no proximo tick a interrupcao dispara outra vez. Como ela zera taskStartTime
-        // para furar o cooldown, isso rodava a cada tick. Um log real acumulou 3447 rejeicoes da
-        // MESMA cama em poucos segundos, com a NPC parada de exaustao o tempo todo.
-        // The clock, not just exhaustion, sends an NPC to bed. Before this a villager with full
-        // energy simply never slept, and the village stayed busy all night. Guards run the
-        // opposite shift, so for them this window is the daytime.
-        // The clock alone is not enough to send someone to bed: they also have to be at least a
-        // little tired. An NPC with full energy going to sleep looks broken no matter what the
-        // schedule says — and it produced a real dead end, where a guard switched to another
+        /* Without `world.getTick() >= ai.nextBedSearchTick` there is a storm of searches. NPC exhausted -> FINDING_BED -> claimed bed cannot be claimed -> IDLE -> next tick interruption fires again. Because she resets taskStartTime to break the cooldown, this ran every tick. A real log accumulated 3447 rejections of the SAME bed in a few seconds, with the NPC stopped from exhaustion the whole time.
+        The clock, not just exhaustion, sends an NPC to bed. Before this a villager with full
+        energy simply never slept, and the village stayed busy all night. Guards run the
+        opposite shift, so for them this window is the daytime.
+        The clock alone is not enough to send someone to bed: they also have to be at least a
+        little tired. An NPC with full energy going to sleep looks broken no matter what the
+        schedule says — and it produced a real dead end, where a guard switched to another
         // profession mid-nap stayed in bed with 100 energy on its first day in the new job.
+        */
         boolean justWokeUp = ai.lastWakeTick != 0
                 && world.getTick() - ai.lastWakeTick < WAKE_GRACE_TICKS;
         boolean sleepWindowOpen = NPCSleepHelper.isSleepPeriod(npc, world) && !justWokeUp;
@@ -361,32 +367,30 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 || ai.currentTask == TaskType.MOVING_TO_BED || ai.currentTask == TaskType.ENTERING_BED
                 || ai.currentTask == TaskType.SLEEPING || ai.currentTask == TaskType.WAKING;
 
-        // Dying is not a task to be interrupted. Neither interrupt excluded it, so a starving NPC
-        // was pulled straight back out of DYING, the death check re-fired on the next tick, and the
-        // "is dying" broadcast repeated forever without the NPC ever actually dying.
-        //
-        // EXPEDITION (Hunter/Miner "gone for a while") is protected for a different reason: it
-        // shrinks the NPC to near-zero scale for the duration, standing in as "not here" without
-        // an actual invisibility flag (the engine has none). An interrupt yanking the task away
-        // mid-expedition would leave that shrink permanent — the model never gets restored — so
-        // this state has to run to completion, same as death does.
+        /* Dying is not a task to be interrupted. Neither interrupt excluded it, so a starving NPC
+        was pulled straight back out of DYING, the death check re-fired on the next tick, and the
+        "is dying" broadcast repeated forever without the NPC ever actually dying.
+        EXPEDITION (Hunter/Miner "gone for a while") is protected for a different reason: it
+        shrinks the NPC to near-zero scale for the duration, standing in as "not here" without
+        an actual invisibility flag (the engine has none). An interrupt yanking the task away
+        mid-expedition would leave that shrink permanent — the model never gets restored — so
+        this state has to run to completion, same as death does.*/
         boolean inDeathFlow = ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.DEAD
                 || ai.currentTask == TaskType.REAPING || ai.currentTask == TaskType.EXPEDITION;
 
-        // A claimed work post (fishing, and future lumberjack/farmer posts) must not outlive the
-        // NPC that claimed it — otherwise a killed fisherman leaves its post permanently
-        // reserved, with no one left to release it. releaseWorkPost is a no-op once the claim is
-        // already gone, so calling it every tick a dying/dead/reaped NPC ticks is harmless.
+        /* A claimed work post (fishing, and future lumberjack/farmer posts) must not outlive the
+        NPC that claimed it — otherwise a killed fisherman leaves its post permanently
+        reserved, with no one left to release it. releaseWorkPost is a no-op once the claim is
+        already gone, so calling it every tick a dying/dead/reaped NPC ticks is harmless.*/
         if (inDeathFlow && ai.claimedWorkPost != null) {
             NPCWorkHelper.releaseWorkPost(ai, npc);
         }
 
-        // A task set by a debug command outranks the interrupts.
-        //
-        // Without this, /simtale forcework looked broken: it set the task, and on the very next
-        // tick the sleep interrupt overwrote it with FINDING_BED. Anything that fires from any
-        // state will win against a one-shot command unless it is told not to — and a debug command
-        // that cannot override the routine is useless for diagnosing the routine.
+        /* A task set by a debug command outranks the interrupts.
+        Without this, /simtale forcework looked broken: it set the task, and on the very next
+        tick the sleep interrupt overwrote it with FINDING_BED. Anything that fires from any
+        state will win against a one-shot command unless it is told not to — and a debug command
+        that cannot override the routine is useless for diagnosing the routine.*/
         boolean forcedByCommand = ai.forcedByDebug;
 
         if ((sleepWindowOpen || exhausted) && world.getTick() >= ai.nextBedSearchTick
@@ -404,14 +408,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // --- Very low hunger interrupts the current task, mirroring the sleep interrupt above ---
-        //
-        // Without this, hunger was only ever checked inside the IDLE branch, so a busy NPC could
-        // starve with a full larder simply by never running out of things to do. Sleep already
-        // worked this way; hunger did not, and that asymmetry had no reason behind it.
-        //
-        // The threshold sits well below the IDLE one (50): this is the emergency path, not the
-        // normal one. Eating takes about three seconds, so interrupting costs little.
+        /* Very low hunger interrupts the current task, mirroring the sleep interrupt above
+        Without this, hunger was only ever checked inside the IDLE branch, so a busy NPC could
+        starve with a full larder simply by never running out of things to do. Sleep already
+        worked this way; hunger did not, and that asymmetry had no reason behind it.
+        The threshold sits well below the IDLE one (50): this is the emergency path, not the
+        normal one. Eating takes about three seconds, so interrupting costs little.*/
         if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < HUNGER_INTERRUPT_THRESHOLD
                 && world.getTick() >= ai.nextFoodSearchTick
                 && ai.currentTask != TaskType.FINDING_FOOD && ai.currentTask != TaskType.MOVING_TO_FOOD
@@ -428,7 +430,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             LOGGER.info("[SimTale] NPC '{}' is starving (hunger={}), interrupting task to find food", npc.name, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID));
         }
 
-        // --- Force sleep from command (uses SimNPCComponent flag to survive tick overwrite) ---
+        /* Force sleep from command (uses SimNPCComponent flag to survive tick overwrite)*/
         if (npc.forceSleep) {
             npc.forceSleep = false;
             ai.currentTask = TaskType.FINDING_BED;
@@ -458,17 +460,16 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
             }
 
-            // The nextXSearchTick guards are what keep an unsatisfiable need from eating the whole
-            // chain. These checks are one else-if ladder, so a branch that fires and then fails
-            // silently costs the NPC every behaviour below it: an NPC that is dirty with no water
-            // in range, or hungry with no reachable food, re-entered its search every single tick
-            // and therefore never socialised and never wandered. From the outside that is an NPC
-            // standing perfectly still for hours with nothing at all in the logs.
-            //
-            // Backdating taskStartTime here is deliberate — it skips the handler's own cooldown so
-            // the search runs this tick — which is exactly why the cooldown has to be enforced up
-            // front instead. On failure each handler stamps its nextXSearchTick, and during that
-            // window the ladder falls through to strolling like normal.
+            /* The nextXSearchTick guards are what keep an unsatisfiable need from eating the whole
+            chain. These checks are one else-if ladder, so a branch that fires and then fails
+            silently costs the NPC every behaviour below it: an NPC that is dirty with no water
+            in range, or hungry with no reachable food, re-entered its search every single tick
+            and therefore never socialised and never wandered. From the outside that is an NPC
+            standing perfectly still for hours with nothing at all in the logs.
+            Backdating taskStartTime here is deliberate — it skips the handler's own cooldown so
+            the search runs this tick — which is exactly why the cooldown has to be enforced up
+            front instead. On failure each handler stamps its nextXSearchTick, and during that
+            window the ladder falls through to strolling like normal.*/
             if (ai.currentTask == TaskType.IDLE
                     && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < 70
                     && world.getTick() >= ai.nextFoodSearchTick) {
@@ -513,23 +514,22 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
             }
 
-            // Deliberately its own statement rather than the tail of the ladder above.
-            //
-            // Every branch up there can claim the tick and then not set a task: the searches fail
-            // silently, and the socialise roll can win with nobody available to talk to. As the
-            // last `else if` the stroll was only ever reached when none of them fired, so a need
-            // the NPC could not satisfy took its wandering away too. Guarding on "still IDLE"
-            // instead means the fallback is reached whenever nothing above it actually committed,
-            // and any branch added later inherits that safety net for free.
+            /* Deliberately its own statement rather than the tail of the ladder above.
+            Every branch up there can claim the tick and then not set a task: the searches fail
+            silently, and the socialise roll can win with nobody available to talk to. As the
+            last `else if` the stroll was only ever reached when none of them fired, so a need
+            the NPC could not satisfy took its wandering away too. Guarding on "still IDLE"
+            instead means the fallback is reached whenever nothing above it actually committed,
+            and any branch added later inherits that safety net for free.*/
             if (ai.currentTask == TaskType.IDLE && (Math.random() < 0.05 || (ai.taskStartTime > 0 && world.getTick() - ai.taskStartTime > 40))) {
-                // Anchor the stroll, in order of preference: own bed, then the nearest village,
-                // then the current position.
-                //
-                // That last case is what made homeless NPCs walk off the map and need fetching.
-                // Anchoring on "where I am" is not a leash at all: each stroll moves the NPC, the
-                // next one anchors on the new spot, and the result is a random walk with no
-                // restoring force — unbounded drift, given enough time. A village centre gives
-                // them somewhere to belong until they claim a bed of their own.
+                /* Anchor the stroll, in order of preference: own bed, then the nearest village,
+                then the current position.
+                
+                That last case is what made homeless NPCs walk off the map and need fetching.
+                Anchoring on "where I am" is not a leash at all: each stroll moves the NPC, the
+                next one anchors on the new spot, and the result is a random walk with no
+                restoring force — unbounded drift, given enough time. A village centre gives
+                them somewhere to belong until they claim a bed of their own.*/
                 double centerX = transform.getPosition().x;
                 double centerZ = transform.getPosition().z;
                 double wanderRadius = WANDER_RADIUS;
@@ -563,19 +563,19 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // --- FINDING_BED ---
+        /* FINDING_BED */
         if (ai.currentTask == TaskType.FINDING_BED) {
             if (npc.bedLocation != null) {
                 LOGGER.info("[SimTale] NPC '{}' has bed at ({},{},{}), transitioning to MOVING_TO_BED",
                         npc.name, npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
                 ai.targetBlockPosition = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
                 ai.currentTask = TaskType.MOVING_TO_BED;
-                // MOVING_TO_BED's own timeout check runs later in this same tick (no return
-                // between the blocks) and measures from taskStartTime. Whoever routed the NPC
-                // into FINDING_BED zeroed it out (both the nightly trigger and /simtale
-                // forcesleep do, to bypass FINDING_BED's own retry cooldown) — without restamping
-                // it here, "now - 0" is always past the timeout, so an NPC that already owns a
-                // bed gave up walking to it before taking a single step, every time.
+                /* MOVING_TO_BED's own timeout check runs later in this same tick (no return
+                 between the blocks) and measures from taskStartTime. Whoever routed the NPC
+                 into FINDING_BED zeroed it out (both the nightly trigger and /simtale
+                 forcesleep do, to bypass FINDING_BED's own retry cooldown) — without restamping
+                 it here, "now - 0" is always past the timeout, so an NPC that already owns a
+                 bed gave up walking to it before taking a single step, every time.*/
                 ai.taskStartTime = world.getTick();
                 playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
             } else if (ai.taskStartTime == 0 || world.getTick() - ai.taskStartTime >= BED_SEARCH_RETRY_COOLDOWN_TICKS) {
@@ -606,7 +606,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // --- MOVING_TO_BED: navigate to approach position adjacent to bed ---
+        /* MOVING_TO_BED: navigate to approach position adjacent to bed */
         if (ai.currentTask == TaskType.MOVING_TO_BED) {
             if (npc.bedLocation == null) {
                 ai.currentTask = TaskType.FINDING_BED;
@@ -664,11 +664,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             double dy = (approachPos.y + 0.5) - pos.y;
             double dz = (approachPos.z + 0.5) - pos.z;
 
-            // Proximity alone is not enough to get into bed.
-            //
-            // This test used to be flat XZ distance, which ignored both height and walls: an NPC
-            // standing outside the house, one wall away from the bed, satisfied it and mounted
-            // straight through the wall. From the outside it looked like the NPC vanished.
+            /*Proximity alone is not enough to get into bed.
+             * This test used to be flat XZ distance, which ignored both height and walls: an NPC
+             * standing outside the house, one wall away from the bed, satisfied it and mounted
+             * straight through the wall. From the outside it looked like the NPC vanished.*/
             boolean closeEnough = dx * dx + dz * dz < BED_REACH_DISTANCE_SQ && Math.abs(dy) <= 2.0;
             boolean reachable = closeEnough
                     && NPCMovementHelper.hasClearPath(world, pos, approachPos);
@@ -682,7 +681,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // --- ENTERING_BED: teleport onto the bed block ---
+        /* ENTERING_BED: teleport onto the bed block */
         if (ai.currentTask == TaskType.ENTERING_BED) {
             if (npc.bedLocation == null) {
                 ai.currentTask = TaskType.FINDING_BED;
@@ -690,13 +689,12 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 return;
             }
 
-            // Normaliza para a ancora do movel antes de montar.
-            //
-            // Uma cama ocupa seis blocos, e o mountOnBlock calcula onde o corpo deita a partir do
-            // ponto de montagem do asset — que e medido DA ANCORA. Passar um bloco de filler
-            // desloca a NPC exatamente pela distancia daquele bloco ate a ancora, e como o bloco
-            // sorteado variava, o erro variava junto. Era essa a origem do desalinhamento que
-            // resistiu a todas as tentativas de compensar por posicao.
+            /* Normalize to the furniture's anchor before mounting.
+             A bed occupies six blocks, and mountOnBlock calculates where the body lies starting from
+             the asset's assembly point — which is measured FROM THE ANCHOR. Passing a filler block
+             displaces the NPC exactly by the distance from that block to the anchor, and since the
+             chosen block varied, the error varied along with it. That was the origin of the misalignment that
+             resisted all attempts to compensate by position. */
             Vector3i bedPos = FurnitureAnchorHelper.anchorOf(
                     world, npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
             if (ai.targetBlockPosition == null) {
@@ -714,73 +712,67 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             if (result instanceof BlockMountAPI.Mounted) {
                 LOGGER.info("[SimTale] NPC '{}' successfully mounted bed at ({},{},{})", npc.name, bedPos.x, bedPos.y, bedPos.z);
                 
-                // NAO posiciona nem gira a NPC aqui. O mountOnBlock acima ja fez isso.
-                //
-                // Confirmado no bytecode de BlockMountAPI.mountOnBlock, que executa, nesta ordem:
-                //
-                //   BlockType.getBeds() -> RotatedMountPointsArray.getRotated(rotationIndex)
-                //   BlockMountComponent.findAvailableSeat(...)   // escolhe o ponto de montagem
-                //   BlockMountPoint.computeWorldSpacePosition(blockPos)
-                //   BlockMountPoint.computeRotationEuler(rotationIndex)
-                //   TransformComponent.setPosition(...)          // aplica direto, sincrono
-                //   TransformComponent.setRotation(...)
-                //
-                // In other words, the engine knows the exact spot where the body lies on that bed model and
-                // applies it. The old code queued, immediately after, a Teleport to bedPos +
-                // (0.5, 2.0, 0.5) with a yaw coming from the bed ENTITY's TransformComponent —
-                // overwriting the two correct values with two wrong ones.
-                //
-                //  explicava tres sintomas de uma vez: a NPC deitada atravessada (o yaw da
-                // mobilia aponta para o lado por onde se entra, perpendicular a quem deita), a
-                // queda de ~1,4 bloco ate o colchao, e a ejecao lateral da fisica — que foi o
-                // motivo de a altura ter sido subida para 2.0 como paliativo. Nenhum desses
-                // problemas existe quando se deixa o sistema de montagem trabalhar.
-                //
-                // O leash ainda precisa ser preso: ele e o que a IA do role persegue, e o
-                // clearMoveTarget do MOVING_TO_BED o deixou no bloco AO LADO da cama. Sem isto,
-                // a NPC sai da cama e vai dormir no chao, ao lado. Como o mount ja atualizou o
-                // TransformComponent de forma sincrona, a posicao lida agora ja e a do colchao.
-                NPCMovementHelper.pinLeashAt(ref, ai, new Vector3d(transform.getPosition()));
+                /* do NOT position or rotate the NPC here. BlockMountAPI already did it.
+                 Confirmed in the bytecode of BlockMountAPI.mountOnBlock, which executes in this order:
+                 BlockType.getBeds() -> RotatedMountPointsArray.getRotated(rotationIndex)
+                 BlockMountComponent.findAvailableSeat(...)   // chooses the mount point
+                 BlockMountPoint.computeWorldSpacePosition(blockPos)
+                 BlockMountPoint.computeRotationEuler(rotationIndex)
+                 TransformComponent.setPosition(...)          // applies it directly, synchronously
+                 TransformComponent.setRotation(...)
 
-                // The POSE comes from here, not from the mount system.
-                //
-                // A test with these three calls turned off left the NPC STANDING on the bed, which
-                // settled the question: the mount handles position and rotation, but the one that
-                // lays the body down is MovementStates.sleeping plus the animation. Do not remove
-                // without repeating that test.
-                setSleepingState(ref, store, commandBuffer, true);
+                In other words, the engine knows the exact spot where the body lies on that bed model and
+                 applies it. The old code queued, immediately after, a Teleport to bedPos +
+                 (0.5, 2.0, 0.5) with a yaw coming from the bed ENTITY's TransformComponent —
+                 overwriting the two correct values with two wrong ones.
 
-                // There is deliberately no setState("Sleep") here.
-                //
-                // A call used to sit at this spot and it never did anything: our roles declare only
-                // Idle and ReturnHome, so the engine refused it every time with "State 'Sleep.null'
-                // does not exist and was set by an external call" — one log line per NPC per night,
-                // for no effect. Sleeping works because of the two calls around this comment:
-                // MovementStates.sleeping lays the body down and the animation holds the pose, while
-                // pinLeashAt above parks the leash on the NPC's own position so the role's Leash
-                // sensor stops firing and it settles back into Idle on its own.
-                //
-                // Giving the roles a real Sleep state is possible (vanilla does it with
-                // StateTransitions -> Laydown/Wake) and would let the role own the pose instead. It
-                // needs every state to be both sensed and set or the role fails to validate and
-                // spawning breaks server-wide — see scripts/add_returnhome_state.py for the time
-                // that already cost us. Not worth it while the mod drives sleep entirely from Java.
+                 That explains three symptoms at once: the NPC lying across the bed (the
+                 furniture's yaw points to where you enter, perpendicular to the person lying
+                 down), the ~1.4 block drop to the mattress, and the lateral physics offset —
+                 which was the reason the height had been raised to 2.0 as a temporary fix.
+                 None of these problems exist when you let the assembly system work.
+                 The leash still needs to be pinned: it's what the role AI chases, and the
+                 clearMoveTarget in MOVING_TO_BED left it on the block NEXT TO the bed. Without
+                 this, the NPC walks off the bed and sleeps on the floor nearby. Since the mount
+                 already updated the TransformComponent synchronously, the position read now is
+                 already the mattress position.
+
+                 The POSE comes from here, not from the mount system.
+                
+                 A test with these three calls turned off left the NPC STANDING on the bed, which
+                 settled the question: the mount handles position and rotation, but the one that
+                 lays the body down is MovementStates.sleeping plus the animation. Do not remove
+                 without repeating that test.
+                setSleepingState(ref, store, commandBuffer, true);*/
+
+                /* There is deliberately no setState("Sleep") here.
+                 A call used to sit at this spot and it never did anything: our roles declare only
+                 Idle and ReturnHome, so the engine refused it every time with "State 'Sleep.null'
+                 does not exist and was set by an external call" — one log line per NPC per night,
+                 for no effect. Sleeping works because of the two calls around this comment:
+                 MovementStates.sleeping lays the body down and the animation holds the pose, while
+                 pinLeashAt above parks the leash on the NPC's own position so the role's Leash
+                 sensor stops firing and it settles back into Idle on its own.
+                 Giving the roles a real Sleep state is possible (vanilla does it with
+                 StateTransitions -> Laydown/Wake) and would let the role own the pose instead. It
+                 needs every state to be both sensed and set or the role fails to validate and
+                 spawning breaks server-wide — see scripts/add_returnhome_state.py for the time
+                 that already cost us. Not worth it while the mod drives sleep entirely from Java.*/
                 playAnim(ref, AnimationSlot.Status, "Characters/Animations/Flavor/Sleep.blockyanim", "Sleep", store);
 
                 ai.currentTask = TaskType.SLEEPING;
             } else {
                 LOGGER.warn("[SimTale] Bed mount failed for NPC '{}': {}", npc.name, result);
 
-                // Any failure does not mean the bed is gone.
-                //
-                // ALREADY_MOUNTED only says that the NPC is stuck to a previous mount — the
-                // bed is intact. The old code treated any failure the same way: it erased
-                // npc.bedLocation and saved it to the database. In other words, a transient
-                // stumble cost the NPC her bed permanently, and she would go look for another
-                // one from scratch.
-                //
-                // Aqui a montagem velha e removida e a proxima tentativa acontece no proximo
-                // tick, com a cama preservada.
+                /* Any failure does not mean the bed is gone.
+                ALREADY_MOUNTED only says that the NPC is stuck to a previous mount — the
+                bed is intact. The old code treated any failure the same way: it erased
+                npc.bedLocation and saved it to the database. In other words, a transient
+                stumble cost the NPC her bed permanently, and she would go look for another
+                one from scratch.
+                */
+                // Here the old mount is removed and the next attempt happens on the next
+                // tick, with the bed preserved.*/
                 if (result == BlockMountAPI.DidNotMount.ALREADY_MOUNTED) {
                     commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
                     setSleepingState(ref, store, commandBuffer, false);
@@ -794,7 +786,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             ai.taskStartTime = world.getTick();
         }
 
-        // --- SLEEPING: maintain sleep state and recover energy ---
+        //SLEEPING: maintain sleep state and recover energy 
         if (ai.currentTask == TaskType.SLEEPING) {
             if (npc.bedLocation == null) {
                 // Bed was released elsewhere (e.g. destroyed by another system) — wake up cleanly
@@ -805,12 +797,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 ai.taskStartTime = world.getTick();
                 return;
             }
-
-
-
-
-
-
 
             NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) + 0.045f));
 
@@ -832,9 +818,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
             }
 
-            // A scheduled sleeper stays down until its window closes, however rested it is;
-            // otherwise it would pop out of bed in the middle of the night as soon as energy
-            // filled up. An exhaustion nap still ends on the old rule.
+            /* A scheduled sleeper stays down until its window closes, however rested it is;
+            otherwise it would pop out of bed in the middle of the night as soon as energy
+            filled up. An exhaustion nap still ends on the old rule.
+            */
             boolean sleepPeriodClosed = !NPCSleepHelper.isSleepPeriod(npc, world);
             boolean doneSleeping;
             if (ai.sleepingOnSchedule) {
@@ -882,12 +869,13 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 playAnim(ref, "Characters/Animations/Default/Idle.blockyanim", "Idle", store);
                 
                 if (npc.bedLocation != null) {
-                    // Must be the nullable lookup, not getBedApproachPosition: that one falls back
-                    // to the bed itself when nothing beside it is standable, and teleporting there
-                    // buries the NPC inside the bed. A bed pushed against a wall hits that case.
-                    //
-                    // Normalise to the anchor first — bedLocation may be any of the six blocks, and
-                    // the candidates are computed relative to whatever is passed in.
+                    /* Must be the nullable lookup, not getBedApproachPosition: that one falls back
+                    to the bed itself when nothing beside it is standable, and teleporting there
+                    buries the NPC inside the bed. A bed pushed against a wall hits that case.
+                    
+                    Normalise to the anchor first — bedLocation may be any of the six blocks, and
+                    the candidates are computed relative to whatever is passed in.
+                    */
                     Vector3i bedAnchor = FurnitureAnchorHelper.anchorOf(
                             world, npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
                     Vector3i exitPos = NPCMovementHelper.findStandableBeside(bedAnchor, transform, world);
@@ -896,8 +884,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                         transform.teleportPosition(new Vector3d(exitPos.x + 0.5, exitPos.y, exitPos.z + 0.5));
                         commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
                     } else {
-                        // Nowhere to step out to. Staying put is wrong-looking but recoverable;
-                        // teleporting into the bed is not.
+                        /* Nowhere to step out to. Staying put is wrong-looking but recoverable;
+                        teleporting into the bed is not.
+                        */
                         LOGGER.warn("[SimTale] NPC '{}' has no standable spot beside its bed at ({},{},{}); skipping wake-up teleport",
                                 npc.name, bedAnchor.x, bedAnchor.y, bedAnchor.z);
                     }
@@ -910,30 +899,36 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // --- Chest Interaction & Feeding Logic (Delegado ao NPCHungerHelper) ---
+        /* Chest Interaction & Feeding Logic (Delegado ao NPCHungerHelper) 
+        */
         NPCHungerHelper.tickStarvation(ref, npc, world, store);
         NPCHungerHelper.handleHungerLogic(ref, npc, ai, transform, world, store);
 
-        // --- Crop Harvesting & Hunting Logic (Delegado ao NPCWorkHelper) ---
+        /* Crop Harvesting & Hunting Logic (Delegado ao NPCWorkHelper) 
+        */
         NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store);
 
-        // `forcedByDebug` only means "outrank the sleep/hunger interrupts for the tick a debug
-        // command just set the task on" — every read site above (the interrupt checks, and
-        // NPCWorkHelper's own stagger bypass) has already had its chance to see it true this
-        // tick. Clearing it here, once, unconditionally, replaces a single reset buried inside
-        // NPCWorkHelper's IDLE+Farmer/Hunter branch, which every OTHER debug command that sets
-        // the flag (forcekill, forceplant setting MOVING_TO_WORK directly, the SimDebug UI's
-        // force buttons) never passed through — leaving the flag stuck true forever on any NPC
-        // those touched, which silently and permanently disabled its sleep and hunger interrupts.
+        /* `forcedByDebug` only means "outrank the sleep/hunger interrupts for the tick a debug
+         command just set the task on" — every read site above (the interrupt checks, and
+         NPCWorkHelper's own stagger bypass) has already had its chance to see it true this
+         tick. Clearing it here, once, unconditionally, replaces a single reset buried inside
+         NPCWorkHelper's IDLE+Farmer/Hunter branch, which every OTHER debug command that sets
+         the flag (forcekill, forceplant setting MOVING_TO_WORK directly, the SimDebug UI's
+         force buttons) never passed through — leaving the flag stuck true forever on any NPC
+         those touched, which silently and permanently disabled its sleep and hunger interrupts.
+        */
         ai.forcedByDebug = false;
 
-        // --- Socializing & Wandering (Delegado ao NPCSocialHelper) ---
+        /* Socializing & Wandering (Delegated to NPCSocialHelper) 
+        */
         NPCSocialHelper.handleSocialLogic(ref, npc, ai, transform, world, store);
 
-        // --- Leisure / Hobby (Delegado ao NPCLeisureHelper) ---
+        /* Leisure / Hobby (Delegated to NPCLeisureHelper) 
+        */
         NPCLeisureHelper.handleLeisureLogic(ref, npc, ai, transform, world, store);
 
-        // --- FINDING_BATH (OPTIMIZATION) ---
+        /* Finding Bath (Optimization)
+        */
         if (ai.currentTask == TaskType.FINDING_BATH && world.getTick() - ai.taskStartTime >= BATH_SEARCH_COOLDOWN_TICKS) {
             ai.taskStartTime = world.getTick();
             Vector3d pos = transform.getPosition();
@@ -953,9 +948,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 }
             }
             if (!found) {
-                // Back off before returning to IDLE. Without this the IDLE branch re-enters the
-                // search on the very next tick and this ~10.500-block sweep runs at 20 Hz per
-                // dirty NPC, with the NPC frozen in place the whole time.
+                /* Back off before returning to IDLE. Without this the IDLE branch re-enters the
+                 * search on the very next tick and this ~10.500-block sweep runs at 20 Hz per
+                 * dirty NPC, with the NPC frozen in place the whole time.
+                 */
                 ai.nextBathSearchTick = world.getTick() + BATH_SEARCH_RETRY_COOLDOWN_TICKS;
                 ai.currentTask = TaskType.IDLE;
             }
@@ -970,8 +966,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                 LOGGER.debug("[SimTale] NPC '{}' gave up reaching the water", npc.name);
                 clearMoveTarget(ref, ai);
                 ai.targetBlockPosition = null;
-                // Unreachable water still scores as the best option, so without the backoff the
-                // NPC is sent straight back to it on the next tick, forever.
+                /* Unreachable water still scores as the best option, so without the backoff the
+                 * NPC is sent straight back to it on the next tick, forever.
+                 */
                 ai.nextBathSearchTick = world.getTick() + BATH_SEARCH_RETRY_COOLDOWN_TICKS;
                 ai.currentTask = TaskType.IDLE;
                 return;
@@ -991,8 +988,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
         if (ai.currentTask == TaskType.BATHING) {
             NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) + 1.0f));
-            // The hygiene check alone was the only exit; if anything else clamped hygiene the
-            // NPC would swim forever.
+            /* The hygiene check alone was the only exit; if anything else clamped hygiene the
+             * NPC would swim forever.
+             */
             if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) >= 100f
                     || world.getTick() - ai.taskStartTime > BATH_DURATION_LIMIT_TICKS) {
                 ai.currentTask = TaskType.IDLE;
@@ -1000,37 +998,41 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // --- REAPING ---
+        /* REAPING 
+        */
         if (ai.currentTask == TaskType.REAPING && ai.dyingEntityId != null) {
-            // Self-heal against whatever it is (role's own appearance system, most likely —
-            // REAPER spawns on the "SimTale_Human_Male" role for its behavior, and that role's
-            // own "Appearance" is a normal human) keeps putting the human model back after
-            // SimNPCFactory's initial override. Checked every tick instead of once so it doesn't
-            // matter when the conflicting system runs relative to spawn.
+            /* Self-heal against whatever it is (role's own appearance system, most likely —
+             * REAPER spawns on the "SimTale_Human_Male" role for its behavior, and that role's
+             * own "Appearance" is a normal human) keeps putting the human model back after
+             * SimNPCFactory's initial override. Checked every tick instead of once so it doesn't
+             * matter when the conflicting system runs relative to spawn.
+             */
             PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
             if (pm != null && !SimNPCFactory.REAPER_MODEL_ASSET_ID.equals(pm.getModelReference().getModelAssetId())) {
-                // Through applyModel, which writes ModelComponent as well as PersistentModel.
-                //
-                // This self-heal ran every tick and kept "correcting" a model that visually never
-                // changed, because only the persisted component was being rewritten — the drawn
-                // one was never touched and never marked for resend. That is almost certainly the
-                // whole of the "Reaper still uses the player model" report: the id stored was
-                // right the entire time.
+                /* Through applyModel, which writes ModelComponent as well as PersistentModel.
+                 *
+                 * This self-heal ran every tick and kept "correcting" a model that visually never
+                 * changed, because only the persisted component was being rewritten — the drawn
+                 * one was never touched and never marked for resend. That is almost certainly the
+                 * whole of the "Reaper still uses the player model" report: the id stored was
+                 * right the entire time.
+                 */
                 SimNPCFactory.applyModel(store, ref, SimNPCFactory.REAPER_MODEL_ASSET_ID, 1.0f, new HashMap<>());
             }
 
             Ref<EntityStore> dyingRef = world.getEntityStore().getRefFromUUID(ai.dyingEntityId);
             TransformComponent dyingTransform = (dyingRef != null) ? store.getComponent(dyingRef, TransformComponent.getComponentType()) : null;
             if (dyingTransform == null) {
-                // The corpse is gone (already collected, chunk unloaded, removed by a command).
-                // This used to drop the Reaper to IDLE, which quietly turned Death into a
-                // permanent villager: she is spawned per-death and has no other exit, so nothing
-                // was ever going to despawn her again. She then wandered and socialised like
-                // anyone else — and, because the model self-heal above only runs while REAPING,
-                // the role's own Appearance system put the human model back on her within a few
-                // ticks. That is the "Reaper still in the world" and almost certainly the "Reaper
-                // is still using the player model" report too. Her target is gone, so her reason
-                // to exist is gone: she leaves.
+                /* The corpse is gone (already collected, chunk unloaded, removed by a command).
+                 * This used to drop the Reaper to IDLE, which quietly turned Death into a
+                 * permanent villager: she is spawned per-death and has no other exit, so nothing
+                 * was ever going to despawn her again. She then wandered and socialised like
+                 * anyone else — and, because the model self-heal above only runs while REAPING,
+                 * the role's own Appearance system put the human model back on her within a few
+                 * ticks. That is the "Reaper still in the world" and almost certainly the "Reaper
+                 * is still using the player model" report too. Her target is gone, so her reason
+                 * to exist is gone: she leaves.
+                 */
                 LOGGER.info("[SimTale] Reaper's target is gone — despawning her instead of leaving her in the world");
                 dismissReaper(npc, ref, commandBuffer);
                 return;
@@ -1051,8 +1053,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     Universe.get().getPlayers().forEach(p -> {
                         p.sendMessage(Message.translation("general.reaper.soul_taken").param("name", deceasedName));
                         try {
-                            // A raw stone stood in only because there was nothing better on hand.
-                            // Life_Essence actually reads as a collected soul.
+                            /* A raw stone stood in only because there was nothing better on hand.
+                             * Life_Essence actually reads as a collected soul.
+                             */
                             CommandManager.get().handleCommand(p, "give " + p.getUsername() + " Ingredient_Life_Essence --quantity=1");
                         } catch (Exception e) {
                             LOGGER.error("Error giving soul to player", e);
@@ -1060,16 +1063,18 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                     });
                     if (dyingNpc != null && dyingNpc.entityId != null) {
                         PlumbobSystem.removePlumbob(dyingNpc.entityId);
-                        // Record survives now instead of being deleted outright — foundation for
-                        // a future revive/cemetery feature (SimNPCPersistence.archiveToGraveyard).
+                        /* Record survives now instead of being deleted outright — foundation for
+                         * a future revive/cemetery feature (SimNPCPersistence.archiveToGraveyard).
+                         */
                         SimNPCPersistence.archiveToGraveyard(dyingNpc.entityId);
                     }
-                    // Same class of leak as the DB one above, just in memory: the corpse entity
-                    // was removed from the world here, but its SimNPCComponent stayed in
-                    // ACTIVE_NPCS/NPCS_BY_ID forever with a now-invalid entityRef — a permanent
-                    // ghost entry for every NPC that ever died, for the life of the server
-                    // process. Every list scan and lookup elsewhere had to keep guarding against
-                    // it via isValid() checks instead of it simply not being there.
+                    /* Same class of leak as the DB one above, just in memory: the corpse entity
+                     * was removed from the world here, but its SimNPCComponent stayed in
+                     * ACTIVE_NPCS/NPCS_BY_ID forever with a now-invalid entityRef — a permanent
+                     * ghost entry for every NPC that ever died, for the life of the server
+                     * process. Every list scan and lookup elsewhere had to keep guarding against
+                     * it via isValid() checks instead of it simply not being there.
+                     */
                     if (dyingNpc != null) {
                         SimTale.untrackNpc(dyingNpc);
                     }
@@ -1128,18 +1133,18 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // No replaceComponent here on purpose.
-        //
-        // ArchetypeChunk.getComponent() hands back the instance stored in the chunk itself —
-        // it does not clone — so every `ai.currentTask = ...` above is already visible to
-        // every other reader. Re-submitting the same instance only mattered if
-        // Store.replaceComponent had side effects, and its only one is notifying a
-        // RefChangeSystem registered for the component type; the mod's single RefChangeSystem
-        // (BedEntityRegistrySystem) is bound to PersistentModel, not to RoutineAIComponent.
-        //
-        // So the call was a per-NPC, per-tick no-op that still allocated a lambda and queued
-        // an entry on the command buffer. Dropping it also settles the question of the ~10
-        // early `return`s in this method: they never lost state to begin with.
+        /* No replaceComponent here on purpose.
+         *
+         * ArchetypeChunk.getComponent() hands back the instance stored in the chunk itself —
+         * it does not clone — so every `ai.currentTask = ...` above is already visible to
+         * every other reader. Re-submitting the same instance only mattered if
+         * Store.replaceComponent had side effects, and its only one is notifying a
+         * RefChangeSystem registered for the component type; the mod's single RefChangeSystem
+         * (BedEntityRegistrySystem) is bound to PersistentModel, not to RoutineAIComponent.
+         *
+         * So the call was a per-NPC, per-tick no-op that still allocated a lambda and queued
+         * an entry on the command buffer. Dropping it also settles the question of the ~10
+         * early `return`s in this method: they never lost state to begin with.
     }
 
     @NullableDecl
@@ -1168,9 +1173,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         double closestDistSq = Double.MAX_VALUE;
         Vector3d myPos = transform.getPosition();
 
-        // BedPos already implements equals/hashCode over x/y/z, so the set can hold the
-        // positions directly. Building "x,y,z" strings meant two throwaway allocations per
-        // bed per lookup, on a path that runs whenever an NPC goes looking for a bed.
+        /* BedPos already implements equals/hashCode over x/y/z, so the set can hold the
+         * positions directly. Building "x,y,z" strings meant two throwaway allocations per
+         * bed per lookup, on a path that runs whenever an NPC goes looking for a bed.
+         */
         Set<BedPos> claimedBeds = new HashSet<>();
         for (SimNPCComponent otherNpc : SimTale.ACTIVE_NPCS) {
             if (otherNpc.bedLocation != null) {
