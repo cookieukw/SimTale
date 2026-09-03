@@ -85,7 +85,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             LOGGER.atInfo().log("SimTale Debug: Held item is null or has no ID");
         }
 
-        // --- Place Baby Item on Block Click ---
+        // Place Baby Item on Block Click
         ItemStack heldItem = InventoryComponent.getItemInHand(playerRef.getStore(), playerRef);
         if (heldItem != null) {
             LOGGER.atInfo().log("SimTale Debug: Right-clicked holding item with ID: " + heldItem.getItemId());
