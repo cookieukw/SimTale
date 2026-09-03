@@ -591,7 +591,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
                         ai.currentTask = TaskType.MOVING_TO_BED;
                         playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
                     } else {
-                        // Segura a proxima busca e passa a passear.
+                        // Schedules next search and goes to wander.
                         ai.nextBedSearchTick = world.getTick() + BED_SEARCH_RETRY_COOLDOWN_TICKS;
                         ai.taskStartTime = world.getTick();
                         startWanderingFallback(ref, ai, npc, transform, store, world);
