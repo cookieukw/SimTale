@@ -1,10 +1,12 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleUtils;
 import com.cookieukw.SimTale.db.SimNPCData;
+import com.cookieukw.SimTale.logic.InteractionManager;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.Frozen;
@@ -572,6 +574,20 @@ once per NPC per tick for nothing.
 
         /* FINDING_BED */
         if (ai.currentTask == TaskType.FINDING_BED) {
+            if (npc.bedLocation == null && InteractionManager.isNpcAChild(npc)) {
+                BedPos parentBed = FamilyBonds.findParentBed(npc);
+                if (parentBed != null) {
+                    npc.bedLocation = parentBed;
+                    npc.family.homeX = parentBed.x;
+                    npc.family.homeY = parentBed.y;
+                    npc.family.homeZ = parentBed.z;
+                    npc.family.hasSharedHome = true;
+                    SimNPCPersistence.saveNPC(npc);
+                    LOGGER.info("[SimTale] Child NPC '{}' will use parents' bed at ({},{},{})",
+                            npc.name, parentBed.x, parentBed.y, parentBed.z);
+                }
+            }
+
             if (npc.bedLocation != null) {
                 LOGGER.info("[SimTale] NPC '{}' has bed at ({},{},{}), transitioning to MOVING_TO_BED",
                         npc.name, npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
@@ -784,6 +800,14 @@ once per NPC per tick for nothing.
                     commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
                     setSleepingState(ref, store, commandBuffer, false);
                     ai.currentTask = TaskType.ENTERING_BED;
+                } else if (InteractionManager.isNpcAChild(npc)) {
+                    // Child sharing parents' bed: if mount point is occupied, sleep alongside/on bed
+                    transform.setPosition(new Vector3d(bedPos.x + 0.5, bedPos.y + 0.6, bedPos.z + 0.5));
+                    pinLeashAt(ref, ai, transform.getPosition());
+                    playAnim(ref, AnimationSlot.Status, "Characters/Animations/Flavor/Sleep.blockyanim", "Sleep", store);
+                    ai.currentTask = TaskType.SLEEPING;
+                    LOGGER.info("[SimTale] Child NPC '{}' sharing parents' bed at ({},{},{})",
+                            npc.name, bedPos.x, bedPos.y, bedPos.z);
                 } else {
                     npc.bedLocation = null;
                     SimNPCPersistence.saveNPC(npc);
