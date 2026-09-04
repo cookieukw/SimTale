@@ -36,6 +36,10 @@ Segure a ferramenta correspondente e use **Atribuir Trabalho** (Assign Job) no p
 
 Um NPC pode recusar: cada um deles possui uma lista aleatória de trabalhos que gosta e trabalhos que odeia.
 
+### Restrições de trabalho infantil
+
+Apenas NPCs nas fases de vida `ADOLESCENTE` (`TEEN`) ou `ADULTO` (`ADULT`) podem receber empregos. Crianças pequenas (`BABY`, `TODDLER`, `CHILD`) são protegidas e recusarão ferramentas ou serviços ("Eu sou só uma criança!"). No entanto, crianças podem praticar livremente hobbies de lazer como pesca ou jardinagem quando sua diversão baixar, permitindo que fiquem perto das plantações ou lagos da família sem compromisso econômico formal.
+
 :::caution A correspondência é feita pelo nome do item
 A checagem procura por essas palavras dentro da ID do item. Uma espada cujo ID não contenha a palavra "sword" não será reconhecida. Esta é uma falha conhecida.
 :::
