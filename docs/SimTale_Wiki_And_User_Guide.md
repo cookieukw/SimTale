@@ -167,9 +167,11 @@ Active NPCs possess a ticking **Needs System** that drives their daily routine:
 
 ### The Sleep & Bed Registry System
 SimTale features a robust physical bed detection engine:
-*   **Registry:** Coordinates of beds are stored in a thread-safe registry. It includes deduplication algorithms (ignoring double Hytale bed blocks, merging pillows and feet blocks into one coordinates index).
-*   **Home Claiming:** NPCs without a bed will seek unclaimed beds within a 96-block radius. Claiming a bed sets that location as their official permanent home.
-*   **Family Rules:** Married couples share a bed. Children automatically inherit their parents' home claiming registry, sleeping in the same house until reaching adulthood.
+*   **Registry:** Coordinates of beds are stored in a thread-safe registry (`BedRegistry`). It includes deduplication algorithms (ignoring double Hytale bed blocks, merging pillows and feet blocks into one coordinates index).
+*   **Home Claiming:** Adult NPCs without a bed will seek unclaimed beds within a 96-block radius. Claiming a bed sets that location as their official permanent home.
+*   **Child Bed Sharing:** Children do not need or claim separate beds in the village. Upon entering `FINDING_BED`, child NPCs automatically resolve and inherit their parents' registered bed (`FamilyBonds.findParentBed`).
+*   **Co-Sleeping & Mount Fallback:** Beds can be shared between family members. The bed ownership check (`isBedTakenByAnotherNpc`) specifically permits children to share beds with their parents (`FamilyBonds.isChildOf`). If a parent is already occupying the native block mount point, the child lies down alongside or on the bed with the `Sleep` pose in `TaskType.SLEEPING` without dropping or resetting their bed reference.
+*   **Sleep Disturbance Protection:** While resting in bed, `GrowthTickSystem` protects children from having their rest interrupted or being pulled out of bed when a parent moves around the house during the night.
 
 ---
 
