@@ -619,6 +619,10 @@ public class InteractionManager {
     }
 
     private static InteractionOutcome handleProfession(SimNPCComponent npc, PlayerRef playerRef, Relationship rel) {
+        if (isNpcAChild(npc)) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.prof.assign.child").param("name", npc.name));
+        }
+
         Optional<ItemStack> optItem = getHeldItemFromPlayer(playerRef);
         if (optItem.isEmpty()) {
             return InteractionOutcome.error(Message.translation("npc-dialogues.prof.assign.noitem").param("name", npc.name));
