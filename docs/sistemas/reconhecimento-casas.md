@@ -48,9 +48,10 @@ Se qualquer um desses itens obrigatórios não for detectado na varredura do int
 ### Abertura Automática de Portas (Estilo Villagers)
 Gerenciada por `NPCDoorHelper.java`, chamada na rotina ativa do NPC. **Não depende de casa registrada** — ver a seção de dificuldades abaixo para o porquê.
 
-*   **Detecção**: varredura 3×3×3 de blocos ao redor do NPC, usando a flag `BlockType.isDoor()` do próprio motor. `DoorInteraction.getDoorAtPosition()` normaliza a posição (uma porta de duas alturas aparece em várias células da varredura, e todas convergem para a mesma posição canônica).
-*   **Abertura**: o estado é calculado por `DoorBlockUtils.getInteractionState(estadoAtual, estadoDesejado)`. O lado da abertura segue a mesma regra do jogo (`DoorBlockUtils.isInFrontOfDoor`): quem está **na frente** faz a porta abrir **para fora**, de modo que a folha nunca gire por cima de quem abriu. `canOpenDoor()` cobre o caso `DoorBlocked`.
-*   **Fechamento**: cooldown de 40 ticks (2 segundos) no mapa `OPENED_DOORS`. Ao expirar, a porta fecha, a menos que ainda haja NPC a menos de 2 blocos — nesse caso o prazo é renovado em vez de fechar na cara de quem está passando.
+*   **Detecção Direcional por Sondas**: Em vez de uma varredura 3×3×3 ao redor do NPC (que abria portas laterais ou atrás do personagem), o sistema projeta sondas lineares à frente (`PROBE_DISTANCES = {0.0, 1.0, 1.8, 2.4}`) ao longo do vetor de caminhada em direção ao destino. A checagem consulta `world.getBlockType` e valida a flag nativa `BlockType.isDoor()`, com coordenadas canônicas normalizadas via `DoorInteraction.getDoorAtPosition()`.
+*   **Filtro de Intenção e Cone de Visão**: Para impedir a abertura acidental de portas quando o NPC apenas caminha paralelamente a uma parede ou passa perto sem intenção de entrar, é calculado o produto escalar (`FACING_DOT_THRESHOLD = 0.5`, cone de ~60 graus) entre o vetor de caminhada e a porta, além da checagem de travessia do plano da porta (`CROSSING_PROBE_DISTANCE = 1.5`) em relação ao destino final da rota.
+*   **Abertura e Portas Duplas**: O estado é calculado por `DoorBlockUtils.getInteractionState(estadoAtual, estadoDesejado)`. O lado da abertura segue a regra nativa do jogo (`DoorBlockUtils.isInFrontOfDoor`): quem está na frente faz a porta abrir para fora, evitando que a folha gire sobre o personagem. A API nativa `DoorInteraction` resolve a transição de estado inclusive para portas duplas integradas.
+*   **Fechamento**: Cooldown de 40 ticks (2 segundos) no mapa `OPENED_DOORS`. Ao expirar, a porta fecha automaticamente, a menos que ainda haja algum NPC a menos de 2,5 blocos de raio — caso em que o prazo é renovado para não fechar na passagem.
 
 ---
 
