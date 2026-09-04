@@ -32,18 +32,32 @@ baby around, and can hand it to the other parent.
 
 | Stage | Notes |
 |---|---|
-| `BABY` | Carried in the inventory |
-| `TODDLER` | |
-| `CHILD` | Model scaled down. |
-| `TEEN` | Model scaled down slightly. |
-| `ADULT` | Full routine: job, house, relationships |
+| `BABY` | Carried as an item in inventory or placed in care |
+| `TODDLER` | Walks around, plays, inherits parents' bed for co-sleeping |
+| `CHILD` | Model scaled down, explores, co-sleeps with parents or uses own bed, participates in hobbies |
+| `TEEN` | Model slightly reduced, can take on formal jobs |
+| `ADULT` | Full adult routine: careers, house claiming, independent relationships |
 
-Children grow over time on their own, with the model scaling up at each stage.
+Children grow over time on their own, with their model scaling up smoothly across stages.
+
+## Family Bonds & Co-Sleeping
+
+Through the `FamilyBonds` system, NPCs retain hereditary connections with their biological parents and siblings:
+
+- **Bed Sharing / Co-Sleeping**: Toddlers and Children do not require separate houses or beds to stay rested. When their bedtime arrives (`FINDING_BED`), they locate their parents' registered bed (`FamilyBonds.findParentBed`). If the parent is already sleeping, the child co-sleeps in the same bed without displacing the parent.
+- **Sleep Protection**: A growing child inside a bed remains safe during lifecycle ticks without getting frozen or kicked out of routine animations.
+- **Parental Recognition**: Interacting with your child opens an interface customized for filial bonds, displaying their life stage and parental relationship title.
+
+## Work Eligibility & Hobbies
+
+SimTale implements child protection rules:
+- **Formal Job Immunity**: `BABY`, `TODDLER`, and `CHILD` stages cannot be assigned adult jobs. Trying to assign a profession with a tool will prompt a gentle refusal ("I'm just a kid!").
+- **Hobbies & Assistance**: Children can still enjoy leisure activities like fishing or gardening when their fun need drops, allowing them to hang out near family crop plots or water spots without taking on economic burdens.
 
 ## Care
 
 Babies need care. Passing the baby back and forth between parents shares the load, and there is an
-offline simulation so time away from the server still counts.
+offline simulation so time away from the server still counts. You can pick up and carry toddlers or children when needed.
 
 ## Death
 
