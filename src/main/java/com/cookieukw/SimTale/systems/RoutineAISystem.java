@@ -208,9 +208,9 @@ once per NPC per tick for nothing.
             return;
         }
 
-        // unmounts and clears MountedComponent if the distant NPC is no longer in active sleep state
+        // unmounts and clears MountedComponent if the distant NPC is no longer in active sleep or sit state
         // or if its bed chunk has been unloaded, avoiding crashes in Hytale's ChunkUnloadingSystem.
-        if (ai.currentTask != TaskType.SLEEPING && ai.currentTask != TaskType.ENTERING_BED) {
+        if (ai.currentTask != TaskType.SLEEPING && ai.currentTask != TaskType.ENTERING_BED && ai.currentTask != TaskType.SITTING) {
             if (chunk.getComponent(index, MountedComponent.getComponentType()) != null) {
                 commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
             }
@@ -405,6 +405,9 @@ once per NPC per tick for nothing.
         if ((sleepWindowOpen || exhausted) && world.getTick() >= ai.nextBedSearchTick
                 && !alreadyHeadedToBed && !inDeathFlow && !forcedByCommand) {
 
+            if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
+                NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
+            }
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
             ai.taskStartTime = 0; // bypass cooldown
@@ -432,6 +435,9 @@ once per NPC per tick for nothing.
                 && ai.currentTask != TaskType.WAKING
                 && !inDeathFlow && !forcedByCommand) {
 
+            if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
+                NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
+            }
             ai.currentTask = TaskType.FINDING_FOOD;
             ai.targetBlockPosition = null;
             ai.taskStartTime = world.getTick() - NPCHungerHelper.FOOD_SEARCH_COOLDOWN_TICKS;
@@ -442,6 +448,9 @@ once per NPC per tick for nothing.
         /* Force sleep from command (uses SimNPCComponent flag to survive tick overwrite)*/
         if (npc.forceSleep) {
             npc.forceSleep = false;
+            if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
+                NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
+            }
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
             ai.taskStartTime = 0; // bypass cooldown
@@ -521,6 +530,13 @@ once per NPC per tick for nothing.
                     ai.taskStartTime = world.getTick();
                     playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
                 }
+            }
+
+            if (ai.currentTask == TaskType.IDLE
+                    && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < 70f || Math.random() < 0.15)
+                    && world.getTick() >= ai.nextChairSearchTick) {
+                ai.currentTask = TaskType.FINDING_CHAIR;
+                ai.taskStartTime = world.getTick();
             }
 
             /* Deliberately its own statement rather than the tail of the ladder above.
@@ -958,6 +974,10 @@ once per NPC per tick for nothing.
         */
         NPCLeisureHelper.handleLeisureLogic(ref, npc, ai, transform, world, store);
 
+        /* Seating / Resting on chairs (Delegated to NPCSeatingHelper) 
+        */
+        NPCSeatingHelper.handleSeatingLogic(ref, npc, ai, transform, world, store, commandBuffer);
+
         /* Finding Bath (Optimization)
         */
         if (ai.currentTask == TaskType.FINDING_BATH && world.getTick() - ai.taskStartTime >= BATH_SEARCH_COOLDOWN_TICKS) {
@@ -1326,6 +1346,10 @@ once per NPC per tick for nothing.
         ai.socializeTargetId = null;
         ai.socializeHost = false;
         ai.wanderTimer = 0;
+        if (ai.targetChairPos != null) {
+            ChairRegistry.releaseChair(ai.targetChairPos);
+            ai.targetChairPos = null;
+        }
     }
 
     private static boolean validateAndClaimBed(World world, BedPos bestBed, SimNPCComponent npc) {
