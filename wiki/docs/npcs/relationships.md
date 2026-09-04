@@ -22,6 +22,7 @@ Every NPC keeps a separate relationship with each player and with other NPCs.
 
 Romantic branch: `DATING` → `ENGAGED` → `MARRIED`.
 Negative branch: `RIVAL` and `ENEMY`.
+Filial branch (Children): `SON` / `DAUGHTER` (tracked via `FamilyBonds` with dedicated parental affection tiers instead of peer friendship or romantic progression).
 
 Status changes what she says to you. The same greeting has different wording for a stranger and for
 a spouse.
