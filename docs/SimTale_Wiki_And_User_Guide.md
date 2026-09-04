@@ -128,7 +128,7 @@ When clicking an interaction button in the UI, the result is calculated using th
 
 ---
 
-## 2. Personality, Traits & Preferences
+## 3. Personality, Traits & Preferences
 
 NPCs are not identical copies. Each NPC is spawned with random or inherited **Traits** and **Preferences** that dictate their likes, dislikes, and behavior.
 
