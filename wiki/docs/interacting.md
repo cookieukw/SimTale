@@ -15,16 +15,18 @@ Aim at an NPC and press **F**, or right-click. The interaction panel opens.
 
 | Section | Contents |
 |---|---|
-| Header | Name, job, mood |
+| Header | Name, job, mood, and **Life Stage** (`BABY`, `TODDLER`, `CHILD`, `TEEN`, `ADULT`) |
 | Needs | Hunger and energy, colour-coded by severity |
 | Traits | Personality traits |
 | Identity | Job and hobby, as item icons |
-| Tastes | Everything she likes and everything she hates, as icons |
-| Family | Parents and children |
-| Status | Relationship, friendship and affinity percentages |
+| Tastes | Showcase of items they love and hate, as interactive icons |
+| Family | Parents, spouses, and children |
+| Status | Relationship, friendship, affinity, or **Filial Kinship** (for your children, showing son/daughter bond tiers instead of romantic levels) |
 
-The colours on the hunger line follow the thresholds the routine actually uses: green above 50,
-yellow below 50, orange below 25, red below 5. At 5, the NPC cries and abandons all tasks.
+The colors on the hunger line follow the thresholds the routine actually uses: green above 50, yellow below 50, orange below 25, red below 5. At 5, the NPC cries and abandons all tasks.
+
+### Dynamic Camera Framing
+When the interaction panel opens, the camera dynamically adjusts its distance, height offset, and pitch based on the NPC's actual bounding box and growth stage scale. This ensures toddlers and children are centered perfectly in frame without pointing awkwardly at the empty air above them.
 
 ## Actions
 
@@ -32,11 +34,12 @@ yellow below 50, orange below 25, red below 5. At 5, the NPC cries and abandons 
 |---|---|
 | **Chat** | Conversation. Grants a small boost to Friendship (+5) and Affinity (+5 to +10). If Generative AI is enabled, the NPC will actively write a response back. |
 | **Tell joke** | Lands or flops depending on her humour. Fails entirely if enemies. Cheers up sad/angry partners. NPCs with the `FUNNY` trait give a massive +15 affinity boost. |
-| **Flirt** | Requires a good baseline relationship. Unlike a certain life simulator game, you can't just spam this 50 times in a row until they marry you. Guaranteed to fail and drop relationship points if enemies, strangers, or angry. Readily accepted by partners or NPCs with the `SHY` trait. |
+| **Flirt** | Requires a good baseline relationship (hidden/disabled for children). Unlike a certain life simulator game, you can't just spam this 50 times in a row until they marry you. Guaranteed to fail and drop relationship points if enemies, strangers, or angry. Readily accepted by partners or NPCs with the `SHY` trait. |
 | **Give gift** | Hands over whatever you are holding. (See below for gift logic) |
 | **Insult** | Costs up to -30 trust and affinity, and she remembers it. (Clementine will remember that). Partners will react very poorly. |
 | **Scold** | Specific to your children. Reactions vary by age: Teens become angry, Adults become bored, and Babies/Toddlers become sad. Repeated scolding drops trust and affinity. |
-| **Assign job** | Sets her job from the tool you are holding (e.g., holding a hoe assigns Farmer). |
+| **Pick Up / Carry** | Allows carrying toddlers or children on your back or shoulders. Release by crouching and right-clicking a block or typing `/simtale putdown`. |
+| **Assign job** | Sets her job from the tool you are holding (e.g., holding a hoe assigns Farmer). Protected: young children will refuse to work. |
 | **View pregnancy** | Opens the gestation panel |
 | **Inventory** | Opens her inventory |
 
