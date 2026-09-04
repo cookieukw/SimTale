@@ -153,7 +153,7 @@ NPCs hold a memory buffer. If you insult an NPC, they will remember it for **300
 
 ---
 
-## 3. NPC Needs & Autonomous Routine AI
+## 4. NPC Needs & Autonomous Routine AI
 
 Active NPCs possess a ticking **Needs System** that drives their daily routine:
 *   **Hunger (0 to 100):** Decays over time. Below 30, the NPC enters the `FINDING_FOOD` state, pathfinding to food chests or crops. If Hunger hits 0, they will collapse and begin dying.
