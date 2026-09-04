@@ -171,7 +171,7 @@ SimTale features a robust physical bed detection engine:
 
 ---
 
-## 4. Marriage, Pregnancy & Lifecycles
+## 5. Marriage, Pregnancy & Lifecycles
 
 Players can start a family with NPCs, leading to pregnancy and children who grow up dynamically.
 
@@ -207,7 +207,7 @@ As the world ticks, children grow through five distinct stages:
 
 ---
 
-## 5. The Baby Care & Co-Parenting System
+## 6. The Baby Care & Co-Parenting System
 
 SimTale implements a cooperative turn-based baby management system.
 
@@ -231,7 +231,7 @@ Caring actions accumulate positive experiences. Neglect (letting needs sit below
 
 ---
 
-## 6. Professions & Job Assignment
+## 7. Professions & Job Assignment
 
 You can employ adult NPCs to gather resources for you.
 
@@ -257,33 +257,55 @@ NPCs will not always work for you:
 
 ---
 
-## 7. Interface (UI) Manual
+## 8. Interface (UI) Manual
 
-This section explains every button, indicator, and field in the custom SimTale interfaces.
+This section explains every button, indicator, camera behavior, and field in the custom SimTale interfaces.
 
 ### NPC Interaction Page
 This interface opens when right-clicking (`F` key) an active NPC.
 
 ```
 +--------------------------------------------------------------+
-| [Image Placeholder: NPC Interaction UI]                      |
-| (Main page layout showing Npc name, stats, and action buttons)|
+| [NPC Interaction UI Layout]                                  |
+| Header: Name, Profession / Stage, Mood                       |
+| Info: Hunger, Energy, Traits, Taste Showcase (Items/Hobby)   |
+| Preferences: Likes, Hates, Fav Season                        |
+| Family: Parents, Children                                    |
+| Bottom Well: Relationship / Filial Bond Status               |
+| Action Buttons: Chat, Joke, Gift, Scold/Insult, Pick Up, etc |
 +--------------------------------------------------------------+
 ```
 
+*   **Dynamic Cinematic Camera:**
+    *   The player camera shifts 2.0 meters back and 0.55 meters to the right, smoothly framing the NPC on the left portion of the screen.
+    *   **Bounding-Box Scaling:** Target height is calculated dynamically from `BoundingBox.height() * 0.8` rather than an adult constant, ensuring babies, toddlers, and children are centered instead of having the camera aim over their heads.
+    *   Restores the player's original rotation upon closing the page.
+*   **NPC Freeze & Animation Safety:**
+    *   Opening the interface immediately clears any pending walk destination (`clearMoveTarget`), resets task to `IDLE`, sets the NPC to face the player, and pins the animation to `Idle` while frozen (`NpcFreezeUtil`).
+    *   Dismissing the menu cleanly unfreezes the NPC so it resumes its routine without gliding on ice.
 *   **Header Name (#NpcName):** Displays the NPC's full name. The text color shifts dynamically (Red for Angry, Blue for Sad).
 *   **Profession / Stage Indicator (#NpcProfession):** Displays the current trade for adults (e.g. *"Job: Miner"* or *"Job: Unemployed"*). For children, this line dynamically adapts to display **"Stage: Child"**, **"Stage: Toddler"**, or **"Stage: Baby"** instead of an employment title.
 *   **Mood Status (#NpcMood):** Displays the current temporary emotion and emoji (e.g. *"Humor: Feliz :)"*).
 *   **Traits List (#NpcTraits):** Lists the permanent personality traits (e.g. *"Traits: Greedy, Shy"*).
-*   **Preferences (#NpcLikes / #NpcHates / #NpcHobby / #NpcSeason):** Displays what they like/dislike, their favorite season, and hobby. Helpful for selecting gifts!
-*   **Relationship Status (#NpcRelationship):** Shows Friendship and Affinity. When interacting with your **own child**, the title transforms into **"Son"**, **"Daughter"**, or **"Child"** with parental bond metrics `(Bond: X%, Affinity: Y%)`, replacing standard adult friendship tiers like *"Best Friend"*.
-*   **Family Panel (#NpcFamilyParents / #NpcFamilyChildren):** Lists known parents (omitting missing parent labels if single-parent) and children along with their growth stages.
+*   **Visual Taste Showcase (#SlotProfession, #SlotHobby, #Like0..5, #Hate0..5):**
+    *   Displays visual item icons: copper-tier tools for professions, specialized items for hobbies (e.g., carrot for gardening, fishing trap for fishing).
+    *   Displays up to 6 icons per row for liked and hated foods and items.
+    *   Automatically hides empty slots (e.g. `#SlotProfession` is hidden for unemployed NPCs and children).
+*   **Preferences (#NpcSeason):** Displays preferred season.
+*   **Needs Overview:** Shows Hunger and Energy percentages with intuitive color coding.
+*   **Relationship & Filial Bond (#NpcRelationship):**
+    *   **General NPCs:** Displays Friendship, Affinity, and current status (`Stranger`, `Acquaintance`, `Friend`, `Good Friend`, `Best Friend`, `Dating`, `Married`, `Enemies`).
+    *   **Own Children:** Automatically detects parentage via `ParentChildBond`. Replaces adult tiers with **"Son"**, **"Daughter"**, or **"Child"** accompanied by family bond metrics: `(Bond: X%, Affinity: Y%)`.
+*   **Family Panel (#NpcFamilyParents / #NpcFamilyChildren):**
+    *   **Parents:** Lists registered mother and father. Formatted cleanly: if only one parent is registered, omits redundant placeholder labels (e.g. shows *"kukkie"* instead of *"kukkie & Desconhecido"*).
+    *   **Children:** Lists offspring and their current developmental stage.
 *   **Interactions Buttons:**
     *   **Chat:** Friendly talk. Increases social need and friendship.
     *   **Joke:** Tells a joke. Risky but fun.
-    *   **Flirt:** Romantic action. Hidden for children.
+    *   **Flirt:** Romantic action. Automatically hidden for children.
     *   **Gift:** Opens inventory select to hand over the active hotbar item.
     *   **Insult / Scold:** Hostile dialogue for general NPCs. Dynamically switches to **Scold** (*Brigar*) when interacting with your own child.
+    *   **Pick Up:** Allows lifting toddlers/children into arms.
     *   **Assign Job:** Attempts to employ the NPC using your held tool. Blocked for children.
     *   **Pregnancy Details:** Opens the pregnancy track screen. Only visible for pregnant female NPCs.
 
