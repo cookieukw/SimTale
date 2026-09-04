@@ -96,6 +96,7 @@ journal.task.wandering = passeando por aí
 journal.task.away = fora, numa expedição
 journal.task.dying = em maus lençóis
 journal.task.building = trabalhando numa construção
+journal.task.resting = descansando numa cadeira
 journal.task.working = trabalhando
 
 house.check.unenclosed = A casa não está totalmente cercada por paredes ou é grande demais!
