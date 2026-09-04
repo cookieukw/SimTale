@@ -6,7 +6,7 @@ import com.cookieukw.SimTale.core.Child;
 import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
-import com.cookieukw.SimTale.core.SimBedData.BedPos;
+import com.cookieukw.SimTale.db.SimBedData.BedPos;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
