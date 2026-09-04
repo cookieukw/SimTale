@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.core.lifecycle;
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Gender;
+import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.Trait;
@@ -310,7 +311,9 @@ public class GrowthManager {
             if (oldNpc != null) {
                 teenNpc.personality = oldNpc.personality;
                 teenNpc.preferences = oldNpc.preferences;
-                teenNpc.profession = oldNpc.profession;
+                teenNpc.profession = (oldNpc.profession != null && oldNpc.profession != Profession.UNEMPLOYED)
+                        ? oldNpc.profession
+                        : Profession.values()[(int)(Math.random() * Profession.values().length)];
             }
             teenRef.getStore().putComponent(teenRef, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(teenNpc.name)));
             teenRef.getStore().putComponent(teenRef, Nameplate.getComponentType(), new Nameplate(teenNpc.name));
