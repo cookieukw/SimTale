@@ -17,6 +17,7 @@ import com.cookieukw.SimTale.engine.Animal;
 import com.cookieukw.SimTale.engine.MagicDataLoader;
 import com.cookieukw.SimTale.engine.MagicEngine;
 import com.cookieukw.SimTale.engine.Question;
+import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookieukw.SimTale.logic.JobType;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
@@ -464,6 +465,11 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
     }
 
     private void handleProfessionChange(PlayerRef sender, String message, SimNPCComponent npc, FriendshipTier tier) {
+        if (InteractionManager.isNpcAChild(npc)) {
+            sendReply(sender, Message.translation("npc-dialogues.prof.assign.child").param("name", npc.name));
+            return;
+        }
+
         int affinity = npc.getRelationship(sender.getUuid()).friendship;
         if (affinity <= 20) {
             sendReply(sender, Message.translation(getRandomVariant("npc-interactions.prof.reject", tier, 3)).param("name", npc.name));
@@ -498,6 +504,11 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
     }
 
     private void assignJob(PlayerRef sender, SimNPCComponent npc, long currentTick, JobType job, FriendshipTier tier) {
+        if (InteractionManager.isNpcAChild(npc)) {
+            sendReply(sender, Message.translation("npc-dialogues.prof.assign.child").param("name", npc.name));
+            return;
+        }
+
         if (npc.profession == null) {
             npc.profession = Profession.UNEMPLOYED;
         }
