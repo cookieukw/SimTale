@@ -40,6 +40,7 @@ import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.event.EventPriority;
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.event.events.entity.EntityRemoveEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
@@ -252,6 +253,14 @@ public class SimTale extends JavaPlugin {
                 new SimTaleChatHandler());
         
         this.getEventRegistry().registerGlobal(PlayerReadyEvent.class, new PlayerJoinHandler());
+
+        this.getEventRegistry().registerGlobal(EntityRemoveEvent.class, event -> {
+            if (event == null || event.getEntity() == null) return;
+            UUID entityUuid = event.getEntity().getUuid();
+            if (entityUuid != null) {
+                SimTale.untrackNpcById(entityUuid);
+            }
+        });
 
         this.getCommandRegistry()
                 .registerCommand(new SimTaleCommand());
