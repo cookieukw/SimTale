@@ -371,7 +371,7 @@ Accessed via `/simdebug`, this panel gives administrators full control over NPC 
 
 ---
 
-## 8. Player Commands Reference
+## 9. Player Commands Reference
 
 These commands are registered for standard game play under the `"Adventure"` permission group.
 
@@ -411,7 +411,7 @@ These commands are registered for standard game play under the `"Adventure"` per
 
 ---
 
-## 9. Debug Commands Reference
+## 10. Debug Commands Reference
 
 These administrative commands are used by developers and moderators to skip simulation times and test triggers.
 
