@@ -203,13 +203,10 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     }
 
     @Override
+    @SuppressWarnings("removal")
     public void update(@Nonnull World world, @Nonnull Player player, @Nonnull MarkersCollector collector) {
-        Ref<EntityStore> pEntityRef = player.getReference();
-        if (pEntityRef == null) return;
-
-        PlayerRef playerRef = pEntityRef.getStore().getComponent(pEntityRef, Universe.get().getPlayerRefComponentType());
-        if (playerRef == null) return;
-        UUID viewerId = playerRef.getUuid();
+        PlayerRef playerRef = player.getPlayerRef();
+        UUID viewerId = (playerRef != null) ? playerRef.getUuid() : player.getUuid();
         if (viewerId == null) return;
 
         List<NpcMarker> current = snapshot;
