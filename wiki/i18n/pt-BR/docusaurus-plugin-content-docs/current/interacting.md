@@ -15,15 +15,18 @@ Aponte para um NPC e aperte **F**, ou clique com o botão direito. O painel de i
 
 | Seção | Conteúdo |
 |---|---|
-| Cabeçalho | Nome, trabalho, humor |
+| Cabeçalho | Nome, trabalho, humor e **Fase da Vida** (`BABY`, `TODDLER`, `CHILD`, `TEEN`, `ADULT`) |
 | Necessidades | Fome e energia, codificadas por cor conforme a gravidade |
 | Traços | Traços de personalidade |
 | Identidade | Trabalho e hobby, como ícones de itens |
-| Gostos | Tudo o que ela gosta e odeia, como ícones |
-| Família | Pais e filhos |
-| Status | Porcentagens de relacionamento, amizade e afinidade |
+| Gostos | Vitrine de itens favoritos e odiados, como ícones interativos |
+| Família | Pais, cônjuges e filhos |
+| Status | Relacionamento, amizade, afinidade ou **Vínculo Filial** (para seus filhos, mostrando níveis de carinho parental como Filho/Filha em vez de títulos românticos) |
 
 As cores na barra de fome seguem os limites que a rotina realmente usa: verde acima de 50, amarelo abaixo de 50, laranja abaixo de 25, vermelho abaixo de 5. No nível 5, o NPC chora e abandona todas as tarefas.
+
+### Enquadramento Dinâmico de Câmera
+Ao abrir o painel de interação, a câmera ajusta dinamicamente a distância, elevação e inclinação vertical com base na caixa de colisão real (bounding box) e escala do NPC. Isso garante que crianças pequenas fiquem perfeitamente centralizadas na tela, em vez da câmera mirar no ar vazio acima de suas cabeças.
 
 ## Ações
 
@@ -31,11 +34,12 @@ As cores na barra de fome seguem os limites que a rotina realmente usa: verde ac
 |---|---|
 | **Conversar (Chat)** | Bate-papo. Dá um pequeno aumento na Amizade (+5) e Afinidade (+5 a +10). Se a IA Gerativa estiver ativada, o NPC escreverá ativamente uma resposta. |
 | **Contar piada (Joke)** | Dá certo ou fracassa dependendo do senso de humor dela. Falha totalmente se forem inimigos. Anima parceiros tristes/irritados. NPCs com o traço `ENGRAÇADO` (`FUNNY`) dão um aumento massivo de +15 na afinidade. |
-| **Flertar (Flirt)** | Exige uma boa base de relacionamento. Diferente de certo jogo simulador de vida, você não pode simplesmente floodar a interação de flerte 50 vezes seguidas até eles casarem com você. Falha garantida e queda de relacionamento se forem inimigos, estranhos ou se o NPC estiver irritado. Facilmente aceito por parceiros ou NPCs com o traço `TÍMIDO` (`SHY`). |
+| **Flertar (Flirt)** | Exige uma boa base de relacionamento (desabilitado para crianças). Diferente de certo jogo simulador de vida, você não pode simplesmente floodar a interação de flerte 50 vezes seguidas até eles casarem com você. Falha garantida e queda de relacionamento se forem inimigos, estranhos ou se o NPC estiver irritado. |
 | **Dar presente (Gift)** | Entrega o que você estiver segurando. (Veja abaixo a lógica de presentes) |
 | **Insultar (Insult)** | Custa até -30 de confiança e afinidade, e ela se lembrará disso. (Clementine vai se lembrar disso). Parceiros vão reagir muito mal. |
 | **Dar bronca (Scold)** | Específico para os seus filhos. As reações variam conforme a idade: Adolescentes ficam com raiva, Adultos ficam entediados, e Bebês/Crianças pequenas ficam tristes. Dar bronca repetidamente reduz a confiança e afinidade. |
-| **Atribuir trabalho (Assign job)** | Define o trabalho dela com base na ferramenta que você está segurando (ex: segurar uma enxada atribui Fazendeiro). |
+| **Carregar no Colo/Costas (Carry)** | Permite carregar bebês, crianças pequenas ou crianças no colo/costas. Solte agachando e clicando com botão direito em um bloco ou digitando `/simtale putdown`. |
+| **Atribuir trabalho (Assign job)** | Define o trabalho dela com base na ferramenta que você está segurando. Protegido: crianças pequenas recusam trabalho. |
 | **Ver gravidez (View pregnancy)** | Abre o painel de gestação |
 | **Inventário (Inventory)** | Abre o inventário dela |
 
