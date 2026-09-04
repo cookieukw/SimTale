@@ -36,6 +36,10 @@ Hold the matching tool and use **Assign Job** in the interaction panel.
 
 An NPC can refuse: each one rolls jobs she likes and jobs she dislikes.
 
+### Child labor restrictions
+
+Only NPCs at the `TEEN` or `ADULT` life stages can be assigned jobs. Young children (`BABY`, `TODDLER`, `CHILD`) are protected and will refuse to take tools or work ("I'm just a kid!"). However, children can freely engage in leisure hobbies like fishing or gardening when their fun need drops, allowing them to hang out near family crop plots or water spots without taking on economic tasks.
+
 :::caution Matching is by item name
 The check looks for those words inside the item id. A sword named without "sword" in its id will not be recognised. This is a known weak spot.
 :::
