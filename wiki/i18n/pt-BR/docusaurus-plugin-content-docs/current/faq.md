@@ -60,6 +60,14 @@ Não. Uma vila se forma automaticamente quando você constrói casas próximas u
 
 NPCs casados que moram juntos podem ter filhos. Os bebês precisam de cuidados, e você (ou os pais) podem carregá-los nos ombros ou nas costas enquanto realizam outras tarefas.
 
+### Crianças podem dividir a cama com os pais (co-sleeping)?
+
+Sim! Crianças pequenas (`TODDLER`) e crianças (`CHILD`) procuram automaticamente a cama de seus pais (`FamilyBonds.findParentBed`). Se o pai ou mãe já estiver dormindo nela, a criança deita junto no mesmo leito sem precisar de uma cama avulsa e sem expulsar ninguém.
+
+### Crianças podem trabalhar ou ajudar nas tarefas?
+
+Crianças não podem receber empregos formais de adultos (`MINER`, `FARMER`, etc.) e recusarão ferramentas de trabalho. No entanto, elas podem praticar hobbies livremente (como pescar ou jardinagem) para recuperar diversão, brincar perto da horta da família e simular ajuda doméstica.
+
 ### Como faço para colocar a criança de volta no chão?
 
 Fique agachado (crouch) e clique com o botão direito **em um bloco**. É obrigatório mirar em um bloco; clicar no ar não envia o comando para o servidor. Se mesmo assim não funcionar, basta digitar o comando `/simtale putdown` no chat para forçar a descida.
