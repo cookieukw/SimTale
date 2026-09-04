@@ -64,3 +64,5 @@ simtale_documentation.md
 .gradle_home
 testing_checklist.md
 wiki/.docusaurus/
+scratch/test_db/global/simtale.db-shm
+scratch/test_db/global/simtale.db-wal
