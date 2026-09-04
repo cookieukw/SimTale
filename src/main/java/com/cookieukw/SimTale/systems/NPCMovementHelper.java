@@ -171,6 +171,31 @@ public class NPCMovementHelper {
         }
     }
 
+    public static void setSittingState(Ref<EntityStore> ref, Store<EntityStore> store, boolean sitting) {
+        setSittingState(ref, store, null, sitting);
+    }
+
+    public static void setSittingState(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, boolean sitting) {
+        MovementStatesComponent msc = store.getComponent(ref, MovementStatesComponent.getComponentType());
+        if (msc == null) return;
+        MovementStates ms = msc.getMovementStates();
+        ms.idle = true;
+        ms.horizontalIdle = true;
+        ms.walking = false;
+        ms.running = false;
+        ms.sprinting = false;
+        ms.jumping = false;
+        ms.falling = false;
+        ms.mantling = false;
+        ms.sliding = false;
+        ms.sitting = sitting;
+        ms.mounting = sitting;
+        ms.sleeping = false;
+        if (commandBuffer != null) {
+            commandBuffer.replaceComponent(ref, MovementStatesComponent.getComponentType(), msc);
+        }
+    }
+
     /**
      * A spot beside the bed the NPC can stand on, or null when there is none.
      *
