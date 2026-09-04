@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
@@ -83,6 +84,13 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
             if (child.stage != GrowthStage.BABY && !child.isAdult()) {
                 Ref<EntityStore> childRef = world.getEntityStore().getRefFromUUID(child.childId);
                 if (childRef != null && childRef.isValid()) {
+                    RoutineAIComponent ai = store.getComponent(childRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (ai != null && (ai.currentTask == RoutineAIComponent.TaskType.SLEEPING
+                            || ai.currentTask == RoutineAIComponent.TaskType.ENTERING_BED
+                            || ai.currentTask == RoutineAIComponent.TaskType.MOVING_TO_BED)) {
+                        continue;
+                    }
+
                     Ref<EntityStore> parentRef = world.getEntityStore().getRefFromUUID(child.motherId);
                     if (parentRef == null) {
                         parentRef = world.getEntityStore().getRefFromUUID(child.fatherId);
