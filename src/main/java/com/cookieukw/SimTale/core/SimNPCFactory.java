@@ -159,6 +159,10 @@ public class SimNPCFactory {
             simComponent.gender = Math.random() > 0.5 ? Gender.MALE : Gender.FEMALE;
         }
 
+        if (type == NPCType.CHILD_MALE || type == NPCType.CHILD_FEMALE) {
+            simComponent.profession = Profession.UNEMPLOYED;
+        }
+
         // Try to load existing data if available
         if (type != NPCType.REAPER) {
             SimNPCPersistence.loadNPC(simComponent);
