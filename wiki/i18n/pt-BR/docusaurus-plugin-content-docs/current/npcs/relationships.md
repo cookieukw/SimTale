@@ -22,6 +22,7 @@ Cada NPC mantém um relacionamento separado com cada jogador e com outros NPCs.
 
 Ramo romântico: `NAMORANDO` (`DATING`) → `NOIVOS` (`ENGAGED`) → `CASADOS` (`MARRIED`).
 Ramo negativo: `RIVAL` e `INIMIGO` (`ENEMY`).
+Ramo filial (Filhos): `FILHO` / `FILHA` (gerenciado por `FamilyBonds`, com títulos próprios de afeição parental em vez de progressão de amizade comum ou romance).
 
 O status muda o que ela diz a você. A mesma saudação tem palavras diferentes para um estranho e para
 um cônjuge.
