@@ -247,5 +247,12 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
             Vector3i leisureAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
             LeisureRegistry.add(leisureAnchor.x, leisureAnchor.y, leisureAnchor.z, LeisureRegistry.getHobbyForId(placedId));
         }
+
+        if (ChairRegistry.isChair(placedId)) {
+            Vector3i chairAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
+            ChairRegistry.add(chairAnchor.x, chairAnchor.y, chairAnchor.z);
+            LOGGER.debug("[SimTale] Chair registered from placement: {} at ({},{},{})",
+                    placedId, chairAnchor.x, chairAnchor.y, chairAnchor.z);
+        }
     }
 }
