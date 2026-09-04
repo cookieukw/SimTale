@@ -218,6 +218,13 @@ once per NPC per tick for nothing.
         // of intent than which way its body happens to be turned.
         NPCEntity doorNpcEntity = chunk.getComponent(index, Objects.requireNonNull(NPCEntity.getComponentType()));
         Vector3d doorDestination = doorNpcEntity != null ? doorNpcEntity.getLeashPoint() : null;
+        if (doorDestination == null && ai != null) {
+            if (ai.lastLeashPos != null) {
+                doorDestination = ai.lastLeashPos;
+            } else if (ai.targetBlockPosition != null) {
+                doorDestination = new Vector3d(ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.y, ai.targetBlockPosition.z + 0.5);
+            }
+        }
         NPCDoorHelper.handleNpcDoors(world, npc, transform, doorDestination);
 
 
