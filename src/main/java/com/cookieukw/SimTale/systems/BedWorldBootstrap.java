@@ -72,6 +72,10 @@ public final class BedWorldBootstrap {
                         Vector3i leisureAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
                         LeisureRegistry.add(leisureAnchor.x, leisureAnchor.y, leisureAnchor.z, LeisureRegistry.getHobbyForId(type.getId()));
                     }
+                    if (ChairRegistry.isChair(type.getId())) {
+                        Vector3i chairAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
+                        ChairRegistry.add(chairAnchor.x, chairAnchor.y, chairAnchor.z);
+                    }
 
                     // Same gap again, this time on the farmland/crops themselves — tilled soil or
                     // a planted crop from an earlier session was invisible to scanForFarmland/
