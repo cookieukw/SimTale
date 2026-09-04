@@ -1,11 +1,16 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
+import com.cookie.caskara.Caskara;
+import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Child;
+import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
+import com.cookieukw.SimTale.core.SimBedData.BedPos;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.systems.HouseManager;
 
 import java.util.UUID;
 
@@ -63,6 +68,20 @@ public final class FamilyBonds {
 
         bondWithParent(child, growth.motherId);
         bondWithParent(child, growth.fatherId);
+
+        if (child.bedLocation == null) {
+            BedPos parentBed = findParentBed(child);
+            if (parentBed != null) {
+                child.bedLocation = parentBed;
+                child.family.homeX = parentBed.x;
+                child.family.homeY = parentBed.y;
+                child.family.homeZ = parentBed.z;
+                child.family.hasSharedHome = true;
+                SimNPCPersistence.saveNPC(child);
+                LOGGER.info("[SimTale] '{}' vinculada à cama dos pais ({},{},{})",
+                        child.name, parentBed.x, parentBed.y, parentBed.z);
+            }
+        }
 
         LOGGER.info("[SimTale] '{}' vinculada aos pais (mae={}, pai={})",
                 child.name, growth.motherId, growth.fatherId);
@@ -139,5 +158,96 @@ public final class FamilyBonds {
                 || rel.status == RelationshipStatus.GOOD_FRIEND) {
             rel.status = RelationshipStatus.BEST_FRIEND;
         }
+    }
+
+    /**
+     * Looks up the bed of a child's parents, from active NPCs, registered houses or growth data.
+     */
+    public static BedPos findParentBed(SimNPCComponent child) {
+        if (child == null) return null;
+
+        GrowthComponent growth = null;
+        for (GrowthComponent c : LifecycleManager.ACTIVE_CHILDREN) {
+            if (child.entityId != null && child.entityId.equals(c.childId)) {
+                growth = c;
+                break;
+            }
+        }
+        if (growth == null && child.entityId != null) {
+            growth = Caskara.load("child_" + child.entityId, GrowthComponent.class);
+        }
+
+        if (growth != null) {
+            BedPos bed = getBedOfParent(growth.motherId);
+            if (bed != null) return bed;
+            bed = getBedOfParent(growth.fatherId);
+            if (bed != null) return bed;
+        }
+
+        for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
+            if (other.family != null && other.family.children != null) {
+                for (Child c : other.family.children) {
+                    if (child.entityId != null && child.entityId.equals(c.id)) {
+                        if (other.bedLocation != null) return other.bedLocation;
+                    }
+                }
+            }
+        }
+
+        if (child.family != null && child.family.hasSharedHome) {
+            return new BedPos(
+                    (int) Math.floor(child.family.homeX),
+                    (int) Math.floor(child.family.homeY),
+                    (int) Math.floor(child.family.homeZ),
+                    0f);
+        }
+
+        return null;
+    }
+
+    private static BedPos getBedOfParent(UUID parentId) {
+        if (parentId == null) return null;
+
+        SimNPCComponent parentNpc = LifecycleUtils.findNPCById(parentId);
+        if (parentNpc != null && parentNpc.bedLocation != null) {
+            return parentNpc.bedLocation;
+        }
+
+        UUID houseId = HouseManager.OWNER_TO_HOUSE_ID.get(parentId);
+        if (houseId != null) {
+            HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
+            if (house != null && house.bedPos != null) {
+                return new BedPos(house.bedPos.x, house.bedPos.y, house.bedPos.z, 0f);
+            }
+        }
+        return null;
+    }
+
+    public static boolean isChildOf(SimNPCComponent child, SimNPCComponent parent) {
+        if (child == null || parent == null || child.entityId == null || parent.entityId == null) return false;
+
+        GrowthComponent growth = null;
+        for (GrowthComponent c : LifecycleManager.ACTIVE_CHILDREN) {
+            if (child.entityId.equals(c.childId)) {
+                growth = c;
+                break;
+            }
+        }
+        if (growth == null) {
+            growth = Caskara.load("child_" + child.entityId, GrowthComponent.class);
+        }
+        if (growth != null) {
+            if (parent.entityId.equals(growth.motherId) || parent.entityId.equals(growth.fatherId)) {
+                return true;
+            }
+        }
+        if (parent.family != null && parent.family.children != null) {
+            for (Child c : parent.family.children) {
+                if (child.entityId.equals(c.id)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
