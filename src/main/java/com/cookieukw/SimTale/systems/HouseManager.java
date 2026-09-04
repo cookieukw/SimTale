@@ -9,7 +9,7 @@ import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.cookieukw.SimTale.core.SimLog;
-
+import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
 import com.hypixel.hytale.server.core.Message;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -768,6 +768,9 @@ public class HouseManager {
 
             SimBedData.BedPos b = other.bedLocation;
             if (b != null && b.x == bed.x && b.y == bed.y && b.z == bed.z) {
+                if (FamilyBonds.isChildOf(self, other)) {
+                    continue;
+                }
                 return true;
             }
         }
