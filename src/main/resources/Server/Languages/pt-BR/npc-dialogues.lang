@@ -218,6 +218,7 @@ prof.assign.refuse_status.1 = {name} debocha: Por que eu trabalharia pra alguém
 prof.assign.refuse_status.2 = {name}: Eu não recebo ordens de estranhos. Vai caçar outro(a) pra ser {profName}.
 prof.assign.refuse_status.3 = {name}: Você só pode estar de brincadeira. Eu não vou fazer serviço de {profName} pra você.
 prof.assign.noitem = {name} olha para você confuso: Você não está segurando nada... Como eu vou saber que profissão você quer que eu tenha?
+prof.assign.child = {name} é apenas uma criança e não pode trabalhar ainda!
 flirt.child = Você não pode flertar com uma criança!
 gift.noitem = Você não está segurando nenhum item para dar de presente!
 gift.accelerated = Voce deu algum item para {name}? Aumentamos o crescimento dele(a) de +5% para +10%!

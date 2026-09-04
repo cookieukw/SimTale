@@ -218,6 +218,7 @@ prof.assign.refuse_status.1 = {name} scoffs: Why would I work for someone like y
 prof.assign.refuse_status.2 = {name}: I don't take orders from strangers. Find someone else to be a {profName}.
 prof.assign.refuse_status.3 = {name}: You must be joking. I'm not doing any {profName} work for you.
 prof.assign.noitem = {name} looks at you confused: You're not holding anything... How am I supposed to know what job you want me to do?
+prof.assign.child = {name} is just a child and cannot work yet!
 flirt.child = You can't flirt with a child!
 gift.noitem = You are not holding any item to give as a gift!
 gift.accelerated = You fed {name} with {item}! Their growth was accelerated.
