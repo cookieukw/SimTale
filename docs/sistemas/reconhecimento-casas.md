@@ -90,7 +90,7 @@ Os estados reais de porta no Hytale são `CloseDoorIn`, `CloseDoorOut`, `OpenDoo
 
 **Defeito 2 — só considerava as portas da casa registrada do próprio NPC.** A busca partia de `OWNER_TO_HOUSE_ID.get(npc.entityId)`. NPC sem casa, NPC visitando outra casa, portão de vila ou porta de oficina nunca eram sequer avaliados.
 
-**Correção**: `NPCDoorHelper` varre os blocos ao redor do NPC e delega toda a decisão para a API do próprio motor (`DoorBlockUtils` + `DoorInteraction.getDoorAtPosition`), em vez de reimplementar lógica de porta com texto. A detecção usa a flag `BlockType.isDoor()` — o `getId().contains("door")` anterior também pegaria trapdoor, doorframe e decoração com "door" no nome.
+**Correção**: `NPCDoorHelper` usa sondas direcionais à frente do NPC na direção do destino com filtro de ângulo/cone, e delega toda a decisão e manipulação de estado para a API do próprio motor (`DoorBlockUtils` + `DoorInteraction.getDoorAtPosition`), em vez de reimplementar lógica de porta com texto ou varreduras cúbicas cegas. A detecção usa a flag nativa `BlockType.isDoor()` — o `getId().contains("door")` anterior pegava indevidamente trapdoors e decorações.
 
 ## 6. Os Comandos de Debug e Verificação
 
