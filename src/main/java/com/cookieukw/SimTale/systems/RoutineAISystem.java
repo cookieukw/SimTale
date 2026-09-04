@@ -803,7 +803,7 @@ once per NPC per tick for nothing.
                 } else if (InteractionManager.isNpcAChild(npc)) {
                     // Child sharing parents' bed: if mount point is occupied, sleep alongside/on bed
                     transform.setPosition(new Vector3d(bedPos.x + 0.5, bedPos.y + 0.6, bedPos.z + 0.5));
-                    pinLeashAt(ref, ai, transform.getPosition());
+                    NPCMovementHelper.pinLeashAt(ref, ai, transform.getPosition());
                     playAnim(ref, AnimationSlot.Status, "Characters/Animations/Flavor/Sleep.blockyanim", "Sleep", store);
                     ai.currentTask = TaskType.SLEEPING;
                     LOGGER.info("[SimTale] Child NPC '{}' sharing parents' bed at ({},{},{})",
