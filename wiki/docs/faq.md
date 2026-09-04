@@ -60,6 +60,14 @@ No. A village forms automatically when you build houses close to each other (aro
 
 Married NPCs that share a home can have babies. Babies need care, and you (or the parents) can carry them on your shoulders or back while performing other tasks.
 
+### Can children share a bed with parents?
+
+Yes! Children at the `TODDLER` and `CHILD` stages automatically search for their parents' bed (`FamilyBonds.findParentBed`). If the parent is already asleep in the bed, the child co-sleeps beside them without taking extra beds or kicking anyone out.
+
+### Can children work jobs or help with tasks?
+
+Children cannot be assigned formal adult jobs (`MINER`, `FARMER`, etc.) and will refuse tool assignments. However, they can freely engage in leisure hobbies like fishing or gardening to regain fun, hang out near family plots, and simulate helping around the homestead.
+
 ### How do I put a child down?
 
 Crouch and right-click on any block (you must actually click a block, right-clicking the air will not work). If for any reason that fails, you can always use the command `/simtale putdown` in the chat.
