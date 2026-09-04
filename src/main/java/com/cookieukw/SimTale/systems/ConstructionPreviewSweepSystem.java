@@ -49,6 +49,8 @@ public class ConstructionPreviewSweepSystem extends EntityTickingSystem<EntitySt
         World world = WorldUtil.first();
         if (world == null) return;
 
+        SimTaleMarkerProvider.captureSnapshot(world, store);
+
         long currentTick = world.getTick();
         if (currentTick - lastSweepTick < SWEEP_INTERVAL_TICKS) return;
         lastSweepTick = currentTick;

@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.cookieukw.SimTale.core.SimLog;
 import com.hypixel.hytale.math.vector.Transform;
 import com.hypixel.hytale.protocol.Color;
+import com.hypixel.hytale.protocol.packets.worldmap.PlayerMarkerComponent;
 import com.hypixel.hytale.protocol.packets.worldmap.TintComponent;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
@@ -165,15 +166,24 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
 
         List<NpcMarker> captured = new ArrayList<>();
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-            if (npc.entityId == null || npc.entityRef == null || !npc.entityRef.isValid()) continue;
+            if (npc.entityId == null) continue;
+
+            Ref<EntityStore> ref = npc.entityRef;
+            if (ref == null || !ref.isValid()) {
+                ref = world.getEntityStore().getRefFromUUID(npc.entityId);
+                if (ref != null && ref.isValid()) {
+                    npc.entityRef = ref;
+                }
+            }
+            if (ref == null || !ref.isValid()) continue;
 
             // An NPC away on an expedition is meant to read as gone. She is still standing in the
             // world at scale 0.001 because the engine has no invisibility flag, so leaving her on
             // the map draws an arrow onto an NPC the player cannot find.
-            if (NPCWorkHelper.isAwayOnExpedition(store, npc.entityRef)) continue;
+            if (NPCWorkHelper.isAwayOnExpedition(store, ref)) continue;
 
             TransformComponent transform =
-                    store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    store.getComponent(ref, TransformComponent.getComponentType());
             if (transform == null) continue;
 
             Map<UUID, RelationshipStatus> statuses = new HashMap<>();
@@ -194,16 +204,12 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
 
     @Override
     public void update(@Nonnull World world, @Nonnull Player player, @Nonnull MarkersCollector collector) {
-        Ref<EntityStore> targetRef = player.getReference();
-        UUID viewerId = null;
-        if (targetRef != null) {
-            for (PlayerRef pRef : Universe.get().getPlayers()) {
-                if (targetRef.equals(pRef.getReference())) {
-                    viewerId = pRef.getUuid();
-                    break;
-                }
-            }
-        }
+        Ref<EntityStore> pEntityRef = player.getReference();
+        if (pEntityRef == null) return;
+
+        PlayerRef playerRef = pEntityRef.getStore().getComponent(pEntityRef, Universe.get().getPlayerRefComponentType());
+        if (playerRef == null) return;
+        UUID viewerId = playerRef.getUuid();
         if (viewerId == null) return;
 
         List<NpcMarker> current = snapshot;
@@ -231,7 +237,8 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                 // one that opts into the distance filter.
                 collector.addIgnoreViewDistance(
                         new MapMarkerBuilder(PROVIDER_ID + ":" + npc.id(), MARKER_IMAGE, markerTransform)
-                                .withName(Message.raw(npc.name()))
+                                .withCustomName(npc.name())
+                                .withComponent(new PlayerMarkerComponent(npc.id()))
                                 .withComponent(tint)
                                 .build());
                 emitted++;

@@ -2,6 +2,7 @@ package com.cookieukw.SimTale;
 
 
 import java.util.Set;
+import com.cookieukw.SimTale.systems.SimNpcPlayerListHelper;
 import com.cookieukw.SimTale.systems.SimTaleMarkerProvider;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -103,6 +104,7 @@ public class SimTale extends JavaPlugin {
         if (!ACTIVE_NPCS.contains(npc)) {
             ACTIVE_NPCS.add(npc);
         }
+        SimNpcPlayerListHelper.broadcastAdd(npc);
     }
 
     public static void untrackNpc(SimNPCComponent npc) {
@@ -110,6 +112,7 @@ public class SimTale extends JavaPlugin {
         ACTIVE_NPCS.remove(npc);
         if (npc.entityId != null) {
             NPCS_BY_ID.remove(npc.entityId, npc);
+            SimNpcPlayerListHelper.broadcastRemove(npc.entityId);
         }
     }
 
@@ -119,6 +122,7 @@ public class SimTale extends JavaPlugin {
         if (existing != null) {
             ACTIVE_NPCS.remove(existing);
         }
+        SimNpcPlayerListHelper.broadcastRemove(entityId);
     }
 
     /** O(1) replacement for scanning {@link #ACTIVE_NPCS} looking for a matching entityId. */

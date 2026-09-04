@@ -21,6 +21,7 @@ import org.joml.Vector3d;
 import com.cookieukw.SimTale.core.SimLog;
 
 import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 /**
  * Handles when a player is ready in the world.
  * Loads their SimTale data (gender) and opens the selection screen if they haven't selected one.
@@ -67,7 +68,11 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
         }
 
         // Trigger offline baby care simulation
-        BabyCareManager.simulateOfflineTime(playerRef, simPlayer);
+        try {
+            BabyCareManager.simulateOfflineTime(playerRef, simPlayer);
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] Error simulating offline baby care: " + e.getMessage());
+        }
 
         // Load all houses from database
         try {
@@ -97,12 +102,19 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
             LOGGER.warn("[SimTale] Error loading chest registry: " + e.getMessage());
         }
 
-
+        // Reassemble active NPCs from persistence so ACTIVE_NPCS is populated on join
+        try {
+            SimNPCPersistence.reassembleActiveNPCs(player.getWorld());
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] Error reassembling active NPCs: " + e.getMessage());
+        }
 
         // Map markers attach here rather than at plugin startup, where the world does not exist
         // yet. Idempotent per world, so every join is safe.
         try {
             SimTaleMarkerProvider.ensureRegistered(player.getWorld());
+            SimTaleMarkerProvider.captureSnapshot(player.getWorld(), playerRef.getStore());
+            SimNpcPlayerListHelper.sendAllToPlayer(playerRefComponent, player.getWorld());
         } catch (Exception e) {
             LOGGER.warn("[SimTale] Error registering map marker provider: " + e.getMessage());
         }

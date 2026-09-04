@@ -270,6 +270,10 @@ public class BabyCareManager {
                     care.nextSwapAllowedTime = care.turnStartTime + TURN_DURATION;
                 }
 
+                if (care.currentTurnOwnerId == null) {
+                    care.currentTurnOwnerId = care.motherId != null ? care.motherId : playerUuidStr;
+                }
+
                 // If the turn owner is now the player, but they don't hold the baby currently
                 if (playerUuidStr.equals(care.currentTurnOwnerId) && !playerUuidStr.equals(care.currentHolderId)) {
                     // Give baby to player if inventory has space
@@ -299,7 +303,7 @@ public class BabyCareManager {
                     }
                 }
                 // If the turn owner is now the NPC, but the player currently holds the baby in inventory
-                else if (!care.currentTurnOwnerId.equals(playerUuidStr) && playerUuidStr.equals(care.currentHolderId)) {
+                else if (!playerUuidStr.equals(care.currentTurnOwnerId) && playerUuidStr.equals(care.currentHolderId)) {
                     // Search player inventory for baby item and remove it
                     CombinedItemContainer combinedInventory = InventoryComponent.getCombined(store, playerRef, InventoryComponent.HOTBAR_FIRST);
                     boolean removed = false;
