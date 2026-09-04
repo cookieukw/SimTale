@@ -372,6 +372,12 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             // Was an `assert`, which is disabled at runtime; the page then NPE'd on the next line.
             return;
         }
+
+        if (InteractionManager.isNpcAChild(npc) && (npc.profession == null || !npc.profession.isSafeForChildren())) {
+            npc.profession = Profession.UNEMPLOYED;
+            SimNPCPersistence.saveNPC(npc);
+        }
+
         commandBuilder.set("#NpcName.Text", npc.name);
 
         
