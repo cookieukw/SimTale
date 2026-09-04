@@ -97,10 +97,6 @@ To prevent interactions from feeling repetitive, SimTale includes a dynamic dial
     *   **Liked Job Acceptance:** 3 excited, job-liked responses.
     *   **Generic Acceptances:** 5 standard job acceptance lines.
 
----
-
-## 3. Personality, Traits & Preferences
-
 ### Social Interaction Types & Success Formula
 When clicking an interaction button in the UI, the result is calculated using the NPC's Traits, Mood, and Relationship status:
 
