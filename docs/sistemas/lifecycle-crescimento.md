@@ -32,10 +32,26 @@ GrowthManager (Aplica escala visual de 0.4f a 1.0f baseada na idade)
 ### Estágios de Crescimento e Escala Visual
 O `GrowthManager` lê o estágio de crescimento (`GrowthStage`) e aplica modificadores de escala tridimensional na entidade física do NPC via pacotes de renderização do Hytale:
 *   👶 **BABY** (Escala: `0.4f` - puramente item ou berço)
-*   🧸 **TODDLER** (Escala: `0.5f`)
-*   👦 **CHILD** (Escala: `0.7f`)
-*   🧑 **TEEN** (Escala: `0.85f`)
-*   👨 **ADULT** (Escala: `1.0f`)
+*   🧸 **TODDLER** (Escala: `0.5f` - anda no mundo, segue os pais)
+*   👦 **CHILD** (Escala: `0.7f` - autônomo, brinca, realiza hobbies)
+*   🧑 **TEEN** (Escala: `0.85f` - assume profissão adulta e tarefas)
+*   👨 **ADULT** (Escala: `1.0f` - independente, busca própria moradia)
+
+### Vínculo Familiar, Moradia e Co-Sleeping (`FamilyBonds`)
+Ao nascer e ao transicionar entre estágios físicos, o `FamilyBonds.linkToFamily` assegura que a criança esteja plenamente integrada à família:
+*   **Vínculo Afetivo Inicial**: Inicializa friendship, trust e affinity altos com os pais, evitando que os genitores sejam tratados como estranhos (`STRANGER`).
+*   **Herança de Cama**: Localiza e associa a cama dos pais à criança (`FamilyBonds.findParentBed`). Crianças compartilham a mesma cama que os pais (`FamilyBonds.isChildOf`), e se o ponto de montagem nativo estiver ocupado, deitam sobre/ao lado da cama com animação `Sleep` sem perder o registro do lar.
+*   **Proteção do Sono**: Durante o repouso noturno, o `GrowthTickSystem` não remove a criança da cama se o pai/mãe acordar ou se afastar.
+
+### Trabalho, Hobbies e Profissões na Infância (`WorkEligibility`)
+*   **Desemprego na Infância**: Todas as crianças nascem como `Profession.UNEMPLOYED`. A atribuição de trabalhos contratuais ou profissões perigosas (`GUARD`, `HUNTER`, `MINER`) é terminantemente bloqueada via UI e chat.
+*   **Participação por Hobbies**: Crianças ajudam e convivem na vila através de seus hobbies autônomos (`NPCLeisureHelper`), como pescar (`FISHING`) ou cuidar da horta (`GARDENING`).
+*   **Profissão na Adolescência**: Ao atingir o estágio `TEEN` no `GrowthManager`, o jovem desempregado recebe automaticamente uma profissão adulta sorteada para começar a trabalhar.
+
+### Reconhecimento Parental na Interface (`ParentChildBond`)
+Quando o jogador abre a tela de interação com seu próprio filho:
+*   O status de relacionamento deixa de exibir níveis adultos genéricos e exibe **Filho** (`Son`), **Filha** (`Daughter`) ou **Filho(a)** (`Child`), com indicadores de vínculo familiar `(Vínculo: X%, Afinidade: Y%)`.
+*   O botão de *Insultar* é substituído por **Brigar** (*Scold*), e ações inapropriadas (*Flertar*, *Dar Emprego*) são ocultadas/bloqueadas.
 
 ---
 
