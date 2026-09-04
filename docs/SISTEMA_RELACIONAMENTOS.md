@@ -37,7 +37,7 @@ Relationship
 | **Preferences (Gostos)** | 🟢 Já Adicionado | Sistema de Gostos aleatórios criado com comidas, clima e hobbies (`NPCPreferences`). |
 | **Memories (Memórias)**| 🟢 Já Adicionado | NPCs reagem quando o jogador some por mais de 3 dias no jogo. |
 | **Needs (Necessidades)**| 🟢 Já Adicionado | IA autônoma implementada: NPCs andam até comida, camas e água para resolver suas necessidades. |
-| **Family (Casamento/Filhos)**| 🔴 Não Adicionado | Nada implementado além do status text. |
+| **Family (Casamento/Filhos)**| 🟢 Já Adicionado | Casamento (`MARRIED`), gestação, nascimento, co-parentalidade, estágios de crescimento, vínculos (`FamilyBonds`, `ParentChildBond`), co-sleeping e status filial personalizado ("Filho"/"Filha"). |
 | **DailyInteractions** | 🟢 Já Adicionado | Cooldown implementado que zera ganhos após 3 interações no mesmo dia. |
 | **RelationshipStage** | 🟢 Já Adicionado | Novos status adicionados (`DATING`, `ACQUAINTANCE`, `ENEMIES`, etc). |
 
@@ -179,39 +179,18 @@ public class InteractionLimiter {
 
 ---
 
-## Mocks para Futuras Implementações Avançadas
+## Arquitetura de Sistemas Avançados Implementados
 
-Abaixo estão arquiteturas preparadas para os sistemas futuros complexos (Casamento, Filhos, Moradia e Necessidades):
+### Família, Filhos e Vínculos de Sangue
+O sistema de família e hereditariedade opera integrando `FamilyData`, `GrowthComponent` e os helpers `FamilyBonds` e `ParentChildBond`:
 
-### Família, Casamento e Moradia Compartilhada
-```java
-public class FamilySystem {
-    public boolean isMarried;
-    public UUID spouseId;
-    public Location sharedHomeLocation;
-    
-    // MOCK: Ter filhos e crescer
-    public List<Child> children = new ArrayList<>();
-    
-    public void attemptPregnancy() {
-        // Mocked logic for future
-    }
-    
-    public void onChildBirth() {
-        // Mocked logic for future
-    }
-}
-
-public class Child {
-    public String name;
-    public int ageStage; // 0=Baby, 1=Toddler, 2=Child, 3=Teen
-    
-    // MOCK: Crescer
-    public void growUp() {
-        ageStage++;
-    }
-}
-```
+*   **Vínculos Automáticos (`FamilyBonds`)**: Ao nascer ou ser gerada, a criança recebe afeto e confiança basais elevados com os genitores (status `BEST_FRIEND` na máquina de estados interna), herança de sobrenome dinâmico e vinculação imediata à cama dos pais (`FamilyBonds.findParentBed`).
+*   **Reconhecimento Parental (`ParentChildBond`)**: Verifica se o NPC alvo é filho do jogador interagindo. Quando verdadeiro:
+    *   O painel social troca os tiers adultos genéricos por **Filho** (`Son`), **Filha** (`Daughter`) ou **Filho(a)** (`Child`), com indicadores de vínculo afetivo `(Vínculo: X%, Afinidade: Y%)`.
+    *   A ação hostil *Insultar* é substituída por **Brigar** (*Scold*), com reações proporcionais ao estágio de idade.
+    *   Ações inadequadas para menores (Flertar e Dar Emprego) são bloqueadas ou ocultadas.
+*   **Co-Sleeping Familiar**: Membros da família podem dividir a mesma cama física sem conflito de desduplicação (`isBedTakenByAnotherNpc`). Se a montagem nativa estiver ocupada pelo pai ou mãe, a criança deita junto na cama com animação `Sleep` sem perder a referência de seu lar.
+*   **Imunidade a Trabalho Infantil**: Crianças nascem como `UNEMPLOYED` e não podem ser contratadas para trabalhos pesados/perigosos (`WorkEligibility`). Participam da vida doméstica e da vila autonomamente através de seus hobbies (`GARDENING`, `FISHING`). Ao atingirem o estágio `TEEN`, a profissão adulta é sorteada.
 
 ### Necessidades (Needs) e Alimentação
 Esses status servirão de base para a IA decidir comer, dormir ou tomar banho.
