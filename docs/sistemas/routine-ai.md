@@ -27,9 +27,14 @@ O `RoutineAISystem` concentra a **decisão** (qual tarefa assumir a partir de `I
 
 ### O Fluxo de Sono e Busca de Camas
 1.  **Low Energy Check**: Se a energia do NPC cair abaixo de 30 (ou 60 para NPCs com o traço `LAZY`), ele interrompe sua tarefa e entra em `FINDING_BED`.
-2.  **Unclaimed Bed Registry Scan**: Varre o `BedRegistry` em busca da cama vazia e válida mais próxima. O registro de camas é atualizado via eventos físicos de colocação/quebra de blocos no mundo (`BedPlaceBlockEventSystem`, `BedBlockEventSystem`).
+2.  **Bed Resolution**:
+    *   *Adultos*: Varrem o `BedRegistry` em busca da cama vazia e válida mais próxima (`!isBedTakenByAnotherNpc`). O registro é mantido por listeners de blocos físicos (`BedPlaceBlockEventSystem`, `BedBlockEventSystem`).
+    *   *Crianças*: Não disputam camas solteiras na vila. Elas consultam diretamente `FamilyBonds.findParentBed(npc)` para herdar e vincular a cama cadastrada dos pais (seja por vínculo com NPC ativo ou casa registrada).
 3.  **Approach Vector Calculation**: O NPC caminha até uma posição segura adjacente à cama (`getBedApproachPosition`), validando se o bloco de apoio e o bloco acima são transitáveis (ar) e o bloco de base é sólido.
-4.  **Block Mounting & Teleportation**: O NPC é montado na cama via `BlockMountAPI` e posicionado geometricamente no colchão. Ele recebe o componente `Teleport` nativo para fixar sua física (evitando que deslize para fora da cama), o componente `Frozen` e ativa a animação de sono (`Sleep`).
+4.  **Block Mounting & Co-Sleeping**:
+    *   O NPC tenta montar na cama via `BlockMountAPI.mountOnBlock` e recebe o componente `Frozen` e a animação de sono (`Sleep`).
+    *   *Fallback Familiar para Crianças*: Se o ponto de montagem nativo já estiver ocupado pelo pai ou mãe, a API nativa rejeita a montagem secundária. Em vez de descartar a cama do filho (como acontecia antes), o sistema posiciona a criança diretamente no colchão/ao lado dos pais (`bedPos.y + 0.6`), fixa sua leash com `NPCMovementHelper.pinLeashAt`, ativa a animação `Sleep` e mantém o estado em `TaskType.SLEEPING` sem apagar seu vínculo residencial.
+    *   *Proteção de Sono*: Durante a noite, o `GrowthTickSystem` não interrompe nem remove da cama crianças adormecidas se o responsável se afastar temporariamente.
 5.  **Wake Up Phase**: Ao preencher a energia (100) ou atingir a duração máxima da soneca, o NPC executa a animação de despertar (`Wake`), é desmontado da cama e teleportado de volta para a posição adjacente de apoio.
 
 ### O Fluxo de Socialização (`NPCSocialHelper`)
@@ -135,10 +140,14 @@ A rota física do NPC (sua `LeashPoint` no Hytale) só é atualizada se a coorde
 ## 7. Perguntas Frequentes (FAQ)
 
 ### O que acontece se dois NPCs tentarem dormir na mesma cama?
-O `BedRegistry` mapeia quais camas estão ativas. O método `getBedPos()` busca todas as camas registradas e remove as coordenadas que já estão salvas no componente `bedLocation` de qualquer outro NPC ativo. Portanto, a cama é desduplicada e nunca ocupada por dois indivíduos.
+*   **NPCs Estranhos**: O método `isBedTakenByAnotherNpc` bloqueia a apropriação indevida — a cama é desduplicada no `BedRegistry` e não pode ser tomada por outro morador não aparentado.
+*   **Família e Filhos**: Cônjuges e filhos (`FamilyBonds.isChildOf`) têm permissão explícita para compartilhar a cama da residência. Se um dos pais já estiver deitado e ocupando o assento nativo de montagem, a criança deita junto no colchão sem ser expulsa ou perder seu vínculo de lar.
+
+### Crianças e filhos precisam de uma cama separada na casa?
+Não. As crianças vinculadas a pais herdam automaticamente a cama da família (`FamilyBonds.findParentBed`). Elas dividem a cama dos pais até atingirem a fase adulta (`ADULT`), momento em que se tornam independentes e saem para reivindicar sua própria residência na vila.
 
 ### NPCs bebês e toddlers dormem em camas?
-Não. Bebês e Toddlers (crianças pequenas) pulam a rotina de busca de camas e são alimentados/cuidados em turnos diretamente pelos pais em seus inventários ou berços (gerenciados pelo `BabyCareTickSystem`).
+Não. Bebês e Toddlers (crianças pequenas) pulam a rotina autônoma de busca de camas e são cuidados em turnos diretamente pelos pais em seus inventários, braços ou berços (gerenciados pelo `BabyCareTickSystem`).
 
 ### O que acontece se um NPC for dormir no meio de uma conversa?
 O *interrupt* de energia baixa tem prioridade sobre qualquer tarefa e leva o NPC para `FINDING_BED`, chamando `clearAutonomyState()` para limpar `socializeTargetId`, `socializeHost` e `wanderTimer`. O parceiro que ficou para trás não trava: o lado convidado encerra sozinho quando o próprio timer de conversa expira.
