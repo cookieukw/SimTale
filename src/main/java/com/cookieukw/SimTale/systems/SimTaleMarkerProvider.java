@@ -127,7 +127,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
      * <p>{@code statuses} is a copy rather than the live relationship map: the marker thread must
      * not read a collection another thread is writing to.
      */
-    private record NpcMarker(UUID id, String name, Vector3d position,
+    private record NpcMarker(UUID id, String name, Transform transform,
                              Map<UUID, RelationshipStatus> statuses) {
     }
 
@@ -196,7 +196,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             }
 
             captured.add(new NpcMarker(npc.entityId, npc.name,
-                    new Vector3d(transform.getPosition()), statuses));
+                    transform.getTransform().clone(), statuses));
         }
 
         snapshot = List.copyOf(captured);
@@ -218,8 +218,8 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                 TintComponent tint = new TintComponent();
                 tint.color = colorFor(npc, viewerId);
 
-                Transform markerTransform = new Transform(npc.position());
-                if (!collector.isInViewDistance(npc.position())) {
+                Transform markerTransform = npc.transform();
+                if (!collector.isInViewDistance(markerTransform.getPosition())) {
                     outOfRange++;
                 }
 
