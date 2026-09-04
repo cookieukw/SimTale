@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.HouseBlockPos;
+import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.math.util.ChunkUtil;
@@ -23,6 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("deprecation")
@@ -42,6 +44,16 @@ public final class NPCDoorHelper {
 
     /** Cadence: each NPC checks doors every 3 ticks, staggered by entity ID. */
     private static final int CHECK_INTERVAL = 3;
+
+    /** Minimum dot product between forward vector and door direction (60 degree cone). */
+    private static final double FACING_DOT_THRESHOLD = 0.5;
+
+    /**
+     * How far ahead of the NPC to look when asking "am I about to cross this door's plane?".
+     * Longer than a step so the answer is about where the NPC is heading rather than where it is
+     * standing, and short enough that it stays within the doorway instead of reaching into the room.
+     */
+    private static final double CROSSING_PROBE_DISTANCE = 1.5;
 
     /** Distances ahead along the walking vector to probe for doors. */
     private static final double[] PROBE_DISTANCES = {0.0, 1.0, 1.8, 2.4};
@@ -80,13 +92,15 @@ public final class NPCDoorHelper {
                 int py = baseY + dy;
                 Vector3i probe = new Vector3i(px, py, pz);
                 if (visited.add(probe)) {
-                    checkAndOpenDoor(world, npc, npcPos, probe);
+                    checkAndOpenDoor(world, npc, npcPos, forwardX, forwardZ, destination, probe);
                 }
             }
         }
     }
 
-    private static void checkAndOpenDoor(World world, SimNPCComponent npc, Vector3d npcPos, Vector3i pos) {
+    private static void checkAndOpenDoor(World world, SimNPCComponent npc, Vector3d npcPos,
+                                         double forwardX, double forwardZ, Vector3d destination,
+                                         Vector3i pos) {
         try {
             long chunkIndex = ChunkUtil.indexChunkFromBlock(pos.x, pos.z);
             BlockChunk blockChunk = world.getChunkStore().getChunkComponent(chunkIndex, BlockChunk.getComponentType());
@@ -116,13 +130,55 @@ public final class NPCDoorHelper {
             DoorInteraction.DoorInfo door = DoorInteraction.getDoorAtPosition(world.getChunkStore(), anchorPos.x, anchorPos.y, anchorPos.z, yaw);
             if (door == null) return;
 
+            // 1. Angle check: the NPC must be facing the door
+            if (!isFacing(npcPos, forwardX, forwardZ, anchorPos)) {
+                return;
+            }
+
+            boolean npcSide = DoorBlockUtils.isInFrontOfDoor(anchorPos, yaw, npcPos);
+
+            // 2. House boundary & intent check: if destination is known, verify that the NPC actually needs this door
+            if (destination != null) {
+                UUID houseAtDoor = houseForDoor(anchorPos);
+                if (houseAtDoor != null) {
+                    UUID houseAtNpc = houseIdAt(npcPos);
+                    UUID houseAtDest = houseIdAt(destination);
+                    // Outside NPC whose destination is NOT in this house has no reason to enter
+                    if (!houseAtDoor.equals(houseAtNpc) && !houseAtDoor.equals(houseAtDest)) {
+                        return;
+                    }
+                }
+
+                // Geometric check: are the NPC and destination on opposite sides of the door?
+                boolean destSide = DoorBlockUtils.isInFrontOfDoor(anchorPos, yaw, destination);
+                if (npcSide == destSide) {
+                    return;
+                }
+            } else {
+                // If destination is unknown, do not open house doors
+                if (houseForDoor(anchorPos) != null) {
+                    return;
+                }
+            }
+
+            // 3. Cross-plane probe check:
+            // Probing where the NPC will be shortly separates "heading through" from "walking alongside":
+            // a step taken parallel to a wall stays on the same side of it, a step taken into a doorway does not.
+            Vector3d crossProbe = new Vector3d(
+                    npcPos.x + forwardX * CROSSING_PROBE_DISTANCE,
+                    npcPos.y,
+                    npcPos.z + forwardZ * CROSSING_PROBE_DISTANCE);
+            if (npcSide == DoorBlockUtils.isInFrontOfDoor(anchorPos, yaw, crossProbe)) {
+                return;
+            }
+
             DoorState current = door.getDoorState();
             if (current != DoorState.CLOSED) {
                 OPENED_DOORS.put(toKey(anchorPos), AUTO_CLOSE_TICKS);
                 return;
             }
 
-            DoorState target = DoorBlockUtils.isInFrontOfDoor(anchorPos, yaw, npcPos)
+            DoorState target = npcSide
                     ? DoorState.OPENED_OUT
                     : DoorState.OPENED_IN;
 
@@ -146,6 +202,53 @@ public final class NPCDoorHelper {
         } catch (Exception e) {
             LOGGER.debug("[PORTA] erro ao verificar porta em ({},{},{}): {}", pos.x, pos.y, pos.z, e.toString());
         }
+    }
+
+    /** House that owns the interior block at this position, or null when it belongs to none. */
+    private static UUID houseIdAt(Vector3d pos) {
+        if (pos == null) return null;
+        HouseBlockPos block = new HouseBlockPos(
+                (int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z));
+        UUID direct = HouseManager.BLOCK_TO_HOUSE_ID.get(block);
+        if (direct != null) return direct;
+
+        HouseBlockPos above = new HouseBlockPos(block.x, block.y + 1, block.z);
+        return HouseManager.BLOCK_TO_HOUSE_ID.get(above);
+    }
+
+    /** Returns the house this door belongs to, or null if unassigned/outdoor. */
+    private static UUID houseForDoor(Vector3i doorPos) {
+        HouseBlockPos key = toKey(doorPos);
+        for (HouseData house : HouseManager.HOUSES_BY_ID.values()) {
+            if (house.doors != null && house.doors.contains(key)) {
+                try {
+                    return UUID.fromString(house.houseId);
+                } catch (Exception ignored) {}
+            }
+        }
+        int[][] offsets = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int[] off : offsets) {
+            HouseBlockPos neighbor = new HouseBlockPos(doorPos.x + off[0], doorPos.y, doorPos.z + off[1]);
+            UUID houseId = HouseManager.BLOCK_TO_HOUSE_ID.get(neighbor);
+            if (houseId != null) return houseId;
+        }
+        return null;
+    }
+
+    /**
+     * Whether the door sits inside the cone the NPC is facing.
+     * Compares only horizontal plane (XZ).
+     */
+    private static boolean isFacing(Vector3d npcPos, double forwardX, double forwardZ, Vector3i doorPos) {
+        double toDoorX = (doorPos.x + 0.5) - npcPos.x;
+        double toDoorZ = (doorPos.z + 0.5) - npcPos.z;
+
+        double distance = Math.sqrt(toDoorX * toDoorX + toDoorZ * toDoorZ);
+        // Standing right inside doorway: always allow
+        if (distance < 0.001) return true;
+
+        double dot = (forwardX * toDoorX + forwardZ * toDoorZ) / distance;
+        return dot >= FACING_DOT_THRESHOLD;
     }
 
     private static void tickAutoClose(World world) {
