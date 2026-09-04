@@ -251,6 +251,8 @@ Interact with the NPC and select "Assign Profession". You must be holding the co
 
 ### Refusal Triggers
 NPCs will not always work for you:
+*   **Child Age:** Children are exempt from formal labor and always spawn as `UNEMPLOYED`. Attempting to assign a profession via held-tool handoff or chat commands triggers an immediate refusal dialogue (e.g. *"{name} is just a child and cannot work yet!"*). Upon reaching the `TEEN` stage, an adult profession is automatically assigned.
+*   **Child Hobbies vs. Formal Jobs:** While child NPCs cannot hold formal jobs or take work orders, they actively participate in village life through their autonomous **Hobby** (such as `GARDENING` tending farm crops or `FISHING` near water) to restore their `fun` need.
 *   **Stranger / Enemy:** Will always refuse your job proposal.
 *   **Disliked Jobs:** Refused with a custom dialogue.
 *   **Lazy Trait:** 60% chance to refuse hard labor (Miner/Lumberjack).
@@ -274,19 +276,19 @@ This interface opens when right-clicking (`F` key) an active NPC.
 ```
 
 *   **Header Name (#NpcName):** Displays the NPC's full name. The text color shifts dynamically (Red for Angry, Blue for Sad).
-*   **Profession Indicator (#NpcProfession):** Displays the current job (e.g. *"Job: Miner"* or *"Job: Unemployed"*).
+*   **Profession / Stage Indicator (#NpcProfession):** Displays the current trade for adults (e.g. *"Job: Miner"* or *"Job: Unemployed"*). For children, this line dynamically adapts to display **"Stage: Child"**, **"Stage: Toddler"**, or **"Stage: Baby"** instead of an employment title.
 *   **Mood Status (#NpcMood):** Displays the current temporary emotion and emoji (e.g. *"Humor: Feliz :)"*).
 *   **Traits List (#NpcTraits):** Lists the permanent personality traits (e.g. *"Traits: Greedy, Shy"*).
 *   **Preferences (#NpcLikes / #NpcHates / #NpcHobby / #NpcSeason):** Displays what they like/dislike, their favorite season, and hobby. Helpful for selecting gifts!
-*   **Relationship Status (#NpcRelationship):** Shows Friendship, Romance, and Relationship Stage with the player.
-*   **Family Panel (#NpcFamilyParents / #NpcFamilyChildren):** Lists parents (if any) and current children along with their growth stages.
+*   **Relationship Status (#NpcRelationship):** Shows Friendship and Affinity. When interacting with your **own child**, the title transforms into **"Son"**, **"Daughter"**, or **"Child"** with parental bond metrics `(Bond: X%, Affinity: Y%)`, replacing standard adult friendship tiers like *"Best Friend"*.
+*   **Family Panel (#NpcFamilyParents / #NpcFamilyChildren):** Lists known parents (omitting missing parent labels if single-parent) and children along with their growth stages.
 *   **Interactions Buttons:**
     *   **Chat:** Friendly talk. Increases social need and friendship.
     *   **Joke:** Tells a joke. Risky but fun.
     *   **Flirt:** Romantic action. Hidden for children.
     *   **Gift:** Opens inventory select to hand over the active hotbar item.
-    *   **Insult:** Hostile dialogue. Crashes relationship stats.
-    *   **Assign Job:** Attempts to employ the NPC using your held tool. Hidden for children.
+    *   **Insult / Scold:** Hostile dialogue for general NPCs. Dynamically switches to **Scold** (*Brigar*) when interacting with your own child.
+    *   **Assign Job:** Attempts to employ the NPC using your held tool. Blocked for children.
     *   **Pregnancy Details:** Opens the pregnancy track screen. Only visible for pregnant female NPCs.
 
 ---
