@@ -1,5 +1,6 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
+import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 
 import java.util.UUID;
@@ -35,6 +36,12 @@ public final class ParentChildBond {
                 return child;
             }
         }
+
+        GrowthComponent direct = Caskara.load("child_" + npc.entityId, GrowthComponent.class);
+        if (direct != null && (playerUuid.equals(direct.motherId) || playerUuid.equals(direct.fatherId))) {
+            return direct;
+        }
+
         return null;
     }
 

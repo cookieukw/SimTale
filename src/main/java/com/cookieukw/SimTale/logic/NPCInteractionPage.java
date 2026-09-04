@@ -7,6 +7,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Child;
+import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NPCPreferences;
@@ -381,10 +382,18 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         commandBuilder.set("#NpcName.Text", npc.name);
 
         
-        Message profMsg = npc.profession != null && npc.profession != Profession.UNEMPLOYED 
-            ? Message.translation("ui.prof." + npc.profession.name().toLowerCase()) 
-            : Message.translation("ui.prof.unemployed");
-        commandBuilder.set("#NpcProfession.TextSpans", Message.translation("ui.job").insert(Message.raw(" ")).insert(profMsg));
+        if (InteractionManager.isNpcAChild(npc)) {
+            GrowthComponent gc = (npc.entityId != null) ? Caskara.load("child_" + npc.entityId, GrowthComponent.class) : null;
+            Message stageName = (gc != null && gc.stage != null)
+                ? Message.translation("ui.stage." + gc.stage.name().toLowerCase())
+                : Message.translation("ui.stage.child");
+            commandBuilder.set("#NpcProfession.TextSpans", Message.translation("ui.stage").insert(Message.raw(" ")).insert(stageName));
+        } else {
+            Message profMsg = npc.profession != null && npc.profession != Profession.UNEMPLOYED 
+                ? Message.translation("ui.prof." + npc.profession.name().toLowerCase()) 
+                : Message.translation("ui.prof.unemployed");
+            commandBuilder.set("#NpcProfession.TextSpans", Message.translation("ui.job").insert(Message.raw(" ")).insert(profMsg));
+        }
         
         Mood currentMood = npc.getMood();
         String moodEmoji = switch (currentMood) {
@@ -456,22 +465,57 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         // data failed to load, and that is exactly when knowing it is starving matters most.
         buildNeedsLine(commandBuilder, npc);
 
+        GrowthComponent npcGrowth = (npc.entityId != null)
+                ? Caskara.load("child_" + npc.entityId.toString(), GrowthComponent.class)
+                : null;
+        boolean isOwnChild = ownChild
+                || (npcGrowth != null && (playerRefComp.getUuid().equals(npcGrowth.motherId) || playerRefComp.getUuid().equals(npcGrowth.fatherId)));
+
         Relationship rel = npc.getRelationship(playerRefComp.getUuid());
-        Message statusMsg = Message.translation("ui.rel." + rel.getStatusName().toLowerCase());
-        Message relValues = Message.translation("ui.relationship.values")
-            .param("status", statusMsg)
-            .param("friendship", String.valueOf(rel.friendship))
-            .param("affinity", String.valueOf(rel.affinity));
+        Message statusMsg;
+        Message relValues;
+        if (isOwnChild) {
+            Gender gender = npc.gender;
+            if (gender == null && npcGrowth != null) {
+                gender = npcGrowth.gender;
+            }
+            if (gender == Gender.MALE) {
+                statusMsg = Message.translation("ui.rel.son");
+            } else if (gender == Gender.FEMALE) {
+                statusMsg = Message.translation("ui.rel.daughter");
+            } else {
+                statusMsg = Message.translation("ui.rel.child");
+            }
+            relValues = Message.translation("ui.relationship.child.values")
+                .param("status", statusMsg)
+                .param("friendship", String.valueOf(rel.friendship))
+                .param("affinity", String.valueOf(rel.affinity));
+        } else {
+            statusMsg = Message.translation("ui.rel." + rel.getStatusName().toLowerCase());
+            relValues = Message.translation("ui.relationship.values")
+                .param("status", statusMsg)
+                .param("friendship", String.valueOf(rel.friendship))
+                .param("affinity", String.valueOf(rel.affinity));
+        }
         commandBuilder.set("#NpcRelationship.TextSpans", 
             Message.translation("ui.relationship").insert(Message.raw(" ")).insert(relValues));
 
         // --- Family Info Panel Population ---
         Message parentsMsg;
-        GrowthComponent npcGrowth = Caskara.load("child_" + npc.entityId.toString(), GrowthComponent.class);
         if (npcGrowth != null) {
             String motherName = getParentName(npcGrowth.motherId);
             String fatherName = getParentName(npcGrowth.fatherId);
-            parentsMsg = Message.translation("ui.parents").insert(Message.raw(" " + motherName + " & " + fatherName));
+            String parentsStr;
+            if (motherName != null && fatherName != null) {
+                parentsStr = motherName + " & " + fatherName;
+            } else if (motherName != null) {
+                parentsStr = motherName;
+            } else if (fatherName != null) {
+                parentsStr = fatherName;
+            } else {
+                parentsStr = "—";
+            }
+            parentsMsg = Message.translation("ui.parents").insert(Message.raw(" " + parentsStr));
         } else {
             parentsMsg = Message.translation("ui.parents").insert(Message.raw(" —"));
         }
@@ -683,7 +727,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     }
 
     private String getParentName(UUID parentId) {
-        if (parentId == null) return "Desconhecido";
+        if (parentId == null) return null;
         for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
             if (other.entityId != null && other.entityId.equals(parentId)) {
                 return other.name;
@@ -699,7 +743,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         if (!temp.name.equals("Parent")) {
             return temp.name;
         }
-        return "Desconhecido";
+        return null;
     }
 
     /**
