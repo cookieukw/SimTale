@@ -44,11 +44,15 @@ public class RoutineAIComponent implements Component<EntityStore> {
         MOVING_TO_SEEDS,
         PLANTING,
         MOVING_TO_FIGHT,
-        FIGHTING
+        FIGHTING,
+        FINDING_CHAIR,
+        MOVING_TO_CHAIR,
+        SITTING
     }
 
     public TaskType currentTask = TaskType.IDLE;
     public Vector3i targetBlockPosition = null;
+    public Vector3i targetChairPos = null;
     /** Marker position of a claimed work post (fishing, and future lumberjack/farmer posts),
      *  released in {@code NPCWorkHelper.abandonTask} or on completing the task. Distinct from
      *  {@code targetBlockPosition}, which for fishing holds the water tile, not the post itself. */
@@ -117,6 +121,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
      * below — it just stood still, silently, for as long as it stayed dirty.
      */
     public long nextBathSearchTick = 0;
+    public long nextChairSearchTick = 0;
 
     /**
      * Tick the NPC last got out of bed. Zero means "never slept in this session".
@@ -156,6 +161,9 @@ public class RoutineAIComponent implements Component<EntityStore> {
         if (this.targetBlockPosition != null) {
             comp.targetBlockPosition = new Vector3i(this.targetBlockPosition);
         }
+        if (this.targetChairPos != null) {
+            comp.targetChairPos = new Vector3i(this.targetChairPos);
+        }
         if (this.claimedWorkPost != null) {
             comp.claimedWorkPost = new Vector3i(this.claimedWorkPost);
         }
@@ -174,6 +182,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.nextBedSearchTick = this.nextBedSearchTick;
         comp.nextFoodSearchTick = this.nextFoodSearchTick;
         comp.nextBathSearchTick = this.nextBathSearchTick;
+        comp.nextChairSearchTick = this.nextChairSearchTick;
         comp.lastWakeTick = this.lastWakeTick;
         comp.sleepingOnSchedule = this.sleepingOnSchedule;
         comp.eatingTier = this.eatingTier;
