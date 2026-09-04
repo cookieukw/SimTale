@@ -2,10 +2,12 @@ package com.cookieukw.SimTale.db;
 
 import com.cookieukw.SimTale.core.MemoryManager;
 import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.WorldUtil;
+import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookie.caskara.Caskara;
 import com.cookie.caskara.db.Shell;
 import com.hypixel.hytale.component.ComponentAccessor;
@@ -277,6 +279,9 @@ public class SimNPCPersistence {
         component.memory = data.memory != null ? data.memory : new MemoryManager();
         if (data.profession != null) {
             component.profession = data.profession;
+            if (InteractionManager.isNpcAChild(component) && !component.profession.isSafeForChildren()) {
+                component.profession = Profession.UNEMPLOYED;
+            }
         }
         if (data.preferences != null) {
             component.preferences = data.preferences;
