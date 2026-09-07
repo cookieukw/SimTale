@@ -393,7 +393,7 @@ public class NPCWorkHelper {
         if (ai.currentTask == TaskType.FARMING) {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
             if (world.getTick() - ai.taskStartTime == 1) {
-                playSmith(ref, store);
+                playFarmTill(ref, store);
             }
 
             if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
@@ -440,7 +440,7 @@ public class NPCWorkHelper {
         if (ai.currentTask == TaskType.PLANTING) {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
             if (world.getTick() - ai.taskStartTime == 1) {
-                playSmith(ref, store);
+                playFarmTill(ref, store);
             }
 
             if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
@@ -482,7 +482,7 @@ public class NPCWorkHelper {
         if (ai.currentTask == TaskType.FISHING) {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
             if (world.getTick() - ai.taskStartTime == 1) {
-                playSmith(ref, store);
+                playFish(ref, store);
             }
 
             if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
@@ -508,7 +508,7 @@ public class NPCWorkHelper {
         if (ai.currentTask == TaskType.CHOPPING) {
             if (ai.targetBlockPosition == null) { ai.currentTask = TaskType.IDLE; return; }
             if (world.getTick() - ai.taskStartTime == 1) {
-                playSmith(ref, store);
+                playChop(ref, store);
             }
 
             if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
