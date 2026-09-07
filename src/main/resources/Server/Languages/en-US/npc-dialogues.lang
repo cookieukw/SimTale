@@ -264,14 +264,68 @@ proximity.friend = Hey {player}! Good to see you around!
 proximity.partner = Hello my love! I was missing you. 💕
 proximity.enemy = Don't even think about coming near me...
 
-# NPC-NPC SOCIAL BANTER
-social.banter.1.a = {name}: Beautiful day to get some work done, don't you think?
-social.banter.1.b = {name}: Absolutely! The weather couldn't be better.
-social.banter.2.a = {name}: Heard we might have some fresh crops coming in soon.
-social.banter.2.b = {name}: Can't wait! The soil looks very fertile lately.
-social.banter.3.a = {name}: How are things over at your place lately?
-social.banter.3.b = {name}: All peaceful and quiet! How about yours?
-social.banter.4.a = {name}: Fancy taking a walk around the village later?
-social.banter.4.b = {name}: Sounds like a great plan! Catch you later.
-social.hostile.a = {name}: Get out of my face! I don't want to talk to you!
-social.hostile.b = {name}: Don't push your luck! You'll regret picking a fight with me!
+# NPC-NPC CONTEXTUAL SOCIAL DIALOGUES
+social.hostile.1.a = {name}: Get out of my face! I don't want to talk to you!
+social.hostile.1.b = {name}: Don't push your luck! You'll regret picking a fight with me!
+social.hostile.2.a = {name}: What are you looking at? Beat it!
+social.hostile.2.b = {name}: Who do you think you are to boss me around?!
+
+social.romantic.1.a = {name}: My love! It's so wonderful seeing you here.
+social.romantic.1.b = {name}: My day is always brighter the moment I see your face.
+social.romantic.2.a = {name}: I was just thinking about you...
+social.romantic.2.b = {name}: Really? I wouldn't leave your side for the world.
+
+social.hunger.1.a = {name}: My stomach is growling... I need to find something to eat soon.
+social.hunger.1.b = {name}: Tell me about it! If I don't get some food soon, I might pass out.
+social.hunger.2.a = {name}: Have you seen any snacks or stew nearby? I'm starving.
+social.hunger.2.b = {name}: I think I smelled cooking earlier, go take a look over there!
+
+social.fatigue.1.a = {name}: My eyelids feel so heavy... I'm exhausted.
+social.fatigue.1.b = {name}: I can barely stand on my feet either, can't wait to get to bed.
+social.fatigue.2.a = {name}: Worked way too hard today, my back is killing me.
+social.fatigue.2.b = {name}: You really should rest a bit before you overwork yourself.
+
+social.work.farm.1.a = {name}: The crops are coming along nicely, harvest should be plentiful.
+social.work.farm.1.b = {name}: Wonderful news! The soil around here is remarkably rich.
+social.work.farm.2.a = {name}: Need to water and tend to the fields before the sun gets too high.
+social.work.farm.2.b = {name}: Best of luck out there! The village appreciates the fresh harvest.
+
+social.work.wood.1.a = {name}: Spent the morning chopping logs. The timber here is solid!
+social.work.wood.1.b = {name}: That's great! We'll need plenty of firewood and building timber.
+social.work.wood.2.a = {name}: My axe is getting dull from felling all these dry logs.
+social.work.wood.2.b = {name}: Careful not to hurt yourself, good timber takes steady work.
+
+social.work.guard.1.a = {name}: Quiet patrol so far. No hostile beasts lurking near the borders.
+social.work.guard.1.b = {name}: Good to keep your guard up anyway. You never know what's in the woods.
+social.work.guard.2.a = {name}: Keeping this settlement safe is our highest duty.
+social.work.guard.2.b = {name}: We all rest easier knowing you're standing watch.
+
+social.work.fish.1.a = {name}: The fish are really biting down by the creek today!
+social.work.fish.1.b = {name}: Fantastic! A fresh grilled fish dinner tonight would hit the spot.
+social.work.fish.2.a = {name}: Water was calm this morning, perfect for casting lines.
+social.work.fish.2.b = {name}: Fishing sounds like such peaceful and soothing work...
+
+social.mood.happy.1.a = {name}: Woke up with wonderful energy today! Everything feels bright.
+social.mood.happy.1.b = {name}: I can see that smile from a mile away! It's infectious.
+social.mood.happy.2.a = {name}: Some days village life just feels truly peaceful.
+social.mood.happy.2.b = {name}: It really does! Blessed to live in such a nice town.
+
+social.mood.sad.1.a = {name}: Today hasn't been the easiest day... feeling a bit down.
+social.mood.sad.1.b = {name}: I'm sorry to hear that. I'm always here if you need to talk, friend.
+social.mood.sad.2.a = {name}: Sometimes things just feel heavy, you know?
+social.mood.sad.2.b = {name}: I know the feeling. Hang in there, things will look up soon.
+
+social.night.1.a = {name}: Night fell so fast... gets quite dangerous wandering in the dark.
+social.night.1.b = {name}: Absolutely. Better stick to the torches and head indoors soon.
+social.night.2.a = {name}: The shadows out here at night make me a bit uneasy.
+social.night.2.b = {name}: Make sure your doors are bolted shut before you sleep.
+
+social.weather.1.a = {name}: The weather today is delightful, neither too hot nor too cold.
+social.weather.1.b = {name}: Agreed! Perfect day for a walk outside.
+social.weather.2.a = {name}: There's such a gentle breeze blowing through the trees today.
+social.weather.2.b = {name}: A very refreshing breeze indeed!
+
+social.village.1.a = {name}: Our village has been looking livelier and prettier by the day.
+social.village.1.b = {name}: True! It's wonderful seeing everyone bustling and living in peace.
+social.village.2.a = {name}: Once daily chores are finished, I'm planning a long stroll around town.
+social.village.2.b = {name}: If my chores are done in time, I'll join you on that walk!

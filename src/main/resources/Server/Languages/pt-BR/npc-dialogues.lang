@@ -264,14 +264,68 @@ proximity.friend = Oi {player}! Bom te ver por aqui!
 proximity.partner = Oi meu amor! Estava com saudades de você. 💕
 proximity.enemy = Nem pense em se aproximar de mim...
 
-# NPC-NPC SOCIAL BANTER
-social.banter.1.a = {name}: O dia hoje está lindo para trabalhar, não acha?
-social.banter.1.b = {name}: Com certeza! O clima está perfeito hoje.
-social.banter.2.a = {name}: Ouvi dizer que teremos novas colheitas em breve.
-social.banter.2.b = {name}: Mal posso esperar! A terra parece bem fértil.
-social.banter.3.a = {name}: Como estão as coisas na sua casa ultimamente?
-social.banter.3.b = {name}: Tudo tranquilo por lá! E com você?
-social.banter.4.a = {name}: Vamos dar uma volta pelo vilarejo mais tarde?
-social.banter.4.b = {name}: Uma ótima ideia! Te encontro depois.
-social.hostile.a = {name}: Saia da minha frente! Não quero falar com você!
-social.hostile.b = {name}: Não me provoque! Da próxima vez não vai ficar assim!
+# NPC-NPC CONTEXTUAL SOCIAL DIALOGUES
+social.hostile.1.a = {name}: Saia da minha frente! Não quero falar com você!
+social.hostile.1.b = {name}: Não me provoque! Da próxima vez não vai ficar assim!
+social.hostile.2.a = {name}: O que você está olhando? Dá o fora daqui!
+social.hostile.2.b = {name}: Quem você pensa que é pra me dar ordens?!
+
+social.romantic.1.a = {name}: Meu amor! Que alegria te encontrar por aqui.
+social.romantic.1.b = {name}: Meu dia sempre fica mais iluminado quando vejo você.
+social.romantic.2.a = {name}: Estava pensando em você agorinha mesmo...
+social.romantic.2.b = {name}: É mesmo? Eu também não saio do seu lado por nada.
+
+social.hunger.1.a = {name}: Minha barriga tá roncando... preciso achar algo pra comer logo.
+social.hunger.1.b = {name}: Nem me fale! Se eu não comer algo em breve, vou desmaiar.
+social.hunger.2.a = {name}: Você viu algum lanche ou ensopado por perto? Tô com muita fome.
+social.hunger.2.b = {name}: Acho que ouvi alguém preparando comida mais cedo, dá uma olhada lá!
+
+social.fatigue.1.a = {name}: Meus olhos estão quase fechando... que cansaço.
+social.fatigue.1.b = {name}: Eu também não aguento mais ficar de pé hoje, mal posso esperar pra dormir.
+social.fatigue.2.a = {name}: Trabalhei demais hoje, minhas costas estão me matando.
+social.fatigue.2.b = {name}: Você devia descansar um pouco antes que passe mal.
+
+social.work.farm.1.a = {name}: As plantações estão crescendo bem, acho que a colheita será farta.
+social.work.farm.1.b = {name}: Maravilha! O solo dessa vila é incrivelmente fértil.
+social.work.farm.2.a = {name}: Preciso regar e cuidar dos campos antes que o sol esquente.
+social.work.farm.2.b = {name}: Boa sorte com o trabalho! O vilarejo agradece pela comida fresca.
+
+social.work.wood.1.a = {name}: Passei a manhã cortando lenha. A madeira daqui é muito firme!
+social.work.wood.1.b = {name}: Com certeza! Vamos precisar de bastante lenha para as construções e lareiras.
+social.work.wood.2.a = {name}: Meu machado tá ficando cego de tanto derrubar troncos secos.
+social.work.wood.2.b = {name}: Cuidado pra não se machucar, lenha boa exige paciência.
+
+social.work.guard.1.a = {name}: Ronda tranquila até agora. Nenhuma criatura hostil nos arredores.
+social.work.guard.1.b = {name}: É bom manter a guarda alta mesmo assim. Nunca se sabe o que espreita na floresta.
+social.work.guard.2.a = {name}: A segurança deste vilarejo vem em primeiro lugar.
+social.work.guard.2.b = {name}: Todos nós dormimos mais tranquilos sabendo que vocês estão de vigia.
+
+social.work.fish.1.a = {name}: Os peixes estão mordendo bastante perto do riacho hoje!
+social.work.fish.1.b = {name}: Que ótimo! Um bom peixe assado hoje à noite seria maravilhoso.
+social.work.fish.2.a = {name}: A água estava calma hoje cedo, perfeito pra lançar as redes.
+social.work.fish.2.b = {name}: Pescar parece um trabalho tão tranquilo e relaxante...
+
+social.mood.happy.1.a = {name}: Acordei com uma energia ótima hoje! O dia promete.
+social.mood.happy.1.b = {name}: Dá pra ver o seu sorriso de longe! Essa alegria contagia.
+social.mood.happy.2.a = {name}: Tem dias que a vida na vila simplesmente parece perfeita.
+social.mood.happy.2.b = {name}: Nem me fala! É muito bom viver em um lugar tão tranquilo.
+
+social.mood.sad.1.a = {name}: Não estou em um dia muito bom... tá tudo meio cinza hoje.
+social.mood.sad.1.b = {name}: Sinto muito por isso. Se precisar conversar, estou por aqui, amigo(a).
+social.mood.sad.2.a = {name}: Às vezes as coisas pesam um pouco, sabe?
+social.mood.sad.2.b = {name}: Eu entendo. Logo as coisas vão melhorar, não perca a esperança.
+
+social.night.1.a = {name}: A noite caiu rápido... fica bem perigoso andar por aí no escuro.
+social.night.1.b = {name}: Com certeza. É melhor irmos para perto das tochas e logo pra casa.
+social.night.2.a = {name}: As sombras à noite me deixam um pouco desconfortável.
+social.night.2.b = {name}: Tranque bem as portas antes de dormir para evitar surpresas.
+
+social.weather.1.a = {name}: O clima hoje está maravilhoso, nem muito quente nem muito frio.
+social.weather.1.b = {name}: Verdade! Um dia perfeito para andar ao ar livre.
+social.weather.2.a = {name}: O vento hoje tá soprando gostoso pelas árvores.
+social.weather.2.b = {name}: Uma brisa muito refrescante mesmo!
+
+social.village.1.a = {name}: Nossa vila está ficando cada vez mais movimentada e bonita.
+social.village.1.b = {name}: É verdade, é ótimo ver todo mundo trabalhando e convivendo em paz.
+social.village.2.a = {name}: Depois do dever concluído, quero dar uma volta completa pelo vilarejo.
+social.village.2.b = {name}: Se eu tiver tempo, te acompanho no passeio mais tarde!
