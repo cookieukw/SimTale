@@ -74,6 +74,8 @@ public class RoutineAIComponent implements Component<EntityStore> {
     public long lastPlayerGreetingTick = 0;
     /** Ticking counter during socialization to alternate talk turns. */
     public long socialTalkTimer = 0;
+    /** Current conversation topic index. */
+    public int socialTopic = 0;
     /**
      * True for the NPC that started the conversation. Only the host applies the social,
      * relationship and mood rewards, so a chat is not counted twice.
@@ -182,6 +184,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.reservedForSocialUuid = this.reservedForSocialUuid;
         comp.lastPlayerGreetingTick = this.lastPlayerGreetingTick;
         comp.socialTalkTimer = this.socialTalkTimer;
+        comp.socialTopic = this.socialTopic;
         comp.socializeHost = this.socializeHost;
         comp.wanderTimer = this.wanderTimer;
         comp.patrolAngle = this.patrolAngle;
