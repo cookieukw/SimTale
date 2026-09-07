@@ -179,6 +179,9 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.reapTimer = this.reapTimer;
         comp.workTargetEntityId = this.workTargetEntityId;
         comp.socializeTargetId = this.socializeTargetId;
+        comp.reservedForSocialUuid = this.reservedForSocialUuid;
+        comp.lastPlayerGreetingTick = this.lastPlayerGreetingTick;
+        comp.socialTalkTimer = this.socialTalkTimer;
         comp.socializeHost = this.socializeHost;
         comp.wanderTimer = this.wanderTimer;
         comp.patrolAngle = this.patrolAngle;
