@@ -37,15 +37,28 @@ O `RoutineAISystem` concentra a **decisão** (qual tarefa assumir a partir de `I
     *   *Proteção de Sono*: Durante a noite, o `GrowthTickSystem` não interrompe nem remove da cama crianças adormecidas se o responsável se afastar temporariamente.
 5.  **Wake Up Phase**: Ao preencher a energia (100) ou atingir a duração máxima da soneca, o NPC executa a animação de despertar (`Wake`), é desmontado da cama e teleportado de volta para a posição adjacente de apoio.
 
-### O Fluxo de Socialização (`NPCSocialHelper`)
-Quando um NPC ocioso tem a necessidade `social` abaixo de 50, ele procura um parceiro de conversa num raio de 20 blocos:
+### O Fluxo de Socialização (`NPCSocialHelper` e `SimTaleJuiceHelper`)
+A socialização ocorre espontaneamente quando um NPC ocioso tem a necessidade `social` abaixo de 85 ou durante caminhadas pela vila (chance aleatória):
 
-1.  **Seleção de alvo**: varre `SimTale.ACTIVE_NPCS` e descarta quem não está disponível. Só NPCs em `IDLE` ou `WANDERING` podem ser abordados (`NPCSocialHelper.isAvailableToTalk`), então ninguém é arrancado da cama, do trabalho ou de outra conversa.
-2.  **`MOVING_TO_SOCIALIZE`**: caminha até o parceiro revalidando a cada tick se ele ainda existe e continua disponível. Se o trajeto passar de 400 ticks, desiste — o alvo pode ser inalcançável.
-3.  **`SOCIALIZING`**: ao chegar a 2,5 blocos, ambos param por 100 ticks. O iniciador ("host") puxa o parceiro para o mesmo estado como convidado, para que ele não saia andando no meio da conversa.
-4.  **Resultado**: ao fim, o host aplica os três efeitos de uma vez — `social` +35 nos dois, relação NPC↔NPC mútua e contágio de humor.
+1.  **Seleção e Reserva de Alvo**: Varre `SimTale.ACTIVE_NPCS` num raio de 20 blocos. Só NPCs em `IDLE` ou `WANDERING` podem ser abordados (`NPCSocialHelper.isAvailableToTalk`). O parceiro recebe `reservedForSocialUuid`, garantindo que ele espere e não saia correndo antes do anfitrião chegar.
+2.  **`MOVING_TO_SOCIALIZE`**: Caminha até o parceiro revalidando se continua acessível. Timeout de 400 ticks.
+3.  **Início do Bate-papo (`SOCIALIZING`)**:
+    *   Ao chegar a 2,5 blocos, ambos param por 140 ticks (~7 segundos).
+    *   Os pontos de *leash* de ambos são ancorados na posição exata em que estão para evitar puxões da IA padrão do Hytale.
+    *   Ambos viram de frente um para o outro com `teleportRotation`.
+4.  **Diálogo Contextual Turno-a-Turno**:
+    *   **Seleção de Tópico**: O sistema pontua o assunto mais relevante no momento: inimizade/hostilidade, romance (se casados/namorados), necessidades críticas (fome $< 40$, cansaço $< 40$), humor ativo, profissão (fazenda, corte de lenha, patrulha de guarda, pesca), escuridão da noite ou amenidades sobre a vila e clima.
+    *   **Turno 1 (~0.7s)**: O anfitrião fala sua linha de abertura (`.a`), executa a animação facial de fala (`Talk.blockyanim`) e o parceiro ouve atentamente.
+    *   **Turno 2 (~3.5s)**: O convidado responde com a réplica compatível (`.b`), executa a fala (`Talk.blockyanim`) e o anfitrião escuta.
+    *   **Filtro de Audição (4 blocos)**: Jogadores a até 4 blocos escutam o bate-papo no chat `[Vila]`. Se nenhum jogador estiver perto, as mensagens de texto são suprimidas para manter o chat limpo e economizar CPU.
+5.  **Resultado e Física de Empurrão**:
+    *   Restaura +35 de `social` para ambos, melhora relação e propaga contágio de humor.
+    *   Se a conversa for hostil (`ENEMIES` ou traço `AGGRESSIVE`), o NPC agressor desfere um empurrão físico real (`SimTaleJuiceHelper.playShove`) com animação de soco, expressão de fúria e repulsão por *knockback*!
 
-O resultado é sensível ao contexto social: se qualquer um dos dois estiver como `ENEMIES` ou tiver o traço `AGGRESSIVE`, a conversa vira discussão (amizade, afinidade e confiança negativas, e humor `ANGRY` ou `SAD` conforme o traço de quem ouve). Numa conversa boa, um NPC `HAPPY`/`EXCITED` contagia mais forte quem estava `SAD`, `BORED` ou `ANGRY` (intensidade 0.7) do que quem já estava bem (0.4).
+### Expressividade e Cumprimentos de Proximidade (`SimTaleJuiceHelper`)
+*   **Cumprimentos por Proximidade**: Ao aproximar-se a 4.5 metros de um morador, ele se vira, acena (`Wave`), sorri e envia uma saudação no chat de acordo com o nível de relacionamento (cooldown de 45s).
+*   **Flerte Visual**: Cantadas bem-sucedidas disparam rubor facial alegre (`Cheerful`), emote de mandar beijo (`Blow_Kiss`) e partículas de corações (`Hearts`) sobre a cabeça do NPC.
+*   **Animações Autênticas de Trabalho**: Agricultores utilizam golpes de enxada (`Till`), lenhadores desferem machadadas (`Chop`) e pescadores observam o horizonte (`Look_Around`).
 
 ### O Fluxo de Perambulação (`WANDERING`)
 NPCs ociosos têm uma pequena chance por tick de dar uma volta. O destino é sorteado por ângulo e raio (até 8 blocos) **ancorado na cama do NPC**, não na posição atual — isso mantém a vila coesa em vez de espalhar os moradores pelo mapa. NPCs sem cama perambulam em torno de onde estiverem. Um timeout de 300 ticks (`wanderTimer`) devolve o NPC a `IDLE` caso o destino sorteado seja inalcançável.

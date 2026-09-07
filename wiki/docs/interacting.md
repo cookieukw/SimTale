@@ -34,14 +34,18 @@ When the interaction panel opens, the camera dynamically adjusts its distance, h
 |---|---|
 | **Chat** | Conversation. Grants a small boost to Friendship (+5) and Affinity (+5 to +10). If Generative AI is enabled, the NPC will actively write a response back. |
 | **Tell joke** | Lands or flops depending on her humour. Fails entirely if enemies. Cheers up sad/angry partners. NPCs with the `FUNNY` trait give a massive +15 affinity boost. |
-| **Flirt** | Requires a good baseline relationship (hidden/disabled for children). Unlike a certain life simulator game, you can't just spam this 50 times in a row until they marry you. Guaranteed to fail and drop relationship points if enemies, strangers, or angry. Readily accepted by partners or NPCs with the `SHY` trait. |
+| **Flirt** | Requires a good baseline relationship (hidden/disabled for children). Unlike a certain life simulator game, you can't just spam this 50 times in a row until they marry you. Guaranteed to fail and drop relationship points if enemies, strangers, or angry. When successful, the NPC blushes with a cheerful expression, blows a kiss emote, and spawns heart particles (`Hearts`) over their head! |
 | **Give gift** | Hands over whatever you are holding. (See below for gift logic) |
-| **Insult** | Costs up to -30 trust and affinity, and she remembers it. (Clementine will remember that). Partners will react very poorly. |
+| **Insult** | Costs up to -30 trust and affinity, and she remembers it. (Clementine will remember that). Highly offended or aggressive NPCs will physically shove you backwards with a punch animation and real knockback impulse! |
 | **Scold** | Specific to your children. Reactions vary by age: Teens become angry, Adults become bored, and Babies/Toddlers become sad. Repeated scolding drops trust and affinity. |
 | **Pick Up / Carry** | Allows carrying toddlers or children on your back or shoulders. Release by crouching and right-clicking a block or typing `/simtale putdown`. |
 | **Assign job** | Sets her job from the tool you are holding (e.g., holding a hoe assigns Farmer). Protected: young children will refuse to work. |
 | **View pregnancy** | Opens the gestation panel |
 | **Inventory** | Opens her inventory |
+
+### Proximity Greetings & Ambient Chatter
+- **Player Proximity Greetings**: Approaching an NPC ($\le 4.5m$) prompts them to turn toward you, smile, wave, and send a contextual greeting in chat based on your relationship tier (Partner, Friend, Stranger, Enemy). Cooldown of 45 seconds prevents spam.
+- **NPC-to-NPC Conversations**: When two NPCs meet during their daily routines, they stop, face each other, and converse turn-by-turn. Dialogue topics adapt to their actual context (farmers talk about crops, exhausted NPCs talk about sleep, starving NPCs discuss food, and enemies trade insults before shoving each other). Chatter is audible in chat within a 4-block radius.
 
 ## Gifts
 

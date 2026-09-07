@@ -54,6 +54,10 @@ Use `/simtale rescan` for worlds built before that fix.
 
 | Command | What it does |
 |---|---|
+| `/simtale forcesocial [topic]` | Forces the 2 nearest NPCs to face each other and chat turn-by-turn. Optional topics: `hostile`, `romantic`, `hunger`, `fatigue`, `farm`, `wood`, `guard`, `fish`, `happy`, `sad`, `night`, `weather`, `village` |
+| `/simtale testflirt` | Tests the flirt reaction on nearest NPC (blush expression, blow kiss, heart particles) |
+| `/simtale testshove` | Tests the angry shove reaction with knockback physics against player |
+| `/simtale testgreet` | Tests proximity wave and greeting on nearest NPC |
 | `/simtale forcesleep` | Forces the nearest NPC to sleep or wake |
 | `/simtale forceeat` | Zeroes hunger and sends the NPC to a chest |
 | `/simtale forcework` | Forces the nearest NPC to do its job |
@@ -92,4 +96,4 @@ the ground, `setstage` takes over.
 
 ---
 
-*Verified against the 28 subcommands registered in `SimTaleCommand.java`.*
+*Verified against the 32 subcommands registered in `SimTaleCommand.java`.*

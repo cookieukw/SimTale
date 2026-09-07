@@ -39,6 +39,13 @@ Quando o jogador clica para conversar com o NPC:
 3.  **UI Feedback**: A UI exibe um indicador visual de "pensando...".
 4.  **Response Delivery**: Quando a resposta chega na callback assíncrona, a mensagem do NPC é exibida em formato de balão no chat do jogador, e a afinidade/romance correspondente é atualizada.
 
+### Feedback Tátil e Expressões Visuais (`SimTaleJuiceHelper`)
+As interações sociais diretas e ambientais disparam reações físicas e visuais imediatas:
+*   **Flerte Bem-sucedido**: O NPC cora com expressão alegre (`Cheerful`), sopra um beijo (`Blow_Kiss`), gera partículas de corações (`Hearts`) sobre a cabeça e entra no humor `EXCITED`.
+*   **Flerte Rejeitado**: O NPC franze a testa (`Frown`) e expressa desgosto.
+*   **Insultos Severos**: Se o insulto gerar hostilidade ou o NPC tiver traço agressivo, ele desfere um empurrão físico violento (`Punch`), mostra expressão de fúria (`Rage`) e arremessa o jogador para trás com impulso real de *knockback*.
+*   **Cumprimento por Proximidade**: Aproximar-se do morador ($\le 4.5m$) faz com que ele se vire, sorria (`Smile`), acene com a mão (`Wave`) e envie uma saudação contextual no chat.
+
 ---
 
 ## 3. Decisões de Design e Por Quê

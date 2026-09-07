@@ -34,14 +34,18 @@ Ao abrir o painel de interação, a câmera ajusta dinamicamente a distância, e
 |---|---|
 | **Conversar (Chat)** | Bate-papo. Dá um pequeno aumento na Amizade (+5) e Afinidade (+5 a +10). Se a IA Gerativa estiver ativada, o NPC escreverá ativamente uma resposta. |
 | **Contar piada (Joke)** | Dá certo ou fracassa dependendo do senso de humor dela. Falha totalmente se forem inimigos. Anima parceiros tristes/irritados. NPCs com o traço `ENGRAÇADO` (`FUNNY`) dão um aumento massivo de +15 na afinidade. |
-| **Flertar (Flirt)** | Exige uma boa base de relacionamento (desabilitado para crianças). Diferente de certo jogo simulador de vida, você não pode simplesmente floodar a interação de flerte 50 vezes seguidas até eles casarem com você. Falha garantida e queda de relacionamento se forem inimigos, estranhos ou se o NPC estiver irritado. |
+| **Flertar (Flirt)** | Exige uma boa base de relacionamento (desabilitado para crianças). Diferente de certo jogo simulador de vida, você não pode simplesmente floodar a interação de flerte 50 vezes seguidas até eles casarem com você. Falha garantida e queda de relacionamento se forem inimigos, estranhos ou se o NPC estiver irritado. Quando bem-sucedido, o NPC cora com expressão alegre, sopra um beijo e solta partículas de corações (`Hearts`) sobre a cabeça! |
 | **Dar presente (Gift)** | Entrega o que você estiver segurando. (Veja abaixo a lógica de presentes) |
-| **Insultar (Insult)** | Custa até -30 de confiança e afinidade, e ela se lembrará disso. (Clementine vai se lembrar disso). Parceiros vão reagir muito mal. |
+| **Insultar (Insult)** | Custa até -30 de confiança e afinidade, e ela se lembrará disso. (Clementine vai se lembrar disso). NPCs muito ofendidos ou agressivos revidarão te empurrando fisicamente para trás com animação de soco e repulsão (*knockback*) real! |
 | **Dar bronca (Scold)** | Específico para os seus filhos. As reações variam conforme a idade: Adolescentes ficam com raiva, Adultos ficam entediados, e Bebês/Crianças pequenas ficam tristes. Dar bronca repetidamente reduz a confiança e afinidade. |
 | **Carregar no Colo/Costas (Carry)** | Permite carregar bebês, crianças pequenas ou crianças no colo/costas. Solte agachando e clicando com botão direito em um bloco ou digitando `/simtale putdown`. |
 | **Atribuir trabalho (Assign job)** | Define o trabalho dela com base na ferramenta que você está segurando. Protegido: crianças pequenas recusam trabalho. |
 | **Ver gravidez (View pregnancy)** | Abre o painel de gestação |
 | **Inventário (Inventory)** | Abre o inventário dela |
+
+### Cumprimentos de Proximidade & Bate-papo Ambiente
+- **Cumprimento ao se Aproximar**: Ao chegar perto de um NPC ($\le 4.5m$), ele se vira para você, sorri, acena com a mão e envia uma saudação no chat conforme o nível de relacionamento (Cônjuge/Amor, Amigo, Estranho ou Inimigo). Cooldown de 45 segundos por NPC para evitar spam.
+- **Conversas NPC-com-NPC**: Quando dois moradores se encontram durante suas rotinas diárias, eles param frente a frente e conversam turno-a-turno. Os assuntos são contextuais (fazendeiros conversam sobre a lavoura, NPCs exaustos comentam sobre cama/sono, famintos falam de comida, e inimigos trocam ofensas antes de se empurrarem). O bate-papo é audível no chat em um raio de até 4 blocos.
 
 ## Presentes
 

@@ -51,14 +51,18 @@ Use `/simtale rescan` for worlds built before that fix.
 :::
 
 ## Forcing routines
-
-| Command | What it does |
+ 
+| Comando | O que faz |
 |---|---|
-| `/simtale forcesleep` | Forces the nearest NPC to sleep or wake |
-| `/simtale forceeat` | Zeroes hunger and sends the NPC to a chest |
-| `/simtale forcework` | Forces the nearest NPC to do its job |
-| `/simtale forceplant` | Gives seeds to a farmer and sends her to plant |
-| `/simtale unstick` | Frees stuck NPCs **and the player** |
+| `/simtale forcesocial [topico]` | Força os 2 NPCs mais próximos a ficarem frente a frente e conversarem em turnos. Tópicos opcionais: `hostile`, `romantic`, `hunger`, `fatigue`, `farm`, `wood`, `guard`, `fish`, `happy`, `sad`, `night`, `weather`, `village` |
+| `/simtale testflirt` | Testa a reação de flerte no NPC mais próximo (expressão alegre/corada, beijo e partículas de corações) |
+| `/simtale testshove` | Testa o empurrão violento de raiva com física real de repulsão (*knockback*) contra o jogador |
+| `/simtale testgreet` | Testa o aceno de proximidade e cumprimento do NPC mais próximo |
+| `/simtale forcesleep` | Força o NPC mais próximo a dormir ou acordar |
+| `/simtale forceeat` | Zera a fome e envia o NPC até um baú |
+| `/simtale forcework` | Força o NPC mais próximo a trabalhar |
+| `/simtale forceplant` | Dá sementes a um fazendeiro e envia para plantar |
+| `/simtale unstick` | Libera NPCs travados **e o jogador** |
 | `/simtale toggleai` | Ativa/desativa a API de IA (não desativa a IA de rotina do NPC) |
 
 ## Family
@@ -92,4 +96,4 @@ the ground, `setstage` takes over.
 
 ---
 
-*Verified against the 28 subcommands registered in `SimTaleCommand.java`.*
+*Verificado contra os 32 subcomandos registrados em `SimTaleCommand.java`.*
