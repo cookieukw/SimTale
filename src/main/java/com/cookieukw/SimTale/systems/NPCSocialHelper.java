@@ -13,10 +13,14 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Trait;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.protocol.AnimationSlot;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 import com.cookieukw.SimTale.core.SimLog;
@@ -100,7 +104,8 @@ public class NPCSocialHelper {
 
         TransformComponent targetTransform = store.getComponent(targetRef, TransformComponent.getComponentType());
         RoutineAIComponent targetAi = store.getComponent(targetRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
-        if (targetTransform == null || targetAi == null || !isAvailableToTalk(targetAi)) {
+        boolean isReservedForMe = targetAi != null && npc.entityId.equals(targetAi.reservedForSocialUuid);
+        if (targetTransform == null || targetAi == null || (!isAvailableToTalk(targetAi) && !isReservedForMe)) {
             abortSocial(ref, ai, store);
             return;
         }
@@ -115,16 +120,23 @@ public class NPCSocialHelper {
             ai.currentTask = TaskType.SOCIALIZING;
             ai.socializeHost = true;
             ai.taskStartTime = world.getTick();
-            NPCMovementHelper.playAnim(ref, ANIM_IDLE, "Idle", store);
+            ai.socialTalkTimer = 0;
 
-            // Pull the partner into the conversation as the guest side, so they stop and
-            // "listen" instead of walking away mid-chat. Only the host applies the rewards.
+            // Pull partner into conversation and face each other
             targetAi.currentTask = TaskType.SOCIALIZING;
             targetAi.socializeHost = false;
             targetAi.socializeTargetId = npc.entityId;
             targetAi.taskStartTime = world.getTick();
+            targetAi.socialTalkTimer = 0;
             NPCMovementHelper.clearMoveTarget(targetRef, targetAi);
-            NPCMovementHelper.playAnim(targetRef, ANIM_IDLE, "Idle", store);
+
+            // Rotate both NPCs to face each other directly
+            transform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
+            targetTransform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(dx, dz), 0f));
+
+            // Start animations: host talks, target listens and smiles
+            NPCMovementHelper.playAnim(ref, AnimationSlot.Face, SimTaleJuiceHelper.animTalk(), "Talk", store);
+            NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, SimTaleJuiceHelper.faceSmile(), "Smile", store);
         } else {
             NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(targetPos.x, myPos.y, targetPos.z));
         }
@@ -145,7 +157,30 @@ public class NPCSocialHelper {
             return;
         }
 
-        if (world.getTick() - ai.taskStartTime < SOCIALIZE_DURATION_TICKS) {
+        long elapsed = world.getTick() - ai.taskStartTime;
+
+        // Host coordinates animation turns and banter
+        if (ai.socializeHost && ai.socializeTargetId != null) {
+            Ref<EntityStore> targetRef = world.getEntityStore().getRefFromUUID(ai.socializeTargetId);
+            SimNPCComponent other = resolveNpc(ai.socializeTargetId, world, store);
+
+            // Swap speaking and listening animations every 30 ticks (1.5s)
+            if (elapsed % 30 == 0 && targetRef != null && targetRef.isValid()) {
+                boolean hostTalking = (elapsed / 30) % 2 == 0;
+                Ref<EntityStore> speaker = hostTalking ? ref : targetRef;
+                Ref<EntityStore> listener = hostTalking ? targetRef : ref;
+
+                NPCMovementHelper.playAnim(speaker, AnimationSlot.Face, SimTaleJuiceHelper.animTalk(), "Talk", store);
+                NPCMovementHelper.playAnim(listener, AnimationSlot.Face, SimTaleJuiceHelper.faceSmile(), "Smile", store);
+            }
+
+            // Broadcast dialogue line to nearby players at tick 20
+            if (elapsed == 20 && other != null) {
+                broadcastCasualChatter(npc, other, ref, store);
+            }
+        }
+
+        if (elapsed < SOCIALIZE_DURATION_TICKS) {
             return;
         }
 
@@ -158,24 +193,65 @@ public class NPCSocialHelper {
 
         SimNPCComponent other = resolveNpc(ai.socializeTargetId, world, store);
         if (other != null) {
-            applyChatOutcome(npc, other, world.getTick());
-            LOGGER.debug("[SimTale] '{}' and '{}' finished chatting", npc.name, other.name);
+            boolean pleasant = applyChatOutcome(npc, other, world.getTick());
+            // If the chat soured into a fight, have the hostile NPC shove the other!
+            if (!pleasant && other.entityRef != null && other.entityRef.isValid()) {
+                SimTaleJuiceHelper.playShove(ref, npc, other.entityRef, null, store, 4.0f, world.getTick());
+            }
+            LOGGER.debug("[SimTale] '{}' and '{}' finished chatting (pleasant={})", npc.name, other.name, pleasant);
         }
 
         endSocial(ref, ai, store);
     }
 
     /**
+     * Broadcasts ambient chatter between two NPCs to all players within earshot (15 blocks).
+     */
+    private static void broadcastCasualChatter(SimNPCComponent npc1, SimNPCComponent npc2, Ref<EntityStore> npcRef, Store<EntityStore> store) {
+        TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
+        if (trans == null) return;
+        Vector3d pos = trans.getPosition();
+
+        Relationship hostView = npc1.getRelationship(npc2.entityId);
+        boolean hostile = hostView.status == RelationshipStatus.ENEMIES
+                || npc1.personality.traits.contains(Trait.AGGRESSIVE)
+                || npc2.personality.traits.contains(Trait.AGGRESSIVE);
+
+        Message msg;
+        if (hostile) {
+            msg = Message.translation("npc-dialogues.social.hostile")
+                    .param("npc1", npc1.name)
+                    .param("npc2", npc2.name);
+        } else {
+            int roll = (int) (Math.random() * 4) + 1;
+            msg = Message.translation("npc-dialogues.social.banter." + roll)
+                    .param("npc1", npc1.name)
+                    .param("npc2", npc2.name);
+        }
+
+        for (PlayerRef pr : Universe.get().getPlayers()) {
+            Ref<EntityStore> pRef = pr.getReference();
+            if (pRef != null && pRef.isValid()) {
+                TransformComponent pt = pRef.getStore().getComponent(pRef, TransformComponent.getComponentType());
+                if (pt != null && pt.getPosition().distanceSquared(pos) <= 225.0) { // 15 blocks
+                    pr.sendMessage(Message.raw("§e[Vila] ").insert(msg));
+                }
+            }
+        }
+    }
+
+    /**
      * Applies the result of a finished conversation to both participants: social need,
      * mutual relationship and mood contagion.
      */
-    private static void applyChatOutcome(SimNPCComponent host, SimNPCComponent guest, long tick) {
+    private static boolean applyChatOutcome(SimNPCComponent host, SimNPCComponent guest, long tick) {
         NeedsHelper.setNeed(null, host.entityRef, NeedsHelper.SOCIAL_ID, Math.min(100f, NeedsHelper.getNeed(null, host.entityRef, NeedsHelper.SOCIAL_ID) + SOCIAL_RESTORE));
         NeedsHelper.setNeed(null, guest.entityRef, NeedsHelper.SOCIAL_ID, Math.min(100f, NeedsHelper.getNeed(null, guest.entityRef, NeedsHelper.SOCIAL_ID) + SOCIAL_RESTORE));
 
         boolean pleasant = bondNpcs(host, guest);
         exchangeMood(host, guest, pleasant, tick);
         exchangeMood(guest, host, pleasant, tick);
+        return pleasant;
     }
 
     /**
@@ -285,7 +361,8 @@ public class NPCSocialHelper {
 
     /** An NPC can only be pulled into a chat while it is not doing something important. */
     public static boolean isAvailableToTalk(RoutineAIComponent ai) {
-        return ai.currentTask == TaskType.IDLE || ai.currentTask == TaskType.WANDERING;
+        return (ai.currentTask == TaskType.IDLE || ai.currentTask == TaskType.WANDERING)
+                && ai.reservedForSocialUuid == null;
     }
 
     private static SimNPCComponent resolveNpc(UUID id, World world, Store<EntityStore> store) {
@@ -306,10 +383,13 @@ public class NPCSocialHelper {
 
     private static void endSocial(Ref<EntityStore> ref, RoutineAIComponent ai, Store<EntityStore> store) {
         ai.socializeTargetId = null;
+        ai.reservedForSocialUuid = null;
         ai.socializeHost = false;
+        ai.socialTalkTimer = 0;
         ai.currentTask = TaskType.IDLE;
         ai.taskStartTime = 0;
         NPCMovementHelper.playAnim(ref, ANIM_IDLE, "Idle", store);
+        NPCMovementHelper.playAnim(ref, AnimationSlot.Face, SimTaleJuiceHelper.faceSmile(), "Smile", store);
     }
 
     private static void stopWandering(Ref<EntityStore> ref, RoutineAIComponent ai, Store<EntityStore> store) {
