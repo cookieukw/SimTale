@@ -265,8 +265,13 @@ proximity.partner = Oi meu amor! Estava com saudades de você. 💕
 proximity.enemy = Nem pense em se aproximar de mim...
 
 # NPC-NPC SOCIAL BANTER
-social.banter.1 = {npc1}: O dia hoje está lindo para trabalhar, não acha? | {npc2}: Com certeza!
-social.banter.2 = {npc1}: Ouvi dizer que teremos novas colheitas em breve. | {npc2}: Mal posso esperar!
-social.banter.3 = {npc1}: Como estão as coisas na sua casa? | {npc2}: Tudo tranquilo por lá!
-social.banter.4 = {npc1}: Vamos dar uma volta pelo vilarejo mais tarde? | {npc2}: Uma boa ideia!
-social.hostile = {npc1}: Saia da minha frente! Não quero falar com você!
+social.banter.1.a = {name}: O dia hoje está lindo para trabalhar, não acha?
+social.banter.1.b = {name}: Com certeza! O clima está perfeito hoje.
+social.banter.2.a = {name}: Ouvi dizer que teremos novas colheitas em breve.
+social.banter.2.b = {name}: Mal posso esperar! A terra parece bem fértil.
+social.banter.3.a = {name}: Como estão as coisas na sua casa ultimamente?
+social.banter.3.b = {name}: Tudo tranquilo por lá! E com você?
+social.banter.4.a = {name}: Vamos dar uma volta pelo vilarejo mais tarde?
+social.banter.4.b = {name}: Uma ótima ideia! Te encontro depois.
+social.hostile.a = {name}: Saia da minha frente! Não quero falar com você!
+social.hostile.b = {name}: Não me provoque! Da próxima vez não vai ficar assim!

@@ -265,8 +265,13 @@ proximity.partner = Hello my love! I was missing you. 💕
 proximity.enemy = Don't even think about coming near me...
 
 # NPC-NPC SOCIAL BANTER
-social.banter.1 = {npc1}: Beautiful day to get some work done, don't you think? | {npc2}: Absolutely!
-social.banter.2 = {npc1}: Heard we will have new crops soon. | {npc2}: Can't wait!
-social.banter.3 = {npc1}: How are things at your place? | {npc2}: All good and peaceful!
-social.banter.4 = {npc1}: Want to take a stroll around the village later? | {npc2}: Great idea!
-social.hostile = {npc1}: Get out of my face! I don't want to talk to you!
+social.banter.1.a = {name}: Beautiful day to get some work done, don't you think?
+social.banter.1.b = {name}: Absolutely! The weather couldn't be better.
+social.banter.2.a = {name}: Heard we might have some fresh crops coming in soon.
+social.banter.2.b = {name}: Can't wait! The soil looks very fertile lately.
+social.banter.3.a = {name}: How are things over at your place lately?
+social.banter.3.b = {name}: All peaceful and quiet! How about yours?
+social.banter.4.a = {name}: Fancy taking a walk around the village later?
+social.banter.4.b = {name}: Sounds like a great plan! Catch you later.
+social.hostile.a = {name}: Get out of my face! I don't want to talk to you!
+social.hostile.b = {name}: Don't push your luck! You'll regret picking a fight with me!
