@@ -255,3 +255,18 @@ greeting.enemy.2 = {name} cruza os braços: Fala logo, eu não tenho tempo a per
 greeting.enemy.3 = {name} suspira fundo: Você de novo? Ninguém merece.
 random.stranger = {name}: Sabia que os padrões climáticos por aqui são bem imprevisíveis?
 random.known = {name}: Ei, lembra daquela vez que a gente lutou contra aqueles esqueletos? Bons tempos.
+
+# JUICE & PROXIMITY
+romantic.blush_feedback = {name} corou intensamente e te mandou um beijinho! 💕
+mean.shove_feedback = {name} se irritou profundamente e te empurrou com raiva!
+proximity.stranger = Olá, viajante.
+proximity.friend = Oi {player}! Bom te ver por aqui!
+proximity.partner = Oi meu amor! Estava com saudades de você. 💕
+proximity.enemy = Nem pense em se aproximar de mim...
+
+# NPC-NPC SOCIAL BANTER
+social.banter.1 = {npc1}: O dia hoje está lindo para trabalhar, não acha? | {npc2}: Com certeza!
+social.banter.2 = {npc1}: Ouvi dizer que teremos novas colheitas em breve. | {npc2}: Mal posso esperar!
+social.banter.3 = {npc1}: Como estão as coisas na sua casa? | {npc2}: Tudo tranquilo por lá!
+social.banter.4 = {npc1}: Vamos dar uma volta pelo vilarejo mais tarde? | {npc2}: Uma boa ideia!
+social.hostile = {npc1}: Saia da minha frente! Não quero falar com você!

@@ -255,3 +255,18 @@ greeting.enemy.2 = {name} crosses their arms: Make it quick, I don't have time f
 greeting.enemy.3 = {name} sighs heavily: You again? Unbelievable.
 random.stranger = {name}: Did you know the weather patterns here are quite unpredictable?
 random.known = {name}: Hey, remember that time we fought off those skeletons? Good times.
+
+# JUICE & PROXIMITY
+romantic.blush_feedback = {name} blushed deeply and blew you a kiss! 💕
+mean.shove_feedback = {name} became furious and shoved you angrily!
+proximity.stranger = Greetings, traveler.
+proximity.friend = Hey {player}! Good to see you around!
+proximity.partner = Hello my love! I was missing you. 💕
+proximity.enemy = Don't even think about coming near me...
+
+# NPC-NPC SOCIAL BANTER
+social.banter.1 = {npc1}: Beautiful day to get some work done, don't you think? | {npc2}: Absolutely!
+social.banter.2 = {npc1}: Heard we will have new crops soon. | {npc2}: Can't wait!
+social.banter.3 = {npc1}: How are things at your place? | {npc2}: All good and peaceful!
+social.banter.4 = {npc1}: Want to take a stroll around the village later? | {npc2}: Great idea!
+social.hostile = {npc1}: Get out of my face! I don't want to talk to you!
