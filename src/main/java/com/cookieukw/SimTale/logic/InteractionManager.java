@@ -145,12 +145,26 @@ public class InteractionManager {
         // Explicit flag instead of inferring rejection from the data shape. The old check was
         // `memoryEvent == null && friendship == 0 && affinity == 0`, which silently threw away
         // any legitimate outcome that happened to have no friendship/affinity delta.
-        if (outcome.rejected()) {
+        if (outcome.rejected() || (type == InteractionType.ROMANTIC && outcome.affinity() < 0)) {
+            if (type == InteractionType.ROMANTIC) {
+                SimTaleJuiceHelper.playFlirtReject(npc.entityRef, npc, playerRef,
+                        npc.entityRef != null ? npc.entityRef.getStore() : null, System.currentTimeMillis() / 50);
+            }
             return outcome.response();
         }
 
         rel.interactionsToday++;
         applyOutcome(npc, playerUuid, rel, outcome, isChild);
+
+        if (type == InteractionType.ROMANTIC && outcome.affinity() > 0) {
+            SimTaleJuiceHelper.playFlirtSuccess(npc.entityRef, npc, playerRef,
+                    npc.entityRef != null ? npc.entityRef.getStore() : null, System.currentTimeMillis() / 50);
+        } else if (type == InteractionType.MEAN || (type == InteractionType.SCOLD && outcome.friendship() < 0)) {
+            if (playerRef != null && playerRef.getReference() != null && npc.entityRef != null) {
+                SimTaleJuiceHelper.playShove(npc.entityRef, npc, playerRef.getReference(), playerRef,
+                        npc.entityRef.getStore(), 5.0f, System.currentTimeMillis() / 50);
+            }
+        }
 
         if (outcome.consumeItem()) {
             consumeHeldItemFromPlayer(playerRef);
