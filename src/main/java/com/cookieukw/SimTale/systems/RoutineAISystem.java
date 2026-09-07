@@ -25,7 +25,9 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
+import com.cookieukw.SimTale.core.Relationship;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 
@@ -504,7 +506,7 @@ once per NPC per tick for nothing.
                 ai.currentTask = TaskType.FINDING_LEISURE;
                 ai.targetBlockPosition = null;
                 ai.taskStartTime = world.getTick() - NPCLeisureHelper.LEISURE_SEARCH_COOLDOWN_TICKS;
-            } else if (ai.currentTask == TaskType.IDLE && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) < 50 && Math.random() < 0.05) {
+            } else if (ai.currentTask == TaskType.IDLE && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) < 85 || Math.random() < 0.25)) {
                 SimNPCComponent bestTarget = null;
                 double bestDist = SOCIALIZE_SEARCH_RANGE_SQ;
                 for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
@@ -528,6 +530,16 @@ once per NPC per tick for nothing.
                     ai.socializeTargetId = bestTarget.entityId;
                     ai.socializeHost = true;
                     ai.taskStartTime = world.getTick();
+
+                    // Reserve partner so they pause and wait instead of wandering off
+                    RoutineAIComponent otherAi = store.getComponent(bestTarget.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (otherAi != null) {
+                        otherAi.reservedForSocialUuid = npc.entityId;
+                        otherAi.currentTask = TaskType.IDLE;
+                        otherAi.wanderTimer = 0;
+                        NPCMovementHelper.clearMoveTarget(bestTarget.entityRef, otherAi);
+                    }
+
                     playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
                 }
             }
@@ -978,6 +990,9 @@ once per NPC per tick for nothing.
         */
         NPCSeatingHelper.handleSeatingLogic(ref, npc, ai, transform, world, store, commandBuffer);
 
+        /* Player Proximity Greeting */
+        checkPlayerProximityGreeting(ref, npc, ai, transform, world, store);
+
         /* Finding Bath (Optimization)
         */
         if (ai.currentTask == TaskType.FINDING_BATH && world.getTick() - ai.taskStartTime >= BATH_SEARCH_COOLDOWN_TICKS) {
@@ -1339,12 +1354,68 @@ once per NPC per tick for nothing.
     }
 
     /**
+     * Checks if a player has walked close to this NPC and performs an ambient greeting (wave + message).
+     */
+    private void checkPlayerProximityGreeting(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
+                                              TransformComponent transform, World world, Store<EntityStore> store) {
+        if (ai.currentTask == TaskType.SLEEPING || ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.REAPING
+                || ai.currentTask == TaskType.SOCIALIZING || npc.isInteractingViaUI) {
+            return;
+        }
+
+        // Cooldown: 45 seconds (900 ticks)
+        if (world.getTick() - ai.lastPlayerGreetingTick < 900) {
+            return;
+        }
+
+        Vector3d npcPos = transform.getPosition();
+        double greetRadiusSq = 4.5 * 4.5;
+
+        for (PlayerRef pr : Universe.get().getPlayers()) {
+            Ref<EntityStore> pRef = pr.getReference();
+            if (pRef == null || !pRef.isValid()) continue;
+
+            TransformComponent pt = store.getComponent(pRef, TransformComponent.getComponentType());
+            if (pt == null) continue;
+
+            double d2 = pt.getPosition().distanceSquared(npcPos);
+            if (d2 <= greetRadiusSq) {
+                ai.lastPlayerGreetingTick = world.getTick();
+
+                // Turn briefly towards player
+                double dx = pt.getPosition().x - npcPos.x;
+                double dz = pt.getPosition().z - npcPos.z;
+                if (dx * dx + dz * dz > 1e-4) {
+                    transform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
+                }
+
+                // Play wave and smile
+                SimTaleJuiceHelper.playGreeting(ref, store);
+
+                // Send contextual greeting message
+                Relationship rel = npc.getRelationship(pr.getUuid());
+                Message greetingMsg = switch (rel.status) {
+                    case MARRIED, PARTNER, ENGAGED, DATING, CRUSH -> Message.translation("npc-dialogues.proximity.partner").param("player", pr.getUsername());
+                    case BEST_FRIEND, GOOD_FRIEND, FRIEND -> Message.translation("npc-dialogues.proximity.friend").param("player", pr.getUsername());
+                    case ENEMIES -> Message.translation("npc-dialogues.proximity.enemy").param("player", pr.getUsername());
+                    default -> Message.translation("npc-dialogues.proximity.stranger").param("player", pr.getUsername());
+                };
+                pr.sendMessage(Message.raw("[" + npc.name + "] ").insert(greetingMsg));
+                LOGGER.debug("[SimTale] NPC '{}' greeted player '{}'", npc.name, pr.getUsername());
+                break;
+            }
+        }
+    }
+
+    /**
      * Drops any pending socialize/wander bookkeeping so an interrupted task cannot leave
      * stale target ids behind. The chat partner, if any, times out on its own side.
      */
     private static void clearAutonomyState(RoutineAIComponent ai) {
         ai.socializeTargetId = null;
+        ai.reservedForSocialUuid = null;
         ai.socializeHost = false;
+        ai.socialTalkTimer = 0;
         ai.wanderTimer = 0;
         if (ai.targetChairPos != null) {
             ChairRegistry.releaseChair(ai.targetChairPos);
