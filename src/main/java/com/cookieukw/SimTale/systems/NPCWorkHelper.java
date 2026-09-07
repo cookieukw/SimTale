@@ -49,6 +49,9 @@ public class NPCWorkHelper {
     private static final String ANIM_WALK = "Characters/Animations/Actions/Walk.blockyanim";
     private static final String ANIM_SMITH = "Characters/Animations/Actions/Smith.blockyanim";
     private static final String ANIM_IDLE = "Characters/Animations/Actions/Idle.blockyanim";
+    private static final String ANIM_TILL = "Characters/Animations/Items/Main_Handed/Hoe/Attacks/Till/Till.blockyanim";
+    private static final String ANIM_CHOP = "Characters/Animations/Items/Main_Handed/Hatchet/Attacks/Chop/Chop.blockyanim";
+    private static final String ANIM_LOOK_AROUND = "Characters/Animations/Flavor/Look_Around.blockyanim";
 
     // keyword -> value, checked in insertion order; falls back to the first entry's value if nothing matches.
     //
