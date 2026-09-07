@@ -316,12 +316,7 @@ public class NPCSocialHelper {
         }
 
         // 2. Romantic priority
-        boolean romantic = (hostView != null && (hostView.status == RelationshipStatus.MARRIED
-                || hostView.status == RelationshipStatus.DATING
-                || hostView.status == RelationshipStatus.SWEETHEART))
-                || (guestView != null && (guestView.status == RelationshipStatus.MARRIED
-                || guestView.status == RelationshipStatus.DATING
-                || guestView.status == RelationshipStatus.SWEETHEART));
+        boolean romantic = isRomantic(hostView) || isRomantic(guestView);
         if (romantic) {
             int variant = (int) (Math.random() * 2) + 1;
             return TOPIC_ROMANTIC * 10 + variant;
@@ -401,13 +396,10 @@ public class NPCSocialHelper {
         }
 
         // Time of day: Night
-        if (world != null) {
-            WorldTimeResource time = world.getEntityStore().getStore().getResource(WorldTimeResource.getResourceType());
-            if (time != null && (time.getHour() >= 20 || time.getHour() < 5)) {
-                if (50 > highestScore) {
-                    highestScore = 50;
-                    bestTopic = TOPIC_TIME_NIGHT;
-                }
+        if (world != null && NPCSleepHelper.isNight(world)) {
+            if (50 > highestScore) {
+                highestScore = 50;
+                bestTopic = TOPIC_TIME_NIGHT;
             }
         }
 
