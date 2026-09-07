@@ -68,6 +68,12 @@ public class RoutineAIComponent implements Component<EntityStore> {
     
     // Autonomy fields
     public UUID socializeTargetId = null;
+    /** Reserved when another NPC has chosen this NPC for socialization. */
+    public UUID reservedForSocialUuid = null;
+    /** Tick of last player proximity greeting to prevent spam. */
+    public long lastPlayerGreetingTick = 0;
+    /** Ticking counter during socialization to alternate talk turns. */
+    public long socialTalkTimer = 0;
     /**
      * True for the NPC that started the conversation. Only the host applies the social,
      * relationship and mood rewards, so a chat is not counted twice.
