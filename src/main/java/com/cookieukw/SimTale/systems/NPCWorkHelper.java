@@ -735,6 +735,18 @@ public class NPCWorkHelper {
         NPCMovementHelper.playAnim(ref, ANIM_SMITH, "Smith", store);
     }
 
+    private static void playFarmTill(Ref<EntityStore> ref, Store<EntityStore> store) {
+        NPCMovementHelper.playAnim(ref, ANIM_TILL, "Till", store);
+    }
+
+    private static void playChop(Ref<EntityStore> ref, Store<EntityStore> store) {
+        NPCMovementHelper.playAnim(ref, ANIM_CHOP, "Chop", store);
+    }
+
+    private static void playFish(Ref<EntityStore> ref, Store<EntityStore> store) {
+        NPCMovementHelper.playAnim(ref, ANIM_LOOK_AROUND, "Fish", store);
+    }
+
     private static void playIdleAnim(Ref<EntityStore> ref, Store<EntityStore> store) {
         NPCMovementHelper.playAnim(ref, ANIM_IDLE, "Idle", store);
     }
