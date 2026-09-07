@@ -2035,7 +2035,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             TransformComponent pt = store.getComponent(ref, TransformComponent.getComponentType());
             if (pt == null) {
-                ctx.sendMessage(Message.raw("§c[SimTale] No player transform."));
+                ctx.sendMessage(Message.raw("[SimTale] No player transform."));
                 return;
             }
             Vector3d playerPos = pt.getPosition();
@@ -2055,7 +2055,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             });
 
             if (npcs.size() < 2) {
-                ctx.sendMessage(Message.raw("§c[SimTale] Precisa de pelo menos 2 NPCs carregados por perto para testar."));
+                ctx.sendMessage(Message.raw("[SimTale] Precisa de pelo menos 2 NPCs carregados por perto para testar."));
                 return;
             }
 
@@ -2069,7 +2069,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             TransformComponent trans2 = store.getComponent(ref2, TransformComponent.getComponentType());
 
             if (ai1 == null || ai2 == null || trans1 == null || trans2 == null) {
-                ctx.sendMessage(Message.raw("§c[SimTale] Componentes de IA ou Transform inválidos nos NPCs."));
+                ctx.sendMessage(Message.raw("[SimTale] Componentes de IA ou Transform inválidos nos NPCs."));
                 return;
             }
 
@@ -2136,7 +2136,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             NPCEntity e2 = store.getComponent(ref2, NPCEntity.getComponentType());
             if (e2 != null) e2.setLeashPoint(new Vector3d(p2.x, p2.y, p2.z));
 
-            ctx.sendMessage(Message.raw("§a[SimTale] Iniciando bate-papo entre " + npc1.name + " e " + npc2.name + " (tópico: " + (topicStr != null ? topicStr : "auto") + ")"));
+            ctx.sendMessage(Message.raw("[SimTale] Iniciando bate-papo entre " + npc1.name + " e " + npc2.name + " (tópico: " + (topicStr != null ? topicStr : "auto") + ")"));
         }
     }
 
@@ -2152,11 +2152,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             if (pt == null) return;
             SimNPCComponent nearest = findNearestNpc(pt.getPosition());
             if (nearest == null || nearest.entityRef == null) {
-                ctx.sendMessage(Message.raw("§c[SimTale] Nenhum NPC por perto."));
+                ctx.sendMessage(Message.raw("[SimTale] Nenhum NPC por perto."));
                 return;
             }
             SimTaleJuiceHelper.playFlirtSuccess(nearest.entityRef, nearest, playerRef, store, world.getTick());
-            ctx.sendMessage(Message.raw("§a[SimTale] Testando flerte com sucesso em " + nearest.name));
+            ctx.sendMessage(Message.raw("[SimTale] Testando flerte com sucesso em " + nearest.name));
         }
     }
 
@@ -2172,11 +2172,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             if (pt == null) return;
             SimNPCComponent nearest = findNearestNpc(pt.getPosition());
             if (nearest == null || nearest.entityRef == null) {
-                ctx.sendMessage(Message.raw("§c[SimTale] Nenhum NPC por perto."));
+                ctx.sendMessage(Message.raw("[SimTale] Nenhum NPC por perto."));
                 return;
             }
             SimTaleJuiceHelper.playShove(nearest.entityRef, nearest, ref, playerRef, store, 5.0f, world.getTick());
-            ctx.sendMessage(Message.raw("§a[SimTale] " + nearest.name + " empurrou o jogador com raiva!"));
+            ctx.sendMessage(Message.raw("[SimTale] " + nearest.name + " empurrou o jogador com raiva!"));
         }
     }
 
@@ -2192,11 +2192,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             if (pt == null) return;
             SimNPCComponent nearest = findNearestNpc(pt.getPosition());
             if (nearest == null || nearest.entityRef == null) {
-                ctx.sendMessage(Message.raw("§c[SimTale] Nenhum NPC por perto."));
+                ctx.sendMessage(Message.raw("[SimTale] Nenhum NPC por perto."));
                 return;
             }
             SimTaleJuiceHelper.playGreeting(nearest.entityRef, store);
-            playerRef.sendMessage(Message.raw("§e[Vila] " + nearest.name + " acenou para você!"));
+            playerRef.sendMessage(Message.raw("[Vila] " + nearest.name + " acenou para você!"));
         }
     }
 }
