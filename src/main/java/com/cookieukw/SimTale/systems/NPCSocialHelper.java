@@ -1,6 +1,6 @@
 package com.cookieukw.SimTale.systems;
 
-
+import java.util.Objects;
 import java.util.UUID;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
@@ -9,6 +9,7 @@ import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
+import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Trait;
 import com.hypixel.hytale.component.Ref;
@@ -21,9 +22,9 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
-import com.cookieukw.SimTale.core.SimLog;
 
 /**
  * Handles the two "autonomy" branches of the routine AI: walking over to another NPC for a
@@ -41,8 +42,8 @@ public class NPCSocialHelper {
 
     /** How close two NPCs must be to start talking. */
     private static final double SOCIALIZE_REACH_DISTANCE_SQ = 2.5 * 2.5;
-    /** Length of the conversation itself. */
-    private static final int SOCIALIZE_DURATION_TICKS = 100;
+    /** Length of the conversation itself (7 seconds = 140 ticks). */
+    private static final int SOCIALIZE_DURATION_TICKS = 140;
     /** Give up walking to the partner after this long (unreachable, wandered off, ...). */
     private static final int SOCIALIZE_TIMEOUT_TICKS = 400;
     /** Social need restored to both participants by a successful chat. */
@@ -64,7 +65,7 @@ public class NPCSocialHelper {
             Store<EntityStore> store
     ) {
         handleMovingToSocialize(ref, npc, ai, transform, world, store);
-        handleSocializing(ref, npc, ai, world, store);
+        handleSocializing(ref, npc, ai, transform, world, store);
         handleWandering(ref, ai, transform, world, store);
     }
 
@@ -85,20 +86,20 @@ public class NPCSocialHelper {
         }
 
         if (ai.socializeTargetId == null) {
-            abortSocial(ref, ai, store);
+            abortSocial(ref, ai, store, world);
             return;
         }
 
         // Bail out if the walk is taking too long — the partner may be unreachable.
         if (ai.taskStartTime > 0 && world.getTick() - ai.taskStartTime > SOCIALIZE_TIMEOUT_TICKS) {
             LOGGER.debug("[SimTale] NPC '{}' gave up walking to socialize", npc.name);
-            abortSocial(ref, ai, store);
+            abortSocial(ref, ai, store, world);
             return;
         }
 
         Ref<EntityStore> targetRef = world.getEntityStore().getRefFromUUID(ai.socializeTargetId);
         if (targetRef == null || !targetRef.isValid()) {
-            abortSocial(ref, ai, store);
+            abortSocial(ref, ai, store, world);
             return;
         }
 
@@ -106,7 +107,7 @@ public class NPCSocialHelper {
         RoutineAIComponent targetAi = store.getComponent(targetRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
         boolean isReservedForMe = targetAi != null && npc.entityId.equals(targetAi.reservedForSocialUuid);
         if (targetTransform == null || targetAi == null || (!isAvailableToTalk(targetAi) && !isReservedForMe)) {
-            abortSocial(ref, ai, store);
+            abortSocial(ref, ai, store, world);
             return;
         }
 
@@ -122,21 +123,44 @@ public class NPCSocialHelper {
             ai.taskStartTime = world.getTick();
             ai.socialTalkTimer = 0;
 
+            // Determine topic: hostile (0) or banter (1..4)
+            SimNPCComponent targetNpc = store.getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+            boolean hostile = false;
+            if (targetNpc != null) {
+                Relationship rel = npc.getRelationship(targetNpc.entityId);
+                hostile = (rel != null && rel.status == RelationshipStatus.ENEMIES)
+                        || npc.personality.traits.contains(Trait.AGGRESSIVE)
+                        || targetNpc.personality.traits.contains(Trait.AGGRESSIVE);
+            }
+            ai.socialTopic = hostile ? 0 : (int) (Math.random() * 4) + 1;
+
             // Pull partner into conversation and face each other
             targetAi.currentTask = TaskType.SOCIALIZING;
             targetAi.socializeHost = false;
             targetAi.socializeTargetId = npc.entityId;
             targetAi.taskStartTime = world.getTick();
             targetAi.socialTalkTimer = 0;
+            targetAi.socialTopic = ai.socialTopic;
             NPCMovementHelper.clearMoveTarget(targetRef, targetAi);
+
+            // Pin leash points so vanilla idle doesn't yank them away
+            NPCEntity myNpcEntity = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
+            if (myNpcEntity != null) {
+                myNpcEntity.setLeashPoint(new Vector3d(myPos.x, myPos.y, myPos.z));
+            }
+            NPCEntity targetNpcEntity = store.getComponent(targetRef, Objects.requireNonNull(NPCEntity.getComponentType()));
+            if (targetNpcEntity != null) {
+                targetNpcEntity.setLeashPoint(new Vector3d(targetPos.x, targetPos.y, targetPos.z));
+            }
 
             // Rotate both NPCs to face each other directly
             transform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
             targetTransform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(dx, dz), 0f));
 
-            // Start animations: host talks, target listens and smiles
-            NPCMovementHelper.playAnim(ref, AnimationSlot.Face, SimTaleJuiceHelper.animTalk(), "Talk", store);
-            NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, SimTaleJuiceHelper.faceSmile(), "Smile", store);
+            // Initial attention expression
+            String face = hostile ? SimTaleJuiceHelper.faceAngry() : SimTaleJuiceHelper.faceSmile();
+            NPCMovementHelper.playAnim(ref, AnimationSlot.Face, face, "Face", store);
+            NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, face, "Face", store);
         } else {
             NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(targetPos.x, myPos.y, targetPos.z));
         }
@@ -150,6 +174,7 @@ public class NPCSocialHelper {
             Ref<EntityStore> ref,
             SimNPCComponent npc,
             RoutineAIComponent ai,
+            TransformComponent transform,
             World world,
             Store<EntityStore> store
     ) {
@@ -159,24 +184,59 @@ public class NPCSocialHelper {
 
         long elapsed = world.getTick() - ai.taskStartTime;
 
-        // Host coordinates animation turns and banter
+        // Host coordinates turn-based dialogue and animations
         if (ai.socializeHost && ai.socializeTargetId != null) {
             Ref<EntityStore> targetRef = world.getEntityStore().getRefFromUUID(ai.socializeTargetId);
             SimNPCComponent other = resolveNpc(ai.socializeTargetId, world, store);
 
-            // Swap speaking and listening animations every 30 ticks (1.5s)
-            if (elapsed % 30 == 0 && targetRef != null && targetRef.isValid()) {
-                boolean hostTalking = (elapsed / 30) % 2 == 0;
-                Ref<EntityStore> speaker = hostTalking ? ref : targetRef;
-                Ref<EntityStore> listener = hostTalking ? targetRef : ref;
+            if (targetRef != null && targetRef.isValid() && other != null) {
+                TransformComponent targetTrans = store.getComponent(targetRef, TransformComponent.getComponentType());
+                if (transform != null && targetTrans != null) {
+                    Vector3d myPos = transform.getPosition();
+                    Vector3d targetPos = targetTrans.getPosition();
+                    double dx = targetPos.x - myPos.x;
+                    double dz = targetPos.z - myPos.z;
+                    if (dx * dx + dz * dz > 1e-4) {
+                        transform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
+                        targetTrans.teleportRotation(new Rotation3f(0f, (float) Math.atan2(dx, dz), 0f));
+                    }
+                }
 
-                NPCMovementHelper.playAnim(speaker, AnimationSlot.Face, SimTaleJuiceHelper.animTalk(), "Talk", store);
-                NPCMovementHelper.playAnim(listener, AnimationSlot.Face, SimTaleJuiceHelper.faceSmile(), "Smile", store);
-            }
+                boolean hostile = ai.socialTopic == 0;
 
-            // Broadcast dialogue line to nearby players at tick 20
-            if (elapsed == 20 && other != null) {
-                broadcastCasualChatter(npc, other, ref, store);
+                // TURN 1 (elapsed == 15): Host speaks line A, Guest listens
+                if (elapsed == 15) {
+                    NPCMovementHelper.playAnim(ref, AnimationSlot.Face, SimTaleJuiceHelper.animTalk(), "Talk", store);
+                    NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, hostile ? SimTaleJuiceHelper.faceAngry() : SimTaleJuiceHelper.faceSmile(), "Listen", store);
+
+                    Message msg;
+                    if (hostile) {
+                        msg = Message.translation("npc-dialogues.social.hostile.a").param("name", npc.name);
+                    } else {
+                        int topic = ai.socialTopic > 0 ? ai.socialTopic : 1;
+                        msg = Message.translation("npc-dialogues.social.banter." + topic + ".a").param("name", npc.name);
+                    }
+                    broadcastSingleLine(msg, ref, store);
+                }
+                // TURN 2 (elapsed == 70): Guest replies with line B, Host listens
+                else if (elapsed == 70) {
+                    NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, SimTaleJuiceHelper.animTalk(), "Talk", store);
+                    NPCMovementHelper.playAnim(ref, AnimationSlot.Face, hostile ? SimTaleJuiceHelper.faceAngry() : SimTaleJuiceHelper.faceSmile(), "Listen", store);
+
+                    Message msg;
+                    if (hostile) {
+                        msg = Message.translation("npc-dialogues.social.hostile.b").param("name", other.name);
+                    } else {
+                        int topic = ai.socialTopic > 0 ? ai.socialTopic : 1;
+                        msg = Message.translation("npc-dialogues.social.banter." + topic + ".b").param("name", other.name);
+                    }
+                    broadcastSingleLine(msg, targetRef, store);
+                }
+                // Wrap up speech animation before parting
+                else if (elapsed == 125) {
+                    NPCMovementHelper.playAnim(ref, AnimationSlot.Face, hostile ? SimTaleJuiceHelper.faceAngry() : SimTaleJuiceHelper.faceSmile(), "Face", store);
+                    NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, hostile ? SimTaleJuiceHelper.faceAngry() : SimTaleJuiceHelper.faceSmile(), "Face", store);
+                }
             }
         }
 
@@ -201,33 +261,27 @@ public class NPCSocialHelper {
             LOGGER.debug("[SimTale] '{}' and '{}' finished chatting (pleasant={})", npc.name, other.name, pleasant);
         }
 
+        // Release partner NPC as well
+        if (ai.socializeTargetId != null) {
+            Ref<EntityStore> targetRef = world.getEntityStore().getRefFromUUID(ai.socializeTargetId);
+            if (targetRef != null && targetRef.isValid()) {
+                RoutineAIComponent targetAi = store.getComponent(targetRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                if (targetAi != null && targetAi.currentTask == TaskType.SOCIALIZING) {
+                    endSocial(targetRef, targetAi, store);
+                }
+            }
+        }
+
         endSocial(ref, ai, store);
     }
 
     /**
-     * Broadcasts ambient chatter between two NPCs to all players within earshot (15 blocks).
+     * Broadcasts a single spoken line from an NPC to all players within earshot (15 blocks).
      */
-    private static void broadcastCasualChatter(SimNPCComponent npc1, SimNPCComponent npc2, Ref<EntityStore> npcRef, Store<EntityStore> store) {
-        TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
+    private static void broadcastSingleLine(Message msg, Ref<EntityStore> speakerRef, Store<EntityStore> store) {
+        TransformComponent trans = store.getComponent(speakerRef, TransformComponent.getComponentType());
         if (trans == null) return;
         Vector3d pos = trans.getPosition();
-
-        Relationship hostView = npc1.getRelationship(npc2.entityId);
-        boolean hostile = hostView.status == RelationshipStatus.ENEMIES
-                || npc1.personality.traits.contains(Trait.AGGRESSIVE)
-                || npc2.personality.traits.contains(Trait.AGGRESSIVE);
-
-        Message msg;
-        if (hostile) {
-            msg = Message.translation("npc-dialogues.social.hostile")
-                    .param("npc1", npc1.name)
-                    .param("npc2", npc2.name);
-        } else {
-            int roll = (int) (Math.random() * 4) + 1;
-            msg = Message.translation("npc-dialogues.social.banter." + roll)
-                    .param("npc1", npc1.name)
-                    .param("npc2", npc2.name);
-        }
 
         for (PlayerRef pr : Universe.get().getPlayers()) {
             Ref<EntityStore> pRef = pr.getReference();
@@ -376,8 +430,17 @@ public class NPCSocialHelper {
         return store.getComponent(otherRef, SimTale.SIM_NPC_COMPONENT_TYPE);
     }
 
-    private static void abortSocial(Ref<EntityStore> ref, RoutineAIComponent ai, Store<EntityStore> store) {
+    private static void abortSocial(Ref<EntityStore> ref, RoutineAIComponent ai, Store<EntityStore> store, World world) {
         NPCMovementHelper.clearMoveTarget(ref, ai);
+        if (ai.socializeTargetId != null && world != null) {
+            Ref<EntityStore> targetRef = world.getEntityStore().getRefFromUUID(ai.socializeTargetId);
+            if (targetRef != null && targetRef.isValid()) {
+                RoutineAIComponent targetAi = store.getComponent(targetRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                if (targetAi != null && (targetAi.currentTask == TaskType.SOCIALIZING || targetAi.reservedForSocialUuid != null)) {
+                    endSocial(targetRef, targetAi, store);
+                }
+            }
+        }
         endSocial(ref, ai, store);
     }
 
