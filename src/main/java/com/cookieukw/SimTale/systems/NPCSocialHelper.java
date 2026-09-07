@@ -19,7 +19,6 @@ import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
-import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -436,6 +435,15 @@ public class NPCSocialHelper {
             case TOPIC_MOOD_SAD, TOPIC_FATIGUE -> SimTaleJuiceHelper.faceFrown();
             default -> SimTaleJuiceHelper.faceSmile();
         };
+    }
+
+    private static boolean isRomantic(Relationship rel) {
+        if (rel == null || rel.status == null) return false;
+        return rel.status == RelationshipStatus.MARRIED
+                || rel.status == RelationshipStatus.ENGAGED
+                || rel.status == RelationshipStatus.PARTNER
+                || rel.status == RelationshipStatus.DATING
+                || rel.status == RelationshipStatus.CRUSH;
     }
 
     /**
