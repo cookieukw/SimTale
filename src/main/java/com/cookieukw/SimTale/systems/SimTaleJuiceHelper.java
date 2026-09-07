@@ -183,4 +183,16 @@ public final class SimTaleJuiceHelper {
     public static String faceCheerful() {
         return FACE_CHEERFUL;
     }
+
+    public static String faceAngry() {
+        return FACE_ANGRY;
+    }
+
+    public static String faceRage() {
+        return FACE_RAGE;
+    }
+
+    public static String faceFrown() {
+        return FACE_FROWN;
+    }
 }
