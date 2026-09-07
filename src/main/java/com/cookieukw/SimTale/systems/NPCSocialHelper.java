@@ -7,6 +7,7 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
+import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimLog;
@@ -18,6 +19,7 @@ import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -49,9 +51,27 @@ public class NPCSocialHelper {
     /** Social need restored to both participants by a successful chat. */
     private static final float SOCIAL_RESTORE = 35f;
 
+    /** Maximum hearing distance squared for player earshot (4 blocks = 16.0). */
+    private static final double EARSHOT_DISTANCE_SQ = 16.0;
+
     private static final double WANDER_REACH_DISTANCE_SQ = 2.0 * 2.0;
     /** Give up on an unreachable wander destination instead of standing there forever. */
     private static final int WANDER_TIMEOUT_TICKS = 300;
+
+    // Social topic IDs
+    public static final int TOPIC_HOSTILE = 0;
+    public static final int TOPIC_ROMANTIC = 1;
+    public static final int TOPIC_HUNGER = 2;
+    public static final int TOPIC_FATIGUE = 3;
+    public static final int TOPIC_WORK_FARM = 4;
+    public static final int TOPIC_WORK_WOOD = 5;
+    public static final int TOPIC_WORK_GUARD = 6;
+    public static final int TOPIC_WORK_FISH = 7;
+    public static final int TOPIC_MOOD_HAPPY = 8;
+    public static final int TOPIC_MOOD_SAD = 9;
+    public static final int TOPIC_TIME_NIGHT = 10;
+    public static final int TOPIC_WEATHER = 11;
+    public static final int TOPIC_VILLAGE = 12;
 
     private NPCSocialHelper() {
     }
@@ -123,16 +143,13 @@ public class NPCSocialHelper {
             ai.taskStartTime = world.getTick();
             ai.socialTalkTimer = 0;
 
-            // Determine topic: hostile (0) or banter (1..4)
+            // Context-based topic selection (topic * 10 + variant)
             SimNPCComponent targetNpc = store.getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-            boolean hostile = false;
             if (targetNpc != null) {
-                Relationship rel = npc.getRelationship(targetNpc.entityId);
-                hostile = (rel != null && rel.status == RelationshipStatus.ENEMIES)
-                        || npc.personality.traits.contains(Trait.AGGRESSIVE)
-                        || targetNpc.personality.traits.contains(Trait.AGGRESSIVE);
+                ai.socialTopic = evaluateSocialTopic(npc, targetNpc, world);
+            } else {
+                ai.socialTopic = TOPIC_WEATHER * 10 + 1;
             }
-            ai.socialTopic = hostile ? 0 : (int) (Math.random() * 4) + 1;
 
             // Pull partner into conversation and face each other
             targetAi.currentTask = TaskType.SOCIALIZING;
@@ -158,9 +175,15 @@ public class NPCSocialHelper {
             targetTransform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(dx, dz), 0f));
 
             // Initial attention expression
-            String face = hostile ? SimTaleJuiceHelper.faceAngry() : SimTaleJuiceHelper.faceSmile();
+            int topic = ai.socialTopic / 10;
+            String face = getTopicExpression(topic);
             NPCMovementHelper.playAnim(ref, AnimationSlot.Face, face, "Face", store);
             NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, face, "Face", store);
+
+            if (topic == TOPIC_ROMANTIC) {
+                SimTaleJuiceHelper.spawnHeartParticles(myPos, store);
+                SimTaleJuiceHelper.spawnHeartParticles(targetPos, store);
+            }
         } else {
             NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(targetPos.x, myPos.y, targetPos.z));
         }
@@ -202,40 +225,37 @@ public class NPCSocialHelper {
                     }
                 }
 
-                boolean hostile = ai.socialTopic == 0;
+                int topic = ai.socialTopic / 10;
+                int variant = Math.max(1, ai.socialTopic % 10);
+                String topicKey = getTopicKey(topic);
+                String face = getTopicExpression(topic);
 
                 // TURN 1 (elapsed == 15): Host speaks line A, Guest listens
                 if (elapsed == 15) {
                     NPCMovementHelper.playAnim(ref, AnimationSlot.Face, SimTaleJuiceHelper.animTalk(), "Talk", store);
-                    NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, hostile ? SimTaleJuiceHelper.faceAngry() : SimTaleJuiceHelper.faceSmile(), "Listen", store);
+                    NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, face, "Listen", store);
 
-                    Message msg;
-                    if (hostile) {
-                        msg = Message.translation("npc-dialogues.social.hostile.a").param("name", npc.name);
-                    } else {
-                        int topic = ai.socialTopic > 0 ? ai.socialTopic : 1;
-                        msg = Message.translation("npc-dialogues.social.banter." + topic + ".a").param("name", npc.name);
+                    if (transform != null && isPlayerWithinEarshot(transform.getPosition())) {
+                        Message msg = Message.translation("npc-dialogues." + topicKey + "." + variant + ".a")
+                                .param("name", npc.name);
+                        broadcastSingleLine(msg, ref, store);
                     }
-                    broadcastSingleLine(msg, ref, store);
                 }
                 // TURN 2 (elapsed == 70): Guest replies with line B, Host listens
                 else if (elapsed == 70) {
                     NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, SimTaleJuiceHelper.animTalk(), "Talk", store);
-                    NPCMovementHelper.playAnim(ref, AnimationSlot.Face, hostile ? SimTaleJuiceHelper.faceAngry() : SimTaleJuiceHelper.faceSmile(), "Listen", store);
+                    NPCMovementHelper.playAnim(ref, AnimationSlot.Face, face, "Listen", store);
 
-                    Message msg;
-                    if (hostile) {
-                        msg = Message.translation("npc-dialogues.social.hostile.b").param("name", other.name);
-                    } else {
-                        int topic = ai.socialTopic > 0 ? ai.socialTopic : 1;
-                        msg = Message.translation("npc-dialogues.social.banter." + topic + ".b").param("name", other.name);
+                    if (targetTrans != null && isPlayerWithinEarshot(targetTrans.getPosition())) {
+                        Message msg = Message.translation("npc-dialogues." + topicKey + "." + variant + ".b")
+                                .param("name", other.name);
+                        broadcastSingleLine(msg, targetRef, store);
                     }
-                    broadcastSingleLine(msg, targetRef, store);
                 }
                 // Wrap up speech animation before parting
                 else if (elapsed == 125) {
-                    NPCMovementHelper.playAnim(ref, AnimationSlot.Face, hostile ? SimTaleJuiceHelper.faceAngry() : SimTaleJuiceHelper.faceSmile(), "Face", store);
-                    NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, hostile ? SimTaleJuiceHelper.faceAngry() : SimTaleJuiceHelper.faceSmile(), "Face", store);
+                    NPCMovementHelper.playAnim(ref, AnimationSlot.Face, face, "Face", store);
+                    NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, face, "Face", store);
                 }
             }
         }
@@ -276,7 +296,175 @@ public class NPCSocialHelper {
     }
 
     /**
-     * Broadcasts a single spoken line from an NPC to all players within earshot (15 blocks).
+     * Context-aware evaluation to select a meaningful dialogue topic based on relationship,
+     * critical needs, mood, profession, and time of day.
+     *
+     * @return encoded int: {@code topic * 10 + variant}
+     */
+    public static int evaluateSocialTopic(SimNPCComponent host, SimNPCComponent guest, World world) {
+        Relationship hostView = host.getRelationship(guest.entityId);
+        Relationship guestView = guest.getRelationship(host.entityId);
+
+        // 1. Hostile priority
+        boolean hostile = (hostView != null && hostView.status == RelationshipStatus.ENEMIES)
+                || (guestView != null && guestView.status == RelationshipStatus.ENEMIES)
+                || host.personality.traits.contains(Trait.AGGRESSIVE)
+                || guest.personality.traits.contains(Trait.AGGRESSIVE);
+        if (hostile) {
+            int variant = (int) (Math.random() * 2) + 1;
+            return TOPIC_HOSTILE * 10 + variant;
+        }
+
+        // 2. Romantic priority
+        boolean romantic = (hostView != null && (hostView.status == RelationshipStatus.MARRIED
+                || hostView.status == RelationshipStatus.DATING
+                || hostView.status == RelationshipStatus.SWEETHEART))
+                || (guestView != null && (guestView.status == RelationshipStatus.MARRIED
+                || guestView.status == RelationshipStatus.DATING
+                || guestView.status == RelationshipStatus.SWEETHEART));
+        if (romantic) {
+            int variant = (int) (Math.random() * 2) + 1;
+            return TOPIC_ROMANTIC * 10 + variant;
+        }
+
+        // 3. Needs & Context scoring
+        int bestTopic = TOPIC_WEATHER;
+        int highestScore = 20;
+
+        // Hunger (< 40)
+        float hostHunger = NeedsHelper.getNeed(null, host.entityRef, NeedsHelper.HUNGER_ID);
+        float guestHunger = NeedsHelper.getNeed(null, guest.entityRef, NeedsHelper.HUNGER_ID);
+        if (hostHunger < 40f || guestHunger < 40f) {
+            int score = (int) (100 - Math.min(hostHunger, guestHunger));
+            if (score > highestScore) {
+                highestScore = score;
+                bestTopic = TOPIC_HUNGER;
+            }
+        }
+
+        // Energy / Fatigue (< 40)
+        float hostEnergy = NeedsHelper.getNeed(null, host.entityRef, NeedsHelper.ENERGY_ID);
+        float guestEnergy = NeedsHelper.getNeed(null, guest.entityRef, NeedsHelper.ENERGY_ID);
+        if (hostEnergy < 40f || guestEnergy < 40f) {
+            int score = (int) (100 - Math.min(hostEnergy, guestEnergy));
+            if (score > highestScore) {
+                highestScore = score;
+                bestTopic = TOPIC_FATIGUE;
+            }
+        }
+
+        // Mood
+        Mood hMood = host.getMood();
+        Mood gMood = guest.getMood();
+        if (hMood == Mood.SAD || gMood == Mood.SAD) {
+            if (45 > highestScore) {
+                highestScore = 45;
+                bestTopic = TOPIC_MOOD_SAD;
+            }
+        } else if (hMood == Mood.HAPPY || hMood == Mood.EXCITED || gMood == Mood.HAPPY || gMood == Mood.EXCITED) {
+            if (40 > highestScore) {
+                highestScore = 40;
+                bestTopic = TOPIC_MOOD_HAPPY;
+            }
+        }
+
+        // Profession
+        Profession hProf = host.profession;
+        Profession gProf = guest.profession;
+        if (hProf == Profession.FARMER || gProf == Profession.FARMER) {
+            int score = (hProf == gProf) ? 55 : 35;
+            if (score > highestScore) {
+                highestScore = score;
+                bestTopic = TOPIC_WORK_FARM;
+            }
+        }
+        if (hProf == Profession.LUMBERJACK || gProf == Profession.LUMBERJACK) {
+            int score = (hProf == gProf) ? 55 : 35;
+            if (score > highestScore) {
+                highestScore = score;
+                bestTopic = TOPIC_WORK_WOOD;
+            }
+        }
+        if (hProf == Profession.GUARD || gProf == Profession.GUARD) {
+            int score = (hProf == gProf) ? 55 : 35;
+            if (score > highestScore) {
+                highestScore = score;
+                bestTopic = TOPIC_WORK_GUARD;
+            }
+        }
+        if (hProf == Profession.FISHERMAN || gProf == Profession.FISHERMAN) {
+            int score = (hProf == gProf) ? 55 : 35;
+            if (score > highestScore) {
+                highestScore = score;
+                bestTopic = TOPIC_WORK_FISH;
+            }
+        }
+
+        // Time of day: Night
+        if (world != null) {
+            WorldTimeResource time = world.getEntityStore().getStore().getResource(WorldTimeResource.getResourceType());
+            if (time != null && (time.getHour() >= 20 || time.getHour() < 5)) {
+                if (50 > highestScore) {
+                    highestScore = 50;
+                    bestTopic = TOPIC_TIME_NIGHT;
+                }
+            }
+        }
+
+        if (highestScore <= 30) {
+            bestTopic = Math.random() < 0.5 ? TOPIC_WEATHER : TOPIC_VILLAGE;
+        }
+
+        int variant = (int) (Math.random() * 2) + 1;
+        return bestTopic * 10 + variant;
+    }
+
+    private static String getTopicKey(int topic) {
+        return switch (topic) {
+            case TOPIC_HOSTILE -> "social.hostile";
+            case TOPIC_ROMANTIC -> "social.romantic";
+            case TOPIC_HUNGER -> "social.hunger";
+            case TOPIC_FATIGUE -> "social.fatigue";
+            case TOPIC_WORK_FARM -> "social.work.farm";
+            case TOPIC_WORK_WOOD -> "social.work.wood";
+            case TOPIC_WORK_GUARD -> "social.work.guard";
+            case TOPIC_WORK_FISH -> "social.work.fish";
+            case TOPIC_MOOD_HAPPY -> "social.mood.happy";
+            case TOPIC_MOOD_SAD -> "social.mood.sad";
+            case TOPIC_TIME_NIGHT -> "social.night";
+            case TOPIC_VILLAGE -> "social.village";
+            default -> "social.weather";
+        };
+    }
+
+    private static String getTopicExpression(int topic) {
+        return switch (topic) {
+            case TOPIC_HOSTILE -> SimTaleJuiceHelper.faceAngry();
+            case TOPIC_ROMANTIC -> SimTaleJuiceHelper.faceCheerful();
+            case TOPIC_MOOD_SAD, TOPIC_FATIGUE -> SimTaleJuiceHelper.faceFrown();
+            default -> SimTaleJuiceHelper.faceSmile();
+        };
+    }
+
+    /**
+     * Checks whether at least one player is within earshot (4 blocks) of the position.
+     */
+    private static boolean isPlayerWithinEarshot(Vector3d pos) {
+        if (pos == null) return false;
+        for (PlayerRef pr : Universe.get().getPlayers()) {
+            Ref<EntityStore> pRef = pr.getReference();
+            if (pRef != null && pRef.isValid()) {
+                TransformComponent pt = pRef.getStore().getComponent(pRef, TransformComponent.getComponentType());
+                if (pt != null && pt.getPosition().distanceSquared(pos) <= EARSHOT_DISTANCE_SQ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Broadcasts a single spoken line from an NPC to all players within earshot (4 blocks).
      */
     private static void broadcastSingleLine(Message msg, Ref<EntityStore> speakerRef, Store<EntityStore> store) {
         TransformComponent trans = store.getComponent(speakerRef, TransformComponent.getComponentType());
@@ -287,7 +475,7 @@ public class NPCSocialHelper {
             Ref<EntityStore> pRef = pr.getReference();
             if (pRef != null && pRef.isValid()) {
                 TransformComponent pt = pRef.getStore().getComponent(pRef, TransformComponent.getComponentType());
-                if (pt != null && pt.getPosition().distanceSquared(pos) <= 225.0) { // 15 blocks
+                if (pt != null && pt.getPosition().distanceSquared(pos) <= EARSHOT_DISTANCE_SQ) { // 4 blocks
                     pr.sendMessage(Message.raw("§e[Vila] ").insert(msg));
                 }
             }
