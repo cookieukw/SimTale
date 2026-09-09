@@ -444,17 +444,32 @@ public class SimNPCPersistence {
             
             if (entityRef != null) {
                 comp.entityRef = entityRef;
-                
-                // Re-attach component to entity
+
+                /* Re-attach component to entity. addComponent fails when the entity already
+                 * carries a stale instance (a normal case after some reloads); putComponent
+                 * overwrites it instead. If BOTH fail, the entity keeps loading without
+                 * SIM_NPC_COMPONENT_TYPE attached at all — tracking it anyway would make it show
+                 * up as an "active" NPC that no other system can actually query (a silent ghost
+                 * entry), so this is logged and the tracking is skipped instead of continuing
+                 * quietly.
+                 */
+                boolean attached = true;
                 try {
                     accessor.addComponent(entityRef, SimTale.SIM_NPC_COMPONENT_TYPE, comp);
                 } catch (Exception e) {
                     try {
                         accessor.putComponent(entityRef, SimTale.SIM_NPC_COMPONENT_TYPE, comp);
-                    } catch (Exception ignored) {}
+                    } catch (Exception e2) {
+                        attached = false;
+                        HytaleLogger.forEnclosingClass().atWarning().withCause(e2)
+                                .log("SimTale: falha ao reanexar SimNPCComponent em " + comp.entityId
+                                        + " durante reassembleActiveNPCs (addComponent e putComponent falharam).");
+                    }
                 }
-                
-                SimTale.trackNpc(comp);
+
+                if (attached) {
+                    SimTale.trackNpc(comp);
+                }
             }
         }
     }
