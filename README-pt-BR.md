@@ -713,15 +713,38 @@ Segure a ferramenta correspondente e use **Atribuir Trabalho** (Assign Job) no p
 | Fazendeiro | `Hoe` (enxada) |
 | Pescador | `Tool_Fishing_Trap` (armadilha de pesca) |
 | Lenhador | `Hatchet` (machadinha) |
-| Guarda | `Sword` (espada) |
-| Explorador | `Map` (mapa) |
-| Construtor | `Hammer` (martelo) |
-| Caçador | `Bow` (arco) |
+| Guarda | qualquer arma reconhecida — corpo-a-corpo (espada, machado, adaga, lança, maça, ...) ou à distância (arco, besta, arma de fogo, ...) |
+| Explorador | `Tool_Map` (o item mapa/bússola) |
+| Construtor | `Tool_Hammer` (martelo) |
+| Caçador | `Shortbow` (arco curto) ou `Crossbow` (besta), especificamente |
 
 Um NPC pode recusar: cada um deles possui uma lista aleatória de trabalhos que gosta e trabalhos que odeia.
 
+#### Guardas e categorias de arma
+
+O Guarda não fica mais preso à espada. Dar qualquer item que o SimTale reconheça como arma atribui
+o emprego de Guarda, e o Guarda lembra se aquela arma era corpo-a-corpo ou à distância:
+
+- **Corpo-a-corpo** (espada, machado, adaga, lança, maça, ...): o Guarda se aproxima até cerca de
+  2,5 blocos antes de lutar, como sempre.
+- **À distância** (arco, besta, arma de fogo, ...): o Guarda para a uma certa distância (cerca de
+  7 blocos) em vez de andar até o alcance corpo-a-corpo.
+
+Um arco ou besta continua tornando o NPC um **Caçador**, não um Guarda — essa checagem roda
+primeiro, então nada mudou para o Caçador.
+
+Como uma arma nova (de outro mod, ou de uma futura atualização do SimTale) não é algo que o
+SimTale consiga prever pelo nome, existem duas formas de ensiná-lo: outro mod chamando
+`WeaponCategoryRegistry.register("idDoItem", WeaponCategory.RANGED)` no próprio código dele, ou um
+arquivo `simtale-weapons.json` na pasta onde o servidor roda, listando entradas
+`{"idDoItem": "MELEE"}` / `{"idDoItem": "RANGED"}` manualmente. Nenhum dos dois é necessário para
+as armas que já vêm no Hytale.
+
 > **Atenção:** A correspondência é feita pelo nome do item
-> A checagem procura por essas palavras dentro da ID do item. Uma espada cujo ID não contenha a palavra "sword" não será reconhecida. Esta é uma falha conhecida.
+> A checagem procura por essas palavras dentro da ID do item, então um item de mod sem nenhuma
+> dessas palavras no id ainda precisa de `WeaponCategoryRegistry.register(...)` ou
+> `simtale-weapons.json` (veja acima) — ou, para os empregos que não são Guarda, simplesmente não
+> será reconhecido.
 > 
 
 #### O Fazendeiro
