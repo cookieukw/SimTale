@@ -168,47 +168,14 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
         if (npc == null) {
             /* Re-attach path, for a SimTale NPC whose component did not survive a world reload.
-             *
-             * It used to adopt ANY entity: right-clicking a chicken, a hostile mob or another
-             * player added SIM_NPC_COMPONENT_TYPE to it and gave it a generated name. Since
-             * RoutineAISystem's query is exactly that component, the victim then started running
-             * the villager routine — walking to beds, being mounted, getting Frozen — with no way
-             * out. Two guards now stand in the way of that.
+             * Shared with SimTaleUseNPCInteraction (the F key) via SimNPCPersistence.tryReattach
+             * — this used to be copied by hand in both places, and that duplication is exactly
+             * why an earlier fix to the "any entity gets adopted" bug landed in only one of the
+             * two paths while the other kept adopting cows and other players.
              */
-            if (store.getComponent(targetRef, Player.getComponentType()) != null) {
-                return;
-            }
-
-            UUIDComponent uuidComp = store.getComponent(targetRef, UUIDComponent.getComponentType());
-            if (uuidComp != null) {
-                /* "simtale" shell, not Caskara's "default" — see SimNPCPersistence.DB_SHELL.
-                 * A record here is the proof that this entity really is one of ours; without it
-                 * there is nothing to re-attach and adopting the entity would be an invention.
-                 */
-                SimNPCData data = SimNPCPersistence.loadData(uuidComp.getUuid());
-                if (data == null) {
-                    LOGGER.atFine().log("SimTale: entidade sem registro no shell simtale, ignorada.");
-                    return;
-                }
-
-                String name = data.name;
-                if (name == null || name.isEmpty()) {
-                    PersistentDisplayName displayName = store.getComponent(targetRef, PersistentDisplayName.getComponentType());
-                    if (displayName != null && displayName.getDisplayName() != null) {
-                        name = displayName.getDisplayName().toString();
-                    }
-                }
-                if (name == null || name.isEmpty()) {
-                    name = SimNPCNameGenerator.generate();
-                }
-
-                LOGGER.atInfo().log("SimTale: NPC " + name + " remontado apos carregamento do mundo!");
-                npc = new SimNPCComponent(uuidComp.getUuid(), name);
-                npc.entityRef = targetRef;
-                SimNPCPersistence.loadNPC(npc);
-                store.addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
-
-                SimTale.trackNpc(npc);
+            npc = SimNPCPersistence.tryReattach(store, targetRef);
+            if (npc != null) {
+                LOGGER.atInfo().log("SimTale: NPC " + npc.name + " remontado apos carregamento do mundo!");
             }
         }
 
