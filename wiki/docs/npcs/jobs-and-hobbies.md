@@ -29,19 +29,41 @@ Hold the matching tool and use **Assign Job** in the interaction panel.
 | Farmer | `Hoe` |
 | Fisherman | `Tool_Fishing_Trap` |
 | Lumberjack | `Hatchet` |
-| Guard | `Sword` |
-| Explorer | `Map` |
-| Builder | `Hammer` |
-| Hunter | `Bow` |
+| Guard | any recognised weapon — melee (sword, axe, dagger, spear, mace, ...) or ranged (bow, crossbow, firearm, ...) |
+| Explorer | `Tool_Map` |
+| Builder | `Tool_Hammer` |
+| Hunter | `Shortbow` or `Crossbow` specifically |
 
 An NPC can refuse: each one rolls jobs she likes and jobs she dislikes.
+
+### Guards and weapon categories
+
+A Guard is no longer tied to swords specifically. Handing over *any* item SimTale recognises as
+a weapon assigns the Guard job, and the Guard remembers whether that weapon was melee or ranged:
+
+- **Melee** (sword, axe, dagger, spear, mace, ...): the Guard closes to about 2.5 blocks before
+  fighting, same as always.
+- **Ranged** (bow, crossbow, firearm, ...): the Guard stops at range (about 7 blocks) and does not
+  walk into melee distance.
+
+A bow or crossbow still makes a **Hunter**, not a Guard — that check runs first, so nothing about
+Hunter changed.
+
+Because new weapons (from other mods, or future SimTale updates) are not something SimTale can
+predict by name, there are two ways to teach it about one, in order of priority: another mod
+calling `WeaponCategoryRegistry.register("itemId", WeaponCategory.RANGED)` directly from its own
+code, or a `simtale-weapons.json` file in the server's working directory (next to `simtale-ai.json`)
+listing `{"itemId": "MELEE"}`/`{"itemId": "RANGED"}` entries by hand. Neither is required for the
+weapons already built into Hytale.
 
 ### Child labor restrictions
 
 Only NPCs at the `TEEN` or `ADULT` life stages can be assigned jobs. Young children (`BABY`, `TODDLER`, `CHILD`) are protected and will refuse to take tools or work ("I'm just a kid!"). However, children can freely engage in leisure hobbies like fishing or gardening when their fun need drops, allowing them to hang out near family crop plots or water spots without taking on economic tasks.
 
 :::caution Matching is by item name
-The check looks for those words inside the item id. A sword named without "sword" in its id will not be recognised. This is a known weak spot.
+The check looks for those words inside the item id, so a modded item without one of the words
+above in its id still needs `WeaponCategoryRegistry.register(...)` or `simtale-weapons.json` (see
+above) — or, for the non-Guard jobs, simply won't be recognised.
 :::
 
 ### The Farmer

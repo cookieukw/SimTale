@@ -241,9 +241,15 @@ Interact with the NPC and select "Assign Profession". You must be holding the co
 *   **Farmer:** Requires a **Hoe**.
 *   **Fisherman:** Requires a **Fishing Trap**.
 *   **Lumberjack:** Requires a **Hatchet**.
-*   **Guard:** Requires a **Sword**.
-*   **Explorer:** Requires a **Map**.
+*   **Guard:** Requires any recognised weapon — melee (sword, axe, dagger, spear, mace, ...) or
+    ranged (bow, crossbow, firearm, ...). The Guard remembers which kind it got and fights at
+    melee range or from a distance accordingly. A weapon a mod adds can be taught to SimTale via
+    `WeaponCategoryRegistry.register(...)` (from that mod's own code) or a `simtale-weapons.json`
+    file next to the server, without any SimTale code change.
+*   **Explorer:** Requires a **Map** (the `Tool_Map` compass, specifically).
 *   **Builder:** Requires a **Hammer**.
+*   **Hunter:** Requires a **Shortbow** or **Crossbow** specifically — a bow always makes a
+    Hunter rather than a Guard, even though a Guard now also accepts ranged weapons.
 
 ### Refusal Triggers
 NPCs will not always work for you:
