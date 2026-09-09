@@ -8,6 +8,7 @@ import com.cookieukw.SimTale.core.lifecycle.WorkEligibility;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.WeaponCategory;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.RemoveReason;
@@ -42,6 +43,10 @@ public class NPCGuardHelper {
 
     private static final double GUARD_SCAN_RADIUS = 10.0;
     private static final double MELEE_RANGE_SQ = 2.5 * 2.5;
+    /** How far a Guard with a ranged weapon stops from the hostile instead of closing to melee
+     *  range. Comfortably inside {@link #GUARD_SCAN_RADIUS} so a target found by the scan is
+     *  never already "too close to keep distance from" the moment it's spotted. */
+    private static final double RANGED_RANGE_SQ = 7.0 * 7.0;
     private static final int ATTACK_DURATION_TICKS = 60; // 3s
     private static final int MOVE_TIMEOUT_TICKS = 600; // 30s, same as other MOVING_* states
 
@@ -139,7 +144,12 @@ public class NPCGuardHelper {
             Vector3d pos = transform.getPosition();
             double dx = hostileTransform.getPosition().x - pos.x;
             double dz = hostileTransform.getPosition().z - pos.z;
-            if (dx * dx + dz * dz <= MELEE_RANGE_SQ) {
+            double distSq = dx * dx + dz * dz;
+            // A ranged Guard stops well short of melee range instead of walking into the
+            // hostile's face — a bow held at 2.5 blocks reads as broken, not as combat.
+            double engageRangeSq = npc.guardWeaponCategory == WeaponCategory.RANGED
+                    ? RANGED_RANGE_SQ : MELEE_RANGE_SQ;
+            if (distSq <= engageRangeSq) {
                 NPCMovementHelper.clearMoveTarget(ref, ai);
                 ai.currentTask = TaskType.FIGHTING;
                 ai.taskStartTime = world.getTick();
@@ -162,9 +172,16 @@ public class NPCGuardHelper {
             }
 
             if (world.getTick() - ai.taskStartTime == 1) {
-                // No dedicated sword-swing animation available — same "Smith" stand-in the other
-                // professions reuse for "NPC is doing manual work at a fixed spot".
-                NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Smith.blockyanim", "Smith", store);
+                if (npc.guardWeaponCategory == WeaponCategory.RANGED) {
+                    // No dedicated aim/draw animation available either — reusing the same
+                    // "look around" flavor clip the routine already has on hand beats standing
+                    // in the melee "Smith" pose while visibly holding a bow or gun.
+                    NPCMovementHelper.playAnim(ref, "Characters/Animations/Flavor/Look_Around.blockyanim", "LookAround", store);
+                } else {
+                    // No dedicated sword-swing animation available — same "Smith" stand-in the other
+                    // professions reuse for "NPC is doing manual work at a fixed spot".
+                    NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Smith.blockyanim", "Smith", store);
+                }
             }
 
             if (world.getTick() - ai.taskStartTime >= ATTACK_DURATION_TICKS) {
