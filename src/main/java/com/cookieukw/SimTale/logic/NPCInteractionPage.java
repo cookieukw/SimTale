@@ -826,13 +826,15 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
 
         Message hungerState;
         String hungerColor;
-        if (hunger < 5) {
+        // Same three cuts the routine AI acts on (NeedsHelper.HUNGER_*_THRESHOLD) — they used to
+        // be repeated here as bare literals, out of sync with the code more than once.
+        if (hunger < NeedsHelper.HUNGER_STARVATION_THRESHOLD) {
             hungerState = Message.translation("ui.hunger.starving");
             hungerColor = "#ff4455";
-        } else if (hunger < 25) {
+        } else if (hunger < NeedsHelper.HUNGER_INTERRUPT_THRESHOLD) {
             hungerState = Message.translation("ui.hunger.very_hungry");
             hungerColor = "#ff8844";
-        } else if (hunger < 70) {
+        } else if (hunger < NeedsHelper.HUNGER_SEEK_FOOD_THRESHOLD) {
             hungerState = Message.translation("ui.hunger.hungry");
             hungerColor = "#ffcc55";
         } else {
