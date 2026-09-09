@@ -28,6 +28,10 @@ public class SimNPCComponent implements Component<EntityStore> {
     public MemoryManager memory = new MemoryManager();
     public Map<UUID, Relationship> relationships = new HashMap<>();
     public Profession profession;
+    /** Melee vs. ranged, resolved from whatever item last made this NPC a Guard. Only meaningful
+     *  when {@code profession == Profession.GUARD}; defaults to MELEE so an existing save (from
+     *  before this field existed, always sword-only) keeps its current combat behavior. */
+    public WeaponCategory guardWeaponCategory = WeaponCategory.MELEE;
     public NPCPreferences preferences;
 
     public FamilySystem family = new FamilySystem();
@@ -187,6 +191,7 @@ public class SimNPCComponent implements Component<EntityStore> {
         // Identity/family state — must be copied explicitly, otherwise the
         // default constructor's random profession would leak into the clone.
         clone.profession = profession;
+        clone.guardWeaponCategory = guardWeaponCategory;
         clone.gender = gender;
         clone.family = family;
 
