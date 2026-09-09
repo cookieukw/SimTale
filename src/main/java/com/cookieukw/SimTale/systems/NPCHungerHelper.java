@@ -65,9 +65,6 @@ public class NPCHungerHelper {
         return best;
     }
 
-    /** Below this, an NPC is too hungry to do anything but look for food. */
-    private static final float STARVATION_THRESHOLD = 5f;
-
     /**
      * Breaks a starving NPC out of whatever it was doing so it can only eat or grieve.
      *
@@ -76,7 +73,7 @@ public class NPCHungerHelper {
      * the NPC's usefulness — it abandons its job, its hobby and its social life until it is fed.
      */
     public static void tickStarvation(Ref<EntityStore> ref, SimNPCComponent npc, World world, Store<EntityStore> store) {
-        if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) > STARVATION_THRESHOLD) return;
+        if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) > NeedsHelper.HUNGER_STARVATION_THRESHOLD) return;
         if (npc.entityId == null) return;
 
         npc.setEmotion(Mood.SAD, 0.9f, "starvation", world.getTick());
