@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,14 +13,22 @@ import java.util.regex.Pattern;
  * Resolves a held item's {@link WeaponCategory}, so combat behavior can key off "melee vs ranged"
  * instead of a hardcoded item name.
  *
- * <p>Two layers, checked in this order:
+ * <p>Three layers, checked in this order:
  * <ol>
- *   <li>{@code simtale-weapons.json}, next to the server jar — a flat
+ *   <li>{@link #register}, called directly from another mod's own startup code — the
+ *       compile-time-dependency path. A mod that depends on SimTale as a library calls
+ *       {@code WeaponCategoryRegistry.register("mymod:fire_sword", WeaponCategory.MELEE)} from its
+ *       own {@code setup()}, and never needs a config file or a SimTale code change at all. Safe
+ *       to call whenever that mod initializes, before or after SimTale's own — this layer is never
+ *       touched by {@link #load()}, so a later JSON reload cannot undo it.</li>
+ *   <li>{@code simtale-weapons.json}, in the server's working directory (next to whatever
+ *       launches the server — the same place {@code simtale-ai.json} already lives) — a flat
  *       {@code {"itemIdOrFragment": "MELEE"|"RANGED"}} map, matched the same substring way as
- *       everything below (an entry does not need to be the item's full id). This is the
- *       mod-integration point: any mod that adds a weapon SimTale does not recognize — or the
- *       server owner, for one it recognizes wrong — registers it here without touching SimTale's
- *       code.</li>
+ *       everything else here (an entry does not need to be the item's full id). This is the
+ *       no-code path: the server owner edits one file for a mod that did not register itself, or
+ *       to override how SimTale reads a vanilla item. Because mods on the same server share one
+ *       process and one working directory, this one file is visible to SimTale regardless of
+ *       which mod's jar actually added the item — nothing mod-specific about the location.</li>
  *   <li>A small built-in keyword list covering vanilla Hytale weapons, matched the way the rest of
  *       the project matches asset ids (see {@link AssetIds}): normalized, substring, never
  *       exact-equals, because the same weapon shows up as {@code Weapon_Sword_Iron},
@@ -50,11 +59,38 @@ public final class WeaponCategoryRegistry {
             "weaponblowgun", "weaponrifle", "weaponassaultrifle"
     };
 
-    // Normalized keyword/fragment -> category, loaded from simtale-weapons.json. Checked before
-    // the built-in lists above, so a server owner can also use it to override a vanilla item.
+    // Populated only by register() — another mod's own code calling in directly. Never touched by
+    // load(), so a JSON (re)load can never undo a compile-time registration, regardless of which
+    // ran first. Checked before everything else: code that explicitly registered an item wins
+    // over a guess from a config file or a keyword list.
+    private static final Map<String, WeaponCategory> registeredOverrides = new ConcurrentHashMap<>();
+
+    // Normalized keyword/fragment -> category, loaded from simtale-weapons.json. Replaced wholesale
+    // on each load() call; checked before the built-in lists below.
     private static volatile Map<String, WeaponCategory> configOverrides = new LinkedHashMap<>();
 
     private WeaponCategoryRegistry() {
+    }
+
+    /**
+     * Registers an item id (or a distinctive fragment of one) as MELEE or RANGED, straight from
+     * another mod's own code — the programmatic equivalent of an entry in
+     * {@code simtale-weapons.json}, for a mod that depends on SimTale as a library instead of
+     * just running alongside it.
+     *
+     * <p>Call this from that mod's own setup/initialization. Matching is substring-based like
+     * everywhere else in this class (see {@link AssetIds}): pass the item's full id, or whatever
+     * fragment of it uniquely identifies the weapon, and it is normalized the same way ids are
+     * normalized everywhere else in this project.
+     *
+     * <p>Registering the same key twice replaces the category for that key; there is no need to
+     * unregister anything first.
+     */
+    public static void register(String itemIdOrKeyword, WeaponCategory category) {
+        if (itemIdOrKeyword == null || itemIdOrKeyword.isEmpty() || category == null) return;
+        String normalized = AssetIds.normalize(itemIdOrKeyword);
+        if (normalized.isEmpty()) return;
+        registeredOverrides.put(normalized, category);
     }
 
     /**
@@ -110,6 +146,9 @@ public final class WeaponCategoryRegistry {
         String normalized = AssetIds.normalize(itemId);
         if (normalized.isEmpty()) return null;
 
+        for (Map.Entry<String, WeaponCategory> e : registeredOverrides.entrySet()) {
+            if (normalized.contains(e.getKey())) return e.getValue();
+        }
         for (Map.Entry<String, WeaponCategory> e : configOverrides.entrySet()) {
             if (normalized.contains(e.getKey())) return e.getValue();
         }
