@@ -6,6 +6,7 @@ import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.SimNPCNameGenerator;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookie.caskara.Caskara;
@@ -14,6 +15,9 @@ import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.cookieukw.SimTale.systems.BedRegistry;
@@ -253,6 +257,61 @@ public class SimNPCPersistence {
         // Set even when there is no record: the component now reflects the database as well as
         // it ever will, and a never-saved NPC must still be allowed to save for the first time.
         component.dataLoaded = true;
+    }
+
+    /**
+     * Re-attaches {@link SimTale#SIM_NPC_COMPONENT_TYPE} to an entity whose component did not
+     * survive a world reload, using the record in this shell as proof that it really is one of
+     * ours.
+     * <p>
+     * This used to be copied almost verbatim between {@code SimTaleEventHandler} (right click)
+     * and {@code SimTaleUseNPCInteraction} (the F key) — the same duplication that once let a
+     * fix to the "any entity gets adopted" bug land in only one of the two paths while the other
+     * kept adopting cows and other players. Both call sites now go through here instead.
+     *
+     * @param accessor  the {@link Store} or {@link com.hypixel.hytale.component.CommandBuffer}
+     *                  to read and write components with — both implement {@link ComponentAccessor}
+     * @param targetRef the entity that was right-clicked / interacted with
+     * @return the re-attached, already-tracked component, or {@code null} if the target is a
+     *         player or has no record in this shell (nothing to re-attach)
+     */
+    public static SimNPCComponent tryReattach(ComponentAccessor<EntityStore> accessor, Ref<EntityStore> targetRef) {
+        if (accessor == null || targetRef == null) return null;
+
+        // It used to adopt ANY entity: right-clicking a chicken, a hostile mob or another player
+        // added SIM_NPC_COMPONENT_TYPE to it and gave it a generated name. Since
+        // RoutineAISystem's query is exactly that component, the victim then started running the
+        // villager routine — walking to beds, being mounted, getting Frozen — with no way out.
+        if (accessor.getComponent(targetRef, Player.getComponentType()) != null) {
+            return null;
+        }
+
+        UUIDComponent uuidComp = accessor.getComponent(targetRef, UUIDComponent.getComponentType());
+        if (uuidComp == null) return null;
+
+        // "simtale" shell, not Caskara's "default" — see DB_SHELL above. A record here is the
+        // proof that this entity really is one of ours; without it there is nothing to
+        // re-attach and adopting the entity would be an invention.
+        SimNPCData data = loadData(uuidComp.getUuid());
+        if (data == null) return null;
+
+        String name = data.name;
+        if (name == null || name.isEmpty()) {
+            PersistentDisplayName displayName = accessor.getComponent(targetRef, PersistentDisplayName.getComponentType());
+            if (displayName != null && displayName.getDisplayName() != null) {
+                name = displayName.getDisplayName().toString();
+            }
+        }
+        if (name == null || name.isEmpty()) {
+            name = SimNPCNameGenerator.generate();
+        }
+
+        SimNPCComponent npc = new SimNPCComponent(uuidComp.getUuid(), name);
+        npc.entityRef = targetRef;
+        loadNPC(npc);
+        accessor.addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
+        SimTale.trackNpc(npc);
+        return npc;
     }
 
     /**
