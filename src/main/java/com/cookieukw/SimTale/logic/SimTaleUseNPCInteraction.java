@@ -1,12 +1,9 @@
 package com.cookieukw.SimTale.logic;
 
 
-import com.cookieukw.SimTale.core.SimNPCNameGenerator;
-import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -20,7 +17,6 @@ import com.hypixel.hytale.protocol.InteractionState;
 import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.InteractionContext;
-import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.SimpleInstantInteraction;
@@ -76,42 +72,20 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             Player player = ref.getStore().getComponent(ref, Player.getComponentType());
             SimNPCComponent npc = targetRef.getStore().getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
             
-            // Guards for the re-attach path, which used to adopt ANY entity into the mod.
+            // Re-attach path, which used to adopt ANY entity into the mod (a chicken, a hostile
+            // mob, another player). Shared with SimTaleEventHandler (right click) via
+            // SimNPCPersistence.tryReattach — this used to be copied by hand in both places, and
+            // that duplication is exactly why an earlier fix to that bug landed in only one of
+            // the two paths while the other kept adopting things it shouldn't.
             //
-            // They deliberately do NOT touch context.getState() and do NOT return early. This class
-            // is registered over the engine's own UseNPCInteraction.DEFAULT_ID, so failing the
-            // interaction here does not merely decline to open our screen — it breaks the shared
-            // interaction pipeline, and with it doors, blocks and everything else. Declining is
-            // done by simply leaving `npc` null, which the page condition below already handles.
-            boolean isPlayerTarget = targetRef.getStore()
-                    .getComponent(targetRef, Player.getComponentType()) != null;
-
-            if (npc == null && !isPlayerTarget) {
-                UUIDComponent uuidComp = targetRef.getStore().getComponent(targetRef, UUIDComponent.getComponentType());
-                // "simtale" shell, not Caskara's "default" — see SimNPCPersistence.DB_SHELL.
-                // No record means this is not one of ours and there is nothing to re-attach.
-                SimNPCData data = uuidComp != null
-                        ? SimNPCPersistence.loadData(uuidComp.getUuid())
-                        : null;
-                if (uuidComp != null && data != null) {
-                    String name = data.name;
-                    if (name == null || name.isEmpty()) {
-                        PersistentDisplayName displayName = targetRef.getStore().getComponent(targetRef, PersistentDisplayName.getComponentType());
-                        if (displayName != null && displayName.getDisplayName() != null) {
-                            name = displayName.getDisplayName().toString();
-                        }
-                    }
-                    if (name == null || name.isEmpty()) {
-                        name = SimNPCNameGenerator.generate();
-                    }
-
-                    npc = new SimNPCComponent(uuidComp.getUuid(), name);
-                    npc.entityRef = targetRef;
-                    SimNPCPersistence.loadNPC(npc);
-                    commandBuffer.addComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE, npc);
-
-                    SimTale.trackNpc(npc);
-                }
+            // tryReattach deliberately does NOT touch context.getState() and this does NOT
+            // return early. This class is registered over the engine's own
+            // UseNPCInteraction.DEFAULT_ID, so failing the interaction here does not merely
+            // decline to open our screen — it breaks the shared interaction pipeline, and with
+            // it doors, blocks and everything else. Declining is done by simply leaving `npc`
+            // null, which the page condition below already handles.
+            if (npc == null) {
+                npc = SimNPCPersistence.tryReattach(commandBuffer, targetRef);
             }
 
             // Entities adopted before these guards still carry the component and a saved record.
