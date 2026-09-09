@@ -293,7 +293,11 @@ public class SimNPCPersistence {
         // proof that this entity really is one of ours; without it there is nothing to
         // re-attach and adopting the entity would be an invention.
         SimNPCData data = loadData(uuidComp.getUuid());
-        if (data == null) return null;
+        if (data == null) {
+            HytaleLogger.forEnclosingClass().atFine()
+                    .log("SimTale: entidade sem registro no shell simtale, ignorada.");
+            return null;
+        }
 
         String name = data.name;
         if (name == null || name.isEmpty()) {
