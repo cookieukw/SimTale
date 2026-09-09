@@ -427,10 +427,6 @@ public class InteractionManager {
         return AssetIds.matchesAsset(rawItemId, "WeddingRing");
     }
 
-    /** Hunger level at or below which a gift of food is eaten on the spot instead of pocketed. */
-    private static final float HUNGRY_ENOUGH_TO_EAT = 70f;
-
-
     /**
      * Feeds the NPC directly when it is hungry and the gift is edible.
      *
@@ -441,7 +437,7 @@ public class InteractionManager {
      * something it would refuse to eat on its own, and the restored amounts match tier for tier.
      */
     private static InteractionOutcome tryFeed(SimNPCComponent npc, ItemStack heldItem, String itemName) {
-        if (NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID) > HUNGRY_ENOUGH_TO_EAT) return null;
+        if (NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID) > NeedsHelper.HUNGER_SEEK_FOOD_THRESHOLD) return null;
 
         int tier = NPCFoodHelper.tierOf(heldItem);
         if (tier == NPCFoodHelper.NOT_FOOD) return null;
