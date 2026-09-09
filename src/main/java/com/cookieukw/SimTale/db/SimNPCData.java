@@ -13,6 +13,7 @@ import java.util.UUID;
 import com.cookieukw.SimTale.core.NPCPreferences;
 import com.cookieukw.SimTale.core.FamilySystem;
 import com.cookieukw.SimTale.core.Gender;
+import com.cookieukw.SimTale.core.WeaponCategory;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 
 /**
@@ -26,6 +27,7 @@ public class SimNPCData {
     public MemoryManager memory;
     public Map<String, Relationship> relationships = new HashMap<>();
     public Profession profession;
+    public WeaponCategory guardWeaponCategory;
     public NPCPreferences preferences;
     public FamilySystem family;
     public Gender gender;
