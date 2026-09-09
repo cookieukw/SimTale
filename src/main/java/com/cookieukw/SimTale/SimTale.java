@@ -15,6 +15,7 @@ import com.cookieukw.SimTale.ai.providers.OpenAIProvider;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
+import com.cookieukw.SimTale.core.WeaponCategoryRegistry;
 import com.cookieukw.SimTale.logic.SimTaleCheckPregnancyInteraction;
 import com.cookieukw.SimTale.logic.SimTaleUseNPCInteraction;
 import com.cookieukw.SimTale.logic.SimTaleItemRegistry;
@@ -148,6 +149,9 @@ public class SimTale extends JavaPlugin {
         // Load local JSON configuration
         AiConfigManager.load();
         AiConfig config = AiConfigManager.getConfig();
+
+        // Mod-added weapons (simtale-weapons.json) for the Guard's melee/ranged categorization.
+        WeaponCategoryRegistry.load();
 
         // Initialize AI manager
         aiManager = new NpcAiManager();
