@@ -10,12 +10,59 @@ public enum Profession {
     UNEMPLOYED("Desempregado", EnumSet.noneOf(JobType.class), "", true),
     MINER("Minerador", EnumSet.of(JobType.MINE), "pickaxe", false),
     FARMER("Fazendeiro", EnumSet.of(JobType.FARM, JobType.GATHER), "hoe", true),
-    FISHERMAN("Pescador", EnumSet.of(JobType.FISH), "fishing_trap", true),
+    FISHERMAN("Pescador", EnumSet.of(JobType.FISH), "fishingtrap", true),
     LUMBERJACK("Lenhador", EnumSet.of(JobType.GATHER), "hatchet", true),
-    GUARD("Guarda", EnumSet.noneOf(JobType.class), "sword", false),
-    EXPLORER("Explorador", EnumSet.of(JobType.EXPLORE), "map", true),
-    BUILDER("Construtor", EnumSet.of(JobType.BUILD), "hammer", true),
-    HUNTER("Caçador", EnumSet.of(JobType.HUNT), "bow", false);
+
+    /**
+     * Any weapon makes a Guard, not just a sword.
+     *
+     * <p>{@code triggerItemKeyword} here is a display-only placeholder (non-empty just so the
+     * "returning your gear" flavor text in {@code InteractionManager} still fires) — the real
+     * check is {@link #matches}, which defers to {@link WeaponCategoryRegistry} so any melee
+     * <em>or</em> ranged weapon works, including ones a mod adds later. Checked after
+     * {@link #HUNTER} in {@link #MATCH_PRIORITY} so a bow still makes a Hunter as before; anything
+     * else weapon-shaped (swords, axes, a mod's new firearm) falls through to here instead.
+     */
+    GUARD("Guarda", EnumSet.noneOf(JobType.class), "weapon", false) {
+        @Override
+        boolean matches(String normalizedItemId) {
+            return WeaponCategoryRegistry.of(normalizedItemId) != null;
+        }
+    },
+
+    /**
+     * "map" alone also matched "Maple" (wood/sapling/leaves) — {@code toolmap} is the normalized
+     * form of the actual {@code Tool_Map} item and does not have that problem.
+     */
+    EXPLORER("Explorador", EnumSet.of(JobType.EXPLORE), "toolmap", true),
+
+    /**
+     * "hammer" alone also matched "Hammerhead" (the shark) — {@code toolhammer} is the normalized
+     * form of the actual {@code Tool_Hammer_*} items and does not have that problem.
+     */
+    BUILDER("Construtor", EnumSet.of(JobType.BUILD), "toolhammer", true),
+
+    /**
+     * Unchanged in spirit — still specifically a bow, not "any ranged weapon" — but matched
+     * against the real item names ({@code shortbow}/{@code crossbow}) instead of the bare word
+     * "bow", which also matched "Rainbow" (the trout).
+     */
+    HUNTER("Caçador", EnumSet.of(JobType.HUNT), "shortbow", false) {
+        @Override
+        boolean matches(String normalizedItemId) {
+            return normalizedItemId.contains("weaponshortbow") || normalizedItemId.contains("weaponcrossbow");
+        }
+    };
+
+    /**
+     * Professions are checked against a held item in this order, independent of the declaration
+     * order above (which must not change — it is the enum's ordinal, and existing saved NPCs may
+     * depend on it). {@link #HUNTER} comes before {@link #GUARD} on purpose: both can now match a
+     * ranged weapon, and the bow should keep making a Hunter, the same as before this change.
+     */
+    private static final Profession[] MATCH_PRIORITY = {
+            MINER, FARMER, FISHERMAN, LUMBERJACK, HUNTER, GUARD, EXPLORER, BUILDER
+    };
 
     public final String ptName;
     private final EnumSet<JobType> allowedJobs;
@@ -100,13 +147,23 @@ public enum Profession {
      */
     public static Profession fromItemId(String itemId) {
         if (itemId == null || itemId.isEmpty()) return null;
-        String lower = itemId.toLowerCase();
-        for (Profession p : values()) {
-            if (p == UNEMPLOYED || p.triggerItemKeyword.isEmpty()) continue;
-            if (lower.contains(p.triggerItemKeyword)) {
+        String normalized = AssetIds.normalize(itemId);
+        if (normalized.isEmpty()) return null;
+        for (Profession p : MATCH_PRIORITY) {
+            if (p.matches(normalized)) {
                 return p;
             }
         }
         return null;
+    }
+
+    /**
+     * Whether this profession is triggered by the (already normalized, per {@link AssetIds})
+     * item id. The default is the plain keyword-contains check every profession used to share;
+     * {@link #GUARD} and {@link #HUNTER} override it to consult {@link WeaponCategoryRegistry}
+     * instead of a single hardcoded word.
+     */
+    boolean matches(String normalizedItemId) {
+        return !triggerItemKeyword.isEmpty() && normalizedItemId.contains(triggerItemKeyword);
     }
 }
