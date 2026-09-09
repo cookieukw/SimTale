@@ -21,6 +21,8 @@ import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.WorldUtil;
+import com.cookieukw.SimTale.core.WeaponCategory;
+import com.cookieukw.SimTale.core.WeaponCategoryRegistry;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
@@ -673,6 +675,17 @@ public class InteractionManager {
         }
 
         npc.profession = targetProf;
+
+        // Remember which kind of weapon actually earned the Guard title, so NPCGuardHelper can
+        // fight at the right range instead of always closing to melee distance. Falls back to
+        // MELEE (the field's own default) on the practically-impossible case where the item that
+        // just satisfied GUARD.matches() somehow no longer resolves to a category.
+        if (targetProf == Profession.GUARD) {
+            WeaponCategory category = WeaponCategoryRegistry.of(itemId);
+            if (category != null) {
+                npc.guardWeaponCategory = category;
+            }
+        }
 
         if (npc.preferences != null && npc.preferences.getLikedProfessions().contains(targetProf)) {
             Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.liked", 3, npc.name).param("profName", profName).param("itemName", itemName);
