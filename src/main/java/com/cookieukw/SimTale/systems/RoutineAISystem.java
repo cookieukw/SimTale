@@ -87,8 +87,6 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
      */
     private static final int BATH_SEARCH_RETRY_COOLDOWN_TICKS = 200;
     private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 600;
-    /** Hunger low enough to drop whatever the NPC is doing. Well under the idle-time threshold of 50. */
-    private static final float HUNGER_INTERRUPT_THRESHOLD = 25f;
     public static final int SLEEP_DURATION_TICKS = 20 * 120;
     private static final int WAKE_ANIM_TICKS = 20;
     private static final double BED_REACH_DISTANCE_SQ = 2.5 * 2.5; // Increased to prevent getting stuck on bed collision
@@ -428,7 +426,7 @@ once per NPC per tick for nothing.
         worked this way; hunger did not, and that asymmetry had no reason behind it.
         The threshold sits well below the IDLE one (50): this is the emergency path, not the
         normal one. Eating takes about three seconds, so interrupting costs little.*/
-        if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < HUNGER_INTERRUPT_THRESHOLD
+        if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < NeedsHelper.HUNGER_INTERRUPT_THRESHOLD
                 && world.getTick() >= ai.nextFoodSearchTick
                 && ai.currentTask != TaskType.FINDING_FOOD && ai.currentTask != TaskType.MOVING_TO_FOOD
                 && ai.currentTask != TaskType.EATING
