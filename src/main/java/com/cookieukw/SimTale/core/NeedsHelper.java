@@ -34,6 +34,20 @@ public class NeedsHelper {
     public static final String FUN_ID = "simtale_fun";
     public static final String HYGIENE_ID = "simtale_hygiene";
 
+    /**
+     * Hunger thresholds shared by the routine AI, the "feed on gift" interaction and the
+     * interaction panel's color coding.
+     * <p>
+     * These used to be three separate private constants — one per file, each with its own
+     * name — plus the same three numbers hardcoded a fourth time in {@code NPCInteractionPage}.
+     * That is exactly the kind of duplication that already let the panel drift out of sync once
+     * (it briefly showed "50 procura, 5 perde vida", both wrong, before someone caught it by
+     * hand). Tune hunger balance here and all four call sites move together.
+     */
+    public static final float HUNGER_STARVATION_THRESHOLD = 5f;
+    public static final float HUNGER_INTERRUPT_THRESHOLD = 25f;
+    public static final float HUNGER_SEEK_FOOD_THRESHOLD = 70f;
+
     /** Value returned when a stat cannot be read, matching the assets' InitialValue. */
     private static final float DEFAULT_VALUE = 100f;
 
