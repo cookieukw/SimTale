@@ -117,7 +117,14 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
                 return;
             }
 
-            handleNpcCommand(sender, routedMessage, targetNpc, world);
+            /* `routedMessage` keeps the raw text for the log line above; `detect()` and the
+             * rest of the handler match on exact words/phrases, so a trailing "!"/"?"/"." (the
+             * most natural way to type "Oi!", "Valeu!", "Tchau!") must be stripped here the same
+             * way `findTargetNpc` already normalizes the text to find the NPC by name. Without
+             * this, those one-word messages fell through to SMALLTALK instead of their real
+             * intent.
+             */
+            handleNpcCommand(sender, normalize(routedMessage), targetNpc, world);
         });
     }
 
