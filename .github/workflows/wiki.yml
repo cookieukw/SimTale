@@ -2,15 +2,22 @@ name: Wiki
 
 # Builds the Docusaurus wiki and publishes it to GitHub Pages.
 #
-# Only fires on changes under wiki/, so a normal code commit does not spend a Pages deploy. The
-# manual trigger is there for the first run and for re-publishing after changing repository
-# settings, which does not touch any file.
+# Fires on changes under wiki/, and also on README.md/CURSEFORGE.md (EN and PT-BR) — those mirror
+# large chunks of the wiki by hand (jobs-and-hobbies' trigger-item table is one example), and they
+# have drifted out of sync with the real code before. Re-publishing the site on a README-only
+# change doesn't change the built output, but keeps the deploy timestamp/history a signal that the
+# docs were actually touched. The manual trigger is there for the first run and for re-publishing
+# after changing repository settings, which does not touch any file.
 on:
   push:
     branches: [main]
     paths:
       - 'wiki/**'
       - '.github/workflows/wiki.yml'
+      - 'README.md'
+      - 'README-pt-BR.md'
+      - 'CURSEFORGE.md'
+      - 'CURSEFORGE-pt-BR.md'
   workflow_dispatch:
 
 # Pages needs these; the default GITHUB_TOKEN has neither.
