@@ -727,11 +727,13 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
 
             // INSULT
             // "fei" used to be a stem here and fired on "feito", "feira" and "feijao"; the
-            // explicit forms are listed instead.
+            // explicit forms are listed instead. "some" was dropped from this list too — it is
+            // the everyday conjugation of "sumir" ("ele sempre some"), not necessarily an
+            // insult, and hasWord's exact match still let it fire on that innocent case.
             if (hasStem(message, "nojent", "ridicul", "ridícul", "irritant")
                     || hasWord(message, "feio", "feia", "feios", "feias", "chato", "chata",
                             "idiota", "burro", "burra", "odeio", "inútil", "inutil",
-                            "lixo", "ruim", "some")
+                            "lixo", "ruim")
                     || hasPhrase(message, "vai embora", "sai daqui", "cala a boca", "cala boca",
                             "ninguém te quer", "ninguem te quer")) {
                 return INSULT_CHAT;
