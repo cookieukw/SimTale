@@ -242,6 +242,7 @@ public class SimNPCPersistence {
         data.emotionIntensity = component.emotionIntensity;
         data.emotionSource = component.emotionSource;
         data.lastEmotionChangeTick = component.lastEmotionChangeTick;
+        data.guardWeaponCategory = component.guardWeaponCategory;
 
         worldShell().core(SimNPCData.class).preserve(component.entityId.toString(), data);
     }
@@ -345,6 +346,12 @@ public class SimNPCPersistence {
             if (InteractionManager.isNpcAChild(component) && !component.profession.isSafeForChildren()) {
                 component.profession = Profession.UNEMPLOYED;
             }
+        }
+        // Absent on a record saved before this field existed — MELEE (the SimNPCComponent
+        // default) is exactly what every Guard was back then, so leaving it unset is correct,
+        // not just harmless.
+        if (data.guardWeaponCategory != null) {
+            component.guardWeaponCategory = data.guardWeaponCategory;
         }
         if (data.preferences != null) {
             component.preferences = data.preferences;
