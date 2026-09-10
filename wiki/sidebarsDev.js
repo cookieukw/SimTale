@@ -28,6 +28,7 @@ const sidebars = {
       ],
     },
     'lessons-learned',
+    'status',
   ],
 };
 
