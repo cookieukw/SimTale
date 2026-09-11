@@ -154,8 +154,15 @@ public final class ChildCarryHelper {
         // MountController.Minecart is the entity-mount controller — the enum has exactly two
         // values, and the other one (BlockMount) is for chairs and beds. It normally means "the
         // rider steers", which is harmless here because the rider is an NPC with no input at all.
-        // This is the one part of this feature that could not be confirmed from the bytecode
-        // alone; if a carried child ends up steering the player, this is the line to look at.
+        //
+        // Confirmed safe via bytecode (testing_checklist.md #21): MountSystems$HandleMountInput —
+        // the only system that reads a rider's movement input — has an AND query requiring BOTH
+        // MountedComponent and PlayerInput on the SAME entity to tick at all. The child here only
+        // ever gets MountedComponent; she has no PlayerInput component (only real players do), so
+        // this system's query never matches her and its tick() body — the part that would read a
+        // movement-update queue and act on it — never runs for her, regardless of controller type.
+        // There is no live minecart entity in between either: `carrier` below is the player's own
+        // Ref, not a spawned vehicle.
         final Ref<EntityStore> childRef = npc.entityRef;
         WorldUtil.execute(() -> {
             if (!childRef.isValid() || !carrier.isValid()) return;
