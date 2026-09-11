@@ -13,6 +13,9 @@ import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Trait;
+import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.logic.InteractionManager;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
@@ -493,7 +496,67 @@ public class NPCSocialHelper {
         boolean pleasant = bondNpcs(host, guest);
         exchangeMood(host, guest, pleasant, tick);
         exchangeMood(guest, host, pleasant, tick);
+        if (pleasant) {
+            tryCourtship(host, guest);
+        }
         return pleasant;
+    }
+
+    /** Romance a pleasant chat can build between two eligible adult NPCs, and grow their own family. */
+    private static final int NPC_ROMANCE_GAIN = 2;
+
+    /** Same bar the player's own wedding-ring proposal already uses ({@code handleMarriageProposal}). */
+    private static final int NPC_MARRIAGE_ROMANCE_THRESHOLD = 80;
+    private static final int NPC_MARRIAGE_FRIENDSHIP_THRESHOLD = 70;
+
+    /**
+     * Lets two NPCs who just had a nice chat fall for each other, and — once the bond is strong
+     * enough — marry each other, entirely on their own. No player involved anywhere in this path.
+     * <p>
+     * Deliberately narrow about who is eligible: no minors ({@link InteractionManager#isNpcAChild}
+     * also covers teens, not just small children), no close family
+     * ({@link FamilyBonds#areCloseFamily}, which the strong platonic bond {@link FamilyBonds}
+     * itself gives parents/siblings would otherwise read as a great match), and nobody already
+     * married to a third party — this does not model affairs.
+     */
+    private static void tryCourtship(SimNPCComponent host, SimNPCComponent guest) {
+        if (host.entityId == null || guest.entityId == null) return;
+        if (InteractionManager.isNpcAChild(host) || InteractionManager.isNpcAChild(guest)) return;
+        if (FamilyBonds.areCloseFamily(host, guest)) return;
+
+        boolean hostSpokenFor = host.family.isMarried && !guest.entityId.equals(host.family.spouseId);
+        boolean guestSpokenFor = guest.family.isMarried && !host.entityId.equals(guest.family.spouseId);
+        if (hostSpokenFor || guestSpokenFor) return;
+
+        Relationship hostView = host.getRelationship(guest.entityId);
+        Relationship guestView = guest.getRelationship(host.entityId);
+
+        // Already married to each other: nothing left to propose, but still worth reinforcing —
+        // the daily natural-pregnancy roll in SimTaleTickSystem reads this same romance value.
+        boolean alreadyToEachOther = host.family.isMarried && guest.entityId.equals(host.family.spouseId);
+
+        hostView.addRomance(NPC_ROMANCE_GAIN);
+        guestView.addRomance(NPC_ROMANCE_GAIN);
+
+        if (alreadyToEachOther) return;
+        if (host.family.isMarried || guest.family.isMarried) return;
+
+        if (hostView.romance >= NPC_MARRIAGE_ROMANCE_THRESHOLD && guestView.romance >= NPC_MARRIAGE_ROMANCE_THRESHOLD
+                && hostView.friendship >= NPC_MARRIAGE_FRIENDSHIP_THRESHOLD && guestView.friendship >= NPC_MARRIAGE_FRIENDSHIP_THRESHOLD) {
+            host.family.marry(guest.entityId, null);
+            guest.family.marry(host.entityId, null);
+            hostView.status = RelationshipStatus.MARRIED;
+            guestView.status = RelationshipStatus.MARRIED;
+            SimNPCPersistence.saveNPC(host);
+            SimNPCPersistence.saveNPC(guest);
+            LOGGER.info("[SimTale] '{}' e '{}' se casaram por conta propria", host.name, guest.name);
+
+            if (host.entityRef != null && host.entityRef.isValid()) {
+                Message announce = Message.translation("npc-dialogues.npc_marriage.announce")
+                        .param("name", host.name).param("partner", guest.name);
+                broadcastSingleLine(announce, host.entityRef, host.entityRef.getStore());
+            }
+        }
     }
 
     /**
