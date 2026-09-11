@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.AnimationSlot;
@@ -136,20 +137,31 @@ public final class SimTaleJuiceHelper {
             }
         }
 
-        // Apply physical knockback
-        Vector3d impulse = new Vector3d(nx * force, 1.4, nz * force);
-        KnockbackComponent kb = store.ensureAndGetComponent(victimRef, KnockbackComponent.getComponentType());
-        if (kb != null) {
-            kb.setVelocity(impulse);
-            kb.setVelocityType(ChangeVelocityType.Set);
-            kb.setDuration(0f);
-            kb.setTimer(0f);
-        }
+        // Apply physical knockback.
+        //
+        // Deferred: store.ensureAndGetComponent attaches KnockbackComponent if the victim
+        // doesn't already have one, which is a structural write (can move the entity between
+        // archetypes). Calling that synchronously from here crashed the world thread with
+        // "Store is currently processing!" — playShove runs inside RoutineAISystem's own tick,
+        // the same class of bug as the entity-spawn crash elsewhere in this project, fixed the
+        // same way: push it onto WorldUtil.execute so it runs after the current tick, not
+        // during it.
+        final Vector3d impulse = new Vector3d(nx * force, 1.4, nz * force);
+        WorldUtil.execute(() -> {
+            if (!victimRef.isValid()) return;
+            KnockbackComponent kb = store.ensureAndGetComponent(victimRef, KnockbackComponent.getComponentType());
+            if (kb != null) {
+                kb.setVelocity(impulse);
+                kb.setVelocityType(ChangeVelocityType.Set);
+                kb.setDuration(0f);
+                kb.setTimer(0f);
+            }
 
-        Velocity vel = store.getComponent(victimRef, Velocity.getComponentType());
-        if (vel != null) {
-            vel.addVelocity(impulse.x, impulse.y, impulse.z);
-        }
+            Velocity vel = store.getComponent(victimRef, Velocity.getComponentType());
+            if (vel != null) {
+                vel.addVelocity(impulse.x, impulse.y, impulse.z);
+            }
+        });
 
         // Message to victim if it is a player
         if (victimPlayer != null && attackerNpc != null) {
