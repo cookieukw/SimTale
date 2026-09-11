@@ -135,7 +135,7 @@ public class InteractionManager {
 
         InteractionOutcome outcome = switch (type) {
             case FRIENDLY -> handleFriendly(npc, playerUuid, playerRef, rel, daily.missedLongTime());
-            case FUNNY -> handleFunny(npc, playerUuid, rel);
+            case FUNNY -> handleFunny(npc, playerUuid, playerRef, rel);
             case ROMANTIC -> handleRomantic(npc, rel);
             case MEAN -> handleMean(npc, rel);
             case SCOLD -> handleScold(npc, playerUuid, rel);
@@ -231,15 +231,16 @@ public class InteractionManager {
                       ctx -> InteractionOutcome.of(5, 0, 2, 15, pickRandomTranslation("npc-dialogues.funny.trait", 5, ctx.npc().name), MemoryEvent.JOKED))
     );
 
-    private static InteractionOutcome handleFunny(SimNPCComponent npc, UUID playerUuid, Relationship rel) {
+    private static InteractionOutcome handleFunny(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, Relationship rel) {
         // The young voices come before the rule table on purpose. Those rules branch on mood and
         // relationship status, which are the right axes for an adult — but a nine-year-old finding
         // a bad joke hilarious is funnier and truer than the same "ENEMIES so they scoff" line
         // everyone else gets.
         String youngKey = ChildDialogue.keyFor(npc, playerUuid, "joke");
         if (youngKey != null) {
-            return InteractionOutcome.of(4, 0, 2, 7,
-                    pickRandomTranslation(youngKey, YOUNG_LINE_VARIANTS, npc.name), MemoryEvent.JOKED);
+            Message line = pickRandomTranslation(youngKey, YOUNG_LINE_VARIANTS, npc.name)
+                    .param("parent", parentAddressTerm(npc, playerUuid, playerRef));
+            return InteractionOutcome.of(4, 0, 2, 7, line, MemoryEvent.JOKED);
         }
 
         FunnyContext ctx = new FunnyContext(npc, rel, npc.getMood());
@@ -835,7 +836,8 @@ public class InteractionManager {
         // with any of that — she opens with whatever she is looking at.
         String youngKey = ChildDialogue.keyFor(npc, playerUuid, "chat");
         if (youngKey != null) {
-            return pickRandomTranslation(youngKey, YOUNG_LINE_VARIANTS, npc.name);
+            return pickRandomTranslation(youngKey, YOUNG_LINE_VARIANTS, npc.name)
+                    .param("parent", parentAddressTerm(npc, playerUuid, playerRef));
         }
 
         if (playerRef != null) {
@@ -904,6 +906,21 @@ public class InteractionManager {
     private static Message pickRandomTranslation(String baseKey, int optionsCount, String npcName) {
         int index = ThreadLocalRandom.current().nextInt(1, optionsCount + 1);
         return Message.translation(baseKey + "." + index).param("name", npcName);
+    }
+
+    /**
+     * What a child currently calls {@code playerUuid} as their parent, for a {@code {parent}}
+     * placeholder in a young-voice line: "mamãe"/"papai", degrading to the plain "mãe"/"pai" and
+     * then to the player's own name as {@link ParentChildBond#parentTermKey} sours. Wrapped as a
+     * nested {@link Message} (not a raw string) so the term itself stays translated per client —
+     * only the name fallback is untranslated, being a proper noun already.
+     */
+    private static Message parentAddressTerm(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef) {
+        String termKey = ParentChildBond.parentTermKey(npc, playerUuid);
+        if (termKey != null) {
+            return Message.translation(termKey);
+        }
+        return Message.raw(playerRef != null ? playerRef.getUsername() : "?");
     }
   
 }
