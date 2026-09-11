@@ -308,6 +308,9 @@ public class InteractionManager {
      */
     private static final int SCOLDING_PATIENCE = 3;
 
+    /** How many variants each scold line set ships with. */
+    private static final int SCOLD_LINE_VARIANTS = 3;
+
     /**
      * Telling off your own child.
      *
@@ -370,7 +373,7 @@ public class InteractionManager {
         npc.setEmotion(reaction, intensity, "scold", tick);
 
         return InteractionOutcome.of(0, 0, trustHit, affinityHit,
-                Message.translation(key).param("name", npc.name),
+                pickRandomTranslation(key, SCOLD_LINE_VARIANTS, npc.name),
                 excessive ? MemoryEvent.INSULTED : null);
     }
 
