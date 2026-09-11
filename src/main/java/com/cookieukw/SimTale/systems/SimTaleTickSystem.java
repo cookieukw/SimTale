@@ -8,6 +8,7 @@ import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleUtils;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.core.Mood;
@@ -166,7 +167,15 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                 Relationship spouseRel = npc.getRelationship(npc.family.spouseId);
                 // 25% chance of getting pregnant daily if romance is high (romance >= 75)
                 if (spouseRel.romance >= 75 && Math.random() < 0.25) {
-                    LifecycleManager.startPregnancy(npc, npc.family.spouseId, absoluteTick);
+                    // The spouse being another NPC (not a player) is the only case where we can
+                    // ask "does the spouse actually want this too?" — a player has no FamilySystem
+                    // to hold that preference, so a player marriage keeps its original behaviour
+                    // exactly as it was: romance + chance is the whole gate.
+                    SimNPCComponent spouseNpc = LifecycleUtils.findNPCById(npc.family.spouseId);
+                    boolean bothWantIt = spouseNpc == null || (npc.family.wantsAnotherChild() && spouseNpc.family.wantsAnotherChild());
+                    if (bothWantIt) {
+                        LifecycleManager.startPregnancy(npc, npc.family.spouseId, absoluteTick);
+                    }
                 }
             }
         }
