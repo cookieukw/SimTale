@@ -250,4 +250,42 @@ public final class FamilyBonds {
         }
         return false;
     }
+
+    /** This NPC's own birth record (who its parents are), regardless of who the parents are. */
+    private static GrowthComponent ownGrowthRecord(SimNPCComponent npc) {
+        if (npc == null || npc.entityId == null) return null;
+        for (GrowthComponent c : LifecycleManager.ACTIVE_CHILDREN) {
+            if (npc.entityId.equals(c.childId)) return c;
+        }
+        return Caskara.load("child_" + npc.entityId, GrowthComponent.class);
+    }
+
+    private static boolean sameParent(UUID p1, UUID p2) {
+        return p1 != null && p1.equals(p2);
+    }
+
+    /**
+     * Whether {@code a} and {@code b} are close enough family that romance between them should
+     * never be offered: the same NPC, parent and child either direction, or siblings (any shared
+     * parent, full or half).
+     * <p>
+     * Used to gate autonomous NPC-NPC romance/marriage — {@link #linkToFamily} already bonds
+     * parents and siblings with a strong platonic {@code Relationship}, which is exactly the
+     * high-friendship, high-affinity shape the courtship check would otherwise mistake for a
+     * good match.
+     */
+    public static boolean areCloseFamily(SimNPCComponent a, SimNPCComponent b) {
+        if (a == null || b == null || a.entityId == null || b.entityId == null) return true;
+        if (a.entityId.equals(b.entityId)) return true;
+        if (isChildOf(a, b) || isChildOf(b, a)) return true;
+
+        GrowthComponent aGrowth = ownGrowthRecord(a);
+        GrowthComponent bGrowth = ownGrowthRecord(b);
+        if (aGrowth == null || bGrowth == null) return false;
+
+        return sameParent(aGrowth.motherId, bGrowth.motherId)
+                || sameParent(aGrowth.motherId, bGrowth.fatherId)
+                || sameParent(aGrowth.fatherId, bGrowth.motherId)
+                || sameParent(aGrowth.fatherId, bGrowth.fatherId);
+    }
 }
