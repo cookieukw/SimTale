@@ -1370,7 +1370,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             double minDistance = Double.MAX_VALUE;
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef != null) {
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
                     TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
                     if (playerTransform != null && npcTransform != null) {
                         Vector3d pPos = playerTransform.getPosition();
