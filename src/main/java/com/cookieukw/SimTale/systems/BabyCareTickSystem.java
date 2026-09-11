@@ -92,7 +92,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
             double minDistance = Double.MAX_VALUE;
 
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef == null || npc.entityId == null) continue;
+                if (npc.entityRef == null || !npc.entityRef.isValid() || npc.entityId == null) continue;
                 if (!npc.family.isMarried || npc.family.spouseId == null || !npc.family.spouseId.equals(playerUuid)) {
                     continue;
                 }
