@@ -46,7 +46,7 @@ import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReferen
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
-import com.cookie.runecore.api.StatusEffectHelper;
+import com.cookie.runecore.api.EffectHelper;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
@@ -312,10 +312,17 @@ once per NPC per tick for nothing.
             otherwise the NPC just stands there giving no indication anything is happening.
             */
             if (world.getTick() - ai.taskStartTime == 1) {
-                StatusEffectHelper.applyBleeding(ref);
+                // StatusEffectHelper.applyBleeding only toggles a HUD icon on a connected
+                // player's own screen (see RuneCore AUDITORIA.md #4.2) — silently does nothing on
+                // an NPC ref, which is why this warning never actually showed up. applyVisualEffect
+                // is the generic, player-agnostic half of the same native effect: it puts the real
+                // "Bleeding" particle effect on the NPC itself, visible to anyone standing nearby.
+                // 10s matches this DYING window (200 ticks) exactly, so it also naturally clears
+                // itself even if the removeVisualEffect call below is ever skipped.
+                EffectHelper.applyVisualEffect(ref, "Bleeding", 10.0f);
             }
             if (world.getTick() - ai.taskStartTime > 200) {
-                StatusEffectHelper.revertBleeding(ref);
+                EffectHelper.removeVisualEffect(ref, "Bleeding");
                 ai.currentTask = TaskType.DEAD;
                 ai.taskStartTime = world.getTick();
 
