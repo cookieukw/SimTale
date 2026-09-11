@@ -83,6 +83,12 @@ busca só olhava portas da casa registrada do próprio NPC. Agora delega para `D
 pathfinder trata porta fechada como intransponível, ele pode nunca traçar a rota que passa por
 ela. Precisa de teste em jogo para saber se é problema real.
 
+**Bug concreto, achado em teste (bug #5, `testing_checklist.md` seção 2)**: duas NPCs usando a
+mesma porta ao mesmo tempo ainda conflitam — uma fecha enquanto a outra está abrindo. A troca do
+cone de 60° por uma checagem geométrica (`DoorBlockUtils.isInFrontOfDoor`) melhorou bastante, mas
+não eliminou a corrida. Provavelmente precisa de algum tipo de lock por porta (a NPC que está no
+meio do gesto de abrir segura o estado até terminar), não só de uma checagem melhor de lado.
+
 ### Comportamento ocioso — NPC olhando para parede
 **Onde**: `systems/RoutineAISystem.java`, estado `IDLE`
 
@@ -124,6 +130,27 @@ sistema de trabalho já marca `currentJob`, então é só acumular. Entra como �
 for só o número e o texto; vira 🟡 se for para influenciar comportamento.
 
 ---
+
+### Itens sem comportamento: Sino da Vila e Bolo de Aniversário
+**Onde**: `SimTaleItemRegistry.java` / `RuneCoreItemManager`
+
+Achado ao revisar `testing_checklist.md` seção 16: dos 7 itens que só existiam como objeto
+(modelo, textura, receita, nome traduzido) sem nenhum comportamento no clique, 4 já foram
+implementados (Planta da Casa, Registro do Estalajadeiro, Luneta do Almoxarife, Diário do
+Inspetor). Faltam **Sino da Vila** e **Bolo de Aniversário** — o **Contrato de Imigração** já
+tem comportamento (crescimento de população, ver seção 0 do checklist), então já pode sair
+dessa lista.
+
+Sino da Vila e Bolo de Aniversário precisam de comportamento novo de verdade (não é só ligar a
+peça que já existe, como foi com os outros 4) — por isso 🟡, não 🟢.
+
+### Mensagem de afinidade ao nascer devia distinguir "sem filhos" de "filho(s) longe"
+**Onde**: `FamilyBonds` / o comando ou fluxo que reporta o vínculo pai-filho ao nascer
+
+Achado junto com a confirmação de que `FamilyBonds` grava afinidade certa nos dois sentidos ao
+nascer (`testing_checklist.md` seção 10): a mensagem hoje não diferencia "não há filhos no
+mundo" de "há, mas nenhum por perto". Puramente cosmético — não muda o cálculo de afinidade,
+só a clareza da mensagem.
 
 ## 🟡 Próximas atualizações
 
