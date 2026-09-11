@@ -18,19 +18,22 @@ import javax.annotation.Nonnull;
 /**
  * Crouch and click a block to put down the child you are carrying.
  *
- * <p>Replaces a {@code PlayerMouseButtonEvent} listener that never ran. Two full sessions of logs
- * carry zero lines from that handler — not the gesture's own diagnostics, not the unconditional one
- * at the top of {@code accept} — while {@code /simtale putdown} worked in the same sessions and the
- * carry itself worked from the interaction panel. The event simply does not reach this mod, so no
- * amount of fixing the crouch check or the carrier lookup was ever going to help.
+ * <p><b>Update (testing_checklist.md #21):</b> this used to be the ONLY way to put a child down,
+ * built after a {@code PlayerMouseButtonEvent} listener was believed dead (two sessions of logs
+ * with zero lines from it). That diagnosis turned out to be the same {@code .register()} vs
+ * {@code .registerGlobal()} bug already known from {@code SimTaleEventHandler} — see the fix noted
+ * in {@code SimTale.java} — not a real limitation of the event. The crouch gesture now lives on
+ * {@code SimTaleEventHandler} too, and works in open air, which this class never could: being
+ * built on {@code UseBlockEvent}, it only ever fired when the click actually landed on a block, so
+ * crouching with nothing in range to click did nothing — exactly the gap that was reported.
+ *
+ * <p>Kept anyway as a second path for the block case specifically: {@code Pre} lets it cancel the
+ * click so crouch-clicking a chest puts the child down instead of <em>also</em> opening the chest,
+ * which {@code SimTaleEventHandler} alone would not prevent.
  *
  * <p>{@code UseBlockEvent} is a different delivery path, not a rename: it is an {@code EcsEvent}
  * dispatched at the entity that acted, which is why this is an {@code EntityEventSystem} and not an
- * event-registry listener. That is the same split {@link BedPlaceBlockEventSystem} documents, and
- * those two systems do fire.
- *
- * <p>{@code Pre} rather than {@code Post} so the click can be cancelled: without that, crouching and
- * clicking a chest would put the child down <em>and</em> open the chest.
+ * event-registry listener. That is the same split {@link BedPlaceBlockEventSystem} documents.
  */
 public class ChildPutDownSystem extends EntityEventSystem<EntityStore, UseBlockEvent.Pre> {
 
