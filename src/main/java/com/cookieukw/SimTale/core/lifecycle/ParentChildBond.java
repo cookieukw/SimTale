@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.core.lifecycle;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.Relationship;
 
 import java.util.UUID;
 
@@ -54,5 +55,47 @@ public final class ParentChildBond {
     public static GrowthStage stageOf(SimNPCComponent npc, UUID playerUuid) {
         GrowthComponent child = findChildOf(npc, playerUuid);
         return child != null ? child.stage : null;
+    }
+
+    /**
+     * Affinity at or above this is a warm bond — {@code mamãe}/{@code papai} instead of the plain
+     * {@code mãe}/{@code pai}.
+     */
+    private static final int WARM_BOND_THRESHOLD = 40;
+
+    /**
+     * Below this the bond has soured enough that the title itself is gone: the child calls this
+     * parent by their own name instead. {@link Relationship#affinity} starts at 0 and a scold
+     * always costs at least a little of it (more the more it repeats in a day), so a parent who
+     * only ever scolds eventually crosses this on their own, with no separate tracking needed.
+     */
+    private static final int NAME_ONLY_THRESHOLD = 0;
+
+    /**
+     * Translation key for the term this child currently uses to address {@code playerUuid} as
+     * their parent — the warm form, the plain form, or null once the bond has soured enough that
+     * they use the player's own name instead.
+     * <p>
+     * Read fresh every call off the live {@link Relationship#affinity}, not decided once at some
+     * milestone (e.g. growing up) and remembered: a parent who mends things earns the title back
+     * exactly the way they lost it, at any age.
+     *
+     * @return null when {@code playerUuid} is not this NPC's parent at all, or when the bond is
+     *         too poor for a parental title — the caller should fall back to the player's own name
+     *         in the second case. Use {@link #isChildOf} first if the two need to be told apart.
+     */
+    public static String parentTermKey(SimNPCComponent npc, UUID playerUuid) {
+        GrowthComponent child = findChildOf(npc, playerUuid);
+        if (child == null || npc == null) return null;
+
+        Relationship rel = npc.getRelationship(playerUuid);
+        if (rel.affinity < NAME_ONLY_THRESHOLD) return null;
+
+        boolean isMother = playerUuid.equals(child.motherId);
+        boolean warm = rel.affinity >= WARM_BOND_THRESHOLD;
+        if (isMother) {
+            return warm ? "npc-dialogues.terms.mom_warm" : "npc-dialogues.terms.mom_plain";
+        }
+        return warm ? "npc-dialogues.terms.dad_warm" : "npc-dialogues.terms.dad_plain";
     }
 }
