@@ -74,7 +74,27 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         ComponentAccessor<EntityStore> playerAccessor = playerRef.getStore();
         PlayerRef playerRefComp = playerAccessor.getComponent(playerRef, Universe.get().getPlayerRefComponentType());
         if (playerRefComp == null) return;
-        
+
+        // Crouch + right-click anywhere puts down a carried child (testing_checklist.md #21).
+        // This used to live on ChildPutDownSystem/UseBlockEvent.Pre instead, which only fires
+        // when the click actually lands on a block — so crouching and clicking into open air
+        // (no block in range) did nothing, and there was no way to get the child off your
+        // shoulders in the open. It was never moved here because, at the time, this whole
+        // handler was believed dead (see the stale comment below, from before the
+        // .register()/.registerGlobal() fix a few lines up in SimTale.java) — but this handler
+        // demonstrably runs now (it is what places the Baby item and confirms blueprints, both
+        // below), so the crouch gesture belongs here, not on a block-only event. Checked first,
+        // before any target-specific logic, so dropping the child always wins over whatever is
+        // under the cursor.
+        Store<EntityStore> carryStore = playerRef.getStore();
+        if (ChildCarryHelper.isCrouching(carryStore, playerRef)
+                && ChildCarryHelper.isCarryingSomeone(carryStore, playerRef)) {
+            if (ChildCarryHelper.putDown(carryStore, playerRef, playerRefComp)) {
+                event.setCancelled(true);
+            }
+            return;
+        }
+
         LOGGER.atInfo().log("SimTale Debug: PlayerMouseButtonEvent fired!");
         ItemStack heldItemTest = InventoryComponent.getItemInHand(playerRef.getStore(), playerRef);
         if (heldItemTest != null && heldItemTest.getItemId() != null) {
@@ -100,12 +120,13 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             }
         }
 
-        /* The crouch gesture that used to live here is now ChildPutDownSystem, on UseBlockEvent.
+        /* The crouch-to-put-down gesture lives at the top of this method now, not here.
          *
-         * Not a refactor for tidiness: this handler never runs. Across two full sessions the log
-         * has zero lines from it, including the unconditional one a few lines above, while
-         * /simtale putdown and the interaction panel both worked in those same sessions. Anything
-         * that depends on a player's click has to be delivered some other way.
+         * It used to be ChildPutDownSystem, on UseBlockEvent.Pre (block-only), because this
+         * handler was believed to never fire at all. It does fire — see the .registerGlobal()
+         * fix noted in SimTale.java — so the gesture moved up to work in open air too, not just
+         * on a block. ChildPutDownSystem itself was left alone as a second path for the specific
+         * case of clicking a block (it still cancels the click so it doesn't also open a chest).
          */
 
         /* The tool items are NOT handled here — see SimTaleItemRegistry.
