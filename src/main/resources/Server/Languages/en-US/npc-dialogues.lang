@@ -353,3 +353,5 @@ social.village.1.a = {name}: Our village has been looking livelier and prettier 
 social.village.1.b = {name}: True! It's wonderful seeing everyone bustling and living in peace.
 social.village.2.a = {name}: Once daily chores are finished, I'm planning a long stroll around town.
 social.village.2.b = {name}: If my chores are done in time, I'll join you on that walk!
+
+npc_marriage.announce = {name} beams, holding hands with {partner}: We got married! It all happened so fast, but it feels right.
