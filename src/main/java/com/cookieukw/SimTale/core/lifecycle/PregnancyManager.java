@@ -208,6 +208,38 @@ public class PregnancyManager {
         EffectHelper.modifyMovement(entityRef, s -> s.baseSpeed = target);
     }
 
+    /**
+     * AUDITORIA.md #4.1 workaround for {@link com.cookieukw.SimTale.systems.NPCMovementHelper}.
+     *
+     * <p>{@link #applyPregnancySpeedDebuff} above only ever works on a player: it goes through
+     * {@code EffectHelper.modifyMovement}, which reads the native {@code MovementManager}
+     * component — and that component is assigned to players only
+     * ({@code PlayerMovementManagerSystems$AssignmentSystem}, confirmed via bytecode). An NPC
+     * never has it, so the call is a silent no-op for every pregnant NPC. There is also no
+     * public setter anywhere for an NPC's own movement speed multiplier
+     * ({@code NPCEntity} only exposes a getter and a cache-invalidator).
+     *
+     * <p>These two methods back a purely visual approximation instead: on a "paused" tick,
+     * {@code NPCMovementHelper.moveTo} re-pins the NPC's leash to her own current position rather
+     * than the real destination, which reads in-game as a stutter/waddle rather than a smooth
+     * speed change. It changes nothing about actual pathing speed and has not been confirmed in
+     * a live game — see AUDITORIA.md section 4.1 for the full writeup.
+     */
+    public static final int THROTTLE_CYCLE_TICKS = 20;
+
+    private static int pauseTicksForTrimester(int trimester) {
+        if (trimester == 3) return 10; // paused half of every cycle
+        if (trimester == 2) return 4;  // paused a fifth of every cycle
+        return 0;                      // trimester 1 (and non-pregnant): no debuff, matches speedForTrimester
+    }
+
+    public static boolean isPausedTick(PregnancyComponent pregnancy, long worldTick) {
+        if (pregnancy == null || !pregnancy.pregnant) return false;
+        int pauseTicks = pauseTicksForTrimester(pregnancy.trimester);
+        if (pauseTicks <= 0) return false;
+        return (worldTick % THROTTLE_CYCLE_TICKS) < pauseTicks;
+    }
+
     public static void applyPlayerPregnancyBehavior(Ref<EntityStore> playerRef, SimPlayerComponent playerComp) {
         if (playerComp.pregnancy == null || !playerComp.pregnancy.pregnant) return;
 
