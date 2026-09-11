@@ -86,7 +86,7 @@ young.chat.village_child.3 = {name} points at the sky: Look at that bird! Does i
 young.chat.village_child.4 = {name}: I found a rock today. It's my best rock.
 young.chat.village_child.5 = {name} runs around you twice and stops, out of breath: Hi!
 
-young.chat.own_child.1 = {name} tugs your sleeve: Dad, look at that bird! It's looking at me!
+young.chat.own_child.1 = {name} tugs your sleeve: {parent}, look at that bird! It's looking at me!
 young.chat.own_child.2 = {name}: When I grow up I'm going to be just like you. But taller.
 young.chat.own_child.3 = {name} holds up two muddy hands: Look what I found! It's a bug. I'm going to name it.
 young.chat.own_child.4 = {name}: Will you be back before dark? I don't like it when it's dark and you're not here.
@@ -110,7 +110,7 @@ young.joke.village_child.3 = {name} wheezes: I'm telling my mum that one!
 young.joke.village_child.4 = {name} laughs so hard they get hiccups.
 young.joke.village_child.5 = {name}: I don't get it. — pause — Oh! I GET IT! — and laughs alone.
 
-young.joke.own_child.1 = {name} howls with laughter: Dad, tell it again! TELL IT AGAIN!
+young.joke.own_child.1 = {name} howls with laughter: {parent}, tell it again! TELL IT AGAIN!
 young.joke.own_child.2 = {name} laughs and sits down in the grass from laughing.
 young.joke.own_child.3 = {name}: You're the funniest one in the whole village. I asked everyone already.
 young.joke.own_child.4 = {name} quietly repeats the joke to themselves so they won't forget it.
@@ -146,6 +146,10 @@ scold.adult.3 = {name} shrugs: Alright, I'm listening.
 scold.adult_excessive.1 = {name} raises an eyebrow: I'm a grown adult. Maybe ease off a little.
 scold.adult_excessive.2 = {name} crosses their arms: I'm not a kid who needs this every day.
 scold.adult_excessive.3 = {name} takes a breath: Rough day for you, huh. Try to relax a bit.
+terms.mom_warm = mommy
+terms.mom_plain = mom
+terms.dad_warm = daddy
+terms.dad_plain = dad
 
 mean.aggressive.1 = {name} draws their weapon: You want to settle this right now?!
 mean.aggressive.2 = {name} clenches their fists: Repeat that to my face if you have the guts!
