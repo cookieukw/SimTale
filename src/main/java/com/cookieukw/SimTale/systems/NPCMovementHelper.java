@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.lifecycle.PregnancyManager;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -43,31 +44,45 @@ public class NPCMovementHelper {
     public static final String STATE_MOVING = "ReturnHome";
 
     public static void moveTo(Ref<EntityStore> ref, RoutineAIComponent ai, World world, Vector3d targetPos) {
+        // Without the NPC's name here, this line is useless for telling two NPCs' movement
+        // apart in a busy log — which one is dragging around near (X,Y,Z) was previously a
+        // guessing game whenever more than one NPC was active at once.
+        SimNPCComponent npc = ref.getStore().getComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE);
+
+        Vector3d effectiveTarget = targetPos;
+        // AUDITORIA.md #4.1 workaround: there is no public API to set an NPC's real movement
+        // speed (see PregnancyManager.isPausedTick for why), so a pregnant NPC's slowdown is
+        // simulated here by periodically re-pinning the leash to her own current position
+        // instead of the real target — reads as a stutter/waddle, not a real speed change.
+        // Visual approximation only; not yet confirmed in a live game.
+        if (npc != null && PregnancyManager.isPausedTick(npc.pregnancy, world.getTick())) {
+            TransformComponent transform = ref.getStore().getComponent(ref, TransformComponent.getComponentType());
+            if (transform != null) {
+                effectiveTarget = new Vector3d(transform.getPosition());
+            }
+        }
+
         boolean needsUpdate;
 
         if (ai.lastLeashPos == null) {
             needsUpdate = true;
         } else {
-            double d2 = ai.lastLeashPos.distanceSquared(targetPos);
+            double d2 = ai.lastLeashPos.distanceSquared(effectiveTarget);
             needsUpdate = d2 > LEASH_UPDATE_THRESHOLD_SQ;
         }
 
         if (needsUpdate) {
-            // Without the NPC's name here, this line is useless for telling two NPCs' movement
-            // apart in a busy log — which one is dragging around near (X,Y,Z) was previously a
-            // guessing game whenever more than one NPC was active at once.
-            SimNPCComponent npc = ref.getStore().getComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE);
             // currentTask alongside the name: nine different call sites across five helper
             // classes all funnel through here, and a moveTo firing for a task the caller wasn't
             // expecting (e.g. an interrupt nobody logged) was previously invisible.
             LOGGER.debug("[SimTale] moveTo({}, task={}) updating leash point to ({},{},{})",
-                    npc != null ? npc.name : "?", ai.currentTask, targetPos.x, targetPos.y, targetPos.z);
-            ai.lastLeashPos = new Vector3d(targetPos);
+                    npc != null ? npc.name : "?", ai.currentTask, effectiveTarget.x, effectiveTarget.y, effectiveTarget.z);
+            ai.lastLeashPos = new Vector3d(effectiveTarget);
             ai.lastLeashTick = world.getTick();
             
             NPCEntity npcEntity = ref.getStore().getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
             if (npcEntity != null) {
-                npcEntity.setLeashPoint(new Vector3d(targetPos.x, targetPos.y, targetPos.z));
+                npcEntity.setLeashPoint(new Vector3d(effectiveTarget.x, effectiveTarget.y, effectiveTarget.z));
                 StateSupport stateSupport = StateSupport.get(ref, ref.getStore());
                 if (stateSupport != null) {
                     stateSupport.setState(ref, STATE_MOVING, null, ref.getStore());
