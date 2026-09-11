@@ -54,6 +54,8 @@ import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.server.core.Message;
+
+import java.util.concurrent.ThreadLocalRandom;
 import com.hypixel.hytale.server.core.command.system.CommandManager;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
@@ -1358,6 +1360,18 @@ once per NPC per tick for nothing.
         transform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
     }
 
+    /** How many variants each proximity-greeting line set ships with. */
+    private static final int PROXIMITY_LINE_VARIANTS = 3;
+
+    /**
+     * Same random-pick pattern {@code InteractionManager} uses for its own dialogue lines — kept
+     * as a small local copy rather than shared, since that one is private to its own package.
+     */
+    private static Message pickRandomTranslation(String baseKey, int optionsCount) {
+        int index = ThreadLocalRandom.current().nextInt(1, optionsCount + 1);
+        return Message.translation(baseKey + "." + index);
+    }
+
     /**
      * Checks if a player has walked close to this NPC and performs an ambient greeting (wave + message).
      */
@@ -1400,10 +1414,10 @@ once per NPC per tick for nothing.
                 // Send contextual greeting message
                 Relationship rel = npc.getRelationship(pr.getUuid());
                 Message greetingMsg = switch (rel.status) {
-                    case MARRIED, PARTNER, ENGAGED, DATING, CRUSH -> Message.translation("npc-dialogues.proximity.partner").param("player", pr.getUsername());
-                    case BEST_FRIEND, GOOD_FRIEND, FRIEND -> Message.translation("npc-dialogues.proximity.friend").param("player", pr.getUsername());
-                    case ENEMIES -> Message.translation("npc-dialogues.proximity.enemy").param("player", pr.getUsername());
-                    default -> Message.translation("npc-dialogues.proximity.stranger").param("player", pr.getUsername());
+                    case MARRIED, PARTNER, ENGAGED, DATING, CRUSH -> pickRandomTranslation("npc-dialogues.proximity.partner", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                    case BEST_FRIEND, GOOD_FRIEND, FRIEND -> pickRandomTranslation("npc-dialogues.proximity.friend", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                    case ENEMIES -> pickRandomTranslation("npc-dialogues.proximity.enemy", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                    default -> pickRandomTranslation("npc-dialogues.proximity.stranger", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
                 };
                 pr.sendMessage(Message.raw("[" + npc.name + "] ").insert(greetingMsg));
                 LOGGER.debug("[SimTale] NPC '{}' greeted player '{}'", npc.name, pr.getUsername());
