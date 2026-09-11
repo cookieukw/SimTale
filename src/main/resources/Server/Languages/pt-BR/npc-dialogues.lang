@@ -86,7 +86,7 @@ young.chat.village_child.3 = {name} aponta pro céu: Olha aquele passarinho! Ele
 young.chat.village_child.4 = {name}: Eu achei uma pedra hoje. Ela é a minha melhor pedra.
 young.chat.village_child.5 = {name} corre em volta de você duas vezes e para, ofegante: Oi!
 
-young.chat.own_child.1 = {name} puxa sua manga: Pai, olha aquele passarinho! Ele tá me olhando!
+young.chat.own_child.1 = {name} puxa sua manga: {parent}, olha aquele passarinho! Ele tá me olhando!
 young.chat.own_child.2 = {name}: Quando eu crescer eu vou ser igualzinho a você. Só que mais alto.
 young.chat.own_child.3 = {name} mostra as mãos sujas de terra: Olha o que eu achei! É um bicho. Eu vou dar um nome pra ele.
 young.chat.own_child.4 = {name}: Você volta antes de escurecer? Eu não gosto quando escurece e você não tá.
@@ -110,7 +110,7 @@ young.joke.village_child.3 = {name} bufa de rir: Eu vou contar essa pra minha m�
 young.joke.village_child.4 = {name} ri tão forte que soluça.
 young.joke.village_child.5 = {name}: Não entendi. — pausa — Ah! ENTENDI! — e ri sozinho.
 
-young.joke.own_child.1 = {name} morre de rir: Pai, conta de novo! CONTA DE NOVO!
+young.joke.own_child.1 = {name} morre de rir: {parent}, conta de novo! CONTA DE NOVO!
 young.joke.own_child.2 = {name} ri e cai sentado na grama de tanto rir.
 young.joke.own_child.3 = {name}: Você é o mais engraçado da vila inteira. Eu já perguntei pra todo mundo.
 young.joke.own_child.4 = {name} tenta repetir a piada pra si mesmo, baixinho, pra não esquecer.
@@ -146,6 +146,10 @@ scold.adult.3 = {name} dá de ombros: Tudo bem, eu escuto.
 scold.adult_excessive.1 = {name} levanta a sobrancelha: Eu sou adulto. Dá pra pegar leve, né.
 scold.adult_excessive.2 = {name} cruza os braços: Já não sou criança pra ouvir isso toda hora.
 scold.adult_excessive.3 = {name} respira fundo: Tá pesado hoje, hein. Relaxa um pouco.
+terms.mom_warm = mamãe
+terms.mom_plain = mãe
+terms.dad_warm = papai
+terms.dad_plain = pai
 
 mean.aggressive.1 = {name} saca a arma: Você quer resolver isso agora mesmo?!
 mean.aggressive.2 = {name} cerra os punhos: Repete isso na minha cara se for homem!
