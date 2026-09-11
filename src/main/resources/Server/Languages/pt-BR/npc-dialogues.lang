@@ -128,12 +128,24 @@ young.joke.own_adult.3 = {name} balança a cabeça sorrindo: Você não muda mes
 young.joke.own_adult.4 = {name} ri e fica quieto um pouco depois. Boa lembrança.
 young.joke.own_adult.5 = {name}: Guarda essa pra contar pros meus filhos um dia.
 
-scold.child = {name} olha para o chão e não diz nada. O lábio treme.
-scold.child_excessive = {name} desaba no choro: Você vive bravo comigo! Eu nem fiz nada!
-scold.teen = {name} revira os olhos: Tá. O que você mandar.
-scold.teen_excessive = {name} grita de volta: Você nunca escuta! Eu não sou mais criança! — e sai pisando duro.
-scold.adult = {name} suspira: Tá bom, tá bom. Você é meu pai, afinal.
-scold.adult_excessive = {name} levanta a sobrancelha: Eu sou adulto. Dá pra pegar leve, né.
+scold.child.1 = {name} olha para o chão e não diz nada. O lábio treme.
+scold.child.2 = {name} baixa a cabeça e cutuca o chão com o pé, sem responder.
+scold.child.3 = {name} encolhe os ombros e fica bem quietinho, com os olhos marejados.
+scold.child_excessive.1 = {name} desaba no choro: Você vive bravo comigo! Eu nem fiz nada!
+scold.child_excessive.2 = {name} chora alto, escondendo o rosto nas mãos: Por que você só grita comigo?!
+scold.child_excessive.3 = {name} soluça: Eu tento ser bom, juro! Para de brigar comigo!
+scold.teen.1 = {name} revira os olhos: Tá. O que você mandar.
+scold.teen.2 = {name} cruza os braços: Beleza, entendi, pode parar de falar.
+scold.teen.3 = {name} solta um suspiro exagerado: Nossa, tá bom, já entendi.
+scold.teen_excessive.1 = {name} grita de volta: Você nunca escuta! Eu não sou mais criança! — e sai pisando duro.
+scold.teen_excessive.2 = {name} bate o pé no chão: Você exagera em tudo! Eu já cresci! — e vira as costas.
+scold.teen_excessive.3 = {name} levanta a voz: Cansei disso! Para de me tratar como bebê! — e some porta afora.
+scold.adult.1 = {name} suspira: Tá bom, tá bom. Você é meu pai, afinal.
+scold.adult.2 = {name} balança a cabeça: Certo, certo. Ponto anotado.
+scold.adult.3 = {name} dá de ombros: Tudo bem, eu escuto.
+scold.adult_excessive.1 = {name} levanta a sobrancelha: Eu sou adulto. Dá pra pegar leve, né.
+scold.adult_excessive.2 = {name} cruza os braços: Já não sou criança pra ouvir isso toda hora.
+scold.adult_excessive.3 = {name} respira fundo: Tá pesado hoje, hein. Relaxa um pouco.
 
 mean.aggressive.1 = {name} saca a arma: Você quer resolver isso agora mesmo?!
 mean.aggressive.2 = {name} cerra os punhos: Repete isso na minha cara se for homem!
@@ -259,10 +271,18 @@ random.known = {name}: Ei, lembra daquela vez que a gente lutou contra aqueles e
 # JUICE & PROXIMITY
 romantic.blush_feedback = {name} corou intensamente e te mandou um beijinho! 💕
 mean.shove_feedback = {name} se irritou profundamente e te empurrou com raiva!
-proximity.stranger = Olá, viajante.
-proximity.friend = Oi {player}! Bom te ver por aqui!
-proximity.partner = Oi meu amor! Estava com saudades de você. 💕
-proximity.enemy = Nem pense em se aproximar de mim...
+proximity.stranger.1 = Olá, viajante.
+proximity.stranger.2 = Oi! Não te conheço, mas seja bem-vindo.
+proximity.stranger.3 = Ei, cuidado por onde anda.
+proximity.friend.1 = Oi {player}! Bom te ver por aqui!
+proximity.friend.2 = Ei, {player}! Que bom que você passou por aqui.
+proximity.friend.3 = Olha só quem é! Oi, {player}!
+proximity.partner.1 = Oi meu amor! Estava com saudades de você. 💕
+proximity.partner.2 = Ei, você! Fico feliz toda vez que te vejo. 💕
+proximity.partner.3 = Meu amor chegou! Vem cá me dar um abraço. 💕
+proximity.enemy.1 = Nem pense em se aproximar de mim...
+proximity.enemy.2 = Você de novo? Vai andando.
+proximity.enemy.3 = Some da minha frente.
 
 # NPC-NPC CONTEXTUAL SOCIAL DIALOGUES
 social.hostile.1.a = {name}: Saia da minha frente! Não quero falar com você!

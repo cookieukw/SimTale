@@ -128,12 +128,24 @@ young.joke.own_adult.3 = {name} shakes their head, smiling: You really don't cha
 young.joke.own_adult.4 = {name} laughs, then goes quiet for a moment. Good memory.
 young.joke.own_adult.5 = {name}: Saving that one for my own kids some day.
 
-scold.child = {name} looks at the floor and says nothing. Their lip is trembling.
-scold.child_excessive = {name} bursts into tears: You're always angry at me! I didn't even do anything!
-scold.teen = {name} rolls their eyes: Fine. Whatever you say.
-scold.teen_excessive = {name} shouts back: You never listen! I'm not a kid anymore! — and storms off.
-scold.adult = {name} sighs: Alright, alright. You're still my parent, after all.
-scold.adult_excessive = {name} raises an eyebrow: I'm a grown adult. Maybe ease off a little.
+scold.child.1 = {name} looks at the floor and says nothing. Their lip is trembling.
+scold.child.2 = {name} looks down and scuffs the floor with their foot, saying nothing.
+scold.child.3 = {name} shrinks down and goes quiet, eyes welling up.
+scold.child_excessive.1 = {name} bursts into tears: You're always angry at me! I didn't even do anything!
+scold.child_excessive.2 = {name} sobs, hiding their face: Why do you only ever yell at me?!
+scold.child_excessive.3 = {name} chokes up: I really try to be good, I swear! Please stop fighting with me!
+scold.teen.1 = {name} rolls their eyes: Fine. Whatever you say.
+scold.teen.2 = {name} crosses their arms: Okay, got it, you can stop now.
+scold.teen.3 = {name} lets out an exaggerated sigh: Ugh, fine, I get it.
+scold.teen_excessive.1 = {name} shouts back: You never listen! I'm not a kid anymore! — and storms off.
+scold.teen_excessive.2 = {name} stomps a foot: You always overreact! I'm not a little kid! — and turns away.
+scold.teen_excessive.3 = {name} raises their voice: I'm done with this! Stop treating me like a baby! — and storms out.
+scold.adult.1 = {name} sighs: Alright, alright. You're still my parent, after all.
+scold.adult.2 = {name} shakes their head: Fine, fine. Noted.
+scold.adult.3 = {name} shrugs: Alright, I'm listening.
+scold.adult_excessive.1 = {name} raises an eyebrow: I'm a grown adult. Maybe ease off a little.
+scold.adult_excessive.2 = {name} crosses their arms: I'm not a kid who needs this every day.
+scold.adult_excessive.3 = {name} takes a breath: Rough day for you, huh. Try to relax a bit.
 
 mean.aggressive.1 = {name} draws their weapon: You want to settle this right now?!
 mean.aggressive.2 = {name} clenches their fists: Repeat that to my face if you have the guts!
@@ -259,10 +271,18 @@ random.known = {name}: Hey, remember that time we fought off those skeletons? Go
 # JUICE & PROXIMITY
 romantic.blush_feedback = {name} blushed deeply and blew you a kiss! 💕
 mean.shove_feedback = {name} became furious and shoved you angrily!
-proximity.stranger = Greetings, traveler.
-proximity.friend = Hey {player}! Good to see you around!
-proximity.partner = Hello my love! I was missing you. 💕
-proximity.enemy = Don't even think about coming near me...
+proximity.stranger.1 = Greetings, traveler.
+proximity.stranger.2 = Hi there! I don't know you, but welcome.
+proximity.stranger.3 = Hey, watch your step around here.
+proximity.friend.1 = Hey {player}! Good to see you around!
+proximity.friend.2 = Hey, {player}! Glad you stopped by.
+proximity.friend.3 = Look who it is! Hi, {player}!
+proximity.partner.1 = Hello my love! I was missing you. 💕
+proximity.partner.2 = Hey, you! I'm always happy to see you. 💕
+proximity.partner.3 = There's my love! Come give me a hug. 💕
+proximity.enemy.1 = Don't even think about coming near me...
+proximity.enemy.2 = You again? Just keep walking.
+proximity.enemy.3 = Get out of my sight.
 
 # NPC-NPC CONTEXTUAL SOCIAL DIALOGUES
 social.hostile.1.a = {name}: Get out of my face! I don't want to talk to you!
