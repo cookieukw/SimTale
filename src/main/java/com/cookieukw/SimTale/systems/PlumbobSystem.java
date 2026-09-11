@@ -54,6 +54,21 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
      */
     private static final Set<Ref<EntityStore>> trackedPlumbobRefs =
             ConcurrentHashMap.newKeySet();
+    /**
+     * Refs already queued for removal by {@link #despawnPlumbob} within the current tick round,
+     * but not yet actually gone (the CommandBuffer only applies removeEntity at the end of the
+     * whole system's tick pass, not immediately).
+     * <p>
+     * Without this, a plumbob despawned this way (owner got mounted/became a Reaper/left on
+     * expedition) untracks itself from {@code trackedPlumbobRefs} synchronously, and if that
+     * plumbob's OWN entity index — it matches this system's query too, via
+     * {@code PersistentModel} — happens to be visited later in the SAME tick round, the orphan
+     * sweep at the top of {@code tick()} sees it as untracked and queues a SECOND removeEntity for
+     * the same ref. The CommandBuffer applies both in order: the first invalidates the ref, the
+     * second then throws {@code IllegalStateException: Invalid entity reference!} — crashed the
+     * whole world the moment a carried child's plumbob got hidden this way.
+     */
+    private static final Set<Ref<EntityStore>> pendingDespawns = ConcurrentHashMap.newKeySet();
 
     @Override
     @Nonnull
@@ -85,7 +100,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         PersistentModel pm = chunk.getComponent(index, PersistentModel.getComponentType());
         if (pm != null && pm.getModelReference().getModelAssetId() != null && pm.getModelReference().getModelAssetId().startsWith("Plumbob")) {
             Ref<EntityStore> thisRef = chunk.getReferenceTo(index);
-            if (!trackedPlumbobRefs.contains(thisRef)) {
+            if (!trackedPlumbobRefs.contains(thisRef) && !pendingDespawns.remove(thisRef)) {
                 commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
                 LOGGER.atFine().log("[SimTale] Limpando Plumbob orfao do mundo: " + uuidComp.getUuid());
             }
@@ -238,6 +253,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         if (existing == null) return;
         trackedPlumbobRefs.remove(existing);
         if (existing.isValid()) {
+            pendingDespawns.add(existing);
             commandBuffer.removeEntity(existing, RemoveReason.REMOVE);
         }
     }
