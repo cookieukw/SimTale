@@ -515,7 +515,7 @@ once per NPC per tick for nothing.
                 SimNPCComponent bestTarget = null;
                 double bestDist = SOCIALIZE_SEARCH_RANGE_SQ;
                 for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
-                    if (other == npc || other.entityRef == null || other.entityId == null) continue;
+                    if (other == npc || other.entityRef == null || !other.entityRef.isValid() || other.entityId == null) continue;
 
                     // Do not drag someone out of bed or off the job for a chat.
                     RoutineAIComponent otherAi = store.getComponent(other.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
