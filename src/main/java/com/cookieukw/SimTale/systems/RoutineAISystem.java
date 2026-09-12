@@ -1419,7 +1419,7 @@ once per NPC per tick for nothing.
                     case ENEMIES -> pickRandomTranslation("npc-dialogues.proximity.enemy", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
                     default -> pickRandomTranslation("npc-dialogues.proximity.stranger", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
                 };
-                pr.sendMessage(Message.raw("[" + npc.name + "] ").insert(greetingMsg));
+                pr.sendMessage(Message.raw(npc.name + ": ").insert(greetingMsg));
                 LOGGER.debug("[SimTale] NPC '{}' greeted player '{}'", npc.name, pr.getUsername());
                 break;
             }
