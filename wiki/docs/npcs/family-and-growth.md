@@ -21,6 +21,18 @@ percentage, and estimated time remaining in real minutes.
 
 Player pregnancy also exists and follows its own path.
 
+NPCs can also marry each other now, entirely on their own — see [Relationships](./relationships)
+for how a courtship turns into a wedding without any player involved. Once married, an NPC couple
+goes through this exact same pregnancy, birth, and growth path.
+
+:::note Not every NPC wants a big family
+Each NPC quietly decides, the first time it matters, how many children they personally want —
+anywhere from zero to four — and that number sticks for good. When two NPCs are married to each
+other, a natural pregnancy only happens while both of them still want another child; if one is done
+having kids and the other isn't, that couple simply stops there. A player's own marriage isn't
+affected by this at all — it works exactly as it always has.
+:::
+
 ## Birth
 
 At the end of gestation the baby is born as an **item** that goes into the inventory. You carry the
@@ -47,6 +59,7 @@ Through the `FamilyBonds` system, NPCs retain hereditary connections with their 
 - **Bed Sharing / Co-Sleeping**: Toddlers and Children do not require separate houses or beds to stay rested. When their bedtime arrives (`FINDING_BED`), they locate their parents' registered bed (`FamilyBonds.findParentBed`). If the parent is already sleeping, the child co-sleeps in the same bed without displacing the parent.
 - **Sleep Protection**: A growing child inside a bed remains safe during lifecycle ticks without getting frozen or kicked out of routine animations.
 - **Parental Recognition**: Interacting with your child opens an interface customized for filial bonds, displaying their life stage and parental relationship title.
+- **What they call you**: A child addresses their mother as "mom" (or the warmer "mommy") and their father as "dad" (or "daddy"), picked fresh from how well the two of you are getting along right now — not decided once and locked in. Let the bond sour badly enough and the title disappears too: the child just uses your name instead. (So far this shows up in a couple of young child dialogue lines.)
 
 ## Work Eligibility & Hobbies
 
