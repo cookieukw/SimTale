@@ -80,7 +80,7 @@ sozinha, caminha até o corpo, realiza o ritual de coleta de alma, deixa uma lá
 completamente. Interagir com a Ceifadora no meio do ritual segurando um Coração do Vazio (<img src="/img/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> `Ingredient_Voidheart`) cancela a
 coleta e revive o NPC.
 
-![Grim Reaper Ceremony Placeholder](/path/to/reaper_ceremony.png)
+![Grim Reaper Ceremony](/img/reaper_ceremony.png)
 
 :::note Nada mata um NPC ainda
 A fome, de propósito, não mata. NPCs famintos apenas choram e param de trabalhar. Envelhecimento e doenças ainda não foram implementados.
