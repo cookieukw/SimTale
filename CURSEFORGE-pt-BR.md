@@ -35,7 +35,7 @@ Durante a instanciação, cada NPC recebe propriedades aleatórias de personalid
 - **Passa fome.** Se a fome cair abaixo de 5, ele chora, para de trabalhar totalmente e abandona todas as tarefas até que alguém o alimente. Ele não morre de fome — a morte é reservada para envelhecimento e doenças.
 - **Morre.** Quando um NPC chega ao fim da vida, ele entra em estado de morte. A Ceifadora (Grim Reaper) aparece para conduzir a cerimônia e coletar sua alma.
 
-![Grim Reaper Ceremony Placeholder](https://simtale.kukkie.org/img/reaper_ceremony.png)
+![Grim Reaper Ceremony](https://simtale.kukkie.org/img/reaper_ceremony.png)
 
 > **Nota:** Documentação em andamento
 > O mod está em fase de testes e não tem um lançamento público. O comportamento descrito aqui pode mudar entre versões, e algumas partes ainda não foram validadas no jogo — onde for o caso, a página informará.
@@ -607,7 +607,7 @@ sozinha, caminha até o corpo, realiza o ritual de coleta de alma, deixa uma lá
 completamente. Interagir com a Ceifadora no meio do ritual segurando um Coração do Vazio (<img src="https://simtale.kukkie.org/img/Ingredient_Voidheart.png" width="20" align="absmiddle" /> `Ingredient_Voidheart`) cancela a
 coleta e revive o NPC.
 
-![Grim Reaper Ceremony Placeholder](https://simtale.kukkie.org/img/reaper_ceremony.png)
+![Grim Reaper Ceremony](https://simtale.kukkie.org/img/reaper_ceremony.png)
 
 > **Nota:** Nada mata um NPC ainda
 > A fome, de propósito, não mata. NPCs famintos apenas choram e param de trabalhar. Envelhecimento e doenças ainda não foram implementados.
