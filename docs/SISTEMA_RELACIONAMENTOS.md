@@ -4,7 +4,7 @@ Este documento detalha a arquitetura completa do sistema de relacionamentos pret
 
 ## Visão Geral da Arquitetura
 
-O sistema gira em torno de uma entidade central `Relationship`, que agrega todas as variáveis sociais entre o NPC e o Jogador (ou entre NPCs no futuro).
+O sistema gira em torno de uma entidade central `Relationship`, que agrega todas as variáveis sociais entre o NPC e o Jogador, ou entre dois NPCs entre si — incluindo cortejo, casamento e filhos totalmente autônomos, sem nenhum jogador envolvido (ver seção "Cortejo e Casamento Autônomo entre NPCs" abaixo).
 
 ```
 Relationship
@@ -37,7 +37,7 @@ Relationship
 | **Preferences (Gostos)** | 🟢 Já Adicionado | Sistema de Gostos aleatórios criado com comidas, clima e hobbies (`NPCPreferences`). |
 | **Memories (Memórias)**| 🟢 Já Adicionado | NPCs reagem quando o jogador some por mais de 3 dias no jogo. |
 | **Needs (Necessidades)**| 🟢 Já Adicionado | IA autônoma implementada: NPCs andam até comida, camas e água para resolver suas necessidades. |
-| **Family (Casamento/Filhos)**| 🟢 Já Adicionado | Casamento (`MARRIED`), gestação, nascimento, co-parentalidade, estágios de crescimento, vínculos (`FamilyBonds`, `ParentChildBond`), co-sleeping e status filial personalizado ("Filho"/"Filha"). |
+| **Family (Casamento/Filhos)**| 🟢 Já Adicionado | Casamento (`MARRIED`), gestação, nascimento, co-parentalidade, estágios de crescimento, vínculos (`FamilyBonds`, `ParentChildBond`), co-sleeping e status filial personalizado ("Filho"/"Filha"). Casamento e reprodução agora também acontecem entre duas NPCs sozinhas, sem jogador (`NPCSocialHelper.tryCourtship`), com desejo de filhos individual por NPC (`FamilySystem.desiredChildren`). |
 | **DailyInteractions** | 🟢 Já Adicionado | Cooldown implementado que zera ganhos após 3 interações no mesmo dia. |
 | **RelationshipStage** | 🟢 Já Adicionado | Novos status adicionados (`DATING`, `ACQUAINTANCE`, `ENEMIES`, etc). |
 
@@ -191,6 +191,44 @@ O sistema de família e hereditariedade opera integrando `FamilyData`, `GrowthCo
     *   Ações inadequadas para menores (Flertar e Dar Emprego) são bloqueadas ou ocultadas.
 *   **Co-Sleeping Familiar**: Membros da família podem dividir a mesma cama física sem conflito de desduplicação (`isBedTakenByAnotherNpc`). Se a montagem nativa estiver ocupada pelo pai ou mãe, a criança deita junto na cama com animação `Sleep` sem perder a referência de seu lar.
 *   **Imunidade a Trabalho Infantil**: Crianças nascem como `UNEMPLOYED` e não podem ser contratadas para trabalhos pesados/perigosos (`WorkEligibility`). Participam da vida doméstica e da vila autonomamente através de seus hobbies (`GARDENING`, `FISHING`). Ao atingirem o estágio `TEEN`, a profissão adulta é sorteada.
+*   **Termo de Endereçamento Dinâmico (`ParentChildBond.parentTermKey`)**: A palavra que um filho usa para se referir a um pai/mãe é recalculada a cada chamada, lendo o `Relationship.affinity` atual entre os dois — nunca decidida uma vez e memorizada. Com `affinity >= 40` ("vínculo caloroso") o filho usa `terms.mom_warm`/`terms.dad_warm` (mamãe/papai); abaixo disso mas ainda `>= 0`, usa `terms.mom_plain`/`terms.dad_plain` (mãe/pai); abaixo de `0` (`NAME_ONLY_THRESHOLD`) o método retorna `null` e quem chamou deve cair para o nome próprio do pai/mãe. `findChildOf` decide se o alvo é mãe ou pai comparando `playerUuid` com `motherId`/`fatherId` do `GrowthComponent`. Hoje só duas falas usam isso: `young.chat.own_child.1` e `young.joke.own_child.1` (lacuna de conteúdo, não de mecanismo — as vozes teen/adulta ainda não têm nenhuma fala com `{parent}`).
+
+### Cortejo e Casamento Autônomo entre NPCs (`NPCSocialHelper.tryCourtship`)
+
+Toda vez que duas NPCs adultas terminam uma conversa espontânea agradável (`applyChatOutcome` →
+`bondNpcs` retornou `pleasant == true`), `tryCourtship` roda em cima do ganho de amizade/afinidade já
+aplicado:
+
+1.  **Elegibilidade**: descarta se qualquer um dos dois é menor (`InteractionManager.isNpcAChild`,
+    que cobre criança e adolescente), se são parentes próximos (`FamilyBonds.areCloseFamily`), ou se
+    um dos dois já é casado com uma terceira pessoa (`family.isMarried` e o `spouseId` não bate com o
+    outro — não modela caso extraconjugal).
+2.  **Ganho de romance**: soma `NPC_ROMANCE_GAIN = 2` ao `romance` de cada `Relationship` (a visão do
+    host sobre o guest e vice-versa), mesmo que já estejam casados um com o outro (reforça o valor que
+    o rolamento diário de gravidez natural em `SimTaleTickSystem` lê).
+3.  **Casamento**: se `hostView.romance >= 80 && guestView.romance >= 80 && hostView.friendship >= 70
+    && guestView.friendship >= 70` (`NPC_MARRIAGE_ROMANCE_THRESHOLD` / `NPC_MARRIAGE_FRIENDSHIP_THRESHOLD`
+    — exatamente a mesma barra que o pedido de casamento com aliança do jogador usa), os dois chamam
+    `family.marry(...)` um no outro, o `status` das duas `Relationship` vira `MARRIED`, ambos são
+    persistidos (`SimNPCPersistence.saveNPC`) e uma linha é anunciada a jogadores por perto
+    (`npc-dialogues.npc_marriage.announce`).
+
+`FamilyBonds.areCloseFamily(a, b)`: retorna `true` para a mesma NPC, para relação pai/filho em
+qualquer direção (`isChildOf`), ou para irmãos que compartilham qualquer genitor (mãe ou pai, cheio
+ou meio-irmão), comparando os `GrowthComponent` de nascimento de cada um. Existe porque
+`FamilyBonds.linkToFamily` já deixa pais e irmãos com amizade/afinidade altíssimas (para simular o
+vínculo familiar), exatamente a forma que `tryCourtship` leria como "ótimo par" se não fosse
+explicitamente barrada.
+
+`FamilySystem.desiredChildren` / `wantsAnotherChild()`: cada NPC guarda seu próprio número de "quantos
+filhos eu quero ter, no total", sorteado uniformemente entre `0` e `4` na primeira vez que é lido
+(`ThreadLocalRandom.current().nextInt(0, 5)`) e persistido depois disso — não é um valor de casal, é
+por indivíduo, então dois cônjuges podem discordar. `wantsAnotherChild()` retorna
+`children.size() < desiredChildren`. Esse gate só entra no rolamento diário de gravidez **natural**
+para casais NPC-NPC, em `SimTaleTickSystem` (`bothWantIt = spouseNpc == null ||
+(npc.family.wantsAnotherChild() && spouseNpc.family.wantsAnotherChild())`) — quando o cônjuge é um
+jogador (`spouseNpc == null`, sem `FamilySystem` para guardar a preferência), o gate não se aplica e o
+comportamento antigo (romance + chance) continua idêntico.
 
 ### Necessidades (Needs) e Alimentação
 Esses status servirão de base para a IA decidir comer, dormir ou tomar banho.
