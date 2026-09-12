@@ -36,7 +36,7 @@ Durante a instanciação, cada NPC recebe propriedades aleatórias de personalid
 - **Passa fome.** Se a fome cair abaixo de 5, ele chora, para de trabalhar totalmente e abandona todas as tarefas até que alguém o alimente. Ele não morre de fome — a morte é reservada para envelhecimento e doenças.
 - **Morre.** Quando um NPC chega ao fim da vida, ele entra em estado de morte. A Ceifadora (Grim Reaper) aparece para conduzir a cerimônia e coletar sua alma.
 
-![Grim Reaper Ceremony Placeholder](/path/to/reaper_ceremony.png)
+![Grim Reaper Ceremony](/img/reaper_ceremony.png)
 
 ## Por onde começar
 
