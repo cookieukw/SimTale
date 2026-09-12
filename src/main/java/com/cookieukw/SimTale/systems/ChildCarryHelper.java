@@ -20,6 +20,7 @@ import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.BoundingBox;
+import com.hypixel.hytale.math.shape.Box;
 import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -85,13 +86,26 @@ public final class ChildCarryHelper {
     private static final GrowthStage OLDEST_CARRIABLE = GrowthStage.CHILD;
 
     /**
-     * Collision boxes parked while their owner is being carried, keyed by child.
+     * Each carried child's real collision box, keyed by child, while her live one is hollowed out.
      * <p>
      * Kept rather than rebuilt: the box is derived from the model and the current scale, and a
      * child who grows a stage mid-carry would come back down with the wrong one. Storing the exact
-     * component removes the question.
+     * shape removes the question.
+     * <p>
+     * Stores the {@code Box} shape, not the whole {@code BoundingBox} component. An earlier version
+     * removed the component entirely while carried — which is exactly what a carried child's own
+     * hitbox needed to stop catching the carrier's swings and mining raycasts — but the engine's
+     * own {@code BodyMotionFindWithTarget.canComputeMotion} reads {@code accessor.getComponent(self,
+     * BoundingBox.getComponentType()).getBoundingBox()} on every entity it ticks with no null guard
+     * left in a release build (the assertion that would have caught it compiles out with
+     * assertions disabled) — so a still-ticking NPC with no BoundingBox component at all crashed
+     * that engine system with a bare NullPointerException the instant it next tried to move her,
+     * which is exactly what a growth promotion firing on a carried child does moments later. Also
+     * doubles as the source of truth for each carried child's real height when stacking a second
+     * child on top of her (see {@link #pickUp} and {@link #reseat}) — her live box reads zero while
+     * she is carried, so this map is the only place her actual size still lives.
      */
-    private static final Map<UUID, BoundingBox> PARKED_BOXES = new ConcurrentHashMap<>();
+    private static final Map<UUID, Box> PARKED_BOXES = new ConcurrentHashMap<>();
 
     private ChildCarryHelper() {
     }
