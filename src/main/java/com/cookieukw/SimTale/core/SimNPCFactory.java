@@ -91,19 +91,38 @@ public class SimNPCFactory {
      */
     @SuppressWarnings("null")
     public static Ref<EntityStore> spawnNPC(Store<EntityStore> store, Vector3d position, NPCType type, float scale) {
+        return spawnNPC(store, position, type, scale, null);
+    }
+
+    /**
+     * Same as {@link #spawnNPC(Store, Vector3d, NPCType, float)}, but lets the caller pin which of
+     * the 200 pre-generated role variants to use instead of rolling a fresh random one.
+     * <p>
+     * Growth promotions are the reason this exists: {@code generate_child_variants.py} built every
+     * {@code SimTale_Human_Child_(Male|Female)_<N>} role by rescaling the ADULT
+     * {@code SimTale_Human_(Male|Female)_<N>} role of that SAME number down to child proportions —
+     * they are the same face, hair and skin tone, just resized — so pinning {@code explicitVariant}
+     * to the number a child was already using is what makes growing up age the same person into an
+     * adult body instead of respawning her as an unrelated random stranger who happens to keep the
+     * same name. {@code null} keeps the old behavior (a fresh roll), which is still exactly right
+     * for a brand new NPC that has no earlier body to stay consistent with.
+     */
+    @SuppressWarnings("null")
+    public static Ref<EntityStore> spawnNPC(Store<EntityStore> store, Vector3d position, NPCType type,
+                                             float scale, Integer explicitVariant) {
         String roleId = type.roleId;
         
         if (type == NPCType.HUMAN_MALE) {
-            int variant = 1 + (int)(Math.random() * 200);
+            int variant = explicitVariant != null ? explicitVariant : 1 + (int)(Math.random() * 200);
             roleId = "SimTale_Human_Male_" + variant;
         } else if (type == NPCType.HUMAN_FEMALE) {
-            int variant = 1 + (int)(Math.random() * 200);
+            int variant = explicitVariant != null ? explicitVariant : 1 + (int)(Math.random() * 200);
             roleId = "SimTale_Human_Female_" + variant;
         } else if (type == NPCType.CHILD_MALE) {
-            int variant = 1 + (int)(Math.random() * 200);
+            int variant = explicitVariant != null ? explicitVariant : 1 + (int)(Math.random() * 200);
             roleId = "SimTale_Human_Child_Male_" + variant;
         } else if (type == NPCType.CHILD_FEMALE) {
-            int variant = 1 + (int)(Math.random() * 200);
+            int variant = explicitVariant != null ? explicitVariant : 1 + (int)(Math.random() * 200);
             roleId = "SimTale_Human_Child_Female_" + variant;
         }
 
