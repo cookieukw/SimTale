@@ -32,6 +32,7 @@ import com.cookieukw.SimTale.systems.SimTaleEventHandler;
 import com.cookieukw.SimTale.systems.SimTaleTickSystem;
 import com.cookieukw.SimTale.systems.BedEntityRegistrySystem;
 import com.cookieukw.SimTale.systems.ChildPutDownSystem;
+import com.cookieukw.SimTale.systems.ChildCarryReleaseTickSystem;
 import com.cookieukw.SimTale.systems.BedBlockEventSystem;
 import com.cookieukw.SimTale.systems.BedPlaceBlockEventSystem;
 import com.cookieukw.SimTale.systems.BabyBabbleSystem;
@@ -229,6 +230,7 @@ public class SimTale extends JavaPlugin {
         // event-registry listener because UseBlockEvent is an EcsEvent — see the class doc for why
         // the PlayerMouseButtonEvent version had to be abandoned.
         this.getEntityStoreRegistry().registerSystem(new ChildPutDownSystem());
+        this.getEntityStoreRegistry().registerSystem(new ChildCarryReleaseTickSystem());
 
         // Map markers are NOT registered here.
         //
