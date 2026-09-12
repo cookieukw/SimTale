@@ -36,7 +36,7 @@ During instantiation, each NPC is assigned randomized properties for personality
 - **Starves.** If hunger drops below 5, it cries, stops working entirely, and drops all tasks until someone feeds it. It does not die of hunger — death is reserved for aging and disease.
 - **Dies.** When an NPC reaches the end of their life, they enter a dying state. The Grim Reaper spawns to conduct the ceremony and collect their soul.
 
-![Grim Reaper Ceremony Placeholder](/path/to/reaper_ceremony.png)
+![Grim Reaper Ceremony](/img/reaper_ceremony.png)
 
 ## Where to start
 
