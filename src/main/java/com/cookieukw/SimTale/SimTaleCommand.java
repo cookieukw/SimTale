@@ -137,6 +137,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new HouseCheckSubCommand());
         this.addSubCommand(new ChestCheckSubCommand());
         this.addSubCommand(new ChairCheckSubCommand());
+        this.addSubCommand(new DespawnNearestSubCommand());
         this.addSubCommand(new ForceEatSubCommand());
         this.addSubCommand(new ForceWorkSubCommand());
         this.addSubCommand(new ForceKillSubCommand());
@@ -165,7 +166,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown>"));
+        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|despawnnearest|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown>"));
     }
 
     /**
@@ -1729,6 +1730,82 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             boolean occupied = ChairRegistry.isOccupied(nearestChair);
             ctx.sendMessage(Message.translation(occupied
                     ? "general.cmd.chaircheck.occupied" : "general.cmd.chaircheck.free"));
+        }
+    }
+
+    /**
+     * Removes the nearest tracked NPC outright: no death flow, no Reaper, no grief for the
+     * family — just gone, as if she had never been tracked at all.
+     *
+     * <p>Exists specifically to clean up after the duplicate-body bug documented on
+     * {@code GrowthManager.onStageChanged}'s TODDLER branch (testing_checklist.md, 12/09): a
+     * child whose BABY->TODDLER transition re-ran left 2-3 fully live, independently-ticking
+     * bodies sharing one name in the world, all still tracked in {@code ACTIVE_NPCS}. {@code
+     * forcekill} is the wrong tool for that — it is a real in-fiction death, complete with a
+     * Reaper spawning to collect the soul, and would tell every relative of a *technical
+     * duplicate* that she died. This command skips all of that: it removes the live entity, drops
+     * it from {@code ACTIVE_NPCS}, and deletes its saved {@code SimNPCData} record, so a stray
+     * copy can be erased without leaving a death behind that never actually happened in the
+     * story.
+     *
+     * <p>Deliberately does not touch {@code GrowthComponent}/{@code ACTIVE_CHILDREN} or the
+     * family bond records — those already collapsed back down to one entry on their own (every
+     * re-run of the buggy branch rewrote the same {@code GrowthComponent} object and the same
+     * Caskara key), so the only actual duplication to clean up is the extra live bodies.
+     */
+    private static class DespawnNearestSubCommand extends AbstractPlayerCommand {
+        public DespawnNearestSubCommand() {
+            super("despawnnearest", "Removes the nearest NPC with no death flow (cleanup for duplicate-body bugs)");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            if (playerTransform == null) {
+                ctx.sendMessage(Message.raw("No player transform."));
+                return;
+            }
+
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef == null || !npc.entityRef.isValid() || npc.isReaper) continue;
+                TransformComponent npcTransform =
+                        npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
+                if (npcTransform == null) continue;
+                double distSq = playerTransform.getPosition().distanceSquared(npcTransform.getPosition());
+                if (distSq < minDistance) {
+                    minDistance = distSq;
+                    nearestNPC = npc;
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("No NPCs nearby."));
+                return;
+            }
+
+            String name = nearestNPC.name;
+            UUID entityId = nearestNPC.entityId;
+            Ref<EntityStore> npcRef = nearestNPC.entityRef;
+
+            SimTale.untrackNpc(nearestNPC);
+            if (entityId != null) {
+                try {
+                    SimNPCPersistence.deleteNPC(entityId);
+                } catch (Exception e) {
+                    HytaleLogger.forEnclosingClass().atWarning()
+                            .log("SimTale: falha ao apagar registro de '" + name + "': " + e);
+                }
+            }
+            if (npcRef.isValid()) {
+                store.removeEntity(npcRef, RemoveReason.REMOVE);
+            }
+
+            ctx.sendMessage(Message.raw("[SimTale] '" + name + "' (id=" + entityId + ") removida sem passar pelo fluxo de morte."));
+            HytaleLogger.forEnclosingClass().atInfo()
+                    .log("SimTale: '" + name + "' (id=" + entityId + ") despawned via /simtale despawnnearest");
         }
     }
 
