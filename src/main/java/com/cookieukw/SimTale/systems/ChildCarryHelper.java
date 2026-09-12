@@ -64,12 +64,16 @@ public final class ChildCarryHelper {
     private static final float SHOULDER_HEIGHT = 1.55f;
 
     /**
-     * Vertical gap between one child and the next one up.
+     * Fallback vertical gap, used only when a carried child's real height is not known yet (her
+     * BoundingBox has not been parked — should not normally happen for anyone actually mounted).
      *
-     * <p>Three children all took {@code SHOULDER_HEIGHT}, so they were drawn in exactly the same
-     * place and read as one glitched entity with three nameplates. A child at the CHILD stage is
-     * about 0.70 of an adult, which is roughly 1.2 blocks tall; 0.85 leaves them clearly separated
-     * without a visible gap between feet and shoulders.
+     * <p>Three children all took {@code SHOULDER_HEIGHT} originally, so they were drawn in exactly
+     * the same place and read as one glitched entity with three nameplates; that bug is what this
+     * constant fixed at first. It stopped being the real answer once children of different growth
+     * stages could end up in the same stack — a fixed step matched only a tower where everyone
+     * happened to be the same height, and floated or buried the next child otherwise. The real
+     * spacing is now read per-child from {@code PARKED_BOXES}' stored height in {@link #pickUp} and
+     * {@link #reseat}; this constant only covers the gap that math cannot yet.
      */
     private static final float STACK_STEP = 0.85f;
 
@@ -142,13 +146,32 @@ public final class ChildCarryHelper {
         // Where this one goes: on the shoulders if she is the first, on the previous child's
         // shoulders otherwise. Counting the existing stack is what turns "three children occupying
         // the same point" into a tower.
-        int alreadyCarried = carriedBy(store, carrier).size();
+        List<SimNPCComponent> existingStack = carriedBy(store, carrier);
+        int alreadyCarried = existingStack.size();
         if (alreadyCarried >= MAX_STACK) {
             carrierRef.sendMessage(Message.translation("npc-dialogues.carry.stackFull")
                     .param("count", MAX_STACK));
             return false;
         }
-        final float ridingHeight = SHOULDER_HEIGHT + alreadyCarried * STACK_STEP;
+
+        // Stacked on the ACTUAL height of the child she is landing on, not a one-size-fits-all
+        // step. A fixed STACK_STEP looked right only when every rider happened to be the same
+        // growth stage: mix a Toddler (scale 0.50) under a Child (0.70) and the fixed gap either
+        // buried one in the other or left a visible gap under the next one's feet — "só o primeiro
+        // fica encaixado, os outros flutuam acima da cabeça" is exactly a constant gap failing to
+        // track a variable height. PARKED_BOXES is read here, not each child's live BoundingBox,
+        // because a child already in the stack has hers hollowed to Box.ZERO for exactly the
+        // reason documented on that map above.
+        final float ridingHeight;
+        if (alreadyCarried == 0) {
+            ridingHeight = SHOULDER_HEIGHT;
+        } else {
+            SimNPCComponent below = existingStack.get(existingStack.size() - 1);
+            float belowTop = offsetHeight(store, below);
+            Box belowBox = below.entityId != null ? PARKED_BOXES.get(below.entityId) : null;
+            float belowHeight = belowBox != null ? (float) belowBox.height() : STACK_STEP;
+            ridingHeight = belowTop + belowHeight;
+        }
 
         // The routine has to stand down first. A carried child still ticks, and an AI that keeps
         // setting leash points and walking states while its body is pinned to someone's shoulders
@@ -194,16 +217,27 @@ public final class ChildCarryHelper {
                     carrier, new Vector3f(0f, ridingHeight, 0f), MountController.Minecart);
             store.putComponent(childRef, MountedComponent.getComponentType(), mounted);
 
-            // The collision box has to go while she is up there.
-            //
-            // Riding on your shoulders puts her hitbox right where your own attack and block
-            // raycasts start, so every swing and every mined block hit the child instead. This is
-            // the same lesson the plumbob taught: anything parked in front of the player's camera
-            // must not carry a real bounding box. Restored on put down.
+            // Her collision box has to stop catching hits while she is up there — but the
+            // component itself has to stay. Riding on your shoulders puts her hitbox right where
+            // your own attack and block raycasts start, so every swing and every mined block hit
+            // the child instead; that part is the same lesson the plumbob taught, anything parked
+            // in front of the player's camera must not carry a real hitbox. What the plumbob's
+            // lesson missed is that she is not a decorative prop like the crystal — she is a real,
+            // still-ticking NPC role, and the engine's own movement AI
+            // (BodyMotionFindWithTarget.canComputeMotion) reads her BoundingBox component
+            // unconditionally on every tick it processes her, with no null check surviving into a
+            // release build. Removing the component outright (the previous version of this code)
+            // left that engine system dereferencing null the next time it ticked her — a bare
+            // NullPointerException, most visibly the moment a growth promotion fired on a carried
+            // child a tick later. Shrinking the box in place with setBoundingBox keeps the
+            // component non-null (assign() mutates the existing Box object, it is never replaced)
+            // while making it a zero-volume box nothing can hit. The real shape is cloned into
+            // PARKED_BOXES first so put down — and stacking a second child on her, see pickUp's
+            // ridingHeight above — can still see her actual size.
             BoundingBox box = store.getComponent(childRef, BoundingBox.getComponentType());
             if (box != null && npc.entityId != null) {
-                PARKED_BOXES.put(npc.entityId, box);
-                store.tryRemoveComponent(childRef, BoundingBox.getComponentType());
+                PARKED_BOXES.put(npc.entityId, box.getBoundingBox().clone());
+                box.setBoundingBox(Box.ZERO);
             }
 
             // Being carried by a parent is a happy thing. Without this the mood kept decaying
@@ -267,10 +301,14 @@ public final class ChildCarryHelper {
                 store.tryRemoveComponent(childRef, MountedComponent.getComponentType());
 
                 // Her hitbox comes back, or she stays permanently unhittable and walks through
-                // things.
-                BoundingBox parked = carried.entityId != null ? PARKED_BOXES.remove(carried.entityId) : null;
-                if (parked != null) {
-                    store.putComponent(childRef, BoundingBox.getComponentType(), parked);
+                // things. The component was never removed (see PARKED_BOXES's javadoc for why),
+                // only shrunk to Box.ZERO in place, so restoring is the same in-place write back —
+                // never a putComponent, which would mean adding back a component that was never
+                // actually gone.
+                BoundingBox box = store.getComponent(childRef, BoundingBox.getComponentType());
+                Box parked = carried.entityId != null ? PARKED_BOXES.remove(carried.entityId) : null;
+                if (box != null && parked != null) {
+                    box.setBoundingBox(parked);
                 }
 
                 // Unfreezing has to happen here, not before the deferral: dropping Frozen while the
@@ -309,22 +347,28 @@ public final class ChildCarryHelper {
      */
     public static void reseat(Store<EntityStore> store, Ref<EntityStore> carrier) {
         List<SimNPCComponent> stack = carriedBy(store, carrier);
-        for (int i = 0; i < stack.size(); i++) {
-            SimNPCComponent npc = stack.get(i);
+        // Same running-height logic as pickUp's ridingHeight: each seat sits on the actual height
+        // of whoever is riding just below it, not a fixed multiple of i. A fixed step re-seated a
+        // mixed-stage tower onto heights nobody was actually occupying the moment the child in the
+        // middle of it left (the exact case this method exists for).
+        float nextHeight = SHOULDER_HEIGHT;
+        for (SimNPCComponent npc : stack) {
             if (npc.entityRef == null || !npc.entityRef.isValid()) continue;
 
-            float target = SHOULDER_HEIGHT + i * STACK_STEP;
+            float target = nextHeight;
             MountedComponent current =
                     store.getComponent(npc.entityRef, MountedComponent.getComponentType());
-            if (current == null) continue;
-            if (current.getAttachmentOffset() != null
-                    && Math.abs(current.getAttachmentOffset().y() - target) < 0.01f) {
-                continue;
+            if (current != null
+                    && !(current.getAttachmentOffset() != null
+                            && Math.abs(current.getAttachmentOffset().y() - target) < 0.01f)) {
+                store.putComponent(npc.entityRef, MountedComponent.getComponentType(),
+                        new MountedComponent(carrier, new Vector3f(0f, target, 0f),
+                                MountController.Minecart));
             }
 
-            store.putComponent(npc.entityRef, MountedComponent.getComponentType(),
-                    new MountedComponent(carrier, new Vector3f(0f, target, 0f),
-                            MountController.Minecart));
+            Box parkedBox = npc.entityId != null ? PARKED_BOXES.get(npc.entityId) : null;
+            float height = parkedBox != null ? (float) parkedBox.height() : STACK_STEP;
+            nextHeight = target + height;
         }
     }
 
