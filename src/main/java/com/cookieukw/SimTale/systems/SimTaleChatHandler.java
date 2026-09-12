@@ -348,7 +348,7 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
                 }
                 // Callback runs on the CompletableFuture pool, not the world thread.
                 WorldUtil.execute(() ->
-                        sender.sendMessage(Message.raw("[" + npc.name + "] " + NpcContextBuilder.stripLeadingNameTag(aiRes.text()))));
+                        sender.sendMessage(Message.raw(npc.name + ": " + NpcContextBuilder.stripLeadingNameTag(aiRes.text()))));
             })
             .exceptionally(ex -> {
                 HytaleLogger.forEnclosingClass().atWarning()
