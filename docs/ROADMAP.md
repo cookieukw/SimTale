@@ -26,14 +26,13 @@ um pipeline de texto puro: monta prompt → manda → recebe string → mostra n
 Isso reclassifica o bloco inteiro de **"Ferramentas da IA"** de "revisar" para "implementar do
 zero", e é o maior item de todo o roadmap. Detalhes na seção 🟡.
 
-### 2. Relacionamento NPC↔NPC: a estrutura existe, o comportamento não
+### 2. Relacionamento NPC↔NPC — ✅ implementado nesta sessão
 
-`core/Relationship.java` já tem `affinity`, `friendship`, `romance`, `trust` e `status`, e
-`SimNPCComponent.relationships` é um `Map<UUID, Relationship>` que **já persiste** no banco.
-
-Mas os únicos lugares que escrevem nesse mapa são o carregamento, o salvamento e o `clone()`.
-Nada no jogo cria ou altera um relacionamento entre dois NPCs. Ou seja: a fundação está pronta
-(e é boa), só falta o comportamento. Isso torna o item mais barato do que parece.
+Isto descrevia uma lacuna que já foi fechada: `NPCSocialHelper.applyChatOutcome` agora escreve de
+verdade em `SimNPCComponent.relationships` a cada conversa espontânea (`bondNpcs` para
+amizade/afinidade/confiança, `tryCourtship` para romance e, quando os dois lados cruzam o mesmo
+patamar do pedido de casamento do jogador, casamento autônomo). Ver "Relacionamentos entre NPCs" na
+seção ✅ Feito abaixo e `docs/SISTEMA_RELACIONAMENTOS.md` para os números exatos.
 
 ### 3. A casa é identificada pela cama, e isso é estrutural
 
@@ -171,14 +170,25 @@ Sugestão de fatiamento: começar por **3 ferramentas só de leitura** (`buscar_
 `buscar_players`, `buscar_blocos`). Elas não alteram o mundo, então erro da IA não causa dano, e
 já validam o protocolo inteiro. Depois liberar as de ação (`andar_ate`, `seguir`, `entregar`).
 
-### Relacionamentos entre NPCs
-Ver ⚠️ #2. Como o modelo de dados e a persistência já existem, o trabalho é: quando dois NPCs
-socializam (`NPCSocialHelper`, estado `SOCIALIZING` — que já roda), aplicar ganho/perda nos
-valores e derivar o `status`. Afinidade, amizade, rivalidade e melhor amigo saem de faixas
-desses números.
+### ~~Relacionamentos entre NPCs~~ ✅ FEITO
+**Onde**: `systems/NPCSocialHelper.java` (`bondNpcs`, `tryCourtship`), `core/FamilySystem.java`,
+`core/lifecycle/FamilyBonds.java` (`areCloseFamily`)
 
-🟡 e não 🟢 porque toca o tick de vários NPCs ao mesmo tempo e precisa de regra de decaimento e
-de limite diário para não inflacionar (já existe `interactionsToday`, o que ajuda).
+Quando dois NPCs terminam uma conversa espontânea (`SOCIALIZING`), o desfecho agora grava de
+verdade em `Relationship`: amizade/afinidade/confiança sempre (pior se hostil), e romance também,
+quando a conversa foi agradável. Cruzando o mesmo patamar do pedido de casamento com aliança do
+jogador (romance ≥ 80, amizade ≥ 70, nos dois lados), as duas NPCs se casam sozinhas e seguem o
+mesmo fluxo de gravidez/nascimento/crescimento que já existia para casal jogador+NPC — nada novo
+foi necessário ali, ele já era genérico o bastante.
+
+Ficou de fora do escopo original e entrou de brinde: cada NPC agora tem seu próprio número de
+"quantos filhos eu quero" (`FamilySystem.desiredChildren`, 0 a 4, sorteado uma vez e persistido),
+que passou a condicionar o rolamento diário de gravidez natural **só entre dois NPCs** — o
+casamento de um jogador com uma NPC não tem essa preferência armazenada e continua com o
+comportamento de sempre.
+
+**Ainda em aberto**: sem decaimento e sem limite diário dedicado para este ganho específico
+(o `interactionsToday` de sempre ainda cobre spam do lado do jogador, não conversa NPC-NPC).
 
 ### Casa — persistência independente da cama
 Ver ⚠️ #3. Escopo: id permanente, centro, limites e dono salvos; quebrar cama não apaga a casa;
