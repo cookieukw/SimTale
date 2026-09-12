@@ -21,6 +21,19 @@ porcentagem, e tempo estimado restante em minutos reais.
 
 A gravidez para o jogador também existe e segue um caminho próprio.
 
+Os NPCs também podem se casar entre si agora, por conta própria — veja
+[Relacionamentos](./relationships) para saber como um cortejo vira casamento sem nenhum jogador
+envolvido. Depois de casado, o casal de NPCs passa pelo mesmo caminho de gravidez, nascimento e
+crescimento descrito aqui.
+
+:::note Nem todo NPC quer uma família grande
+Cada NPC decide, discretamente, na primeira vez que isso importa, quantos filhos quer ter no total —
+de zero a quatro — e esse número não muda depois. Quando dois NPCs são casados entre si, uma
+gravidez natural só acontece enquanto os dois ainda quiserem mais um filho; se um já está satisfeito
+e o outro não, aquele casal simplesmente para por ali. O casamento do jogador não é afetado por isso
+de forma alguma — continua funcionando exatamente como sempre funcionou.
+:::
+
 ## Nascimento
 
 No fim da gestação, o bebê nasce como um **item** que vai para o inventário. Você carrega o
@@ -47,6 +60,7 @@ Através do sistema `FamilyBonds`, os NPCs mantêm laços hereditários com seus
 - **Divisão de Cama / Co-Sleeping**: Crianças pequenas (`TODDLER`) e Crianças (`CHILD`) não precisam de uma casa ou cama separada para descansar. Ao chegar o horário de dormir (`FINDING_BED`), elas buscam a cama registrada de seus pais (`FamilyBonds.findParentBed`). Se o pai ou a mãe já estiver deitado, a criança deita junto na mesma cama sem expulsar o progenitor.
 - **Proteção Durante o Sono**: Crianças em fase de crescimento dentro de uma cama permanecem protegidas durante os ciclos de vida, sem travar nem serem expulsas da animação de descanso.
 - **Reconhecimento Parental**: Interagir com o próprio filho abre uma interface adaptada para laços filiais, exibindo a fase da vida e o título de parentesco ("Filho", "Filha").
+- **Como ela te chama**: Um filho chama a mãe de "mãe" (ou o carinhoso "mamãe") e o pai de "pai" (ou "papai"), escolhido na hora com base em como o vínculo entre vocês está indo agora — não é decidido uma vez e travado. Se o vínculo azedar o suficiente, o título some também: o filho passa a te chamar pelo seu nome. (Por enquanto isso aparece em algumas falas de diálogo de crianças pequenas.)
 
 ## Regras de Trabalho e Hobbies
 
