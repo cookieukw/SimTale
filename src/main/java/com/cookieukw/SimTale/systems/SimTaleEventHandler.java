@@ -87,9 +87,22 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         // before any target-specific logic, so dropping the child always wins over whatever is
         // under the cursor.
         Store<EntityStore> carryStore = playerRef.getStore();
-        if (ChildCarryHelper.isCrouching(carryStore, playerRef)
-                && ChildCarryHelper.isCarryingSomeone(carryStore, playerRef)) {
-            if (ChildCarryHelper.putDown(carryStore, playerRef, playerRefComp)) {
+        boolean crouchingForRelease = ChildCarryHelper.isCrouching(carryStore, playerRef);
+        boolean carryingSomeone = ChildCarryHelper.isCarryingSomeone(carryStore, playerRef);
+        // Logged unconditionally whenever either half is true, not only on success: this branch
+        // had zero logging before, so a player who crouch-clicks and nothing happens gave no way
+        // to tell whether crouch was not being detected, isCarryingSomeone was not seeing the
+        // mount, or putDown itself ran and returned false. That is exactly the kind of silent
+        // failure that took two rounds of guessing to diagnose for the open-air click bug
+        // (testing_checklist.md #21) — this time the log is in from the start.
+        if (crouchingForRelease || carryingSomeone) {
+            LOGGER.atInfo().log("SimTale Debug: carry release attempt - crouching=" + crouchingForRelease
+                    + ", carryingSomeone=" + carryingSomeone);
+        }
+        if (crouchingForRelease && carryingSomeone) {
+            boolean putDownOk = ChildCarryHelper.putDown(carryStore, playerRef, playerRefComp);
+            LOGGER.atInfo().log("SimTale Debug: ChildCarryHelper.putDown returned " + putDownOk);
+            if (putDownOk) {
                 event.setCancelled(true);
             }
             return;
