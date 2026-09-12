@@ -24,3 +24,7 @@ O limitador de interações diárias. Cada NPC aceita até 3 conversas normais p
 
 ### GrowthStage (Fase de Crescimento)
 O estágio de desenvolvimento físico de um filho no mod. Abrange as fases `BABY`, `TODDLER` (criança pequena), `CHILD` (criança), `TEEN` (adolescente) e `ADULT` (adulto), alterando a inteligência, escala física e as necessidades da entidade.
+
+### Cortejo Autônomo (`NPCSocialHelper.tryCourtship`)
+Romance, casamento e filhos que acontecem entre duas NPCs sozinhas, sem jogador envolvido, como
+resultado de conversas espontâneas repetidas. Detalhado em `SISTEMA_RELACIONAMENTOS.md`.
