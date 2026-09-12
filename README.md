@@ -35,7 +35,7 @@ During instantiation, each NPC is assigned randomized properties for personality
 - **Starves.** If hunger drops below 5, it cries, stops working entirely, and drops all tasks until someone feeds it. It does not die of hunger — death is reserved for aging and disease.
 - **Dies.** When an NPC reaches the end of their life, they enter a dying state. The Grim Reaper spawns to conduct the ceremony and collect their soul.
 
-![Grim Reaper Ceremony Placeholder](wiki/static/img/reaper_ceremony.png)
+![Grim Reaper Ceremony](wiki/static/img/reaper_ceremony.png)
 
 ## Where to start
 
@@ -684,7 +684,7 @@ own, walks to it, performs the soul-collection ritual, leaves a gravestone and r
 cleanly. Interacting with the Reaper mid-ritual while holding an <img src="wiki/static/img/Ingredient_Voidheart.png" width="20" align="absmiddle" /> `Ingredient_Voidheart` cancels the
 collection and revives the NPC.
 
-![Grim Reaper Ceremony Placeholder](wiki/static/img/reaper_ceremony.png)
+![Grim Reaper Ceremony](wiki/static/img/reaper_ceremony.png)
 
 > **Nota:** Nothing kills an NPC yet
 > Hunger deliberately does not kill. Starving NPCs simply cry and stop working. Aging and disease are not implemented yet.
