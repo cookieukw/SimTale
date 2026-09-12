@@ -51,6 +51,15 @@ ambos os lados e constrói amizade entre eles, e essa amizade sobrevive a uma re
 O humor se espalha através dessas conversas. Um NPC `AGRESSIVO` (`AGGRESSIVE`), ou dois que já são inimigos, transformam
 a conversa em uma discussão: ambos saem de mau humor e gostando menos um do outro.
 
+Uma conversa agradável entre dois NPCs adultos também gera um pouco de romance entre eles, além da
+amizade que ela já constrói. Quando o romance e a amizade de ambos os lados alcançam o mesmo
+patamar exigido no pedido de casamento com aliança de um jogador (**80 de Romance**, **70 de
+Amizade**, dos dois lados), os dois NPCs se casam por conta própria — sem aliança, sem jogador
+envolvido. Uma frase curta é anunciada para os jogadores por perto quando isso acontece.
+
+Isso nunca acontece entre menores de idade, entre parentes próximos (pais e filhos, ou irmãos), ou
+com alguém já casado com outra pessoa — o SimTale não modela casos extraconjugais.
+
 :::note Ninguém é arrastado para fora da cama
 Um NPC que está dormindo ou trabalhando nunca é escolhido como parceiro de conversa. E se a energia acabar no
 meio da conversa, ela abandona o bate-papo e vai para a cama — o parceiro que ficou para trás não congela.
