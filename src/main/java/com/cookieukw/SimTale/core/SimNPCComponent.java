@@ -274,6 +274,25 @@ public class SimNPCComponent implements Component<EntityStore> {
         }
     }
 
+    /**
+     * Sets mood unconditionally, bypassing the priority/hold guard {@link #setEmotion} enforces.
+     * <p>
+     * {@code /simtale setmood} calls this instead of {@link #setEmotion}. That guard exists to
+     * stop ambient triggers (the idleness roll, the wellness check) from stealing a real emotion's
+     * spotlight — exactly right for organic mood changes, but wrong for an operator command: a
+     * tester who scolded an NPC seconds ago and then runs {@code setmood HAPPY} wants HAPPY, not
+     * "denied, ANGRY is still within its 30s hold". Going through {@link #setEmotion} made the
+     * command silently no-op whenever a stronger mood was still protected, while still printing
+     * "Mood definido para HAPPY" — reported success and did nothing, with nothing in the message
+     * or the log to tell the two apart.
+     */
+    public void forceEmotion(Mood emotion, float intensity, String source, long currentTick) {
+        this.activeEmotion = emotion;
+        this.emotionIntensity = Math.clamp(intensity, 0.0f, 1.0f);
+        this.emotionSource = source;
+        this.lastEmotionChangeTick = currentTick;
+    }
+
     private int getEmotionPriority(Mood m) {
         if (m == null) return 0;
         return switch (m) {
