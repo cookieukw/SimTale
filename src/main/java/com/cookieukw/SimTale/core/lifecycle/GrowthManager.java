@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
 import com.cookieukw.SimTale.systems.PlumbobSystem;
+import com.hypixel.hytale.builtin.mounts.MountedComponent;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
@@ -283,10 +284,44 @@ public class GrowthManager {
 
         Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
         Vector3d spawnPos = new Vector3d(0, 100, 0);
+        boolean wasBeingCarried = false;
+        UUID carrierId = null;
         if (childRef != null && childRef.isValid()) {
-            TransformComponent t = childRef.getStore().getComponent(childRef, TransformComponent.getComponentType());
-            if (t != null) spawnPos = new Vector3d(t.getPosition());
+            // A carried child has a MountedComponent, and ChildCarryHelper/PlumbobSystem both
+            // already document why that matters here: her OWN TransformComponent freezes at
+            // wherever she was standing the moment she got picked up and never updates again
+            // while mounted — the client draws her attached to the carrier instead. Reading her
+            // transform here spawned the grown-up body back at that frozen pickup spot, however
+            // far the player had since walked with her on their shoulders: "she vanished right in
+            // front of me and turned up somewhere else on the map" the instant CHILD->TEEN fired,
+            // which is also exactly the stage OLDEST_CARRIABLE stops allowing pickup at. Reading
+            // the carrier's own live position instead is the fix — same rule PlumbobSystem
+            // already follows for a carried NPC's crystal.
+            MountedComponent mounted = childRef.getStore().getComponent(childRef, MountedComponent.getComponentType());
+            Ref<EntityStore> carrierRef = mounted != null ? mounted.getMountedToEntity() : null;
+            if (carrierRef != null && carrierRef.isValid()) {
+                wasBeingCarried = true;
+                TransformComponent carrierT = carrierRef.getStore().getComponent(carrierRef, TransformComponent.getComponentType());
+                if (carrierT != null) spawnPos = new Vector3d(carrierT.getPosition());
+                UUIDComponent carrierUuid = carrierRef.getStore().getComponent(carrierRef, UUIDComponent.getComponentType());
+                if (carrierUuid != null) carrierId = carrierUuid.getUuid();
+            } else {
+                TransformComponent t = childRef.getStore().getComponent(childRef, TransformComponent.getComponentType());
+                if (t != null) spawnPos = new Vector3d(t.getPosition());
+            }
             world.getEntityStore().getStore().removeEntity(childRef, RemoveReason.REMOVE);
+        }
+
+        // She can no longer be picked up past this stage (OLDEST_CARRIABLE stops at CHILD), so a
+        // carry in progress has nowhere to continue — tell the player instead of letting her just
+        // disappear off their shoulders with no explanation, which is the other half of the same
+        // surprise the stale-position bug above caused.
+        if (wasBeingCarried && carrierId != null) {
+            PlayerRef carrierPlayerRef = LifecycleUtils.getPlayerRef(carrierId);
+            if (carrierPlayerRef != null) {
+                carrierPlayerRef.sendMessage(Message.raw(child.getFullName()
+                        + " cresceu de repente e desceu do seu colo!"));
+            }
         }
 
         SimNPCComponent oldNpc = null;
