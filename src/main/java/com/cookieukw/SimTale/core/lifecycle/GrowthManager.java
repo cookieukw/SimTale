@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
+import com.cookieukw.SimTale.systems.PlumbobSystem;
+
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Gender;
@@ -304,6 +306,18 @@ public class GrowthManager {
         child.childId = newEntityId;
         Caskara.delete("child_" + oldChildId.toString(), GrowthComponent.class);
         Caskara.save("child_" + newEntityId, child);
+
+        // The body just removed above had its own Plumbob, tracked under oldChildId. Nothing
+        // ever ticks that UUID again once the entity is gone, so PlumbobSystem's own orphan
+        // sweep never notices — it only reaps a crystal that is NOT in trackedPlumbobRefs, and
+        // this one still is, forever, because untracking it was never anybody's job. Left alone
+        // it floats exactly where the promotion happened for the rest of the server's life,
+        // while a second, correct Plumbob spawns fresh for the new body and follows it around —
+        // "two Plumbobs stuck in the air" after every single CHILD->TEEN or TEEN->ADULT growth.
+        // Untracking here (not removing outright: no CommandBuffer to do that with from here)
+        // lets the very next PlumbobSystem tick reap it through the same orphan sweep that
+        // already cleans up every other kind of stale crystal.
+        PlumbobSystem.removePlumbob(oldChildId);
         
         SimNPCComponent teenNpc = store.getComponent(teenRef, SimTale.SIM_NPC_COMPONENT_TYPE);
         if (teenNpc != null) {
