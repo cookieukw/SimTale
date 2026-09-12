@@ -65,6 +65,7 @@ import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.systems.HouseManager;
 import com.cookieukw.SimTale.systems.BedRegistry;
 import com.cookieukw.SimTale.systems.ChestRegistry;
+import com.cookieukw.SimTale.systems.ChairRegistry;
 import com.cookieukw.SimTale.systems.FurnitureAnchorHelper;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
@@ -135,6 +136,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new AiStatusSubCommand());
         this.addSubCommand(new HouseCheckSubCommand());
         this.addSubCommand(new ChestCheckSubCommand());
+        this.addSubCommand(new ChairCheckSubCommand());
         this.addSubCommand(new ForceEatSubCommand());
         this.addSubCommand(new ForceWorkSubCommand());
         this.addSubCommand(new ForceKillSubCommand());
@@ -163,7 +165,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown>"));
+        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown>"));
     }
 
     /**
@@ -1662,6 +1664,67 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             } else {
                 ctx.sendMessage(Message.translation("general.cmd.chestcheck.public_chest"));
             }
+        }
+    }
+
+    /**
+     * Diagnostic twin of {@code chestcheck}, for chairs: reports the nearest registered chair,
+     * its distance, and whether it is currently occupied. Chairs had no self-service inspector at
+     * all before this — the only way to know whether {@link ChairRegistry} actually held anything
+     * was to add temporary logging, which is exactly the blind spot {@code chestcheck} and
+     * {@code debugbeds} already closed for chests and beds.
+     */
+    private static class ChairCheckSubCommand extends AbstractPlayerCommand {
+        public ChairCheckSubCommand() {
+            super("chaircheck", "Checks the registry and occupancy of the nearest chair");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
+            if (tc == null) {
+                ctx.sendMessage(Message.translation("general.cmd.chaircheck.no_transform"));
+                return;
+            }
+            Vector3d pos = tc.getPosition();
+
+            // Scan first, same reasoning as chestcheck: otherwise this reports "nothing
+            // registered" for a chair the world simply had not rescanned yet.
+            BedWorldBootstrap.bootstrapLoadedRadius(world, pos, 16);
+
+            Vector3i nearestChair = null;
+            double minDist = Double.MAX_VALUE;
+
+            synchronized (ChairRegistry.CHAIRS) {
+                for (Vector3i cp : ChairRegistry.CHAIRS) {
+                    double dx = (cp.x + 0.5) - pos.x;
+                    double dy = cp.y - pos.y;
+                    double dz = (cp.z + 0.5) - pos.z;
+                    double distSq = dx * dx + dy * dy + dz * dz;
+                    if (distSq < minDist) {
+                        minDist = distSq;
+                        nearestChair = cp;
+                    }
+                }
+            }
+
+            if (nearestChair == null) {
+                ctx.sendMessage(Message.translation("general.cmd.chaircheck.none_registered"));
+                return;
+            }
+
+            if (minDist > 16 * 16) {
+                ctx.sendMessage(Message.translation("general.cmd.chaircheck.none_nearby"));
+                return;
+            }
+
+            ctx.sendMessage(Message.translation("general.cmd.chaircheck.located")
+                .param("x", nearestChair.x).param("y", nearestChair.y).param("z", nearestChair.z));
+
+            boolean occupied = ChairRegistry.isOccupied(nearestChair);
+            ctx.sendMessage(Message.translation(occupied
+                    ? "general.cmd.chaircheck.occupied" : "general.cmd.chaircheck.free"));
         }
     }
 
