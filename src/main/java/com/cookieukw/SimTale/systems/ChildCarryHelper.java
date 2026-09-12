@@ -49,12 +49,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * same session. The event only reaches the server when the click hits something, which is why the
  * hint tells the player to aim at the ground and why the command exists as the guaranteed way out.
  *
- * <p><b>Releasing.</b> Crouch and right-click. That gesture rather than a button, because the
- * interaction panel is exactly what you cannot reach while the child is riding on you — she is not
- * in front of the camera to be clicked. Crouch alone was rejected: players hold crouch constantly to
- * avoid walking off ledges, and dropping a child every time would be maddening. The engine's own
- * dismount input is no help either: {@code MountSystems$HandleMountInput} only reacts to the
- * <em>rider</em>'s input, and the rider here is an NPC with no input at all.
+ * <p><b>Releasing.</b> Crouch and right-click (open air via {@code SimTaleEventHandler}, block-only
+ * via {@code ChildPutDownSystem}) — or crouch and jump, via {@link ChildCarryReleaseTickSystem}.
+ * Crouch alone was rejected: players hold crouch constantly to avoid walking off ledges, and
+ * dropping a child every time would be maddening. The engine's own dismount input is no help
+ * either: {@code MountSystems$HandleMountInput} only reacts to the <em>rider</em>'s input, and the
+ * rider here is an NPC with no input at all.
+ *
+ * <p><b>Update (testing_checklist.md #21, 12/09):</b> a full test session showed zero evidence that
+ * either click-based path above ever receives a {@code PlayerMouseButtonEvent} while the player is
+ * crouching, click-based or block-only — not even the fully unconditional diagnostic log placed
+ * ahead of every filter. {@link ChildCarryReleaseTickSystem} was added as a click-free alternative,
+ * built entirely on {@code MovementStates} (crouching + jumping), which syncs every tick regardless
+ * of clicking and which {@link #isCrouching} already reads without a single reported failure. Both
+ * click-based paths are left in place, not removed.
  */
 public final class ChildCarryHelper {
 
@@ -455,6 +463,25 @@ public final class ChildCarryHelper {
         if (msc == null) return false;
         MovementStates states = msc.getMovementStates();
         return states.crouching || states.forcedCrouching;
+    }
+
+    /**
+     * True if the player's most recently synced {@link MovementStates} has the jump flag set.
+     *
+     * <p>Added for the crouch+jump release gesture (testing_checklist.md #21): the crouch+click
+     * gesture it replaces depends on {@code PlayerMouseButtonEvent}/{@code UseBlockEvent.Pre}
+     * actually being delivered by the client, which a full test session showed zero evidence of
+     * (not even the fully unconditional diagnostic log placed ahead of every filter). Movement
+     * state, by contrast, is synced every tick via {@code ClientMovement} — the same packet
+     * {@link #isCrouching} already reads from without a single reported failure — so building the
+     * release gesture on movement state instead of a click event sidesteps that whole mystery
+     * rather than solving it.
+     */
+    public static boolean isJumping(Store<EntityStore> store, Ref<EntityStore> playerRef) {
+        MovementStatesComponent msc = store.getComponent(playerRef, MovementStatesComponent.getComponentType());
+        if (msc == null) return false;
+        MovementStates states = msc.getMovementStates();
+        return states.jumping;
     }
 
     /**
