@@ -51,6 +51,15 @@ social need and builds friendship between them, and that friendship survives a s
 Mood spreads through these conversations. An `AGGRESSIVE` NPC, or two who are already enemies, turn
 the conversation into an argument instead: both walk away in a worse mood and like each other less.
 
+A pleasant chat between two adult NPCs also nudges a little romance between them, on top of the
+friendship it already builds. Once that romance and friendship both reach the same bar a player's
+own wedding ring proposal needs (**80 Romance**, **70 Friendship**, on both sides), the two NPCs
+marry each other — no ring, no player involved. A short line gets broadcast to nearby players when
+it happens.
+
+This never happens between minors, between close family (parents and children, or siblings), or
+with anyone already married to someone else — SimTale does not model affairs.
+
 :::note Nobody gets dragged out of bed
 An NPC who is asleep or working is never picked as a conversation partner. And if energy runs out
 mid-conversation, she abandons the chat and goes to bed — the partner left behind does not freeze.
