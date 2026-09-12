@@ -183,8 +183,14 @@ public class GrowthManager {
                 return;
             }
             Store<EntityStore> store = world.getEntityStore().getStore();
+            // First live body this child ever gets. Rolled once and kept on the record (see
+            // GrowthComponent.variant's javadoc) so every later promotion reuses the same face
+            // instead of handing her a new random one each time.
+            if (child.variant < 0) {
+                child.variant = 1 + (int) (Math.random() * 200);
+            }
             Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, type,
-                    calculateTargetScale(child, WorldUtil.tick()));
+                    calculateTargetScale(child, WorldUtil.tick()), child.variant);
             
             UUID newEntityId = Objects.requireNonNull(childRef.getStore().getComponent(childRef, UUIDComponent.getComponentType())).getUuid();
             
@@ -297,8 +303,16 @@ public class GrowthManager {
             : SimNPCFactory.NPCType.HUMAN_FEMALE;
             
         Store<EntityStore> store = world.getEntityStore().getStore();
+        // Same variant number as the body just removed above (a record from before this field
+        // existed has never had one rolled at all, so this is the only place that can still
+        // happen — falling back here instead of leaving it unset keeps at least every promotion
+        // FROM HERE ON consistent with itself, even if the very first swap for an old child still
+        // changes her face once).
+        if (child.variant < 0) {
+            child.variant = 1 + (int) (Math.random() * 200);
+        }
         Ref<EntityStore> teenRef = SimNPCFactory.spawnNPC(store, spawnPos, type,
-                calculateTargetScale(child, WorldUtil.tick()));
+                calculateTargetScale(child, WorldUtil.tick()), child.variant);
         
         UUID newEntityId = Objects.requireNonNull(teenRef.getStore().getComponent(teenRef, UUIDComponent.getComponentType())).getUuid();
         
