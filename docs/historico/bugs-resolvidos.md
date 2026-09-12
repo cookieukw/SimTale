@@ -295,3 +295,55 @@ Vale também a comparação com o `PlumbobSystem`, que já tinha o filtro certo 
 query (`Query.or`) como filtro grosso de performance, e uma checagem explícita dentro do `tick` como
 regra de correção. Handlers de evento não têm query, então dependem inteiramente da checagem — e não
 tinham nenhuma.
+
+---
+
+## 14. Referência de Entidade Inválida Repetida em Três Sistemas (RoutineAISystem, `/simtale setmood`, BabyCareTickSystem)
+
+### Sintoma
+Falha ocasional do servidor com `IllegalStateException: Invalid entity reference!`, disparada em
+momentos diferentes: ao a NPC procurar parceiro de conversa (`RoutineAISystem`), ao rodar
+`/simtale setmood` perto de uma NPC, e durante o tick de cuidado de bebês (`BabyCareTickSystem`).
+
+### Diagnóstico (Causa Raiz)
+Os três sistemas percorrem `SimTale.ACTIVE_NPCS` procurando a NPC mais próxima ou um parceiro
+válido, e todos os três só verificavam `entityRef == null` (ou `!= null`) antes de ler componentes
+daquele ref. Um `entityRef` pode continuar não-nulo mas já estar inválido — a entidade foi
+removida (morte, despawn, descarregamento de chunk) sem que `ACTIVE_NPCS` tivesse sido podada
+ainda — e ler `TransformComponent` (ou qualquer outro componente) desse ref lança a exceção.
+
+### Resolução
+Acrescentado `&& entityRef.isValid()` à condição de descarte nos três loops:
+*   `RoutineAISystem` — busca de parceiro de socialização.
+*   `SimTaleCommand` — subcomando `setmood`, busca da NPC mais próxima do jogador.
+*   `BabyCareTickSystem` — busca do cônjuge NPC do jogador portador do bebê.
+
+### Lição
+Mesmo padrão do item 13: um `grep` por `entityRef == null` (ou `!= null`) no restante do projeto
+logo depois de achar o primeiro caso teria revelado os outros dois de uma vez, em vez de um crash
+de cada vez em produção.
+
+---
+
+## 15. PlumbobSystem — Remoção Dupla por Corrida entre Despawn Manual e Varredura de Órfãos
+
+### Sintoma
+Crash do mundo inteiro com `IllegalStateException: Invalid entity reference!` ao esconder o
+plumbob de uma criança carregada no colo, ou quando o dono de um plumbob montava um veículo,
+virava Ceifador, ou saía em expedição.
+
+### Diagnóstico (Causa Raiz)
+`despawnPlumbob` remove o ref de `trackedPlumbobRefs` e enfileira `commandBuffer.removeEntity` no
+mesmo instante, mas o `CommandBuffer` só aplica a remoção no fim da passada de tick inteira — a
+entidade continua "presente" para o resto do sistema até lá. Esse mesmo ref também bate na query
+do próprio `PlumbobSystem` via `PersistentModel`. Se ele for revisitado pela varredura de órfãos
+(topo do `tick()`) antes de o buffer aplicar a primeira remoção, `trackedPlumbobRefs` já não o
+contém, a varredura o lê como órfão e enfileira uma **segunda** `removeEntity` para o mesmo ref. O
+`CommandBuffer` aplica as duas em ordem: a primeira invalida o ref, a segunda lança a exceção,
+derrubando o mundo inteiro.
+
+### Resolução
+Novo conjunto `pendingDespawns` (`ConcurrentHashMap.newKeySet()`) em `PlumbobSystem.java`:
+`despawnPlumbob` registra o ref ali antes de enfileirar a remoção, e a varredura de órfãos passa a
+tentar `pendingDespawns.remove(thisRef)` primeiro — se o ref estava lá (removido com sucesso),
+ele já tem uma remoção enfileirada e a varredura não enfileira outra.
