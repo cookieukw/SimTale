@@ -39,6 +39,19 @@ public class GrowthComponent {
 
     public float currentScale;
 
+    /**
+     * Which of the 200 pre-generated Human_(Child_)Male/Female role variants this child's body
+     * uses — same face, hair and skin tone at every stage, since {@code generate_child_variants.py}
+     * built each child role by proportionally rescaling the ADULT role of the exact same number,
+     * not from a separate random pool. -1 means "not rolled yet": every promotion that spawns a
+     * body picks and keeps one number for the child's whole life instead of re-rolling, so growing
+     * up ages the same person into an adult body instead of swapping her for a random stranger who
+     * happens to share a name. Records created before this field existed just roll theirs the first
+     * time a promotion needs one (see the fallback in GrowthManager), same idiom as
+     * FamilySystem.desiredChildren.
+     */
+    public int variant = -1;
+
     public GrowthComponent() {
         this.genetics = new GeneticsData();
         this.babyNeeds = new BabyNeeds();
