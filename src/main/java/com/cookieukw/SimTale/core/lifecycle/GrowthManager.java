@@ -147,6 +147,24 @@ public class GrowthManager {
 
     private static void onStageChanged(GrowthComponent child) {
         if (child.stage == GrowthStage.TODDLER) {
+            // Guard against this branch running more than once for the same BABY->TODDLER
+            // transition. Confirmed in game (12/09): "Orden SimTale" and "Kiden Swiftvale" each
+            // ended up with 2-3 fully live, independently-ticking bodies sharing one name and one
+            // rolled variant, after the log showed exactly ONE "grew to Criancinha" line for each
+            // — so the single logged transition somehow re-entered this method, and every extra
+            // entry never got cleaned up, because this branch (unlike promoteToAdultBody, guarded
+            // by usesChildBody) never checks whether the child it is about to create already has
+            // one. Each re-run also reassigns child.childId to its own new entity before returning,
+            // so by the time a second run starts, childId already points at the first run's body —
+            // checking for that live body here is what promoteToAdultBody already does for its own
+            // TEEN/ADULT respawns, applied to the one respawn site that never had it.
+            if (child.childId != null) {
+                Ref<EntityStore> existingBody = LifecycleUtils.getEntityRef(child.childId);
+                if (existingBody != null && existingBody.isValid()) {
+                    return;
+                }
+            }
+
             UUID oldChildId = child.childId;
             UUID holderId = null;
             BabyCareData care = BabyCareManager.load(oldChildId);
