@@ -111,6 +111,14 @@ public final class ChildCarryHelper {
      */
     private static final Map<UUID, Box> PARKED_BOXES = new ConcurrentHashMap<>();
 
+    /**
+     * Stand-in box for a carried child's real one: present (so the engine's own movement AI never
+     * dereferences a null BoundingBox, see PARKED_BOXES above) but small enough that nothing can
+     * practically land a hit inside it. Deliberately not {@code Box.ZERO} — see the comment where
+     * this is applied, in {@link #pickUp}.
+     */
+    private static final Box HOLLOW_BOX = Box.centeredCube(new org.joml.Vector3d(0, 0, 0), 0.001);
+
     private ChildCarryHelper() {
     }
 
@@ -237,7 +245,19 @@ public final class ChildCarryHelper {
             BoundingBox box = store.getComponent(childRef, BoundingBox.getComponentType());
             if (box != null && npc.entityId != null) {
                 PARKED_BOXES.put(npc.entityId, box.getBoundingBox().clone());
-                box.setBoundingBox(Box.ZERO);
+                // NOT Box.ZERO. Confirmed in game (12/09): with an exactly-zero box, the carried
+                // child stopped rendering entirely — invisible the whole time she was mounted,
+                // reappearing only on put down, at the frozen position her plumbob had been stuck
+                // at the whole time. This engine has no real invisibility flag at all — the
+                // expedition system (see SimTaleMarkerProvider's own comment on it) already learned
+                // that lesson and works around it with scale 0.001, deliberately never exactly 0,
+                // for what is presumably this same reason: something in the client's render/attach
+                // math treats a truly zero-size box as "nothing to draw" rather than "draw a very
+                // small thing here". HOLLOW_BOX is that same 0.001-style epsilon applied to the
+                // collision box instead of scale — small enough that no melee swing or mining
+                // raycast can practically land inside it, without being the exact zero that broke
+                // rendering.
+                box.setBoundingBox(HOLLOW_BOX);
             }
 
             // Being carried by a parent is a happy thing. Without this the mood kept decaying
