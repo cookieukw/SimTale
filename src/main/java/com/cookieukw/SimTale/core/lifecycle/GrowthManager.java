@@ -338,8 +338,22 @@ public class GrowthManager {
     private static void onBecameAdult(GrowthComponent child) {
         LOGGER.atInfo().log("SimTale: " + child.getFullName() + " se tornou adulto!");
         
+        // Dropped from the growth-tick list — an adult does not age further, and
+        // GrowthTickSystem's own scan already does the same removal as a backstop for
+        // /simtale setstage jumping a child straight to ADULT. But the record itself has to
+        // survive on disk: ParentChildBond.findChildOf answers "is this NPC my child, at any
+        // life stage" (see its own javadoc), and once ACTIVE_CHILDREN has dropped this entry
+        // its ONLY remaining path is Caskara.load("child_" + npc.entityId, ...) reading this
+        // exact key back. Deleting it here — which is what this used to do — reads as "an
+        // adult is done growing, so the growth record is garbage now", but it silently deletes
+        // the one thing that still says "this adult IS your child": Scold/Insult on the panel,
+        // the mãe/papai/name address term, and every other adult-child check would go back to
+        // treating them as a stranger the moment they grew up, no matter how good the
+        // relationship was raised to be as a kid. Persisted instead of deleted, same as every
+        // other stage promotion in this file — the child's identity does not stop being real
+        // just because GrowthTickSystem no longer needs to tick it.
         LifecycleState.ACTIVE_CHILDREN.remove(child);
-        Caskara.delete("child_" + child.childId.toString(), GrowthComponent.class);
+        Caskara.save("child_" + child.childId.toString(), child);
         
         Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
         if (childRef != null && childRef.isValid()) {
