@@ -58,6 +58,18 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
     @Override
     public void accept(PlayerMouseButtonEvent event) {
+        // Logged before the Right+Pressed filter below, unconditionally, for every single mouse
+        // button event this handler is ever handed. Every diagnostic added for the crouch+click
+        // release gesture so far sits AFTER that filter, so if the client sends something other
+        // than exactly (Right, Pressed) while the player is crouching -- a different
+        // MouseButtonType, a Held/Repeat state instead of Pressed, or nothing at all -- every one
+        // of those logs stays silent and looks identical to "the event never fired". This line is
+        // the only way to tell those two apart: it fires on literally anything this handler
+        // receives, filtered or not.
+        LOGGER.atInfo().log("SimTale Debug: PlayerMouseButtonEvent received - button=" +
+                (event.getMouseButton() == null ? "null" : event.getMouseButton().mouseButtonType
+                        + "/" + event.getMouseButton().state));
+
         if (event.getMouseButton() == null ||
             event.getMouseButton().mouseButtonType != MouseButtonType.Right ||
             event.getMouseButton().state != MouseButtonState.Pressed) {
