@@ -79,7 +79,7 @@ own, walks to it, performs the soul-collection ritual, leaves a gravestone and r
 cleanly. Interacting with the Reaper mid-ritual while holding an <img src="/img/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> `Ingredient_Voidheart` cancels the
 collection and revives the NPC.
 
-![Grim Reaper Ceremony Placeholder](/path/to/reaper_ceremony.png)
+![Grim Reaper Ceremony](/img/reaper_ceremony.png)
 
 :::note Nothing kills an NPC yet
 Hunger deliberately does not kill. Starving NPCs simply cry and stop working. Aging and disease are not implemented yet.
