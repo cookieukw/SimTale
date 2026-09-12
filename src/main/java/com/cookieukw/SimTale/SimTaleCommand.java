@@ -1391,7 +1391,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
-            nearestNPC.setEmotion(targetMood, intensity, "command", world.getTick());
+            // force, not setEmotion: an explicit debug command must not be silently denied by
+            // the priority/hold guard that protects organic mood changes from ambient triggers —
+            // see SimNPCComponent.forceEmotion's own javadoc for the exact failure this replaced
+            // (command printed success while a still-protected ANGRY/SAD quietly won anyway).
+            nearestNPC.forceEmotion(targetMood, intensity, "command", world.getTick());
             SimNPCPersistence.saveNPC(nearestNPC);
 
             ctx.sendMessage(Message.raw("Mood of " + nearestNPC.name + " definido para " + targetMood.name() + " com intensidade " + intensity + "."));
