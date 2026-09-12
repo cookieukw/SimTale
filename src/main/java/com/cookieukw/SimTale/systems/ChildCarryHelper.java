@@ -165,6 +165,16 @@ public final class ChildCarryHelper {
         // Ref, not a spawned vehicle.
         final Ref<EntityStore> childRef = npc.entityRef;
         WorldUtil.execute(() -> {
+            // This check existed already, but until now a failure here failed SILENTLY while
+            // the caller had already sent "picked up" and set her mood HAPPY, both unconditional,
+            // both synchronous, both already gone through before this deferred block even runs.
+            // The gap between "pickUp() was called" and "this lambda actually executes" is a real
+            // window — a growth-stage promotion (CHILD -> TEEN) firing in between removes exactly
+            // this childRef, since it respawns her under a new entity — and a player who picked up
+            // a child right as she aged out from under them got told it worked, watched her mood
+            // go happy, and then nothing happened: no one ever appeared on their shoulders. Moving
+            // the outcome-dependent parts here, behind the SAME check that was already guarding
+            // the mount itself, is what makes the message finally match reality.
             if (!childRef.isValid() || !carrier.isValid()) return;
             MountedComponent mounted = new MountedComponent(
                     carrier, new Vector3f(0f, ridingHeight, 0f), MountController.Minecart);
@@ -181,6 +191,22 @@ public final class ChildCarryHelper {
                 PARKED_BOXES.put(npc.entityId, box);
                 store.tryRemoveComponent(childRef, BoundingBox.getComponentType());
             }
+
+            // Being carried by a parent is a happy thing. Without this the mood kept decaying
+            // while she rode along, and the plumbob overhead settled on BORED — which reads as
+            // the game telling you the child hates being picked up.
+            npc.setEmotion(Mood.HAPPY, 0.7f, "carried", WorldUtil.tick());
+
+            carrierRef.sendMessage(Message.translation(
+                            alreadyCarried > 0 ? "npc-dialogues.carry.stacked" : "npc-dialogues.carry.picked_up")
+                    .param("name", npc.name));
+            // Said at the moment it becomes relevant, and only for the first child: a gesture
+            // nobody is told about is a mechanic that does not exist, but repeating it up a
+            // three-child tower is just noise.
+            if (alreadyCarried == 0) {
+                carrierRef.sendMessage(Message.translation("npc-dialogues.carry.hint"));
+            }
+            LOGGER.info("[SimTale] {} foi pega no colo", npc.name);
         });
 
         // Freeze plus stop the action animation.
@@ -189,6 +215,12 @@ public final class ChildCarryHelper {
         // Idle instructions underneath, which is what kept a carried child walking on the spot and
         // turning to look around while pinned to a shoulder. This is the same pair the dialogue
         // lock already uses for exactly the same reason.
+        //
+        // Left unconditional and outside the deferred block above (unlike the mount itself): if
+        // the race described above does invalidate childRef a moment later, this entity is being
+        // deleted anyway as part of that same promotion, so freezing/stopping it first changes
+        // nothing observable — there is no risk of leaving a stray NPC stuck frozen with nobody
+        // ever having actually picked her up.
         NpcFreezeUtil.freeze(store, npc.entityRef);
         AnimationUtils.stopAnimation(npc.entityRef, AnimationSlot.Action, true, store);
         AnimationUtils.stopAnimation(npc.entityRef, AnimationSlot.Status, true, store);
@@ -201,21 +233,6 @@ public final class ChildCarryHelper {
             }
         });
 
-        // Being carried by a parent is a happy thing. Without this the mood kept decaying while she
-        // rode along, and the plumbob overhead settled on BORED — which reads as the game telling
-        // you the child hates being picked up.
-        npc.setEmotion(Mood.HAPPY, 0.7f, "carried", WorldUtil.tick());
-
-        carrierRef.sendMessage(Message.translation(
-                        alreadyCarried > 0 ? "npc-dialogues.carry.stacked" : "npc-dialogues.carry.picked_up")
-                .param("name", npc.name));
-        // Said at the moment it becomes relevant, and only for the first child: a gesture nobody is
-        // told about is a mechanic that does not exist, but repeating it up a three-child tower is
-        // just noise.
-        if (alreadyCarried == 0) {
-            carrierRef.sendMessage(Message.translation("npc-dialogues.carry.hint"));
-        }
-        LOGGER.info("[SimTale] {} foi pega no colo", npc.name);
         return true;
     }
 
