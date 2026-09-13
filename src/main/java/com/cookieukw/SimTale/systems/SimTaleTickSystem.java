@@ -31,6 +31,9 @@ import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.cookieukw.SimTale.core.WorldUtil;
+import com.cookieukw.SimTale.core.SimNPCFactory;
+import com.hypixel.hytale.component.RemoveReason;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -153,6 +156,28 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             // Replace the chunk's component with our official tracked instance which holds command changes
             commandBuffer.replaceComponent(selfRef, SimTale.SIM_NPC_COMPONENT_TYPE, activeMatch);
             npc = activeMatch;
+        }
+
+        // The Reaper is deliberately never written to SimTale's own database -- she is ephemeral
+        // by design (SimNPCFactory.spawnNPC: "O Reaper fica de fora de proposito"). If the server
+        // restarts, or a chunk saves and reloads, while one is mid-ceremony, the engine's own
+        // entity codec restores this component with only id and name intact (see the comment on
+        // `!npc.dataLoaded` above) -- isReaper silently comes back false, and with no SimTale DB
+        // record to load either, she re-enters ACTIVE_NPCS as an ordinary, permanently
+        // interactable villager literally named "Grim Reaper" (13/09 report: found standing
+        // around with a normal mood plumbob, interactable like anyone else). Her ceremonial model
+        // is the one part of her that survives that round trip intact, so it's what identifies
+        // her here, after the isReaper flag itself is already gone.
+        if (!npc.isReaper) {
+            PersistentModel selfModel = store.getComponent(selfRef, PersistentModel.getComponentType());
+            if (selfModel != null && selfModel.getModelReference() != null
+                    && SimNPCFactory.REAPER_MODEL_ASSET_ID.equals(selfModel.getModelReference().getModelAssetId())) {
+                LOGGER.info("[SimTale] Reaper orfa encontrada apos reload (isReaper perdido no restart) — removendo em vez de deixa-la como NPC comum");
+                SimTale.untrackNpc(npc);
+                PlumbobSystem.removePlumbob(npc.entityId);
+                commandBuffer.removeEntity(selfRef, RemoveReason.REMOVE);
+                return;
+            }
         }
 
         // Staggered by entity id: `absoluteTick % 600` made every NPC in the world write to
