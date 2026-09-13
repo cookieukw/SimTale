@@ -71,7 +71,9 @@ O SimTale inclui proteção para menores:
 ## Cuidados
 
 Bebês precisam de cuidados. Passar o bebê de um pai para o outro divide o fardo, e existe uma
-simulação offline para que o tempo que você passa fora do servidor ainda conte. Você pode pegar e carregar crianças no colo ou nas costas quando necessário.
+simulação offline para que o tempo que você passa fora do servidor ainda conte. Você pode pegar e carregar crianças no colo ou nas costas quando necessário. E não há limite de carregar só uma: dá para empilhar até dez crianças ao mesmo tempo nos ombros.
+
+![Várias crianças carregadas ao mesmo tempo](/img/child_carry_stack.png)
 
 ## Morte
 
