@@ -887,11 +887,13 @@ No. A village forms automatically when you build houses close to each other (aro
 
 #### How do NPCs have babies and how do I care for them?
 
-Married NPCs that share a home can have babies. Babies need care, and you (or the parents) can carry them on your shoulders or back while performing other tasks.
+Married NPCs that share a home can have babies. Babies need care, and you (or the parents) can carry them on your shoulders or back while performing other tasks. You are not limited to carrying one at a time, either — children can be stacked, up to ten of them at once, one on top of another.
+
+![Carrying several children at once](https://simtale.kukkie.org/img/child_carry_stack.png)
 
 #### How do I put a child down?
 
-Crouch and right-click on any block (you must actually click a block, right-clicking the air will not work). If for any reason that fails, you can always use the command `/simtale putdown` in the chat.
+The most reliable way is to **crouch and jump at the same time** — she gets off immediately, no aiming required. You can also crouch and right-click on a block (you must actually click a block; right-clicking open air will not work), or just type `/simtale putdown` in the chat, which always works no matter what you are looking at.
 
 #### An NPC died. Can I bring them back?
 
