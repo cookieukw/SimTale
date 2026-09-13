@@ -69,17 +69,17 @@ import javax.annotation.Nonnull;
 
 public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
 
-    private static final int BATH_SEARCH_COOLDOWN_TICKS = 40;
+    static final int BATH_SEARCH_COOLDOWN_TICKS = 40;
     /**
      * Deadlines for the "walk somewhere" states. Without them an unreachable target (walled
      * off, across a ravine, chunk unloaded) parked the NPC in that state indefinitely — only
      * the low-energy interrupt could ever drag it out.
      */
-    private static final int MOVE_TIMEOUT_TICKS = 600;
+    static final int MOVE_TIMEOUT_TICKS = 600;
     /** Bathing restores 1 hygiene per tick, so 100 ticks is already the worst case. */
-    private static final int BATH_DURATION_LIMIT_TICKS = 200;
+    static final int BATH_DURATION_LIMIT_TICKS = 200;
     /** Horizontal/vertical half-extent of the water scan. 15x15x5 ≈ 10.500 blocos por varredura. */
-    private static final int BATH_SEARCH_RADIUS = 15;
+    static final int BATH_SEARCH_RADIUS = 15;
     private static final int BATH_SEARCH_HEIGHT = 5;
     /**
      * How long a failed bath search waits before trying again. Longer than the bed retry because
@@ -87,14 +87,14 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
      * routine runs. Ten seconds of strolling between attempts costs nothing and the NPC stays
      * visibly alive.
      */
-    private static final int BATH_SEARCH_RETRY_COOLDOWN_TICKS = 200;
-    private static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 600;
+    static final int BATH_SEARCH_RETRY_COOLDOWN_TICKS = 200;
+    static final int BED_SEARCH_RETRY_COOLDOWN_TICKS = 600;
     public static final int SLEEP_DURATION_TICKS = 20 * 120;
-    private static final int WAKE_ANIM_TICKS = 20;
-    private static final double BED_REACH_DISTANCE_SQ = 2.5 * 2.5; // Increased to prevent getting stuck on bed collision
+    static final int WAKE_ANIM_TICKS = 20;
+    static final double BED_REACH_DISTANCE_SQ = 2.5 * 2.5; // Increased to prevent getting stuck on bed collision
 
     /** Give up walking to a bed after 30 s, so an unreachable one does not trap the NPC. */
-    private static final int BED_MOVE_TIMEOUT_TICKS = 600;
+    static final int BED_MOVE_TIMEOUT_TICKS = 600;
 
     /** How long the Reaper stands at the corpse before completing the collection — long enough
      *  for the player to notice, go find an Ingredient_Voidheart, and come plead for the NPC's
@@ -112,10 +112,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
      */
     private static final int WAKE_GRACE_TICKS = 20 * 60 * 2;
     /** Look for a chat partner within 20 blocks. */
-    private static final double SOCIALIZE_SEARCH_RANGE_SQ = 20.0 * 20.0;
+    static final double SOCIALIZE_SEARCH_RANGE_SQ = 20.0 * 20.0;
     /** Max distance from home an idle stroll may take the NPC. */
-    private static final double WANDER_RADIUS = 8.0;
-    private static final SimLog LOGGER = SimLog.forClass(RoutineAISystem.class);
+    static final double WANDER_RADIUS = 8.0;
+    static final SimLog LOGGER = SimLog.forClass(RoutineAISystem.class);
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
@@ -467,503 +467,21 @@ once per NPC per tick for nothing.
             LOGGER.info("[SimTale] Force sleep triggered for NPC '{}', entering FINDING_BED", npc.name);
         }
 
-        if (ai.currentTask == TaskType.IDLE) {
-            if (npc.bedLocation == null && world.getTick() % 60 == 0) {
-                BedPos bestBed = getBedPos(transform);
-                if (bestBed != null) {
-                    validateAndClaimBed(world, bestBed, npc);
-                }
-            }
-
-            if (npc.profession == Profession.BUILDER || npc.profession == Profession.UNEMPLOYED) {
-                for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
-                    if (site.isBuilding) {
-                        ai.currentTask = TaskType.MOVING_TO_CONSTRUCTION;
-                        ai.taskStartTime = world.getTick();
-                        playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
-                        ai.targetBlockPosition = new Vector3i(site.anchor);
-                        break;
-                    }
-                }
-            }
-
-            /* The nextXSearchTick guards are what keep an unsatisfiable need from eating the whole
-            chain. These checks are one else-if ladder, so a branch that fires and then fails
-            silently costs the NPC every behaviour below it: an NPC that is dirty with no water
-            in range, or hungry with no reachable food, re-entered its search every single tick
-            and therefore never socialised and never wandered. From the outside that is an NPC
-            standing perfectly still for hours with nothing at all in the logs.
-            Backdating taskStartTime here is deliberate — it skips the handler's own cooldown so
-            the search runs this tick — which is exactly why the cooldown has to be enforced up
-            front instead. On failure each handler stamps its nextXSearchTick, and during that
-            window the ladder falls through to strolling like normal.*/
-            if (ai.currentTask == TaskType.IDLE
-                    && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < 70
-                    && world.getTick() >= ai.nextFoodSearchTick) {
-                ai.currentTask = TaskType.FINDING_FOOD;
-                ai.targetBlockPosition = null;
-                ai.taskStartTime = world.getTick() - NPCHungerHelper.FOOD_SEARCH_COOLDOWN_TICKS;
-            } else if (ai.currentTask == TaskType.IDLE
-                    && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) < 40
-                    && world.getTick() >= ai.nextBathSearchTick) {
-                ai.currentTask = TaskType.FINDING_BATH;
-                ai.targetBlockPosition = null;
-                ai.taskStartTime = world.getTick() - BATH_SEARCH_COOLDOWN_TICKS;
-            } else if (ai.currentTask == TaskType.IDLE && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.FUN_ID) < NPCLeisureHelper.FUN_THRESHOLD) {
-                ai.currentTask = TaskType.FINDING_LEISURE;
-                ai.targetBlockPosition = null;
-                ai.taskStartTime = world.getTick() - NPCLeisureHelper.LEISURE_SEARCH_COOLDOWN_TICKS;
-            } else if (ai.currentTask == TaskType.IDLE && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) < 85 || Math.random() < 0.25)) {
-                SimNPCComponent bestTarget = null;
-                double bestDist = SOCIALIZE_SEARCH_RANGE_SQ;
-                for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
-                    if (other == npc || other.entityRef == null || !other.entityRef.isValid() || other.entityId == null) continue;
-
-                    // Do not drag someone out of bed or off the job for a chat.
-                    RoutineAIComponent otherAi = store.getComponent(other.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
-                    if (otherAi == null || !NPCSocialHelper.isAvailableToTalk(otherAi)) continue;
-
-                    TransformComponent ot = store.getComponent(other.entityRef, TransformComponent.getComponentType());
-                    if (ot == null) continue;
-
-                    double d2 = transform.getPosition().distanceSquared(ot.getPosition());
-                    if (d2 < bestDist) {
-                        bestDist = d2;
-                        bestTarget = other;
-                    }
-                }
-                if (bestTarget != null) {
-                    ai.currentTask = TaskType.MOVING_TO_SOCIALIZE;
-                    ai.socializeTargetId = bestTarget.entityId;
-                    ai.socializeHost = true;
-                    ai.taskStartTime = world.getTick();
-
-                    // Reserve partner so they pause and wait instead of wandering off
-                    RoutineAIComponent otherAi = store.getComponent(bestTarget.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
-                    if (otherAi != null) {
-                        otherAi.reservedForSocialUuid = npc.entityId;
-                        otherAi.currentTask = TaskType.IDLE;
-                        otherAi.wanderTimer = 0;
-                        NPCMovementHelper.clearMoveTarget(bestTarget.entityRef, otherAi);
-                    }
-
-                    playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
-                }
-            }
-
-            if (ai.currentTask == TaskType.IDLE
-                    && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < 70f || Math.random() < 0.15)
-                    && world.getTick() >= ai.nextChairSearchTick) {
-                ai.currentTask = TaskType.FINDING_CHAIR;
-                ai.taskStartTime = world.getTick();
-            }
-
-            /* Deliberately its own statement rather than the tail of the ladder above.
-            Every branch up there can claim the tick and then not set a task: the searches fail
-            silently, and the socialise roll can win with nobody available to talk to. As the
-            last `else if` the stroll was only ever reached when none of them fired, so a need
-            the NPC could not satisfy took its wandering away too. Guarding on "still IDLE"
-            instead means the fallback is reached whenever nothing above it actually committed,
-            and any branch added later inherits that safety net for free.*/
-            if (ai.currentTask == TaskType.IDLE && (Math.random() < 0.05 || (ai.taskStartTime > 0 && world.getTick() - ai.taskStartTime > 40))) {
-                /* Anchor the stroll, in order of preference: own bed, then the nearest village,
-                then the current position.
-                
-                That last case is what made homeless NPCs walk off the map and need fetching.
-                Anchoring on "where I am" is not a leash at all: each stroll moves the NPC, the
-                next one anchors on the new spot, and the result is a random walk with no
-                restoring force — unbounded drift, given enough time. A village centre gives
-                them somewhere to belong until they claim a bed of their own.*/
-                double centerX = transform.getPosition().x;
-                double centerZ = transform.getPosition().z;
-                double wanderRadius = WANDER_RADIUS;
-
-                if (npc.bedLocation != null) {
-                    centerX = npc.bedLocation.x;
-                    centerZ = npc.bedLocation.z;
-                } else {
-                    VillageManager.Village village =
-                            VillageManager.nearest(centerX, centerZ);
-                    if (village != null) {
-                        centerX = village.centerX();
-                        centerZ = village.centerZ();
-                        // Roam the whole village rather than a private patch of it, so the homeless
-                        // spread out instead of piling onto the centre tile.
-                        wanderRadius = village.radius();
-                    }
-                }
-
-                double angle = Math.random() * Math.PI * 2.0;
-                double radius = 2.0 + Math.random() * (wanderRadius - 2.0);
-
-                ai.currentTask = TaskType.WANDERING;
-                ai.wanderTimer = 0; // handler stamps the deadline on first tick
-                ai.targetBlockPosition = new Vector3i(
-                        (int) (centerX + Math.cos(angle) * radius),
-                        (int) transform.getPosition().y,
-                        (int) (centerZ + Math.sin(angle) * radius)
-                );
-                playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
-            }
-        }
+        if (RoutineSleepHelpers.handleIdle(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
         /* FINDING_BED */
-        if (ai.currentTask == TaskType.FINDING_BED) {
-            if (npc.bedLocation == null && InteractionManager.isNpcAChild(npc)) {
-                BedPos parentBed = FamilyBonds.findParentBed(npc);
-                if (parentBed != null) {
-                    npc.bedLocation = parentBed;
-                    npc.family.homeX = parentBed.x;
-                    npc.family.homeY = parentBed.y;
-                    npc.family.homeZ = parentBed.z;
-                    npc.family.hasSharedHome = true;
-                    SimNPCPersistence.saveNPC(npc);
-                    LOGGER.info("[SimTale] Child NPC '{}' will use parents' bed at ({},{},{})",
-                            npc.name, parentBed.x, parentBed.y, parentBed.z);
-                }
-            }
-
-            if (npc.bedLocation != null) {
-                LOGGER.info("[SimTale] NPC '{}' has bed at ({},{},{}), transitioning to MOVING_TO_BED",
-                        npc.name, npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
-                ai.targetBlockPosition = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
-                ai.currentTask = TaskType.MOVING_TO_BED;
-                /* MOVING_TO_BED's own timeout check runs later in this same tick (no return
-                 between the blocks) and measures from taskStartTime. Whoever routed the NPC
-                 into FINDING_BED zeroed it out (both the nightly trigger and /simtale
-                 forcesleep do, to bypass FINDING_BED's own retry cooldown) — without restamping
-                 it here, "now - 0" is always past the timeout, so an NPC that already owns a
-                 bed gave up walking to it before taking a single step, every time.*/
-                ai.taskStartTime = world.getTick();
-                playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
-            } else if (ai.taskStartTime == 0 || world.getTick() - ai.taskStartTime >= BED_SEARCH_RETRY_COOLDOWN_TICKS) {
-                ai.taskStartTime = world.getTick();
-                
-                BedPos bestBed = getBedPos(transform);
-
-                if (bestBed != null) {
-                    LOGGER.info("[SimTale] NPC '{}' found unclaimed bed at ({},{},{})",
-                            npc.name, bestBed.x, bestBed.y, bestBed.z);
-                    if (validateAndClaimBed(world, bestBed, npc)) {
-                        ai.targetBlockPosition = new Vector3i(bestBed.x, bestBed.y, bestBed.z);
-                        ai.currentTask = TaskType.MOVING_TO_BED;
-                        playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
-                    } else {
-                        // Schedules next search and goes to wander.
-                        ai.nextBedSearchTick = world.getTick() + BED_SEARCH_RETRY_COOLDOWN_TICKS;
-                        ai.taskStartTime = world.getTick();
-                        startWanderingFallback(ref, ai, npc, transform, store, world);
-                    }
-                } else {
-                    LOGGER.warn("[SimTale] NPC '{}' could not find any bed! BedRegistry.BEDS.size={}",
-                            npc.name, BedRegistry.BEDS.size());
-                    ai.nextBedSearchTick = world.getTick() + BED_SEARCH_RETRY_COOLDOWN_TICKS;
-                    ai.taskStartTime = world.getTick();
-                    startWanderingFallback(ref, ai, npc, transform, store, world);
-                }
-            }
-        }
+        if (RoutineSleepHelpers.handleFindingBed(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
         /* MOVING_TO_BED: navigate to approach position adjacent to bed */
-        if (ai.currentTask == TaskType.MOVING_TO_BED) {
-            if (npc.bedLocation == null) {
-                ai.currentTask = TaskType.FINDING_BED;
-                ai.taskStartTime = world.getTick();
-                return;
-            }
-
-            Vector3i bedPos = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
-
-            // Validate bed still exists by checking the actual world block, and self-heal BedRegistry if missing
-            WorldChunk bedChunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunk(bedPos.x >> 4, bedPos.z >> 4), WorldChunk.getComponentType());
-            if (bedChunk != null) {
-                BlockType type = world.getBlockType(bedPos.x, bedPos.y, bedPos.z);
-                if (type == null || type.getId() == null || !BedRegistry.isBedId(type.getId())) {
-                    // Chunk loaded but bed block is gone — destroyed
-                    LOGGER.info("[SimTale] NPC '{}' bed at ({},{},{}) was destroyed. Releasing.", npc.name, bedPos.x, bedPos.y, bedPos.z);
-                    npc.bedLocation = null;
-                    npc.family.hasSharedHome = false;
-                    SimNPCPersistence.saveNPC(npc);
-                    ai.currentTask = TaskType.IDLE;
-                    return;
-                } else {
-                    // Self-healing: if the bed block is present in the world, make sure it is in BedRegistry (e.g. after server restart)
-                    synchronized (BedRegistry.BEDS) {
-                        boolean existsInRegistry = false;
-                        for (BedPos b : BedRegistry.BEDS) {
-                            if (b.x == bedPos.x && b.y == bedPos.y && b.z == bedPos.z) {
-                                existsInRegistry = true;
-                                break;
-                            }
-                        }
-                        if (!existsInRegistry) {
-                            LOGGER.debug("[SimTale] Re-registering loaded bed at (" + bedPos.x + "," + bedPos.y + "," + bedPos.z + ") from NPC's memory");
-                            BedRegistry.addOrReplace(bedPos.x, bedPos.y, bedPos.z, 0f);
-                        }
-                    }
-                }
-            }
-
-            Vector3i approachPos = getBedApproachPosition(bedPos, transform, world);
-            ai.targetBlockPosition = approachPos;
-
-            // Give up on a bed that cannot be reached, instead of walking at a wall forever.
-            if (world.getTick() - ai.taskStartTime > BED_MOVE_TIMEOUT_TICKS) {
-                LOGGER.info("[SimTale] NPC '{}' gave up walking to its bed at ({},{},{})", npc.name, bedPos.x, bedPos.y, bedPos.z);
-                clearMoveTarget(ref, ai);
-                ai.targetBlockPosition = null;
-                ai.nextBedSearchTick = world.getTick() + BED_MOVE_TIMEOUT_TICKS;
-                ai.currentTask = TaskType.IDLE;
-                return;
-            }
-
-            Vector3d pos = transform.getPosition();
-            double dx = (approachPos.x + 0.5) - pos.x;
-            double dy = (approachPos.y + 0.5) - pos.y;
-            double dz = (approachPos.z + 0.5) - pos.z;
-
-            /*Proximity alone is not enough to get into bed.
-             * This test used to be flat XZ distance, which ignored both height and walls: an NPC
-             * standing outside the house, one wall away from the bed, satisfied it and mounted
-             * straight through the wall. From the outside it looked like the NPC vanished.*/
-            boolean closeEnough = dx * dx + dz * dz < BED_REACH_DISTANCE_SQ && Math.abs(dy) <= 2.0;
-            boolean reachable = closeEnough
-                    && NPCMovementHelper.hasClearPath(world, pos, approachPos);
-
-            if (reachable) {
-                clearMoveTarget(ref, ai);
-                ai.currentTask = TaskType.ENTERING_BED;
-                ai.taskStartTime = world.getTick();
-            } else {
-                moveTo(ref, ai, world, new Vector3d(approachPos.x + 0.5, approachPos.y, approachPos.z + 0.5));
-            }
-        }
+        if (RoutineSleepHelpers.handleMovingToBed(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
         /* ENTERING_BED: teleport onto the bed block */
-        if (ai.currentTask == TaskType.ENTERING_BED) {
-            if (npc.bedLocation == null) {
-                ai.currentTask = TaskType.FINDING_BED;
-                ai.taskStartTime = world.getTick();
-                return;
-            }
-
-            /* Normalize to the furniture's anchor before mounting.
-             A bed occupies six blocks, and mountOnBlock calculates where the body lies starting from
-             the asset's assembly point — which is measured FROM THE ANCHOR. Passing a filler block
-             displaces the NPC exactly by the distance from that block to the anchor, and since the
-             chosen block varied, the error varied along with it. That was the origin of the misalignment that
-             resisted all attempts to compensate by position. */
-            Vector3i bedPos = FurnitureAnchorHelper.anchorOf(
-                    world, npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
-            if (ai.targetBlockPosition == null) {
-                ai.targetBlockPosition = getBedApproachPosition(bedPos, transform, world);
-            }
-
-            Vector3d interactPos = new Vector3d(
-                bedPos.x + 0.5,
-                bedPos.y + 0.2,
-                bedPos.z + 0.5
-            );
-
-            BlockMountAPI.BlockMountResult result = BlockMountAPI.mountOnBlock(ref, commandBuffer, bedPos, interactPos);
-
-            if (result instanceof BlockMountAPI.Mounted) {
-                LOGGER.info("[SimTale] NPC '{}' successfully mounted bed at ({},{},{})", npc.name, bedPos.x, bedPos.y, bedPos.z);
-                
-                /* do NOT position or rotate the NPC here. BlockMountAPI already did it.
-                 Confirmed in the bytecode of BlockMountAPI.mountOnBlock, which executes in this order:
-                 BlockType.getBeds() -> RotatedMountPointsArray.getRotated(rotationIndex)
-                 BlockMountComponent.findAvailableSeat(...)   // chooses the mount point
-                 BlockMountPoint.computeWorldSpacePosition(blockPos)
-                 BlockMountPoint.computeRotationEuler(rotationIndex)
-                 TransformComponent.setPosition(...)          // applies it directly, synchronously
-                 TransformComponent.setRotation(...)
-
-                In other words, the engine knows the exact spot where the body lies on that bed model and
-                 applies it. The old code queued, immediately after, a Teleport to bedPos +
-                 (0.5, 2.0, 0.5) with a yaw coming from the bed ENTITY's TransformComponent —
-                 overwriting the two correct values with two wrong ones.
-
-                 That explains three symptoms at once: the NPC lying across the bed (the
-                 furniture's yaw points to where you enter, perpendicular to the person lying
-                 down), the ~1.4 block drop to the mattress, and the lateral physics offset —
-                 which was the reason the height had been raised to 2.0 as a temporary fix.
-                 None of these problems exist when you let the assembly system work.
-                 The leash still needs to be pinned: it's what the role AI chases, and the
-                 clearMoveTarget in MOVING_TO_BED left it on the block NEXT TO the bed. Without
-                 this, the NPC walks off the bed and sleeps on the floor nearby. Since the mount
-                 already updated the TransformComponent synchronously, the position read now is
-                 already the mattress position.
-
-                 The POSE comes from here, not from the mount system.
-                
-                 A test with these three calls turned off left the NPC STANDING on the bed, which
-                 settled the question: the mount handles position and rotation, but the one that
-                 lays the body down is MovementStates.sleeping plus the animation. Do not remove
-                 without repeating that test.
-                setSleepingState(ref, store, commandBuffer, true);*/
-
-                /* There is deliberately no setState("Sleep") here.
-                 A call used to sit at this spot and it never did anything: our roles declare only
-                 Idle and ReturnHome, so the engine refused it every time with "State 'Sleep.null'
-                 does not exist and was set by an external call" — one log line per NPC per night,
-                 for no effect. Sleeping works because of the two calls around this comment:
-                 MovementStates.sleeping lays the body down and the animation holds the pose, while
-                 pinLeashAt above parks the leash on the NPC's own position so the role's Leash
-                 sensor stops firing and it settles back into Idle on its own.
-                 Giving the roles a real Sleep state is possible (vanilla does it with
-                 StateTransitions -> Laydown/Wake) and would let the role own the pose instead. It
-                 needs every state to be both sensed and set or the role fails to validate and
-                 spawning breaks server-wide — see scripts/add_returnhome_state.py for the time
-                 that already cost us. Not worth it while the mod drives sleep entirely from Java.*/
-                playAnim(ref, AnimationSlot.Status, "Characters/Animations/Flavor/Sleep.blockyanim", "Sleep", store);
-
-                ai.currentTask = TaskType.SLEEPING;
-            } else {
-                LOGGER.warn("[SimTale] Bed mount failed for NPC '{}': {}", npc.name, result);
-
-                /* Any failure does not mean the bed is gone.
-                ALREADY_MOUNTED only says that the NPC is stuck to a previous mount — the
-                bed is intact. The old code treated any failure the same way: it erased
-                npc.bedLocation and saved it to the database. In other words, a transient
-                stumble cost the NPC her bed permanently, and she would go look for another
-                one from scratch.
-                */
-                // Here the old mount is removed and the next attempt happens on the next
-                // tick, with the bed preserved.*/
-                if (result == BlockMountAPI.DidNotMount.ALREADY_MOUNTED) {
-                    commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
-                    setSleepingState(ref, store, commandBuffer, false);
-                    ai.currentTask = TaskType.ENTERING_BED;
-                } else if (InteractionManager.isNpcAChild(npc)) {
-                    // Child sharing parents' bed: if mount point is occupied, sleep alongside/on bed
-                    transform.setPosition(new Vector3d(bedPos.x + 0.5, bedPos.y + 0.6, bedPos.z + 0.5));
-                    NPCMovementHelper.pinLeashAt(ref, ai, transform.getPosition());
-                    playAnim(ref, AnimationSlot.Status, "Characters/Animations/Flavor/Sleep.blockyanim", "Sleep", store);
-                    ai.currentTask = TaskType.SLEEPING;
-                    LOGGER.info("[SimTale] Child NPC '{}' sharing parents' bed at ({},{},{})",
-                            npc.name, bedPos.x, bedPos.y, bedPos.z);
-                } else {
-                    npc.bedLocation = null;
-                    SimNPCPersistence.saveNPC(npc);
-                    ai.currentTask = TaskType.FINDING_BED;
-                }
-            }
-            ai.taskStartTime = world.getTick();
-        }
+        if (RoutineSleepHelpers.handleEnteringBed(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
         //SLEEPING: maintain sleep state and recover energy 
-        if (ai.currentTask == TaskType.SLEEPING) {
-            if (npc.bedLocation == null) {
-                // Bed was released elsewhere (e.g. destroyed by another system) — wake up cleanly
-                setSleepingState(ref, store, commandBuffer, false);
-                commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
-                playAnim(ref, "Characters/Animations/Default/Idle.blockyanim", "Idle", store);
-                ai.currentTask = TaskType.IDLE;
-                ai.taskStartTime = world.getTick();
-                return;
-            }
+        if (RoutineSleepHelpers.handleSleeping(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
-            NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) + 0.045f));
-
-            // Verify bed still exists periodically
-            if ((world.getTick() - ai.taskStartTime) % 20 == 0) {
-                Vector3i bedPos = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
-                BlockType type = world.getBlockType(bedPos.x, bedPos.y, bedPos.z);
-                if (type == null || type.getId() == null || !BedRegistry.isBedId(type.getId())) {
-                    LOGGER.info("[SimTale] NPC '{}' bed at ({},{},{}) was destroyed while sleeping. Waking up.", npc.name, bedPos.x, bedPos.y, bedPos.z);
-                    npc.bedLocation = null;
-                    npc.family.hasSharedHome = false;
-                    SimNPCPersistence.saveNPC(npc);
-                    
-                    setSleepingState(ref, store, commandBuffer, false);
-                    playAnim(ref, "Characters/Animations/Default/Idle.blockyanim", "Idle", store);
-                    ai.currentTask = TaskType.IDLE;
-                    ai.taskStartTime = world.getTick();
-                    return;
-                }
-            }
-
-            /* A scheduled sleeper stays down until its window closes, however rested it is;
-            otherwise it would pop out of bed in the middle of the night as soon as energy
-            filled up. An exhaustion nap still ends on the old rule.
-            */
-            boolean sleepPeriodClosed = !NPCSleepHelper.isSleepPeriod(npc, world);
-            boolean doneSleeping;
-            if (ai.sleepingOnSchedule) {
-                doneSleeping = sleepPeriodClosed;
-            } else {
-                doneSleeping = sleepPeriodClosed
-                        || NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) >= 100
-                        || world.getTick() - ai.taskStartTime >= SLEEP_DURATION_TICKS;
-            }
-
-            if ((world.getTick() - ai.taskStartTime) % 20 == 0) {
-                Float currentHour = NPCSleepHelper.currentHour(world);
-                LOGGER.info("[SimTale-SleepDebug] NPC '{}' tick in SLEEPING | world='{}' | hour={} | sleepPeriodClosed={} | sleepingOnSchedule={} | doneSleeping={}",
-                        npc.name, world != null ? world.getName() : "null", currentHour, sleepPeriodClosed, ai.sleepingOnSchedule, doneSleeping);
-            }
-
-            if (doneSleeping) {
-                LOGGER.info("[SimTale-SleepDebug] NPC '{}' finished sleeping! Transitioning to WAKING | world='{}' | hour={}",
-                        npc.name, world != null ? world.getName() : "null", NPCSleepHelper.currentHour(world));
-                NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID)));
-                ai.sleepingOnSchedule = false;
-                ai.currentTask = TaskType.WAKING;
-                ai.taskStartTime = world.getTick();
-                ai.lastWakeTick = world.getTick();
-            }
-        }
-
-        if (ai.currentTask == TaskType.WAKING) {
-            if (world.getTick() - ai.taskStartTime >= WAKE_ANIM_TICKS) {
-                LOGGER.info("[SimTale] NPC '{}' has woken up and is leaving bed.", npc.name);
-                commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
-                setSleepingState(ref, store, commandBuffer, false);
-
-
-                
-                NPCEntity npcEntityComponent = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
-                if (npcEntityComponent != null) {
-                    StateSupport stateSupport = StateSupport.get(ref, store);
-                    if (stateSupport != null) {
-                        stateSupport.setState(ref, "Idle", null, store);
-                    }
-                }
-                
-                AnimationUtils.stopAnimation(ref, AnimationSlot.Status, true, store);
-                playAnim(ref, "Characters/Animations/Default/Idle.blockyanim", "Idle", store);
-                
-                if (npc.bedLocation != null) {
-                    /* Must be the nullable lookup, not getBedApproachPosition: that one falls back
-                    to the bed itself when nothing beside it is standable, and teleporting there
-                    buries the NPC inside the bed. A bed pushed against a wall hits that case.
-                    
-                    Normalise to the anchor first — bedLocation may be any of the six blocks, and
-                    the candidates are computed relative to whatever is passed in.
-                    */
-                    Vector3i bedAnchor = FurnitureAnchorHelper.anchorOf(
-                            world, npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
-                    Vector3i exitPos = NPCMovementHelper.findStandableBeside(bedAnchor, transform, world);
-
-                    if (exitPos != null) {
-                        transform.teleportPosition(new Vector3d(exitPos.x + 0.5, exitPos.y, exitPos.z + 0.5));
-                        commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
-                    } else {
-                        /* Nowhere to step out to. Staying put is wrong-looking but recoverable;
-                        teleporting into the bed is not.
-                        */
-                        LOGGER.warn("[SimTale] NPC '{}' has no standable spot beside its bed at ({},{},{}); skipping wake-up teleport",
-                                npc.name, bedAnchor.x, bedAnchor.y, bedAnchor.z);
-                    }
-                }
-
-                ai.currentTask = TaskType.IDLE;
-                ai.taskStartTime = world.getTick();
-            } else if (world.getTick() - ai.taskStartTime == 1) {
-                playAnim(ref, AnimationSlot.Status, "Characters/Animations/Default/Wake.blockyanim", "Wake", store);
-            }
-        }
+        if (RoutineSleepHelpers.handleWaking(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
         /* Chest Interaction & Feeding Logic (Delegado ao NPCHungerHelper) 
         */
@@ -1002,209 +520,19 @@ once per NPC per tick for nothing.
 
         /* Finding Bath (Optimization)
         */
-        if (ai.currentTask == TaskType.FINDING_BATH && world.getTick() - ai.taskStartTime >= BATH_SEARCH_COOLDOWN_TICKS) {
-            ai.taskStartTime = world.getTick();
-            Vector3d pos = transform.getPosition();
-            int sx = (int) pos.x; int sy = (int) pos.y; int sz = (int) pos.z;
-            boolean found = false;
+        if (RoutineTaskHelpers.handleFindingBath(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
-            Vector3i nearestBath = BathRegistry.nearestTo(pos.x, pos.y, pos.z);
-            if (nearestBath != null) {
-                double dx = nearestBath.x - sx;
-                double dz = nearestBath.z - sz;
-                if (dx * dx + dz * dz <= BATH_SEARCH_RADIUS * BATH_SEARCH_RADIUS) {
-                    ai.targetBlockPosition = nearestBath;
-                    ai.currentTask = TaskType.MOVING_TO_BATH;
-                    ai.taskStartTime = world.getTick();
-                    playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
-                    found = true;
-                }
-            }
-            if (!found) {
-                /* Back off before returning to IDLE. Without this the IDLE branch re-enters the
-                 * search on the very next tick and this ~10.500-block sweep runs at 20 Hz per
-                 * dirty NPC, with the NPC frozen in place the whole time.
-                 */
-                ai.nextBathSearchTick = world.getTick() + BATH_SEARCH_RETRY_COOLDOWN_TICKS;
-                ai.currentTask = TaskType.IDLE;
-            }
-        }
+        if (RoutineTaskHelpers.handleMovingToBath(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
-        if (ai.currentTask == TaskType.MOVING_TO_BATH) {
-            if (ai.targetBlockPosition == null) {
-                ai.currentTask = TaskType.IDLE; 
-                return;
-            }
-            if (world.getTick() - ai.taskStartTime > MOVE_TIMEOUT_TICKS) {
-                LOGGER.debug("[SimTale] NPC '{}' gave up reaching the water", npc.name);
-                clearMoveTarget(ref, ai);
-                ai.targetBlockPosition = null;
-                /* Unreachable water still scores as the best option, so without the backoff the
-                 * NPC is sent straight back to it on the next tick, forever.
-                 */
-                ai.nextBathSearchTick = world.getTick() + BATH_SEARCH_RETRY_COOLDOWN_TICKS;
-                ai.currentTask = TaskType.IDLE;
-                return;
-            }
-            Vector3d pos = transform.getPosition();
-            double dx = (ai.targetBlockPosition.x + 0.5) - pos.x;
-            double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
-            if (dx*dx + dz*dz < 1.5 * 1.5) {
-                clearMoveTarget(ref, ai);
-                ai.currentTask = TaskType.BATHING;
-                ai.taskStartTime = world.getTick();
-                playAnim(ref, "Characters/Animations/Actions/Swim.blockyanim", "Swim", store);
-            } else {
-                moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
-            }
-        }
-
-        if (ai.currentTask == TaskType.BATHING) {
-            NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) + 1.0f));
-            /* The hygiene check alone was the only exit; if anything else clamped hygiene the
-             * NPC would swim forever.
-             */
-            if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) >= 100f
-                    || world.getTick() - ai.taskStartTime > BATH_DURATION_LIMIT_TICKS) {
-                ai.currentTask = TaskType.IDLE;
-                playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
-            }
-        }
+        if (RoutineTaskHelpers.handleBathing(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
         /* REAPING 
         */
-        if (ai.currentTask == TaskType.REAPING && ai.dyingEntityId != null) {
-            /* Self-heal against whatever it is (role's own appearance system, most likely —
-             * REAPER spawns on the "SimTale_Human_Male" role for its behavior, and that role's
-             * own "Appearance" is a normal human) keeps putting the human model back after
-             * SimNPCFactory's initial override. Checked every tick instead of once so it doesn't
-             * matter when the conflicting system runs relative to spawn.
-             */
-            PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
-            if (pm != null && !SimNPCFactory.REAPER_MODEL_ASSET_ID.equals(pm.getModelReference().getModelAssetId())) {
-                /* Through applyModel, which writes ModelComponent as well as PersistentModel.
-                 *
-                 * This self-heal ran every tick and kept "correcting" a model that visually never
-                 * changed, because only the persisted component was being rewritten — the drawn
-                 * one was never touched and never marked for resend. That is almost certainly the
-                 * whole of the "Reaper still uses the player model" report: the id stored was
-                 * right the entire time.
-                 */
-                SimNPCFactory.applyModel(store, ref, SimNPCFactory.REAPER_MODEL_ASSET_ID, 1.0f, new HashMap<>());
-            }
+        if (RoutineTaskHelpers.handleReaping(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
-            Ref<EntityStore> dyingRef = world.getEntityStore().getRefFromUUID(ai.dyingEntityId);
-            TransformComponent dyingTransform = (dyingRef != null) ? store.getComponent(dyingRef, TransformComponent.getComponentType()) : null;
-            if (dyingTransform == null) {
-                /* The corpse is gone (already collected, chunk unloaded, removed by a command).
-                 * This used to drop the Reaper to IDLE, which quietly turned Death into a
-                 * permanent villager: she is spawned per-death and has no other exit, so nothing
-                 * was ever going to despawn her again. She then wandered and socialised like
-                 * anyone else — and, because the model self-heal above only runs while REAPING,
-                 * the role's own Appearance system put the human model back on her within a few
-                 * ticks. That is the "Reaper still in the world" and almost certainly the "Reaper
-                 * is still using the player model" report too. Her target is gone, so her reason
-                 * to exist is gone: she leaves.
-                 */
-                LOGGER.info("[SimTale] Reaper's target is gone — despawning her instead of leaving her in the world");
-                dismissReaper(npc, ref, commandBuffer);
-                return;
-            }
+        if (RoutineTaskHelpers.handleMovingToConstruction(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
-            double dx = dyingTransform.getPosition().x - transform.getPosition().x;
-            double dz = dyingTransform.getPosition().z - transform.getPosition().z;
-            double d2 = dx*dx + dz*dz;
-
-            if (d2 > 2.0 * 2.0) {
-                moveTo(ref, ai, world, new Vector3d(dyingTransform.getPosition().x, dyingTransform.getPosition().y, dyingTransform.getPosition().z));
-            } else {
-                clearMoveTarget(ref, ai);
-                ai.reapTimer--;
-                if (ai.reapTimer <= 0) {
-                    SimNPCComponent dyingNpc = store.getComponent(dyingRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-                    String deceasedName = dyingNpc != null ? dyingNpc.name : "Someone";
-                    Universe.get().getPlayers().forEach(p -> {
-                        p.sendMessage(Message.translation("general.reaper.soul_taken").param("name", deceasedName));
-                        try {
-                            /* A raw stone stood in only because there was nothing better on hand.
-                             * Life_Essence actually reads as a collected soul.
-                             */
-                            CommandManager.get().handleCommand(p, "give " + p.getUsername() + " Ingredient_Life_Essence --quantity=1");
-                        } catch (Exception e) {
-                            LOGGER.error("Error giving soul to player", e);
-                        }
-                    });
-                    if (dyingNpc != null && dyingNpc.entityId != null) {
-                        PlumbobSystem.removePlumbob(dyingNpc.entityId);
-                        /* Record survives now instead of being deleted outright — foundation for
-                         * a future revive/cemetery feature (SimNPCPersistence.archiveToGraveyard).
-                         */
-                        SimNPCPersistence.archiveToGraveyard(dyingNpc.entityId);
-                    }
-                    /* Same class of leak as the DB one above, just in memory: the corpse entity
-                     * was removed from the world here, but its SimNPCComponent stayed in
-                     * ACTIVE_NPCS/NPCS_BY_ID forever with a now-invalid entityRef — a permanent
-                     * ghost entry for every NPC that ever died, for the life of the server
-                     * process. Every list scan and lookup elsewhere had to keep guarding against
-                     * it via isValid() checks instead of it simply not being there.
-                     */
-                    if (dyingNpc != null) {
-                        SimTale.untrackNpc(dyingNpc);
-                    }
-                    commandBuffer.removeEntity(dyingRef, RemoveReason.REMOVE);
-
-                    dismissReaper(npc, ref, commandBuffer);
-                }
-            }
-        }
-
-        if (ai.currentTask == TaskType.MOVING_TO_CONSTRUCTION) {
-            if (ai.targetBlockPosition == null) {
-                ai.currentTask = TaskType.IDLE;
-                return;
-            }
-            if (world.getTick() - ai.taskStartTime > MOVE_TIMEOUT_TICKS) {
-                LOGGER.debug("[SimTale] NPC '{}' desistiu de chegar ao canteiro de obras", npc.name);
-                clearMoveTarget(ref, ai);
-                ai.targetBlockPosition = null;
-                ai.currentTask = TaskType.IDLE;
-                return;
-            }
-            Vector3d pos = transform.getPosition();
-            double dx = (ai.targetBlockPosition.x + 0.5) - pos.x;
-            double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
-            if (dx*dx + dz*dz < 3.0 * 3.0) {
-                clearMoveTarget(ref, ai);
-                ai.currentTask = TaskType.BUILDING;
-                ai.taskStartTime = world.getTick();
-                playAnim(ref, "Characters/Animations/Actions/Smith.blockyanim", "Smith", store);
-            } else {
-                moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
-            }
-        }
-
-        if (ai.currentTask == TaskType.BUILDING) {
-            ConstructionSiteComponent activeSite = null;
-            for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {
-                if (site.isBuilding && site.anchor.equals(ai.targetBlockPosition)) {
-                    activeSite = site;
-                    break;
-                }
-            }
-            if (activeSite == null) {
-                ai.currentTask = TaskType.IDLE;
-                playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
-            } else {
-                if ((world.getTick() - ai.taskStartTime) % 40 == 0) {
-                    playAnim(ref, "Characters/Animations/Actions/Smith.blockyanim", "Smith", store);
-                }
-                NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID, Math.max(0f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) - 0.05f));
-                if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) <= 10f) {
-                    ai.currentTask = TaskType.IDLE;
-                    playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
-                }
-            }
-        }
+        if (RoutineTaskHelpers.handleBuilding(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
         /* No replaceComponent here on purpose.
          *
@@ -1232,7 +560,7 @@ once per NPC per tick for nothing.
      * registered under a UUID whose entity no longer exists, and the orphan sweep deliberately
      * skips anything still tracked, so it hung in the air at the exact spot of every death.
      */
-    private static void dismissReaper(SimNPCComponent npc, Ref<EntityStore> ref,
+    static void dismissReaper(SimNPCComponent npc, Ref<EntityStore> ref,
                                       CommandBuffer<EntityStore> commandBuffer) {
         SimTale.untrackNpc(npc);
         if (npc.entityId != null) {
@@ -1242,7 +570,7 @@ once per NPC per tick for nothing.
     }
 
     @NullableDecl
-    private static BedPos getBedPos(TransformComponent transform) {
+    static BedPos getBedPos(TransformComponent transform) {
         BedPos bestBed = null;
         double closestDistSq = Double.MAX_VALUE;
         Vector3d myPos = transform.getPosition();
@@ -1442,11 +770,7 @@ once per NPC per tick for nothing.
         }
     }
 
-    private static boolean validateAndClaimBed(World world, BedPos bestBed, SimNPCComponent npc) {
-        return HouseManager.validateAndClaimBed(world, bestBed, npc);
-    }
-
-    private void startWanderingFallback(Ref<EntityStore> ref, RoutineAIComponent ai, SimNPCComponent npc, TransformComponent transform, Store<EntityStore> store, World world) {
+    static void startWanderingFallback(Ref<EntityStore> ref, RoutineAIComponent ai, SimNPCComponent npc, TransformComponent transform, Store<EntityStore> store, World world) {
         double centerX = transform.getPosition().x;
         double centerZ = transform.getPosition().z;
         double wanderRadius = WANDER_RADIUS;
@@ -1473,7 +797,7 @@ once per NPC per tick for nothing.
                 (int) transform.getPosition().y,
                 (int) (centerZ + Math.sin(angle) * radius)
         );
-        playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
+        NPCMovementHelper.playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
     }
 
 }
