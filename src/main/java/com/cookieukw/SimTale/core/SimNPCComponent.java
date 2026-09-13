@@ -32,6 +32,13 @@ public class SimNPCComponent implements Component<EntityStore> {
      *  when {@code profession == Profession.GUARD}; defaults to MELEE so an existing save (from
      *  before this field existed, always sword-only) keeps its current combat behavior. */
     public WeaponCategory guardWeaponCategory = WeaponCategory.MELEE;
+    /** The exact item id the player handed over to make this NPC a Guard (e.g. an Iron
+     *  longsword, not just "some melee weapon"), so the NPC can actually be seen holding
+     *  that item instead of a generic copper stand-in. Null on saves from before this field
+     *  existed, or in the practically-impossible case the promoting item's id was lost --
+     *  {@link com.cookieukw.SimTale.systems.NPCGuardHelper} falls back to a fixed item for
+     *  {@link #guardWeaponCategory} when this is null or empty. */
+    public String guardWeaponItemId;
     public NPCPreferences preferences;
 
     public FamilySystem family = new FamilySystem();
@@ -192,6 +199,7 @@ public class SimNPCComponent implements Component<EntityStore> {
         // default constructor's random profession would leak into the clone.
         clone.profession = profession;
         clone.guardWeaponCategory = guardWeaponCategory;
+        clone.guardWeaponItemId = guardWeaponItemId;
         clone.gender = gender;
         clone.family = family;
 
