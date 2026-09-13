@@ -39,6 +39,13 @@ public class SimNPCComponent implements Component<EntityStore> {
      *  {@link com.cookieukw.SimTale.systems.NPCGuardHelper} falls back to a fixed item for
      *  {@link #guardWeaponCategory} when this is null or empty. */
     public String guardWeaponItemId;
+    /** One entry per armour slot (Head=0, Chest=1, Hands=2, Legs=3 --
+     *  {@link com.hypixel.hytale.protocol.ItemArmorSlot}), the item id worn there, or null if
+     *  that slot is empty. Reconciled onto the NPC's real armour container every tick by
+     *  {@link com.cookieukw.SimTale.systems.NPCArmorHelper#ensureArmorEquipped}, same defensive
+     *  pattern as {@link #guardWeaponItemId}. Null (not just all-null entries) on saves from
+     *  before this field existed -- no NPC had armour then, so there is nothing to migrate. */
+    public String[] armorItemIds;
     public NPCPreferences preferences;
 
     public FamilySystem family = new FamilySystem();
@@ -200,6 +207,7 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.profession = profession;
         clone.guardWeaponCategory = guardWeaponCategory;
         clone.guardWeaponItemId = guardWeaponItemId;
+        clone.armorItemIds = armorItemIds != null ? armorItemIds.clone() : null;
         clone.gender = gender;
         clone.family = family;
 
