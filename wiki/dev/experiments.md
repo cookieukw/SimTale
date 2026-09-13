@@ -65,6 +65,7 @@ newly invented — the goal was a working sketch, not a finished feature.
 | Witch hat renders correctly (no `GradientSet`/`GradientId` set) | 🔧 | Slightly less verified than the Christmas hat — a recursive asset search for a confirmed human-compatible witch hat timed out, so this uses a texture-only attachment on the assumption (seen elsewhere in SimTale's own base JSONs) that a gradient isn't required. |
 | `christmas` → `off` round trip restores the original appearance exactly | 🔧 | Logic looks right (`putIfAbsent` + `remove` on the backup map) but never run. |
 | Works correctly on child NPCs | 🔧 | `SimTale_Human_Child_*` variants exist and route through `InteractionManager.isNpcAChild`, but children use a single non-gendered base — not cross-checked against every existing child model variant. |
+| NPC keeps its own individual look (hair/face/etc.) while costumed | 🐛 | **Confirmed broken, not just untested.** Costume assets inherit from the generic base, not the NPC's own `Generated/*.json` variant — every costumed NPC of the same gender/age currently looks identical (base look + hat). Fix identified, see "Investigated: the 'swaps the whole model' limitation" below. |
 | Costume backup survives a server restart | 🐛 | Known limitation, not a bug to "fix" so much as a design gap: `COSTUME_BACKUP_MODEL` is an in-memory `Map`, not persisted. An NPC costumed and then left costumed across a restart would have no backup to restore from if `off` is used afterward. |
 | Automatic seasonal trigger (calendar-based, not a manual command) | ⬜ | Not started — this prototype is manual-only by design, to test the mechanism first. |
 | Slothian / Trork NPC coverage | ⬜ | Only the three human bases (male/female/child) have costume variants so far. |
@@ -163,12 +164,15 @@ Not built yet — this is the finding, not the implementation.
 ### Next steps, if this graduates into a real feature
 
 1. Confirm the risk items above in a live game (asset resolution first — it gates everything else).
-2. Persist `COSTUME_BACKUP_MODEL` (or avoid needing it at all, e.g. by deriving the "off" asset id
+2. Write the codegen script described above (one `<id>_<event>.json` per `Generated/*.json` id) so
+   costumed NPCs keep their own look instead of the generic base's — see "Investigated: the
+   'swaps the whole model' limitation" above.
+3. Persist `COSTUME_BACKUP_MODEL` (or avoid needing it at all, e.g. by deriving the "off" asset id
    from the NPC's existing gender/child data instead of caching it).
-3. Wire a calendar/date trigger instead of a debug command — the API and access pattern for
+4. Wire a calendar/date trigger instead of a debug command — the API and access pattern for
    this are already confirmed, see "Research: automatic calendar trigger" above.
-4. Extend coverage to Slothian and Trork NPCs.
-5. Once confirmed, move this section into [Implementation status](status) and delete it from here.
+5. Extend coverage to Slothian and Trork NPCs.
+6. Once confirmed, move this section into [Implementation status](status) and delete it from here.
 
 ---
 
