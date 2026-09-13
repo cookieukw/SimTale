@@ -26,6 +26,7 @@ import com.cookieukw.SimTale.core.WeaponCategoryRegistry;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.systems.NPCArmorHelper;
 import com.cookieukw.SimTale.systems.NPCLeisureHelper;
 import com.cookieukw.SimTale.systems.SimTaleJuiceHelper;
 import com.hypixel.hytale.component.Ref;
@@ -414,6 +415,9 @@ public class InteractionManager {
             return handleMarriageProposal(npc, rel, playerUuid);
         }
 
+        InteractionOutcome armor = tryEquipArmor(npc, heldItem, itemName);
+        if (armor != null) return armor;
+
         InteractionOutcome meal = tryFeed(npc, heldItem, itemName);
         if (meal != null) return meal;
 
@@ -442,6 +446,37 @@ public class InteractionManager {
      * <p>Uses the same {@link NPCFoodHelper} the chest routine uses, so a player cannot feed an NPC
      * something it would refuse to eat on its own, and the restored amounts match tier for tier.
      */
+    /**
+     * Equips a piece of armour onto the NPC when the held item is one, and opts it into
+     * RuneCore's dynamic combat stats so the armour actually mitigates damage -- see
+     * {@link NPCArmorHelper}. Returns null when the item is not armour, so the normal gift/food
+     * rules take over, same contract as {@link #tryFeed}.
+     */
+    private static InteractionOutcome tryEquipArmor(SimNPCComponent npc, ItemStack heldItem, String itemName) {
+        int slot = NPCArmorHelper.armorSlotFor(heldItem);
+        if (slot < 0) return null;
+
+        if (isNpcAChild(npc)) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.armor.child").param("name", npc.name));
+        }
+
+        Ref<EntityStore> npcRef = npc.entityRef;
+        if (npcRef == null || !npcRef.isValid()) {
+            World world = WorldUtil.first();
+            npcRef = (world != null && npc.entityId != null)
+                    ? world.getEntityStore().getRefFromUUID(npc.entityId) : null;
+        }
+        if (npcRef == null || !npcRef.isValid()) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.armor.unavailable").param("name", npc.name));
+        }
+
+        NPCArmorHelper.giveArmor(npcRef, npc, npcRef.getStore(), slot, heldItem.getItemId());
+
+        return InteractionOutcome.ofItem(10, 0, 8, 20,
+                Message.translation("npc-dialogues.armor.equip").param("name", npc.name).param("itemName", itemName),
+                MemoryEvent.GIFTED, true);
+    }
+
     private static InteractionOutcome tryFeed(SimNPCComponent npc, ItemStack heldItem, String itemName) {
         if (NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID) > NeedsHelper.HUNGER_SEEK_FOOD_THRESHOLD) return null;
 
