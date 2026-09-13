@@ -85,6 +85,12 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         // somewhere to expire on its own rather than lingering until the next inspection.
         HouseBlueprintHelper.tickExpiry(world);
 
+        // Same free ride again: checks the calendar at most once every CHECK_INTERVAL_TICKS
+        // (all other NPCs ticked in that same tick just compare a long and return). Applies/
+        // removes seasonal costumes automatically -- see SeasonalCostumeHelper and
+        // docs/experimentos.md for the full reasoning (13/09).
+        SeasonalCostumeHelper.tick(world, store, absoluteTick);
+
         // Process mounted/sleeping NPCs whose routine AI ticks are suspended by the engine
         processMountedSleepingNPCs(world, commandBuffer);
         
