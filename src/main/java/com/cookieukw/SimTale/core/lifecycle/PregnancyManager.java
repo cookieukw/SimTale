@@ -100,13 +100,15 @@ public class PregnancyManager {
 
         Gender childGender = Math.random() < 0.5 ? Gender.MALE : Gender.FEMALE;
 
-        // generateFirstName instead of generate() plus a substring: the old code built a full name
-        // and threw the surname away, which meant the uniqueness check inside generate() was being
-        // run against a string that was then discarded.
-        String childFirstName = SimNPCNameGenerator.generateFirstName();
-
         String fatherName = father != null ? father.name : "";
         String childSurname = GeneticsData.inheritSurname(mother.name, fatherName);
+
+        // generateUniqueFirstName instead of generate() plus a substring: the old code built a
+        // full name and threw the surname away, which meant the uniqueness check inside
+        // generate() was being run against a string that was then discarded. It also ran before
+        // the surname existed, so no uniqueness check ever applied here at all -- two unrelated
+        // children born around the same time could (and did) end up sharing a full name.
+        String childFirstName = SimNPCNameGenerator.generateUniqueFirstName(childSurname);
 
         GrowthComponent child = new GrowthComponent(
             mother.entityId,
@@ -267,7 +269,6 @@ public class PregnancyManager {
 
         UUID fatherId = playerComp.pregnancy.fatherId;
         Gender childGender = Math.random() < 0.5 ? Gender.MALE : Gender.FEMALE;
-        String childFirstName = SimNPCNameGenerator.generateFirstName();
 
         // The family name comes from the NPC parent, not from a constant.
         //
@@ -288,6 +289,10 @@ public class PregnancyManager {
         String childSurname = partnerSurname.isEmpty()
                 ? SimNPCNameGenerator.generateSurname()
                 : partnerSurname;
+
+        // See the NPC-NPC birth flow above for why this checks uniqueness against the surname
+        // instead of calling generateFirstName() directly.
+        String childFirstName = SimNPCNameGenerator.generateUniqueFirstName(childSurname);
 
         GeneticsData childGenetics = GeneticsData.combine(new GeneticsData(), new GeneticsData());
 
