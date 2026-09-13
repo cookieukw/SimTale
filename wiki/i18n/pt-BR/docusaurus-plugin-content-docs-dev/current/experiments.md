@@ -67,7 +67,7 @@ terminada.
 | Chapéu de bruxa renderiza corretamente (sem `GradientSet`/`GradientId`) | 🔧 | Um pouco menos verificado que o gorro de Natal — uma busca recursiva por um chapéu de bruxa confirmado compatível com humanos deu timeout, então isso usa um attachment só com textura, na suposição (vista em outros JSONs base do próprio SimTale) de que gradiente não é obrigatório. |
 | Ida e volta `christmas` → `off` restaura a aparência original exatamente | 🔧 | A lógica parece certa (`putIfAbsent` + `remove` no mapa de backup) mas nunca foi rodada. |
 | Funciona corretamente em NPCs crianças | 🔧 | As variantes `SimTale_Human_Child_*` existem e passam por `InteractionManager.isNpcAChild`, mas crianças usam uma única base não-generizada — não foi conferido contra toda variante de modelo infantil existente. |
-| NPC mantém a própria cara (cabelo/rosto/etc.) enquanto fantasiada | 🐛 | **Confirmado quebrado, não só não testado.** Os assets de fantasia herdam da base genérica, não da variante própria da NPC em `Generated/*.json` — toda NPC fantasiada do mesmo gênero/idade fica com a cara idêntica hoje (visual da base + chapéu). Conserto identificado, ver "Investigado: a limitação de 'trocar o modelo inteiro'" abaixo. |
+| NPC mantém a própria cara (cabelo/rosto/etc.) enquanto fantasiada | 🔧 | Corrigido gerando um asset de fantasia por NPC em vez de usar a base genérica — ver "Investigado: a limitação de 'trocar o modelo inteiro'" abaixo. Ainda não confirmado numa partida real. |
 | Backup da fantasia sobrevive a um restart do servidor | 🐛 | Limitação conhecida, mais uma lacuna de design do que um bug pra "corrigir": `COSTUME_BACKUP_MODEL` é um `Map` em memória, não é persistido. Uma NPC fantasiada que ficasse assim durante um restart não teria backup pra restaurar se `off` fosse usado depois. |
 | Gatilho sazonal automático (baseado em calendário, não comando manual) | ⬜ | Não iniciado — este protótipo é manual de propósito, pra testar o mecanismo primeiro. |
 | Cobertura de NPCs Slothian / Trork | ⬜ | Só as três bases humanas (macho/fêmea/criança) têm variantes de fantasia até agora. |
@@ -164,21 +164,30 @@ arquivos atuais já são construídos. Isso significa:
     `currentId` já vem de `pm.getModelReference().getModelAssetId()` no código existente.
 *   Precisa ser rodado de novo se o conjunto de variantes em `Generated/*.json` crescer no futuro.
 
-Ainda não construído — isso é a descoberta, não a implementação.
+**Atualizacao (13/09, mesma sessao): construido.** `scripts/generate_costume_assets.py` foi
+escrito (seguindo a convencao ja existente `scripts/generate_*.py` do projeto) e rodado uma vez.
+Ele encontrou **820** ids em `Generated/` (os 804 esperados de variantes humanas macho/femea/crianca,
+mais 10 variantes legadas de crianca sem genero `SimTale_Human_Child_N` e 10 modelos de boneca
+chibi `Doll_N` que entraram de brinde — inofensivo, ja que o comando de fantasia so busca ids que
+vem do `PersistentModel` de uma NPC viva de verdade) e escreveu **1.640** arquivos (2 eventos × 820
+ids) em `Server/Models/Events/Generated/`, cada um so `{"Parent": "<id da npc>", "DefaultAttachments":
+[<chapeu>]}`. O script e idempotente — seguro de rodar de novo depois que novas variantes forem
+adicionadas em `Generated/`, ele so preenche o que falta. O `CostumeSubCommand` em
+`SimTaleCommand.java` foi atualizado pra combinar: agora calcula `costumeId = currentId + "_" +
+sufixo` direto, e a antiga logica de gênero/criança (junto com os imports `InteractionManager`/
+`Gender` que ela precisava) foi apagada por nao ser mais usada em nenhum outro lugar do arquivo.
+Ainda nao confirmado rodando numa partida real — ver o checklist acima.
 
 ### Próximos passos, se isso virar uma funcionalidade de verdade
 
 1. Confirmar os itens de risco acima numa partida real (resolução do asset primeiro — é o que
-   trava tudo o resto).
-2. Escrever o script de geração descrito acima (um `<id>_<evento>.json` por id em `Generated/*.json`)
-   pra NPCs fantasiadas manterem a própria cara em vez do visual da base genérica — ver
-   "Investigado: a limitação de 'trocar o modelo inteiro'" acima.
-3. Persistir `COSTUME_BACKUP_MODEL` (ou evitar precisar dele, por exemplo derivando o id do asset
+   trava tudo o resto, incluindo os ids de fantasia por-NPC recém-gerados).
+2. Persistir `COSTUME_BACKUP_MODEL` (ou evitar precisar dele, por exemplo derivando o id do asset
    de "off" a partir dos dados de gênero/criança já existentes da NPC em vez de cachear).
-4. Trocar o comando de debug por um gatilho de calendário/data — a API e o padrão de acesso já
+3. Trocar o comando de debug por um gatilho de calendário/data — a API e o padrão de acesso já
    estão confirmados, ver "Pesquisa: gatilho automático por calendário" acima.
-5. Estender a cobertura pra NPCs Slothian e Trork.
-6. Depois de confirmado, mover esta seção pra [Status de implementação](status) e apagar daqui.
+4. Estender a cobertura pra NPCs Slothian e Trork.
+5. Depois de confirmado, mover esta seção pra [Status de implementação](status) e apagar daqui.
 
 ---
 
