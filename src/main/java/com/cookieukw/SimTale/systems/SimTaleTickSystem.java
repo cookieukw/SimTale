@@ -334,6 +334,25 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
 
             if (mounted == null && !isSleepingTask) continue;
 
+            // A carried child's own AI/needs tick is suspended by the engine exactly like a
+            // sleeping one's, so this is the only place left that can still keep her energy need
+            // from starving while she is up there -- she is not doing anything, so let her recover
+            // the whole time she is carried. This must never by itself end the carry, though: the
+            // ONLY place in this whole codebase that ever creates a MountedComponent is
+            // ChildCarryHelper, so an entity can be "mounted" here purely by being carried, with
+            // nothing to do with sleep. A previous version of this method used `mounted != null` as
+            // an extra way into the wake-up/un-mount logic below (removing MountedComponent,
+            // resetting the task, teleporting to the bed) -- which fired on the very next tick after
+            // ANY daytime pickup, since `sleepPeriodClosed` just means "it is currently not night".
+            // Confirmed in game (13/09): the pickup message and its log both fired, then this
+            // method's own "waking up" log fired ~30ms later and silently undid the pickup. Energy
+            // top-up now happens unconditionally for a carried child; the wake-up/un-mount path
+            // below only ever runs for an entity genuinely on a sleeping/waking task.
+            if (mounted != null) {
+                NeedsHelper.setNeed(npcStore, ref, NeedsHelper.ENERGY_ID, 100f);
+            }
+            if (!isSleepingTask) continue;
+
             boolean sleepPeriodClosed = !NPCSleepHelper.isSleepPeriod(npc, world);
             boolean doneSleeping;
             if (ai.sleepingOnSchedule) {
@@ -344,8 +363,8 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                         || (world.getTick() - ai.taskStartTime >= RoutineAISystem.SLEEP_DURATION_TICKS);
             }
 
-            if (doneSleeping || (mounted != null && sleepPeriodClosed)) {
-                LOGGER.info("[SimTale] Sleeping/mounted NPC '{}' waking up! (sleepPeriodClosed={}, doneSleeping={})",
+            if (doneSleeping) {
+                LOGGER.info("[SimTale] Sleeping NPC '{}' waking up! (sleepPeriodClosed={}, doneSleeping={})",
                         npc.name, sleepPeriodClosed, doneSleeping);
 
                 NeedsHelper.setNeed(npcStore, ref, NeedsHelper.ENERGY_ID, 100f);
