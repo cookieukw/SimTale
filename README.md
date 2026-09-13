@@ -318,6 +318,10 @@ stays down until morning, so she will not pop out of bed the moment energy fills
 Exhaustion is still a separate trigger: an NPC that runs out of energy during the day takes a nap
 and wakes when rested.
 
+![An adult NPC sleeping](wiki/static/img/npc_sleeping.png)
+
+![A child NPC sleeping](wiki/static/img/child_sleeping.png)
+
 > **Tip:** Skipping the night wakes them
 > Running `time set day` wakes sleeping NPCs immediately, because waking follows the world clock
 > rather than a fixed timer.
@@ -683,6 +687,10 @@ When an NPC dies, the SimTale death flow takes over: the body stays, and starts 
 own, walks to it, performs the soul-collection ritual, leaves a gravestone and removes the record
 cleanly. Interacting with the Reaper mid-ritual while holding an <img src="wiki/static/img/Ingredient_Voidheart.png" width="20" align="absmiddle" /> `Ingredient_Voidheart` cancels the
 collection and revives the NPC.
+
+![NPC bleeding after death](wiki/static/img/npc_bleeding.png)
+
+![The Grim Reaper](wiki/static/img/grim_reaper.png)
 
 ![Grim Reaper Ceremony](wiki/static/img/reaper_ceremony.png)
 

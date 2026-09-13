@@ -315,6 +315,10 @@ fica dormindo até de manhã, para não pular da cama no exato momento em que a 
 A exaustão ainda é um gatilho separado: um NPC que fica sem energia durante o dia tira um cochilo
 e acorda quando estiver descansado.
 
+![Uma NPC adulta dormindo](wiki/static/img/npc_sleeping.png)
+
+![Uma NPC criança dormindo](wiki/static/img/child_sleeping.png)
+
 > **Dica:** Pular a noite os acorda
 > Executar o comando `time set day` acorda NPCs adormecidos imediatamente, porque acordar segue o relógio do mundo
 > em vez de um cronômetro fixo.
@@ -677,6 +681,10 @@ Quando um NPC morre, o fluxo de morte do SimTale assume o controle: o corpo perm
 sozinha, caminha até o corpo, realiza o ritual de coleta de alma, deixa uma lápide e remove os registros
 completamente. Interagir com a Ceifadora no meio do ritual segurando um Coração do Vazio (<img src="wiki/static/img/Ingredient_Voidheart.png" width="20" align="absmiddle" /> `Ingredient_Voidheart`) cancela a
 coleta e revive o NPC.
+
+![NPC sangrando após a morte](wiki/static/img/npc_bleeding.png)
+
+![A Ceifadora (Grim Reaper)](wiki/static/img/grim_reaper.png)
 
 ![Grim Reaper Ceremony](wiki/static/img/reaper_ceremony.png)
 
