@@ -74,4 +74,4 @@ A forma mais confiável é **agachar e pular ao mesmo tempo** — ela desce na h
 
 ### Um NPC morreu. Tem como trazê-lo de volta?
 
-Sim. Quando a Ceifadora (Grim Reaper) aparecer para coletar a alma, interaja com ela durante o ritual segurando um Coração do Vazio (`Ingredient_Voidheart`) para cancelar a coleta e reviver o NPC.
+Sim. Quando a Ceifadora (Grim Reaper) aparecer para coletar a alma, interaja com ela durante o ritual segurando um <img src="/img/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> Coração do Vazio (`Ingredient_Voidheart`) para cancelar a coleta e reviver o NPC.

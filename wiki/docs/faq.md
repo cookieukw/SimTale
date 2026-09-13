@@ -74,4 +74,4 @@ The most reliable way is to **crouch and jump at the same time** — she gets of
 
 ### An NPC died. Can I bring them back?
 
-Yes. When the Grim Reaper appears to collect their soul, interact with her during the ritual while holding a Void Heart (`Ingredient_Voidheart`) to cancel the collection and revive the NPC.
+Yes. When the Grim Reaper appears to collect their soul, interact with her during the ritual while holding a <img src="/img/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> Void Heart (`Ingredient_Voidheart`) to cancel the collection and revive the NPC.
