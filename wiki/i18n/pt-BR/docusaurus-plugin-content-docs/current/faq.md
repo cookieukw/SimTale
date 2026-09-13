@@ -58,7 +58,7 @@ Não. Uma vila se forma automaticamente quando você constrói casas próximas u
 
 ### Como os NPCs têm filhos e como cuidar deles?
 
-NPCs casados que moram juntos podem ter filhos. Os bebês precisam de cuidados, e você (ou os pais) podem carregá-los nos ombros ou nas costas enquanto realizam outras tarefas.
+NPCs casados que moram juntos podem ter filhos. Os bebês precisam de cuidados, e você (ou os pais) podem carregá-los nos ombros ou nas costas enquanto realizam outras tarefas. Não há limite de carregar apenas uma por vez: é possível empilhar até dez crianças ao mesmo tempo, uma em cima da outra.
 
 ### Crianças podem dividir a cama com os pais (co-sleeping)?
 
@@ -70,7 +70,7 @@ Crianças não podem receber empregos formais de adultos (`MINER`, `FARMER`, etc
 
 ### Como faço para colocar a criança de volta no chão?
 
-Fique agachado (crouch) e clique com o botão direito **em um bloco**. É obrigatório mirar em um bloco; clicar no ar não envia o comando para o servidor. Se mesmo assim não funcionar, basta digitar o comando `/simtale putdown` no chat para forçar a descida.
+A forma mais confiável é **agachar e pular ao mesmo tempo** — ela desce na hora, sem precisar mirar em nada. Você também pode agachar e clicar com o botão direito **em um bloco** (é obrigatório mirar em um bloco de verdade; clicar no ar não funciona), ou simplesmente digitar `/simtale putdown` no chat, que sempre funciona não importa para onde você esteja olhando.
 
 ### Um NPC morreu. Tem como trazê-lo de volta?
 
