@@ -507,6 +507,13 @@ once per NPC per tick for nothing.
         */
         NPCSocialHelper.handleSocialLogic(ref, npc, ai, transform, world, store);
 
+        /* Guard combat: detect a hostile mob nearby and deal with it (Delegated to NPCGuardHelper).
+         * Written the same session Profession.GUARD started meaning anything, but never actually
+         * wired in here -- the method self-guards on `npc.profession != Profession.GUARD`, so it
+         * was silently dead for every NPC the whole time. Same call shape as its siblings above.
+         */
+        NPCGuardHelper.handleGuardLogic(ref, npc, ai, transform, world, store, commandBuffer);
+
         /* Leisure / Hobby (Delegated to NPCLeisureHelper) 
         */
         NPCLeisureHelper.handleLeisureLogic(ref, npc, ai, transform, world, store);
