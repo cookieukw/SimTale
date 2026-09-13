@@ -89,9 +89,17 @@ public final class LumberPostRegistry {
         }
     }
 
+    /**
+     * How far an NPC will look for a lumber post to work at. Same fix, same reason as
+     * {@code FarmPostRegistry.CLAIM_SEARCH_RADIUS} / {@code FishingPostRegistry.CLAIM_SEARCH_RADIUS}
+     * -- an unbounded claim let a lumberjack pick a post on the far side of the map and never
+     * arrive. Applied during the 13/09 optimization pass.
+     */
+    private static final double CLAIM_SEARCH_RADIUS = 48.0;
+
     public static LumberPost claimNearest(double x, double y, double z, UUID npcId) {
         LumberPost chosen = null;
-        double closestDistSq = Double.MAX_VALUE;
+        double closestDistSq = CLAIM_SEARCH_RADIUS * CLAIM_SEARCH_RADIUS;
         synchronized (POSTS) {
             for (LumberPost p : POSTS) {
                 UUID holder = CLAIMED_BY.get(key(p.postX(), p.postY(), p.postZ()));
