@@ -1,5 +1,4 @@
 {
-  "lod": "auto",
   "nodes": [
     {
       "id": "1",
@@ -10,12 +9,13 @@
         "z": -2
       },
       "orientation": {
-        "w": 1,
         "x": 0,
         "y": 0,
-        "z": 0
+        "z": 0,
+        "w": 1
       },
       "shape": {
+        "type": "none",
         "offset": {
           "x": 0,
           "y": 15,
@@ -26,11 +26,10 @@
           "y": 1,
           "z": 1
         },
-        "textureLayout": {},
-        "type": "none",
         "settings": {
           "isPiece": true
         },
+        "textureLayout": {},
         "unwrapMode": "custom",
         "visible": true,
         "doubleSided": false,
@@ -38,7 +37,7 @@
       },
       "children": [
         {
-          "id": "107",
+          "id": "2",
           "name": "HairBase",
           "position": {
             "x": 0.0,
@@ -46,12 +45,13 @@
             "z": 0.0
           },
           "orientation": {
-            "w": 1,
-            "x": 0.000652,
+            "x": 0.00065,
             "y": 0,
-            "z": 0
+            "z": 0,
+            "w": 1
           },
           "shape": {
+            "type": "box",
             "offset": {
               "x": 0.0,
               "y": 0.0,
@@ -62,11 +62,30 @@
               "y": 1.224,
               "z": 1.224
             },
+            "settings": {
+              "isPiece": false,
+              "size": {
+                "x": 30,
+                "y": 29,
+                "z": 28
+              }
+            },
             "textureLayout": {
-              "top": {
+              "back": {
                 "offset": {
-                  "x": 0,
+                  "x": 30,
                   "y": 30
+                },
+                "mirror": {
+                  "x": true,
+                  "y": true
+                },
+                "angle": 0
+              },
+              "right": {
+                "offset": {
+                  "x": 30,
+                  "y": 58
                 },
                 "mirror": {
                   "x": false,
@@ -82,17 +101,6 @@
                 "mirror": {
                   "x": false,
                   "y": false
-                },
-                "angle": 0
-              },
-              "back": {
-                "offset": {
-                  "x": 30,
-                  "y": 30
-                },
-                "mirror": {
-                  "x": true,
-                  "y": true
                 },
                 "angle": 0
               },
@@ -107,122 +115,16 @@
                 },
                 "angle": 0
               },
-              "right": {
-                "offset": {
-                  "x": 30,
-                  "y": 58
-                },
-                "mirror": {
-                  "x": false,
-                  "y": false
-                },
-                "angle": 0
-              }
-            },
-            "type": "box",
-            "settings": {
-              "size": {
-                "x": 30,
-                "y": 29,
-                "z": 28
-              }
-            },
-            "unwrapMode": "custom",
-            "visible": true,
-            "doubleSided": false,
-            "shadingMode": "flat"
-          },
-          "children": []
-        },
-        {
-          "id": "108",
-          "name": "HairVolume",
-          "children": [],
-          "position": {
-            "x": 0.0,
-            "y": 17.9432808,
-            "z": 0.5934119999999999
-          },
-          "orientation": {
-            "x": -0.028475,
-            "y": 0,
-            "z": 0,
-            "w": 0.999594
-          },
-          "shape": {
-            "offset": {
-              "x": 0.0,
-              "y": 0.0,
-              "z": 0.0
-            },
-            "stretch": {
-              "x": 1.224,
-              "y": 1.224,
-              "z": 1.224
-            },
-            "textureLayout": {
               "top": {
                 "offset": {
-                  "x": 2,
-                  "y": 32
+                  "x": 0,
+                  "y": 30
                 },
                 "mirror": {
                   "x": false,
                   "y": false
                 },
                 "angle": 0
-              },
-              "front": {
-                "offset": {
-                  "x": 38,
-                  "y": 35
-                },
-                "mirror": {
-                  "x": false,
-                  "y": false
-                },
-                "angle": 0
-              },
-              "back": {
-                "offset": {
-                  "x": 64,
-                  "y": 34
-                },
-                "mirror": {
-                  "x": true,
-                  "y": true
-                },
-                "angle": 0
-              },
-              "left": {
-                "offset": {
-                  "x": 42,
-                  "y": 5
-                },
-                "mirror": {
-                  "x": false,
-                  "y": false
-                },
-                "angle": 90
-              },
-              "right": {
-                "offset": {
-                  "x": 43,
-                  "y": 29
-                },
-                "mirror": {
-                  "x": true,
-                  "y": true
-                },
-                "angle": 90
-              }
-            },
-            "type": "box",
-            "settings": {
-              "size": {
-                "x": 26,
-                "y": 4,
-                "z": 24
               }
             },
             "unwrapMode": "custom",
@@ -230,8 +132,146 @@
             "doubleSided": false,
             "shadingMode": "flat"
           }
+        },
+        {
+          "id": "3",
+          "name": "HairVolume",
+          "position": {
+            "x": 0.0,
+            "y": 17.943276,
+            "z": 0.5934119999999999
+          },
+          "orientation": {
+            "x": -0.02847,
+            "y": 0,
+            "z": 0,
+            "w": 0.99959
+          },
+          "shape": {
+            "type": "none",
+            "offset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "stretch": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            },
+            "settings": {
+              "isPiece": false
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "4",
+              "name": "HairVolume--C1",
+              "position": {
+                "x": 0.0,
+                "y": -1.2299999999999998,
+                "z": -0.69
+              },
+              "orientation": {
+                "x": 0.01745,
+                "y": 0,
+                "z": 0,
+                "w": 0.99985
+              },
+              "shape": {
+                "type": "box",
+                "offset": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": 1.224,
+                  "y": 1.224,
+                  "z": 1.224
+                },
+                "settings": {
+                  "isPiece": false,
+                  "size": {
+                    "x": 26,
+                    "y": 4,
+                    "z": 24
+                  },
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {
+                      "x": 64,
+                      "y": 34
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": true
+                    },
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {
+                      "x": 43,
+                      "y": 29
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 270
+                  },
+                  "front": {
+                    "offset": {
+                      "x": 38,
+                      "y": 35
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {
+                      "x": 42,
+                      "y": 5
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": true
+                    },
+                    "angle": 270
+                  },
+                  "top": {
+                    "offset": {
+                      "x": 2,
+                      "y": 32
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            }
+          ]
         }
       ]
     }
-  ]
+  ],
+  "format": "character",
+  "lod": "auto"
 }

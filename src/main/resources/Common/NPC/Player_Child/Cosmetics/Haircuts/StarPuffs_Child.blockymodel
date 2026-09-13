@@ -22,9 +22,9 @@
           "z": 0
         },
         "stretch": {
-          "x": 0,
-          "y": 0,
-          "z": 0
+          "x": 1,
+          "y": 1,
+          "z": 1
         },
         "settings": {
           "isPiece": true
@@ -38,11 +38,11 @@
       "children": [
         {
           "id": "2",
-          "name": "Hair",
+          "name": "HairBase",
           "position": {
-            "x": -21.835151999999997,
-            "y": -9.267719999999999,
-            "z": -20.724852000000002
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
           },
           "orientation": {
             "x": 0,
@@ -53,9 +53,9 @@
           "shape": {
             "type": "box",
             "offset": {
-              "x": 21.835151999999997,
-              "y": 9.267719999999999,
-              "z": 20.724852000000002
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
             },
             "stretch": {
               "x": 1.224,
@@ -135,479 +135,407 @@
           "children": [
             {
               "id": "3",
-              "name": "Top_L--C1",
+              "name": "Hair",
               "position": {
-                "x": 11.009736,
-                "y": 18.130896,
-                "z": -1.255836
+                "x": -21.835151999999997,
+                "y": -9.267719999999999,
+                "z": -20.724852000000002
               },
               "orientation": {
                 "x": 0,
                 "y": 0,
-                "z": -0.0654,
-                "w": 0.99786
+                "z": 0,
+                "w": 1
               },
               "shape": {
-                "type": "box",
+                "type": "none",
                 "offset": {
-                  "x": 0.0,
-                  "y": -1.2,
-                  "z": 1.2
+                  "x": 18.19596,
+                  "y": 7.7231,
+                  "z": 17.27071
                 },
                 "stretch": {
-                  "x": 1.2,
-                  "y": 1.2,
-                  "z": 1.2
+                  "x": 1,
+                  "y": 1,
+                  "z": 1
                 },
                 "settings": {
-                  "isPiece": false,
-                  "size": {
-                    "x": 15,
-                    "y": 4,
-                    "z": 29
-                  },
-                  "isStaticBox": true
+                  "isPiece": false
                 },
-                "textureLayout": {
-                  "back": {
-                    "offset": {
-                      "x": 61,
-                      "y": 44
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "right": {
-                    "offset": {
-                      "x": 31,
-                      "y": 44
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "front": {
-                    "offset": {
-                      "x": 61,
-                      "y": 48
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "left": {
-                    "offset": {
-                      "x": 31,
-                      "y": 48
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "top": {
-                    "offset": {
-                      "x": 73,
-                      "y": 83
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": true
-                    },
-                    "angle": 0
-                  }
-                },
-                "unwrapMode": "custom",
-                "visible": true,
-                "doubleSided": true,
-                "shadingMode": "flat"
-              }
-            },
-            {
-              "id": "4",
-              "name": "Side_L--C2",
-              "position": {
-                "x": 11.326836,
-                "y": 22.030896,
-                "z": 0.0
-              },
-              "orientation": {
-                "x": 0,
-                "y": 0,
-                "z": -0.04362,
-                "w": 0.99905
-              },
-              "shape": {
-                "type": "box",
-                "offset": {
-                  "x": 7.199999999999999,
-                  "y": -13.799999999999999,
-                  "z": 0.0
-                },
-                "stretch": {
-                  "x": 1.2,
-                  "y": 1.2,
-                  "z": 1.188024
-                },
-                "settings": {
-                  "isPiece": false,
-                  "size": {
-                    "x": 3,
-                    "y": 16,
-                    "z": 29
-                  },
-                  "isStaticBox": true
-                },
-                "textureLayout": {
-                  "back": {
-                    "offset": {
-                      "x": 77,
-                      "y": 29
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "right": {
-                    "offset": {
-                      "x": 28,
-                      "y": 56
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "front": {
-                    "offset": {
-                      "x": 74,
-                      "y": 0
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": false
-                    },
-                    "angle": 0
-                  }
-                },
-                "unwrapMode": "custom",
-                "visible": true,
-                "doubleSided": true,
-                "shadingMode": "flat"
-              }
-            },
-            {
-              "id": "5",
-              "name": "Top_R--C3",
-              "position": {
-                "x": -11.009736,
-                "y": 18.130896,
-                "z": -1.255836
-              },
-              "orientation": {
-                "x": 0,
-                "y": 0,
-                "z": 0.0654,
-                "w": 0.99786
-              },
-              "shape": {
-                "type": "box",
-                "offset": {
-                  "x": 0.0,
-                  "y": -1.2,
-                  "z": 1.2
-                },
-                "stretch": {
-                  "x": 1.2,
-                  "y": 1.2,
-                  "z": 1.2
-                },
-                "settings": {
-                  "isPiece": false,
-                  "size": {
-                    "x": 15,
-                    "y": 4,
-                    "z": 29
-                  },
-                  "isStaticBox": true
-                },
-                "textureLayout": {
-                  "back": {
-                    "offset": {
-                      "x": 76,
-                      "y": 44
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "right": {
-                    "offset": {
-                      "x": 60,
-                      "y": 48
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "front": {
-                    "offset": {
-                      "x": 76,
-                      "y": 48
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "left": {
-                    "offset": {
-                      "x": 60,
-                      "y": 44
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "top": {
-                    "offset": {
-                      "x": 58,
-                      "y": 83
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": true
-                    },
-                    "angle": 0
-                  }
-                },
-                "unwrapMode": "custom",
-                "visible": true,
-                "doubleSided": true,
-                "shadingMode": "flat"
-              }
-            },
-            {
-              "id": "6",
-              "name": "Side_R--C4",
-              "position": {
-                "x": -11.326836,
-                "y": 22.030896,
-                "z": 0.0
-              },
-              "orientation": {
-                "x": 0,
-                "y": 0,
-                "z": 0.04362,
-                "w": 0.99905
-              },
-              "shape": {
-                "type": "box",
-                "offset": {
-                  "x": -7.199999999999999,
-                  "y": -13.799999999999999,
-                  "z": 0.0
-                },
-                "stretch": {
-                  "x": 1.2,
-                  "y": 1.2,
-                  "z": 1.188024
-                },
-                "settings": {
-                  "isPiece": false,
-                  "size": {
-                    "x": 3,
-                    "y": 16,
-                    "z": 29
-                  },
-                  "isStaticBox": true
-                },
-                "textureLayout": {
-                  "back": {
-                    "offset": {
-                      "x": 80,
-                      "y": 29
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "front": {
-                    "offset": {
-                      "x": 77,
-                      "y": 0
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "left": {
-                    "offset": {
-                      "x": 57,
-                      "y": 56
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": false
-                    },
-                    "angle": 0
-                  }
-                },
-                "unwrapMode": "custom",
-                "visible": true,
-                "doubleSided": true,
-                "shadingMode": "flat"
-              }
-            },
-            {
-              "id": "7",
-              "name": "Bun",
-              "position": {
-                "x": -15.239999999999998,
-                "y": 12.839999999999998,
-                "z": -18.0
-              },
-              "orientation": {
-                "x": 0,
-                "y": 0,
-                "z": 0.28402,
-                "w": 0.95882
-              },
-              "shape": {
-                "type": "box",
-                "offset": {
-                  "x": -1.411236,
-                  "y": 6.639912,
-                  "z": 0.0
-                },
-                "stretch": {
-                  "x": 1.2,
-                  "y": 1.2,
-                  "z": 1.2
-                },
-                "settings": {
-                  "isPiece": false,
-                  "size": {
-                    "x": 14,
-                    "y": 14,
-                    "z": 14
-                  }
-                },
-                "textureLayout": {
-                  "back": {
-                    "offset": {
-                      "x": 74,
-                      "y": 0
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "right": {
-                    "offset": {
-                      "x": 74,
-                      "y": 0
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "front": {
-                    "offset": {
-                      "x": 74,
-                      "y": 0
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "left": {
-                    "offset": {
-                      "x": 74,
-                      "y": 0
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "top": {
-                    "offset": {
-                      "x": 28,
-                      "y": 86
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": true
-                    },
-                    "angle": 0
-                  },
-                  "bottom": {
-                    "offset": {
-                      "x": 43,
-                      "y": 86
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": true
-                    },
-                    "angle": 0
-                  }
-                },
+                "textureLayout": {},
                 "unwrapMode": "custom",
                 "visible": true,
                 "doubleSided": false,
                 "shadingMode": "flat"
               },
               "children": [
+                {
+                  "id": "4",
+                  "name": "Top_L--C1",
+                  "position": {
+                    "x": 11.009736,
+                    "y": 18.130896,
+                    "z": -1.255836
+                  },
+                  "orientation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": -0.0654,
+                    "w": 0.99786
+                  },
+                  "shape": {
+                    "type": "box",
+                    "offset": {
+                      "x": 0.0,
+                      "y": -1.2,
+                      "z": 1.2
+                    },
+                    "stretch": {
+                      "x": 1.2,
+                      "y": 1.2,
+                      "z": 1.2
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 15,
+                        "y": 4,
+                        "z": 29
+                      },
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {
+                          "x": 61,
+                          "y": 44
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {
+                          "x": 31,
+                          "y": 44
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {
+                          "x": 61,
+                          "y": 48
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {
+                          "x": 31,
+                          "y": 48
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {
+                          "x": 73,
+                          "y": 83
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": true
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "5",
+                  "name": "Side_L--C2",
+                  "position": {
+                    "x": 11.326836,
+                    "y": 22.030896,
+                    "z": 0.0
+                  },
+                  "orientation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": -0.04362,
+                    "w": 0.99905
+                  },
+                  "shape": {
+                    "type": "box",
+                    "offset": {
+                      "x": 7.199999999999999,
+                      "y": -13.799999999999999,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.2,
+                      "y": 1.2,
+                      "z": 1.188024
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 3,
+                        "y": 16,
+                        "z": 29
+                      },
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {
+                          "x": 77,
+                          "y": 29
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {
+                          "x": 28,
+                          "y": 56
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {
+                          "x": 74,
+                          "y": 0
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "6",
+                  "name": "Top_R--C3",
+                  "position": {
+                    "x": -11.009736,
+                    "y": 18.130896,
+                    "z": -1.255836
+                  },
+                  "orientation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0.0654,
+                    "w": 0.99786
+                  },
+                  "shape": {
+                    "type": "box",
+                    "offset": {
+                      "x": 0.0,
+                      "y": -1.2,
+                      "z": 1.2
+                    },
+                    "stretch": {
+                      "x": 1.2,
+                      "y": 1.2,
+                      "z": 1.2
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 15,
+                        "y": 4,
+                        "z": 29
+                      },
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {
+                          "x": 76,
+                          "y": 44
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {
+                          "x": 60,
+                          "y": 48
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {
+                          "x": 76,
+                          "y": 48
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {
+                          "x": 60,
+                          "y": 44
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {
+                          "x": 58,
+                          "y": 83
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": true
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "7",
+                  "name": "Side_R--C4",
+                  "position": {
+                    "x": -11.326836,
+                    "y": 22.030896,
+                    "z": 0.0
+                  },
+                  "orientation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0.04362,
+                    "w": 0.99905
+                  },
+                  "shape": {
+                    "type": "box",
+                    "offset": {
+                      "x": -7.199999999999999,
+                      "y": -13.799999999999999,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.2,
+                      "y": 1.2,
+                      "z": 1.188024
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 3,
+                        "y": 16,
+                        "z": 29
+                      },
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {
+                          "x": 80,
+                          "y": 29
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {
+                          "x": 77,
+                          "y": 0
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {
+                          "x": 57,
+                          "y": 56
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
                 {
                   "id": "8",
-                  "name": "cube--C1",
+                  "name": "Bun",
                   "position": {
-                    "x": 0.0,
-                    "y": 16.8,
-                    "z": 0.0
+                    "x": -15.239999999999998,
+                    "y": 12.839999999999998,
+                    "z": -18.0
                   },
                   "orientation": {
                     "x": 0,
                     "y": 0,
-                    "z": 0,
-                    "w": 1
+                    "z": 0.28402,
+                    "w": 0.95882
                   },
                   "shape": {
-                    "type": "quad",
+                    "type": "box",
                     "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
+                      "x": -1.411236,
+                      "y": 6.639912,
                       "z": 0.0
                     },
                     "stretch": {
@@ -619,969 +547,969 @@
                       "isPiece": false,
                       "size": {
                         "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
+                        "y": 14,
+                        "z": 14
+                      }
                     },
                     "textureLayout": {
-                      "front": {
+                      "back": {
                         "offset": {
-                          "x": 61,
-                          "y": 29
+                          "x": 74,
+                          "y": 0
                         },
                         "mirror": {
                           "x": true,
                           "y": false
                         },
                         "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "9",
-                  "name": "cube--C2",
-                  "position": {
-                    "x": 0.0,
-                    "y": 16.8,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0,
-                    "y": 0.70711,
-                    "z": 0,
-                    "w": 0.70711
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
-                      "z": 0.0
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
                       },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
+                      "right": {
                         "offset": {
-                          "x": 61,
-                          "y": 29
+                          "x": 74,
+                          "y": 0
                         },
                         "mirror": {
                           "x": true,
                           "y": false
                         },
                         "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "10",
-                  "name": "cube--C3",
-                  "position": {
-                    "x": 14.399999999999999,
-                    "y": 7.199999999999999,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.06524,
-                    "y": 0.04359,
-                    "z": -0.55386,
-                    "w": 0.82891
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
-                      "z": 0.0
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
                       },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
                       "front": {
                         "offset": {
-                          "x": 62,
-                          "y": 29
+                          "x": 74,
+                          "y": 0
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {
+                          "x": 74,
+                          "y": 0
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {
+                          "x": 28,
+                          "y": 86
                         },
                         "mirror": {
                           "x": false,
-                          "y": false
+                          "y": true
                         },
                         "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "11",
-                  "name": "cube--C4",
-                  "position": {
-                    "x": 14.399999999999999,
-                    "y": 7.199999999999999,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.43777,
-                    "y": 0.61695,
-                    "z": -0.34551,
-                    "w": 0.5553
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
-                      "z": 0.0
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
                       },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
+                      "bottom": {
                         "offset": {
-                          "x": 61,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": true,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "12",
-                  "name": "cube--C5",
-                  "position": {
-                    "x": -13.2,
-                    "y": 8.4,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": -0.01531,
-                    "y": 0.07695,
-                    "z": 0.55386,
-                    "w": 0.82891
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
-                      "z": 0.0
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 76,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": true,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "13",
-                  "name": "cube--C6",
-                  "position": {
-                    "x": -13.2,
-                    "y": 8.4,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.40246,
-                    "y": -0.64054,
-                    "z": -0.38081,
-                    "w": -0.53171
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
-                      "z": 0.0
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 76,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": true,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "14",
-                  "name": "cube--C7",
-                  "position": {
-                    "x": -13.2,
-                    "y": 9.6,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.03235,
-                    "y": -0.75906,
-                    "z": -0.64585,
-                    "w": 0.0752
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": -13.495764,
-                      "y": 14.736659999999999,
-                      "z": -9.405888
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 61,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": true,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "15",
-                  "name": "cube--C8",
-                  "position": {
-                    "x": -13.2,
-                    "y": 9.6,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.43381,
-                    "y": 0.58991,
-                    "z": 0.47956,
-                    "w": 0.48356
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": -9.405888,
-                      "y": 14.736659999999999,
-                      "z": 13.495764
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 76,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": true,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "16",
-                  "name": "cube--C9",
-                  "position": {
-                    "x": -13.2,
-                    "y": 9.6,
-                    "z": 36.0
-                  },
-                  "orientation": {
-                    "x": -0.03235,
-                    "y": 0.75906,
-                    "z": -0.64585,
-                    "w": 0.0752
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": -10.889987999999999,
-                      "y": 50.209163999999994,
-                      "z": 14.965692
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "-Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 61,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": true,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "17",
-                  "name": "cube--C10",
-                  "position": {
-                    "x": -13.2,
-                    "y": 9.6,
-                    "z": 36.0
-                  },
-                  "orientation": {
-                    "x": -0.43381,
-                    "y": -0.58991,
-                    "z": 0.47956,
-                    "w": 0.48356
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": -14.965692,
-                      "y": 50.209163999999994,
-                      "z": -10.889987999999999
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "-Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 62,
-                          "y": 29
+                          "x": 43,
+                          "y": 86
                         },
                         "mirror": {
                           "x": false,
-                          "y": false
+                          "y": true
                         },
                         "angle": 0
                       }
                     },
                     "unwrapMode": "custom",
                     "visible": true,
-                    "doubleSided": true,
+                    "doubleSided": false,
                     "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "18",
-                  "name": "cube--C11",
-                  "position": {
-                    "x": -10.799999999999999,
-                    "y": -8.4,
-                    "z": 0.0
                   },
-                  "orientation": {
-                    "x": -0.01206,
-                    "y": 0.33179,
-                    "z": 0.86192,
-                    "w": 0.38323
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": -2.310804,
-                      "y": 4.726692,
-                      "z": 6.548172
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
+                  "children": [
+                    {
+                      "id": "9",
+                      "name": "cube--C1",
+                      "position": {
+                        "x": 0.0,
+                        "y": 16.8,
+                        "z": 0.0
                       },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 45,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": true,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "19",
-                  "name": "cube--C12",
-                  "position": {
-                    "x": -10.799999999999999,
-                    "y": -8.4,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.618,
-                    "y": -0.50559,
-                    "z": -0.60094,
-                    "w": -0.03637
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": -6.548172,
-                      "y": 4.726692,
-                      "z": -2.310804
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
+                      "orientation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0,
+                        "w": 1
                       },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
+                      "shape": {
+                        "type": "quad",
                         "offset": {
-                          "x": 45,
-                          "y": 29
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
                         },
-                        "mirror": {
-                          "x": true,
-                          "y": false
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
                         },
-                        "angle": 0
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 61,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
                       }
                     },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "20",
-                  "name": "cube--C13",
-                  "position": {
-                    "x": -10.799999999999999,
-                    "y": -8.4,
-                    "z": 36.0
-                  },
-                  "orientation": {
-                    "x": -0.618,
-                    "y": 0.50559,
-                    "z": -0.60094,
-                    "w": -0.03637
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": -34.611756,
-                      "y": 24.983939999999997,
-                      "z": 12.214272
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
+                    {
+                      "id": "10",
+                      "name": "cube--C2",
+                      "position": {
+                        "x": 0.0,
+                        "y": 16.8,
+                        "z": 0.0
                       },
-                      "normal": "-Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 45,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": true,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "21",
-                  "name": "cube--C14",
-                  "position": {
-                    "x": -10.799999999999999,
-                    "y": -8.4,
-                    "z": 36.0
-                  },
-                  "orientation": {
-                    "x": 0.01206,
-                    "y": -0.33179,
-                    "z": 0.86192,
-                    "w": 0.38323
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": -12.214272,
-                      "y": 24.983939999999997,
-                      "z": -34.611756
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
+                      "orientation": {
+                        "x": 0,
+                        "y": 0.70711,
+                        "z": 0,
+                        "w": 0.70711
                       },
-                      "normal": "-Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
+                      "shape": {
+                        "type": "quad",
                         "offset": {
-                          "x": 31,
-                          "y": 29
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
                         },
-                        "mirror": {
-                          "x": false,
-                          "y": false
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
                         },
-                        "angle": 0
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 61,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
                       }
                     },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "22",
-                  "name": "cube--C15",
-                  "position": {
-                    "x": 10.799999999999999,
-                    "y": -8.4,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": -0.053,
-                    "y": -0.05785,
-                    "z": -0.90351,
-                    "w": 0.42132
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
-                      "z": 0.0
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
+                    {
+                      "id": "11",
+                      "name": "cube--C3",
+                      "position": {
+                        "x": 14.399999999999999,
+                        "y": 7.199999999999999,
+                        "z": 0.0
                       },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 31,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": false,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "23",
-                  "name": "cube--C16",
-                  "position": {
-                    "x": 10.799999999999999,
-                    "y": -8.4,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.67636,
-                    "y": 0.33882,
-                    "z": 0.6014,
-                    "w": -0.25701
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
-                      "z": 0.0
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
+                      "orientation": {
+                        "x": 0.06524,
+                        "y": 0.04359,
+                        "z": -0.55386,
+                        "w": 0.82891
                       },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
+                      "shape": {
+                        "type": "quad",
                         "offset": {
-                          "x": 31,
-                          "y": 29
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
                         },
-                        "mirror": {
-                          "x": false,
-                          "y": false
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
                         },
-                        "angle": 0
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 62,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
                       }
                     },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                }
-              ]
-            },
-            {
-              "id": "24",
-              "name": "Bun2",
-              "position": {
-                "x": 15.239999999999998,
-                "y": 12.839999999999998,
-                "z": -18.0
-              },
-              "orientation": {
-                "x": 0,
-                "y": 0,
-                "z": -0.28402,
-                "w": 0.95882
-              },
-              "shape": {
-                "type": "box",
-                "offset": {
-                  "x": 1.411236,
-                  "y": 6.639912,
-                  "z": 0.0
+                    {
+                      "id": "12",
+                      "name": "cube--C4",
+                      "position": {
+                        "x": 14.399999999999999,
+                        "y": 7.199999999999999,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.43777,
+                        "y": 0.61695,
+                        "z": -0.34551,
+                        "w": 0.5553
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 89,
+                              "y": 55
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "13",
+                      "name": "cube--C5",
+                      "position": {
+                        "x": -13.2,
+                        "y": 8.4,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": -0.01531,
+                        "y": 0.07695,
+                        "z": 0.55386,
+                        "w": 0.82891
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 76,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "14",
+                      "name": "cube--C6",
+                      "position": {
+                        "x": -13.2,
+                        "y": 8.4,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.40246,
+                        "y": -0.64054,
+                        "z": -0.38081,
+                        "w": -0.53171
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 89,
+                              "y": 55
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "15",
+                      "name": "cube--C7",
+                      "position": {
+                        "x": -13.2,
+                        "y": 9.6,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.03235,
+                        "y": -0.75906,
+                        "z": -0.64585,
+                        "w": 0.0752
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": -13.495764,
+                          "y": 14.736659999999999,
+                          "z": -9.405888
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 89,
+                              "y": 55
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "16",
+                      "name": "cube--C8",
+                      "position": {
+                        "x": -13.2,
+                        "y": 9.6,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.43381,
+                        "y": 0.58991,
+                        "z": 0.47956,
+                        "w": 0.48356
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": -9.405888,
+                          "y": 14.736659999999999,
+                          "z": 13.495764
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 76,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "17",
+                      "name": "cube--C9",
+                      "position": {
+                        "x": -13.2,
+                        "y": 9.6,
+                        "z": 36.0
+                      },
+                      "orientation": {
+                        "x": -0.03235,
+                        "y": 0.75906,
+                        "z": -0.64585,
+                        "w": 0.0752
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": -10.889987999999999,
+                          "y": 50.209163999999994,
+                          "z": 14.965692
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "-Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 61,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "18",
+                      "name": "cube--C10",
+                      "position": {
+                        "x": -13.2,
+                        "y": 9.6,
+                        "z": 36.0
+                      },
+                      "orientation": {
+                        "x": -0.43381,
+                        "y": -0.58991,
+                        "z": 0.47956,
+                        "w": 0.48356
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": -14.965692,
+                          "y": 50.209163999999994,
+                          "z": -10.889987999999999
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "-Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 62,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "19",
+                      "name": "cube--C11",
+                      "position": {
+                        "x": -10.799999999999999,
+                        "y": -8.4,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": -0.01206,
+                        "y": 0.33179,
+                        "z": 0.86192,
+                        "w": 0.38323
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": -2.310804,
+                          "y": 4.726692,
+                          "z": 6.548172
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 45,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "20",
+                      "name": "cube--C12",
+                      "position": {
+                        "x": -10.799999999999999,
+                        "y": -8.4,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.618,
+                        "y": -0.50559,
+                        "z": -0.60094,
+                        "w": -0.03637
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": -6.548172,
+                          "y": 4.726692,
+                          "z": -2.310804
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 45,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "21",
+                      "name": "cube--C13",
+                      "position": {
+                        "x": -10.799999999999999,
+                        "y": -8.4,
+                        "z": 36.0
+                      },
+                      "orientation": {
+                        "x": -0.618,
+                        "y": 0.50559,
+                        "z": -0.60094,
+                        "w": -0.03637
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": -34.611756,
+                          "y": 24.983939999999997,
+                          "z": 12.214272
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "-Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 45,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "22",
+                      "name": "cube--C14",
+                      "position": {
+                        "x": -10.799999999999999,
+                        "y": -8.4,
+                        "z": 36.0
+                      },
+                      "orientation": {
+                        "x": 0.01206,
+                        "y": -0.33179,
+                        "z": 0.86192,
+                        "w": 0.38323
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": -12.214272,
+                          "y": 24.983939999999997,
+                          "z": -34.611756
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "-Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 31,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "23",
+                      "name": "cube--C15",
+                      "position": {
+                        "x": 10.799999999999999,
+                        "y": -8.4,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": -0.053,
+                        "y": -0.05785,
+                        "z": -0.90351,
+                        "w": 0.42132
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 31,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "24",
+                      "name": "cube--C16",
+                      "position": {
+                        "x": 10.799999999999999,
+                        "y": -8.4,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.67636,
+                        "y": 0.33882,
+                        "z": 0.6014,
+                        "w": -0.25701
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 31,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
                 },
-                "stretch": {
-                  "x": 1.2,
-                  "y": 1.2,
-                  "z": 1.2
-                },
-                "settings": {
-                  "isPiece": false,
-                  "size": {
-                    "x": 14,
-                    "y": 14,
-                    "z": 14
-                  }
-                },
-                "textureLayout": {
-                  "back": {
-                    "offset": {
-                      "x": 60,
-                      "y": 0
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "right": {
-                    "offset": {
-                      "x": 60,
-                      "y": 0
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "front": {
-                    "offset": {
-                      "x": 60,
-                      "y": 0
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "left": {
-                    "offset": {
-                      "x": 60,
-                      "y": 0
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": false
-                    },
-                    "angle": 0
-                  },
-                  "top": {
-                    "offset": {
-                      "x": 42,
-                      "y": 86
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": true
-                    },
-                    "angle": 0
-                  },
-                  "bottom": {
-                    "offset": {
-                      "x": 57,
-                      "y": 86
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": true
-                    },
-                    "angle": 0
-                  }
-                },
-                "unwrapMode": "custom",
-                "visible": true,
-                "doubleSided": false,
-                "shadingMode": "flat"
-              },
-              "children": [
                 {
                   "id": "25",
-                  "name": "cube--C1",
+                  "name": "Bun2",
                   "position": {
-                    "x": 0.0,
-                    "y": 16.8,
-                    "z": 0.0
+                    "x": 15.239999999999998,
+                    "y": 12.839999999999998,
+                    "z": -18.0
                   },
                   "orientation": {
                     "x": 0,
                     "y": 0,
-                    "z": 0,
-                    "w": 1
+                    "z": -0.28402,
+                    "w": 0.95882
                   },
                   "shape": {
-                    "type": "quad",
+                    "type": "box",
                     "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
+                      "x": 1.411236,
+                      "y": 6.639912,
                       "z": 0.0
                     },
                     "stretch": {
@@ -1593,49 +1521,969 @@
                       "isPiece": false,
                       "size": {
                         "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
+                        "y": 14,
+                        "z": 14
+                      }
                     },
                     "textureLayout": {
-                      "front": {
+                      "back": {
                         "offset": {
-                          "x": 47,
-                          "y": 29
+                          "x": 60,
+                          "y": 0
                         },
                         "mirror": {
                           "x": false,
                           "y": false
                         },
                         "angle": 0
+                      },
+                      "right": {
+                        "offset": {
+                          "x": 60,
+                          "y": 0
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {
+                          "x": 60,
+                          "y": 0
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {
+                          "x": 60,
+                          "y": 0
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {
+                          "x": 42,
+                          "y": 86
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": true
+                        },
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {
+                          "x": 57,
+                          "y": 86
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": true
+                        },
+                        "angle": 0
                       }
                     },
                     "unwrapMode": "custom",
                     "visible": true,
-                    "doubleSided": true,
+                    "doubleSided": false,
                     "shadingMode": "flat"
-                  }
+                  },
+                  "children": [
+                    {
+                      "id": "26",
+                      "name": "cube--C1",
+                      "position": {
+                        "x": 0.0,
+                        "y": 16.8,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0,
+                        "w": 1
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 47,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "27",
+                      "name": "cube--C2",
+                      "position": {
+                        "x": 0.0,
+                        "y": 16.8,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0,
+                        "y": -0.70711,
+                        "z": 0,
+                        "w": 0.70711
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 47,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "28",
+                      "name": "cube--C3",
+                      "position": {
+                        "x": -14.399999999999999,
+                        "y": 7.199999999999999,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.06524,
+                        "y": -0.04359,
+                        "z": 0.55386,
+                        "w": 0.82891
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 76,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "29",
+                      "name": "cube--C4",
+                      "position": {
+                        "x": -14.399999999999999,
+                        "y": 7.199999999999999,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.43777,
+                        "y": -0.61695,
+                        "z": 0.34551,
+                        "w": 0.5553
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 75,
+                              "y": 55
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "30",
+                      "name": "cube--C5",
+                      "position": {
+                        "x": 13.2,
+                        "y": 8.4,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": -0.01531,
+                        "y": -0.07695,
+                        "z": -0.55386,
+                        "w": 0.82891
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 62,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "31",
+                      "name": "cube--C6",
+                      "position": {
+                        "x": 13.2,
+                        "y": 8.4,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.40246,
+                        "y": 0.64054,
+                        "z": 0.38081,
+                        "w": -0.53171
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 61,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "32",
+                      "name": "cube--C7",
+                      "position": {
+                        "x": 13.2,
+                        "y": 9.6,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.03235,
+                        "y": 0.75906,
+                        "z": 0.64585,
+                        "w": 0.0752
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 13.495764,
+                          "y": 14.736659999999999,
+                          "z": -9.405888
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 75,
+                              "y": 55
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "33",
+                      "name": "cube--C8",
+                      "position": {
+                        "x": 13.2,
+                        "y": 9.6,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.43381,
+                        "y": -0.58991,
+                        "z": -0.47956,
+                        "w": 0.48356
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 9.405888,
+                          "y": 14.736659999999999,
+                          "z": 13.495764
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 62,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "34",
+                      "name": "cube--C9",
+                      "position": {
+                        "x": 13.2,
+                        "y": 9.6,
+                        "z": 36.0
+                      },
+                      "orientation": {
+                        "x": -0.03235,
+                        "y": -0.75906,
+                        "z": 0.64585,
+                        "w": 0.0752
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 10.889987999999999,
+                          "y": 50.209163999999994,
+                          "z": 14.965692
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "-Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 75,
+                              "y": 55
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "35",
+                      "name": "cube--C10",
+                      "position": {
+                        "x": 13.2,
+                        "y": 9.6,
+                        "z": 36.0
+                      },
+                      "orientation": {
+                        "x": -0.43381,
+                        "y": 0.58991,
+                        "z": -0.47956,
+                        "w": 0.48356
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 14.965692,
+                          "y": 50.209163999999994,
+                          "z": -10.889987999999999
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "-Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 76,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "36",
+                      "name": "cube--C11",
+                      "position": {
+                        "x": 10.799999999999999,
+                        "y": -8.4,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": -0.01206,
+                        "y": -0.33179,
+                        "z": -0.86192,
+                        "w": 0.38323
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 2.310804,
+                          "y": 4.726692,
+                          "z": 6.548172
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 31,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "37",
+                      "name": "cube--C12",
+                      "position": {
+                        "x": 10.799999999999999,
+                        "y": -8.4,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.618,
+                        "y": 0.50559,
+                        "z": 0.60094,
+                        "w": -0.03637
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 6.548172,
+                          "y": 4.726692,
+                          "z": -2.310804
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 31,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "38",
+                      "name": "cube--C13",
+                      "position": {
+                        "x": 10.799999999999999,
+                        "y": -8.4,
+                        "z": 36.0
+                      },
+                      "orientation": {
+                        "x": -0.618,
+                        "y": -0.50559,
+                        "z": 0.60094,
+                        "w": -0.03637
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 34.611756,
+                          "y": 24.983939999999997,
+                          "z": 12.214272
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "-Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 31,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "39",
+                      "name": "cube--C14",
+                      "position": {
+                        "x": 10.799999999999999,
+                        "y": -8.4,
+                        "z": 36.0
+                      },
+                      "orientation": {
+                        "x": 0.01206,
+                        "y": 0.33179,
+                        "z": -0.86192,
+                        "w": 0.38323
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 12.214272,
+                          "y": 24.983939999999997,
+                          "z": -34.611756
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "-Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 45,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "40",
+                      "name": "cube--C15",
+                      "position": {
+                        "x": -10.799999999999999,
+                        "y": -8.4,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": -0.053,
+                        "y": 0.05785,
+                        "z": 0.90351,
+                        "w": 0.42132
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 45,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "41",
+                      "name": "cube--C16",
+                      "position": {
+                        "x": -10.799999999999999,
+                        "y": -8.4,
+                        "z": 0.0
+                      },
+                      "orientation": {
+                        "x": 0.67636,
+                        "y": -0.33882,
+                        "z": -0.6014,
+                        "w": -0.25701
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 45,
+                              "y": 29
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
                 },
                 {
-                  "id": "26",
-                  "name": "cube--C2",
+                  "id": "42",
+                  "name": "cube--C5",
                   "position": {
-                    "x": 0.0,
-                    "y": 16.8,
-                    "z": 0.0
+                    "x": -19.2,
+                    "y": 2.4,
+                    "z": 18.0
                   },
                   "orientation": {
                     "x": 0,
-                    "y": -0.70711,
+                    "y": 0.38268,
                     "z": 0,
-                    "w": 0.70711
+                    "w": 0.92388
                   },
                   "shape": {
                     "type": "quad",
                     "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
+                      "x": -3.5999999999999996,
+                      "y": 0.6,
                       "z": 0.0
                     },
                     "stretch": {
@@ -1646,17 +2494,17 @@
                     "settings": {
                       "isPiece": false,
                       "size": {
-                        "x": 14,
-                        "y": 14
+                        "x": 8,
+                        "y": 17
                       },
-                      "normal": "+Z",
+                      "normal": "-Z",
                       "isStaticBox": true
                     },
                     "textureLayout": {
                       "front": {
                         "offset": {
-                          "x": 47,
-                          "y": 29
+                          "x": 78,
+                          "y": 0
                         },
                         "mirror": {
                           "x": false,
@@ -1672,186 +2520,24 @@
                   }
                 },
                 {
-                  "id": "27",
-                  "name": "cube--C3",
-                  "position": {
-                    "x": -14.399999999999999,
-                    "y": 7.199999999999999,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.06524,
-                    "y": -0.04359,
-                    "z": 0.55386,
-                    "w": 0.82891
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
-                      "z": 0.0
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 76,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": true,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "28",
-                  "name": "cube--C4",
-                  "position": {
-                    "x": -14.399999999999999,
-                    "y": 7.199999999999999,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.43777,
-                    "y": -0.61695,
-                    "z": 0.34551,
-                    "w": 0.5553
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
-                      "z": 0.0
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 47,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": false,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "29",
-                  "name": "cube--C5",
-                  "position": {
-                    "x": 13.2,
-                    "y": 8.4,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": -0.01531,
-                    "y": -0.07695,
-                    "z": -0.55386,
-                    "w": 0.82891
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
-                      "z": 0.0
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 62,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": false,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "30",
+                  "id": "43",
                   "name": "cube--C6",
                   "position": {
-                    "x": 13.2,
-                    "y": 8.4,
-                    "z": 0.0
+                    "x": 19.2,
+                    "y": 2.4,
+                    "z": 18.0
                   },
                   "orientation": {
-                    "x": 0.40246,
-                    "y": 0.64054,
-                    "z": 0.38081,
-                    "w": -0.53171
+                    "x": 0,
+                    "y": -0.38268,
+                    "z": 0,
+                    "w": 0.92388
                   },
                   "shape": {
                     "type": "quad",
                     "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
+                      "x": 3.5999999999999996,
+                      "y": 0.6,
                       "z": 0.0
                     },
                     "stretch": {
@@ -1862,170 +2548,8 @@
                     "settings": {
                       "isPiece": false,
                       "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 62,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": false,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "31",
-                  "name": "cube--C7",
-                  "position": {
-                    "x": 13.2,
-                    "y": 9.6,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.03235,
-                    "y": 0.75906,
-                    "z": 0.64585,
-                    "w": 0.0752
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 13.495764,
-                      "y": 14.736659999999999,
-                      "z": -9.405888
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 47,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": false,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "32",
-                  "name": "cube--C8",
-                  "position": {
-                    "x": 13.2,
-                    "y": 9.6,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.43381,
-                    "y": -0.58991,
-                    "z": -0.47956,
-                    "w": 0.48356
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 9.405888,
-                      "y": 14.736659999999999,
-                      "z": 13.495764
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 62,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": false,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "33",
-                  "name": "cube--C9",
-                  "position": {
-                    "x": 13.2,
-                    "y": 9.6,
-                    "z": 36.0
-                  },
-                  "orientation": {
-                    "x": -0.03235,
-                    "y": -0.75906,
-                    "z": 0.64585,
-                    "w": 0.0752
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 10.889987999999999,
-                      "y": 50.209163999999994,
-                      "z": 14.965692
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
+                        "x": 8,
+                        "y": 17
                       },
                       "normal": "-Z",
                       "isStaticBox": true
@@ -2033,386 +2557,8 @@
                     "textureLayout": {
                       "front": {
                         "offset": {
-                          "x": 47,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": false,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "34",
-                  "name": "cube--C10",
-                  "position": {
-                    "x": 13.2,
-                    "y": 9.6,
-                    "z": 36.0
-                  },
-                  "orientation": {
-                    "x": -0.43381,
-                    "y": 0.58991,
-                    "z": -0.47956,
-                    "w": 0.48356
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 14.965692,
-                      "y": 50.209163999999994,
-                      "z": -10.889987999999999
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "-Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 76,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": true,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "35",
-                  "name": "cube--C11",
-                  "position": {
-                    "x": 10.799999999999999,
-                    "y": -8.4,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": -0.01206,
-                    "y": -0.33179,
-                    "z": -0.86192,
-                    "w": 0.38323
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 2.310804,
-                      "y": 4.726692,
-                      "z": 6.548172
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 31,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": false,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "36",
-                  "name": "cube--C12",
-                  "position": {
-                    "x": 10.799999999999999,
-                    "y": -8.4,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.618,
-                    "y": 0.50559,
-                    "z": 0.60094,
-                    "w": -0.03637
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 6.548172,
-                      "y": 4.726692,
-                      "z": -2.310804
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 31,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": false,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "37",
-                  "name": "cube--C13",
-                  "position": {
-                    "x": 10.799999999999999,
-                    "y": -8.4,
-                    "z": 36.0
-                  },
-                  "orientation": {
-                    "x": -0.618,
-                    "y": -0.50559,
-                    "z": 0.60094,
-                    "w": -0.03637
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 34.611756,
-                      "y": 24.983939999999997,
-                      "z": 12.214272
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "-Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 31,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": false,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "38",
-                  "name": "cube--C14",
-                  "position": {
-                    "x": 10.799999999999999,
-                    "y": -8.4,
-                    "z": 36.0
-                  },
-                  "orientation": {
-                    "x": 0.01206,
-                    "y": 0.33179,
-                    "z": -0.86192,
-                    "w": 0.38323
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 12.214272,
-                      "y": 24.983939999999997,
-                      "z": -34.611756
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "-Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 45,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": true,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "39",
-                  "name": "cube--C15",
-                  "position": {
-                    "x": -10.799999999999999,
-                    "y": -8.4,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": -0.053,
-                    "y": 0.05785,
-                    "z": 0.90351,
-                    "w": 0.42132
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
-                      "z": 0.0
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 45,
-                          "y": 29
-                        },
-                        "mirror": {
-                          "x": true,
-                          "y": false
-                        },
-                        "angle": 0
-                      }
-                    },
-                    "unwrapMode": "custom",
-                    "visible": true,
-                    "doubleSided": true,
-                    "shadingMode": "flat"
-                  }
-                },
-                {
-                  "id": "40",
-                  "name": "cube--C16",
-                  "position": {
-                    "x": -10.799999999999999,
-                    "y": -8.4,
-                    "z": 0.0
-                  },
-                  "orientation": {
-                    "x": 0.67636,
-                    "y": -0.33882,
-                    "z": -0.6014,
-                    "w": -0.25701
-                  },
-                  "shape": {
-                    "type": "quad",
-                    "offset": {
-                      "x": 0.0,
-                      "y": 0.0,
-                      "z": 0.0
-                    },
-                    "stretch": {
-                      "x": 1.2,
-                      "y": 1.2,
-                      "z": 1.2
-                    },
-                    "settings": {
-                      "isPiece": false,
-                      "size": {
-                        "x": 14,
-                        "y": 14
-                      },
-                      "normal": "+Z",
-                      "isStaticBox": true
-                    },
-                    "textureLayout": {
-                      "front": {
-                        "offset": {
-                          "x": 45,
-                          "y": 29
+                          "x": 86,
+                          "y": 0
                         },
                         "mirror": {
                           "x": true,
@@ -2428,114 +2574,6 @@
                   }
                 }
               ]
-            },
-            {
-              "id": "41",
-              "name": "cube--C5",
-              "position": {
-                "x": -19.2,
-                "y": 2.4,
-                "z": 18.0
-              },
-              "orientation": {
-                "x": 0,
-                "y": 0.38268,
-                "z": 0,
-                "w": 0.92388
-              },
-              "shape": {
-                "type": "quad",
-                "offset": {
-                  "x": -3.5999999999999996,
-                  "y": 0.6,
-                  "z": 0.0
-                },
-                "stretch": {
-                  "x": 1.2,
-                  "y": 1.2,
-                  "z": 1.2
-                },
-                "settings": {
-                  "isPiece": false,
-                  "size": {
-                    "x": 8,
-                    "y": 17
-                  },
-                  "normal": "-Z",
-                  "isStaticBox": true
-                },
-                "textureLayout": {
-                  "front": {
-                    "offset": {
-                      "x": 78,
-                      "y": 0
-                    },
-                    "mirror": {
-                      "x": false,
-                      "y": false
-                    },
-                    "angle": 0
-                  }
-                },
-                "unwrapMode": "custom",
-                "visible": true,
-                "doubleSided": true,
-                "shadingMode": "flat"
-              }
-            },
-            {
-              "id": "42",
-              "name": "cube--C6",
-              "position": {
-                "x": 19.2,
-                "y": 2.4,
-                "z": 18.0
-              },
-              "orientation": {
-                "x": 0,
-                "y": -0.38268,
-                "z": 0,
-                "w": 0.92388
-              },
-              "shape": {
-                "type": "quad",
-                "offset": {
-                  "x": 3.5999999999999996,
-                  "y": 0.6,
-                  "z": 0.0
-                },
-                "stretch": {
-                  "x": 1.2,
-                  "y": 1.2,
-                  "z": 1.2
-                },
-                "settings": {
-                  "isPiece": false,
-                  "size": {
-                    "x": 8,
-                    "y": 17
-                  },
-                  "normal": "-Z",
-                  "isStaticBox": true
-                },
-                "textureLayout": {
-                  "front": {
-                    "offset": {
-                      "x": 86,
-                      "y": 0
-                    },
-                    "mirror": {
-                      "x": true,
-                      "y": false
-                    },
-                    "angle": 0
-                  }
-                },
-                "unwrapMode": "custom",
-                "visible": true,
-                "doubleSided": true,
-                "shadingMode": "flat"
-              }
             }
           ]
         }
