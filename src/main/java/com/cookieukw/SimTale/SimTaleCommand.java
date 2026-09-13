@@ -97,6 +97,9 @@ import java.util.Objects;
 
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import java.util.LinkedHashMap;
+import java.util.HashMap;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.cookieukw.SimTale.logic.InteractionManager;
 
 /**
  * Commands for the SimTale plugin.
@@ -155,6 +158,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new SocialTestCommands.TestFlirtSubCommand());
         this.addSubCommand(new SocialTestCommands.TestShoveSubCommand());
         this.addSubCommand(new SocialTestCommands.TestGreetSubCommand());
+        this.addSubCommand(new CostumeSubCommand());
     }
 
     @Override
@@ -165,10 +169,108 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|despawnnearest|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown>"));
+        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|despawnnearest|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown|costume>"));
     }
 
     // --- SUBCOMMANDS ---
+
+    /**
+     * PROTOTIPO (13/09): fantasia de evento sazonal (Natal/Halloween) na NPC mais proxima.
+     * <p>
+     * Usa o mesmo mecanismo que o Reaper ja usa pra trocar de modelo em tempo real
+     * (SimNPCFactory.applyModel -> ModelAsset -> Model.createScaledModel -> ModelComponent),
+     * so que apontando pra um ModelAsset novo (src/main/resources/Server/Models/Events/*.json)
+     * cujo "Parent" e o modelo base da NPC (SimTale_Human_Male/Female/Child) e cujo unico
+     * DefaultAttachment extra e um item de cosmetico que o proprio jogo ja usa pra isso
+     * (Cosmetics/Head/SantaHat.blockymodel pro Natal -- e literalmente a mesma combinacao de
+     * modelo/textura/GradientSet/GradientId do Server/Models/Christmas/Trork_Christmas.json
+     * que o jogo ja envia --, StrawHat.blockymodel com a textura de bruxa pro Halloween).
+     * <p>
+     * Limitacao conhecida deste prototipo: aplicar a fantasia troca a NPC pro visual BASE
+     * (cabelo/roupa padrao) + o item de evento, perdendo o visual individual sorteado dela
+     * enquanto a fantasia estiver ativa -- "costume off" restaura o visual original porque o
+     * asset id de antes da troca fica guardado em memoria (COSTUME_BACKUP_MODEL), mas esse
+     * backup nao sobrevive a um restart do servidor.
+     */
+    private static final Map<UUID, String> COSTUME_BACKUP_MODEL = new HashMap<>();
+
+    private static class CostumeSubCommand extends AbstractPlayerCommand {
+        private final RequiredArg<String> eventArg;
+
+        public CostumeSubCommand() {
+            super("costume", "Testa uma fantasia de evento sazonal (christmas|halloween|off) na NPC mais proxima");
+            this.eventArg = this.withRequiredArg("evento", "christmas|halloween|off", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            String evento = ctx.get(this.eventArg).toLowerCase();
+
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef == null || !npc.entityRef.isValid() || npc.isReaper) continue;
+                TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
+                if (playerTransform == null || npcTransform == null) continue;
+                double distSq = playerTransform.getPosition().distanceSquared(npcTransform.getPosition());
+                if (distSq < minDistance) {
+                    minDistance = distSq;
+                    nearestNPC = npc;
+                }
+            }
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("Nenhuma NPC por perto."));
+                return;
+            }
+
+            Ref<EntityStore> npcRef = nearestNPC.entityRef;
+            PersistentModel pm = store.getComponent(npcRef, PersistentModel.getComponentType());
+            if (pm == null) {
+                ctx.sendMessage(Message.raw("[SimTale] NPC sem PersistentModel; nao foi possivel trocar a fantasia."));
+                return;
+            }
+            String currentId = pm.getModelReference().getModelAssetId();
+            float scale = pm.getModelReference().getScale();
+
+            if (evento.equals("off")) {
+                String original = COSTUME_BACKUP_MODEL.remove(nearestNPC.entityId);
+                if (original == null) {
+                    ctx.sendMessage(Message.raw("[SimTale] " + nearestNPC.name + " nao esta com fantasia de evento."));
+                    return;
+                }
+                boolean ok = SimNPCFactory.applyModel(store, npcRef, original, scale, new HashMap<>());
+                ctx.sendMessage(Message.raw(ok
+                        ? "[SimTale] Fantasia removida de " + nearestNPC.name + "."
+                        : "[SimTale] Falhou ao remover a fantasia (modelo original '" + original + "' nao encontrado)."));
+                return;
+            }
+
+            boolean isChild = InteractionManager.isNpcAChild(nearestNPC);
+            String base = isChild ? "SimTale_Human_Child" : (nearestNPC.gender == Gender.MALE ? "SimTale_Human_Male" : "SimTale_Human_Female");
+
+            String costumeId;
+            if (evento.equals("christmas") || evento.equals("natal")) {
+                costumeId = base + "_Christmas";
+            } else if (evento.equals("halloween")) {
+                costumeId = base + "_Halloween";
+            } else {
+                ctx.sendMessage(Message.raw("[SimTale] Evento desconhecido. Use: christmas, halloween ou off."));
+                return;
+            }
+
+            COSTUME_BACKUP_MODEL.putIfAbsent(nearestNPC.entityId, currentId);
+            boolean ok = SimNPCFactory.applyModel(store, npcRef, costumeId, scale, new HashMap<>());
+            if (ok) {
+                ctx.sendMessage(Message.raw("[SimTale] " + nearestNPC.name + " vestida pro evento '" + evento + "'. Use '/simtale costume off' pra desfazer."));
+            } else {
+                COSTUME_BACKUP_MODEL.remove(nearestNPC.entityId);
+                ctx.sendMessage(Message.raw("[SimTale] Falhou -- asset '" + costumeId + "' nao encontrado. Confira src/main/resources/Server/Models/Events/."));
+            }
+        }
+    }
+
 
     private static class SpawnSubCommand extends AbstractPlayerCommand {
         private final RequiredArg<String> npcTypeArg;
