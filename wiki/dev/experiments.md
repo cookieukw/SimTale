@@ -69,12 +69,104 @@ newly invented — the goal was a working sketch, not a finished feature.
 | Automatic seasonal trigger (calendar-based, not a manual command) | ⬜ | Not started — this prototype is manual-only by design, to test the mechanism first. |
 | Slothian / Trork NPC coverage | ⬜ | Only the three human bases (male/female/child) have costume variants so far. |
 
+### Research: automatic calendar trigger (13/09, verified against source)
+
+Next step 3 below ("wire a calendar/date trigger instead of a debug command") turned out to already
+have everything it needs in the engine — this is written down so nobody has to re-derive it from
+scratch. **Verified by reading `WorldTimeResource.java` directly in the engine source, not just
+taken on faith from a web search.**
+
+The engine exposes `com.hypixel.hytale.server.core.modules.time.WorldTimeResource`, and it is a
+real Gregorian-style calendar under the hood: `getGameDateTime()` returns a plain
+`java.time.LocalDateTime`, ticking forward from `ZERO_YEAR` (`0001-01-01T00:00:00Z`) using the
+JVM's own calendar math (leap years, real month lengths, all of it — this is not a custom fantasy
+calendar). `DAYS_PER_YEAR` is a fixed `365` (`ChronoUnit.YEARS.getDuration().toDays()`, not
+world-configurable). Also available: `getGameTime()` (`Instant`), `getCurrentHour()`,
+`getDayProgress()` (0.0–1.0), and `getMoonPhase()`.
+
+**SimTale already reads this resource** — no new access pattern to invent. See
+`NPCSleepHelper.java` and `InteractionManager.java`:
+
+```java
+WorldTimeResource time = world.getEntityStore().getStore()
+        .getResource(WorldTimeResource.getResourceType());
+LocalDateTime date = time.getGameDateTime();
+```
+
+From there, a costume trigger is just:
+
+```java
+if (date.getMonthValue() == 12 && date.getDayOfMonth() == 25) {
+    // apply the Christmas costume
+}
+```
+
+Two gotchas found while verifying, worth knowing before building on this:
+
+- **`getMoonPhase()` is not a named phase.** It returns a plain `int` index from `0` to
+  `getTotalMoonPhases() - 1` (that total is configurable per world). There is no "waxing"/"full"
+  enum anywhere in this class — mapping the index to a human label is on us if we ever want one.
+- **`isYearWithinRange(min, max)` looks like exactly the helper we'd want for "is today inside
+  this date range", but its body is commented out behind a `// TODO: Implement` and it
+  unconditionally `return false`.** Do not call it expecting it to work — compare
+  `getDayOfYear()`/`getMonthValue()`/`getDayOfMonth()` manually instead, as in the snippet above.
+
+This only covers *reading* the date to decide when to fire; it does not by itself solve "don't
+reapply every tick" (needs a small per-NPC or per-world "last checked day" cache) or the model-swap
+limitation described below.
+
+### Investigated: the "swaps the whole model" limitation (13/09)
+
+This is the real cost of the current approach, and it is worse than it first looked. The costume
+assets built above (`SimTale_Human_Male_Christmas.json` etc.) set `"Parent": "SimTale_Human_Male"`
+— the **generic** base asset, not the specific NPC's own appearance. Reading the base asset
+confirms it carries its own hardcoded look (a `"Morning"` haircut, `"BrownDark"` hair, etc.), and
+reading one of the 804 per-NPC `Generated/*.json` files (e.g. `SimTale_Human_Male_95.json`)
+confirms *that* file is what actually carries the specific NPC's own 9 attachments (haircut, face,
+eyes, pants, shirt, shoes, mouth, ears, eyebrows) — inheriting from the generic base itself. So
+today, every costumed NPC of the same gender/age currently renders identically: the base's generic
+look plus a hat, not *their* look plus a hat. That is the "swapping the whole model is a pain"
+problem in concrete terms — confirmed by reading the actual asset files, not assumed.
+
+**A runtime workaround was investigated and rejected.** `ModelAsset`'s fields are `protected`
+rather than `private` — the engine itself builds one ad-hoc instance this way
+(`ModelAsset.DEBUG = new ModelAsset() {{ id = "Debug"; model = ...; }}`), and
+`Model.createScaledModel(asset, scale, attachments)` takes a `ModelAsset` object directly, not
+just an id — so building a synthetic in-memory `ModelAsset` that copies an NPC's real attachments
+and adds a hat is technically possible for *rendering*. But `PersistentModel` only ever saves a
+plain string id (`ModelReference.toReference()` → `{Id, Scale, RandomAttachments, Static}`), and
+`ModelReference.toModel()` resolves that id by calling `ModelAsset.getAssetMap().getAsset(id)` on
+every reload — **falling back to `ModelAsset.DEBUG` (a visible placeholder box) if the id isn't
+found**. `DefaultAssetMap`'s only write methods (`putAll`, `remove`) are `protected`, with no public
+API for a mod to register a new asset at runtime. So an unregistered synthetic asset would render
+correctly right up until the next chunk reload or server restart, then break visibly. Not worth
+building on.
+
+**The fix that actually works, confirmed against the real files:** point each costume asset's
+`Parent` at the specific NPC's own `Generated/*.json` id instead of the generic base. There are
+exactly 804 of these today (202 male + 202 female adults, 200 male + 200 female children, counted
+directly in `Generated/`), and each already inherits everything else it needs from the generic
+base on its own — a costume file only has to add `Parent` + the hat attachment, identically to how
+the current 6 files are built. This means:
+
+- A one-time codegen script that lists every id in `Generated/`, and for each one writes
+  `<id>_Christmas.json` / `<id>_Halloween.json` next to the existing costume assets, each just
+  `{"Parent": "<that id>", "DefaultAttachments": [<the same hat as today>]}`. ~804 × 2 ≈ 1,608 tiny
+  files (~150 bytes each, ~240 KB total) — mechanical, no engine changes, no new asset-loading code.
+- The command's costume-id logic gets *simpler*, not more complex: `costumeId = currentId + "_" +
+  event` directly, with no more branching on gender/child to pick a base — `currentId` already
+  comes from `pm.getModelReference().getModelAssetId()` in the existing code.
+- Needs to be re-run if the pool of `Generated/*.json` variants ever grows.
+
+Not built yet — this is the finding, not the implementation.
+
 ### Next steps, if this graduates into a real feature
 
 1. Confirm the risk items above in a live game (asset resolution first — it gates everything else).
 2. Persist `COSTUME_BACKUP_MODEL` (or avoid needing it at all, e.g. by deriving the "off" asset id
    from the NPC's existing gender/child data instead of caching it).
-3. Wire a calendar/date trigger instead of a debug command.
+3. Wire a calendar/date trigger instead of a debug command — the API and access pattern for
+   this are already confirmed, see "Research: automatic calendar trigger" above.
 4. Extend coverage to Slothian and Trork NPCs.
 5. Once confirmed, move this section into [Implementation status](status) and delete it from here.
 

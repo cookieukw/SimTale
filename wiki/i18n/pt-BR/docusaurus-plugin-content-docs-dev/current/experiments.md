@@ -71,13 +71,108 @@ terminada.
 | Gatilho sazonal automático (baseado em calendário, não comando manual) | ⬜ | Não iniciado — este protótipo é manual de propósito, pra testar o mecanismo primeiro. |
 | Cobertura de NPCs Slothian / Trork | ⬜ | Só as três bases humanas (macho/fêmea/criança) têm variantes de fantasia até agora. |
 
+### Pesquisa: gatilho automático por calendário (13/09, verificado no código-fonte)
+
+O passo 3 dos próximos passos abaixo ("trocar o comando de debug por um gatilho de
+calendário/data") já tem tudo que precisa no próprio engine — isso está anotado aqui pra ninguém
+precisar redescobrir do zero depois. **Verificado lendo `WorldTimeResource.java` direto no
+código-fonte do engine, não só confiando numa busca na web.**
+
+O engine expõe `com.hypixel.hytale.server.core.modules.time.WorldTimeResource`, e por baixo dos
+panos é um calendário gregoriano de verdade: `getGameDateTime()` retorna um `java.time.LocalDateTime`
+comum, avançando a partir de `ZERO_YEAR` (`0001-01-01T00:00:00Z`) usando a matemática de calendário
+da própria JVM (ano bissexto, meses de tamanho real, tudo — não é um calendário de fantasia
+inventado). `DAYS_PER_YEAR` é um `365` fixo (`ChronoUnit.YEARS.getDuration().toDays()`, não é
+configurável por mundo). Também disponível: `getGameTime()` (`Instant`), `getCurrentHour()`,
+`getDayProgress()` (0.0–1.0) e `getMoonPhase()`.
+
+**O SimTale já lê esse recurso** — não precisa inventar um jeito novo de acessar. Ver
+`NPCSleepHelper.java` e `InteractionManager.java`:
+
+```java
+WorldTimeResource time = world.getEntityStore().getStore()
+        .getResource(WorldTimeResource.getResourceType());
+LocalDateTime date = time.getGameDateTime();
+```
+
+A partir daí, um gatilho de fantasia é só:
+
+```java
+if (date.getMonthValue() == 12 && date.getDayOfMonth() == 25) {
+    // aplica a fantasia de Natal
+}
+```
+
+Duas pegadinhas encontradas ao verificar, importantes de saber antes de construir em cima disso:
+
+- **`getMoonPhase()` não é uma fase nomeada.** Retorna um `int` simples, de `0` até
+  `getTotalMoonPhases() - 1` (esse total é configurável por mundo). Não existe enum tipo
+  "crescente"/"cheia" em lugar nenhum dessa classe — mapear o índice pra um nome legível é por
+  nossa conta, se algum dia quisermos isso.
+- **`isYearWithinRange(min, max)` parece exatamente o helper que a gente ia querer para "hoje está
+  dentro desse intervalo de datas", mas o corpo dele está comentado atrás de um `// TODO: Implement`
+  e sempre retorna `false`.** Não chamar esperando que funcione — comparar
+  `getDayOfYear()`/`getMonthValue()`/`getDayOfMonth()` manualmente, como no trecho acima.
+
+Isso cobre só a parte de *ler* a data para decidir quando disparar; não resolve sozinho o "não
+reaplicar toda hora" (precisa de um cache pequeno tipo "último dia checado" por NPC ou por mundo)
+nem a limitação de troca de modelo descrita abaixo.
+
+### Investigado: a limitação de "trocar o modelo inteiro" (13/09)
+
+Esse é o custo real da abordagem atual, e é pior do que parecia à primeira vista. Os assets de
+fantasia construídos acima (`SimTale_Human_Male_Christmas.json` etc.) têm `"Parent":
+"SimTale_Human_Male"` — a base **genérica**, não a aparência específica daquela NPC. Ler o asset
+base confirma que ele carrega um visual próprio fixo (cabelo `"Morning"`, `"BrownDark"`, etc.), e
+ler um dos 804 arquivos `Generated/*.json` (por exemplo `SimTale_Human_Male_95.json`) confirma que é
+*esse* arquivo que carrega os 9 attachments específicos daquela NPC (cabelo, rosto, olhos, calça,
+camisa, sapato, boca, orelhas, sobrancelhas) — herdando da base genérica. Ou seja, hoje toda NPC
+fantasiada do mesmo gênero/idade fica com a mesma cara: o visual genérico da base mais o chapéu, e
+não o visual *dela* mais o chapéu. Isso é o problema "trocar o modelo inteiro é osso" em termos
+concretos — confirmado lendo os arquivos de asset de verdade, não um chute.
+
+**Uma gambiarra em runtime foi investigada e descartada.** Os campos de `ModelAsset` são
+`protected`, não `private` — o próprio engine constrói uma instância assim
+(`ModelAsset.DEBUG = new ModelAsset() {{ id = "Debug"; model = ...; }}`), e
+`Model.createScaledModel(asset, scale, attachments)` recebe um objeto `ModelAsset` diretamente, não
+só um id — então construir um `ModelAsset` sintético em memória, copiando os attachments reais de
+uma NPC e adicionando um chapéu, é tecnicamente possível pra fins de *renderização*. Mas o
+`PersistentModel` só salva um id em string (`ModelReference.toReference()` → `{Id, Scale,
+RandomAttachments, Static}`), e `ModelReference.toModel()` resolve esse id chamando
+`ModelAsset.getAssetMap().getAsset(id)` a cada reload — **caindo para `ModelAsset.DEBUG` (uma caixa
+de placeholder visível) se o id não for encontrado**. Os únicos métodos de escrita do
+`DefaultAssetMap` (`putAll`, `remove`) são `protected`, sem nenhuma API pública pra um mod registrar
+um asset novo em runtime. Então um asset sintético não registrado renderizaria certo até o próximo
+reload de chunk ou restart do servidor, e aí quebraria visivelmente. Não vale a pena construir em
+cima disso.
+
+**O conserto que realmente funciona, confirmado contra os arquivos reais:** apontar o `Parent` de
+cada asset de fantasia pro id específico da NPC em `Generated/*.json`, em vez da base genérica.
+Existem exatamente 804 hoje (202 homens + 202 mulheres adultos, 200 meninos + 200 meninas, contados
+direto em `Generated/`), e cada um já herda tudo mais que precisa da base genérica sozinho — um
+arquivo de fantasia só precisa acrescentar `Parent` + o attachment do chapéu, exatamente como os 6
+arquivos atuais já são construídos. Isso significa:
+
+*   Um script de geração único que lista todo id em `Generated/`, e para cada um escreve
+    `<id>_Christmas.json` / `<id>_Halloween.json` do lado dos assets de fantasia existentes, cada um
+    só `{"Parent": "<esse id>", "DefaultAttachments": [<o mesmo chapéu de hoje>]}`. ~804 × 2 ≈ 1.608
+    arquivinhos (~150 bytes cada, ~240 KB no total) — mecânico, sem mudança no engine, sem código
+    novo de carregamento de asset.
+*   A lógica de id de fantasia no comando fica *mais simples*, não mais complexa: `costumeId =
+    currentId + "_" + evento` direto, sem mais precisar decidir a base por gênero/criança —
+    `currentId` já vem de `pm.getModelReference().getModelAssetId()` no código existente.
+*   Precisa ser rodado de novo se o conjunto de variantes em `Generated/*.json` crescer no futuro.
+
+Ainda não construído — isso é a descoberta, não a implementação.
+
 ### Próximos passos, se isso virar uma funcionalidade de verdade
 
 1. Confirmar os itens de risco acima numa partida real (resolução do asset primeiro — é o que
    trava tudo o resto).
 2. Persistir `COSTUME_BACKUP_MODEL` (ou evitar precisar dele, por exemplo derivando o id do asset
    de "off" a partir dos dados de gênero/criança já existentes da NPC em vez de cachear).
-3. Trocar o comando de debug por um gatilho de calendário/data.
+3. Trocar o comando de debug por um gatilho de calendário/data — a API e o padrão de acesso já
+   estão confirmados, ver "Pesquisa: gatilho automático por calendário" acima.
 4. Estender a cobertura pra NPCs Slothian e Trork.
 5. Depois de confirmado, mover esta seção pra [Status de implementação](status) e apagar daqui.
 
