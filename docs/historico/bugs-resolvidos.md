@@ -347,3 +347,32 @@ Novo conjunto `pendingDespawns` (`ConcurrentHashMap.newKeySet()`) em `PlumbobSys
 `despawnPlumbob` registra o ref ali antes de enfileirar a remoção, e a varredura de órfãos passa a
 tentar `pendingDespawns.remove(thisRef)` primeiro — se o ref estava lá (removido com sucesso),
 ele já tem uma remoção enfileirada e a varredura não enfileira outra.
+
+---
+
+## 16. Criança Carregada é Solta Automaticamente Durante o Dia (Conflito Sono/Montaria)
+
+### Sintoma
+Ao pegar uma criança no colo (sistema de montaria usado para carregá-la no ombro), o jogador via a
+mensagem de sucesso no chat, mas a criança nunca aparecia visualmente montada — o efeito parecia
+não ter acontecido, sem nenhum erro no log.
+
+### Diagnóstico (Causa Raiz)
+`SimTaleTickSystem.processMountedSleepingNPCs` usava a simples presença de `MountedComponent`
+(`mounted != null`) como um segundo gatilho de entrada para a lógica de "a NPC acordou", ao lado do
+gatilho correto (`ai.currentTask == SLEEPING/WAKING`). Como `MountedComponent` é o mesmo componente
+genérico da engine usado tanto para "dormindo numa cama"/"sentada numa cadeira" quanto para "sendo
+carregada no colo" — é o único lugar do código que cria essa segunda situação — qualquer pickup
+feito fora do período noturno (`sleepPeriodClosed == true`, verdadeiro na maior parte do dia)
+satisfazia esse gatilho já no tick seguinte, disparando
+`commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType())` e desfazendo a
+montaria cerca de 30ms depois de criada — tempo curto demais para o cliente chegar a desenhar a
+criança no ombro do jogador.
+
+### Resolução
+Separado o efeito colateral desejado (reposição de energia da criança enquanto carregada, já que
+sua rotina normal fica suspensa no colo) da lógica de acordar. O top-up de energia continua
+disparando incondicionalmente sempre que `MountedComponent` está presente, mas o restante da lógica
+de "acordar" (remover a montaria, resetar a tarefa, teleportar de volta para a cama) agora exige
+explicitamente `ai.currentTask == SLEEPING || ai.currentTask == WAKING` — o único caso em que
+`MountedComponent`, nesse sistema, de fato representa "dormindo" em vez de "no colo".
