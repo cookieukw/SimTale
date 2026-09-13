@@ -46,9 +46,21 @@ public final class LeisureRegistry {
         }
     }
 
+    /**
+     * How far an NPC will look for a leisure block for its hobby.
+     *
+     * <p>Unlike {@code BathRegistry.nearestTo} (whose one caller in {@code RoutineAISystem}
+     * already checks the distance itself before committing to walk), {@code NPCLeisureHelper}
+     * commits to {@code MOVING_TO_LEISURE} as soon as this returns non-null, with no distance
+     * check of its own -- the same unguarded shape that let a farmer walk off toward a scarecrow
+     * on the far side of the map before {@code FarmPostRegistry.CLAIM_SEARCH_RADIUS} existed.
+     * Added during the 13/09 optimization pass.
+     */
+    private static final double SEARCH_RADIUS = 48.0;
+
     public static Vector3i nearestTo(double x, double y, double z, Hobby requiredHobby) {
         LeisureBlock closest = null;
-        double closestDistSq = Double.MAX_VALUE;
+        double closestDistSq = SEARCH_RADIUS * SEARCH_RADIUS;
         synchronized (LEISURE_BLOCKS) {
             for (LeisureBlock p : LEISURE_BLOCKS) {
                 if (p.hobby() != requiredHobby) continue;
