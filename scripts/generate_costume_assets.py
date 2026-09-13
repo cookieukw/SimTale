@@ -39,6 +39,36 @@ EVENTS = {
     ],
 }
 
+# Mesmos attachments acima, mas com "Model" apontando para a versao _Child (escalada em
+# 1.2x, gerada por scripts/generate_child_event_hats.py) em vez do modelo adulto sem escala.
+# A "Texture" continua igual a adulta de proposito -- e assim que todo outro cosmetico de
+# crianca do projeto funciona (ver Generated/SimTale_Human_Child_*.json): so o "Model" muda,
+# a textura/gradiente sao os mesmos, o textureLayout dentro do .blockymodel escalado ja mapeia
+# pros mesmos pixels.
+#
+# Bug que isso existe pra evitar (13/09): antes, as variantes de CRIANCA usavam o mesmo
+# EVENTS acima (chapeu em tamanho adulto), o unico cosmetico de cabeca do projeto que nao
+# passava pelo pipeline de escala pra crianca -- resultado: chapeu malencaixado na cabeca
+# menor, com faces sem UV (nunca precisaram de UV no tamanho adulto, ficavam sempre escondidas
+# dentro do proximo box) aparecendo ("cabeca bugada": lateral transparente, parte de tras
+# fora do lugar). Ver docs/experimentos.md para o relato completo.
+EVENTS_CHILD = {
+    "Christmas": [
+        {
+            "Model": "NPC/Player_Child/Cosmetics/Head/SantaHat_Child.blockymodel",
+            "Texture": "Cosmetics/Head/SantaHat_Texture/SantaHat_Greyscale_Texture.png",
+            "GradientSet": "Colored_Cotton",
+            "GradientId": "Red"
+        }
+    ],
+    "Halloween": [
+        {
+            "Model": "NPC/Player_Child/Cosmetics/Head/StrawHat_Child.blockymodel",
+            "Texture": "Cosmetics/Head/StrawHat_Textures/WitchHat_Colored_Greyscale_Texture.png"
+        }
+    ],
+}
+
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 generated_ids = sorted(f[:-5] for f in os.listdir(GENERATED_DIR) if f.endswith(".json"))
@@ -46,7 +76,8 @@ generated_ids = sorted(f[:-5] for f in os.listdir(GENERATED_DIR) if f.endswith("
 written = 0
 skipped = 0
 for npc_id in generated_ids:
-    for event_name, attachments in EVENTS.items():
+    events_for_npc = EVENTS_CHILD if npc_id.startswith("SimTale_Human_Child") else EVENTS
+    for event_name, attachments in events_for_npc.items():
         out_name = f"{npc_id}_{event_name}.json"
         out_path = os.path.join(OUTPUT_DIR, out_name)
         if os.path.exists(out_path):
