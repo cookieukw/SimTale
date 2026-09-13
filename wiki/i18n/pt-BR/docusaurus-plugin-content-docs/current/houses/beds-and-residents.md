@@ -48,6 +48,10 @@ fica dormindo até de manhã, para não pular da cama no exato momento em que a 
 A exaustão ainda é um gatilho separado: um NPC que fica sem energia durante o dia tira um cochilo
 e acorda quando estiver descansado.
 
+![Uma NPC adulta dormindo](/img/npc_sleeping.png)
+
+![Uma NPC criança dormindo](/img/child_sleeping.png)
+
 :::tip Pular a noite os acorda
 Executar o comando `time set day` acorda NPCs adormecidos imediatamente, porque acordar segue o relógio do mundo
 em vez de um cronômetro fixo.

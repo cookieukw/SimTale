@@ -82,6 +82,10 @@ sozinha, caminha até o corpo, realiza o ritual de coleta de alma, deixa uma lá
 completamente. Interagir com a Ceifadora no meio do ritual segurando um Coração do Vazio (<img src="/img/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> `Ingredient_Voidheart`) cancela a
 coleta e revive o NPC.
 
+![NPC sangrando após a morte](/img/npc_bleeding.png)
+
+![A Ceifadora (Grim Reaper)](/img/grim_reaper.png)
+
 ![Grim Reaper Ceremony](/img/reaper_ceremony.png)
 
 :::note Nada mata um NPC ainda
