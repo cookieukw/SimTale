@@ -48,7 +48,6 @@ import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.ai.AiConfig;
 import com.cookieukw.SimTale.ai.AiConfigManager;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
-import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.FamilySystem;
@@ -99,7 +98,6 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import java.util.LinkedHashMap;
 import java.util.HashMap;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
-import com.cookieukw.SimTale.logic.InteractionManager;
 
 /**
  * Commands for the SimTale plugin.
@@ -247,18 +245,23 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
-            boolean isChild = InteractionManager.isNpcAChild(nearestNPC);
-            String base = isChild ? "SimTale_Human_Child" : (nearestNPC.gender == Gender.MALE ? "SimTale_Human_Male" : "SimTale_Human_Female");
-
-            String costumeId;
+            String suffix;
             if (evento.equals("christmas") || evento.equals("natal")) {
-                costumeId = base + "_Christmas";
+                suffix = "Christmas";
             } else if (evento.equals("halloween")) {
-                costumeId = base + "_Halloween";
+                suffix = "Halloween";
             } else {
                 ctx.sendMessage(Message.raw("[SimTale] Evento desconhecido. Use: christmas, halloween ou off."));
                 return;
             }
+
+            // O asset de fantasia aponta "Parent" para o id ESPECIFICO desta NPC (nao para uma
+            // base generica), gerado por scripts/generate_costume_assets.py em
+            // Server/Models/Events/Generated/<currentId>_<evento>.json -- assim a NPC mantem a
+            // propria cara (cabelo/rosto/roupa unicos dela) em vez de virar visualmente
+            // identica a qualquer outra NPC fantasiada. Ver docs/experimentos.md, secao "a
+            // limitacao de 'trocar o modelo inteiro'" (13/09).
+            String costumeId = currentId + "_" + suffix;
 
             COSTUME_BACKUP_MODEL.putIfAbsent(nearestNPC.entityId, currentId);
             boolean ok = SimNPCFactory.applyModel(store, npcRef, costumeId, scale, new HashMap<>());
@@ -266,7 +269,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("[SimTale] " + nearestNPC.name + " vestida pro evento '" + evento + "'. Use '/simtale costume off' pra desfazer."));
             } else {
                 COSTUME_BACKUP_MODEL.remove(nearestNPC.entityId);
-                ctx.sendMessage(Message.raw("[SimTale] Falhou -- asset '" + costumeId + "' nao encontrado. Confira src/main/resources/Server/Models/Events/."));
+                ctx.sendMessage(Message.raw("[SimTale] Falhou -- asset '" + costumeId + "' nao encontrado. Rode scripts/generate_costume_assets.py para gerar os assets de fantasia por NPC."));
             }
         }
     }
