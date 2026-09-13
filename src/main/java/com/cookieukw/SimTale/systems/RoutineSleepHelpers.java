@@ -537,7 +537,7 @@ final class RoutineSleepHelpers {
             } else {
                 doneSleeping = sleepPeriodClosed
                         || NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) >= 100
-                        || world.getTick() - ai.taskStartTime >= SLEEP_DURATION_TICKS;
+                        || world.getTick() - ai.taskStartTime >= RoutineAISystem.SLEEP_DURATION_TICKS;
             }
 
             if ((world.getTick() - ai.taskStartTime) % 20 == 0) {
