@@ -192,6 +192,13 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             SimNPCPersistence.saveNPC(npc);
         }
 
+        // Same staggering idea as the save above, offset by one tick so the two don't pile onto
+        // the same frame for every NPC sharing a hash bucket. Cheap no-op for the common case
+        // (no armour ever given, or already equipped correctly).
+        if (npc.entityId != null && Math.floorMod(absoluteTick + npc.entityId.hashCode() + 1, 200) == 0) {
+            NPCArmorHelper.ensureArmorEquipped(npc.entityRef, npc, store);
+        }
+
         // Daily natural pregnancy check for married female NPCs
         if (absoluteTick % 24000 == 0 && npc.gender == Gender.FEMALE && npc.family.isMarried && npc.family.spouseId != null) {
             if (npc.pregnancy == null || !npc.pregnancy.pregnant) {
