@@ -80,24 +80,16 @@ public final class FishingPostRegistry {
         CLAIMED_BY.remove(key(x, y, z));
     }
 
-    /** Nearest registered post to a world position, or null if none registered. */
-    public static FishingPost nearestTo(double x, double y, double z) {
-        FishingPost closest = null;
-        double closestDistSq = Double.MAX_VALUE;
-        synchronized (POSTS) {
-            for (FishingPost p : POSTS) {
-                double dx = p.postX() + 0.5 - x;
-                double dy = p.postY() - y;
-                double dz = p.postZ() + 0.5 - z;
-                double distSq = dx * dx + dy * dy + dz * dz;
-                if (distSq < closestDistSq) {
-                    closestDistSq = distSq;
-                    closest = p;
-                }
-            }
-        }
-        return closest;
-    }
+    /**
+     * How far an NPC will look for a fishing post to work at.
+     *
+     * <p>Same fix as {@code FarmPostRegistry.CLAIM_SEARCH_RADIUS}: without a limit,
+     * {@code claimNearest} took the nearest unclaimed post anywhere in the world, so a fisherman
+     * could claim a post on the far side of the map and never arrive (MOVING_TO_WORK times out
+     * after 30s). Applied here too during the 13/09 optimization pass, alongside the identical
+     * lumberjack case.
+     */
+    private static final double CLAIM_SEARCH_RADIUS = 48.0;
 
     /**
      * Nearest post not already claimed by another NPC (or already claimed by this same one, so
@@ -107,7 +99,7 @@ public final class FishingPostRegistry {
      */
     public static FishingPost claimNearest(double x, double y, double z, UUID npcId) {
         FishingPost chosen = null;
-        double closestDistSq = Double.MAX_VALUE;
+        double closestDistSq = CLAIM_SEARCH_RADIUS * CLAIM_SEARCH_RADIUS;
         synchronized (POSTS) {
             for (FishingPost p : POSTS) {
                 UUID holder = CLAIMED_BY.get(key(p.postX(), p.postY(), p.postZ()));
