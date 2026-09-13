@@ -183,7 +183,7 @@ correção acima).
 **Onde o bug de verdade estava (13/09, ainda mais tarde):** o usuário esclareceu melhor — era um
 menino ruivo de cabelo curto, sem fantasia nenhuma. O bug de verdade era um node corrompido no
 próprio `Short_Child.blockymodel` (um node-pivô mesclado com sua caixa filha, perdendo o
-deslocamento de posição da caixa) — um de 21 modelos de corte de cabelo infantil achados com o
+deslocamento de posição da caixa) — um de 23 modelos de corte de cabelo infantil achados com o
 mesmo tipo de defeito, de 112 checados. Ver `docs/assets/cosmeticos-node-scales.md` e
 `testing_checklist.md` pro relato completo e a correção; sem relação com o sistema de fantasia
 documentado nesta página.

@@ -223,7 +223,7 @@ address the original screenshot report, which was a false alarm** (see the corre
 **Where the real bug turned out to be (13/09, later still):** the user clarified further — it
 was a red-haired boy with short hair, no costume at all. The actual bug was a corrupted node in
 `Short_Child.blockymodel` itself (a pivot node merged with its child box, losing the child's own
-position offset) — one of 21 child haircut models found with the same class of defect out of 112
+position offset) — one of 23 child haircut models found with the same class of defect out of 112
 checked. See `docs/assets/cosmeticos-node-scales.md` and `testing_checklist.md` for the full
 writeup and fix; unrelated to the costume system documented on this page.
 
