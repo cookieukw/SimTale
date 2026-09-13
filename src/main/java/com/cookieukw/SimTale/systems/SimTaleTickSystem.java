@@ -316,8 +316,25 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
 
     private static final SimLog LOGGER = SimLog.forClass(SimTaleTickSystem.class);
 
+    /**
+     * Tick of the last full pass over {@code ACTIVE_NPCS} made by
+     * {@link #processMountedSleepingNPCs}, or -1 before the first one.
+     *
+     * <p>{@code tick()} above calls this once per NPC per real tick, because that is the only
+     * hook available here -- but the work inside is a pass over every active NPC, not
+     * per-caller work. Without this guard, N active NPCs meant N full scans of the same list per
+     * real tick (O(N^2) per tick). Same self-throttle idiom already used by
+     * {@link SimTaleMarkerProvider#captureSnapshot}: all but one call per tick returns
+     * immediately. Added during the 13/09 optimization pass.
+     */
+    private static volatile long lastMountedSleepingPassTick = -1L;
+
     private static void processMountedSleepingNPCs(World world, CommandBuffer<EntityStore> commandBuffer) {
         if (world == null || SimTale.ACTIVE_NPCS.isEmpty() || commandBuffer == null) return;
+
+        long tick = world.getTick();
+        if (tick == lastMountedSleepingPassTick) return;
+        lastMountedSleepingPassTick = tick;
 
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) continue;
