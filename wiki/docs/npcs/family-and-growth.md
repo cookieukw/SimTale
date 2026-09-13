@@ -70,7 +70,9 @@ SimTale implements child protection rules:
 ## Care
 
 Babies need care. Passing the baby back and forth between parents shares the load, and there is an
-offline simulation so time away from the server still counts. You can pick up and carry toddlers or children when needed.
+offline simulation so time away from the server still counts. You can pick up and carry toddlers or children when needed. You are not limited to carrying one at a time, either — up to ten children can be stacked on your shoulders at once.
+
+![Carrying several children at once](/img/child_carry_stack.png)
 
 ## Death
 
