@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -181,6 +182,15 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             // world at scale 0.001 because the engine has no invisibility flag, so leaving her on
             // the map draws an arrow onto an NPC the player cannot find.
             if (NPCWorkHelper.isAwayOnExpedition(store, ref)) continue;
+
+            // A carried child (MountedComponent) has her TransformComponent frozen at the exact
+            // spot she was picked up -- only the client draws her following the carrier, the
+            // server-side position never moves (same fact ChildCarryHelper's own javadoc already
+            // relies on). Leaving her on the map would pin a second marker at that stale pickup
+            // spot forever, standing still while the player who is actually carrying her walks
+            // away from it -- confusing at best, and a second "person" appearing to have been
+            // abandoned exactly where she was picked up.
+            if (store.getComponent(ref, MountedComponent.getComponentType()) != null) continue;
 
             TransformComponent transform =
                     store.getComponent(ref, TransformComponent.getComponentType());
