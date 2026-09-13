@@ -28,6 +28,7 @@ public class SimNPCData {
     public Map<String, Relationship> relationships = new HashMap<>();
     public Profession profession;
     public WeaponCategory guardWeaponCategory;
+    public String guardWeaponItemId;
     public NPCPreferences preferences;
     public FamilySystem family;
     public Gender gender;
