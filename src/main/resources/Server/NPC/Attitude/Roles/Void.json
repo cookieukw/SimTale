@@ -1,0 +1,11 @@
+{
+  "Groups": {
+    "Hostile": [
+      "Feran",
+      "Goblin",
+      "Kweebec",
+      "Player",
+      "SimTaleVillager"
+    ]
+  }
+}

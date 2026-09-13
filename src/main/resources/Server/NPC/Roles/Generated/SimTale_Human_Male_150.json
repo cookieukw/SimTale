@@ -1,6 +1,7 @@
 {
   "Type": "Generic",
   "Appearance": "SimTale_Human_Male_150",
+  "AttitudeGroup": "SimTaleVillager",
   "MaxHealth": 200,
   "MotionControllerList": [
     {

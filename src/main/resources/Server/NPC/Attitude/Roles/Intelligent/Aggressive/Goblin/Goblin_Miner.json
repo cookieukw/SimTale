@@ -1,0 +1,15 @@
+{
+  "Groups": {
+    "Friendly": [
+      "Goblin"
+    ],
+    "Revered": [
+      "Goblin_Lobber"
+    ],
+    "Hostile": [
+      "Spiders",
+      "Skeleton",
+      "SimTaleVillager"
+    ]
+  }
+}

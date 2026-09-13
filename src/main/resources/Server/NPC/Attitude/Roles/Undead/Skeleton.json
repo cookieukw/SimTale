@@ -1,0 +1,11 @@
+{
+  "Groups": {
+    "Friendly": [
+      "Skeleton"
+    ],
+    "Hostile": [
+      "Goblin",
+      "SimTaleVillager"
+    ]
+  }
+}
