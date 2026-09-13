@@ -49,6 +49,10 @@ stays down until morning, so she will not pop out of bed the moment energy fills
 Exhaustion is still a separate trigger: an NPC that runs out of energy during the day takes a nap
 and wakes when rested.
 
+![An adult NPC sleeping](/img/npc_sleeping.png)
+
+![A child NPC sleeping](/img/child_sleeping.png)
+
 :::tip Skipping the night wakes them
 Running `time set day` wakes sleeping NPCs immediately, because waking follows the world clock
 rather than a fixed timer.

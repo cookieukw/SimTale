@@ -81,6 +81,10 @@ own, walks to it, performs the soul-collection ritual, leaves a gravestone and r
 cleanly. Interacting with the Reaper mid-ritual while holding an <img src="/img/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> `Ingredient_Voidheart` cancels the
 collection and revives the NPC.
 
+![NPC bleeding after death](/img/npc_bleeding.png)
+
+![The Grim Reaper](/img/grim_reaper.png)
+
 ![Grim Reaper Ceremony](/img/reaper_ceremony.png)
 
 :::note Nothing kills an NPC yet
