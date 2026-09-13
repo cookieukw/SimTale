@@ -1,0 +1,9 @@
+{
+  "Parent": "SimTale_Human_Male_148",
+  "DefaultAttachments": [
+    {
+      "Model": "Cosmetics/Head/StrawHat.blockymodel",
+      "Texture": "Cosmetics/Head/StrawHat_Textures/WitchHat_Colored_Greyscale_Texture.png"
+    }
+  ]
+}
