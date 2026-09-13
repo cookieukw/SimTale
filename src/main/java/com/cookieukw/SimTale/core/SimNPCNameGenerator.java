@@ -182,4 +182,40 @@ public class SimNPCNameGenerator {
 
         return name;
     }
+
+    /**
+     * Generates a first name that, combined with {@code surname}, does not collide with any
+     * currently active NPC's full name.
+     *
+     * <p>A child born from a pregnancy inherits its surname instead of rolling one (see
+     * {@code GeneticsData.inheritSurname} / {@code PregnancyManager}), so it cannot call
+     * {@link #generate()} outright -- only the first-name half is free to retry. Before this,
+     * children's names were generated with a plain {@link #generateFirstName()} and no
+     * uniqueness check at all, so two unrelated children born around the same time could end up
+     * with the exact same full name purely by chance (confirmed in game 13/09: two separate
+     * "grew to Bebe" log lines for the same full name).
+     *
+     * @param surname the child's already-decided (inherited) surname
+     * @return a first name such that {@code firstName + " " + surname} is unique, best-effort
+     */
+    public static String generateUniqueFirstName(String surname) {
+        String firstName;
+        int attempts = 0;
+        boolean unique;
+        do {
+            firstName = generateFirstName();
+            String fullName = (surname == null || surname.isEmpty()) ? firstName : firstName + " " + surname;
+
+            unique = true;
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.name != null && npc.name.equalsIgnoreCase(fullName)) {
+                    unique = false;
+                    break;
+                }
+            }
+            attempts++;
+        } while (!unique && attempts < 50);
+
+        return firstName;
+    }
 }
