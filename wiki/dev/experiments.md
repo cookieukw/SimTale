@@ -68,6 +68,7 @@ newly invented — the goal was a working sketch, not a finished feature.
 | NPC keeps its own individual look (hair/face/etc.) while costumed | 🔧 | Fixed by generating a per-NPC costume asset instead of using the generic base — see "Investigated: the 'swaps the whole model' limitation" below. Not yet confirmed in a live game. |
 | Costume backup survives a server restart | 🐛 | Known limitation, not a bug to "fix" so much as a design gap: `COSTUME_BACKUP_MODEL` is an in-memory `Map`, not persisted. An NPC costumed and then left costumed across a restart would have no backup to restore from if `off` is used afterward. |
 | Automatic seasonal trigger (calendar-based, not a manual command) | 🔧 | Built (13/09): `SeasonalCostumeHelper.tick()`, wired into `SimTaleTickSystem`, checks `WorldTimeResource.getGameDateTime()` at most once every 1,200 ticks (~1 real minute) and reconciles every active NPC's costume against the current date. Not yet confirmed running in a live game. |
+| Child costume hat fits the head correctly (no exposed/transparent-looking faces) | 🔧 | **Was a real bug, reported with a screenshot (13/09) and fixed the same day** — see "Fixed: child NPC costume hat clipping" below. Not yet re-confirmed in a live game. |
 | Slothian / Trork NPC coverage | ⬜ | Only the three human bases (male/female/child) have costume variants so far. |
 
 ### Research: automatic calendar trigger (13/09, verified against source)
@@ -171,6 +172,49 @@ in what's missing. `CostumeSubCommand` in `SimTaleCommand.java` was updated to m
 computes `costumeId = currentId + "_" + suffix` directly, and the old gender/child branching (plus
 the `InteractionManager`/`Gender` imports it needed) was deleted since it's no longer used anywhere
 in that file. Not yet confirmed running in a live game — see the checklist above.
+
+### Fixed: child NPC costume hat clipping (13/09)
+
+Reported with a screenshot: a costumed child NPC's head looked wrong — the side of the head
+appeared transparent, and the back looked "badly fitted" (user's words, translated: "provavelmente
+foi a UV", i.e. "probably the UV" — and that guess turned out to be exactly right).
+
+**Root cause, confirmed by reading the actual files:** every head cosmetic in this project
+(haircuts, etc.) that's authored for an adult skeleton has to be run through a node-scaling
+transform before it's usable on a child skeleton — see `docs/assets/cosmeticos-node-scales.md` and
+`scripts/generate_child_variants.py`'s `NODE_SCALES` table. In short: any node named exactly
+`"Head"` (a label meaning "attaches to the head", not a literal skeleton bone) gets a uniform
+1.2× scale, and everything nested under it inherits that same scale (confirmed empirically by
+diffing a real adult/child haircut pair, `CutePart.blockymodel` vs `CutePart_Child.blockymodel`).
+The Christmas/Halloween hat models added earlier this session
+(`Cosmetics/Head/SantaHat.blockymodel`, `StrawHat.blockymodel`) were the **one exception** — the
+codegen script that builds costume assets (`scripts/generate_costume_assets.py`) used the same
+unscaled, adult-proportioned hat for both adult and child variants.
+
+Reading `SantaHat.blockymodel` in full confirms why that's visible as a glitch rather than just
+"slightly wrong size": several of its outer nested boxes are missing `textureLayout` entries for
+faces that are normally always hidden flush inside the next box (e.g. `bottom`, and one `back`) —
+a totally reasonable thing to skip for a properly-nested adult-sized hat. Once the same unscaled hat
+is forced onto a smaller child head socket, the nesting no longer lines up, those never-textured
+faces become visible, and they render as the transparent/misplaced geometry in the report.
+
+**Fix:** `scripts/generate_child_event_hats.py` (new file) reuses the exact same
+`NODE_SCALES`/`FACE_ATTACHMENT_NAMES`/scaling logic as `generate_child_variants.py`, applied to
+`SantaHat.blockymodel` and `StrawHat.blockymodel`, producing
+`NPC/Player_Child/Cosmetics/Head/SantaHat_Child.blockymodel` and `StrawHat_Child.blockymodel`.
+Verified after running: the scale factors on every node match the same 1.2×-compounding pattern
+seen in the haircut comparison. The two generic child costume assets
+(`SimTale_Human_Child_Christmas.json` / `_Halloween.json`) and all 820 individually-generated child
+costume files under `Events/Generated/` were repatched to reference the `_Child` model instead of
+the adult one (only `Model` changes — `Texture`/`GradientSet`/`GradientId` stay the same, which
+is how every other child cosmetic in this project already works: the scaled `.blockymodel`'s
+`textureLayout` still maps to the same texture pixels). `generate_costume_assets.py` itself now
+has a separate `EVENTS_CHILD` dict, selected whenever `npc_id` starts with
+`"SimTale_Human_Child"`, so re-running it in the future won't regenerate the bug.
+
+**Not yet confirmed visually in game** — the fix was verified by reading/diffing JSON and geometry
+(the scale factors match the expected pattern), but nobody has looked at a costumed child NPC in a
+live session since the fix. That's the next thing to check.
 
 ### Next steps, if this graduates into a real feature
 

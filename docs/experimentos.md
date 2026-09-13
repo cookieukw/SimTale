@@ -67,6 +67,7 @@ implementado.
 | NPC mantém a própria cara (cabelo/rosto/etc.) enquanto fantasiada | 🔧 | Corrigido gerando um asset de fantasia por NPC em vez de usar a base genérica — ver "Investigado: a limitação de 'trocar o modelo inteiro'" abaixo. Ainda não confirmado numa partida real. |
 | Backup da fantasia sobrevive a um restart do servidor | 🐛 | Limitação conhecida (não bug): `COSTUME_BACKUP_MODEL` é um `Map` em memória, não persistido. Uma NPC fantasiada durante um restart não teria backup para restaurar se `off` fosse usado depois. |
 | Gatilho sazonal automático (baseado em calendário) | 🔧 | Construído (13/09): `SeasonalCostumeHelper.tick()`, ligado no `SimTaleTickSystem`, confere `WorldTimeResource.getGameDateTime()` no máximo 1x a cada 1.200 ticks (~1 min real) e reconcilia a fantasia de toda NPC ativa contra a data atual. Ainda não confirmado rodando numa partida real. |
+| Chapéu de fantasia de criança encaixa direito na cabeça (sem faces transparentes/expostas) | 🔧 | **Era um bug de verdade, reportado com print (13/09) e corrigido no mesmo dia** — ver "Corrigido: chapéu de fantasia malencaixado em NPC criança" abaixo. Ainda não reconfirmado numa partida real. |
 | Cobertura de NPCs Slothian / Trork | ⬜ | Só as três bases humanas (macho/fêmea/criança) têm variantes até agora. |
 
 ### Investigado: a limitação de "trocar o modelo inteiro" (13/09)
@@ -127,6 +128,52 @@ adicionadas em `Generated/`, ele so preenche o que falta. O `CostumeSubCommand` 
 sufixo` direto, e a antiga logica de gênero/criança (junto com os imports `InteractionManager`/
 `Gender` que ela precisava) foi apagada por nao ser mais usada em nenhum outro lugar do arquivo.
 Ainda nao confirmado rodando numa partida real — ver o checklist acima.
+
+### Corrigido: chapéu de fantasia malencaixado em NPC criança (13/09)
+
+Reportado com print: a cabeça de uma NPC criança fantasiada aparecia errada — a lateral da cabeça
+parecia transparente, e a parte de trás parecia "malencaixada" (nas palavras do usuário: "provavelmente
+foi a UV" — e o chute acertou em cheio).
+
+**Causa raiz, confirmada lendo os arquivos de verdade:** todo cosmético de cabeça deste projeto
+(cortes de cabelo etc.) que é feito pensando num esqueleto adulto precisa passar por uma
+transformação de escala antes de poder ser usado num esqueleto de criança — ver
+`docs/assets/cosmeticos-node-scales.md` e a tabela `NODE_SCALES` de
+`scripts/generate_child_variants.py`. Resumindo: qualquer node com o nome exatamente `"Head"` (um
+rótulo que significa "encaixa na cabeça", não literalmente um osso do esqueleto) recebe uma escala
+uniforme de 1.2×, e tudo que está aninhado dentro dele herda essa mesma escala (confirmado
+empiricamente comparando um par real de corte de cabelo adulto/criança, `CutePart.blockymodel` vs
+`CutePart_Child.blockymodel`). Os modelos de chapéu de Natal/Halloween adicionados mais cedo nesta
+sessão (`Cosmetics/Head/SantaHat.blockymodel`, `StrawHat.blockymodel`) foram a **única exceção** —
+o script que gera os assets de fantasia (`scripts/generate_costume_assets.py`) usava o mesmo chapéu
+sem escala, em proporção adulta, tanto pras variantes de adulto quanto pras de criança.
+
+Ler o `SantaHat.blockymodel` por completo confirma por que isso aparece como um bug visível e não
+só "um pouco fora de tamanho": várias das caixas mais externas aninhadas não têm entradas de
+`textureLayout` pra faces que normalmente ficam sempre escondidas encaixadas dentro da próxima
+caixa (ex: `bottom`, e um `back`) — algo totalmente razoável de pular quando o chapéu adulto está
+encaixado direitinho. Assim que esse mesmo chapéu sem escala é forçado numa cabeça de criança
+menor, o encaixe deixa de bater, essas faces que nunca tiveram textura ficam visíveis, e renderizam
+exatamente como a geometria transparente/malposicionada do relato.
+
+**Correção:** `scripts/generate_child_event_hats.py` (arquivo novo) reaproveita exatamente a mesma
+lógica de `NODE_SCALES`/`FACE_ATTACHMENT_NAMES`/escala de `generate_child_variants.py`, aplicada
+em `SantaHat.blockymodel` e `StrawHat.blockymodel`, gerando
+`NPC/Player_Child/Cosmetics/Head/SantaHat_Child.blockymodel` e `StrawHat_Child.blockymodel`.
+Verificado depois de rodar: os fatores de escala em cada node batem com o mesmo padrão de
+composição de 1.2× visto na comparação dos cortes de cabelo. Os dois assets genéricos de fantasia
+de criança (`SimTale_Human_Child_Christmas.json` / `_Halloween.json`) e todos os 820 arquivos de
+fantasia gerados individualmente pra criança em `Events/Generated/` foram repatchados pra apontar
+pro modelo `_Child` em vez do adulto (só o `Model` muda — `Texture`/`GradientSet`/`GradientId`
+continuam os mesmos, exatamente como todo outro cosmético de criança do projeto já funciona: o
+`textureLayout` do `.blockymodel` escalado continua mapeando pros mesmos pixels da textura).
+O próprio `generate_costume_assets.py` agora tem um `EVENTS_CHILD` separado, escolhido sempre que
+o `npc_id` começa com `"SimTale_Human_Child"`, então rodar de novo no futuro não vai reintroduzir
+o bug.
+
+**Ainda não confirmado visualmente em jogo** — a correção foi verificada lendo/comparando JSON e
+geometria (os fatores de escala batem com o padrão esperado), mas ninguém viu uma NPC criança
+fantasiada numa sessão de jogo de verdade depois da correção ainda. É a próxima coisa a conferir.
 
 ### Pesquisa: gatilho automático por calendário (13/09, verificado no código-fonte)
 
