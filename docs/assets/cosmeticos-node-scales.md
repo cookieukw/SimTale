@@ -75,18 +75,16 @@ O script navega recursivamente pela árvore de nós (`nodes`) do arquivo de mode
     `Berserker`, `Cat`, `Quiff`, `Viking`, `Fringe`, `Bangs`, `Emo`, `PuffyPonytail`,
     `LongPigtails`, `Slickback`, `WavyBraids`, `StarPuffsAlt`, `StarPuffs`, `Bun`, `WavyShort`,
     `Puffy`.
-*   **2 casos deixados de fora de propósito**: `SmartElf_Child` e `BowHair_Child` também têm
-    contagem de nodes diferente do adulto, mas na direção contrária (nodes A MAIS, não a menos) —
-    `BowHair_Child` ganhou dois nodes `BowTop` extras que não existem no adulto (parece um laço
-    adicionado de propósito pra versão infantil) e `SmartElf_Child` tem uma duplicação estranha de
-    node (`Top_L` duplicado) que talvez fosse uma tentativa manual de espelhar o penteado.
-    **Não foram tocados** — regenerar por cima do script apagaria esse trabalho manual (ou o que
-    quer que seja) sem confirmação de que é seguro. Precisam de revisão visual em jogo antes de
-    decidir se ficam como estão ou se também são regenerados.
-*   **Correção**: os 21 arquivos foram regenerados direto do `.blockymodel` adulto usando a mesma
-    lógica de `scripts/generate_child_variants.py` (nenhuma mudança no script foi necessária — ele
-    já está correto hoje). Validado por contagem de nodes batendo 100% com o adulto em todos os 21,
-    e por JSON válido. **Ainda não confirmado visualmente em jogo.**
+*   **Mais 2 casos, na direção contrária**: `SmartElf_Child` e `BowHair_Child` também tinham
+    contagem de nodes diferente do adulto, mas com nodes A MAIS em vez de a menos —
+    `BowHair_Child` tinha dois nodes `BowTop` extras que não existem no adulto, e
+    `SmartElf_Child` tinha uma duplicação estranha de node (`Top_L` duplicado, com a versão
+    espelhada perdendo os nodes de detalhe `Top_L--C1`/`Top_L--C2` que o adulto tem). Confirmado
+    com o usuário que não foi edição manual proposital — regenerados também, mesmo processo.
+*   **Correção**: os 23 arquivos (21 + esses 2) foram regenerados direto do `.blockymodel` adulto
+    usando a mesma lógica de `scripts/generate_child_variants.py` (nenhuma mudança no script foi
+    necessária — ele já está correto hoje). Validado por contagem de nodes batendo 100% com o
+    adulto em todos os 23, e por JSON válido. **Ainda não confirmado visualmente em jogo.**
 
 ---
 
