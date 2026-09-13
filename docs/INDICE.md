@@ -37,3 +37,4 @@ Bem-vindo à documentação oficial do mod **SimTale** em formato de monografia 
 18. **[Decisões de Design (ADRs)](historico/decisoes-arquiteturais.md)**: Justificativa de escolhas arquiteturais fundamentais do projeto.
 19. **[Glossário de Termos](glossario.md)**: Lista de definições rápidas para conceitos do mod (ex: Leash Point, Plumbob, etc.).
 20. **[Checklist de Testes](../testing_checklist.md)**: Roteiro de teste em jogo, sistema por sistema, com o que já foi validado e o que ainda falta.
+21. **[Experimentos](experimentos.md)**: Protótipos rápidos ainda não confirmados em jogo — hoje, o sistema de fantasias sazonais de NPC.
