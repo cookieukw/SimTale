@@ -55,6 +55,41 @@ O script navega recursivamente pela árvore de nós (`nodes`) do arquivo de mode
 
 ---
 
+### Cortes de cabelo com geometria mal-encaixada (nodes órfãos/mesclados) (13/09)
+*   **Problema**: reportado com print — a cabeça de uma NPC criança (menino, cabelo curto, ruivo)
+    aparecia com a lateral parecendo transparente e a parte de trás "malencaixada".
+*   **Causa raiz**: comparando o `.blockymodel` adulto original com o `_Child` já commitado,
+    `Short_Child.blockymodel` tinha **menos nodes** que o adulto (3 em vez de 4) — o node-pivô
+    `HairVolume` (sem geometria própria, só agrupa) e seu filho `HairVolume--C1` (a caixa de
+    verdade) tinham sido mesclados num único node, que ficou com o nome do pivô mas a geometria
+    do filho, **perdendo o deslocamento de posição/rotação próprio do filho** (a caixa acabou
+    exatamente na posição do pivô, em vez de deslocada dele). Rodando o algoritmo de escala atual
+    (`process_node`/`process_root`, o mesmo já documentado acima) direto no `.blockymodel` adulto,
+    o resultado bate certinho com o adulto (4 nodes, aninhamento correto) — ou seja, o arquivo
+    commitado estava desatualizado/gerado por um processo diferente do script atual, não é um bug
+    no algoritmo de hoje.
+*   **Alcance real, maior do que o relato**: comparando a contagem total de nodes entre TODO par
+    adulto/`_Child` de corte de cabelo (112 pares), **23 tinham contagens diferentes** — não só
+    o `Short`. Rodar o script atual de novo, sem mudar nada nele, corrigiu 21 desses (mesmo padrão
+    de node perdido/mesclado): `BraidDouble`, `Short`, `CentrePart`, `Mohawk`, `PonyTail`,
+    `Berserker`, `Cat`, `Quiff`, `Viking`, `Fringe`, `Bangs`, `Emo`, `PuffyPonytail`,
+    `LongPigtails`, `Slickback`, `WavyBraids`, `StarPuffsAlt`, `StarPuffs`, `Bun`, `WavyShort`,
+    `Puffy`.
+*   **2 casos deixados de fora de propósito**: `SmartElf_Child` e `BowHair_Child` também têm
+    contagem de nodes diferente do adulto, mas na direção contrária (nodes A MAIS, não a menos) —
+    `BowHair_Child` ganhou dois nodes `BowTop` extras que não existem no adulto (parece um laço
+    adicionado de propósito pra versão infantil) e `SmartElf_Child` tem uma duplicação estranha de
+    node (`Top_L` duplicado) que talvez fosse uma tentativa manual de espelhar o penteado.
+    **Não foram tocados** — regenerar por cima do script apagaria esse trabalho manual (ou o que
+    quer que seja) sem confirmação de que é seguro. Precisam de revisão visual em jogo antes de
+    decidir se ficam como estão ou se também são regenerados.
+*   **Correção**: os 21 arquivos foram regenerados direto do `.blockymodel` adulto usando a mesma
+    lógica de `scripts/generate_child_variants.py` (nenhuma mudança no script foi necessária — ele
+    já está correto hoje). Validado por contagem de nodes batendo 100% com o adulto em todos os 21,
+    e por JSON válido. **Ainda não confirmado visualmente em jogo.**
+
+---
+
 ## 6. Pontos em Aberto / Dívida Técnica
 *   **Geração Estática**: Atualmente, se um novo cosmético é adicionado ao catálogo oficial de Hytale, o script precisa ser re-executado manualmente para gerar a versão infantil correspondente.
 
