@@ -67,7 +67,7 @@ newly invented — the goal was a working sketch, not a finished feature.
 | Works correctly on child NPCs | 🔧 | `SimTale_Human_Child_*` variants exist and route through `InteractionManager.isNpcAChild`, but children use a single non-gendered base — not cross-checked against every existing child model variant. |
 | NPC keeps its own individual look (hair/face/etc.) while costumed | 🔧 | Fixed by generating a per-NPC costume asset instead of using the generic base — see "Investigated: the 'swaps the whole model' limitation" below. Not yet confirmed in a live game. |
 | Costume backup survives a server restart | 🐛 | Known limitation, not a bug to "fix" so much as a design gap: `COSTUME_BACKUP_MODEL` is an in-memory `Map`, not persisted. An NPC costumed and then left costumed across a restart would have no backup to restore from if `off` is used afterward. |
-| Automatic seasonal trigger (calendar-based, not a manual command) | ⬜ | Not started — this prototype is manual-only by design, to test the mechanism first. |
+| Automatic seasonal trigger (calendar-based, not a manual command) | 🔧 | Built (13/09): `SeasonalCostumeHelper.tick()`, wired into `SimTaleTickSystem`, checks `WorldTimeResource.getGameDateTime()` at most once every 1,200 ticks (~1 real minute) and reconciles every active NPC's costume against the current date. Not yet confirmed running in a live game. |
 | Slothian / Trork NPC coverage | ⬜ | Only the three human bases (male/female/child) have costume variants so far. |
 
 ### Research: automatic calendar trigger (13/09, verified against source)
@@ -178,8 +178,8 @@ in that file. Not yet confirmed running in a live game — see the checklist abo
    including the newly-generated per-NPC costume ids).
 2. Persist `COSTUME_BACKUP_MODEL` (or avoid needing it at all, e.g. by deriving the "off" asset id
    from the NPC's existing gender/child data instead of caching it).
-3. Wire a calendar/date trigger instead of a debug command — the API and access pattern for
-   this are already confirmed, see "Research: automatic calendar trigger" above.
+3. Adjust the date windows in `SeasonalCostumeHelper.resolveEvent()` if all of December /
+   Oct 25-31 isn't the desired window — it's a two-line `if`, deliberately simple to edit.
 4. Extend coverage to Slothian and Trork NPCs.
 5. Once confirmed, move this section into [Implementation status](status) and delete it from here.
 

@@ -66,7 +66,7 @@ implementado.
 | Funciona corretamente em NPCs crianças | 🔧 | `SimTale_Human_Child_*` existem e passam por `InteractionManager.isNpcAChild`, mas crianças usam uma única base não-generizada — não conferido contra toda variante de modelo infantil existente. |
 | NPC mantém a própria cara (cabelo/rosto/etc.) enquanto fantasiada | 🔧 | Corrigido gerando um asset de fantasia por NPC em vez de usar a base genérica — ver "Investigado: a limitação de 'trocar o modelo inteiro'" abaixo. Ainda não confirmado numa partida real. |
 | Backup da fantasia sobrevive a um restart do servidor | 🐛 | Limitação conhecida (não bug): `COSTUME_BACKUP_MODEL` é um `Map` em memória, não persistido. Uma NPC fantasiada durante um restart não teria backup para restaurar se `off` fosse usado depois. |
-| Gatilho sazonal automático (baseado em calendário) | ⬜ | Não iniciado — protótipo é manual de propósito, para testar o mecanismo primeiro. |
+| Gatilho sazonal automático (baseado em calendário) | 🔧 | Construído (13/09): `SeasonalCostumeHelper.tick()`, ligado no `SimTaleTickSystem`, confere `WorldTimeResource.getGameDateTime()` no máximo 1x a cada 1.200 ticks (~1 min real) e reconcilia a fantasia de toda NPC ativa contra a data atual. Ainda não confirmado rodando numa partida real. |
 | Cobertura de NPCs Slothian / Trork | ⬜ | Só as três bases humanas (macho/fêmea/criança) têm variantes até agora. |
 
 ### Investigado: a limitação de "trocar o modelo inteiro" (13/09)
@@ -181,8 +181,9 @@ nem a limitação de troca de modelo descrita acima.
     os ids de fantasia por-NPC recém-gerados).
 2.  Persistir `COSTUME_BACKUP_MODEL` (ou evitar precisar dele, derivando o id do asset de "off" a
     partir dos dados de gênero/criança já existentes da NPC em vez de cachear).
-3.  Trocar o comando de debug por um gatilho de calendário/data — a API e o padrão de acesso
-    já estão confirmados, ver "Pesquisa: gatilho automático por calendário" acima.
+3.  Ajustar as janelas de data em `SeasonalCostumeHelper.resolveEvent()` se dezembro inteiro /
+    25-31 de outubro não forem a janela desejada — é um `if` de duas linhas, de propósito
+    simples de editar.
 4.  Estender a cobertura para NPCs Slothian e Trork.
 5.  Depois de confirmado, promover este item para o [Checklist de Testes](../testing_checklist.md)
     e para o `status.md` da wiki, e apagar daqui.

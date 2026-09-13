@@ -69,7 +69,7 @@ terminada.
 | Funciona corretamente em NPCs crianças | 🔧 | As variantes `SimTale_Human_Child_*` existem e passam por `InteractionManager.isNpcAChild`, mas crianças usam uma única base não-generizada — não foi conferido contra toda variante de modelo infantil existente. |
 | NPC mantém a própria cara (cabelo/rosto/etc.) enquanto fantasiada | 🔧 | Corrigido gerando um asset de fantasia por NPC em vez de usar a base genérica — ver "Investigado: a limitação de 'trocar o modelo inteiro'" abaixo. Ainda não confirmado numa partida real. |
 | Backup da fantasia sobrevive a um restart do servidor | 🐛 | Limitação conhecida, mais uma lacuna de design do que um bug pra "corrigir": `COSTUME_BACKUP_MODEL` é um `Map` em memória, não é persistido. Uma NPC fantasiada que ficasse assim durante um restart não teria backup pra restaurar se `off` fosse usado depois. |
-| Gatilho sazonal automático (baseado em calendário, não comando manual) | ⬜ | Não iniciado — este protótipo é manual de propósito, pra testar o mecanismo primeiro. |
+| Gatilho sazonal automático (baseado em calendário, não comando manual) | 🔧 | Construído (13/09): `SeasonalCostumeHelper.tick()`, ligado no `SimTaleTickSystem`, confere `WorldTimeResource.getGameDateTime()` no máximo 1x a cada 1.200 ticks (~1 min real) e reconcilia a fantasia de toda NPC ativa contra a data atual. Ainda não confirmado rodando numa partida real. |
 | Cobertura de NPCs Slothian / Trork | ⬜ | Só as três bases humanas (macho/fêmea/criança) têm variantes de fantasia até agora. |
 
 ### Pesquisa: gatilho automático por calendário (13/09, verificado no código-fonte)
@@ -184,8 +184,9 @@ Ainda nao confirmado rodando numa partida real — ver o checklist acima.
    trava tudo o resto, incluindo os ids de fantasia por-NPC recém-gerados).
 2. Persistir `COSTUME_BACKUP_MODEL` (ou evitar precisar dele, por exemplo derivando o id do asset
    de "off" a partir dos dados de gênero/criança já existentes da NPC em vez de cachear).
-3. Trocar o comando de debug por um gatilho de calendário/data — a API e o padrão de acesso já
-   estão confirmados, ver "Pesquisa: gatilho automático por calendário" acima.
+3. Ajustar as janelas de data em `SeasonalCostumeHelper.resolveEvent()` se dezembro inteiro /
+   25-31 de outubro não forem a janela desejada — é um `if` de duas linhas, de propósito
+   simples de editar.
 4. Estender a cobertura pra NPCs Slothian e Trork.
 5. Depois de confirmado, mover esta seção pra [Status de implementação](status) e apagar daqui.
 
