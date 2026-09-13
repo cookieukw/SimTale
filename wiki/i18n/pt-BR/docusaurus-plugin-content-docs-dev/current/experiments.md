@@ -70,7 +70,7 @@ terminada.
 | NPC mantém a própria cara (cabelo/rosto/etc.) enquanto fantasiada | 🔧 | Corrigido gerando um asset de fantasia por NPC em vez de usar a base genérica — ver "Investigado: a limitação de 'trocar o modelo inteiro'" abaixo. Ainda não confirmado numa partida real. |
 | Backup da fantasia sobrevive a um restart do servidor | 🐛 | Limitação conhecida, mais uma lacuna de design do que um bug pra "corrigir": `COSTUME_BACKUP_MODEL` é um `Map` em memória, não é persistido. Uma NPC fantasiada que ficasse assim durante um restart não teria backup pra restaurar se `off` fosse usado depois. |
 | Gatilho sazonal automático (baseado em calendário, não comando manual) | 🔧 | Construído (13/09): `SeasonalCostumeHelper.tick()`, ligado no `SimTaleTickSystem`, confere `WorldTimeResource.getGameDateTime()` no máximo 1x a cada 1.200 ticks (~1 min real) e reconcilia a fantasia de toda NPC ativa contra a data atual. Ainda não confirmado rodando numa partida real. |
-| Chapéu de fantasia de criança encaixa direito na cabeça (sem faces transparentes/expostas) | 🔧 | **Era um bug de verdade, reportado com print (13/09) e corrigido no mesmo dia** — ver "Corrigido: chapéu de fantasia malencaixado em NPC criança" abaixo. Ainda não reconfirmado numa partida real. |
+| Chapéu de fantasia de criança encaixa direito na cabeça (sem faces transparentes/expostas) | 🔧 | Correção preventiva feita (13/09) investigando um relato de bug que na real era outra coisa (falso alarme — ver "Corrigido (sem relação com o bug relatado): chapéu de fantasia malencaixado em NPC criança" abaixo). Continua sendo uma correção real e necessária pra quando um chapéu de fantasia for usado numa criança de verdade; só não foi a causa daquele print especificamente. Ainda não confirmado numa partida real. |
 | Cobertura de NPCs Slothian / Trork | ⬜ | Só as três bases humanas (macho/fêmea/criança) têm variantes de fantasia até agora. |
 
 ### Pesquisa: gatilho automático por calendário (13/09, verificado no código-fonte)
@@ -179,11 +179,14 @@ sufixo` direto, e a antiga logica de gênero/criança (junto com os imports `Int
 `Gender` que ela precisava) foi apagada por nao ser mais usada em nenhum outro lugar do arquivo.
 Ainda nao confirmado rodando numa partida real — ver o checklist acima.
 
-### Corrigido: chapéu de fantasia malencaixado em NPC criança (13/09)
+### Corrigido (sem relação com o bug relatado): chapéu de fantasia malencaixado em NPC criança (13/09)
 
-Reportado com print: a cabeça de uma NPC criança fantasiada aparecia errada — a lateral da cabeça
-parecia transparente, e a parte de trás parecia "malencaixada" (nas palavras do usuário: "provavelmente
-foi a UV" — e o chute acertou em cheio).
+Reportado com print: a cabeça de uma NPC criança aparecia errada — a lateral da cabeça parecia
+transparente, e a parte de trás parecia "malencaixada" (nas palavras do usuário: "provavelmente foi
+a UV"). **Correção, no mesmo dia:** a NPC do print não estava fantasiada — era uma NPC totalmente
+normal, e o jeito estranho era só a cor do cabelo ruivo dela mesmo. Falso alarme, sem nada a ver
+com o sistema de fantasia. Só que, investigando esse relato, um bug real (separado) apareceu e
+valeu a pena corrigir:
 
 **Causa raiz, confirmada lendo os arquivos de verdade:** todo cosmético de cabeça deste projeto
 (cortes de cabelo etc.) que é feito pensando num esqueleto adulto precisa passar por uma
@@ -223,7 +226,10 @@ o bug.
 
 **Ainda não confirmado visualmente em jogo** — a correção foi verificada lendo/comparando JSON e
 geometria (os fatores de escala batem com o padrão esperado), mas ninguém viu uma NPC criança
-fantasiada numa sessão de jogo de verdade depois da correção ainda. É a próxima coisa a conferir.
+fantasiada numa sessão de jogo de verdade depois da correção ainda. É a próxima coisa a conferir —
+**mas repetindo: essa correção não resolve o print original, que era falso alarme** (ver a
+correção acima). A causa real daquele relato é só a cor do cabelo ruivo dessa NPC renderizando
+normalmente; não tinha bug nenhum ali.
 
 ### Próximos passos, se isso virar uma funcionalidade de verdade
 

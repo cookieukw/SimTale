@@ -68,7 +68,7 @@ newly invented — the goal was a working sketch, not a finished feature.
 | NPC keeps its own individual look (hair/face/etc.) while costumed | 🔧 | Fixed by generating a per-NPC costume asset instead of using the generic base — see "Investigated: the 'swaps the whole model' limitation" below. Not yet confirmed in a live game. |
 | Costume backup survives a server restart | 🐛 | Known limitation, not a bug to "fix" so much as a design gap: `COSTUME_BACKUP_MODEL` is an in-memory `Map`, not persisted. An NPC costumed and then left costumed across a restart would have no backup to restore from if `off` is used afterward. |
 | Automatic seasonal trigger (calendar-based, not a manual command) | 🔧 | Built (13/09): `SeasonalCostumeHelper.tick()`, wired into `SimTaleTickSystem`, checks `WorldTimeResource.getGameDateTime()` at most once every 1,200 ticks (~1 real minute) and reconciles every active NPC's costume against the current date. Not yet confirmed running in a live game. |
-| Child costume hat fits the head correctly (no exposed/transparent-looking faces) | 🔧 | **Was a real bug, reported with a screenshot (13/09) and fixed the same day** — see "Fixed: child NPC costume hat clipping" below. Not yet re-confirmed in a live game. |
+| Child costume hat fits the head correctly (no exposed/transparent-looking faces) | 🔧 | Preventive fix built (13/09) after investigating an NPC bug report that turned out to be unrelated (a false alarm — see "Fixed (unrelated to the reported bug): child NPC costume hat clipping" below). Still a real, needed fix for when a hat costume is actually used on a child; just not the cause of that specific report. Not yet confirmed in a live game. |
 | Slothian / Trork NPC coverage | ⬜ | Only the three human bases (male/female/child) have costume variants so far. |
 
 ### Research: automatic calendar trigger (13/09, verified against source)
@@ -173,11 +173,14 @@ computes `costumeId = currentId + "_" + suffix` directly, and the old gender/chi
 the `InteractionManager`/`Gender` imports it needed) was deleted since it's no longer used anywhere
 in that file. Not yet confirmed running in a live game — see the checklist above.
 
-### Fixed: child NPC costume hat clipping (13/09)
+### Fixed (unrelated to the reported bug): child NPC costume hat clipping (13/09)
 
-Reported with a screenshot: a costumed child NPC's head looked wrong — the side of the head
-appeared transparent, and the back looked "badly fitted" (user's words, translated: "provavelmente
-foi a UV", i.e. "probably the UV" — and that guess turned out to be exactly right).
+Reported with a screenshot: a child NPC's head looked wrong — the side of the head appeared
+transparent, and the back looked "badly fitted" (user's words, translated: "provavelmente foi a
+UV", i.e. "probably the UV"). **Correction, same day:** the NPC in the screenshot wasn't wearing
+a costume at all — it was a perfectly normal NPC, and the odd look was just its red hair color.
+False alarm; unrelated to the costume system. While chasing this report, though, a real (separate)
+bug was found and is worth keeping fixed:
 
 **Root cause, confirmed by reading the actual files:** every head cosmetic in this project
 (haircuts, etc.) that's authored for an adult skeleton has to be run through a node-scaling
@@ -214,7 +217,9 @@ has a separate `EVENTS_CHILD` dict, selected whenever `npc_id` starts with
 
 **Not yet confirmed visually in game** — the fix was verified by reading/diffing JSON and geometry
 (the scale factors match the expected pattern), but nobody has looked at a costumed child NPC in a
-live session since the fix. That's the next thing to check.
+live session since the fix. That's the next thing to check — **but again, this fix does not
+address the original screenshot report, which was a false alarm** (see the correction above). The
+real cause of that report is just this NPC's red hair color rendering normally; no bug there.
 
 ### Next steps, if this graduates into a real feature
 
