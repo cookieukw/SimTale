@@ -218,8 +218,14 @@ has a separate `EVENTS_CHILD` dict, selected whenever `npc_id` starts with
 **Not yet confirmed visually in game** — the fix was verified by reading/diffing JSON and geometry
 (the scale factors match the expected pattern), but nobody has looked at a costumed child NPC in a
 live session since the fix. That's the next thing to check — **but again, this fix does not
-address the original screenshot report, which was a false alarm** (see the correction above). The
-real cause of that report is just this NPC's red hair color rendering normally; no bug there.
+address the original screenshot report, which was a false alarm** (see the correction above).
+
+**Where the real bug turned out to be (13/09, later still):** the user clarified further — it
+was a red-haired boy with short hair, no costume at all. The actual bug was a corrupted node in
+`Short_Child.blockymodel` itself (a pivot node merged with its child box, losing the child's own
+position offset) — one of 21 child haircut models found with the same class of defect out of 112
+checked. See `docs/assets/cosmeticos-node-scales.md` and `testing_checklist.md` for the full
+writeup and fix; unrelated to the costume system documented on this page.
 
 ### Next steps, if this graduates into a real feature
 
