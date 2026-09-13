@@ -222,7 +222,11 @@ public class NPCGuardHelper {
      * the guard is holding the right thing, so this is safe to call unconditionally every tick.
      */
     private static void ensureWeaponEquipped(Ref<EntityStore> ref, SimNPCComponent npc, Store<EntityStore> store) {
-        String itemId = weaponItemIdFor(npc.guardWeaponCategory);
+        // Prefer the exact item that promoted this NPC to Guard (an Iron sword shows up as an
+        // Iron sword) -- the category-based stand-in only covers saves from before
+        // guardWeaponItemId existed, or the practically-impossible case where it was cleared.
+        String itemId = npc.guardWeaponItemId != null && !npc.guardWeaponItemId.isEmpty()
+                ? npc.guardWeaponItemId : weaponItemIdFor(npc.guardWeaponCategory);
         if (InventoryHelper.setHotbarItem(ref, itemId, (byte) 0, store)) {
             InventoryHelper.setHotbarSlot(ref, (byte) 0, store);
         }
