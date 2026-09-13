@@ -29,6 +29,7 @@ public class SimNPCData {
     public Profession profession;
     public WeaponCategory guardWeaponCategory;
     public String guardWeaponItemId;
+    public String[] armorItemIds;
     public NPCPreferences preferences;
     public FamilySystem family;
     public Gender gender;
