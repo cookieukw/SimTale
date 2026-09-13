@@ -419,8 +419,8 @@ Acima de 70 de fome, a comida volta a ser tratada como um presente comum.
 
 #### O Item Bebê
 
-<div style="text-align: center;">
-  <img src="wiki/static/img/baby_care.png" alt="O Item Bebê" />
+<div align="center">
+  <img src="wiki/static/img/Baby.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
 O <img src="wiki/static/img/Baby.png" width="24" align="absmiddle"/> **Bebê** é inicialmente um item. Após algum tempo, ele se transformará e nascerá como um NPC criança. (Só não esqueça ele dentro de um baú, a menos que você queira uma criança muito confusa nascendo no seu estoque!)
@@ -956,6 +956,8 @@ Não. Uma vila se forma automaticamente quando você constrói casas próximas u
 #### Como os NPCs têm filhos e como cuidar deles?
 
 NPCs casados que moram juntos podem ter filhos. Os bebês precisam de cuidados, e você (ou os pais) podem carregá-los nos ombros ou nas costas enquanto realizam outras tarefas. Não há limite de carregar apenas uma por vez: é possível empilhar até dez crianças ao mesmo tempo, uma em cima da outra.
+
+![Carregando uma criança](wiki/static/img/baby_care.png)
 
 ![Várias crianças carregadas ao mesmo tempo](wiki/static/img/child_carry_stack.png)
 

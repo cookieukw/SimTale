@@ -423,8 +423,8 @@ Above 70 hunger, food goes back to being just a gift.
 
 #### The Baby Item
 
-<div style="text-align: center;">
-  <img src="wiki/static/img/baby_care.png" alt="Baby Item" />
+<div align="center">
+  <img src="wiki/static/img/Baby.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
 The <img src="wiki/static/img/Baby.png" width="24" align="absmiddle"/> **Baby** is initially an item. After some time, it will transform and spawn into a child NPC. (Just make sure you don't leave it inside a chest, unless you want a very confused child spawning in your storage!)
@@ -960,6 +960,8 @@ No. A village forms automatically when you build houses close to each other (aro
 #### How do NPCs have babies and how do I care for them?
 
 Married NPCs that share a home can have babies. Babies need care, and you (or the parents) can carry them on your shoulders or back while performing other tasks. You are not limited to carrying one at a time, either — children can be stacked, up to ten of them at once, one on top of another.
+
+![Carrying a child](wiki/static/img/baby_care.png)
 
 ![Carrying several children at once](wiki/static/img/child_carry_stack.png)
 
