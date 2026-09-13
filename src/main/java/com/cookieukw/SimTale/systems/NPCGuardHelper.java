@@ -9,6 +9,7 @@ import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.WeaponCategory;
+import com.hypixel.hytale.server.npc.util.InventoryHelper;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.RemoveReason;
@@ -90,6 +91,11 @@ public class NPCGuardHelper {
         // A child guard would patrol the perimeter looking for skeletons at roughly half height.
         // The job stays hers; she just starts doing it at TEEN.
         if (!WorkEligibility.canWork(npc)) return;
+
+        // Every tick, not just on the scan cadence: cheap (both helpers below bail out
+        // immediately once the weapon already matches), and a guard that just got promoted
+        // or switched category should not wait up to a second empty-handed before it shows.
+        ensureWeaponEquipped(ref, npc, store);
 
         if (ai.currentTask == TaskType.IDLE) {
             // Staggered per guard rather than on a shared tick boundary: every guard checking on
@@ -191,6 +197,34 @@ public class NPCGuardHelper {
                 ai.currentTask = TaskType.IDLE;
                 ai.taskStartTime = world.getTick();
             }
+        }
+    }
+
+    /**
+     * Item id standing in for a Guard's weapon in its actual hand -- not the same list as
+     * {@link com.cookieukw.SimTale.logic.NPCShowcaseItems#forProfession}, which is a fixed
+     * sword used only for the interaction-menu icon and never varies with category.
+     */
+    private static String weaponItemIdFor(WeaponCategory category) {
+        return category == WeaponCategory.RANGED ? "Weapon_Shortbow_Copper" : "Weapon_Sword_Copper";
+    }
+
+    /**
+     * Puts the weapon that earned the Guard title in the NPC's actual hand, instead of the
+     * bare-fisted "Smith"/"LookAround" mime that {@link #handleGuardLogic} played before this --
+     * no profession showed anything in-hand at all, this one included.
+     * <p>
+     * Reuses the exact hotbar-equip path a vanilla NPC role JSON drives via its own
+     * {@code "Inventory"}/{@code "EquipHotbar"} actions (confirmed by decompiling
+     * {@code ActionInventory} and cross-checking against a Skeleton role that visibly draws a
+     * blade the same way) rather than inventing a new mechanism: put the weapon in hotbar slot
+     * 0 and make that the active slot. Both {@link InventoryHelper} calls already no-op once
+     * the guard is holding the right thing, so this is safe to call unconditionally every tick.
+     */
+    private static void ensureWeaponEquipped(Ref<EntityStore> ref, SimNPCComponent npc, Store<EntityStore> store) {
+        String itemId = weaponItemIdFor(npc.guardWeaponCategory);
+        if (InventoryHelper.setHotbarItem(ref, itemId, (byte) 0, store)) {
+            InventoryHelper.setHotbarSlot(ref, (byte) 0, store);
         }
     }
 
