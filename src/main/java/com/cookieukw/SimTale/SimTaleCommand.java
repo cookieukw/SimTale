@@ -40,7 +40,6 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import org.joml.Vector3i;
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Map;
 import java.util.ArrayList;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookieukw.SimTale.db.SimBedData;
@@ -96,8 +95,8 @@ import java.util.Objects;
 
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import java.util.LinkedHashMap;
-import java.util.HashMap;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.cookieukw.SimTale.systems.SeasonalCostumeHelper;
 
 /**
  * Commands for the SimTale plugin.
@@ -173,25 +172,24 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     // --- SUBCOMMANDS ---
 
     /**
-     * PROTOTIPO (13/09): fantasia de evento sazonal (Natal/Halloween) na NPC mais proxima.
+     * PROTOTIPO (13/09, com gatilho automatico adicionado depois na mesma sessao): fantasia de
+     * evento sazonal (Natal/Halloween), manual, na NPC mais proxima. Ver
+     * {@link SeasonalCostumeHelper} pro gatilho automatico por calendario e pro codigo
+     * compartilhado de aplicar/remover -- este comando so acha a NPC mais proxima e delega.
      * <p>
      * Usa o mesmo mecanismo que o Reaper ja usa pra trocar de modelo em tempo real
-     * (SimNPCFactory.applyModel -> ModelAsset -> Model.createScaledModel -> ModelComponent),
-     * so que apontando pra um ModelAsset novo (src/main/resources/Server/Models/Events/*.json)
-     * cujo "Parent" e o modelo base da NPC (SimTale_Human_Male/Female/Child) e cujo unico
+     * (SimNPCFactory.applyModel -> ModelAsset -> Model.createScaledModel -> ModelComponent), so
+     * que apontando pra um ModelAsset gerado por scripts/generate_costume_assets.py
+     * (src/main/resources/Server/Models/Events/Generated/*.json) cujo "Parent" e o proprio id
+     * de modelo ESPECIFICO daquela NPC (nao o modelo base generico -- isso e o que faz a NPC
+     * manter a propria cara enquanto fantasiada, ver docs/experimentos.md) e cujo unico
      * DefaultAttachment extra e um item de cosmetico que o proprio jogo ja usa pra isso
      * (Cosmetics/Head/SantaHat.blockymodel pro Natal -- e literalmente a mesma combinacao de
      * modelo/textura/GradientSet/GradientId do Server/Models/Christmas/Trork_Christmas.json
      * que o jogo ja envia --, StrawHat.blockymodel com a textura de bruxa pro Halloween).
      * <p>
-     * Limitacao conhecida deste prototipo: aplicar a fantasia troca a NPC pro visual BASE
-     * (cabelo/roupa padrao) + o item de evento, perdendo o visual individual sorteado dela
-     * enquanto a fantasia estiver ativa -- "costume off" restaura o visual original porque o
-     * asset id de antes da troca fica guardado em memoria (COSTUME_BACKUP_MODEL), mas esse
-     * backup nao sobrevive a um restart do servidor.
+     * Nada disso foi confirmado rodando numa partida real ainda -- ver testing_checklist.md.
      */
-    private static final Map<UUID, String> COSTUME_BACKUP_MODEL = new HashMap<>();
-
     private static class CostumeSubCommand extends AbstractPlayerCommand {
         private final RequiredArg<String> eventArg;
 
@@ -229,19 +227,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("[SimTale] NPC sem PersistentModel; nao foi possivel trocar a fantasia."));
                 return;
             }
-            String currentId = pm.getModelReference().getModelAssetId();
-            float scale = pm.getModelReference().getScale();
-
             if (evento.equals("off")) {
-                String original = COSTUME_BACKUP_MODEL.remove(nearestNPC.entityId);
-                if (original == null) {
-                    ctx.sendMessage(Message.raw("[SimTale] " + nearestNPC.name + " nao esta com fantasia de evento."));
-                    return;
-                }
-                boolean ok = SimNPCFactory.applyModel(store, npcRef, original, scale, new HashMap<>());
+                boolean ok = SeasonalCostumeHelper.removeCostume(store, npcRef, nearestNPC);
                 ctx.sendMessage(Message.raw(ok
                         ? "[SimTale] Fantasia removida de " + nearestNPC.name + "."
-                        : "[SimTale] Falhou ao remover a fantasia (modelo original '" + original + "' nao encontrado)."));
+                        : "[SimTale] " + nearestNPC.name + " nao esta com fantasia de evento (ou o modelo original nao foi encontrado)."));
                 return;
             }
 
@@ -260,17 +250,13 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             // Server/Models/Events/Generated/<currentId>_<evento>.json -- assim a NPC mantem a
             // propria cara (cabelo/rosto/roupa unicos dela) em vez de virar visualmente
             // identica a qualquer outra NPC fantasiada. Ver docs/experimentos.md, secao "a
-            // limitacao de 'trocar o modelo inteiro'" (13/09).
-            String costumeId = currentId + "_" + suffix;
-
-            COSTUME_BACKUP_MODEL.putIfAbsent(nearestNPC.entityId, currentId);
-            boolean ok = SimNPCFactory.applyModel(store, npcRef, costumeId, scale, new HashMap<>());
-            if (ok) {
-                ctx.sendMessage(Message.raw("[SimTale] " + nearestNPC.name + " vestida pro evento '" + evento + "'. Use '/simtale costume off' pra desfazer."));
-            } else {
-                COSTUME_BACKUP_MODEL.remove(nearestNPC.entityId);
-                ctx.sendMessage(Message.raw("[SimTale] Falhou -- asset '" + costumeId + "' nao encontrado. Rode scripts/generate_costume_assets.py para gerar os assets de fantasia por NPC."));
-            }
+            // limitacao de 'trocar o modelo inteiro'" (13/09). Mesma logica de aplicar/reverter
+            // usada pelo gatilho automatico de calendario em SeasonalCostumeHelper, entao os
+            // dois nunca ficam com um estado diferente do que a NPC realmente esta vestindo.
+            boolean ok = SeasonalCostumeHelper.applyCostume(store, npcRef, nearestNPC, suffix);
+            ctx.sendMessage(Message.raw(ok
+                    ? "[SimTale] " + nearestNPC.name + " vestida pro evento '" + evento + "'. Use '/simtale costume off' pra desfazer."
+                    : "[SimTale] Falhou -- asset nao encontrado pra essa NPC/evento. Rode scripts/generate_costume_assets.py."));
         }
     }
 
