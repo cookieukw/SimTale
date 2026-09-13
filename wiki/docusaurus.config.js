@@ -91,6 +91,10 @@ const config = {
       },
       navbar: {
         title: 'SimTale',
+        logo: {
+          alt: 'SimTale Logo',
+          src: 'img/simtale_logo.svg',
+        },
         items: [
           { type: 'docSidebar', sidebarId: 'player', position: 'left', label: 'Player' },
           { to: '/admin/intro', position: 'left', label: 'Server' },

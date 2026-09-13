@@ -1,5 +1,9 @@
 # SimTale
 
+<p align="center">
+  <img src="wiki/static/img/simtale_logo.png" width="480" alt="SimTale" />
+</p>
+
 *Leia em [Inglês](README.md)*
 
 
