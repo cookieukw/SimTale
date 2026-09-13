@@ -244,6 +244,7 @@ public class SimNPCPersistence {
         data.lastEmotionChangeTick = component.lastEmotionChangeTick;
         data.guardWeaponCategory = component.guardWeaponCategory;
         data.guardWeaponItemId = component.guardWeaponItemId;
+        data.armorItemIds = component.armorItemIds != null ? component.armorItemIds.clone() : null;
 
         worldShell().core(SimNPCData.class).preserve(component.entityId.toString(), data);
     }
@@ -356,6 +357,9 @@ public class SimNPCPersistence {
         }
         if (data.guardWeaponItemId != null) {
             component.guardWeaponItemId = data.guardWeaponItemId;
+        }
+        if (data.armorItemIds != null) {
+            component.armorItemIds = data.armorItemIds.clone();
         }
         if (data.preferences != null) {
             component.preferences = data.preferences;
