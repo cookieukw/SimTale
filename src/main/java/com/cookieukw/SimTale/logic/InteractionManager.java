@@ -688,6 +688,10 @@ public class InteractionManager {
             WeaponCategory category = WeaponCategoryRegistry.of(itemId);
             if (category != null) {
                 npc.guardWeaponCategory = category;
+                // The literal item, not just its category -- so the Guard is seen holding
+                // whatever was actually handed over (an Iron sword stays an Iron sword)
+                // instead of always a generic copper stand-in.
+                npc.guardWeaponItemId = itemId;
             }
         }
 
