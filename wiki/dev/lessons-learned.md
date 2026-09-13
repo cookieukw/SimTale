@@ -235,3 +235,21 @@ SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder"
 
 Fourteen classes were logging into the void, which made several bugs invisible. Use `SimLog`, which
 delegates to `HytaleLogger`.
+
+---
+
+## 10. One shared component, two unrelated meanings
+
+`MountedComponent` is the engine's generic "attached to another entity" component. This project
+reuses it for three unrelated things: an NPC asleep in a bed, an NPC sitting in a chair, and a
+child riding on a player's shoulder. A tick system checked only `mounted != null` to decide "this
+NPC just woke up" — true for all three cases, not just the first one.
+
+Any child picked up outside the nighttime window satisfied that check on the very next tick, and
+the carry was silently undone a few dozen milliseconds after being created — long before the
+client could even render it. The success message had already been sent by the time this ran, so
+the bug looked like a rendering glitch rather than a logic bug.
+
+**A shared component is not a signal for the specific state you happen to be thinking about. Gate
+on the actual state field (`currentTask == SLEEPING`), not on a side effect of that state (`has a
+mount component`).**
