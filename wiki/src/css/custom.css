@@ -28,3 +28,33 @@ table td,
 table th {
   padding: 0.6rem 0.9rem;
 }
+
+.furniture-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  margin: 8px 0 16px 0;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+[data-theme='light'] .furniture-gallery {
+  background-color: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.furniture-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  cursor: pointer;
+  image-rendering: pixelated;
+}
+
+.furniture-icon:hover {
+  transform: scale(1.35);
+  filter: drop-shadow(0 0 6px rgba(74, 126, 199, 0.8));
+}
