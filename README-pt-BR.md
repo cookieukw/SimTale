@@ -4,15 +4,14 @@
   <img src="wiki/static/img/simtale_logo.png" width="480" alt="SimTale" />
 </p>
 
-*Leia em [Inglês](README.md)*
-
-
+_Leia em [Inglês](README.md)_
 
 SimTale é um mod de simulação social para Hytale que implementa NPCs autônomos com rastreamento de estado individual para necessidades, personalidades, rotinas e relacionamentos.
 
 O comportamento dos NPCs é guiado por seus estados internos e consultas ao ambiente, em vez de scripts fixos ou árvores de diálogo.
 
 O mod inclui **800 variantes visuais distintas** de NPCs:
+
 - 400 Adultos (200 Homens, 200 Mulheres)
 - 400 Crianças (200 Meninos, 200 Meninas)
 
@@ -30,7 +29,7 @@ Durante a instanciação, cada NPC recebe propriedades aleatórias de personalid
 
 - **Dorme à noite.** Quando a noite cai, ele larga o que estiver fazendo e vai para a própria cama. NPCs com o traço "Preguiçoso" vão dormir mais cedo (quando a energia cai abaixo de 60). Guardas fazem o turno oposto: acordados à noite, dormem de dia.
 - **Come quando tem fome.** Procura por comida nos baús da casa onde mora (dentro de um raio de 24 blocos), e escolhe a melhor: comida cozida tem prioridade sobre carne crua, e ele evita o que odeia.
-- **Vive em uma casa.** Reivindica uma cama e trata aquele lugar como seu. 
+- **Vive em uma casa.** Reivindica uma cama e trata aquele lugar como seu.
 - **Pertence a uma vila.** Casas construídas perto umas das outras formam uma vila, calculada a partir das próprias construções. NPCs sem casa ficam perto do centro da vila em vez de vagar sem rumo.
 - **Trabalha.** Fazendeiros colhem plantações (Cenoura, Trigo, Tomate, Milho), replantam sementes e guardam a colheita. Caçadores e Mineradores saem em expedições e voltam com espólios.
 - **Conversa.** Procura outros NPCs em um raio de 20 blocos após ficar muito tempo sozinho, e o humor é contagiante.
@@ -56,7 +55,6 @@ Esta seção é para **jogadores**. Se você gerencia um servidor ou quer trabal
 
 > **Nota:** Documentação em andamento
 > O mod está em fase de testes e não tem um lançamento público. O comportamento descrito aqui pode mudar entre versões, e algumas partes ainda não foram validadas no jogo — onde for o caso, a página informará.
->
 
 ---
 
@@ -64,18 +62,17 @@ Esta seção é para **jogadores**. Se você gerencia um servidor ou quer trabal
 
 ### Requisitos
 
-| Item | Versão | Obrigatório |
-|---|---|---|
-| Servidor Hytale | `>= 0.5.8` | sim |
-| Caskara (banco de dados) | `>= 3.0.0` | sim |
-| RuneCore | 1.0.12 | sim — usado para aplicar dano e cura aos NPCs |
-| Java | 25 | apenas para compilar (build) |
+| Item                     | Versão     | Obrigatório                                   |
+| ------------------------ | ---------- | --------------------------------------------- |
+| Servidor Hytale          | `>= 0.6.0` | sim                                           |
+| Caskara (banco de dados) | `>= 3.0.0` | sim                                           |
+| RuneCore                 | 1.0.12     | sim — usado para aplicar dano e cura aos NPCs |
+| Java                     | 25         | apenas para compilar (build)                  |
 
 > **Nota:** De onde vêm esses números
 > `ServerVersion` e `Dependencies` no `manifest.json` do mod. A dependência do RuneCore não
 > está declarada lá, mas o código chama `com.cookie.runecore.api.StatHelper` — sem esse jar, a fome
 > não consegue tirar nem restaurar a vida.
-> 
 
 ### Instalar
 
@@ -102,13 +99,12 @@ A task `deploy` compila o jar e o copia para a pasta `Mods` do Hytale.
 > A cópia é atômica justamente para evitar problemas, mas compilar com o jogo fechado ainda é mais seguro.
 > O Hytale monitora a pasta `Mods` e recarrega o mod sozinho quando o arquivo muda — com um
 > jar de 11 MB, um recarregamento disparado no meio da gravação gerou um erro `ZipException: invalid LOC header` e nenhum NPC foi carregado.
-> 
 
 ### Verificando se funciona
 
 Entre no jogo, faça (craft) um **Contrato de Imigração** (Immigration Contract), e use-o.
 
-Se um NPC aparecer com um nome próprio e um diamante flutuando sobre a cabeça (o *plumbob*,
+Se um NPC aparecer com um nome próprio e um diamante flutuando sobre a cabeça (o _plumbob_,
 que mostra o humor), o mod está rodando.
 
 ### Desinstalação
@@ -120,16 +116,17 @@ de volta.
 
 ### Começando
 
-O caminho mais curto entre "Instalei o mod" e "Tenho uma vila viva". 
+O caminho mais curto entre "Instalei o mod" e "Tenho uma vila viva".
 
 ### 1. Traga um NPC
 
 Você precisa convidar um residente para iniciar sua vila. Faça (craft) um **Contrato de Imigração** (Immigration Contract) em uma bancada Fieldcraft usando:
+
 - 1x Mapa/Pergaminho (`Deco_Scroll`)
 - 1x Tinteiro (`Deco_Inkwell`)
 - 1x Couro Leve (`Ingredient_Leather_Light`)
 
-Use o contrato para invocar um novo residente. 
+Use o contrato para invocar um novo residente.
 
 O NPC gerado recebe um dos **800 modelos visuais distintos** e é instanciado com propriedades aleatórias para nome, matriz de personalidade, traços comportamentais, ocupação, hobbies e preferências alimentares.
 
@@ -165,7 +162,6 @@ Coloque um baú **dentro da casa** e deixe comida nele. NPCs vão procurar por u
 
 > **Atenção:** O baú deve pertencer a uma casa
 > NPCs usam apenas baús que pertencem a uma casa reconhecida. Um baú largado no meio do nada é ignorado — e é isso também que os mantém longe dos baús de tesouro espalhados pelo mundo.
-> 
 
 Veja o que eles realmente conseguem alcançar usando a **Lupa do Intendente** (Quartermaster's Glass).
 
@@ -182,6 +178,7 @@ Aponte para o NPC e aperte **F**, ou clique com o botão direito. Isso abre o pa
 </div>
 
 Os resultados das interações são calculados com base no status do relacionamento, humor e traços:
+
 - **Flertar (Flirt):** Aceito por parceiros ou NPCs tímidos; rejeitado por inimigos e NPCs irritados.
 - **Piada (Joke):** Falha totalmente com inimigos, melhora o humor de parceiros tristes/irritados.
 - **Presente (Gift):** Comida dada quando a fome está abaixo de 70 será comida imediatamente, restaurando saúde e alterando a diversão.
@@ -196,12 +193,12 @@ O mod é deliberadamente lento. Começando de 100 de fome, um NPC leva cerca de 
 
 ### Problemas iniciais comuns
 
-| Sintoma | Causa provável |
-|---|---|
-| O NPC não dorme | A cama não está registrada, ou não há uma casa válida. Verifique com o **Livro do Estalajadeiro**. |
-| O NPC não come | O baú não pertence a uma casa. Verifique com a **Lupa do Intendente**. |
-| Nenhum NPC aparece sozinho | NPCs não nascem mais automaticamente. Você deve craftar e usar um Contrato de Imigração. |
-| A casa é rejeitada | Faltam móveis ou o espaço não está fechado. O **Projeto de Casa** diz qual o problema. |
+| Sintoma                    | Causa provável                                                                                     |
+| -------------------------- | -------------------------------------------------------------------------------------------------- |
+| O NPC não dorme            | A cama não está registrada, ou não há uma casa válida. Verifique com o **Livro do Estalajadeiro**. |
+| O NPC não come             | O baú não pertence a uma casa. Verifique com a **Lupa do Intendente**.                             |
+| Nenhum NPC aparece sozinho | NPCs não nascem mais automaticamente. Você deve craftar e usar um Contrato de Imigração.           |
+| A casa é rejeitada         | Faltam móveis ou o espaço não está fechado. O **Projeto de Casa** diz qual o problema.             |
 
 ---
 
@@ -222,18 +219,18 @@ limite existe para que uma caverna aberta não seja confundida com uma mansão. 
 
 #### Mobília obrigatória
 
-| Requisito | Qualquer bloco cujo id contenha |
-|---|---|
+| Requisito        | Qualquer bloco cujo id contenha                                                                                                         |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | **Fonte de luz** | `torch` (tocha), `lantern` (lanterna), `candle` (vela), `campfire` (fogueira), `glow` (brilho), `lamp` (lâmpada), `chandelier` (lustre) |
-| **Assento** | `chair` (cadeira), `stool` (banquinho), `bench` (banco), `seat` (assento), `sofa` (sofá), `couch` (sofá) |
-| **Superfície** | `table` (mesa), `workbench` (bancada), `desk` (escrivaninha), `counter` (balcão) |
+| **Assento**      | `chair` (cadeira), `stool` (banquinho), `bench` (banco), `seat` (assento), `sofa` (sofá), `couch` (sofá)                                |
+| **Superfície**   | `table` (mesa), `workbench` (bancada), `desk` (escrivaninha), `counter` (balcão)                                                        |
 
 #### Opcional, mas você vai querer
 
-| Item | Por quê |
-|---|---|
-| **Cama** | Sem uma, ninguém mora lá. A casa é identificada *pela sua cama*. |
-| **Baú** | Sem um, os residentes não têm de onde tirar comida. |
+| Item     | Por quê                                                          |
+| -------- | ---------------------------------------------------------------- |
+| **Cama** | Sem uma, ninguém mora lá. A casa é identificada _pela sua cama_. |
+| **Baú**  | Sem um, os residentes não têm de onde tirar comida.              |
 
 ### Checando
 
@@ -247,7 +244,6 @@ relata quantos blocos do interior foram visitados, e quantas portas e baús fora
 > **Dica:** Chunks descarregados atrapalham
 > Se parte da casa estiver em um chunk descarregado (unloaded chunk), a checagem sinaliza o resultado como incompleto em vez
 > de rejeitá-lo. Fique perto da casa ao fazer a checagem.
-> 
 
 ### A casa é identificada por sua cama
 
@@ -308,10 +304,10 @@ outra cama.
 
 ### Cronograma de sono
 
-| Quem | Dorme |
-|---|---|
+| Quem                 | Dorme                 |
+| -------------------- | --------------------- |
 | Todo o resto da vila | à noite, a noite toda |
-| Guardas | durante o dia |
+| Guardas              | durante o dia         |
 
 Um NPC com a energia no máximo ainda vai para a cama ao anoitecer — quem manda é o relógio, não o cansaço. Ela
 fica dormindo até de manhã, para não pular da cama no exato momento em que a energia chegar em 100%.
@@ -326,7 +322,6 @@ e acorda quando estiver descansado.
 > **Dica:** Pular a noite os acorda
 > Executar o comando `time set day` acorda NPCs adormecidos imediatamente, porque acordar segue o relógio do mundo
 > em vez de um cronômetro fixo.
->
 
 ---
 
@@ -356,7 +351,6 @@ sem ela. Quebre todas as camas e não sobrará vila alguma.
 > Em outros jogos de construção de blocos, o centro da vila costuma ser algo fixo. Você pode derrubar todas as construções e o jogo ainda
 > tratará as ruínas como uma vila. Aqui, a vila é calculada a partir das casas que existem naquele exato
 > momento, então não sobra nada para trás que possa estar errado.
-> 
 
 ### O que ela muda
 
@@ -382,31 +376,31 @@ Aponte para um NPC e aperte **F**, ou clique com o botão direito. O painel de i
 
 ### O que o painel mostra
 
-| Seção | Conteúdo |
-|---|---|
-| Cabeçalho | Nome, trabalho, humor |
+| Seção        | Conteúdo                                                 |
+| ------------ | -------------------------------------------------------- |
+| Cabeçalho    | Nome, trabalho, humor                                    |
 | Necessidades | Fome e energia, codificadas por cor conforme a gravidade |
-| Traços | Traços de personalidade |
-| Identidade | Trabalho e hobby, como ícones de itens |
-| Gostos | Tudo o que ela gosta e odeia, como ícones |
-| Família | Pais e filhos |
-| Status | Porcentagens de relacionamento, amizade e afinidade |
+| Traços       | Traços de personalidade                                  |
+| Identidade   | Trabalho e hobby, como ícones de itens                   |
+| Gostos       | Tudo o que ela gosta e odeia, como ícones                |
+| Família      | Pais e filhos                                            |
+| Status       | Porcentagens de relacionamento, amizade e afinidade      |
 
 As cores na barra de fome seguem os limites que a rotina realmente usa: verde acima de 50, amarelo abaixo de 50, laranja abaixo de 25, vermelho abaixo de 5. No nível 5, o NPC chora e abandona todas as tarefas.
 
 ### Ações
 
-| Botão | O que ele faz |
-|---|---|
-| **Conversar (Chat)** | Bate-papo. Dá um pequeno aumento na Amizade (+5) e Afinidade (+5 a +10). Se a IA Gerativa estiver ativada, o NPC escreverá ativamente uma resposta. |
-| **Contar piada (Joke)** | Dá certo ou fracassa dependendo do senso de humor dela. Falha totalmente se forem inimigos. Anima parceiros tristes/irritados. NPCs com o traço `ENGRAÇADO` (`FUNNY`) dão um aumento massivo de +15 na afinidade. |
-| **Flertar (Flirt)** | Exige uma boa base de relacionamento. Diferente de certo jogo simulador de vida, você não pode simplesmente floodar a interação de flerte 50 vezes seguidas até eles casarem com você. Falha garantida e queda de relacionamento se forem inimigos, estranhos ou se o NPC estiver irritado. Facilmente aceito por parceiros ou NPCs com o traço `TÍMIDO` (`SHY`). |
-| **Dar presente (Gift)** | Entrega o que você estiver segurando. (Veja abaixo a lógica de presentes) |
-| **Insultar (Insult)** | Custa até -30 de confiança e afinidade, e ela se lembrará disso. (Clementine vai se lembrar disso). Parceiros vão reagir muito mal. |
-| **Dar bronca (Scold)** | Específico para os seus filhos. As reações variam conforme a idade: Adolescentes ficam com raiva, Adultos ficam entediados, e Bebês/Crianças pequenas ficam tristes. Dar bronca repetidamente reduz a confiança e afinidade. |
-| **Atribuir trabalho (Assign job)** | Define o trabalho dela com base na ferramenta que você está segurando (ex: segurar uma enxada atribui Fazendeiro). |
-| **Ver gravidez (View pregnancy)** | Abre o painel de gestação |
-| **Inventário (Inventory)** | Abre o inventário dela |
+| Botão                              | O que ele faz                                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Conversar (Chat)**               | Bate-papo. Dá um pequeno aumento na Amizade (+5) e Afinidade (+5 a +10). Se a IA Gerativa estiver ativada, o NPC escreverá ativamente uma resposta.                                                                                                                                                                                                               |
+| **Contar piada (Joke)**            | Dá certo ou fracassa dependendo do senso de humor dela. Falha totalmente se forem inimigos. Anima parceiros tristes/irritados. NPCs com o traço `ENGRAÇADO` (`FUNNY`) dão um aumento massivo de +15 na afinidade.                                                                                                                                                 |
+| **Flertar (Flirt)**                | Exige uma boa base de relacionamento. Diferente de certo jogo simulador de vida, você não pode simplesmente floodar a interação de flerte 50 vezes seguidas até eles casarem com você. Falha garantida e queda de relacionamento se forem inimigos, estranhos ou se o NPC estiver irritado. Facilmente aceito por parceiros ou NPCs com o traço `TÍMIDO` (`SHY`). |
+| **Dar presente (Gift)**            | Entrega o que você estiver segurando. (Veja abaixo a lógica de presentes)                                                                                                                                                                                                                                                                                         |
+| **Insultar (Insult)**              | Custa até -30 de confiança e afinidade, e ela se lembrará disso. (Clementine vai se lembrar disso). Parceiros vão reagir muito mal.                                                                                                                                                                                                                               |
+| **Dar bronca (Scold)**             | Específico para os seus filhos. As reações variam conforme a idade: Adolescentes ficam com raiva, Adultos ficam entediados, e Bebês/Crianças pequenas ficam tristes. Dar bronca repetidamente reduz a confiança e afinidade.                                                                                                                                      |
+| **Atribuir trabalho (Assign job)** | Define o trabalho dela com base na ferramenta que você está segurando (ex: segurar uma enxada atribui Fazendeiro).                                                                                                                                                                                                                                                |
+| **Ver gravidez (View pregnancy)**  | Abre o painel de gestação                                                                                                                                                                                                                                                                                                                                         |
+| **Inventário (Inventory)**         | Abre o inventário dela                                                                                                                                                                                                                                                                                                                                            |
 
 ### Presentes
 
@@ -447,7 +441,6 @@ O mod pode rotear as conversas através de uma Inteligência Artificial generati
 
 > **Nota:** Apenas pelo painel
 > Atualmente, as respostas por IA funcionam apenas através do painel de interação. Digitar no chat normal do jogo sempre trará as respostas baseadas em roteiros predefinidos, mesmo com a IA ativada.
->
 
 ---
 
@@ -455,13 +448,13 @@ O mod pode rotear as conversas através de uma Inteligência Artificial generati
 
 Todo NPC possui cinco necessidades, todas começando em 100 e caindo com o tempo.
 
-| Necessidade | O que ela motiva a fazer |
-|---|---|
-| **Fome** | Procurar por comida; se chegar no fundo, ele para de fazer qualquer outra coisa. (O bolo pode ser uma mentira, mas ainda enche a barriga) |
-| **Energia** | Ir para a cama |
-| **Social** | Procurar outros NPCs para conversar |
-| **Diversão** | Sair para praticar um hobby. (Muito trabalho e pouca diversão fazem do NPC um aldeão muito chato) |
-| **Higiene** | Entrar na água para tomar banho. (Remover a escada da piscina não vai prendê-los lá dentro de verdade) |
+| Necessidade  | O que ela motiva a fazer                                                                                                                  |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fome**     | Procurar por comida; se chegar no fundo, ele para de fazer qualquer outra coisa. (O bolo pode ser uma mentira, mas ainda enche a barriga) |
+| **Energia**  | Ir para a cama                                                                                                                            |
+| **Social**   | Procurar outros NPCs para conversar                                                                                                       |
+| **Diversão** | Sair para praticar um hobby. (Muito trabalho e pouca diversão fazem do NPC um aldeão muito chato)                                         |
+| **Higiene**  | Entrar na água para tomar banho. (Remover a escada da piscina não vai prendê-los lá dentro de verdade)                                    |
 
 Os traços alteram a velocidade. Um NPC `PREGUIÇOSO` (`LAZY`) gasta energia duas vezes mais rápido; um `ENGRAÇADO` (`FUNNY`) perde diversão pela metade da velocidade.
 
@@ -469,11 +462,11 @@ Os traços alteram a velocidade. Um NPC `PREGUIÇOSO` (`LAZY`) gasta energia dua
 
 A fome é a necessidade com as consequências mais duras, por isso ela tem limites claros:
 
-| Fome | O que acontece |
-|---|---|
-| abaixo de 50 | procura comida **quando estiver ocioso** |
+| Fome         | O que acontece                             |
+| ------------ | ------------------------------------------ |
+| abaixo de 50 | procura comida **quando estiver ocioso**   |
 | abaixo de 25 | **larga o que estiver fazendo** para comer |
-| abaixo de 5 | começa a perder vida |
+| abaixo de 5  | começa a perder vida                       |
 
 A interrupção aos 25 existe porque um NPC ocupado acabaria passando fome ao lado de uma despensa cheia —
 antes, a fome só era checada enquanto ele estivesse ocioso.
@@ -482,11 +475,11 @@ antes, a fome só era checada enquanto ele estivesse ocioso.
 
 Começando de barriga cheia:
 
-| Marco | Fome | Tempo decorrido |
-|---|---|---|
-| Procura comida se ocioso | 70 | ~4,2 h |
-| Interrompe o que está fazendo | 25 | ~10,4 h |
-| Para de trabalhar e chora | 5 | ~13,2 h |
+| Marco                         | Fome | Tempo decorrido |
+| ----------------------------- | ---- | --------------- |
+| Procura comida se ocioso      | 70   | ~4,2 h          |
+| Interrompe o que está fazendo | 25   | ~10,4 h         |
+| Para de trabalhar e chora     | 5    | ~13,2 h         |
 
 #### Fome não mata
 
@@ -502,11 +495,11 @@ isso não interrompe o sono.
 A comida é classificada pelos próprios dados de item do jogo em três níveis. Carne crua, ingredientes e colheitas
 são de nível 1; qualquer coisa cozida ou preparada é de nível 2 ou 3.
 
-| Nível | Fome | Saúde |
-|---|---|---|
-| 1 (cru) | +25 | +6 |
-| 2 | +45 | +14 |
-| 3 (cozido) | +65 | +24 |
+| Nível      | Fome | Saúde |
+| ---------- | ---- | ----- |
+| 1 (cru)    | +25  | +6    |
+| 2          | +45  | +14   |
+| 3 (cozido) | +65  | +24   |
 
 Ao escolher de um baú, o nível importa mais que o gosto: uma torta odiada ainda ganha de um suculento, porém cru, pedaço de
 carne que ele ama.
@@ -532,16 +525,16 @@ se comportem de forma diferente.
 
 ### Traços
 
-| Traço | Efeito |
-|---|---|
-| `AGRESSIVO` (`AGGRESSIVE`) | Conversas podem virar discussões |
-| `CARENTE` (`NEEDY`) | Leva insultos muito a sério, perdendo muita afinidade |
-| `TÍMIDO` (`SHY`) | Diálogos e reações únicas a flertes românticos |
-| `PREGUIÇOSO` (`LAZY`) | Perde energia duas vezes mais rápido |
-| `GANANCIOSO` (`GREEDY`) | Dá mais valor a presentes |
-| `PARANOICO` (`PARANOID`) | Reage mal a presentes |
-| `ENGRAÇADO` (`FUNNY`) | Perde diversão pela metade da velocidade |
-| `LEAL` (`LOYAL`) | Amizades não decaem com o tempo (Planejado) |
+| Traço                      | Efeito                                                |
+| -------------------------- | ----------------------------------------------------- |
+| `AGRESSIVO` (`AGGRESSIVE`) | Conversas podem virar discussões                      |
+| `CARENTE` (`NEEDY`)        | Leva insultos muito a sério, perdendo muita afinidade |
+| `TÍMIDO` (`SHY`)           | Diálogos e reações únicas a flertes românticos        |
+| `PREGUIÇOSO` (`LAZY`)      | Perde energia duas vezes mais rápido                  |
+| `GANANCIOSO` (`GREEDY`)    | Dá mais valor a presentes                             |
+| `PARANOICO` (`PARANOID`)   | Reage mal a presentes                                 |
+| `ENGRAÇADO` (`FUNNY`)      | Perde diversão pela metade da velocidade              |
+| `LEAL` (`LOYAL`)           | Amizades não decaem com o tempo (Planejado)           |
 
 ### Gostos
 
@@ -559,7 +552,6 @@ Dar um favorito é sempre bom. Dar algo odiado custa afinidade e piora o humor.
 > **Dica:** Gostos coincidem
 > A variedade de comidas é pequena, então é comum que dois NPCs odeiem a mesma coisa. Se um presente der errado com
 > alguém de quem você não esperava, abra o painel e verifique a lista real antes de achar que é um bug.
-> 
 
 ### Estação e clima favoritos
 
@@ -582,11 +574,11 @@ Cada NPC mantém um relacionamento separado com cada jogador e com outros NPCs.
 
 ### Os números
 
-| Valor | Significado |
-|---|---|
-| **Amizade** (Friendship) | Proximidade geral |
-| **Romance** | Interesse romântico |
-| **Confiança** (Trust) | Disposição para aceitar pedidos |
+| Valor                    | Significado                                 |
+| ------------------------ | ------------------------------------------- |
+| **Amizade** (Friendship) | Proximidade geral                           |
+| **Romance**              | Interesse romântico                         |
+| **Confiança** (Trust)    | Disposição para aceitar pedidos             |
 | **Afinidade** (Affinity) | Reação de curto prazo às suas últimas ações |
 
 ### Escada de status
@@ -601,14 +593,14 @@ um cônjuge.
 
 ### Como aumentar
 
-| Ação | Efeito |
-|---|---|
-| Conversar | Ganho pequeno, mas confiável |
-| Contar uma piada | Depende do senso de humor dela |
-| Flertar | Romance, se ela for receptiva |
-| Dar um presente favorito | Grande ganho |
+| Ação                                | Efeito                                          |
+| ----------------------------------- | ----------------------------------------------- |
+| Conversar                           | Ganho pequeno, mas confiável                    |
+| Contar uma piada                    | Depende do senso de humor dela                  |
+| Flertar                             | Romance, se ela for receptiva                   |
+| Dar um presente favorito            | Grande ganho                                    |
 | Alimentá-la quando estiver com fome | Grande ganho — maior que o de um presente comum |
-| Insultar | Perda, e ela se lembra disso |
+| Insultar                            | Perda, e ela se lembra disso                    |
 
 ### Ela se lembra
 
@@ -626,7 +618,6 @@ a conversa em uma discussão: ambos saem de mau humor e gostando menos um do out
 > **Nota:** Ninguém é arrastado para fora da cama
 > Um NPC que está dormindo ou trabalhando nunca é escolhido como parceiro de conversa. E se a energia acabar no
 > meio da conversa, ela abandona o bate-papo e vai para a cama — o parceiro que ficou para trás não congela.
-> 
 
 ### Casamento
 
@@ -644,11 +635,11 @@ Se os números não forem altos o suficiente, ela te rejeitará.
 Um NPC casado pode engravidar. A gravidez se divide em três trimestres, e a velocidade de movimento cai
 gradualmente conforme avança.
 
-| Trimestre | Sintomas |
-|---|---|
-| 1º | Ligeiro aumento na perda de fome e energia |
-| 2º | Aumento moderado na perda, lentidão moderada |
-| 3º | Perda intensa, lentidão severa |
+| Trimestre | Sintomas                                     |
+| --------- | -------------------------------------------- |
+| 1º        | Ligeiro aumento na perda de fome e energia   |
+| 2º        | Aumento moderado na perda, lentidão moderada |
+| 3º        | Perda intensa, lentidão severa               |
 
 Abra o painel de **Ver gravidez** (View Pregnancy) na tela de interação para acompanhar o progresso: dia atual,
 porcentagem, e tempo estimado restante em minutos reais.
@@ -664,13 +655,13 @@ bebê por aí, e pode entregá-lo para o outro pai/mãe.
 
 ### Fases de crescimento
 
-| Fase | Notas |
-|---|---|
-| `BEBÊ` (`BABY`) | Carregado no inventário |
-| `CRIANÇA PEQUENA` (`TODDLER`) | |
-| `CRIANÇA` (`CHILD`) | Modelo de corpo reduzido. |
-| `ADOLESCENTE` (`TEEN`) | Modelo levemente reduzido. |
-| `ADULTO` (`ADULT`) | Rotina completa: trabalho, casa, relacionamentos |
+| Fase                          | Notas                                            |
+| ----------------------------- | ------------------------------------------------ |
+| `BEBÊ` (`BABY`)               | Carregado no inventário                          |
+| `CRIANÇA PEQUENA` (`TODDLER`) |                                                  |
+| `CRIANÇA` (`CHILD`)           | Modelo de corpo reduzido.                        |
+| `ADOLESCENTE` (`TEEN`)        | Modelo levemente reduzido.                       |
+| `ADULTO` (`ADULT`)            | Rotina completa: trabalho, casa, relacionamentos |
 
 As crianças crescem com o tempo por conta própria, e o tamanho do modelo aumenta a cada fase.
 
@@ -695,7 +686,6 @@ coleta e revive o NPC.
 > **Nota:** Nada mata um NPC ainda
 > A fome, de propósito, não mata. NPCs famintos apenas choram e param de trabalhar. Envelhecimento e doenças ainda não foram implementados.
 > Atualmente, o fluxo de morte só pode ser ativado por comandos administrativos de teste, que existem para que a Ceifadora possa ser testada sem precisar esperar por uma causa de morte que ainda não existe no jogo.
->
 
 ---
 
@@ -703,32 +693,32 @@ coleta e revive o NPC.
 
 ### Empregos
 
-| Emprego | O que faz |
-|---|---|
-| `DESEMPREGADO` (`UNEMPLOYED`) | Nada em especial |
-| `MINERADOR` (`MINER`) | Sai em expedições de mineração e volta com minérios |
-| `FAZENDEIRO` (`FARMER`) | Reivindica um Espantalho (Scarecrow), colhe e replanta plantações específicas |
-| `PESCADOR` (`FISHERMAN`) | Reivindica um Posto de Pesca (Fishing Post) e coleta peixes |
-| `LENHADOR` (`LUMBERJACK`) | Reivindica um Posto de Lenhador (Lumber Post) e coleta madeira. (Ele é um lenhador, mas bem calmo. Sem fúria por favor) |
-| `GUARDA` (`GUARD`) | Vigia noturna — dorme de dia |
-| `EXPLORADOR` (`EXPLORER`) | Explora a região |
-| `CONSTRUTOR` (`BUILDER`) | Caminha até os locais de construção |
-| `CAÇADOR` (`HUNTER`) | Sai em expedições de caça e volta com carne crua |
+| Emprego                       | O que faz                                                                                                               |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `DESEMPREGADO` (`UNEMPLOYED`) | Nada em especial                                                                                                        |
+| `MINERADOR` (`MINER`)         | Sai em expedições de mineração e volta com minérios                                                                     |
+| `FAZENDEIRO` (`FARMER`)       | Reivindica um Espantalho (Scarecrow), colhe e replanta plantações específicas                                           |
+| `PESCADOR` (`FISHERMAN`)      | Reivindica um Posto de Pesca (Fishing Post) e coleta peixes                                                             |
+| `LENHADOR` (`LUMBERJACK`)     | Reivindica um Posto de Lenhador (Lumber Post) e coleta madeira. (Ele é um lenhador, mas bem calmo. Sem fúria por favor) |
+| `GUARDA` (`GUARD`)            | Vigia noturna — dorme de dia                                                                                            |
+| `EXPLORADOR` (`EXPLORER`)     | Explora a região                                                                                                        |
+| `CONSTRUTOR` (`BUILDER`)      | Caminha até os locais de construção                                                                                     |
+| `CAÇADOR` (`HUNTER`)          | Sai em expedições de caça e volta com carne crua                                                                        |
 
 #### Atribuindo um emprego
 
 Segure a ferramenta correspondente e use **Atribuir Trabalho** (Assign Job) no painel de interação.
 
-| Emprego | Gatilho contém no nome da ferramenta |
-|---|---|
-| Minerador | `Pickaxe` (picareta) |
-| Fazendeiro | `Hoe` (enxada) |
-| Pescador | `Tool_Fishing_Trap` (armadilha de pesca) |
-| Lenhador | `Hatchet` (machadinha) |
-| Guarda | qualquer arma reconhecida — corpo-a-corpo (espada, machado, adaga, lança, maça, ...) ou à distância (arco, besta, arma de fogo, ...) |
-| Explorador | `Tool_Map` (o item mapa/bússola) |
-| Construtor | `Tool_Hammer` (martelo) |
-| Caçador | `Shortbow` (arco curto) ou `Crossbow` (besta), especificamente |
+| Emprego    | Gatilho contém no nome da ferramenta                                                                                                 |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Minerador  | `Pickaxe` (picareta)                                                                                                                 |
+| Fazendeiro | `Hoe` (enxada)                                                                                                                       |
+| Pescador   | `Tool_Fishing_Trap` (armadilha de pesca)                                                                                             |
+| Lenhador   | `Hatchet` (machadinha)                                                                                                               |
+| Guarda     | qualquer arma reconhecida — corpo-a-corpo (espada, machado, adaga, lança, maça, ...) ou à distância (arco, besta, arma de fogo, ...) |
+| Explorador | `Tool_Map` (o item mapa/bússola)                                                                                                     |
+| Construtor | `Tool_Hammer` (martelo)                                                                                                              |
+| Caçador    | `Shortbow` (arco curto) ou `Crossbow` (besta), especificamente                                                                       |
 
 Um NPC pode recusar: cada um deles possui uma lista aleatória de trabalhos que gosta e trabalhos que odeia.
 
@@ -757,7 +747,6 @@ as armas que já vêm no Hytale.
 > dessas palavras no id ainda precisa de `WeaponCategoryRegistry.register(...)` ou
 > `simtale-weapons.json` (veja acima) — ou, para os empregos que não são Guarda, simplesmente não
 > será reconhecido.
-> 
 
 #### O Fazendeiro
 
@@ -765,16 +754,17 @@ as armas que já vêm no Hytale.
   <img src="wiki/static/img/farmer_job.png" alt="O Fazendeiro" />
 </div>
 
-O Fazendeiro exige um **Espantalho** (Scarecrow) para atuar como sua estação de trabalho. Ele caminhará até as plantações maduras, irá colhê-las (deixando cair 1 produto e 1-2 sementes), e então levará tudo para um baú em sua própria casa. Se ele tiver sementes e houver solo arado vazio por perto, ele replantará. 
+O Fazendeiro exige um **Espantalho** (Scarecrow) para atuar como sua estação de trabalho. Ele caminhará até as plantações maduras, irá colhê-las (deixando cair 1 produto e 1-2 sementes), e então levará tudo para um baú em sua própria casa. Se ele tiver sementes e houver solo arado vazio por perto, ele replantará.
 As plantações suportadas são: Cenoura, Trigo, Tomate e Milho.
 
 #### Expedições: Mineradores e Caçadores
 
 Mineradores e Caçadores não caminham ativamente até pedras ou animais. Em vez disso, eles saem em "Expedições".
 Quando o turno de trabalho começa, o modelo deles diminui (encolhe) e eles conceitualmente desaparecem por cerca de 2 minutos reais. Quando retornam, eles surgem de volta no Centro da Vila ou em suas casas, carregando espólios baseados em uma tabela de probabilidades.
+
 - **Mineradores** voltam com minérios (Cobre, Ferro, Prata, Ouro, Adamantium, etc.).
 - **Caçadores** voltam com Carnes Cruas (Boi, Porco, Frango).
-Eles caminham imediatamente até o baú de suas casas para depositar os espólios.
+  Eles caminham imediatamente até o baú de suas casas para depositar os espólios.
 
 #### O Pescador
 
@@ -796,13 +786,13 @@ Ele caminhará até esse posto, fará sua animação de coleta, e então deposit
 
 ### Hobbies
 
-| Hobby | Para onde ela vai |
-|---|---|
-| `PESCAR` (`FISHING`) | água mais próxima |
-| `MINERAR` (`MINING`) | pedra mais próxima |
+| Hobby                      | Para onde ela vai      |
+| -------------------------- | ---------------------- |
+| `PESCAR` (`FISHING`)       | água mais próxima      |
+| `MINERAR` (`MINING`)       | pedra mais próxima     |
 | `JARDINAGEM` (`GARDENING`) | plantação mais próxima |
-| `LER` (`READING`) | casa |
-| `DORMIR` (`SLEEPING`) | casa |
+| `LER` (`READING`)          | casa                   |
+| `DORMIR` (`SLEEPING`)      | casa                   |
 
 Quando a diversão cai abaixo de 40, ela vai e pratica o seu hobby, voltando feliz.
 
@@ -812,7 +802,7 @@ Se o cenário não existir — um pescador no deserto, por exemplo — ela não 
 
 - **Presentes**: dar uma vara de pescar para alguém cujo hobby é pescar vale muito mais do que um presente comum.
 - **Conversa**: dois NPCs com o mesmo hobby constroem amizade mais rápido.
-- **Trabalho**: um fazendeiro cujo hobby é jardinagem *ganha* diversão ao colher. Um que preferiria estar lendo perde um pouco de diversão durante o trabalho.
+- **Trabalho**: um fazendeiro cujo hobby é jardinagem _ganha_ diversão ao colher. Um que preferiria estar lendo perde um pouco de diversão durante o trabalho.
 
 ---
 
@@ -822,18 +812,18 @@ SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a
 
 ### O que elas fazem
 
-| Item | Apontar para | O que acontece |
-|---|---|---|
-| <img src="wiki/static/img/PregnancyTest.png" width="24" align="absmiddle"/> Teste de Gravidez (Pregnancy Test) | uma aldeã ou jogadora | Diz se ela está esperando um bebê e de quanto tempo |
-| <img src="wiki/static/img/HouseBlueprint.png" width="24" align="absmiddle"/> Projeto de Casa (House Blueprint) | uma cama | Informa se o cômodo conta como uma casa e mostra seus contornos |
-| <img src="wiki/static/img/InnkeepersLedger.png" width="24" align="absmiddle"/> Livro do Estalajadeiro (Innkeeper's Ledger) | qualquer coisa | Lista todas as camas registradas e quem dorme nelas. (Os textos sagrados!) |
-| <img src="wiki/static/img/QuartermastersGlass.png" width="24" align="absmiddle"/> Lupa do Intendente (Quartermaster's Glass) | qualquer coisa | Lista todos os baús da vila e o que há dentro deles. (Enhance... Enhance... Enhance) |
-| <img src="wiki/static/img/InspectorsJournal.png" width="24" align="absmiddle"/> Diário do Inspetor (Inspector's Journal) | um morador | Mostra suas necessidades, humor, trabalho e o que está fazendo agora |
-| <img src="wiki/static/img/ImmigrationContract.png" width="32" align="absmiddle"/> Contrato de Imigração (Immigration Contract) | qualquer coisa | Convida um novo residente para se estabelecer na vila |
-| <img src="wiki/static/img/TownBell.png" width="32" align="absmiddle"/> Sino da Cidade (Town Bell) | qualquer coisa | Toca o sino da cidade, alertando os moradores próximos |
-| <img src="wiki/static/img/WeddingRing.png" width="32" align="absmiddle"/> Aliança de Casamento (Wedding Ring) | um morador | Pede em casamento (requer 80 Romance, 70 Amizade) |
-| <img src="wiki/static/img/Baby.png" width="32" align="absmiddle"/> Bebê (Baby) | nada | Um bebê carregado no inventário que eventualmente nascerá como um NPC criança |
-| <img src="wiki/static/img/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake) | qualquer coisa | Pode ser craftado, mas ainda não tem função |
+| Item                                                                                                                           | Apontar para          | O que acontece                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------------ | --------------------- | ------------------------------------------------------------------------------------ |
+| <img src="wiki/static/img/PregnancyTest.png" width="24" align="absmiddle"/> Teste de Gravidez (Pregnancy Test)                 | uma aldeã ou jogadora | Diz se ela está esperando um bebê e de quanto tempo                                  |
+| <img src="wiki/static/img/HouseBlueprint.png" width="24" align="absmiddle"/> Projeto de Casa (House Blueprint)                 | uma cama              | Informa se o cômodo conta como uma casa e mostra seus contornos                      |
+| <img src="wiki/static/img/InnkeepersLedger.png" width="24" align="absmiddle"/> Livro do Estalajadeiro (Innkeeper's Ledger)     | qualquer coisa        | Lista todas as camas registradas e quem dorme nelas. (Os textos sagrados!)           |
+| <img src="wiki/static/img/QuartermastersGlass.png" width="24" align="absmiddle"/> Lupa do Intendente (Quartermaster's Glass)   | qualquer coisa        | Lista todos os baús da vila e o que há dentro deles. (Enhance... Enhance... Enhance) |
+| <img src="wiki/static/img/InspectorsJournal.png" width="24" align="absmiddle"/> Diário do Inspetor (Inspector's Journal)       | um morador            | Mostra suas necessidades, humor, trabalho e o que está fazendo agora                 |
+| <img src="wiki/static/img/ImmigrationContract.png" width="32" align="absmiddle"/> Contrato de Imigração (Immigration Contract) | qualquer coisa        | Convida um novo residente para se estabelecer na vila                                |
+| <img src="wiki/static/img/TownBell.png" width="32" align="absmiddle"/> Sino da Cidade (Town Bell)                              | qualquer coisa        | Toca o sino da cidade, alertando os moradores próximos                               |
+| <img src="wiki/static/img/WeddingRing.png" width="32" align="absmiddle"/> Aliança de Casamento (Wedding Ring)                  | um morador            | Pede em casamento (requer 80 Romance, 70 Amizade)                                    |
+| <img src="wiki/static/img/Baby.png" width="32" align="absmiddle"/> Bebê (Baby)                                                 | nada                  | Um bebê carregado no inventário que eventualmente nascerá como um NPC criança        |
+| <img src="wiki/static/img/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake)                 | qualquer coisa        | Pode ser craftado, mas ainda não tem função                                          |
 
 ### Aliança de Casamento (Wedding Ring)
 
@@ -863,16 +853,16 @@ Um bolo festivo que pode ser feito na Bancada de Trabalho. Atualmente, o Bolo de
 
 Todos os itens podem ser craftados em suas respectivas bancadas:
 
-| Item | Bancada | Ingredientes |
-|---|---|---|
-| **Teste de Gravidez** | <img src="wiki/static/img/Bench_Alchemy.png" width="24" align="absmiddle"/> Bancada de Alquimia (Alchemybench) | 1x <img src="wiki/static/img/Plant_Flower_Common_White.png" width="24" align="absmiddle"/> Flor Branca (White Flower), 1x <img src="wiki/static/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="wiki/static/img/Ingredient_Life_Essence_Cauliflower.png" width="24" align="absmiddle"/> Couve-flor (Cauliflower) |
-| **Projeto de Casa** | Inventário (Fieldcraft) | 1x <img src="wiki/static/img/Deco_Map.png" width="24" align="absmiddle"/> Mapa (Map), 1x <img src="wiki/static/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="wiki/static/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll) |
-| **Livro do Estalajadeiro** | Inventário (Fieldcraft) | 1x <img src="wiki/static/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="wiki/static/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="wiki/static/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
-| **Lupa do Intendente** | <img src="wiki/static/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 1x <img src="wiki/static/img/Rock_Crystal_White.png" width="24" align="absmiddle"/> Cristal Branco (White Crystal), 1x <img src="wiki/static/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Barra de Cobre (Copper Bar) |
-| **Diário do Inspetor** | Inventário (Fieldcraft) | 1x <img src="wiki/static/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="wiki/static/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell) |
-| **Contrato de Imigração** | Inventário (Fieldcraft) | 1x <img src="wiki/static/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll), 1x <img src="wiki/static/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="wiki/static/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
-| **Sino da Cidade** | <img src="wiki/static/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 3x Barra de Ouro (Gold Bar), 2x <img src="wiki/static/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks) |
-| **Bolo de Aniversário** | Bancada de Trabalho (Workbench) | 1x Torta de Maçã (Apple Pie), 1x Fonte de Luz Laranja (Orange Light Source) |
+| Item                       | Bancada                                                                                                        | Ingredientes                                                                                                                                                                                                                                                                                                                                                                                 |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Teste de Gravidez**      | <img src="wiki/static/img/Bench_Alchemy.png" width="24" align="absmiddle"/> Bancada de Alquimia (Alchemybench) | 1x <img src="wiki/static/img/Plant_Flower_Common_White.png" width="24" align="absmiddle"/> Flor Branca (White Flower), 1x <img src="wiki/static/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="wiki/static/img/Ingredient_Life_Essence_Cauliflower.png" width="24" align="absmiddle"/> Couve-flor (Cauliflower)        |
+| **Projeto de Casa**        | Inventário (Fieldcraft)                                                                                        | 1x <img src="wiki/static/img/Deco_Map.png" width="24" align="absmiddle"/> Mapa (Map), 1x <img src="wiki/static/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="wiki/static/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll)                                                                                                     |
+| **Livro do Estalajadeiro** | Inventário (Fieldcraft)                                                                                        | 1x <img src="wiki/static/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="wiki/static/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="wiki/static/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
+| **Lupa do Intendente**     | <img src="wiki/static/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench)  | 1x <img src="wiki/static/img/Rock_Crystal_White.png" width="24" align="absmiddle"/> Cristal Branco (White Crystal), 1x <img src="wiki/static/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Barra de Cobre (Copper Bar)                                                                                                                                                       |
+| **Diário do Inspetor**     | Inventário (Fieldcraft)                                                                                        | 1x <img src="wiki/static/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="wiki/static/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell)                                                                                                                                                      |
+| **Contrato de Imigração**  | Inventário (Fieldcraft)                                                                                        | 1x <img src="wiki/static/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll), 1x <img src="wiki/static/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="wiki/static/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather)                                                                     |
+| **Sino da Cidade**         | <img src="wiki/static/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench)  | 3x Barra de Ouro (Gold Bar), 2x <img src="wiki/static/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks)                                                                                                                                                                                                                                 |
+| **Bolo de Aniversário**    | Bancada de Trabalho (Workbench)                                                                                | 1x Torta de Maçã (Apple Pie), 1x Fonte de Luz Laranja (Orange Light Source)                                                                                                                                                                                                                                                                                                                  |
 
 #### Ícones dos Itens
 
@@ -890,7 +880,6 @@ Você recebe um veredito (válida, ou a lista do que está faltando), um resumo 
 
 > **Nota:** Ele de propósito não registra nada
 > Uma ferramenta de verificação não deve alterar o que ela verifica. Se o projeto registrasse a casa, você criaria residências por acidente enquanto as inspeciona. Casas continuam sendo criadas quando um NPC reivindica a cama.
-> 
 
 A única coisa que ele faz com perfeição: ele sabe exatamente a qual cama você se refere. Checar apenas por proximidade deixa de ser bom o suficiente no momento em que duas casas dividem uma parede.
 
@@ -906,7 +895,6 @@ O Livro (Ledger), a Lupa (Glass) e o Diário (Journal) são visões apenas de le
 
 > **Atenção:** Por que não há botão de Teleporte neles
 > Os registros de camas e baús contêm cada entrada existente no mundo. Um item craftável com um botão de teleporte ao lado de cada entrada não seria uma ferramenta de vila, seria a viagem rápida mais quebrada do jogo. O mesmo raciocínio, embora menos dramático, vale para os botões de Desvincular e Remover: esses itens são lentes, nunca alavancas.
-> 
 
 O Diário não faz simplesmente um despejo de estado interno de debug. Um dump bruto mostraria o estado do papel (role state), slots de animação, flags de movimento e tempos de recarga de busca — o que você quer ver quando a IA está com problemas, mas que é puro ruído quando você só quer saber se alguém está com fome. O Diário relata as cinco necessidades, humor, trabalho, onde ela mora e o que está fazendo em palavras claras, em vez do nome interno da tarefa.
 

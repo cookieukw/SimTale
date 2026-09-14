@@ -7,12 +7,12 @@ title: Installation
 
 ## Requirements
 
-| Item | Version | Required |
-|---|---|---|
-| Hytale server | `>= 0.5.8` | yes |
-| Caskara (database) | `>= 3.0.0` | yes |
-| RuneCore | 1.0.12 | yes — used to apply damage and healing to NPCs |
-| Java | 25 | only to build |
+| Item               | Version    | Required                                       |
+| ------------------ | ---------- | ---------------------------------------------- |
+| Hytale server      | `>= 0.6.0` | yes                                            |
+| Caskara (database) | `>= 3.0.0` | yes                                            |
+| RuneCore           | 1.0.12     | yes — used to apply damage and healing to NPCs |
+| Java               | 25         | only to build                                  |
 
 :::info Where these numbers come from
 `ServerVersion` and `Dependencies` in the mod's `manifest.json`. The RuneCore dependency is not
@@ -52,7 +52,7 @@ at all.
 
 Join the game, craft an **Immigration Contract**, and use it.
 
-If an NPC shows up with a name of its own and a diamond floating above its head (the *plumbob*,
+If an NPC shows up with a name of its own and a diamond floating above its head (the _plumbob_,
 which shows mood), the mod is live.
 
 ## Uninstalling

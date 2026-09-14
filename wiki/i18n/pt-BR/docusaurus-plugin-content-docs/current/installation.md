@@ -7,12 +7,12 @@ title: Instalação
 
 ## Requisitos
 
-| Item | Versão | Obrigatório |
-|---|---|---|
-| Servidor Hytale | `>= 0.5.8` | sim |
-| Caskara (banco de dados) | `>= 3.0.0` | sim |
-| RuneCore | 1.0.12 | sim — usado para aplicar dano e cura aos NPCs |
-| Java | 25 | apenas para compilar (build) |
+| Item                     | Versão     | Obrigatório                                   |
+| ------------------------ | ---------- | --------------------------------------------- |
+| Servidor Hytale          | `>= 0.6.0` | sim                                           |
+| Caskara (banco de dados) | `>= 3.0.0` | sim                                           |
+| RuneCore                 | 1.0.12     | sim — usado para aplicar dano e cura aos NPCs |
+| Java                     | 25         | apenas para compilar (build)                  |
 
 :::info De onde vêm esses números
 `ServerVersion` e `Dependencies` no `manifest.json` do mod. A dependência do RuneCore não
@@ -51,7 +51,7 @@ jar de 11 MB, um recarregamento disparado no meio da gravação gerou um erro `Z
 
 Entre no jogo, faça (craft) um **Contrato de Imigração** (Immigration Contract), e use-o.
 
-Se um NPC aparecer com um nome próprio e um diamante flutuando sobre a cabeça (o *plumbob*,
+Se um NPC aparecer com um nome próprio e um diamante flutuando sobre a cabeça (o _plumbob_,
 que mostra o humor), o mod está rodando.
 
 ## Desinstalação
