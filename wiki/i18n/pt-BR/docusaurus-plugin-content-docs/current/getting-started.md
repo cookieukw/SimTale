@@ -267,9 +267,9 @@ Aponte para o NPC e aperte **F**, ou clique com o botão direito. Isso abre o pa
 </div>
 
 Os resultados das interações são calculados com base no status do relacionamento, humor e traços:
-- **Flertar (Flirt):** Aceito por parceiros ou NPCs tímidos; rejeitado por inimigos e NPCs irritados.
-- **Piada (Joke):** Falha totalmente com inimigos, melhora o humor de parceiros tristes/irritados.
-- **Presente (Gift):** Comida dada quando a fome está abaixo de 70 será comida imediatamente, restaurando saúde e alterando a diversão.
+- <img src="/img/icon_flirt.svg" width="20" height="20" align="absmiddle" /> **Flertar (Flirt):** Aceito por parceiros ou NPCs tímidos; rejeitado por inimigos e NPCs irritados.
+- <img src="/img/icon_joke.svg" width="20" height="20" align="absmiddle" /> **Piada (Joke):** Falha totalmente com inimigos, melhora o humor de parceiros tristes/irritados.
+- <img src="/img/icon_gift.svg" width="20" height="20" align="absmiddle" /> **Presente (Gift):** Comida dada quando a fome está abaixo de 70 será comida imediatamente, restaurando saúde e alterando a diversão.
 
 Veja [Interagindo com NPCs](interacting.md).
 
