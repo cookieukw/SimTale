@@ -93,7 +93,7 @@ const config = {
         title: 'SimTale',
         logo: {
           alt: 'SimTale Logo',
-          src: 'img/simtale_logo.svg',
+          src: 'img/logo.png',
         },
         items: [
           { type: 'docSidebar', sidebarId: 'player', position: 'left', label: 'Player' },
