@@ -9,11 +9,11 @@ Todo NPC possui cinco necessidades, todas começando em 100 e caindo com o tempo
 
 | Necessidade | O que ela motiva a fazer |
 |---|---|
-| **Fome** | Procurar por comida; se chegar no fundo, ele para de fazer qualquer outra coisa. (O bolo pode ser uma mentira, mas ainda enche a barriga) |
-| **Energia** | Ir para a cama |
-| **Social** | Procurar outros NPCs para conversar |
-| **Diversão** | Sair para praticar um hobby. (Muito trabalho e pouca diversão fazem do NPC um aldeão muito chato) |
-| **Higiene** | Entrar na água para tomar banho. (Remover a escada da piscina não vai prendê-los lá dentro de verdade) |
+| <img src="/img/need_hunger.svg" width="22" height="22" align="absmiddle" /> **Fome** | Procurar por comida; se chegar no fundo, ele para de fazer qualquer outra coisa. (O bolo pode ser uma mentira, mas ainda enche a barriga) |
+| <img src="/img/need_energy.svg" width="22" height="22" align="absmiddle" /> **Energia** | Ir para a cama |
+| <img src="/img/need_social.svg" width="22" height="22" align="absmiddle" /> **Social** | Procurar outros NPCs para conversar |
+| <img src="/img/need_fun.svg" width="22" height="22" align="absmiddle" /> **Diversão** | Sair para praticar um hobby. (Muito trabalho e pouca diversão fazem do NPC um aldeão muito chato) |
+| <img src="/img/need_hygiene.svg" width="22" height="22" align="absmiddle" /> **Higiene** | Entrar na água para tomar banho. (Remover a escada da piscina não vai prendê-los lá dentro de verdade) |
 
 Os traços alteram a velocidade. Um NPC `PREGUIÇOSO` (`LAZY`) gasta energia duas vezes mais rápido; um `ENGRAÇADO` (`FUNNY`) perde diversão pela metade da velocidade.
 

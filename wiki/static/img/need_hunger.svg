@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none">
+  <defs>
+    <linearGradient id="hungerFace" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffb703"/>
+      <stop offset="1" stop-color="#fb8500"/>
+    </linearGradient>
+    <linearGradient id="meatGrad" x1="20" y1="2" x2="30" y2="12" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f48c06"/>
+      <stop offset="1" stop-color="#9d0208"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base Emoji Face -->
+  <circle cx="16" cy="16" r="14" fill="url(#hungerFace)"/>
+
+  <!-- Eyes looking up towards food -->
+  <circle cx="11" cy="14" r="2.2" fill="#370617"/>
+  <circle cx="12" cy="13" r="0.9" fill="#ffffff"/>
+  <circle cx="21" cy="14" r="2.2" fill="#370617"/>
+  <circle cx="22" cy="13" r="0.9" fill="#ffffff"/>
+
+  <!-- Cute Craving Smile with Tongue -->
+  <path d="M10 19c1.2 4 10.8 4 12 0H10z" fill="#370617"/>
+  <path d="M14 19.5c0 2.5 1.5 3.8 3.5 3.8s3.5-1.3 3.5-3.8H14z" fill="#ff5d73"/>
+
+  <!-- Rosy Cheeks -->
+  <circle cx="7" cy="16.5" r="1.5" fill="#ff006e" opacity="0.4"/>
+  <circle cx="25" cy="16.5" r="1.5" fill="#ff006e" opacity="0.4"/>
+
+  <!-- Food Icon at Top Right (Drumstick) -->
+  <path d="M22 8.5c-1.5-1.5-1.2-4 .5-5.5 1.8-1.5 4.5-1.2 5.5.5 1 1.8.8 4-.8 5.2l-3.2 1.8c-.8.5-1.6-.5-2-2z" fill="url(#meatGrad)"/>
+  <path d="M24 3.5c1-.8 2.5-.6 3.2.3" stroke="#ffd166" stroke-width="0.9" stroke-linecap="round"/>
+  <!-- Bone -->
+  <path d="M21.5 9l-2.2 1.8" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="19" cy="11.2" r="1" fill="#ffffff"/>
+  <circle cx="18.2" cy="9.8" r="0.9" fill="#ffffff"/>
+</svg>

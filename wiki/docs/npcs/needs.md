@@ -9,11 +9,11 @@ Every NPC carries five needs, all starting at 100 and decaying over time.
 
 | Need | What it drives |
 |---|---|
-| **Hunger** | Looking for food; at the bottom, it stops doing anything else. (The cake may be a lie, but it fills the bar) |
-| **Energy** | Going to bed |
-| **Social** | Seeking out other NPCs to talk to |
-| **Fun** | Going off to do a hobby. (All work and no play makes the NPC a dull villager) |
-| **Hygiene** | Getting into water to bathe. (Removing the pool ladder won't actually trap them) |
+| <img src="/img/need_hunger.svg" width="22" height="22" align="absmiddle" /> **Hunger** | Looking for food; at the bottom, it stops doing anything else. (The cake may be a lie, but it fills the bar) |
+| <img src="/img/need_energy.svg" width="22" height="22" align="absmiddle" /> **Energy** | Going to bed |
+| <img src="/img/need_social.svg" width="22" height="22" align="absmiddle" /> **Social** | Seeking out other NPCs to talk to |
+| <img src="/img/need_fun.svg" width="22" height="22" align="absmiddle" /> **Fun** | Going off to do a hobby. (All work and no play makes the NPC a dull villager) |
+| <img src="/img/need_hygiene.svg" width="22" height="22" align="absmiddle" /> **Hygiene** | Getting into water to bathe. (Removing the pool ladder won't actually trap them) |
 
 Traits change the rates. A `LAZY` NPC burns energy twice as fast; a `FUNNY` one loses fun at half
 speed.
