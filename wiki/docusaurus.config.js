@@ -17,6 +17,14 @@ const config = {
   organizationName: 'cookieukw',
   projectName: 'SimTale',
 
+  scripts: [
+    {
+      src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3239733554197124',
+      async: true,
+      crossorigin: 'anonymous',
+    },
+  ],
+
   // A broken link fails the build on purpose. A wiki with dead links is worse than an incomplete one.
   onBrokenLinks: 'throw',
 
