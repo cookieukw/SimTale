@@ -11,19 +11,11 @@ const config = {
   favicon: 'img/favicon.ico',
 
   // Adjust when publishing: url is the domain, baseUrl is the path within it.
-  url: 'https://cookieukw.github.io',
+  url: 'https://simtale.kukkie.org',
   baseUrl: '/',
 
   organizationName: 'cookieukw',
   projectName: 'SimTale',
-
-  scripts: [
-    {
-      src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3239733554197124',
-      async: true,
-      crossorigin: 'anonymous',
-    },
-  ],
 
   // A broken link fails the build on purpose. A wiki with dead links is worse than an incomplete one.
   onBrokenLinks: 'throw',
@@ -107,6 +99,21 @@ const config = {
           { type: 'docSidebar', sidebarId: 'player', position: 'left', label: 'Player' },
           { to: '/admin/intro', position: 'left', label: 'Server' },
           { to: '/dev/intro', position: 'left', label: 'Developer' },
+          {
+            type: 'dropdown',
+            label: 'Donate',
+            position: 'right',
+            items: [
+              {
+                label: 'Ko-fi',
+                href: 'https://ko-fi.com/cookieukw',
+              },
+              {
+                label: 'Patreon',
+                href: 'https://www.patreon.com/cookieukw',
+              },
+            ],
+          },
           { type: 'localeDropdown', position: 'right' },
          /* {
             href: 'https://github.com/cookieukw/SimTale',
@@ -117,6 +124,21 @@ const config = {
       },
       footer: {
         style: 'dark',
+        links: [
+          {
+            title: 'Support the Project',
+            items: [
+              {
+                label: 'Ko-fi',
+                href: 'https://ko-fi.com/cookieukw',
+              },
+              {
+                label: 'Patreon',
+                href: 'https://www.patreon.com/cookieukw',
+              },
+            ],
+          },
+        ],
         copyright: `A social simulation mod for Hytale, currently in development.`,
       },
     }),
