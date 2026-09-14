@@ -266,9 +266,9 @@ Aim at the NPC and press **F**, or right-click. That opens the interaction panel
 </div>
 
 The outcomes of interactions are calculated based on relationship status, mood, and traits:
-- **Flirt:** Accepted by partners or shy NPCs; rejected by enemies and angry NPCs.
-- **Joke:** Fails on enemies, cheers up sad/angry partners.
-- **Gift:** Food given below 70 hunger will be eaten immediately, restoring health and altering fun.
+- <img src="/img/icon_flirt.svg" width="20" height="20" align="absmiddle" /> **Flirt:** Accepted by partners or shy NPCs; rejected by enemies and angry NPCs.
+- <img src="/img/icon_joke.svg" width="20" height="20" align="absmiddle" /> **Joke:** Fails on enemies, cheers up sad/angry partners.
+- <img src="/img/icon_gift.svg" width="20" height="20" align="absmiddle" /> **Gift:** Food given below 70 hunger will be eaten immediately, restoring health and altering fun.
 
 See [Interacting with NPCs](interacting.md).
 
