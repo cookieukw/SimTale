@@ -9,10 +9,10 @@ O caminho mais curto entre "Instalei o mod" e "Tenho uma vila viva".
 
 ## 1. Traga um NPC
 
-Você precisa convidar um residente para iniciar sua vila. Faça (craft) um **Contrato de Imigração** (Immigration Contract) em uma bancada Fieldcraft usando:
-- 1x Mapa/Pergaminho (`Deco_Scroll`)
-- 1x Tinteiro (`Deco_Inkwell`)
-- 1x Couro Leve (`Ingredient_Leather_Light`)
+Você precisa convidar um residente para iniciar sua vila. Faça (craft) um <img src="/img/ImmigrationContract.png" width="24" align="absmiddle"/> **Contrato de Imigração** (Immigration Contract) em uma bancada Fieldcraft usando:
+- 1x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Mapa/Pergaminho (`Deco_Scroll`)
+- 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (`Deco_Inkwell`)
+- 1x <img src="/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (`Ingredient_Leather_Light`)
 
 Use o contrato para invocar um novo residente. 
 

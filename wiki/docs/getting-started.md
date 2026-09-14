@@ -8,10 +8,10 @@ title: Getting started
 The shortest path between "I installed the mod" and "I have a living village".
 ## 1. Bring in an NPC
 
-You need to invite a resident to start your village. Craft an **Immigration Contract** at a Fieldcraft bench using:
-- 1x Map/Scroll (`Deco_Scroll`)
-- 1x Inkwell (`Deco_Inkwell`)
-- 1x Light Leather (`Ingredient_Leather_Light`)
+You need to invite a resident to start your village. Craft an <img src="/img/ImmigrationContract.png" width="24" align="absmiddle"/> **Immigration Contract** at a Fieldcraft bench using:
+- 1x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Map/Scroll (`Deco_Scroll`)
+- 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell (`Deco_Inkwell`)
+- 1x <img src="/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather (`Ingredient_Leather_Light`)
 
 Use the contract to spawn a new resident. 
 
