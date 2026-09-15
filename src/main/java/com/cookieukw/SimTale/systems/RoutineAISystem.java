@@ -747,7 +747,7 @@ once per NPC per tick for nothing.
 
     /** Same idea as {@link #PROXIMITY_LINE_VARIANTS}, for the child/teen "young.proximity.*"
      *  voices -- 5 to match every other young.* section (chat, joke), not the adult count. */
-    private static final int YOUNG_PROXIMITY_LINE_VARIANTS = 5;
+    private static final int YOUNG_PROXIMITY_LINE_VARIANTS = 9;
 
     /**
      * Same random-pick pattern {@code InteractionManager} uses for its own dialogue lines — kept

@@ -257,7 +257,7 @@ public class InteractionManager {
     // Bumped 5 -> 7 (15/09): more variety across every young voice (village child, own
     // child/teen/adult) x both intents (chat, joke) it drives -- see the .lang files for the
     // two new lines each.
-    private static final int YOUNG_LINE_VARIANTS = 7;
+    private static final int YOUNG_LINE_VARIANTS = 12;
 
     private record RomanticContext(SimNPCComponent npc, Relationship rel, Mood mood) {}
     private record RomanticRule(Predicate<RomanticContext> condition, Function<RomanticContext, InteractionOutcome> outcome) {}
@@ -687,15 +687,15 @@ public class InteractionManager {
 
     private static final List<ProfessionRule> PROFESSION_RULES = List.of(
         new ProfessionRule(ctx -> ctx.rel().status == RelationshipStatus.ENEMIES || ctx.rel().status == RelationshipStatus.STRANGER,
-                           ctx -> InteractionOutcome.of(-5, 0, -5, -10, pickRandomTranslation("npc-dialogues.prof.assign.refuse_status", 5, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+                           ctx -> InteractionOutcome.of(-5, 0, -5, -10, pickRandomTranslation("npc-dialogues.prof.assign.refuse_status", 9, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
         new ProfessionRule(ctx -> ctx.npc().preferences != null && ctx.npc().preferences.getDislikedProfessions().contains(ctx.targetProf()),
-                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.dislike", 5, ctx.npc().name).param("profName", ctx.profName()).param("itemName", ctx.itemName()), MemoryEvent.CHATTED)),
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.dislike", 9, ctx.npc().name).param("profName", ctx.profName()).param("itemName", ctx.itemName()), MemoryEvent.CHATTED)),
         new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.LAZY) && isHeavyWork(ctx.targetProf()) && ctx.roll() < 0.6,
-                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.lazy", 5, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.lazy", 9, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
         new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.AGGRESSIVE) && isPeacefulWork(ctx.targetProf()) && ctx.roll() < 0.7,
-                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.aggressive", 5, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.aggressive", 9, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
         new ProfessionRule(ctx -> ctx.npc().getMood() == Mood.ANGRY && ctx.roll() < 0.5,
-                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.angry", 5, ctx.npc().name), MemoryEvent.CHATTED))
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.angry", 9, ctx.npc().name), MemoryEvent.CHATTED))
     );
 
     private static boolean isHeavyWork(Profession prof) {
@@ -767,7 +767,7 @@ public class InteractionManager {
         }
 
         if (npc.preferences != null && npc.preferences.getLikedProfessions().contains(targetProf)) {
-            Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.liked", 5, npc.name).param("profName", profName).param("itemName", itemName);
+            Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.liked", 9, npc.name).param("profName", profName).param("itemName", itemName);
             return InteractionOutcome.ofItem(15, 0, 10, 25, prefix.insert(reaction), MemoryEvent.CHATTED, true);
         }
 
