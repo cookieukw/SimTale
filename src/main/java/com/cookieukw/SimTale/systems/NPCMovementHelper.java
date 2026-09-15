@@ -141,15 +141,23 @@ public class NPCMovementHelper {
     }
 
     public static void playAnim(Ref<EntityStore> ref, AnimationSlot slot, String anim, String name, Store<EntityStore> store) {
-        // Bug fix: this used to forward (anim, name) straight into AnimationUtils.playAnimation,
-        // which resolves by type to the (itemAnimationsId, animationId, ComponentAccessor) overload
-        // -- putting the real clip path in itemAnimationsId (meant for held-item view animations)
-        // and the short debug label in animationId (the field the client actually uses to pick the
-        // clip). Every caller across the mod passed a real .blockyanim path as `anim`, so this now calls
-        // the single-String overload with `anim` as the real animationId instead, and keeps `name`
-        // only for the debug log.
-        LOGGER.debug("[NPCMovementHelper] Playing animation '{}' ({}) on slot {}", name, anim, slot);
-        AnimationUtils.playAnimation(ref, slot, anim, store);
+        // This used to forward (anim, name) straight into AnimationUtils.playAnimation, which
+        // resolves by type to the (itemAnimationsId, animationId, ComponentAccessor) overload --
+        // putting the real clip path in itemAnimationsId (meant for held-item view animations,
+        // unrelated here) and the short debug label in animationId, the field the engine actually
+        // uses to pick the clip.
+        //
+        // The correct value for animationId depends on the slot:
+        //  - Face/Movement/Status/ServerAction: AnimationUtils.playAnimation checks the call against
+        //    model.getAnimationSetMap(), so animationId must be a SET NAME registered on the model
+        //    (own or inherited via "Parent", e.g. "Walk"/"Idle"/"Sleep" come from the base Player
+        //    model) -- that's `name` here, not the raw clip path.
+        //  - Action/Emote: the engine skips that registry check for these two slots (its own
+        //    comment says combat/charging get custom client handling), so there is no registered
+        //    name to match -- `anim`, the real .blockyanim path, is what should go out instead.
+        boolean usesModelRegistry = slot != AnimationSlot.Action && slot != AnimationSlot.Emote;
+        LOGGER.debug("[NPCMovementHelper] Playing '{}' ({}) on slot {}", name, anim, slot);
+        AnimationUtils.playAnimation(ref, slot, usesModelRegistry ? name : anim, store);
     }
 
     /**
