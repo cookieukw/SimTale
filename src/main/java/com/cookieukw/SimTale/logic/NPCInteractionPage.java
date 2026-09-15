@@ -582,10 +582,19 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         boolean isMarried = rel.status == RelationshipStatus.MARRIED;
         commandBuilder.set("#InventoryButton.Visible", isMarried);
 
+        // Kiss is a deeper gesture than Flirt: only offered once the relationship already reads
+        // as a real couple, same bar isRomantic() elsewhere uses for PARTNER/ENGAGED/MARRIED.
+        boolean canKiss = !isChild
+                && (rel.status == RelationshipStatus.PARTNER
+                    || rel.status == RelationshipStatus.ENGAGED
+                    || rel.status == RelationshipStatus.MARRIED);
+        commandBuilder.set("#KissButton.Visible", canKiss);
+
         // --- Button Event Bindings ---
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ChatButton", new EventData().append("button", "ChatButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#JokeButton", new EventData().append("button", "JokeButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#FlirtButton", new EventData().append("button", "FlirtButton"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#KissButton", new EventData().append("button", "KissButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#InsultButton", new EventData().append("button", "InsultButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GiftButton", new EventData().append("button", "GiftButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#AssignProfessionButton", new EventData().append("button", "AssignProfessionButton"), false);
@@ -646,6 +655,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             playerRefComp.sendMessage(resp);
         } else if (eventData.contains("FlirtButton")) {
             Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.ROMANTIC);
+            playerRefComp.sendMessage(resp);
+        } else if (eventData.contains("KissButton")) {
+            Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.KISS);
             playerRefComp.sendMessage(resp);
         } else if (eventData.contains("InsultButton")) {
             // Resolved here rather than trusted from the label: the page could have been built
