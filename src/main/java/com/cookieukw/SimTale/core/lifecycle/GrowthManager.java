@@ -54,8 +54,26 @@ public class GrowthManager {
                 yield 0.55f + childProgress * 0.30f;
             }
             case TEEN -> {
+                // Was `0.75f + teenProgress * 0.20f` (0.75 -> 0.95). Root cause of "crianca
+                // maiorzinha diminuiu de tamanho" (14/09): CHILD's own formula above ends at
+                // age 20 (childProgress=1) with scale 0.55 + 0.30 = 0.85 -- and CHILD->TEEN
+                // respawns the body right there (GrowthManager.promoteToAdultBody), reading
+                // this same method for the new body's scale. The very next in-game day, age 21,
+                // used to hand back 0.75: a real, deterministic 0.10 shrink baked into the table
+                // itself, nothing to do with timing or the engine -- any child crossing this
+                // boundary popped visibly smaller the instant she became a teen, worst on an
+                // older/bigger CHILD (closer to 0.85) like the one reported, and just as
+                // reachable through the accelerated-growth food gift (InteractionManager
+                // .handleChildGift, birthTick -= 24000) or `/simtale setstage TEEN` as through
+                // natural aging -- all three read this exact method.
+                // Rebased so TEEN starts at 0.85 (matches CHILD's end, same anchoring already
+                // used correctly at the TODDLER/CHILD seam: 0.55 -> 0.55) and ends at 1.00
+                // (matches ADULT's flat scale below, closing the smaller, upward TEEN->ADULT gap
+                // too since this formula was already being touched). age 9 through ADULT is now
+                // one continuous, monotonically non-decreasing curve -- no stage crossing in
+                // that range can ever render a body smaller than the one it replaced.
                 float teenProgress = (float) (age - 21) / 19.0f;
-                yield 0.75f + teenProgress * 0.20f;
+                yield 0.85f + teenProgress * 0.15f;
             }
             default -> 1.00f;
         };
