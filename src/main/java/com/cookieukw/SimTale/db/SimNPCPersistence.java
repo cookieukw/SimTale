@@ -245,6 +245,7 @@ public class SimNPCPersistence {
         data.guardWeaponCategory = component.guardWeaponCategory;
         data.guardWeaponItemId = component.guardWeaponItemId;
         data.armorItemIds = component.armorItemIds != null ? component.armorItemIds.clone() : null;
+        data.jobsCompleted = component.jobsCompleted;
 
         worldShell().core(SimNPCData.class).preserve(component.entityId.toString(), data);
     }
@@ -406,6 +407,7 @@ public class SimNPCPersistence {
             component.emotionSource = data.emotionSource;
         }
         component.lastEmotionChangeTick = data.lastEmotionChangeTick;
+        component.jobsCompleted = data.jobsCompleted;
     }
 
     /**
