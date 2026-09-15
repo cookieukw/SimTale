@@ -207,6 +207,22 @@ once per NPC per tick for nothing.
             if (world.getTick() % 40 == 0 && npc.entityRef != null && npc.entityRef.isValid()) {
                 ChildCarryHelper.settleMovementStates(store, npc.entityRef);
             }
+            /*
+            Every tick, not throttled like the two top-ups above: this keeps her own
+            TransformComponent tracking the carrier instead of frozen at the pickup spot.
+            Nothing about the carry feature itself needs that (the client draws her from
+            carrier position + attachmentOffset), but a stale, unmoving Transform is what lets
+            UpdateLocationSystems' per-tick chunk-section check eventually decide she's in an
+            invalid chunk and hand her a Teleport -- which MountSystems$TeleportMountedEntity
+            reacts to by silently stripping her MountedComponent (bytecode-confirmed: it strips
+            MountedComponent from ANY entity that receives a Teleport, no exceptions, no
+            fallback). That is the root cause behind "crianca some do nada ao pular/voar":
+            keeping her position always valid removes the precondition the chunk check needs to
+            ever flag her, whatever the exact async timing that trips it.
+            */
+            if (npc.entityRef != null && npc.entityRef.isValid()) {
+                ChildCarryHelper.syncCarriedTransform(store, npc);
+            }
             return;
         }
 
