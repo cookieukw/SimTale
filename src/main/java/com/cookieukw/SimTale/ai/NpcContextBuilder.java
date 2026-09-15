@@ -13,6 +13,19 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Trait;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
+import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.WorldUtil;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleUtils;
+import com.cookieukw.SimTale.systems.HouseManager;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import org.joml.Vector3d;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +38,11 @@ public class NpcContextBuilder {
     private static final Pattern LEADING_NAME_TAG =
             Pattern.compile("^\\s*\\[[^\\]]{0,40}\\]:?\\s*");
 
+    /** "Nearby" for AI world-awareness purposes -- same range RoutineAISystem already uses
+     *  to look for an available chat partner (SOCIALIZE_SEARCH_RANGE_SQ), so what the NPC
+     *  says about "who's around" matches what its own AI actually considers nearby. */
+    private static final double NEARBY_PLAYER_RANGE_SQ = 20.0 * 20.0;
+
     /**
      * Strips a leading "[Name]" / "[Name]:" tag the model sometimes prepends despite being told
      * not to (see the directive in {@link #build}) — including the failure mode where it emits
@@ -34,6 +52,23 @@ public class NpcContextBuilder {
     public static String stripLeadingNameTag(String text) {
         if (text == null) return null;
         return LEADING_NAME_TAG.matcher(text).replaceFirst("");
+    }
+
+    /**
+     * True when at least one other currently-loaded NPC shares this profession and none of them
+     * has completed more jobs than {@code npc}. A lone practitioner of a profession (no rival
+     * loaded at all) returns false -- "best in the village" should mean there was competition,
+     * not just that nobody else happens to be around right now. Ties count both sides as "the
+     * best", which is a harmless bit of village pride, not a bug.
+     */
+    private static boolean isTopInProfession(SimNPCComponent npc) {
+        boolean hasRival = false;
+        for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
+            if (other == npc || other.profession != npc.profession) continue;
+            hasRival = true;
+            if (other.jobsCompleted > npc.jobsCompleted) return false;
+        }
+        return hasRival;
     }
 
     public static AiRequest build(SimNPCComponent npc, UUID playerUuid, String playerName, List<AiMessage> conversationHistory) {
@@ -92,6 +127,14 @@ public class NpcContextBuilder {
         }
         if (npc.currentJob != null && npc.currentJob != JobType.NONE) {
             systemPrompt.append("Currently, you are working as: ").append(npc.currentJob.name()).append(".\n");
+        }
+        if (npc.profession != null && npc.jobsCompleted > 0) {
+            systemPrompt.append("Jobs completed in your profession so far: ").append(npc.jobsCompleted).append(".\n");
+            if (isTopInProfession(npc)) {
+                systemPrompt.append("Word around the village is that you are the best ")
+                        .append(npc.profession.name())
+                        .append(" there is -- nobody else in that trade has finished as many jobs as you.\n");
+            }
         }
 
         // 5. Needs
@@ -181,6 +224,80 @@ public class NpcContextBuilder {
                         .append(", ").append(ageSecs).append(" seconds ago.\n");
             }
         }
+        // 9b. World Awareness -- location, time, health, home, nearby players, other NPC bonds
+        //
+        // Added per docs/ROADMAP.md's "Contexto da IA" item: all of this reads data that already
+        // exists elsewhere in the mod (position, the built-in Health stat, HouseManager's owner
+        // map, the relationships map already used for the player above) -- no new system, just
+        // wiring more of what is already tracked into the prompt.
+        Ref<EntityStore> npcRef = npc.entityRef;
+        Store<EntityStore> npcStore = (npcRef != null && npcRef.isValid()) ? npcRef.getStore() : null;
+
+        Vector3d npcPos = null;
+        if (npcStore != null) {
+            TransformComponent npcTransform = npcStore.getComponent(npcRef, TransformComponent.getComponentType());
+            if (npcTransform != null) {
+                npcPos = npcTransform.getPosition();
+                systemPrompt.append("Your current location: (").append((int) npcPos.x).append(", ")
+                        .append((int) npcPos.y).append(", ").append((int) npcPos.z).append(").\n");
+            }
+        }
+
+        World npcWorld = (npcRef != null) ? WorldUtil.fromEntityRef(npcRef) : null;
+        if (npcWorld != null) {
+            systemPrompt.append("Current world tick: ").append(npcWorld.getTick()).append(".\n");
+        }
+
+        if (npcStore != null) {
+            EntityStatMap statMap = npcStore.getComponent(npcRef, EntityStatMap.getComponentType());
+            EntityStatValue hp = statMap != null ? statMap.get(DefaultEntityStatTypes.getHealth()) : null;
+            if (hp != null) {
+                systemPrompt.append("Your health: ").append(String.format("%.0f", hp.get()))
+                        .append("/").append(String.format("%.0f", hp.getMax())).append(".\n");
+            }
+        }
+
+        boolean hasHome = npc.entityId != null && HouseManager.OWNER_TO_HOUSE_ID.containsKey(npc.entityId);
+        systemPrompt.append(hasHome
+                ? "You have a home registered in the village.\n"
+                : "You do not have a home of your own yet.\n");
+
+        if (npcPos != null) {
+            // Same 20-block radius RoutineAISystem.SOCIALIZE_SEARCH_RANGE_SQ uses to decide
+            // who counts as "nearby" for its own social-partner search, so what the NPC says
+            // about who's around lines up with what its AI actually treats as close by.
+            List<String> nearbyPlayers = new ArrayList<>();
+            for (PlayerRef pr : Universe.get().getPlayers()) {
+                if (pr.getUuid() != null && pr.getUuid().equals(playerUuid)) continue; // the one already talking
+                Ref<EntityStore> pRef = pr.getReference();
+                if (pRef == null || !pRef.isValid()) continue;
+                TransformComponent pt = pRef.getStore().getComponent(pRef, TransformComponent.getComponentType());
+                if (pt == null) continue;
+                if (pt.getPosition().distanceSquared(npcPos) <= NEARBY_PLAYER_RANGE_SQ) {
+                    String otherName = pr.getUsername();
+                    if (otherName != null) nearbyPlayers.add(otherName);
+                }
+            }
+            if (!nearbyPlayers.isEmpty()) {
+                systemPrompt.append("Other players nearby: ").append(String.join(", ", nearbyPlayers)).append(".\n");
+            }
+        }
+
+        if (npc.relationships != null && !npc.relationships.isEmpty()) {
+            List<String> npcBonds = new ArrayList<>();
+            for (Map.Entry<UUID, Relationship> entry : npc.relationships.entrySet()) {
+                if (entry.getKey().equals(playerUuid)) continue; // already covered above
+                SimNPCComponent other = LifecycleUtils.findNPCById(entry.getKey());
+                if (other == null) continue; // not a currently-loaded NPC (most likely a player entry)
+                Relationship r = entry.getValue();
+                npcBonds.add(other.name + " (" + r.status.name() + ", friendship " + r.friendship + ")");
+            }
+            if (!npcBonds.isEmpty()) {
+                systemPrompt.append("Your relationships with other villagers: ")
+                        .append(String.join("; ", npcBonds)).append(".\n");
+            }
+        }
+
         // 10. Directives
         //
         // Without an explicit ban, the model tends to imitate chat-script formatting from its
