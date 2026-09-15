@@ -25,6 +25,13 @@ import org.joml.Vector3i;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+
+import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.logic.InteractionManager;
+import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 
 /**
  * Guard combat: detect a hostile mob nearby, walk to it, and take it out. No profession did
@@ -193,11 +200,79 @@ public class NPCGuardHelper {
             if (world.getTick() - ai.taskStartTime >= ATTACK_DURATION_TICKS) {
                 LOGGER.debug("[SimTale] Guard {} derrotou um hostil ({})", npc.name, ai.workTargetEntityId);
                 commandBuffer.removeEntity(hostileRef, RemoveReason.REMOVE);
+                announceVictory(npc, transform, world, store);
                 ai.workTargetEntityId = null;
                 ai.currentTask = TaskType.IDLE;
                 ai.taskStartTime = world.getTick();
             }
         }
+    }
+
+    /** How close a child needs to be to the fight to react to it herself instead of the guard
+     *  (docs/ROADMAP.md, "reacao a briga" -- part of the dialogue-diversity request). */
+    private static final double CHILD_WITNESS_RANGE_SQ = 15.0 * 15.0;
+
+    /** Who hears about it at all -- same 25-block radius {@code
+     *  MotherAIManager.broadcastLocalMessage} already uses for "an NPC said something nearby". */
+    private static final double HEARING_RANGE_SQ = 25.0 * 25.0;
+
+    /**
+     * A guard defeating a hostile is small village news (docs/ROADMAP.md: "comentario sobre...
+     * guarda heroico"). If a child happens to be close enough to have watched, she reacts to it
+     * herself instead of the guard -- wide-eyed, not detached, the way a kid would -- otherwise
+     * the guard gets to say her own triumphant line. Exactly one chat line per victory either
+     * way, never both.
+     * <p>
+     * Reuses {@link SimTale#ACTIVE_NPCS} the same read-only way {@code
+     * NpcContextBuilder.isTopInProfession} already scans it for "best in the village" -- no new
+     * registry, nothing persisted, nothing shared with {@link #hostiles} (that cache is scoped to
+     * a different keyword set and this is a one-off lookup, not a per-tick sweep).
+     */
+    private static void announceVictory(SimNPCComponent npc, TransformComponent transform, World world, Store<EntityStore> store) {
+        Vector3d pos = transform.getPosition();
+
+        SimNPCComponent witness = null;
+        double bestD2 = CHILD_WITNESS_RANGE_SQ;
+        for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
+            if (other == npc || !InteractionManager.isNpcAChild(other)) continue;
+            Ref<EntityStore> otherRef = other.entityRef;
+            if (otherRef == null || !otherRef.isValid()) continue;
+            TransformComponent ot = otherRef.getStore().getComponent(otherRef, TransformComponent.getComponentType());
+            if (ot == null) continue;
+            double dx = ot.getPosition().x - pos.x;
+            double dy = ot.getPosition().y - pos.y;
+            double dz = ot.getPosition().z - pos.z;
+            double d2 = dx * dx + dy * dy + dz * dz;
+            if (d2 < bestD2) {
+                bestD2 = d2;
+                witness = other;
+            }
+        }
+
+        Message line = witness != null
+                ? Message.raw(witness.name + ": ").insert(pickRandomTranslation("npc-dialogues.world_event.guard_victory_witness", 3))
+                : Message.raw(npc.name + ": ").insert(pickRandomTranslation("npc-dialogues.world_event.guard_victory", 3));
+
+        for (PlayerRef pr : Universe.get().getPlayers()) {
+            Ref<EntityStore> pRef = pr.getReference();
+            if (pRef == null || !pRef.isValid()) continue;
+            TransformComponent pt = store.getComponent(pRef, TransformComponent.getComponentType());
+            if (pt == null) continue;
+            double dx = pt.getPosition().x - pos.x;
+            double dy = pt.getPosition().y - pos.y;
+            double dz = pt.getPosition().z - pos.z;
+            if (dx * dx + dy * dy + dz * dz <= HEARING_RANGE_SQ) {
+                pr.sendMessage(line);
+            }
+        }
+    }
+
+    /** Local copy of the same pick-a-numbered-variant idiom {@code InteractionManager} and
+     *  {@code RoutineAISystem} each already keep privately, rather than a third class depending
+     *  on either one's private method. */
+    private static Message pickRandomTranslation(String baseKey, int optionsCount) {
+        int index = ThreadLocalRandom.current().nextInt(1, optionsCount + 1);
+        return Message.translation(baseKey + "." + index);
     }
 
     /**
