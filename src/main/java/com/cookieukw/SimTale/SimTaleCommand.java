@@ -155,6 +155,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new SocialTestCommands.TestFlirtSubCommand());
         this.addSubCommand(new SocialTestCommands.TestShoveSubCommand());
         this.addSubCommand(new SocialTestCommands.TestGreetSubCommand());
+        this.addSubCommand(new SocialTestCommands.TestKissSubCommand());
+        this.addSubCommand(new SocialTestCommands.TestProposeSubCommand());
         this.addSubCommand(new CostumeSubCommand());
     }
 
