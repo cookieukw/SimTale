@@ -68,3 +68,4 @@ scratch/test_db/global/simtale.db-shm
 scratch/test_db/global/simtale.db-wal
 _to_delete
 _stage_tmp4/
+.claude_tmp/
