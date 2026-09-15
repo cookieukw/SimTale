@@ -172,9 +172,32 @@ public final class NPCDoorHelper {
                 return;
             }
 
+            HouseBlockPos doorKey = toKey(anchorPos);
+
+            /* Bug #5 (docs/ROADMAP.md, testing_checklist.md sec. 2): two NPCs hitting the same
+            doorway in the same window could each read door.getDoorState() == CLOSED, each decide
+            their own transition, and each call setBlockInteractionState on top of the other --
+            which is exactly the "one closes while the other is opening" symptom that kept
+            reproducing even after the geometric checks got good. isInFrontOfDoor only decides
+            WHICH door and WHICH direction a given NPC should use; it does nothing to stop two
+            NPCs from both committing to the SAME door in the same window. putIfAbsent turns "is
+            someone already handling this door?" and "if not, claim it" into one atomic step: the
+            first NPC to reach this line in a given window owns the door until she stops renewing
+            it (by walking away) or the shared timer runs out; everyone else just renews that same
+            timer and backs off without touching the state. That is the per-door lock the roadmap
+            asked for ("a NPC que esta no meio do gesto de abrir segura o estado ate terminar"),
+            reusing OPENED_DOORS itself as the lock instead of adding a second map -- it already
+            meant "door an NPC is actively managing," it just needed to be claimed before deciding
+            what to do, not after. */
+            if (OPENED_DOORS.putIfAbsent(doorKey, AUTO_CLOSE_TICKS) != null) {
+                OPENED_DOORS.put(doorKey, AUTO_CLOSE_TICKS);
+                return;
+            }
+
             DoorState current = door.getDoorState();
             if (current != DoorState.CLOSED) {
-                OPENED_DOORS.put(toKey(anchorPos), AUTO_CLOSE_TICKS);
+                // Already open independently of us (most commonly: a player opened it by hand).
+                // We now hold the claim and keep its timer alive; nothing else to do.
                 return;
             }
 
@@ -183,19 +206,25 @@ public final class NPCDoorHelper {
                     : DoorState.OPENED_IN;
 
             String interactionState = DoorBlockUtils.getInteractionState(current, target);
-            if (interactionState == null) return;
+            if (interactionState == null) {
+                OPENED_DOORS.remove(doorKey, AUTO_CLOSE_TICKS);
+                return;
+            }
 
             // If primary direction is obstructed (e.g. wall/furniture), try opposite
             if (!DoorBlockUtils.canOpenDoor(world.getChunkStore(), anchorPos, interactionState)) {
                 target = DoorBlockUtils.getOppositeDoorState(target);
                 interactionState = DoorBlockUtils.getInteractionState(current, target);
                 if (interactionState == null || !DoorBlockUtils.canOpenDoor(world.getChunkStore(), anchorPos, interactionState)) {
+                    // Blocked on both sides: release the claim, or the door would stay "reserved"
+                    // for two full seconds without ever actually opening, locking every other NPC
+                    // out of even trying.
+                    OPENED_DOORS.remove(doorKey, AUTO_CLOSE_TICKS);
                     return;
                 }
             }
 
             world.setBlockInteractionState(anchorPos, door.getBlockType(), interactionState);
-            OPENED_DOORS.put(toKey(anchorPos), AUTO_CLOSE_TICKS);
 
             LOGGER.debug("[PORTA] '{}' abriu porta em ({},{},{}) {} -> {}",
                     npc.name, anchorPos.x, anchorPos.y, anchorPos.z, current, target);
