@@ -254,7 +254,10 @@ public class InteractionManager {
     }
 
     /** How many variants each young-voice line set ships with. */
-    private static final int YOUNG_LINE_VARIANTS = 5;
+    // Bumped 5 -> 7 (15/09): more variety across every young voice (village child, own
+    // child/teen/adult) x both intents (chat, joke) it drives -- see the .lang files for the
+    // two new lines each.
+    private static final int YOUNG_LINE_VARIANTS = 7;
 
     private record RomanticContext(SimNPCComponent npc, Relationship rel, Mood mood) {}
     private record RomanticRule(Predicate<RomanticContext> condition, Function<RomanticContext, InteractionOutcome> outcome) {}
@@ -561,10 +564,15 @@ public class InteractionManager {
                 LifecycleManager.tickGrowth(childComp, world.getTick());
             }
             return InteractionOutcome.ofItem(0, 0, 0, 0, 
-                Message.translation("npc-dialogues.gift.accelerated").param("name", npc.name).param("item", itemName), 
+                pickRandomTranslation("npc-dialogues.gift.accelerated", 3, npc.name).param("item", itemName), 
                 MemoryEvent.GIFTED, true);
         }
-        return InteractionOutcome.error(Message.translation("npc-dialogues.gift.child_reject").param("name", npc.name).insert(Message.raw(". Try giving some food!")));
+        // The "try giving food instead" suggestion now lives inside every child_reject variant
+        // itself (pt-BR and en-US both), instead of a raw English string appended here -- that
+        // used to show literal, untranslated English text after the translated line even for
+        // pt-BR players (worse: duplicated, since the pt-BR line already said the same thing in
+        // Portuguese).
+        return InteractionOutcome.error(pickRandomTranslation("npc-dialogues.gift.child_reject", 3, npc.name));
     }
 
     private static InteractionOutcome handleMarriageProposal(SimNPCComponent npc, Relationship rel, PlayerRef playerRef, UUID playerUuid) {
@@ -679,15 +687,15 @@ public class InteractionManager {
 
     private static final List<ProfessionRule> PROFESSION_RULES = List.of(
         new ProfessionRule(ctx -> ctx.rel().status == RelationshipStatus.ENEMIES || ctx.rel().status == RelationshipStatus.STRANGER,
-                           ctx -> InteractionOutcome.of(-5, 0, -5, -10, pickRandomTranslation("npc-dialogues.prof.assign.refuse_status", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+                           ctx -> InteractionOutcome.of(-5, 0, -5, -10, pickRandomTranslation("npc-dialogues.prof.assign.refuse_status", 5, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
         new ProfessionRule(ctx -> ctx.npc().preferences != null && ctx.npc().preferences.getDislikedProfessions().contains(ctx.targetProf()),
-                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.dislike", 4, ctx.npc().name).param("profName", ctx.profName()).param("itemName", ctx.itemName()), MemoryEvent.CHATTED)),
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.dislike", 5, ctx.npc().name).param("profName", ctx.profName()).param("itemName", ctx.itemName()), MemoryEvent.CHATTED)),
         new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.LAZY) && isHeavyWork(ctx.targetProf()) && ctx.roll() < 0.6,
-                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.lazy", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.lazy", 5, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
         new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.AGGRESSIVE) && isPeacefulWork(ctx.targetProf()) && ctx.roll() < 0.7,
-                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.aggressive", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.aggressive", 5, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
         new ProfessionRule(ctx -> ctx.npc().getMood() == Mood.ANGRY && ctx.roll() < 0.5,
-                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.angry", 3, ctx.npc().name), MemoryEvent.CHATTED))
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.angry", 5, ctx.npc().name), MemoryEvent.CHATTED))
     );
 
     private static boolean isHeavyWork(Profession prof) {
@@ -759,7 +767,7 @@ public class InteractionManager {
         }
 
         if (npc.preferences != null && npc.preferences.getLikedProfessions().contains(targetProf)) {
-            Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.liked", 3, npc.name).param("profName", profName).param("itemName", itemName);
+            Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.liked", 5, npc.name).param("profName", profName).param("itemName", itemName);
             return InteractionOutcome.ofItem(15, 0, 10, 25, prefix.insert(reaction), MemoryEvent.CHATTED, true);
         }
 
