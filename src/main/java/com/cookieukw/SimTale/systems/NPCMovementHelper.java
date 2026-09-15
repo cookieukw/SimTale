@@ -141,7 +141,15 @@ public class NPCMovementHelper {
     }
 
     public static void playAnim(Ref<EntityStore> ref, AnimationSlot slot, String anim, String name, Store<EntityStore> store) {
-        AnimationUtils.playAnimation(ref, slot, anim, name, store);
+        // Bug fix: this used to forward (anim, name) straight into AnimationUtils.playAnimation,
+        // which resolves by type to the (itemAnimationsId, animationId, ComponentAccessor) overload
+        // -- putting the real clip path in itemAnimationsId (meant for held-item view animations)
+        // and the short debug label in animationId (the field the client actually uses to pick the
+        // clip). Every caller across the mod passed a real .blockyanim path as `anim`, so this now calls
+        // the single-String overload with `anim` as the real animationId instead, and keeps `name`
+        // only for the debug log.
+        LOGGER.debug("[NPCMovementHelper] Playing animation '{}' ({}) on slot {}", name, anim, slot);
+        AnimationUtils.playAnimation(ref, slot, anim, store);
     }
 
     /**
