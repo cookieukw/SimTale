@@ -50,7 +50,7 @@ Group {
   Background: #00000000;
 
   Group #MainPanel {
-    Anchor: (Right: 64, Width: 560, Height: 940);
+    Anchor: (Right: 64, Width: 560, Height: 996);
     LayoutMode: Top;
     Background: $T.@PanelSurface;
     Padding: (Top: 24, Bottom: 22, Horizontal: $T.@GutterOuter);
@@ -263,7 +263,7 @@ Group {
 
       // Both of these start hidden and are revealed from Java via #X.Visible.
       Group #ButtonRow4 {
-        Anchor: (Height: $T.@ButtonH);
+        Anchor: (Height: $T.@ButtonH, Bottom: $T.@ButtonGap);
         LayoutMode: CenterMiddle;
 
         Button #PregnancyButton {
@@ -297,6 +297,26 @@ Group {
             Text: %ui.button.carry;
             Anchor: (Full: 0);
             Style: $T.@ButtonLabelStyle;
+          }
+        }
+      }
+
+      // A deeper gesture than Flirt above -- hidden until the relationship is already a real
+      // couple (PARTNER/ENGAGED/MARRIED). Its own row since it can be visible alongside any of
+      // ButtonRow4's three conditional buttons at once (e.g. a married couple gets Kiss AND
+      // Inventory together), unlike those three which never all show up simultaneously.
+      Group #ButtonRow5 {
+        Anchor: (Height: $T.@ButtonH);
+        LayoutMode: CenterMiddle;
+
+        Button #KissButton {
+          Anchor: (Width: 250, Height: $T.@ButtonH);
+          Style: $T.@BtnSecondary;
+          Visible: false;
+          Label #KissButtonText {
+            Text: %ui.button.kiss;
+            Anchor: (Full: 0);
+            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentRomance);
           }
         }
       }
