@@ -74,6 +74,9 @@ public class NPCSocialHelper {
     public static final int TOPIC_TIME_NIGHT = 10;
     public static final int TOPIC_WEATHER = 11;
     public static final int TOPIC_VILLAGE = 12;
+    /** Two children talking to each other -- never reached for an adult/child mixed pair, see
+     *  {@link #evaluateSocialTopic}. */
+    public static final int TOPIC_CHILD_PLAY = 13;
 
     private NPCSocialHelper() {
     }
@@ -307,20 +310,36 @@ public class NPCSocialHelper {
         Relationship hostView = host.getRelationship(guest.entityId);
         Relationship guestView = guest.getRelationship(host.entityId);
 
+        // 0. Children get their own topic pool first. Without this, a child could be scored
+        // straight into TOPIC_ROMANTIC or TOPIC_HOSTILE below by whatever relationship/trait
+        // state the adults' scoring cares about -- neither belongs in a kid's conversation.
+        // Two children together get a dedicated play topic; a child paired with an adult (the
+        // mixed case) just has those two adult-only topics taken off the table and falls
+        // through to whichever age-neutral one below scores highest (weather, village, mood, a
+        // parent's own work) -- those already read fine from either side of the conversation.
+        boolean hostChild = InteractionManager.isNpcAChild(host);
+        boolean guestChild = InteractionManager.isNpcAChild(guest);
+        if (hostChild && guestChild) {
+            int variant = (int) (Math.random() * 2) + 1;
+            return TOPIC_CHILD_PLAY * 10 + variant;
+        }
+        boolean childInvolved = hostChild || guestChild;
+
         // 1. Hostile priority
-        boolean hostile = (hostView != null && hostView.status == RelationshipStatus.ENEMIES)
+        boolean hostile = !childInvolved && (
+                (hostView != null && hostView.status == RelationshipStatus.ENEMIES)
                 || (guestView != null && guestView.status == RelationshipStatus.ENEMIES)
                 || host.personality.traits.contains(Trait.AGGRESSIVE)
-                || guest.personality.traits.contains(Trait.AGGRESSIVE);
+                || guest.personality.traits.contains(Trait.AGGRESSIVE));
         if (hostile) {
             int variant = (int) (Math.random() * 2) + 1;
             return TOPIC_HOSTILE * 10 + variant;
         }
 
-        // 2. Romantic priority
-        boolean romantic = isRomantic(hostView) || isRomantic(guestView);
+        // 2. Romantic priority (3 variants here, not the usual 2 -- couples asked for more).
+        boolean romantic = !childInvolved && (isRomantic(hostView) || isRomantic(guestView));
         if (romantic) {
-            int variant = (int) (Math.random() * 2) + 1;
+            int variant = (int) (Math.random() * 3) + 1;
             return TOPIC_ROMANTIC * 10 + variant;
         }
 
@@ -427,6 +446,7 @@ public class NPCSocialHelper {
             case TOPIC_MOOD_SAD -> "social.mood.sad";
             case TOPIC_TIME_NIGHT -> "social.night";
             case TOPIC_VILLAGE -> "social.village";
+            case TOPIC_CHILD_PLAY -> "social.child_play";
             default -> "social.weather";
         };
     }
