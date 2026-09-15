@@ -123,7 +123,7 @@ public class InteractionManager {
     public static Message performInteraction(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, InteractionType type) {
         boolean isChild = isNpcAChild(npc);
 
-        if (isChild && type == InteractionType.ROMANTIC) {
+        if (isChild && (type == InteractionType.ROMANTIC || type == InteractionType.KISS)) {
             return Message.translation("npc-dialogues.flirt.child");
         }
 
@@ -138,6 +138,7 @@ public class InteractionManager {
             case FRIENDLY -> handleFriendly(npc, playerUuid, playerRef, rel, daily.missedLongTime());
             case FUNNY -> handleFunny(npc, playerUuid, playerRef, rel);
             case ROMANTIC -> handleRomantic(npc, rel);
+            case KISS -> handleKiss(npc, rel, playerRef);
             case MEAN -> handleMean(npc, rel);
             case SCOLD -> handleScold(npc, playerUuid, rel);
             case RANDOM -> handleRandom(rel);
@@ -280,6 +281,28 @@ public class InteractionManager {
             .orElseGet(() -> InteractionOutcome.of(0, 10, 1, 5, pickRandomTranslation("npc-dialogues.romantic.normal", 5, npc.name), MemoryEvent.FLIRTED));
     }
 
+    /**
+     * A deeper romantic gesture than {@link #handleRomantic} -- only available once the
+     * relationship is already {@code PARTNER}, {@code ENGAGED} or {@code MARRIED}. Plays the
+     * Kiss_1/Kiss_2 two-character animation duo (player + NPC face each other and kiss) via
+     * {@link SimTaleJuiceHelper#playKiss} instead of the from-a-distance blow-kiss emote.
+     */
+    private static InteractionOutcome handleKiss(SimNPCComponent npc, Relationship rel, PlayerRef playerRef) {
+        boolean eligible = rel.status == RelationshipStatus.PARTNER
+                || rel.status == RelationshipStatus.ENGAGED
+                || rel.status == RelationshipStatus.MARRIED;
+        if (!eligible) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.kiss.reject").param("name", npc.name));
+        }
+
+        if (npc.entityRef != null && npc.entityRef.isValid() && playerRef != null && playerRef.getReference() != null) {
+            SimTaleJuiceHelper.playKiss(playerRef.getReference(), npc.entityRef, npc.entityRef.getStore());
+        }
+
+        return InteractionOutcome.of(2, 18, 5, 12,
+                pickRandomTranslation("npc-dialogues.kiss.success", 3, npc.name), MemoryEvent.FLIRTED);
+    }
+
     private record MeanContext(SimNPCComponent npc, Relationship rel) {}
     private record MeanRule(Predicate<MeanContext> condition, Function<MeanContext, InteractionOutcome> outcome) {}
 
@@ -412,7 +435,7 @@ public class InteractionManager {
         }
 
         if (isWeddingRing(heldItem.getItemId())) {
-            return handleMarriageProposal(npc, rel, playerUuid);
+            return handleMarriageProposal(npc, rel, playerRef, playerUuid);
         }
 
         InteractionOutcome armor = tryEquipArmor(npc, heldItem, itemName);
@@ -544,7 +567,7 @@ public class InteractionManager {
         return InteractionOutcome.error(Message.translation("npc-dialogues.gift.child_reject").param("name", npc.name).insert(Message.raw(". Try giving some food!")));
     }
 
-    private static InteractionOutcome handleMarriageProposal(SimNPCComponent npc, Relationship rel, UUID playerUuid) {
+    private static InteractionOutcome handleMarriageProposal(SimNPCComponent npc, Relationship rel, PlayerRef playerRef, UUID playerUuid) {
         if (npc.family.isMarried) {
             return InteractionOutcome.error(Message.translation("npc-dialogues.marriage.already_married").param("name", npc.name));
         }
@@ -552,6 +575,11 @@ public class InteractionManager {
         if (rel.romance >= 80 && rel.friendship >= 70) {
             rel.status = RelationshipStatus.MARRIED;
             npc.family.marry(playerUuid, null);
+
+            if (npc.entityRef != null && npc.entityRef.isValid() && playerRef != null && playerRef.getReference() != null) {
+                SimTaleJuiceHelper.playMarriageProposal(playerRef.getReference(), npc.entityRef, npc.entityRef.getStore());
+            }
+
             return InteractionOutcome.ofItem(0, 0, 0, 0, 
                 Message.translation("npc-dialogues.marriage.accept." + ThreadLocalRandom.current().nextInt(1, 3)).param("name", npc.name), 
                 MemoryEvent.GIFTED, true);
