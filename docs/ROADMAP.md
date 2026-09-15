@@ -44,30 +44,30 @@ identidade e migrar os registros já salvos. É um item de esforço médio, não
 
 ## 🟢 Esta semana
 
-### Contexto da IA — os campos que faltam
+### ~~Contexto da IA — os campos que faltam~~ ✅ FEITO (15/09)
 **Onde**: `ai/NpcContextBuilder.java`
 
-O prompt já monta gênero, personalidade, humor, profissão, trabalho atual, necessidades (fome,
+O prompt já montava gênero, personalidade, humor, profissão, trabalho atual, necessidades (fome,
 energia, social, diversão, higiene), preferências, hobby, família e o relacionamento com o
-jogador. Já é mais da metade da sua lista.
-
-Falta, e é só ler dado que já existe e concatenar:
+jogador. Agora também manda, lendo dado que já existia em outro lugar do mod — nenhum sistema
+novo:
 
 | Campo | Fonte |
 |---|---|
 | Localização | `TransformComponent` |
-| Estado (vida/fome/energia) | fome e energia já estão; falta vida |
-| Casa | `HouseManager.OWNER_TO_HOUSE_ID` |
-| Players próximos | varredura por raio, igual à que `ConstructionSystem` já faz |
+| Vida | `EntityStatMap` + `DefaultEntityStatTypes.getHealth()` |
+| Casa | `HouseManager.OWNER_TO_HOUSE_ID` (só tem/não tem — `HouseData` não guarda nome) |
+| Players próximos | raio de 20 blocos, igual ao que `RoutineAISystem.SOCIALIZE_SEARCH_RANGE_SQ` já usa pra achar parceiro de conversa |
 | Horário | `world.getTick()` |
-| Relacionamentos com outros NPCs | o mapa já existe (ver ⚠️ #2) |
+| Relacionamentos com outros NPCs | `SimNPCComponent.relationships`, via `LifecycleUtils.findNPCById` |
 
-**Fácil porque** é montagem de string sobre dado pronto, sem sistema novo. Não tem risco de
-regressão fora do prompt.
+Compilado limpo (161 arquivos, contra as três libs). Puramente aditivo — nenhum campo antigo
+mudou, só apareceram linhas novas no prompt. Detalhes e reteste sugerido em
+`testing_checklist.md`, seção 14.
 
-**Ficam de fora desta semana**: *clima* (preciso achar a API de weather do servidor),
-*inventário resumido* (depende do inventário compartilhado, ver 🟡) e *eventos recentes*
-(depende de um log de eventos que não existe).
+**Ficam de fora**: *clima* (preciso achar a API de weather do servidor), *inventário resumido*
+(depende do inventário compartilhado, ver 🟡) e *eventos recentes* (depende de um log de eventos
+que não existe).
 
 ### ~~Portas — detecção e abertura~~ ✅ FEITO
 **Onde**: `systems/NPCDoorHelper.java` (substituiu `HouseDoorManager`, removido)
@@ -82,17 +82,33 @@ busca só olhava portas da casa registrada do próprio NPC. Agora delega para `D
 pathfinder trata porta fechada como intransponível, ele pode nunca traçar a rota que passa por
 ela. Precisa de teste em jogo para saber se é problema real.
 
-**Bug concreto, achado em teste (bug #5, `testing_checklist.md` seção 2)**: duas NPCs usando a
-mesma porta ao mesmo tempo ainda conflitam — uma fecha enquanto a outra está abrindo. A troca do
-cone de 60° por uma checagem geométrica (`DoorBlockUtils.isInFrontOfDoor`) melhorou bastante, mas
-não eliminou a corrida. Provavelmente precisa de algum tipo de lock por porta (a NPC que está no
-meio do gesto de abrir segura o estado até terminar), não só de uma checagem melhor de lado.
+**Bug concreto, achado em teste (bug #5, `testing_checklist.md` seção 2)** — ✅ CORRIGIDO (15/09):
+duas NPCs usando a mesma porta ao mesmo tempo ainda conflitavam — uma fechava enquanto a outra
+estava abrindo. A troca do cone de 60° por uma checagem geométrica (`DoorBlockUtils.isInFrontOfDoor`)
+melhorou bastante mas não eliminava a corrida sozinha, exatamente como esta seção já previa: era
+preciso o lock por porta descrito acima. Implementado reaproveitando o próprio `OPENED_DOORS`
+como trava (`putIfAbsent` reivindica a porta atomicamente antes de decidir o que fazer com ela, em
+vez de decidir e só depois marcar) — sem mapa/objeto novo. Detalhes e retest pendente em
+`testing_checklist.md`.
 
-### Comportamento ocioso — NPC olhando para parede
+### ~~Comportamento ocioso — NPC olhando para parede~~ ✅ FEITO (15/09)
 **Onde**: `systems/RoutineAISystem.java`, estado `IDLE`
 
-Mesma família dos ajustes de rotação/animação que já fizemos na câmera de interação. Encosta em
-código que já conheço bem.
+Mesma família dos ajustes de rotação/animação já feitos na câmera de interação
+(`faceConversationPartner`) e na saudação de proximidade (`checkPlayerProximityGreeting`) — os
+dois já viravam a NPC para encarar alguém com `teleportRotation(new Rotation3f(0f,
+atan2(-dx,-dz), 0f))`.
+
+A causa: esse giro só acontecia dentro do cooldown de 45s da própria saudação. Fora dele, uma NPC
+`IDLE`/`WANDERING` ficava com a rotação que sua última tarefa deixou — inclusive de frente pra
+parede — não importa se tinha jogador do lado. `faceNearbyPlayerWhileIdle` desacopla o giro do
+cooldown: roda para as duas tarefas "livres" (mesmo par que `NPCSocialHelper.isAvailableToTalk`
+já usa), a ~2x por segundo por NPC (escalonado pelo id da entidade, não todo tick, pra não
+multiplicar o scan de players por NPC ociosa no servidor).
+
+Compilado limpo (161 arquivos, contra as três libs). Zero campo novo, zero sistema novo — só mais
+uma chamada à mesma fórmula de rotação que já existia duas vezes. Detalhes e reteste sugerido em
+`testing_checklist.md`, seção 7.
 
 ### ~~Fome — revisão~~ ✅ FEITO
 **Onde**: `systems/NPCFoodHelper.java` (novo), `NPCHungerHelper`, `RoutineAISystem`
@@ -104,8 +120,16 @@ Classificação de comida passou a usar o dado do item (`isConsumable` + o tier
 Escolha agora ordena por **tier → gosto → distância**: comida preparada antes de crua, favorita
 antes de odiada. Antes pegava o primeiro slot do baú mais próximo.
 
-Comer restaura fome (25/45/65) e vida (6/14/24, via `StatHelper` do RuneCore). Fome abaixo de 5
-tira vida, calibrada para 2 h de vida cheia até a morte.
+Comer restaura fome (25/45/65) e vida (6/14/24, via `StatHelper` do RuneCore).
+
+~~Fome abaixo de 5 tira vida, calibrada para 2 h de vida cheia até a morte.~~ **Correção
+(15/09): essa frase estava errada.** Fome baixa NÃO tira vida — checado o `NPCHungerHelper`
+inteiro e todo `subtractHealth`/`addHealth` do projeto, e o único efeito de fome abaixo de 5 é
+`tickStarvation` forçar `IDLE` + chorar + humor `SAD`. É decisão de design **deliberada**, já
+registrada em `testing_checklist.md` seção 11 (09/08): existia um gatilho `fome <= 0 → DYING` que
+matava na hora (oposto do pretendido) e foi removido de propósito, junto com as constantes de dano
+por fome (`STARVATION_DAMAGE` etc.) que não sobreviveram à migração para `EntityStats`. Aging e
+doença é que vão ser causa de morte; fome só custa utilidade. Ver item abaixo.
 
 Interrupção por fome adicionada, espelhando a do sono — antes a fome só era checada em `IDLE`, e
 uma NPC sempre ocupada nunca comia. Com cooldown (`nextFoodSearchTick`) para não repetir a
@@ -114,19 +138,50 @@ tempestade de buscas que a cama teve.
 **Ficou de fora, de propósito**: baú do mundo continua ignorado (decisão de design — a NPC só usa
 o que o jogador colocou).
 
-### Morte por fome — falta confirmar
+### ~~Morte por fome — falta confirmar~~ ✅ Esclarecido (15/09)
 **Onde**: `NPCHungerHelper.tickStarvation` → `RoutineAISystem` (`DYING` / `REAPING`)
 
-`StatHelper.subtractHealth` chegando a zero **não foi verificado**. Se o motor matar a entidade
-direto, a NPC some sem passar pelo fluxo de morte do SimTale (corpo, ceifador, registro). Teste
-antes de considerar a fome fechada.
+A pergunta partia de uma premissa que não existe no código: fome não chama `subtractHealth` em
+lugar nenhum (busca no projeto inteiro, zero ocorrências ligadas a fome — os únicos
+`subtractHealth` são o custo de 50 HP do parto em `PregnancyManager`). Fome nunca chega a 0 HP,
+então não há "morte por fome" pra verificar — é `tickStarvation` que faz o trabalho todo, e ele só
+mexe em humor/tarefa, nunca em vida (ver item "Fome — revisão" acima, corrigido no mesmo dia).
 
-### Reputação por profissão
-**Onde**: campo novo em `SimNPCComponent` + codec + `NpcContextBuilder`
+Boa notícia à parte, sobre a pergunta em si (o motor mata direto e pula o fluxo do SimTale?):
+`RoutineAISystem.tick()` já tem, hoje, uma checagem genérica no topo (linhas ~308-320) que lê
+`EntityStatMap`/`DefaultEntityStatTypes.getHealth()` de qualquer NPC fora de
+`DYING`/`DEAD`/`REAPING`/`EXPEDITION` e, achando `<= 0`, entra em `DYING` na hora — comentário no
+próprio código diz que foi feita pro dano de combate real (arma de jogador), que antes não
+disparava o fluxo de morte nenhum. Ou seja: **qualquer** causa de 0 HP diferente de fome (combate,
+complicação de parto) já cai corretamente no `DYING → DEAD → REAPING`. A única ressalva pequena:
+como `EXPEDITION` está na lista de exceções, uma NPC que morresse de combate durante uma expedição
+(caçador/minerador, ~2 min, modelo reduzido) só entraria em `DYING` depois que a expedição
+"terminasse" e desse a recompensa — cenário bem improvável (a NPC fica reduzida/fora de alcance
+durante a expedição) e não relacionado a fome, então não mexi nisso agora.
+
+**Isso deixa uma decisão de verdade pra tomar, não um bug**: fome continua não devendo matar
+(mantém a decisão de 09/08), ou vocês querem reintroduzir dano por fome agora que o roteamento
+genérico pra `DYING` existe e funcionaria de graça? Não decidi sozinho — é mudança de balanceamento
+do jogo, não correção de bug, e a nota de 09/08 tinha um raciocínio de design explícito por trás
+(duas causas de morte competindo complicam as duas).
+
+### ~~Reputação por profissão~~ ✅ FEITO (15/09)
+**Onde**: campo novo em `SimNPCComponent` + persistência + `NpcContextBuilder`
 
 Contar trabalhos concluídos por profissão e expor "melhor pescador da vila" no contexto. O
-sistema de trabalho já marca `currentJob`, então é só acumular. Entra como 🟢 **se** o escopo
-for só o número e o texto; vira 🟡 se for para influenciar comportamento.
+sistema de trabalho já marca `currentJob`, então era só acumular — e havia um único ponto para
+fazer isso: `NPCWorkHelper.applyWorkSatisfaction`, já chamado pelos 5 lugares que fecham um ciclo
+de trabalho (colheita, plantio, pesca, corte, expedição). `jobsCompleted` persiste pelo mesmo
+caminho dos campos de emoção (`SimNPCData` + `SimNPCPersistence`), então sobrevive a restart —
+sem isso "melhor da vila" reiniciaria do zero toda vez e não significaria nada.
+
+Ficou 🟢 como esperado: escopo é só número exibido no prompt + uma frase quando a NPC lidera sua
+profissão entre as carregadas no momento (e só conta como "lidera" se tiver alguém pra comparar —
+ser a única da profissão não gera a frase). Nenhum comportamento muda; é decoração de contexto,
+igual aos outros campos desta seção.
+
+Compilado limpo (161 arquivos, contra as três libs). Detalhes e reteste sugerido em
+`testing_checklist.md`, seção 14.
 
 ---
 
@@ -150,6 +205,22 @@ Achado junto com a confirmação de que `FamilyBonds` grava afinidade certa nos 
 nascer (`testing_checklist.md` seção 10): a mensagem hoje não diferencia "não há filhos no
 mundo" de "há, mas nenhum por perto". Puramente cosmético — não muda o cálculo de afinidade,
 só a clareza da mensagem.
+
+---
+
+## 📣 Trabalho extra desta noite: diversidade de diálogos (fora da lista acima, 15/09)
+
+Pedido separado, feito só depois de esgotar a fila 🟢 acima — nada aqui competiu por prioridade
+com o roadmap de verdade. Seis frentes aditivas, todas compiladas juntas e limpas: mais
+variantes de reação a trabalho e a presente/item pra criança, tópico dedicado pra duas crianças
+conversando, saudação de proximidade reconhecendo "papai"/"mamãe", mais variantes de voz jovem
+e de conversa de casal, e comentário sobre evento do mundo (guarda que vence uma luta, Kweebec
+avistado). Documentação completa, com o que testar em cada uma, em `testing_checklist.md`,
+seção 24.
+
+Ficou de fora só "brincadeira" como botão de interação jogador↔criança — precisaria de um
+`InteractionType` novo e mexer no menu visual (seção 🟡, mesma família do item "Interações
+contextuais"), isso sim reestruturando.
 
 ## 🟡 Próximas atualizações
 
