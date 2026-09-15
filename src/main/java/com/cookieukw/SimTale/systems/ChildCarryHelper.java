@@ -20,11 +20,14 @@ import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.BoundingBox;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.math.shape.Box;
 import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -445,6 +448,60 @@ public final class ChildCarryHelper {
         settled.idle = true;
         settled.horizontalIdle = true;
         msc.setMovementStates(settled);
+    }
+
+    /**
+     * Keeps a carried child's OWN {@code TransformComponent} tracking the carrier live, instead
+     * of leaving it frozen at wherever she was standing at pickup.
+     *
+     * <p>Root cause of "crianca some do nada ao pular/voar" (13-14/09): the client draws a
+     * carried child from {@code carrier position + attachmentOffset}, never from her own
+     * Transform, so nothing about the carry feature itself needed her real position to move --
+     * that assumption is documented all over this file and in GrowthManager. But
+     * {@code UpdateLocationSystems} (the ONE other place anywhere in HytaleServer.jar that both
+     * touches chunk validity and creates a {@code Teleport} component --
+     * confirmed by grepping every class in the jar for the two together) runs off that same real
+     * Transform for EVERY entity, every tick, to keep its cached chunk-section reference in sync.
+     * A child parked at one unmoving spot for the whole carry is exactly what that bookkeeping
+     * does not expect: if the carrier flies or walks far enough that her stale position's
+     * original chunk section is no longer valid where the check looks for it, it can decide she
+     * needs a corrective {@code Teleport} -- and {@code MountSystems$TeleportMountedEntity}
+     * reacts to ANY Teleport landing on a mounted entity by silently stripping her
+     * {@code MountedComponent}, no message, no fallback. She is left wherever that correction put
+     * her, no longer mounted, with nothing in this mod aware anything happened -- which is exactly
+     * "desapareceu do nada" and why {@code /simtale putdown} found nobody afterward. Reported
+     * reproduction (14/09): a single carried child vanishes on the very first jump while flying in
+     * Creative, and a freshly picked-up second child repeats it on her own next jump.
+     *
+     * <p>Called unconditionally every tick a child is carried (see the
+     * {@code ChildCarryHelper.isBeingCarried} branch in {@code RoutineAISystem}), not throttled
+     * like the mood/settle top-ups above: a position that always matches wherever the carrier
+     * validly is can never itself go stale, which removes the precondition for that chunk check
+     * to ever flag her, whatever the exact async timing that trips it. Reads
+     * {@code attachmentOffset} straight off her own {@code MountedComponent} rather than
+     * recomputing a height, so this can never disagree with what the client is already drawing.
+     */
+    public static void syncCarriedTransform(Store<EntityStore> store, SimNPCComponent npc) {
+        if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) return;
+
+        MountedComponent mounted = store.getComponent(npc.entityRef, MountedComponent.getComponentType());
+        if (mounted == null || mounted.getAttachmentOffset() == null) return;
+
+        Ref<EntityStore> carrier = mounted.getMountedToEntity();
+        if (carrier == null || !carrier.isValid()) return;
+
+        TransformComponent carrierTransform =
+                store.getComponent(carrier, TransformComponent.getComponentType());
+        TransformComponent childTransform =
+                store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+        if (carrierTransform == null || childTransform == null) return;
+
+        Vector3fc offset = mounted.getAttachmentOffset();
+        Vector3d carrierPos = carrierTransform.getPosition();
+        childTransform.setPosition(new Vector3d(
+                carrierPos.x + offset.x(),
+                carrierPos.y + offset.y(),
+                carrierPos.z + offset.z()));
     }
 
     /** Whether this player currently has one of our children on their shoulders. */
