@@ -2,6 +2,9 @@ package com.cookieukw.SimTale.systems;
 
 import org.joml.Vector3i;
 
+import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.SimNPCComponent;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,13 +49,34 @@ public final class ChairRegistry {
 
     public static boolean isOccupied(Vector3i pos) {
         if (pos == null) return false;
-        return OCCUPIED.containsKey(pos);
+        UUID holder = OCCUPIED.get(pos);
+        if (holder == null) return false;
+        if (isStale(holder)) {
+            // Self-heal: whoever claimed this chair is gone with nothing left to call
+            // releaseChair for her -- most commonly a player leaving and rejoining the same
+            // server, which leaves ACTIVE_NPCS/OCCUPIED exactly as they were (nothing clears
+            // either automatically, only the manual /simtale clearall command does), while the
+            // entity she was sitting on no longer exists in the reloaded world. Without this the
+            // chair reads "ocupada" forever and no NPC -- and no /simtale chaircheck -- can ever
+            // tell why, since nobody is actually mounted on it. Same "the world is the source of
+            // truth, the registry is just a cache" rule BedWorldBootstrap already applies to
+            // chests/farmland/posts, applied here to occupancy instead of existence.
+            OCCUPIED.remove(pos);
+            return false;
+        }
+        return true;
+    }
+
+    /** Whether {@code holder} no longer names a live, tracked NPC -- a claim nobody can release. */
+    private static boolean isStale(UUID holder) {
+        SimNPCComponent npc = SimTale.findNpc(holder);
+        return npc == null || npc.entityRef == null || !npc.entityRef.isValid();
     }
 
     public static synchronized boolean claimChair(Vector3i pos, UUID npcId) {
         if (pos == null || npcId == null) return false;
         UUID current = OCCUPIED.get(pos);
-        if (current == null || current.equals(npcId)) {
+        if (current == null || current.equals(npcId) || isStale(current)) {
             OCCUPIED.put(new Vector3i(pos), npcId);
             return true;
         }
