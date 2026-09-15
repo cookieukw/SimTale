@@ -189,6 +189,11 @@ public class NPCWorkHelper {
      * in the simulation noticed.
      */
     private static void applyWorkSatisfaction(SimNPCComponent npc, long tick) {
+        // docs/ROADMAP.md, "Reputacao por profissao": every one of this method's 5 call sites
+        // is a finished unit of work (harvest, planting, catch, chop, hunter/miner expedition),
+        // so this one line is the whole counter -- no per-profession duplication needed.
+        npc.jobsCompleted++;
+
         // Work naturally drops fun, unless it's a good mood/traits combo
         if (npc.activeEmotion == Mood.HAPPY) {
             NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, Math.min(100f, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) + 6f));
