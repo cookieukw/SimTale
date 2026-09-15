@@ -89,48 +89,64 @@ young.chat.village_child.2 = {name}: Minha mãe falou pra eu não falar com estr
 young.chat.village_child.3 = {name} aponta pro céu: Olha aquele passarinho! Ele mora lá em cima?
 young.chat.village_child.4 = {name}: Eu achei uma pedra hoje. Ela é a minha melhor pedra.
 young.chat.village_child.5 = {name} corre em volta de você duas vezes e para, ofegante: Oi!
+young.chat.village_child.6 = {name}: Você sabia que se você girar bem rápido você fica tonto? Eu já tentei.
+young.chat.village_child.7 = {name} cheira uma flor e espirra: Ai! Ela era mais forte que eu esperava.
 
 young.chat.own_child.1 = {name} puxa sua manga: {parent}, olha aquele passarinho! Ele tá me olhando!
 young.chat.own_child.2 = {name}: Quando eu crescer eu vou ser igualzinho a você. Só que mais alto.
 young.chat.own_child.3 = {name} mostra as mãos sujas de terra: Olha o que eu achei! É um bicho. Eu vou dar um nome pra ele.
 young.chat.own_child.4 = {name}: Você volta antes de escurecer? Eu não gosto quando escurece e você não tá.
 young.chat.own_child.5 = {name} abraça sua perna e não fala nada por um tempinho.
+young.chat.own_child.6 = {name}: {parent}, será que hoje dá pra ficar acordado até mais tarde? Só um pouquinho?
+young.chat.own_child.7 = {name} desenha alguma coisa no chão com um graveto: Olha, esse sou eu. E esse é você, {parent}.
 
 young.chat.own_teen.1 = {name} dá de ombros: Oi. Tá tudo bem, pode parar de perguntar.
 young.chat.own_teen.2 = {name}: Eu sei me virar sozinho, sabia? Já não sou criança.
 young.chat.own_teen.3 = {name} desvia o olhar: ...eu te vi lá longe hoje. Não falei nada porque tinha gente.
 young.chat.own_teen.4 = {name}: A vila é pequena demais. Um dia eu quero ver o que tem do outro lado.
 young.chat.own_teen.5 = {name} quase sorri: Tá bom, foi legal ter você por perto hoje. Não conta pra ninguém.
+young.chat.own_teen.6 = {name}: Tá, eu admito. Foi bom te ver hoje. Mas não vou repetir isso.
+young.chat.own_teen.7 = {name} encosta na parede, meio sério: Às vezes eu queria só... sei lá. Ser mais novo de novo.
 
 young.chat.own_adult.1 = {name} te cumprimenta com um aceno de cabeça: Tudo certo por aqui. E você, tá se cuidando?
 young.chat.own_adult.2 = {name}: Lembra quando eu era pequeno e achava que aquele morro era o fim do mundo?
 young.chat.own_adult.3 = {name} sorri: Eu ando falando igual você. Percebi outro dia e me assustei.
 young.chat.own_adult.4 = {name}: Se precisar de alguma coisa, é só falar. Sério.
 young.chat.own_adult.5 = {name}: Tô construindo a minha vida aqui. Deu certo, no fim.
+young.chat.own_adult.6 = {name}: Ainda bem que você apareceu. Eu ia te procurar depois de qualquer jeito.
+young.chat.own_adult.7 = {name} olha ao redor: A vila cresceu tanto desde que eu era pequeno. É estranho, de um jeito bom.
 
 young.joke.village_child.1 = {name} cai na gargalhada e não consegue parar. Nem era tão engraçado assim.
 young.joke.village_child.2 = {name} ri e imediatamente tenta contar a mesma piada de volta, errando o final.
 young.joke.village_child.3 = {name} bufa de rir: Eu vou contar essa pra minha mãe!
 young.joke.village_child.4 = {name} ri tão forte que soluça.
 young.joke.village_child.5 = {name}: Não entendi. — pausa — Ah! ENTENDI! — e ri sozinho.
+young.joke.village_child.6 = {name} aponta pra você rindo: Fala de novo! Fala de novo!
+young.joke.village_child.7 = {name} tenta segurar o riso e falha completamente, rindo com o nariz escorrendo.
 
 young.joke.own_child.1 = {name} morre de rir: {parent}, conta de novo! CONTA DE NOVO!
 young.joke.own_child.2 = {name} ri e cai sentado na grama de tanto rir.
 young.joke.own_child.3 = {name}: Você é o mais engraçado da vila inteira. Eu já perguntei pra todo mundo.
 young.joke.own_child.4 = {name} tenta repetir a piada pra si mesmo, baixinho, pra não esquecer.
 young.joke.own_child.5 = {name} ri e depois fica sério: Espera. Isso é verdade?
+young.joke.own_child.6 = {name} rola no chão rindo: {parent}, para, para, eu não aguento mais!
+young.joke.own_child.7 = {name}: Eu vou lembrar dessa piada pro resto da minha vida, {parent}.
 
 young.joke.own_teen.1 = {name} segura o riso: Que piada velha. — mas o canto da boca entrega.
 young.joke.own_teen.2 = {name}: Não tem graça. — ri três segundos depois, contra a vontade.
 young.joke.own_teen.3 = {name} revira os olhos e sorri ao mesmo tempo, o que dá bastante trabalho.
 young.joke.own_teen.4 = {name}: Se você contar isso perto dos meus amigos eu me mudo da vila.
 young.joke.own_teen.5 = {name} ri de verdade e parece meio irritado consigo mesmo por isso.
+young.joke.own_teen.6 = {name} morde o lábio tentando não rir e falha miseravelmente.
+young.joke.own_teen.7 = {name}: Ok, essa foi... — para, respira — ok, foi engraçada mesmo. Só essa vez.
 
 young.joke.own_adult.1 = {name} ri: Essa é a mesma piada de quando eu tinha seis anos. Continua ruim.
 young.joke.own_adult.2 = {name}: Eu conto essa por aí, sabia? E falo que fui eu que inventei.
 young.joke.own_adult.3 = {name} balança a cabeça sorrindo: Você não muda mesmo.
 young.joke.own_adult.4 = {name} ri e fica quieto um pouco depois. Boa lembrança.
 young.joke.own_adult.5 = {name}: Guarda essa pra contar pros meus filhos um dia.
+young.joke.own_adult.6 = {name} dá risada de verdade: Você não perde o jeito mesmo, hein.
+young.joke.own_adult.7 = {name}: Ainda bem que alguém aqui continua engraçado. Eu tava precisando disso.
 
 scold.child.1 = {name} olha para o chão e não diz nada. O lábio treme.
 scold.child.2 = {name} baixa a cabeça e cutuca o chão com o pé, sem responder.
@@ -187,19 +203,28 @@ prof.assign.dislike.1 = {name} faz cara de nojo: {profName}?! Nem morto! Eu dete
 prof.assign.dislike.2 = {name} cruza os braços: Não, valeu. {profName} não é pra mim. Eu odeio.
 prof.assign.dislike.3 = {name} empurra o {itemName} de volta: Tá brincando? Eu odiaria ser um {profName}!
 prof.assign.dislike.4 = {name} balança a cabeça: Sem chance. {profName} é a última coisa que eu quero ser.
+prof.assign.dislike.5 = {name} recua um passo: {profName} não, por favor. Já sofri demais com esse tipo de trabalho.
 prof.assign.lazy.1 = {name} boceja: {profName}? Isso dá muito trabalho... não tenho energia pra isso.
 prof.assign.lazy.2 = {name} se espreguiça: Trabalho pesado? Eu? Hahaha, boa piada.
 prof.assign.lazy.3 = {name} suspira: Olha, valeu pela oferta, mas... não dá não. Envolve muito suor.
+prof.assign.lazy.4 = {name} finge que não ouviu e continua deitado(a) na sombra.
+prof.assign.lazy.5 = {name} olha pro {itemName} e depois pra você: Trabalho desses cansa só de olhar. Passo.
 prof.assign.aggressive.1 = {name} rosna: {profName}?! Eu tenho cara de quem planta florzinha?!
 prof.assign.aggressive.2 = {name} bate no peito: Eu sou um guerreiro, não um plebeu! Me respeite!
 prof.assign.aggressive.3 = {name} cospe no chão: Trabalho pacato demais pra mim. Me dê algo com ação!
+prof.assign.aggressive.4 = {name} olha pro {itemName} com desprezo: Isso aí é coisa pra mão delicada. Não a minha.
+prof.assign.aggressive.5 = {name} cruza os braços: {profName}? Eu quero é ação, não ficar cuidando de planta ou peixe.
 prof.assign.angry.1 = {name} grita: NÃO TÔ DE HUMOR PRA ISSO! Volta depois!
 prof.assign.angry.2 = {name} te olha irritado: Agora não! Tô puto demais pra pensar em emprego!
 prof.assign.angry.3 = {name} empurra o item longe: Me deixa em paz! Não vem com propostas agora!
+prof.assign.angry.4 = {name} nem olha pra você: Some da minha frente com essa proposta.
+prof.assign.angry.5 = {name} respira fundo, irritado(a): Hoje não. Nem hoje, nem tão cedo.
 prof.assign.return = {name} te devolve as ferramentas de {profName}.
 prof.assign.liked.1 = {name} pega o {itemName} com os olhos brilhando: {profName}?! Eu SEMPRE quis fazer isso! Obrigado!
 prof.assign.liked.2 = {name} quase pula de alegria: Sério, eu vou ser um {profName}?! Esse é meu sonho!
 prof.assign.liked.3 = {name} abraça o {itemName}: Finalmente alguém reconhece meu talento! Serei o melhor {profName} de todos!
+prof.assign.liked.4 = {name} solta um gritinho de alegria: {profName}?! Eu ia implorar se precisasse! Aceito na hora!
+prof.assign.liked.5 = {name} segura o {itemName} como se fosse um tesouro: Esse sempre foi o meu sonho. Muito obrigado(a) por confiar em mim!
 prof.assign.accept.1 = {name} pega o {itemName} e assente: Ok, {profName} parece bom. Vou dar meu melhor!
 prof.assign.accept.2 = {name} examina o {itemName}: Hmm, {profName}... Eu posso tentar. Valeu pela oportunidade!
 prof.assign.accept.3 = {name} sorri: {profName}? Claro! Vou começar agora mesmo.
@@ -237,6 +262,8 @@ mean.partner.3 = {name}: Eu nem sei quem você é agora. Não fala mais comigo.
 prof.assign.refuse_status.1 = {name} debocha: Por que eu trabalharia pra alguém como você? De jeito nenhum.
 prof.assign.refuse_status.2 = {name}: Eu não recebo ordens de estranhos. Vai caçar outro(a) pra ser {profName}.
 prof.assign.refuse_status.3 = {name}: Você só pode estar de brincadeira. Eu não vou fazer serviço de {profName} pra você.
+prof.assign.refuse_status.4 = {name} ergue uma sobrancelha: E quem é você pra vir me oferecer trabalho? A gente nem se conhece.
+prof.assign.refuse_status.5 = {name} dá risada seca: {profName}? Pra você? Nem que fosse a última profissão de Orbis.
 prof.assign.noitem = {name} olha para você confuso: Você não está segurando nada... Como eu vou saber que profissão você quer que eu tenha?
 prof.assign.child = {name} é apenas uma criança e não pode trabalhar ainda!
 armor.equip = {name} veste o {itemName} e ajeita as tiras: Vou usar isso, valeu pela proteção!
@@ -244,8 +271,12 @@ armor.child = {name} é apenas uma criança e não deveria usar armadura!
 armor.unavailable = {name} não está por perto para vestir isso agora.
 flirt.child = Você não pode flertar com uma criança!
 gift.noitem = Você não está segurando nenhum item para dar de presente!
-gift.accelerated = Voce deu algum item para {name}? Aumentamos o crescimento dele(a) de +5% para +10%!
-gift.child_reject = {name} é apenas uma criança e não quer esse presente. Tente dar comida!
+gift.accelerated.1 = {name} comeu {item} todo(a) feliz -- isso ajudou a acelerar o crescimento dele(a)!
+gift.accelerated.2 = Boa escolha: {name} devorou {item} na hora, e o crescimento dele(a) ganhou um empurrão.
+gift.accelerated.3 = {name} agradeceu com a boca cheia de {item} -- crescendo um pouco mais rápido agora.
+gift.child_reject.1 = {name} é apenas uma criança e não quer esse presente. Tente dar comida!
+gift.child_reject.2 = {name} olha pro presente sem entender -- criança não liga pra isso. Que tal comida?
+gift.child_reject.3 = {name} dá de ombros: isso não é pra criança. Traga algo de comer.
 gift.baby_reject = Você não pode presentear o bebê! Use o inventário do cônjuge para passar a guarda.
 
 # MOTHER AI
@@ -295,6 +326,31 @@ proximity.enemy.1 = Nem pense em se aproximar de mim...
 proximity.enemy.2 = Você de novo? Vai andando.
 proximity.enemy.3 = Some da minha frente.
 
+# Vozes infantis/adolescentes para a saudação de proximidade (ChildDialogue, intent "proximity").
+# Sem {name} embutido -- RoutineAISystem.checkPlayerProximityGreeting já adiciona "Nome: " por
+# fora, igual às outras chaves proximity.* acima. {parent} vem de ParentChildBond.parentTermKey
+# (mamãe/papai, degradando pra mãe/pai e depois pro nome do jogador).
+young.proximity.village_child.1 = Oi! Você é bem alto(a) de perto.
+young.proximity.village_child.2 = *te encara curioso(a)* Oi...
+young.proximity.village_child.3 = Ei, você viu minha bola por aí?
+young.proximity.village_child.4 = Oi! Eu não deveria falar com estranhos, mas você parece legal.
+young.proximity.village_child.5 = *aponta pra você* É um adulto de verdade!
+young.proximity.own_child.1 = Oi, {parent}! Oi oi oi!
+young.proximity.own_child.2 = {parent}!! Você voltou!
+young.proximity.own_child.3 = *corre até você e abraça sua perna* {parent}!
+young.proximity.own_child.4 = {parent}, olha, eu tava esperando você!
+young.proximity.own_child.5 = Oi {parent}! Vem ver uma coisa que eu achei!
+young.proximity.own_teen.1 = Oi, {parent}.
+young.proximity.own_teen.2 = *acena sem muito entusiasmo* E aí.
+young.proximity.own_teen.3 = Ah, oi {parent}. Tudo certo.
+young.proximity.own_teen.4 = {parent}... oi. — e volta a olhar pro nada.
+young.proximity.own_teen.5 = *dá um meio-sorriso* Oi. Que bom te ver, mas não conta pra ninguém que eu disse isso.
+young.proximity.own_adult.1 = Oi, {parent}! Que bom te ver.
+young.proximity.own_adult.2 = {parent}! Vem cá, faz tempo que a gente não se fala direito.
+young.proximity.own_adult.3 = *sorri* Oi {parent}. Como você tá?
+young.proximity.own_adult.4 = Ei, {parent}! Justo hoje eu tava pensando em você.
+young.proximity.own_adult.5 = Oi, {parent}. Sempre bom ter você por perto.
+
 # NPC-NPC CONTEXTUAL SOCIAL DIALOGUES
 social.hostile.1.a = {name}: Saia da minha frente! Não quero falar com você!
 social.hostile.1.b = {name}: Não me provoque! Da próxima vez não vai ficar assim!
@@ -305,6 +361,8 @@ social.romantic.1.a = {name}: Meu amor! Que alegria te encontrar por aqui.
 social.romantic.1.b = {name}: Meu dia sempre fica mais iluminado quando vejo você.
 social.romantic.2.a = {name}: Estava pensando em você agorinha mesmo...
 social.romantic.2.b = {name}: É mesmo? Eu também não saio do seu lado por nada.
+social.romantic.3.a = {name}: Sabia que outro dia eu fiquei pensando em quando a gente se conheceu?
+social.romantic.3.b = {name}: Ah, que fofo... eu também penso nisso às vezes.
 
 social.hunger.1.a = {name}: Minha barriga tá roncando... preciso achar algo pra comer logo.
 social.hunger.1.b = {name}: Nem me fale! Se eu não comer algo em breve, vou desmaiar.
@@ -361,4 +419,21 @@ social.village.1.b = {name}: É verdade, é ótimo ver todo mundo trabalhando e 
 social.village.2.a = {name}: Depois do dever concluído, quero dar uma volta completa pelo vilarejo.
 social.village.2.b = {name}: Se eu tiver tempo, te acompanho no passeio mais tarde!
 
+social.child_play.1.a = {name}: Vamos brincar de pega-pega! Eu conto até dez!
+social.child_play.1.b = {name}: Ah, dessa vez eu vou te pegar rapidinho!
+social.child_play.2.a = {name}: Óh, achei um bichinho novo hoje. Quer ver?
+social.child_play.2.b = {name}: Nossa, deixa eu ver! Será que ele morde?
+
 npc_marriage.announce = {name} sorri largo, de mãos dadas com {partner}: A gente se casou! Foi tudo tão rápido, mas parece certo.
+
+# WORLD EVENT COMMENTARY (docs/ROADMAP.md: "comentários sobre eventos do mundo")
+# Sem {name} embutido -- quem chama já prefixa "NomeDaNPC: " por fora, igual a proximity.*.
+world_event.guard_victory.1 = Mais um perigo a menos por aqui!
+world_event.guard_victory.2 = Isso foi por proteger a vila!
+world_event.guard_victory.3 = Ninguém ameaça essas terras enquanto eu estiver de guarda.
+world_event.guard_victory_witness.1 = Uau, você viu isso?! O guarda foi incrível!
+world_event.guard_victory_witness.2 = Nossa, que medo... mas o guarda salvou todo mundo!
+world_event.guard_victory_witness.3 = Isso foi tipo um herói de verdade!
+world_event.kweebec_sighted.1 = Olha ali, um Kweebec! Não vejo um perto da vila há um tempo.
+world_event.kweebec_sighted.2 = Psst, tem um Kweebec espiando ali. Curioso, não é?
+world_event.kweebec_sighted.3 = Um Kweebec por aqui de novo... eles adoram rondar essa área.

@@ -89,48 +89,64 @@ young.chat.village_child.2 = {name}: My mum said not to talk to strangers. But y
 young.chat.village_child.3 = {name} points at the sky: Look at that bird! Does it live up there?
 young.chat.village_child.4 = {name}: I found a rock today. It's my best rock.
 young.chat.village_child.5 = {name} runs around you twice and stops, out of breath: Hi!
+young.chat.village_child.6 = {name}: Did you know if you spin really fast you get dizzy? I tried it already.
+young.chat.village_child.7 = {name} sniffs a flower and sneezes: Ow! That one was stronger than I expected.
 
 young.chat.own_child.1 = {name} tugs your sleeve: {parent}, look at that bird! It's looking at me!
 young.chat.own_child.2 = {name}: When I grow up I'm going to be just like you. But taller.
 young.chat.own_child.3 = {name} holds up two muddy hands: Look what I found! It's a bug. I'm going to name it.
 young.chat.own_child.4 = {name}: Will you be back before dark? I don't like it when it's dark and you're not here.
 young.chat.own_child.5 = {name} hugs your leg and says nothing for a little while.
+young.chat.own_child.6 = {name}: {parent}, can I maybe stay up a little later today? Just a bit?
+young.chat.own_child.7 = {name} draws something on the ground with a stick: Look, that's me. And that's you, {parent}.
 
 young.chat.own_teen.1 = {name} shrugs: Hey. I'm fine, you can stop asking.
 young.chat.own_teen.2 = {name}: I can handle myself, you know. I'm not a kid.
 young.chat.own_teen.3 = {name} looks away: ...I saw you across the village today. I didn't say anything, there were people.
 young.chat.own_teen.4 = {name}: This place is too small. One day I want to see what's on the other side.
 young.chat.own_teen.5 = {name} almost smiles: Fine. It was nice having you around today. Don't tell anyone.
+young.chat.own_teen.6 = {name}: Fine, I'll admit it. It was good seeing you today. I'm not saying it again, though.
+young.chat.own_teen.7 = {name} leans on the wall, more serious than usual: Sometimes I wish I could just... I don't know. Be little again.
 
 young.chat.own_adult.1 = {name} greets you with a nod: All good here. You looking after yourself?
 young.chat.own_adult.2 = {name}: Remember when I was small and thought that hill was the end of the world?
 young.chat.own_adult.3 = {name} smiles: I've started talking like you. Noticed it the other day and it terrified me.
 young.chat.own_adult.4 = {name}: If you ever need anything, just say. I mean it.
 young.chat.own_adult.5 = {name}: I'm building my life here. It worked out, in the end.
+young.chat.own_adult.6 = {name}: Glad you showed up. I was going to look for you later anyway.
+young.chat.own_adult.7 = {name} looks around: The village has grown so much since I was little. It's strange, in a good way.
 
 young.joke.village_child.1 = {name} bursts out laughing and can't stop. It wasn't even that funny.
 young.joke.village_child.2 = {name} laughs and immediately tries to tell it back to you, ruining the ending.
 young.joke.village_child.3 = {name} wheezes: I'm telling my mum that one!
 young.joke.village_child.4 = {name} laughs so hard they get hiccups.
 young.joke.village_child.5 = {name}: I don't get it. — pause — Oh! I GET IT! — and laughs alone.
+young.joke.village_child.6 = {name} points at you laughing: Say it again! Say it again!
+young.joke.village_child.7 = {name} tries to hold back the laugh and completely fails, laughing with their nose running.
 
 young.joke.own_child.1 = {name} howls with laughter: {parent}, tell it again! TELL IT AGAIN!
 young.joke.own_child.2 = {name} laughs and sits down in the grass from laughing.
 young.joke.own_child.3 = {name}: You're the funniest one in the whole village. I asked everyone already.
 young.joke.own_child.4 = {name} quietly repeats the joke to themselves so they won't forget it.
 young.joke.own_child.5 = {name} laughs, then goes serious. Wait. Is that true?
+young.joke.own_child.6 = {name} rolls on the ground laughing: {parent}, stop, stop, I can't take it anymore!
+young.joke.own_child.7 = {name}: I'm going to remember that joke for the rest of my life, {parent}.
 
 young.joke.own_teen.1 = {name} holds back a laugh: That joke's ancient. — the corner of their mouth gives it away.
 young.joke.own_teen.2 = {name}: Not funny. — laughs three seconds later, against their will.
 young.joke.own_teen.3 = {name} rolls their eyes and smiles at the same time, which takes some effort.
 young.joke.own_teen.4 = {name}: If you tell that one near my friends I'm leaving the village.
 young.joke.own_teen.5 = {name} properly laughs, and seems annoyed at themselves about it.
+young.joke.own_teen.6 = {name} bites their lip trying not to laugh and fails miserably.
+young.joke.own_teen.7 = {name}: Okay, that was... — stops, breathes — okay, that was actually funny. Just this once.
 
 young.joke.own_adult.1 = {name} laughs: That's the same joke from when I was six. Still bad.
 young.joke.own_adult.2 = {name}: I tell that one around, you know. And I say I made it up.
 young.joke.own_adult.3 = {name} shakes their head, smiling: You really don't change.
 young.joke.own_adult.4 = {name} laughs, then goes quiet for a moment. Good memory.
 young.joke.own_adult.5 = {name}: Saving that one for my own kids some day.
+young.joke.own_adult.6 = {name} really laughs: You've still got it, huh.
+young.joke.own_adult.7 = {name}: Glad someone around here is still funny. I needed that.
 
 scold.child.1 = {name} looks at the floor and says nothing. Their lip is trembling.
 scold.child.2 = {name} looks down and scuffs the floor with their foot, saying nothing.
@@ -187,19 +203,28 @@ prof.assign.dislike.1 = {name} makes a disgusted face: {profName}?! Not even dea
 prof.assign.dislike.2 = {name} crosses their arms: No, thanks. {profName} is not for me. I hate it.
 prof.assign.dislike.3 = {name} pushes the {itemName} back: Are you kidding? I would despise being a {profName}!
 prof.assign.dislike.4 = {name} shakes their head: No way. {profName} is the last thing I want to be.
+prof.assign.dislike.5 = {name} steps back: Not {profName}, please. I've suffered enough with that kind of work already.
 prof.assign.lazy.1 = {name} yawns: {profName}? That's too much work... I don't have the energy for that.
 prof.assign.lazy.2 = {name} stretches: Heavy work? Me? Hahaha, good joke.
 prof.assign.lazy.3 = {name} sighs: Look, thanks for the offer, but... no can do. Too much sweat involved.
+prof.assign.lazy.4 = {name} pretends not to hear and stays right where they're lying in the shade.
+prof.assign.lazy.5 = {name} looks at the {itemName}, then at you: That kind of work is tiring just to look at. Pass.
 prof.assign.aggressive.1 = {name} growls: {profName}?! Do I look like someone who plants little flowers?!
 prof.assign.aggressive.2 = {name} beats their chest: I am a warrior, not a peasant! Respect me!
 prof.assign.aggressive.3 = {name} spits on the ground: Too tame work for me. Give me something with action!
+prof.assign.aggressive.4 = {name} looks at the {itemName} with disdain: That's work for delicate hands. Not mine.
+prof.assign.aggressive.5 = {name} crosses their arms: {profName}? I want action, not tending plants or fish.
 prof.assign.angry.1 = {name} yells: I'M NOT IN THE MOOD FOR THIS! Come back later!
 prof.assign.angry.2 = {name} looks at you angrily: Not now! I'm too pissed off to think about a job!
 prof.assign.angry.3 = {name} pushes the item away: Go away! Don't come with proposals now!
+prof.assign.angry.4 = {name} doesn't even look at you: Get that offer out of my sight.
+prof.assign.angry.5 = {name} takes a deep, irritated breath: Not today. Not any day soon, either.
 prof.assign.return = {name} gives you back your {profName} tools.
 prof.assign.liked.1 = {name} takes the {itemName} with sparkling eyes: {profName}?! I ALWAYS wanted to do this! Thank you!
 prof.assign.liked.2 = {name} almost jumps with joy: Seriously, I'm going to be a {profName}?! This is my dream!
 prof.assign.liked.3 = {name} holds the {itemName} dearly: Finally someone recognizes my talent! I'll be the best {profName} ever!
+prof.assign.liked.4 = {name} lets out a happy shriek: {profName}?! I would have begged if I had to! Absolutely yes!
+prof.assign.liked.5 = {name} holds the {itemName} like a treasure: This has always been my dream. Thank you for trusting me with it!
 prof.assign.accept.1 = {name} takes the {itemName} and nods: Ok, {profName} sounds good. I'll do my best!
 prof.assign.accept.2 = {name} examines the {itemName}: Hmm, {profName}... I can try. Thanks for the opportunity!
 prof.assign.accept.3 = {name} smiles: {profName}? Sure! I'll start right now.
@@ -237,6 +262,8 @@ mean.partner.3 = {name}: I don't know who you are right now. Don't speak to me.
 prof.assign.refuse_status.1 = {name} scoffs: Why would I work for someone like you? No way.
 prof.assign.refuse_status.2 = {name}: I don't take orders from strangers. Find someone else to be a {profName}.
 prof.assign.refuse_status.3 = {name}: You must be joking. I'm not doing any {profName} work for you.
+prof.assign.refuse_status.4 = {name} raises an eyebrow: And who are you to offer me work? We don't even know each other.
+prof.assign.refuse_status.5 = {name} gives a dry laugh: {profName}? For you? Not even if it were the last job in Orbis.
 prof.assign.noitem = {name} looks at you confused: You're not holding anything... How am I supposed to know what job you want me to do?
 prof.assign.child = {name} is just a child and cannot work yet!
 armor.equip = {name} puts on the {itemName} and adjusts the straps: I'll wear this, thanks for the protection!
@@ -244,8 +271,12 @@ armor.child = {name} is just a child and shouldn't wear armour!
 armor.unavailable = {name} isn't around to put this on right now.
 flirt.child = You can't flirt with a child!
 gift.noitem = You are not holding any item to give as a gift!
-gift.accelerated = You fed {name} with {item}! Their growth was accelerated.
-gift.child_reject = {name} is just a child and doesn't want this gift. Try giving some food!
+gift.accelerated.1 = {name} happily ate {item} -- that gave their growth a little push!
+gift.accelerated.2 = Good call: {name} devoured {item} right away, and their growth sped up a bit.
+gift.accelerated.3 = {name} thanked you with a full mouth of {item} -- growing a little faster now.
+gift.child_reject.1 = {name} is just a child and doesn't want this gift. Try giving some food!
+gift.child_reject.2 = {name} looks at the gift, confused -- kids don't care about that. How about some food instead?
+gift.child_reject.3 = {name} shrugs: that's not for a child. Bring something to eat.
 gift.baby_reject = You can't gift a baby away! Use the spouse's inventory to hand off custody instead.
 
 # MOTHER AI
@@ -295,6 +326,31 @@ proximity.enemy.1 = Don't even think about coming near me...
 proximity.enemy.2 = You again? Just keep walking.
 proximity.enemy.3 = Get out of my sight.
 
+# Child/teen voices for the proximity greeting (ChildDialogue, intent "proximity"). No {name}
+# baked in -- RoutineAISystem.checkPlayerProximityGreeting already prepends "Name: " outside,
+# same as the other proximity.* keys above. {parent} comes from ParentChildBond.parentTermKey
+# (mommy/daddy, degrading to mom/dad and then the player's own name).
+young.proximity.village_child.1 = Hi! You're really tall up close.
+young.proximity.village_child.2 = *stares at you, curious* Hi...
+young.proximity.village_child.3 = Hey, have you seen my ball around here?
+young.proximity.village_child.4 = Hi! I'm not supposed to talk to strangers, but you seem nice.
+young.proximity.village_child.5 = *points at you* A real grown-up!
+young.proximity.own_child.1 = Hi, {parent}! Hi hi hi!
+young.proximity.own_child.2 = {parent}!! You're back!
+young.proximity.own_child.3 = *runs up and hugs your leg* {parent}!
+young.proximity.own_child.4 = {parent}, look, I was waiting for you!
+young.proximity.own_child.5 = Hi {parent}! Come see something I found!
+young.proximity.own_teen.1 = Hey, {parent}.
+young.proximity.own_teen.2 = *waves without much enthusiasm* Hey.
+young.proximity.own_teen.3 = Oh, hi {parent}. All good.
+young.proximity.own_teen.4 = {parent}... hi. — and goes back to staring at nothing.
+young.proximity.own_teen.5 = *half-smiles* Hey. Good to see you, but don't tell anyone I said that.
+young.proximity.own_adult.1 = Hi, {parent}! Good to see you.
+young.proximity.own_adult.2 = {parent}! Come here, it's been a while since we really talked.
+young.proximity.own_adult.3 = *smiles* Hi {parent}. How are you?
+young.proximity.own_adult.4 = Hey, {parent}! I was just thinking about you today.
+young.proximity.own_adult.5 = Hi, {parent}. Always good to have you around.
+
 # NPC-NPC CONTEXTUAL SOCIAL DIALOGUES
 social.hostile.1.a = {name}: Get out of my face! I don't want to talk to you!
 social.hostile.1.b = {name}: Don't push your luck! You'll regret picking a fight with me!
@@ -305,6 +361,8 @@ social.romantic.1.a = {name}: My love! It's so wonderful seeing you here.
 social.romantic.1.b = {name}: My day is always brighter the moment I see your face.
 social.romantic.2.a = {name}: I was just thinking about you...
 social.romantic.2.b = {name}: Really? I wouldn't leave your side for the world.
+social.romantic.3.a = {name}: You know, the other day I caught myself thinking about when we first met.
+social.romantic.3.b = {name}: Aw, that's sweet... I think about that sometimes too.
 
 social.hunger.1.a = {name}: My stomach is growling... I need to find something to eat soon.
 social.hunger.1.b = {name}: Tell me about it! If I don't get some food soon, I might pass out.
@@ -361,4 +419,21 @@ social.village.1.b = {name}: True! It's wonderful seeing everyone bustling and l
 social.village.2.a = {name}: Once daily chores are finished, I'm planning a long stroll around town.
 social.village.2.b = {name}: If my chores are done in time, I'll join you on that walk!
 
+social.child_play.1.a = {name}: Let's play tag! I'll count to ten!
+social.child_play.1.b = {name}: This time I'm totally going to catch you fast!
+social.child_play.2.a = {name}: Hey, I found a new bug today. Want to see?
+social.child_play.2.b = {name}: Ooh, let me see! Does it bite?
+
 npc_marriage.announce = {name} beams, holding hands with {partner}: We got married! It all happened so fast, but it feels right.
+
+# WORLD EVENT COMMENTARY (docs/ROADMAP.md: "comentários sobre eventos do mundo")
+# No {name} embedded -- the caller already prefixes "NpcName: " externally, same as proximity.*.
+world_event.guard_victory.1 = One less danger around here!
+world_event.guard_victory.2 = That was for the village!
+world_event.guard_victory.3 = Nobody threatens these lands while I'm on watch.
+world_event.guard_victory_witness.1 = Whoa, did you see that?! The guard was amazing!
+world_event.guard_victory_witness.2 = That was scary... but the guard saved everyone!
+world_event.guard_victory_witness.3 = That was just like a real hero!
+world_event.kweebec_sighted.1 = Look, a Kweebec! Haven't seen one near the village in a while.
+world_event.kweebec_sighted.2 = Psst, there's a Kweebec peeking over there. Curious little thing.
+world_event.kweebec_sighted.3 = A Kweebec around here again... they love wandering this area.
