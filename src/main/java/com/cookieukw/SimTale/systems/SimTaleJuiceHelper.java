@@ -8,6 +8,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.protocol.ChangeVelocityType;
+import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.knockback.KnockbackComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
@@ -30,6 +31,14 @@ public final class SimTaleJuiceHelper {
     private static final String ANIM_WAVE = "Characters/Animations/Emote/Wave.blockyanim";
     private static final String ANIM_PUNCH_SHOVE = "Characters/Animations/Taunt/Punch.blockyanim";
     private static final String ANIM_TALK = "Characters/Animations/Expressions/Talk/Talk.blockyanim";
+
+    // Two-character romance duo clips. Each pair shares a duration (Kiss_1/Kiss_2 both 35 ticks,
+    // Propose_Kneel/Propose_React both 45 ticks) with holdLastKeyframe, so triggering both on the
+    // same tick keeps them in sync start to finish without any extra bookkeeping.
+    private static final String ANIM_KISS_LEAD = "Characters/Animations/Romance/Kiss_1.blockyanim";
+    private static final String ANIM_KISS_FOLLOW = "Characters/Animations/Romance/Kiss_2.blockyanim";
+    private static final String ANIM_PROPOSE_KNEEL = "Characters/Animations/Romance/Propose_Kneel.blockyanim";
+    private static final String ANIM_PROPOSE_REACT = "Characters/Animations/Romance/Propose_React.blockyanim";
 
     private static final String FACE_CHEERFUL = "Characters/Animations/Expressions/Cheerful.blockyanim";
     private static final String FACE_SMILE = "Characters/Animations/Expressions/Smile.blockyanim";
@@ -170,6 +179,61 @@ public final class SimTaleJuiceHelper {
         }
 
         LOGGER.debug("[SimTaleJuice] NPC '{}' shoved entity with force {}", attackerNpc != null ? attackerNpc.name : "NPC", force);
+    }
+
+    /**
+     * Faces two entities toward each other in place (same yaw math NPCSocialHelper already uses
+     * for face-to-face dialogue), without touching either one's position.
+     */
+    private static void faceEachOther(Ref<EntityStore> a, Ref<EntityStore> b, Store<EntityStore> store) {
+        TransformComponent aTrans = store.getComponent(a, TransformComponent.getComponentType());
+        TransformComponent bTrans = store.getComponent(b, TransformComponent.getComponentType());
+        if (aTrans == null || bTrans == null) return;
+
+        Vector3d aPos = aTrans.getPosition();
+        Vector3d bPos = bTrans.getPosition();
+        double dx = bPos.x - aPos.x;
+        double dz = bPos.z - aPos.z;
+        if (dx * dx + dz * dz <= 1e-4) return;
+
+        aTrans.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
+        bTrans.teleportRotation(new Rotation3f(0f, (float) Math.atan2(dx, dz), 0f));
+    }
+
+    /**
+     * Plays the two-character kiss: {@code leadRef} gets the asymmetric embrace (Kiss_1),
+     * {@code followRef} gets the complementary neck-hold pose (Kiss_2). Works for any pairing of
+     * player/NPC refs -- both are just entities to {@link NPCMovementHelper#playAnim}.
+     */
+    public static void playKiss(Ref<EntityStore> leadRef, Ref<EntityStore> followRef, Store<EntityStore> store) {
+        if (leadRef == null || followRef == null || store == null) return;
+        if (!leadRef.isValid() || !followRef.isValid()) return;
+
+        faceEachOther(leadRef, followRef, store);
+        NPCMovementHelper.playAnim(leadRef, AnimationSlot.Action, ANIM_KISS_LEAD, "Kiss", store);
+        NPCMovementHelper.playAnim(followRef, AnimationSlot.Action, ANIM_KISS_FOLLOW, "Kiss", store);
+
+        TransformComponent leadTrans = store.getComponent(leadRef, TransformComponent.getComponentType());
+        TransformComponent followTrans = store.getComponent(followRef, TransformComponent.getComponentType());
+        if (leadTrans != null && followTrans != null) {
+            Vector3d a = leadTrans.getPosition();
+            Vector3d b = followTrans.getPosition();
+            spawnHeartParticles(new Vector3d((a.x + b.x) / 2.0, (a.y + b.y) / 2.0, (a.z + b.z) / 2.0), store);
+        }
+    }
+
+    /**
+     * Plays the marriage-proposal duo: {@code proposerRef} kneels holding out the ring
+     * (Propose_Kneel), {@code reactorRef} plays the surprised hands-to-face reaction
+     * (Propose_React).
+     */
+    public static void playMarriageProposal(Ref<EntityStore> proposerRef, Ref<EntityStore> reactorRef, Store<EntityStore> store) {
+        if (proposerRef == null || reactorRef == null || store == null) return;
+        if (!proposerRef.isValid() || !reactorRef.isValid()) return;
+
+        faceEachOther(proposerRef, reactorRef, store);
+        NPCMovementHelper.playAnim(proposerRef, AnimationSlot.Action, ANIM_PROPOSE_KNEEL, "Propose", store);
+        NPCMovementHelper.playAnim(reactorRef, AnimationSlot.Action, ANIM_PROPOSE_REACT, "ProposeReact", store);
     }
 
     /**
