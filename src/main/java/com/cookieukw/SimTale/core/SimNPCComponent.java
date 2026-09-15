@@ -69,6 +69,16 @@ public class SimNPCComponent implements Component<EntityStore> {
     public UUID jobEmployer;
     public boolean isAway = false;
     /**
+     * Total work cycles finished in this NPC's profession -- one harvest, one planting, one
+     * catch, one chop, or one hunter/miner expedition, each counted once, at the single point
+     * ({@code NPCWorkHelper.applyWorkSatisfaction}) every one of those paths already funnels
+     * through. Persisted (see {@code SimNPCPersistence}) so it means something across restarts,
+     * not just this session. Purely informational -- surfaced in {@code NpcContextBuilder} as
+     * flavor ("village's best fisherman"), never read by any behavior. Zero on a save from
+     * before this field existed, same as a genuinely fresh NPC.
+     */
+    public int jobsCompleted = 0;
+    /**
      * Marks the Grim Reaper NPC. This used to be inferred with {@code name.contains("Reaper")},
      * which never matched because the factory names it "Dona Morte" — meaning no reaper was
      * ever dispatched to collect a dying NPC.
@@ -220,6 +230,7 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.jobEmployer = jobEmployer;
         clone.isAway = isAway;
         clone.isReaper = isReaper;
+        clone.jobsCompleted = jobsCompleted;
         
         // Clone emotion state
         clone.activeEmotion = activeEmotion;
