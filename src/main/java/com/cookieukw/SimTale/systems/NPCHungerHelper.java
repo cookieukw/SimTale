@@ -86,6 +86,13 @@ public class NPCHungerHelper {
         // every tick.
         if (isSleepTask(ai.currentTask)) return;
 
+        // Nor is a Guard mid-encounter (see NPCGuardHelper, wired up 13/09 -- after this method
+        // was written, which is why it was missing here same as it was missing from the sleep/
+        // hunger interrupts in RoutineAISystem). MOVING_TO_FIGHT/FIGHTING already have their own
+        // short timeouts (30s chase, 3s swing); yanking her to IDLE mid-fight just to cry from
+        // starvation abandons the skeleton she was already engaging.
+        if (isFightTask(ai.currentTask)) return;
+
         // Re-issuing this on a tick where the NPC is already idle and crying just resets the
         // animation, so it never gets past the first frame.
         if (ai.currentTask == TaskType.IDLE) return;
@@ -113,6 +120,10 @@ public class NPCHungerHelper {
 
     private static boolean isDeathTask(TaskType task) {
         return task == TaskType.DYING || task == TaskType.DEAD || task == TaskType.REAPING;
+    }
+
+    private static boolean isFightTask(TaskType task) {
+        return task == TaskType.MOVING_TO_FIGHT || task == TaskType.FIGHTING;
     }
 
     public static void handleHungerLogic(
