@@ -234,9 +234,19 @@ public class SimTaleItemRegistry {
             }
 
             if (nearestChild == null || nearestGrowth == null || minDistance > 100.0) { // Within approx 10 blocks
-                playerRef.sendMessage(Message.raw("[SimTale] No child nearby to check their stage."));
+                /* docs/ROADMAP.md flagged this: one generic message covered two very different
+                situations -- no children anywhere in the world yet, versus some existing
+                somewhere far away right now. A player with a newborn across the map got the same
+                "no child nearby" line as one with none at all, with no way to tell which was
+                true without teleporting around to check. Distinguishing costs nothing extra: the
+                emptiness of ACTIVE_CHILDREN was already known from the loop above. */
+                if (LifecycleManager.ACTIVE_CHILDREN.isEmpty()) {
+                    playerRef.sendMessage(Message.raw("[SimTale] Nenhuma crianca neste mundo ainda."));
+                } else {
+                    playerRef.sendMessage(Message.raw("[SimTale] Ha crianca(s) no mundo, mas nenhuma por perto (10 blocos)."));
+                }
             } else {
-                playerRef.sendMessage(Message.raw("[SimTale] " + nearestChild.name + " is currently in stage: " + nearestGrowth.stage.name()));
+                playerRef.sendMessage(Message.raw("[SimTale] " + nearestChild.name + " esta no estagio: " + nearestGrowth.stage.name()));
             }
         });
         
