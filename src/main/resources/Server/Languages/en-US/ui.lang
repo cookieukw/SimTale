@@ -9,6 +9,7 @@ stage = Stage:
 button.chat = Chat
 button.joke = Tell Joke
 button.flirt = Flirt
+button.kiss = Kiss
 button.insult = Insult
 button.scold = Scold
 button.gift = Give Gift
