@@ -451,7 +451,23 @@ public class SimNPCPersistence {
             if (comp.entityId == null) continue;
 
             // O(1) index lookup instead of streaming the whole roster per saved NPC.
-            if (SimTale.findNpc(comp.entityId) != null) continue;
+            //
+            // Only a tracked entry with a STILL-VALID entityRef counts as "already reassembled".
+            // ACTIVE_NPCS/NPCS_BY_ID are plain static fields -- nothing clears them when a player
+            // leaves a world, only the manual /simtale clearall debug command does. Leave and
+            // rejoin the SAME server (no restart) and every NPC from the previous session is
+            // still sitting in the index with an entityRef pointing at that old, now-gone
+            // EntityStore. The old `findNpc(...) != null` check treated that stale leftover as
+            // "already handled" and skipped it forever -- so on rejoin NOTHING ever got
+            // reconnected to the entities the engine actually reloaded: sendAllToPlayer still
+            // listed every NPC by name from the stale ACTIVE_NPCS (matching what looked like the
+            // NPCs "being in the player list"), but their dead refs meant no map marker and
+            // nothing for RoutineAISystem to tick, i.e. NPCs never came back even though their
+            // entities were sitting right there in the reloaded world waiting to be reattached.
+            SimNPCComponent alreadyTracked = SimTale.findNpc(comp.entityId);
+            if (alreadyTracked != null && alreadyTracked.entityRef != null && alreadyTracked.entityRef.isValid()) {
+                continue;
+            }
 
             // Try to find the entity in the world
             Ref<EntityStore> entityRef = 
