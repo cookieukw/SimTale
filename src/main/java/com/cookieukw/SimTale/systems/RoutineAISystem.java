@@ -7,6 +7,8 @@ import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleUtils;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.logic.InteractionManager;
+import com.cookieukw.SimTale.logic.ChildDialogue;
+import com.cookieukw.SimTale.core.lifecycle.ParentChildBond;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.Frozen;
@@ -56,6 +58,8 @@ import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.server.core.Message;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Locale;
 import com.hypixel.hytale.server.core.command.system.CommandManager;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
@@ -412,6 +416,19 @@ once per NPC per tick for nothing.
         boolean inDeathFlow = ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.DEAD
                 || ai.currentTask == TaskType.REAPING || ai.currentTask == TaskType.EXPEDITION;
 
+        /* A Guard mid-encounter is no more interruptible than one mid-sleep or mid-meal --
+        MOVING_TO_FIGHT/FIGHTING (NPCGuardHelper) simply did not exist yet when the exclusions
+        below were written, so neither interrupt knew to skip them. Without this, a Guard whose
+        sleep window opens (their window is night -- exactly when hostiles show up) or who gets
+        hungry mid-fight was yanked straight to FINDING_BED/FINDING_FOOD, abandoning the
+        skeleton she was already engaging. Combined with the combat wiring having been dead
+        until 13/09, this is a strong second explanation for "guards never actually fight": the
+        rare run where a guard did get wired up and found a hostile could still lose the fight to
+        an interrupt before EITHER of the state's own timeouts (30s chase, 3s swing) ever got a
+        chance to resolve it. Both states already self-timeout, so nothing needs a manual
+        give-up path added here -- they simply join the existing "already busy" exclusions.*/
+        boolean inCombat = ai.currentTask == TaskType.MOVING_TO_FIGHT || ai.currentTask == TaskType.FIGHTING;
+
         /* A claimed work post (fishing, and future lumberjack/farmer posts) must not outlive the
         NPC that claimed it — otherwise a killed fisherman leaves its post permanently
         reserved, with no one left to release it. releaseWorkPost is a no-op once the claim is
@@ -428,7 +445,7 @@ once per NPC per tick for nothing.
         boolean forcedByCommand = ai.forcedByDebug;
 
         if ((sleepWindowOpen || exhausted) && world.getTick() >= ai.nextBedSearchTick
-                && !alreadyHeadedToBed && !inDeathFlow && !forcedByCommand) {
+                && !alreadyHeadedToBed && !inDeathFlow && !forcedByCommand && !inCombat) {
 
             if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
                 NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
@@ -437,7 +454,7 @@ once per NPC per tick for nothing.
             ai.targetBlockPosition = null;
             ai.taskStartTime = 0; // bypass cooldown
             ai.sleepingOnSchedule = sleepWindowOpen;
-            clearAutonomyState(ai);
+            clearAutonomyState(ai, npc, world, store);
             if (sleepWindowOpen) {
                 LOGGER.info("[SimTale] NPC '{}' sleep window opened, heading to bed", npc.name);
             } else {
@@ -458,7 +475,7 @@ once per NPC per tick for nothing.
                 && ai.currentTask != TaskType.FINDING_BED && ai.currentTask != TaskType.MOVING_TO_BED
                 && ai.currentTask != TaskType.ENTERING_BED && ai.currentTask != TaskType.SLEEPING
                 && ai.currentTask != TaskType.WAKING
-                && !inDeathFlow && !forcedByCommand) {
+                && !inDeathFlow && !forcedByCommand && !inCombat) {
 
             if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
                 NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
@@ -466,7 +483,7 @@ once per NPC per tick for nothing.
             ai.currentTask = TaskType.FINDING_FOOD;
             ai.targetBlockPosition = null;
             ai.taskStartTime = world.getTick() - NPCHungerHelper.FOOD_SEARCH_COOLDOWN_TICKS;
-            clearAutonomyState(ai);
+            clearAutonomyState(ai, npc, world, store);
             LOGGER.info("[SimTale] NPC '{}' is starving (hunger={}), interrupting task to find food", npc.name, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID));
         }
 
@@ -479,7 +496,7 @@ once per NPC per tick for nothing.
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
             ai.taskStartTime = 0; // bypass cooldown
-            clearAutonomyState(ai);
+            clearAutonomyState(ai, npc, world, store);
             LOGGER.info("[SimTale] Force sleep triggered for NPC '{}', entering FINDING_BED", npc.name);
         }
 
@@ -540,6 +557,13 @@ once per NPC per tick for nothing.
 
         /* Player Proximity Greeting */
         checkPlayerProximityGreeting(ref, npc, ai, transform, world, store);
+
+        /* Face a nearby player while idle/wandering (docs/ROADMAP.md: "NPC olhando pra parede") */
+        faceNearbyPlayerWhileIdle(npc, ai, transform, world, store);
+
+        /* World-event commentary: NPC notices a sightworthy creature nearby (docs/ROADMAP.md:
+         * "Kweebec avistado") */
+        checkWorldEventCommentary(npc, ai, transform, world, store);
 
         /* Finding Bath (Optimization)
         */
@@ -711,8 +735,19 @@ once per NPC per tick for nothing.
         transform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
     }
 
+    /**
+     * Same 4.5-block radius {@code checkPlayerProximityGreeting} uses to decide who is "close
+     * enough to greet" -- reused here so an NPC turns to face someone at exactly the distance
+     * it would also consider greeting them from.
+     */
+    private static final double FACE_NEARBY_PLAYER_RANGE_SQ = 4.5 * 4.5;
+
     /** How many variants each proximity-greeting line set ships with. */
     private static final int PROXIMITY_LINE_VARIANTS = 3;
+
+    /** Same idea as {@link #PROXIMITY_LINE_VARIANTS}, for the child/teen "young.proximity.*"
+     *  voices -- 5 to match every other young.* section (chat, joke), not the adult count. */
+    private static final int YOUNG_PROXIMITY_LINE_VARIANTS = 5;
 
     /**
      * Same random-pick pattern {@code InteractionManager} uses for its own dialogue lines — kept
@@ -721,6 +756,20 @@ once per NPC per tick for nothing.
     private static Message pickRandomTranslation(String baseKey, int optionsCount) {
         int index = ThreadLocalRandom.current().nextInt(1, optionsCount + 1);
         return Message.translation(baseKey + "." + index);
+    }
+
+    /**
+     * Same {@code {parent}} resolution {@code InteractionManager.parentAddressTerm} uses for the
+     * young-voice chat/joke lines -- small local copy for the same reason this class already
+     * keeps its own {@link #pickRandomTranslation} instead of sharing InteractionManager's:
+     * that one is private to its own package.
+     */
+    private static Message parentAddressTerm(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef) {
+        String termKey = ParentChildBond.parentTermKey(npc, playerUuid);
+        if (termKey != null) {
+            return Message.translation(termKey);
+        }
+        return Message.raw(playerRef != null ? playerRef.getUsername() : "?");
     }
 
     /**
@@ -764,12 +813,21 @@ once per NPC per tick for nothing.
 
                 // Send contextual greeting message
                 Relationship rel = npc.getRelationship(pr.getUuid());
-                Message greetingMsg = switch (rel.status) {
-                    case MARRIED, PARTNER, ENGAGED, DATING, CRUSH -> pickRandomTranslation("npc-dialogues.proximity.partner", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
-                    case BEST_FRIEND, GOOD_FRIEND, FRIEND -> pickRandomTranslation("npc-dialogues.proximity.friend", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
-                    case ENEMIES -> pickRandomTranslation("npc-dialogues.proximity.enemy", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
-                    default -> pickRandomTranslation("npc-dialogues.proximity.stranger", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
-                };
+                // A child's/teen's own voice takes priority over the adult relationship-status
+                // lines below -- same precedence InteractionManager already gives the young
+                // voice ahead of its own rule tables for the chat/joke intents. This is what
+                // makes a child say "Oi, papai!" instead of the generic proximity.friend line
+                // when the player walking up happens to be their own parent.
+                String youngKey = ChildDialogue.keyFor(npc, pr.getUuid(), "proximity");
+                Message greetingMsg = youngKey != null
+                        ? pickRandomTranslation(youngKey, YOUNG_PROXIMITY_LINE_VARIANTS)
+                                .param("parent", parentAddressTerm(npc, pr.getUuid(), pr))
+                        : switch (rel.status) {
+                            case MARRIED, PARTNER, ENGAGED, DATING, CRUSH -> pickRandomTranslation("npc-dialogues.proximity.partner", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                            case BEST_FRIEND, GOOD_FRIEND, FRIEND -> pickRandomTranslation("npc-dialogues.proximity.friend", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                            case ENEMIES -> pickRandomTranslation("npc-dialogues.proximity.enemy", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                            default -> pickRandomTranslation("npc-dialogues.proximity.stranger", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                        };
                 pr.sendMessage(Message.raw(npc.name + ": ").insert(greetingMsg));
                 LOGGER.debug("[SimTale] NPC '{}' greeted player '{}'", npc.name, pr.getUsername());
                 break;
@@ -778,10 +836,209 @@ once per NPC per tick for nothing.
     }
 
     /**
-     * Drops any pending socialize/wander bookkeeping so an interrupted task cannot leave
-     * stale target ids behind. The chat partner, if any, times out on its own side.
+     * docs/ROADMAP.md, "Comportamento ocioso -- NPC olhando para parede": an idle/wandering NPC
+     * kept whatever rotation its last errand left it in -- most visibly, whatever direction it
+     * happened to be walking when a wander destination was reached, wall or fence included --
+     * because the only place that ever turned it towards a player was
+     * {@link #checkPlayerProximityGreeting}, and only inside that method's own 45-second
+     * greeting cooldown. A player who walked up outside that window found an NPC facing away
+     * (or into a wall) for up to 45 seconds at a stretch.
+     * <p>
+     * Same {@code atan2(-dx, -dz)} formula as {@link #faceConversationPartner} and
+     * {@link #checkPlayerProximityGreeting}, just decoupled from the greeting cooldown and
+     * scoped to the two states that mean "not otherwise occupied" ({@link
+     * NPCSocialHelper#isAvailableToTalk} uses the same pair). Throttled to roughly twice a
+     * second per NPC, staggered by entity id so not every idle NPC re-scans players on the same
+     * tick -- this is a cosmetic nicety, not worth a full player scan every tick.
      */
-    private static void clearAutonomyState(RoutineAIComponent ai) {
+    private static void faceNearbyPlayerWhileIdle(SimNPCComponent npc, RoutineAIComponent ai,
+                                                   TransformComponent transform, World world,
+                                                   Store<EntityStore> store) {
+        if (ai.currentTask != TaskType.IDLE && ai.currentTask != TaskType.WANDERING) return;
+        if (npc.isInteractingViaUI) return;
+
+        long tick = world.getTick();
+        int stagger = npc.entityId != null ? (npc.entityId.hashCode() & 0x7fffffff) : 0;
+        if ((tick + stagger) % 10 != 0) return;
+
+        Vector3d npcPos = transform.getPosition();
+        double bestD2 = FACE_NEARBY_PLAYER_RANGE_SQ;
+        Vector3d bestPos = null;
+        for (PlayerRef pr : Universe.get().getPlayers()) {
+            Ref<EntityStore> pRef = pr.getReference();
+            if (pRef == null || !pRef.isValid()) continue;
+
+            TransformComponent pt = store.getComponent(pRef, TransformComponent.getComponentType());
+            if (pt == null) continue;
+
+            double d2 = pt.getPosition().distanceSquared(npcPos);
+            if (d2 < bestD2) {
+                bestD2 = d2;
+                bestPos = pt.getPosition();
+            }
+        }
+        if (bestPos == null) return;
+
+        double dx = bestPos.x - npcPos.x;
+        double dz = bestPos.z - npcPos.z;
+        if (dx * dx + dz * dz < 1e-4) return;
+
+        transform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
+    }
+
+    /** How far a wild creature can be for an idle NPC to notice and comment on it. */
+    private static final double WORLD_EVENT_SIGHTING_RANGE_SQ = 15.0 * 15.0;
+
+    /** Same reasoning as {@link NPCGuardHelper}'s hostile snapshot: the sweep visits every
+     *  modelled entity in the world, so it is shared across every NPC's check instead of paid
+     *  for per NPC. Kept as its own cache rather than reusing that one, which is scoped to a
+     *  different keyword set ("hostile") entirely -- not touching that class for this. */
+    private static final int WORLD_EVENT_SCAN_PERIOD_TICKS = 20;
+
+    /** Model-id keywords (lowercase) worth a comment. Only the one asked for tonight -- add
+     *  more here the same way later if wanted (docs/ROADMAP.md). */
+    private static final String[] SIGHTWORTHY_MODEL_KEYWORDS = { "kweebec" };
+
+    /** Floor between two sighting comments from the *same* NPC, so one that plants itself near a
+     *  Kweebec does not repeat the line forever. Deliberately in-memory only, not a persisted
+     *  {@code SimNPCComponent} field -- losing it on restart risks one early repeat at most,
+     *  not worth a save-data field for. */
+    private static final long WORLD_EVENT_COMMENT_COOLDOWN_TICKS = 20L * 60 * 5; // 5 minutes
+
+    private static final int WORLD_EVENT_LINE_VARIANTS = 3;
+
+    private static final Map<UUID, Long> lastWorldEventCommentTick = new ConcurrentHashMap<>();
+
+    /** A sighting's position only -- raw doubles, not a live {@link Vector3d} reference, so a
+     *  cache that outlives several ticks can never alias a transform that has since moved (same
+     *  reasoning as {@code NPCGuardHelper.Hostile}). */
+    private record WorldEventSighting(double x, double y, double z) {}
+
+    private static volatile List<WorldEventSighting> sightworthyCache = List.of();
+    private static volatile World sightworthyCacheWorld = null;
+    private static volatile long sightworthyCacheTick = -1L;
+
+    /**
+     * World-wide snapshot of every sightworthy creature's position, rebuilt at most once per
+     * {@link #WORLD_EVENT_SCAN_PERIOD_TICKS}. Same shape as {@code NPCGuardHelper.hostiles()} --
+     * a full {@code PersistentModel} sweep is the only way to find a mob with no dedicated
+     * component to query, so it is done once for the world instead of once per idle NPC.
+     */
+    private static List<WorldEventSighting> sightworthyCreatures(World world, Store<EntityStore> store) {
+        long tick = world.getTick();
+        if (world == sightworthyCacheWorld && sightworthyCacheTick >= 0
+                && tick - sightworthyCacheTick < WORLD_EVENT_SCAN_PERIOD_TICKS) {
+            return sightworthyCache;
+        }
+
+        List<WorldEventSighting> found = new ArrayList<>();
+        store.forEachChunk(PersistentModel.getComponentType(), (chunk, cb) -> {
+            for (int i = 0; i < chunk.size(); i++) {
+                PersistentModel pm = chunk.getComponent(i, PersistentModel.getComponentType());
+                if (pm == null || pm.getModelReference() == null) continue;
+                String modelId = pm.getModelReference().getModelAssetId();
+                if (modelId == null) continue;
+                String lower = modelId.toLowerCase(Locale.ROOT);
+                boolean match = false;
+                for (String keyword : SIGHTWORTHY_MODEL_KEYWORDS) {
+                    if (lower.contains(keyword)) { match = true; break; }
+                }
+                if (!match) continue;
+
+                TransformComponent t = chunk.getComponent(i, TransformComponent.getComponentType());
+                if (t == null) continue;
+                Vector3d p = t.getPosition();
+                found.add(new WorldEventSighting(p.x, p.y, p.z));
+            }
+        });
+
+        sightworthyCache = List.copyOf(found);
+        sightworthyCacheTick = tick;
+        sightworthyCacheWorld = world;
+        return sightworthyCache;
+    }
+
+    /**
+     * Idle/wandering NPC comments when a sightworthy creature (Kweebec, docs/ROADMAP.md:
+     * "Kweebec avistado") is close enough to notice -- gated by a per-NPC cooldown and a 40%
+     * roll so a Kweebec camped nearby is not narrated every single time it comes off cooldown.
+     */
+    private static void checkWorldEventCommentary(SimNPCComponent npc, RoutineAIComponent ai,
+                                                    TransformComponent transform, World world,
+                                                    Store<EntityStore> store) {
+        if (ai.currentTask != TaskType.IDLE && ai.currentTask != TaskType.WANDERING) return;
+        if (npc.isInteractingViaUI) return;
+
+        long tick = world.getTick();
+        int stagger = npc.entityId != null ? (npc.entityId.hashCode() & 0x7fffffff) : 0;
+        if ((tick + stagger) % WORLD_EVENT_SCAN_PERIOD_TICKS != 0) return;
+
+        Long last = lastWorldEventCommentTick.get(npc.entityId);
+        if (last != null && tick - last < WORLD_EVENT_COMMENT_COOLDOWN_TICKS) return;
+
+        Vector3d npcPos = transform.getPosition();
+        boolean sawOne = false;
+        for (WorldEventSighting s : sightworthyCreatures(world, store)) {
+            double dx = s.x() - npcPos.x;
+            double dy = s.y() - npcPos.y;
+            double dz = s.z() - npcPos.z;
+            if (dx * dx + dy * dy + dz * dz <= WORLD_EVENT_SIGHTING_RANGE_SQ) {
+                sawOne = true;
+                break;
+            }
+        }
+        if (!sawOne) return;
+
+        if (ThreadLocalRandom.current().nextInt(100) >= 40) return;
+
+        lastWorldEventCommentTick.put(npc.entityId, tick);
+        Message line = pickRandomTranslation("npc-dialogues.world_event.kweebec_sighted", WORLD_EVENT_LINE_VARIANTS);
+
+        for (PlayerRef pr : Universe.get().getPlayers()) {
+            Ref<EntityStore> pRef = pr.getReference();
+            if (pRef == null || !pRef.isValid()) continue;
+            TransformComponent pt = store.getComponent(pRef, TransformComponent.getComponentType());
+            if (pt == null) continue;
+            double dx = pt.getPosition().x - npcPos.x;
+            double dy = pt.getPosition().y - npcPos.y;
+            double dz = pt.getPosition().z - npcPos.z;
+            if (dx * dx + dy * dy + dz * dz <= 625.0) { // 25 blocks, same radius MotherAIManager uses
+                pr.sendMessage(Message.raw(npc.name + ": ").insert(line));
+            }
+        }
+    }
+
+    /**
+     * Drops any pending socialize/wander bookkeeping so an interrupted task cannot leave
+     * stale target ids behind.
+     * <p>
+     * Also releases the reservation this NPC may be holding on a socialize PARTNER, resolving
+     * {@code ai.socializeTargetId} and clearing that NPC's own {@code reservedForSocialUuid} --
+     * the previous version only ever cleared the fields on the NPC being interrupted, on the
+     * (wrong) assumption noted in the old javadoc that "the chat partner times out on its own
+     * side." She does not: {@code reservedForSocialUuid} has no timeout of its own anywhere in
+     * the codebase, and {@link NPCSocialHelper#isAvailableToTalk} refuses to ever pick a target
+     * whose reservation is non-null. Every sleep/hunger interrupt (and force-sleep) that fired
+     * on an NPC who was mid-walk to socialize therefore permanently disqualified whoever she was
+     * walking towards -- and thanks to how eagerly {@code RoutineSleepHelpers.handleIdle} rolls
+     * for a chat partner, that happened often enough to gradually exhaust the whole village's
+     * pool of eligible partners, down to nobody ever being left available. This is the actual
+     * root cause behind "conversa espontanea nunca observada" (roadmap / testing_checklist.md):
+     * the trigger itself fires constantly, but the pool of valid targets only ever shrank.
+     */
+    private static void clearAutonomyState(RoutineAIComponent ai, SimNPCComponent npc, World world, Store<EntityStore> store) {
+        if (ai.socializeTargetId != null && npc != null && npc.entityId != null && world != null && store != null) {
+            Ref<EntityStore> targetRef = world.getEntityStore().getRefFromUUID(ai.socializeTargetId);
+            if (targetRef != null && targetRef.isValid()) {
+                RoutineAIComponent targetAi = store.getComponent(targetRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                // Only release it if it is still ours to release -- she may since have been
+                // legitimately claimed by somebody else's successful approach.
+                if (targetAi != null && npc.entityId.equals(targetAi.reservedForSocialUuid)) {
+                    targetAi.reservedForSocialUuid = null;
+                }
+            }
+        }
+
         ai.socializeTargetId = null;
         ai.reservedForSocialUuid = null;
         ai.socializeHost = false;
