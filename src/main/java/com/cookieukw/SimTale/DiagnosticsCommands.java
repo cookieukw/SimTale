@@ -16,6 +16,7 @@ import com.cookieukw.SimTale.logic.PlayerPregnancyPage;
 import com.cookieukw.SimTale.logic.SimBedDebugPage;
 import com.cookieukw.SimTale.logic.SimChestDebugPage;
 import com.cookieukw.SimTale.systems.BedWorldBootstrap;
+import com.cookieukw.SimTale.systems.ChildCarryHelper;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import org.joml.Vector3d;
@@ -304,6 +305,23 @@ final class DiagnosticsCommands {
 
             int fixed = 0;
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                // Uma crianca no colo tem MountedComponent (aponta pro carrier) e fica
+                // deliberadamente Frozen o tempo todo (ver ChildCarryHelper.pickUp) -- exatamente
+                // os dois estados que este comando existe para limpar de NPCs travadas de verdade.
+                // Sem este guard, /simtale unstick varria TODAS as ACTIVE_NPCS e arrancava o
+                // MountedComponent de toda crianca carregada, sem passar pelo caminho de
+                // restauracao (BoundingBox de volta via PARKED_BOXES, NpcFreezeUtil.unfreeze) que
+                // ChildCarryHelper.putDown faz -- ela ficava congelada, com hitbox quase-zero, presa
+                // na posicao antiga de quando foi pega no colo (o TransformComponent dela para de
+                // atualizar assim que e montada), e sem MountedComponent nenhum -- exatamente o que
+                // findCarriedBy/putDown usam para achar quem esta no colo, entao "/simtale putdown"
+                // depois nao achava mais ninguem. E acontecia pra pilha inteira de uma vez, nao so
+                // a de cima, porque o loop nao para na primeira.
+                if (npc.entityRef != null && npc.entityRef.isValid()
+                        && ChildCarryHelper.isBeingCarried(npc.entityRef.getStore(), npc)) {
+                    continue;
+                }
+
                 boolean touched = false;
 
                 if (npc.isInteractingViaUI) {
