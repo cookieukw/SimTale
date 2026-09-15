@@ -369,6 +369,56 @@ final class SocialTestCommands {
         }
     }
 
+    static class TestKissSubCommand extends AbstractPlayerCommand {
+        public TestKissSubCommand() {
+            super("testkiss", "Tests the Kiss_1/Kiss_2 romance duo animation with the nearest NPC");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent pt = store.getComponent(ref, TransformComponent.getComponentType());
+            if (pt == null) return;
+            SimNPCComponent nearest = findNearestNpc(pt.getPosition());
+            if (nearest == null || nearest.entityRef == null) {
+                ctx.sendMessage(Message.raw("[SimTale] Nenhum NPC por perto."));
+                return;
+            }
+            if (com.cookieukw.SimTale.logic.InteractionManager.isNpcAChild(nearest)) {
+                ctx.sendMessage(Message.raw("[SimTale] " + nearest.name + " e uma crianca -- comando bloqueado."));
+                return;
+            }
+            SimTaleJuiceHelper.playKiss(ref, nearest.entityRef, store);
+            ctx.sendMessage(Message.raw("[SimTale] Testando beijo com " + nearest.name
+                    + " (bypassa o status de relacionamento -- so pra ver a animacao)."));
+        }
+    }
+
+    static class TestProposeSubCommand extends AbstractPlayerCommand {
+        public TestProposeSubCommand() {
+            super("testpropose", "Tests the Propose_Kneel/Propose_React marriage-proposal duo animation with the nearest NPC");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent pt = store.getComponent(ref, TransformComponent.getComponentType());
+            if (pt == null) return;
+            SimNPCComponent nearest = findNearestNpc(pt.getPosition());
+            if (nearest == null || nearest.entityRef == null) {
+                ctx.sendMessage(Message.raw("[SimTale] Nenhum NPC por perto."));
+                return;
+            }
+            if (com.cookieukw.SimTale.logic.InteractionManager.isNpcAChild(nearest)) {
+                ctx.sendMessage(Message.raw("[SimTale] " + nearest.name + " e uma crianca -- comando bloqueado."));
+                return;
+            }
+            SimTaleJuiceHelper.playMarriageProposal(ref, nearest.entityRef, store);
+            ctx.sendMessage(Message.raw("[SimTale] Testando pedido de casamento com " + nearest.name
+                    + " (bypassa a logica de aceitar/recusar -- so pra ver a animacao)."));
+        }
+    }
+
     private static SimNPCComponent findNearestNpc(Vector3d playerPos) {
         if (playerPos == null) return null;
         SimNPCComponent best = null;
