@@ -46,6 +46,10 @@ tasks.register('runTests', JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
 }
 
+test {
+    failOnNoDiscoveredTests = false
+}
+
 // Validacao dos arquivos .ui
 //
 // O cliente recusa TODO o custom UI quando um unico arquivo esta malformado, e reporta um erro por
