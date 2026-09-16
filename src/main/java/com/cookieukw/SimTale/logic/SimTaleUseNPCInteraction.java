@@ -132,15 +132,15 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
                             combinedInventory.removeItemStackFromSlot(hotbarComponent.getActiveSlot(), heldItem, 1);
                         }
 
-                        playerRefComponent.sendMessage(Message.raw("[SimTale] A Morte aceita o Voidheart e poupa " + dyingNpc.name + "."));
+                        playerRefComponent.sendMessage(Message.raw("[SimTale] Death accepts the Voidheart and spares " + dyingNpc.name + "."));
 
                         SimTale.untrackNpc(npc);
                         commandBuffer.removeEntity(targetRef, RemoveReason.REMOVE);
                     } else {
-                        playerRefComponent.sendMessage(Message.raw("[SimTale] Tarde demais — a alma ja foi."));
+                        playerRefComponent.sendMessage(Message.raw("[SimTale] Too late -- the soul is already gone."));
                     }
                 } else {
-                    playerRefComponent.sendMessage(Message.raw("[SimTale] A Morte nao aceita nada alem de um Ingredient_Voidheart em troca de uma vida."));
+                    playerRefComponent.sendMessage(Message.raw("[SimTale] Death accepts nothing less than an Ingredient_Voidheart in exchange for a life."));
                 }
 
                 context.getState().state = InteractionState.Failed;

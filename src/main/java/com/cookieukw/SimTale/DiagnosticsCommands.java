@@ -300,8 +300,8 @@ final class DiagnosticsCommands {
             }
             NPCMovementHelper.setSleepingState(ref, store, false);
             ctx.sendMessage(Message.raw(playerFreed
-                    ? "[SimTale] Voce foi solto da cama/montaria."
-                    : "[SimTale] Voce nao estava montado nem congelado."));
+                    ? "[SimTale] You were released from the bed/mount."
+                    : "[SimTale] You were neither mounted nor frozen."));
 
             int fixed = 0;
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
@@ -388,8 +388,8 @@ final class DiagnosticsCommands {
 
                 if (touched) fixed++;
             }
-            ctx.sendMessage(Message.raw("[SimTale] Unstuck " + fixed + " de "
-                    + SimTale.ACTIVE_NPCS.size() + " NPCs ativos."));
+            ctx.sendMessage(Message.raw("[SimTale] Unstuck " + fixed + " of "
+                    + SimTale.ACTIVE_NPCS.size() + " active NPCs."));
         }
     }
 

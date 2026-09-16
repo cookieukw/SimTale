@@ -612,7 +612,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             RoutineAIComponent reaperAi = store.getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
             if (reaperAi != null && reaperAi.currentTask == TaskType.REAPING && reaperAi.dyingEntityId != null) {
                 if (Math.random() < 0.5) {
-                    playerRefComp.sendMessage(Message.raw("Dona Morte acenou a cabeca. A vida foi poupada... desta vez."));
+                    playerRefComp.sendMessage(Message.raw("Grim Reaper nodded. The life was spared... this time."));
                     World w = null;
                     w = WorldUtil.first();
                     if (w != null) {
@@ -639,7 +639,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                         }
                     }
                 } else {
-                    playerRefComp.sendMessage(Message.raw("Dona Morte te ignorou friamente..."));
+                    playerRefComp.sendMessage(Message.raw("Grim Reaper coldly ignored you..."));
                     reaperAi.reapTimer = 0;
                     store.putComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, reaperAi);
                 }

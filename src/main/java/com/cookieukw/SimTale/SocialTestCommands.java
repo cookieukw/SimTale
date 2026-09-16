@@ -188,7 +188,7 @@ final class SocialTestCommands {
             nearestNPC.forceEmotion(targetMood, intensity, "command", world.getTick());
             SimNPCPersistence.saveNPC(nearestNPC);
 
-            ctx.sendMessage(Message.raw("Mood of " + nearestNPC.name + " definido para " + targetMood.name() + " com intensidade " + intensity + "."));
+            ctx.sendMessage(Message.raw("Mood of " + nearestNPC.name + " set to " + targetMood.name() + " with intensity " + intensity + "."));
         }
     }
 
@@ -225,7 +225,7 @@ final class SocialTestCommands {
             });
 
             if (npcs.size() < 2) {
-                ctx.sendMessage(Message.raw("[SimTale] Precisa de pelo menos 2 NPCs carregados por perto para testar."));
+                ctx.sendMessage(Message.raw("[SimTale] Need at least 2 loaded NPCs nearby to test."));
                 return;
             }
 
@@ -239,7 +239,7 @@ final class SocialTestCommands {
             TransformComponent trans2 = store.getComponent(ref2, TransformComponent.getComponentType());
 
             if (ai1 == null || ai2 == null || trans1 == null || trans2 == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Componentes de IA ou Transform inválidos nos NPCs."));
+                ctx.sendMessage(Message.raw("[SimTale] Invalid AI or Transform components on NPCs."));
                 return;
             }
 
@@ -306,7 +306,7 @@ final class SocialTestCommands {
             NPCEntity e2 = store.getComponent(ref2, NPCEntity.getComponentType());
             if (e2 != null) e2.setLeashPoint(new Vector3d(p2.x, p2.y, p2.z));
 
-            ctx.sendMessage(Message.raw("[SimTale] Iniciando bate-papo entre " + npc1.name + " e " + npc2.name + " (tópico: " + (topicStr != null ? topicStr : "auto") + ")"));
+            ctx.sendMessage(Message.raw("[SimTale] Starting chat between " + npc1.name + " and " + npc2.name + " (topic: " + (topicStr != null ? topicStr : "auto") + ")"));
         }
     }
 
@@ -315,7 +315,7 @@ final class SocialTestCommands {
 
         public ForcePlaySubCommand() {
             super("forceplay", "Forces the two nearest children to start a game of tag or hide-and-seek");
-            this.gameArg = this.withOptionalArg("jogo", "tag|escondeesconde", ArgTypes.STRING);
+            this.gameArg = this.withOptionalArg("game", "tag|hideandseek", ArgTypes.STRING);
         }
 
         @Override
@@ -344,7 +344,7 @@ final class SocialTestCommands {
             });
 
             if (children.size() < 2) {
-                ctx.sendMessage(Message.raw("[SimTale] Precisa de pelo menos 2 criancas carregadas por perto para testar."));
+                ctx.sendMessage(Message.raw("[SimTale] Need at least 2 loaded children nearby to test."));
                 return;
             }
 
@@ -358,7 +358,7 @@ final class SocialTestCommands {
             TransformComponent trans2 = store.getComponent(ref2, TransformComponent.getComponentType());
 
             if (ai1 == null || ai2 == null || trans1 == null || trans2 == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Componentes de IA ou Transform invalidos nas criancas."));
+                ctx.sendMessage(Message.raw("[SimTale] Invalid AI or Transform components on children."));
                 return;
             }
 
@@ -385,8 +385,8 @@ final class SocialTestCommands {
 
             ChildPlayHelper.startGame(ref1, npc1, ai1, ref2, npc2, ai2, world, store, forcedTag);
 
-            ctx.sendMessage(Message.raw("[SimTale] " + npc1.name + " e " + npc2.name + " comecaram a brincar ("
-                    + (forcedTag == null ? "aleatorio" : (forcedTag ? "pega-pega" : "esconde-esconde")) + ")."));
+            ctx.sendMessage(Message.raw("[SimTale] " + npc1.name + " and " + npc2.name + " started playing ("
+                    + (forcedTag == null ? "random" : (forcedTag ? "tag" : "hide-and-seek")) + ")."));
         }
     }
 
@@ -402,11 +402,11 @@ final class SocialTestCommands {
             if (pt == null) return;
             SimNPCComponent nearest = findNearestNpc(pt.getPosition());
             if (nearest == null || nearest.entityRef == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Nenhum NPC por perto."));
+                ctx.sendMessage(Message.raw("[SimTale] No NPCs nearby."));
                 return;
             }
             SimTaleJuiceHelper.playFlirtSuccess(nearest.entityRef, nearest, playerRef, store, world.getTick());
-            ctx.sendMessage(Message.raw("[SimTale] Testando flerte com sucesso em " + nearest.name));
+            ctx.sendMessage(Message.raw("[SimTale] Testing flirt success on " + nearest.name));
         }
     }
 
@@ -422,11 +422,11 @@ final class SocialTestCommands {
             if (pt == null) return;
             SimNPCComponent nearest = findNearestNpc(pt.getPosition());
             if (nearest == null || nearest.entityRef == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Nenhum NPC por perto."));
+                ctx.sendMessage(Message.raw("[SimTale] No NPCs nearby."));
                 return;
             }
             SimTaleJuiceHelper.playShove(nearest.entityRef, nearest, ref, playerRef, store, 5.0f, world.getTick());
-            ctx.sendMessage(Message.raw("[SimTale] " + nearest.name + " empurrou o jogador com raiva!"));
+            ctx.sendMessage(Message.raw("[SimTale] " + nearest.name + " shoved the player angrily!"));
         }
     }
 
@@ -442,11 +442,11 @@ final class SocialTestCommands {
             if (pt == null) return;
             SimNPCComponent nearest = findNearestNpc(pt.getPosition());
             if (nearest == null || nearest.entityRef == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Nenhum NPC por perto."));
+                ctx.sendMessage(Message.raw("[SimTale] No NPCs nearby."));
                 return;
             }
             SimTaleJuiceHelper.playGreeting(nearest.entityRef, store);
-            playerRef.sendMessage(Message.raw("[Vila] " + nearest.name + " acenou para você!"));
+            playerRef.sendMessage(Message.raw("[Village] " + nearest.name + " waved at you!"));
         }
     }
 
@@ -462,16 +462,16 @@ final class SocialTestCommands {
             if (pt == null) return;
             SimNPCComponent nearest = findNearestNpc(pt.getPosition());
             if (nearest == null || nearest.entityRef == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Nenhum NPC por perto."));
+                ctx.sendMessage(Message.raw("[SimTale] No NPCs nearby."));
                 return;
             }
             if (com.cookieukw.SimTale.logic.InteractionManager.isNpcAChild(nearest)) {
-                ctx.sendMessage(Message.raw("[SimTale] " + nearest.name + " e uma crianca -- comando bloqueado."));
+                ctx.sendMessage(Message.raw("[SimTale] " + nearest.name + " is a child -- command blocked."));
                 return;
             }
             SimTaleJuiceHelper.playKiss(ref, nearest.entityRef, store);
-            ctx.sendMessage(Message.raw("[SimTale] Testando beijo com " + nearest.name
-                    + " (bypassa o status de relacionamento -- so pra ver a animacao)."));
+            ctx.sendMessage(Message.raw("[SimTale] Testing kiss with " + nearest.name
+                    + " (bypasses relationship status -- animation test only)."));
         }
     }
 
@@ -487,16 +487,16 @@ final class SocialTestCommands {
             if (pt == null) return;
             SimNPCComponent nearest = findNearestNpc(pt.getPosition());
             if (nearest == null || nearest.entityRef == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Nenhum NPC por perto."));
+                ctx.sendMessage(Message.raw("[SimTale] No NPCs nearby."));
                 return;
             }
             if (com.cookieukw.SimTale.logic.InteractionManager.isNpcAChild(nearest)) {
-                ctx.sendMessage(Message.raw("[SimTale] " + nearest.name + " e uma crianca -- comando bloqueado."));
+                ctx.sendMessage(Message.raw("[SimTale] " + nearest.name + " is a child -- command blocked."));
                 return;
             }
             SimTaleJuiceHelper.playMarriageProposal(ref, nearest.entityRef, store);
-            ctx.sendMessage(Message.raw("[SimTale] Testando pedido de casamento com " + nearest.name
-                    + " (bypassa a logica de aceitar/recusar -- so pra ver a animacao)."));
+            ctx.sendMessage(Message.raw("[SimTale] Testing marriage proposal with " + nearest.name
+                    + " (bypasses accept/reject logic -- animation test only)."));
         }
     }
 

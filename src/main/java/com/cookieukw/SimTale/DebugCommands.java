@@ -339,7 +339,7 @@ final class DebugCommands {
             // Results go to the server log, not chat — this dumps a lot of lines and chat isn't
             // a good place to read/scroll through them.
             HytaleLogger.forEnclosingClass().atInfo().log(sb.toString());
-            ctx.sendMessage(Message.raw("[SimTale] debugnear: resultado no log do servidor."));
+            ctx.sendMessage(Message.raw("[SimTale] debugnear: results printed to server log."));
         }
     }
 }

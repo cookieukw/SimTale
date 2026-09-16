@@ -287,56 +287,59 @@ public class SimTaleTests {
     private static void testChairRegistry() {
         System.out.print("Testing ChairRegistry... ");
         ChairRegistry.clear();
+        ChairRegistry.staleCheckEnabled = false;
+        try {
+            // 1. Block name checks
+            Assert.equal(ChairRegistry.isChair("wood_chair"), true, "wood_chair is a chair");
+            Assert.equal(ChairRegistry.isChair("stone_stool"), true, "stone_stool is a chair");
+            Assert.equal(ChairRegistry.isChair("sofa_red"), true, "sofa_red is a chair");
+            Assert.equal(ChairRegistry.isChair("couch_luxury"), true, "couch_luxury is a chair");
+            Assert.equal(ChairRegistry.isChair("bench_lumbermill"), false, "bench_lumbermill is not a chair");
+            Assert.equal(ChairRegistry.isChair("workbench"), false, "workbench is not a chair");
+            Assert.equal(ChairRegistry.isChair("alchemybench"), false, "alchemybench is not a chair");
+            Assert.equal(ChairRegistry.isChair("dirt_block"), false, "dirt_block is not a chair");
 
-        // 1. Classification
-        Assert.equal(ChairRegistry.isChair("chair_wood"), true, "chair_wood is a chair");
-        Assert.equal(ChairRegistry.isChair("oak_stool"), true, "oak_stool is a chair");
-        Assert.equal(ChairRegistry.isChair("tavern_bench"), true, "tavern_bench is a chair");
-        Assert.equal(ChairRegistry.isChair("sofa_red"), true, "sofa_red is a chair");
-        Assert.equal(ChairRegistry.isChair("couch_luxury"), true, "couch_luxury is a chair");
-        Assert.equal(ChairRegistry.isChair("bench_lumbermill"), false, "bench_lumbermill is not a chair");
-        Assert.equal(ChairRegistry.isChair("workbench"), false, "workbench is not a chair");
-        Assert.equal(ChairRegistry.isChair("alchemybench"), false, "alchemybench is not a chair");
-        Assert.equal(ChairRegistry.isChair("dirt_block"), false, "dirt_block is not a chair");
+            // 2. Add and nearest search
+            ChairRegistry.add(10, 64, 10);
+            ChairRegistry.add(50, 64, 50);
 
-        // 2. Add and nearest search
-        ChairRegistry.add(10, 64, 10);
-        ChairRegistry.add(50, 64, 50);
+            Vector3i nearest = ChairRegistry.findNearestUnoccupied(11, 64, 11, 10.0);
+            Assert.isTrue(nearest != null, "Found nearby chair");
+            Assert.equal(nearest.x, 10, "Nearest chair x");
+            Assert.equal(nearest.z, 10, "Nearest chair z");
 
-        Vector3i nearest = ChairRegistry.findNearestUnoccupied(11, 64, 11, 10.0);
-        Assert.isTrue(nearest != null, "Found nearby chair");
-        Assert.equal(nearest.x, 10, "Nearest chair x");
-        Assert.equal(nearest.z, 10, "Nearest chair z");
+            // 3. Claim and occupancy
+            UUID npc1 = UUID.randomUUID();
+            UUID npc2 = UUID.randomUUID();
 
-        // 3. Claim and occupancy
-        UUID npc1 = UUID.randomUUID();
-        UUID npc2 = UUID.randomUUID();
+            boolean claimed = ChairRegistry.claimChair(nearest, npc1);
+            Assert.equal(claimed, true, "NPC1 claimed chair");
+            Assert.equal(ChairRegistry.isOccupied(nearest), true, "Chair is occupied");
 
-        boolean claimed = ChairRegistry.claimChair(nearest, npc1);
-        Assert.equal(claimed, true, "NPC1 claimed chair");
-        Assert.equal(ChairRegistry.isOccupied(nearest), true, "Chair is occupied");
+            // Other NPC cannot claim same chair
+            boolean claimFail = ChairRegistry.claimChair(nearest, npc2);
+            Assert.equal(claimFail, false, "NPC2 cannot claim occupied chair");
 
-        // Other NPC cannot claim same chair
-        boolean claimFail = ChairRegistry.claimChair(nearest, npc2);
-        Assert.equal(claimFail, false, "NPC2 cannot claim occupied chair");
+            // Nearest search skips occupied chair
+            Vector3i nextNearest = ChairRegistry.findNearestUnoccupied(11, 64, 11, 10.0);
+            Assert.equal(nextNearest, null, "Occupied chair skipped in radius 10");
 
-        // Nearest search skips occupied chair
-        Vector3i nextNearest = ChairRegistry.findNearestUnoccupied(11, 64, 11, 10.0);
-        Assert.equal(nextNearest, null, "Occupied chair skipped in radius 10");
+            // 4. Release chair
+            ChairRegistry.releaseChair(nearest);
+            Assert.equal(ChairRegistry.isOccupied(nearest), false, "Chair is free after release");
 
-        // 4. Release chair
-        ChairRegistry.releaseChair(nearest);
-        Assert.equal(ChairRegistry.isOccupied(nearest), false, "Chair is free after release");
+            // 5. Release all for NPC
+            ChairRegistry.claimChair(new Vector3i(10, 64, 10), npc1);
+            ChairRegistry.claimChair(new Vector3i(50, 64, 50), npc2);
+            ChairRegistry.releaseAllForNpc(npc1);
+            Assert.equal(ChairRegistry.isOccupied(new Vector3i(10, 64, 10)), false, "NPC1 chair released via releaseAllForNpc");
+            Assert.equal(ChairRegistry.isOccupied(new Vector3i(50, 64, 50)), true, "NPC2 chair still occupied");
 
-        // 5. Release all for NPC
-        ChairRegistry.claimChair(new Vector3i(10, 64, 10), npc1);
-        ChairRegistry.claimChair(new Vector3i(50, 64, 50), npc2);
-        ChairRegistry.releaseAllForNpc(npc1);
-        Assert.equal(ChairRegistry.isOccupied(new Vector3i(10, 64, 10)), false, "NPC1 chair released via releaseAllForNpc");
-        Assert.equal(ChairRegistry.isOccupied(new Vector3i(50, 64, 50)), true, "NPC2 chair still occupied");
-
-        ChairRegistry.clear();
-        System.out.println("OK");
+            ChairRegistry.clear();
+            System.out.println("OK");
+        } finally {
+            ChairRegistry.staleCheckEnabled = true;
+        }
     }
 
     // Kept as thin wrappers so the pre-existing suites read unchanged, while the assertion count

@@ -259,7 +259,7 @@ public class GrowthManager {
                 PlayerRef pRef = LifecycleUtils.getPlayerRef(holderId);
                 if (pRef != null) {
                     LifecycleUtils.removeBabyItemFromPlayer(pRef, oldChildId);
-                    pRef.sendMessage(Message.raw("Seu bebê " + child.getFullName() + " cresceu e começou a andar!"));
+                    pRef.sendMessage(Message.raw("Your baby " + child.getFullName() + " grew up and started walking!"));
                 }
             }
             
@@ -429,7 +429,7 @@ public class GrowthManager {
             PlayerRef pRef = LifecycleUtils.getPlayerRef(child.motherId);
             if (pRef == null) pRef = LifecycleUtils.getPlayerRef(child.fatherId);
             if (pRef != null) {
-                pRef.sendMessage(Message.raw("Seu filho " + child.getFullName() + " virou um adolescente!"));
+                pRef.sendMessage(Message.raw("Your child " + child.getFullName() + " became a teenager!"));
             }
         }
     }

@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 public class SimDebugCommand extends AbstractPlayerCommand {
 
     public SimDebugCommand() {
-        super("simdebug", "Abre o painel de debug do SimTale");
+        super("simdebug", "Opens the SimTale debug panel");
         this.setPermissionGroups("Adventure");
     }
 
@@ -31,12 +31,12 @@ public class SimDebugCommand extends AbstractPlayerCommand {
 
         // Auto-reassemble NPCs if needed
         if (SimTale.ACTIVE_NPCS.isEmpty()) {
-            ctx.sendMessage(Message.raw("[SimDebug] Recarregando NPCs do banco..."));
+            ctx.sendMessage(Message.raw("[SimDebug] Reloading NPCs from database..."));
             SimNPCPersistence.reassembleActiveNPCs(world);
         }
 
         if (SimTale.ACTIVE_NPCS.isEmpty()) {
-            ctx.sendMessage(Message.raw("[SimDebug] Nenhum NPC ativo encontrado. Spawne um com /simtale spawn"));
+            ctx.sendMessage(Message.raw("[SimDebug] No active NPCs found. Spawn one with /simtale spawn"));
             return;
         }
 
@@ -44,10 +44,10 @@ public class SimDebugCommand extends AbstractPlayerCommand {
         // `assert` is stripped at runtime unless the JVM is started with -ea, so this was
         // effectively no check at all — a null here just became an NPE inside the command.
         if (player == null) {
-            ctx.sendMessage(Message.raw("[SimDebug] Componente de jogador indisponivel."));
+            ctx.sendMessage(Message.raw("[SimDebug] Player component unavailable."));
             return;
         }
         player.getPageManager().openCustomPage(ref, store, new SimDebugPage(playerRef, player));
-        ctx.sendMessage(Message.raw("[SimDebug] Painel aberto! (" + SimTale.ACTIVE_NPCS.size() + " NPCs ativos)"));
+        ctx.sendMessage(Message.raw("[SimDebug] Panel opened! (" + SimTale.ACTIVE_NPCS.size() + " active NPCs)"));
     }
 }

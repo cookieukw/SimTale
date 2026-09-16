@@ -247,7 +247,7 @@ final class LifecycleCommands {
                 GrowthComponent child = LifecycleManager.birthBaby(nearestNPC, store, world.getTick());
                 if (child != null) {
                     SimNPCPersistence.saveNPC(nearestNPC);
-                    ctx.sendMessage(Message.raw(nearestNPC.name + " deu a luz a " + child.getFullName() + "!"));
+                    ctx.sendMessage(Message.raw(nearestNPC.name + " gave birth to " + child.getFullName() + "!"));
                 } else {
                     ctx.sendMessage(Message.raw("Birth failed for " + nearestNPC.name));
                 }
@@ -342,12 +342,12 @@ final class LifecycleCommands {
                 int total = LifecycleManager.ACTIVE_CHILDREN.size();
                 String miss;
                 if (total == 0) {
-                    miss = "[SimTale] setstage: nenhum registro de crescimento neste mundo. "
-                            + "Filhos que ja viraram ADULT saem da lista de proposito.";
+                    miss = "[SimTale] setstage: no growth records in this world. "
+                            + "Children who have become ADULT are intentionally removed from the list.";
                 } else {
-                    miss = "[SimTale] setstage: " + total + " registro(s) de filho, mas "
-                            + unresolved + " sem entidade carregada no mundo. "
-                            + "Chegue perto do filho ou confira se ele ainda existe.";
+                    miss = "[SimTale] setstage: " + total + " child record(s), but "
+                            + unresolved + " without a loaded entity in the world. "
+                            + "Get closer to the child or check if they still exist.";
                 }
                 HytaleLogger.forEnclosingClass().atInfo().log(miss);
                 ctx.sendMessage(Message.raw(miss));
@@ -379,7 +379,7 @@ final class LifecycleCommands {
             // the server log at all, so there was no way to tell a command that silently found no
             // child from one that ran and was undone a tick later.
             String report = "[SimTale] setstage: " + nearestChild.getFullName() + " -> " + targetStage.name()
-                    + " (escala " + nearestChild.currentScale + ", idade " + nearestChild.getAgeDays(world.getTick()) + "d)";
+                    + " (scale " + nearestChild.currentScale + ", age " + nearestChild.getAgeDays(world.getTick()) + "d)";
             HytaleLogger.forEnclosingClass().atInfo().log(report);
             ctx.sendMessage(Message.raw(report));
         }
@@ -388,27 +388,14 @@ final class LifecycleCommands {
     /**
      * Debug-only: {@code setstage} only finds a child already spawned as a live entity
      * ({@code LifecycleManager.ACTIVE_CHILDREN} entries resolve through
-     * {@code world.getEntityStore().getRefFromUUID}), but a newborn "Baby" item held by the
-     * player has no live entity at all — {@code birthPlayerBaby} spawns one only long enough to
-     * mint a UUID, then removes it immediately, and {@code SimTaleEventHandler} additionally
-     * refuses to place a `stage == BABY` item back down at all. There was no way to advance a
-     * carried baby's stage without waiting for real time to pass. This edits the carried item's
-     * backing {@link GrowthComponent} directly, by its {@code childId} metadata, with no entity
-     * spawn involved.
-     */
-    /**
-     * Ages the Baby item in your hand so it can be placed.
+     * {@link #resolveChildRef}, which walks loaded worlds). While a baby is still in the player's
+     * inventory as the {@code Baby} item, no such entity exists yet, so {@code setstage} reports
+     * "sem entidade carregada" and does nothing.
      *
-     * <p>Not a variant of {@code setstage}: the two never see the same subject. {@code setstage}
-     * searches for the nearest child <em>entity</em>, and a baby in your hand has none — it is
-     * metadata on an item until someone puts it down. This is the only way to reach a child at that
-     * point in its life.
-     *
-     * <p>No argument, on purpose. The command has exactly one job — skip the four days a newborn
-     * has to wait before {@code placeBabyFromHeldItem} will accept it — and every attempt to also
-     * expose the later stages here produced a command that read as nonsense, because the subject is
-     * a baby item. Aging a child further is what {@code setstage} is for, and it works the moment
-     * this one has put a body in the world.
+     * <p>This command operates directly on the held {@code Baby} item: reads its {@code childId}
+     * metadata, loads or finds the matching {@code GrowthComponent}, sets it to {@code TODDLER}
+     * and re-saves. The next right-click with the item then sees a toddler instead of a newborn
+     * and allows placing it on the ground immediately, skipping the real-time wait.
      */
     static class GrowBabySubCommand extends AbstractPlayerCommand {
 
@@ -422,24 +409,26 @@ final class LifecycleCommands {
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            // Target stage is TODDLER: the lowest stage that placeBabyFromHeldItem actually
+            // permits dropping.
             GrowthStage targetStage = PLACEABLE;
 
             ItemStack heldItem = InventoryComponent.getItemInHand(store, ref);
             if (heldItem == null || !heldItem.getItemId().equals("Baby")) {
-                ctx.sendMessage(Message.raw("[SimTale] Segure o item 'Baby' na mao para usar este comando."));
+                ctx.sendMessage(Message.raw("[SimTale] Hold the 'Baby' item in your hand to use this command."));
                 return;
             }
 
             String childIdStr = heldItem.getFromMetadataOrNull("childId", Codec.STRING);
             if (childIdStr == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Este item 'Baby' nao tem childId — provavelmente corrompido."));
+                ctx.sendMessage(Message.raw("[SimTale] This 'Baby' item has no childId -- likely corrupted."));
                 return;
             }
             UUID childId;
             try {
                 childId = UUID.fromString(childIdStr);
             } catch (IllegalArgumentException badId) {
-                ctx.sendMessage(Message.raw("[SimTale] childId invalido no item."));
+                ctx.sendMessage(Message.raw("[SimTale] Invalid childId on item."));
                 return;
             }
 
@@ -457,7 +446,7 @@ final class LifecycleCommands {
                 }
             }
             if (childComp == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Nao encontrei os dados desse bebe (childId=" + childId + ")."));
+                ctx.sendMessage(Message.raw("[SimTale] Could not find data for this baby (childId=" + childId + ")."));
                 return;
             }
 
@@ -477,9 +466,9 @@ final class LifecycleCommands {
             // No BABY case any more: none of the accepted values map to it, precisely because
             // placeBabyFromHeldItem refuses a newborn and the command would be reporting success on
             // something that still cannot be put down.
-            ctx.sendMessage(Message.raw("[SimTale] " + childComp.getFullName() + " cresceu para "
-                    + targetStage.getDisplayName() + " (escala: " + childComp.currentScale
-                    + "). Ja pode colocar no chao."));
+            ctx.sendMessage(Message.raw("[SimTale] " + childComp.getFullName() + " grew to "
+                    + targetStage.getDisplayName() + " (scale: " + childComp.currentScale
+                    + "). Can now be placed on the ground."));
         }
     }
 
@@ -507,13 +496,13 @@ final class LifecycleCommands {
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             ItemStack heldItem = InventoryComponent.getItemInHand(store, ref);
             if (heldItem == null || !"Baby".equals(heldItem.getItemId())) {
-                ctx.sendMessage(Message.raw("[SimTale] Segure o item 'Baby' na mao para usar este comando."));
+                ctx.sendMessage(Message.raw("[SimTale] Hold the 'Baby' item in your hand to use this command."));
                 return;
             }
 
             TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
             if (transform == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Nao foi possivel obter sua posicao."));
+                ctx.sendMessage(Message.raw("[SimTale] Could not get your position."));
                 return;
             }
             // Copied first: joml's add mutates in place, so offsetting the live transform vector
@@ -522,7 +511,7 @@ final class LifecycleCommands {
 
             boolean placed = SimTaleEventHandler.placeBabyFromHeldItem(store, ref, playerRef, heldItem, spawnPos);
             if (!placed) {
-                ctx.sendMessage(Message.raw("[SimTale] Nao foi possivel colocar o bebe (childId invalido, dados nao encontrados, ou ainda no estagio BABY)."));
+                ctx.sendMessage(Message.raw("[SimTale] Could not place baby (invalid childId, data not found, or still in BABY stage)."));
             }
         }
     }

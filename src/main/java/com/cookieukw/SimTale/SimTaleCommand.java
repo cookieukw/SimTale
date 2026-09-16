@@ -221,21 +221,21 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 }
             }
             if (nearestNPC == null) {
-                ctx.sendMessage(Message.raw("Nenhuma NPC por perto."));
+                ctx.sendMessage(Message.raw("No NPCs nearby."));
                 return;
             }
 
             Ref<EntityStore> npcRef = nearestNPC.entityRef;
             PersistentModel pm = store.getComponent(npcRef, PersistentModel.getComponentType());
             if (pm == null) {
-                ctx.sendMessage(Message.raw("[SimTale] NPC sem PersistentModel; nao foi possivel trocar a fantasia."));
+                ctx.sendMessage(Message.raw("[SimTale] NPC has no PersistentModel; could not change costume."));
                 return;
             }
             if (evento.equals("off")) {
                 boolean ok = SeasonalCostumeHelper.removeCostume(store, npcRef, nearestNPC);
                 ctx.sendMessage(Message.raw(ok
-                        ? "[SimTale] Fantasia removida de " + nearestNPC.name + "."
-                        : "[SimTale] " + nearestNPC.name + " nao esta com fantasia de evento (ou o modelo original nao foi encontrado)."));
+                        ? "[SimTale] Costume removed from " + nearestNPC.name + "."
+                        : "[SimTale] " + nearestNPC.name + " does not have an event costume equipped (or original model was not found)."));
                 return;
             }
 
@@ -245,7 +245,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             } else if (evento.equals("halloween")) {
                 suffix = "Halloween";
             } else {
-                ctx.sendMessage(Message.raw("[SimTale] Evento desconhecido. Use: christmas, halloween ou off."));
+                ctx.sendMessage(Message.raw("[SimTale] Unknown event. Use: christmas, halloween, or off."));
                 return;
             }
 
@@ -259,8 +259,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             // dois nunca ficam com um estado diferente do que a NPC realmente esta vestindo.
             boolean ok = SeasonalCostumeHelper.applyCostume(store, npcRef, nearestNPC, suffix);
             ctx.sendMessage(Message.raw(ok
-                    ? "[SimTale] " + nearestNPC.name + " vestida pro evento '" + evento + "'. Use '/simtale costume off' pra desfazer."
-                    : "[SimTale] Falhou -- asset nao encontrado pra essa NPC/evento. Rode scripts/generate_costume_assets.py."));
+                    ? "[SimTale] " + nearestNPC.name + " dressed for event '" + evento + "'. Use '/simtale costume off' to undo."
+                    : "[SimTale] Failed -- asset not found for this NPC/event. Run scripts/generate_costume_assets.py."));
         }
     }
 
@@ -288,7 +288,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             // removed once the ritual finishes (RoutineAISystem's DYING->DEAD transition), not a
             // standing NPC the player summons ahead of time.
             if (type == SimNPCFactory.NPCType.REAPER) {
-                ctx.sendMessage(Message.raw("[SimTale] O Ceifador nao pode mais ser invocado manualmente — ele aparece sozinho quando uma NPC morre."));
+                ctx.sendMessage(Message.raw("[SimTale] The Reaper can no longer be summoned manually -- he appears automatically when an NPC dies."));
                 return;
             }
 
@@ -538,7 +538,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
             if (transform == null) {
-                ctx.sendMessage(Message.raw("[SimTale] Nao foi possivel obter sua posicao."));
+                ctx.sendMessage(Message.raw("[SimTale] Could not get your position."));
                 return;
             }
             Vector3d pos = transform.getPosition();
@@ -550,9 +550,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 committed.facing = Rotation4.NORTH;
                 committed.roofFacing = Rotation4.NORTH;
                 committed.isBuilding = true;
-                ctx.sendMessage(Message.raw("[SimTale] Construcao de TavernHouse iniciada na sua posicao."));
+                ctx.sendMessage(Message.raw("[SimTale] TavernHouse construction started at your position."));
             } else {
-                ctx.sendMessage(Message.raw("[SimTale] Falha ao iniciar a construcao."));
+                ctx.sendMessage(Message.raw("[SimTale] Failed to start construction."));
             }
         }
     }
@@ -629,7 +629,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 store.removeEntity(npcRef, RemoveReason.REMOVE);
             }
 
-            ctx.sendMessage(Message.raw("[SimTale] '" + name + "' (id=" + entityId + ") removida sem passar pelo fluxo de morte."));
+            ctx.sendMessage(Message.raw("[SimTale] '" + name + "' (id=" + entityId + ") removed without death flow."));
             HytaleLogger.forEnclosingClass().atInfo()
                     .log("SimTale: '" + name + "' (id=" + entityId + ") despawned via /simtale despawnnearest");
         }
@@ -675,7 +675,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
             }
             
-            ctx.sendMessage(Message.raw("Forçando " + nearestNPC.name + " a ir comer! Fome definida para 0."));
+            ctx.sendMessage(Message.raw("Forcing " + nearestNPC.name + " to go eat! Hunger set to 0."));
         }
     }
 
@@ -729,9 +729,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 // NPCWorkHelper's next tick, not synchronously here, so this can't promise it found
                 // something — only that the check will run immediately instead of on its normal
                 // 100-tick stagger.
-                ctx.sendMessage(Message.raw(nearestNPC.name + " (" + nearestNPC.profession.ptName
-                    + ") vai verificar trabalho no próximo tick — só terá efeito visível se houver "
-                    + "colheita/plantio/caça/pesca/corte de árvore disponível por perto."));
+                ctx.sendMessage(Message.raw(nearestNPC.name + " (" + nearestNPC.profession.name()
+                    + ") will check for work on next tick -- will only have a visible effect if "
+                    + "harvesting/planting/hunting/fishing/woodcutting is available nearby."));
             } else {
                 ctx.sendMessage(Message.raw("NPC AI not active."));
             }
@@ -795,7 +795,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             }
 
             nearestNPC.profession = profession;
-            ctx.sendMessage(Message.raw(nearestNPC.name + " agora é " + profession.ptName + "."));
+            ctx.sendMessage(Message.raw(nearestNPC.name + " is now a " + profession.name().toLowerCase() + "."));
         }
     }
 
@@ -840,7 +840,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             ai.taskStartTime = world.getTick();
             store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
 
-            ctx.sendMessage(Message.raw("Forçando " + nearestNPC.name + " a morrer. Em ~200 ticks um Ceifador vai aparecer sozinho pra coletar a alma."));
+            ctx.sendMessage(Message.raw("Forcing " + nearestNPC.name + " to die. In ~200 ticks a Reaper will appear automatically to collect the soul."));
         }
     }
 

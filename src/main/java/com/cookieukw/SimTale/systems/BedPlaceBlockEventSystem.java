@@ -155,7 +155,7 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
                 // that is a biome tint — it only recolours grass/leaves/foliage, so on a
                 // stone-and-wood prefab like this one the difference is barely visible. A chat
                 // message is the only reliable way to actually tell the player.
-                Message warning = Message.raw("[SimTale] A área ao redor do marcador de construção está obstruída — libere o espaço ou remova o bloco pra tentar em outro lugar.");
+                Message warning = Message.raw("[SimTale] The area around the construction marker is obstructed -- clear the space or remove the block to try somewhere else.");
                 Universe.get().getPlayers().forEach(p -> p.sendMessage(warning));
             }
         }

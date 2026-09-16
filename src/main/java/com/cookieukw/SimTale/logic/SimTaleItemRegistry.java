@@ -241,12 +241,12 @@ public class SimTaleItemRegistry {
                 true without teleporting around to check. Distinguishing costs nothing extra: the
                 emptiness of ACTIVE_CHILDREN was already known from the loop above. */
                 if (LifecycleManager.ACTIVE_CHILDREN.isEmpty()) {
-                    playerRef.sendMessage(Message.raw("[SimTale] Nenhuma crianca neste mundo ainda."));
+                    playerRef.sendMessage(Message.raw("[SimTale] No children in this world yet."));
                 } else {
-                    playerRef.sendMessage(Message.raw("[SimTale] Ha crianca(s) no mundo, mas nenhuma por perto (10 blocos)."));
+                    playerRef.sendMessage(Message.raw("[SimTale] There are children in the world, but none nearby (within 10 blocks)."));
                 }
             } else {
-                playerRef.sendMessage(Message.raw("[SimTale] " + nearestChild.name + " esta no estagio: " + nearestGrowth.stage.name()));
+                playerRef.sendMessage(Message.raw("[SimTale] " + nearestChild.name + " is at stage: " + nearestGrowth.stage.name()));
             }
         });
         

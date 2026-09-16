@@ -262,7 +262,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             // Remove the baby entity from the world
             store.removeEntity(targetRef, RemoveReason.REMOVE);
 
-            playerRefComp.sendMessage(Message.raw("Você pegou o bebê " + childComp.getFullName() + " no colo!"));
+            playerRefComp.sendMessage(Message.raw("You picked up baby " + childComp.getFullName() + "!"));
             return;
         }
 
@@ -382,7 +382,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             combinedInventory.removeItemStackFromSlot(hotbarComponent.getActiveSlot(), heldItem, 1);
         }
 
-        playerRefComp.sendMessage(Message.raw("Você colocou o bebê " + childComp.getFullName() + " no chão."));
+        playerRefComp.sendMessage(Message.raw("You placed baby " + childComp.getFullName() + " on the ground."));
         return true;
     }
 }
