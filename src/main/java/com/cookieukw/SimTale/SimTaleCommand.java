@@ -153,6 +153,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new DiagnosticsCommands.NpcStateSubCommand());
         this.addSubCommand(new LifecycleCommands.ForceBabySwapSubCommand());
         this.addSubCommand(new SocialTestCommands.ForceSocialSubCommand());
+        this.addSubCommand(new SocialTestCommands.ForcePlaySubCommand());
         this.addSubCommand(new SocialTestCommands.TestFlirtSubCommand());
         this.addSubCommand(new SocialTestCommands.TestShoveSubCommand());
         this.addSubCommand(new SocialTestCommands.TestGreetSubCommand());
@@ -169,7 +170,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|despawnnearest|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown|costume>"));
+        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|forceplay|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|despawnnearest|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown|costume>"));
     }
 
     // --- SUBCOMMANDS ---
