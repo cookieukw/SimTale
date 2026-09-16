@@ -504,6 +504,34 @@ social.child_play.1.b = {name}: This time I'm totally going to catch you fast!
 social.child_play.2.a = {name}: Hey, I found a new bug today. Want to see?
 social.child_play.2.b = {name}: Ooh, let me see! Does it bite?
 
+# CHILD PLAY: tag and hide-and-seek between children (lines said during the game itself, not in
+# response to the player -- see playing.* referenced by ChildPlayHelper/RoutineAISystem)
+playing.tag_start.1 = {name}: Tag! You can't catch me!
+playing.tag_start.2 = {name}: Let's play tag! I'll count to three!
+playing.tag_start.3 = {name}: Run, run! Tag!
+playing.tag_chasing.1 = I'm gonna get you, I'm gonna get you!
+playing.tag_chasing.2 = You're not getting away this time!
+playing.tag_chasing.3 = Where are you, where... ah, there!
+playing.tag_fleeing.1 = You can't catch me, you can't catch me!
+playing.tag_fleeing.2 = Not yet! Run, run!
+playing.tag_fleeing.3 = So close, but you missed!
+playing.tag_tagged.1 = {name}: Tag, you're it!
+playing.tag_tagged.2 = {name}: Passing the hot potato to you now!
+playing.tag_end.1 = {name}: Phew, I'm tired! That was so much fun!
+playing.tag_end.2 = {name}: Again later, okay? I loved playing!
+playing.hideseek_start.1 = {name}: Let's play hide-and-seek! I'll count to ten, go hide!
+playing.hideseek_start.2 = {name}: Hide-and-seek! Close your eyes, I'm going to find a spot!
+playing.hideseek_hiding.1 = Shh... will she find me here?
+playing.hideseek_hiding.2 = What a good hiding spot I found, huh?
+playing.hideseek_hiding.3 = Stay quiet... quiet...
+playing.hideseek_seeking.1 = One, two, three... where are you?
+playing.hideseek_seeking.2 = Here I come to find you! Where did she go...
+playing.hideseek_seeking.3 = Hmm, behind the tree? No... let me check over there!
+playing.hideseek_found.1 = {name}: Found you!
+playing.hideseek_found.2 = {name}: Found you! Now it's your turn to seek!
+playing.hideseek_end.1 = {name}: That was so much fun hiding! Let's do it again sometime!
+playing.hideseek_end.2 = {name}: You're really good at hiding! I almost couldn't find you!
+
 npc_marriage.announce = {name} beams, holding hands with {partner}: We got married! It all happened so fast, but it feels right.
 
 # WORLD EVENT COMMENTARY (docs/ROADMAP.md: "comentários sobre eventos do mundo")
