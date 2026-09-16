@@ -172,7 +172,14 @@ once per NPC per tick for nothing.
             made the existing RoutineAIComponent invisible to this tick's chunk view.
             */
             LOGGER.info("[SimTale] {} had no RoutineAIComponent this tick — creating a fresh one (state reset to IDLE)", npc.name);
-            ai = new RoutineAIComponent();
+            // Without this, taskStartTime stays 0 on a fresh component, and the idle ladder's
+            // stroll fallback (taskStartTime > 0 && tick - taskStartTime > 40) never trips --
+            // she's then stuck relying on an unbounded ~5%-per-tick dice roll to start moving
+            // again. Stamping it now gives every reset NPC the same ~2s hard ceiling instead.
+            World freshWorld = WorldUtil.fromEntityRef(ref);
+            if (freshWorld != null) {
+                ai.taskStartTime = freshWorld.getTick();
+            }
             commandBuffer.addComponent(chunk.getReferenceTo(index), SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
         }
 
