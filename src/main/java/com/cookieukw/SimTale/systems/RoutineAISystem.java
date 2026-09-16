@@ -146,6 +146,18 @@ once per NPC per tick for nothing.
                 if (!npc.entityId.equals(gc.childId)) continue;
 
                 if (gc.stage == GrowthStage.BABY || gc.stage == GrowthStage.TODDLER) {
+                    /* Nothing below this point ever runs again for her while she stays in this
+                    stage -- so if she is mid-sit when GrowthTickSystem's own parent-follow AI
+                    (or anything else reaching into her RoutineAIComponent from outside this
+                    system) leaves her here, she is not just paused, she is stuck: the chair
+                    stays claimed in ChairRegistry forever and she stays visibly mounted on it,
+                    with no system left that will ever call exitSitting for her again.*/
+                    RoutineAIComponent babyAi = chunk.getComponent(index, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (babyAi != null && (babyAi.currentTask == TaskType.SITTING
+                            || babyAi.currentTask == TaskType.MOVING_TO_CHAIR)) {
+                        NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, babyAi);
+                        babyAi.currentTask = TaskType.IDLE;
+                    }
                     return;
                 }
                 // If they are CHILD or TEEN, inherit parent's bed
