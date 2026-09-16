@@ -88,6 +88,7 @@ import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.server.core.modules.entity.component.ActiveAnimationComponent;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.cookieukw.SimTale.systems.NPCSocialHelper;
+import com.cookieukw.SimTale.systems.ChildPlayHelper;
 import com.cookieukw.SimTale.systems.SimTaleJuiceHelper;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.vector.Rotation3f;
@@ -306,6 +307,86 @@ final class SocialTestCommands {
             if (e2 != null) e2.setLeashPoint(new Vector3d(p2.x, p2.y, p2.z));
 
             ctx.sendMessage(Message.raw("[SimTale] Iniciando bate-papo entre " + npc1.name + " e " + npc2.name + " (tópico: " + (topicStr != null ? topicStr : "auto") + ")"));
+        }
+    }
+
+    static class ForcePlaySubCommand extends AbstractPlayerCommand {
+        private final OptionalArg<String> gameArg;
+
+        public ForcePlaySubCommand() {
+            super("forceplay", "Forces the two nearest children to start a game of tag or hide-and-seek");
+            this.gameArg = this.withOptionalArg("jogo", "tag|escondeesconde", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent pt = store.getComponent(ref, TransformComponent.getComponentType());
+            if (pt == null) {
+                ctx.sendMessage(Message.raw("[SimTale] No player transform."));
+                return;
+            }
+            Vector3d playerPos = pt.getPosition();
+
+            List<SimNPCComponent> children = new ArrayList<>();
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null && npc.entityRef.isValid()
+                        && com.cookieukw.SimTale.logic.InteractionManager.isNpcAChild(npc)) {
+                    children.add(npc);
+                }
+            }
+            children.sort((a, b) -> {
+                TransformComponent ta = a.entityRef.getStore().getComponent(a.entityRef, TransformComponent.getComponentType());
+                TransformComponent tb = b.entityRef.getStore().getComponent(b.entityRef, TransformComponent.getComponentType());
+                if (ta == null) return 1;
+                if (tb == null) return -1;
+                return Double.compare(playerPos.distanceSquared(ta.getPosition()), playerPos.distanceSquared(tb.getPosition()));
+            });
+
+            if (children.size() < 2) {
+                ctx.sendMessage(Message.raw("[SimTale] Precisa de pelo menos 2 criancas carregadas por perto para testar."));
+                return;
+            }
+
+            SimNPCComponent npc1 = children.get(0);
+            SimNPCComponent npc2 = children.get(1);
+            Ref<EntityStore> ref1 = npc1.entityRef;
+            Ref<EntityStore> ref2 = npc2.entityRef;
+            RoutineAIComponent ai1 = store.getComponent(ref1, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            RoutineAIComponent ai2 = store.getComponent(ref2, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            TransformComponent trans1 = store.getComponent(ref1, TransformComponent.getComponentType());
+            TransformComponent trans2 = store.getComponent(ref2, TransformComponent.getComponentType());
+
+            if (ai1 == null || ai2 == null || trans1 == null || trans2 == null) {
+                ctx.sendMessage(Message.raw("[SimTale] Componentes de IA ou Transform invalidos nas criancas."));
+                return;
+            }
+
+            // Bring them together first, same fallback ForceSocialSubCommand uses, so the game
+            // doesn't open with an instant chase-timeout because they spawned out of range.
+            Vector3d p1 = trans1.getPosition();
+            Vector3d p2 = trans2.getPosition();
+            double distSq = p1.distanceSquared(p2);
+            if (distSq > 100.0) {
+                p2 = new Vector3d(p1.x + 2.0, p1.y, p1.z);
+                trans2.teleportPosition(p2);
+            }
+
+            String gameStr = ctx.get(this.gameArg);
+            Boolean forcedTag = null;
+            if (gameStr != null && !gameStr.isBlank()) {
+                String norm = gameStr.toLowerCase().replace("-", "").replace(" ", "");
+                if (norm.contains("esconde") || norm.contains("hide") || norm.contains("seek")) {
+                    forcedTag = Boolean.FALSE;
+                } else if (norm.contains("tag") || norm.contains("pega")) {
+                    forcedTag = Boolean.TRUE;
+                }
+            }
+
+            ChildPlayHelper.startGame(ref1, npc1, ai1, ref2, npc2, ai2, world, store, forcedTag);
+
+            ctx.sendMessage(Message.raw("[SimTale] " + npc1.name + " e " + npc2.name + " comecaram a brincar ("
+                    + (forcedTag == null ? "aleatorio" : (forcedTag ? "pega-pega" : "esconde-esconde")) + ")."));
         }
     }
 
