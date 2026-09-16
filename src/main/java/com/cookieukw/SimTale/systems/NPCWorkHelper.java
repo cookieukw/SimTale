@@ -29,6 +29,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 import com.cookieukw.SimTale.core.SimLog;
@@ -216,7 +217,10 @@ public class NPCWorkHelper {
         if (!WorkEligibility.canWork(npc)) return;
 
         // Evaluate Transition to Work/Deposit from IDLE
-        if (ai.currentTask == TaskType.IDLE && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK || npc.profession == Profession.MINER)) {
+        // reservedForSocialUuid: same reasoning as RoutineSleepHelpers.handleIdle -- this is a
+        // second, independent path into a new task from IDLE, and needs the same guard so a
+        // reserved NPC does not get pulled into a work errand before her suitor arrives.
+        if (ai.currentTask == TaskType.IDLE && !NPCSocialHelper.isReservedAndActive(ai, world.getTick()) && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK || npc.profession == Profession.MINER)) {
             ItemContainer inventory = getInventory(store, ref);
             boolean hasItemsToDeposit = hasAnyDepositableItem(inventory);
 
@@ -262,7 +266,7 @@ public class NPCWorkHelper {
                         double scanRadius = FARM_POST_WORK_RADIUS;
 
                         // Try to harvest first
-                        Vector3i cropPos = scanForCrops(scanCenter, scanRadius, world);
+                        Vector3i cropPos = scanForCrops(scanCenter, scanRadius, world, npc.entityId);
                         if (cropPos != null) {
                             ai.targetBlockPosition = cropPos;
                             ai.claimedWorkPost = new Vector3i(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ());
@@ -271,7 +275,7 @@ public class NPCWorkHelper {
                             playWalk(ref, store);
                         } else {
                             String seed = findSeedInInventory(inventory);
-                            Vector3i farmPos = seed != null ? scanForFarmland(scanCenter, scanRadius, world) : null;
+                            Vector3i farmPos = seed != null ? scanForFarmland(scanCenter, scanRadius, world, npc.entityId) : null;
                             if (farmPos != null) {
                                 ai.targetBlockPosition = farmPos;
                                 ai.claimedWorkPost = new Vector3i(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ());
@@ -675,7 +679,7 @@ public class NPCWorkHelper {
         if (ai.claimedWorkPost != null) {
             Vector3d postCenter = new Vector3d(ai.claimedWorkPost.x + 0.5, ai.claimedWorkPost.y, ai.claimedWorkPost.z + 0.5);
 
-            Vector3i cropPos = scanForCrops(postCenter, FARM_POST_WORK_RADIUS, world);
+            Vector3i cropPos = scanForCrops(postCenter, FARM_POST_WORK_RADIUS, world, npc.entityId);
             if (cropPos != null) {
                 ai.targetBlockPosition = cropPos;
                 ai.currentTask = TaskType.MOVING_TO_WORK;
@@ -686,7 +690,7 @@ public class NPCWorkHelper {
 
             String seed = findSeedInInventory(getInventory(store, ref));
             if (seed != null) {
-                Vector3i farmPos = scanForFarmland(postCenter, FARM_POST_WORK_RADIUS, world);
+                Vector3i farmPos = scanForFarmland(postCenter, FARM_POST_WORK_RADIUS, world, npc.entityId);
                 if (farmPos != null) {
                     ai.targetBlockPosition = farmPos;
                     ai.currentTask = TaskType.MOVING_TO_WORK;
@@ -881,20 +885,22 @@ public class NPCWorkHelper {
     /** Only matches crops the live world reports as fully grown ({@link CropRegistry#isReadyToHarvest})
      *  — a registry entry alone just means "a crop is planted here", not "ready to pick". Without
      *  this check she'd target (and immediately harvest) her own just-planted seedling. */
-    private static Vector3i scanForCrops(Vector3d center, double radius, World world) {
+    private static Vector3i scanForCrops(Vector3d center, double radius, World world, UUID selfId) {
         Vector3i closest = null;
         double minDistSq = radius * radius;
         synchronized (CropRegistry.CROPS) {
             for (HouseBlockPos cp : CropRegistry.CROPS) {
                 BlockType type = world.getBlockType(cp.x, cp.y, cp.z);
                 if (type == null || !CropRegistry.isReadyToHarvest(type.getId())) continue;
+                Vector3i candidate = new Vector3i(cp.x, cp.y, cp.z);
+                if (isTileClaimedByAnotherNpc(candidate, selfId)) continue;
                 double dx = cp.x - center.x;
                 double dy = cp.y - center.y;
                 double dz = cp.z - center.z;
                 double distSq = dx*dx + dy*dy + dz*dz;
                 if (distSq < minDistSq) {
                     minDistSq = distSq;
-                    closest = new Vector3i(cp.x, cp.y, cp.z);
+                    closest = candidate;
                 }
             }
         }
@@ -905,7 +911,23 @@ public class NPCWorkHelper {
         return scanForFarmland(center, 15.0, world);
     }
 
+    /** Debug/command-console entry point only (see SimTaleCommand) -- no caller identity to
+     *  check claims against, so it skips the per-tile claim check entirely. The real per-tick
+     *  scans go through the 4-arg overload below. */
     public static Vector3i scanForFarmland(Vector3d center, double radius, World world) {
+        return scanForFarmland(center, radius, world, null);
+    }
+
+    /**
+     * Same scan as above, but also skips a tile another active NPC already has as its
+     * {@code targetBlockPosition} while walking to work ({@code selfId} excludes the caller
+     * itself). {@link FarmPostRegistry} only ever reserved the scarecrow post, never the
+     * individual crop/farmland tile inside its work radius -- two farmers whose posts were
+     * close enough for their radii to overlap could both scan, both land on the same nearest
+     * tile, and both walk to it: that's the "NPCs stuck inside each other" report. selfId ==
+     * null (the debug-command overload above) skips the check entirely.
+     */
+    public static Vector3i scanForFarmland(Vector3d center, double radius, World world, UUID selfId) {
         Vector3i closest = null;
         double minDistSq = radius * radius;
 
@@ -914,18 +936,39 @@ public class NPCWorkHelper {
                 // Check if block above is empty (so we can plant something)
                 BlockType above = world.getBlockType(fp.x, fp.y + 1, fp.z);
                 if (above == null || above.getId() == null || above.getId().equalsIgnoreCase(EMPTY_BLOCK)) {
+                    Vector3i candidate = new Vector3i(fp.x, fp.y + 1, fp.z);
+                    if (selfId != null && isTileClaimedByAnotherNpc(candidate, selfId)) continue;
                     double dx = fp.x + 0.5 - center.x;
                     double dy = fp.y + 1.5 - center.y;
                     double dz = fp.z + 0.5 - center.z;
                     double distSq = dx*dx + dy*dy + dz*dz;
                     if (distSq < minDistSq) {
                         minDistSq = distSq;
-                        closest = new Vector3i(fp.x, fp.y + 1, fp.z);
+                        closest = candidate;
                     }
                 }
             }
         }
         return closest;
+    }
+
+    /**
+     * True when another active NPC already has this exact tile as the destination it is
+     * walking to (or working). Mirrors the claim pattern beds/posts/chests use, at the one
+     * granularity {@link FarmPostRegistry} does not cover: the individual tile inside a
+     * claimed post's work radius.
+     */
+    private static boolean isTileClaimedByAnotherNpc(Vector3i tile, UUID selfId) {
+        for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
+            if (other.entityId == null || other.entityId.equals(selfId)) continue;
+            if (other.entityRef == null || !other.entityRef.isValid()) continue;
+            RoutineAIComponent otherAi = other.entityRef.getStore().getComponent(other.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (otherAi == null || otherAi.targetBlockPosition == null) continue;
+            if (otherAi.currentTask == TaskType.MOVING_TO_WORK && otherAi.targetBlockPosition.equals(tile)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static String findSeedInInventory(ItemContainer container) {
