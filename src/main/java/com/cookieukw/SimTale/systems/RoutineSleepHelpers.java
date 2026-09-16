@@ -101,7 +101,14 @@ final class RoutineSleepHelpers {
     private RoutineSleepHelpers() {}
 
     static boolean handleIdle(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {
-        if (ai.currentTask == TaskType.IDLE) {
+        // Reserved (waiting for a conversation partner to arrive) must mean actually standing
+        // still: reservedForSocialUuid previously only stopped OTHER NPCs' searches from picking
+        // this one (NPCSocialHelper.isAvailableToTalk) -- nothing stopped THIS ladder from handing
+        // her a brand new errand, or even a second conversation, on a later tick while she waited.
+        // When her real suitor then arrived, isReservedForMe let it force her into SOCIALIZING out
+        // from under whatever she'd started, which is what showed up in-game as an NPC snapping
+        // out of one task mid-stride ("giro e volta").
+        if (ai.currentTask == TaskType.IDLE && !NPCSocialHelper.isReservedAndActive(ai, world.getTick())) {
             if (npc.bedLocation == null && world.getTick() % 60 == 0) {
                 BedPos bestBed = RoutineAISystem.getBedPos(transform);
                 if (bestBed != null) {
@@ -178,6 +185,16 @@ final class RoutineSleepHelpers {
                         otherAi.reservedForSocialUuid = npc.entityId;
                         otherAi.currentTask = TaskType.IDLE;
                         otherAi.wanderTimer = 0;
+                        // Was left dangling here: everything else clears targetBlockPosition
+                        // whenever it forces currentTask back to IDLE (see the FINDING_FOOD/
+                        // FINDING_BATH/FINDING_LEISURE branches above, or abandonTask/stopWandering/
+                        // endSocial elsewhere) except this one -- so a reserved NPC kept whatever
+                        // destination she was already walking to, stale, sitting on an otherwise
+                        // idle AI state until something used it again.
+                        otherAi.targetBlockPosition = null;
+                        // Starts the staleness clock NPCSocialHelper.isReservedAndActive checks --
+                        // without this the reservation had no timestamp of its own to judge against.
+                        otherAi.taskStartTime = world.getTick();
                         NPCMovementHelper.clearMoveTarget(bestTarget.entityRef, otherAi);
                     }
 
@@ -592,7 +609,14 @@ final class RoutineSleepHelpers {
                     Vector3i exitPos = NPCMovementHelper.findStandableBeside(bedAnchor, transform, world);
 
                     if (exitPos != null) {
-                        transform.teleportPosition(new Vector3d(exitPos.x + 0.5, exitPos.y, exitPos.z + 0.5));
+                        double offX = 0;
+                        double offZ = 0;
+                        if (InteractionManager.isNpcAChild(npc) && npc.entityId != null) {
+                            int h = npc.entityId.hashCode();
+                            offX = ((h & 1) == 0 ? 0.35 : -0.35);
+                            offZ = (((h >> 1) & 1) == 0 ? 0.35 : -0.35);
+                        }
+                        transform.teleportPosition(new Vector3d(exitPos.x + 0.5 + offX, exitPos.y, exitPos.z + 0.5 + offZ));
                         commandBuffer.replaceComponent(ref, TransformComponent.getComponentType(), transform);
                     } else {
                         /* Nowhere to step out to. Staying put is wrong-looking but recoverable;
