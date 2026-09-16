@@ -31,8 +31,9 @@ public final class NameTests {
     }
 
     private static void alwaysHasSurname() {
-        // The old generator flipped a coin and left half the village on a first name alone, which
-        // also meant inheritance restarted from nothing every other generation.
+        /* The old generator flipped a coin and left half the village on a first name alone, which
+        also meant inheritance restarted from nothing every other generation.
+        */
         for (int i = 0; i < 200; i++) {
             String name = SimNPCNameGenerator.generate();
             Assert.isTrue(name.contains(" "), "generated name has two parts: " + name);
@@ -46,8 +47,9 @@ public final class NameTests {
         for (int i = 0; i < 500; i++) {
             surnames.add(SimNPCNameGenerator.generateSurname());
         }
-        // The old list could not exceed 30 no matter how many draws. The bar is set well under the
-        // 676 possible combinations because this is a randomness check, not a coupon-collector one.
+        /* The old list could not exceed 30 no matter how many draws. The bar is set well under the
+        676 possible combinations because this is a randomness check, not a coupon-collector one.
+        */
         Assert.isTrue(surnames.size() > 200,
                 "500 draws produce more than 200 distinct surnames, got " + surnames.size());
 
@@ -68,8 +70,9 @@ public final class NameTests {
             seen.add(SimNPCNameGenerator.inheritSurname(mother, father));
         }
 
-        // Only four names are reachable: either parent whole, or the two halves swapped. Anything
-        // else means the blend cut somewhere it should not have.
+        /* Only four names are reachable: either parent whole, or the two halves swapped. Anything
+        else means the blend cut somewhere it should not have.
+        */
         for (String result : seen) {
             boolean expected = result.equals("Greenfield") || result.equals("Ironforge")
                     || result.equals("Greenforge") || result.equals("Ironfield");
@@ -94,16 +97,18 @@ public final class NameTests {
     }
 
     private static void foreignSurnames() {
-        // A surname that did not come from the generator — imported, hand-edited, from an older
-        // save — has no seam the blend can recognise, so it must pass through whole.
+        /* A surname that did not come from the generator — imported, hand-edited, from an older
+        save — has no seam the blend can recognise, so it must pass through whole.
+        */
         for (int i = 0; i < 500; i++) {
             String result = SimNPCNameGenerator.inheritSurname("Wollstonecraft", "Nakagawa");
             boolean intact = result.equals("Wollstonecraft") || result.equals("Nakagawa");
             Assert.isTrue(intact, "unrecognised surnames are inherited whole, got: " + result);
         }
 
-        // Half-recognised is the interesting case: one side can be split, the other cannot, so the
-        // blend has exactly one valid direction and must not force the other.
+        /* Half-recognised is the interesting case: one side can be split, the other cannot, so the
+        blend has exactly one valid direction and must not force the other.
+        */
         for (int i = 0; i < 500; i++) {
             String result = SimNPCNameGenerator.inheritSurname("Greenfield", "Nakagawa");
             boolean valid = result.equals("Greenfield") || result.equals("Nakagawa")

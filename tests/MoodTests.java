@@ -82,8 +82,9 @@ public final class MoodTests {
         Assert.floatEqual(npc.emotionIntensity, 0.8f,
                 "a weaker dose of the same mood must not water it down");
 
-        // Once the hold has passed the weaker dose is allowed through, which is what lets a mood
-        // eventually settle back down instead of sticking at its peak forever.
+        /* Once the hold has passed the weaker dose is allowed through, which is what lets a mood
+        eventually settle back down instead of sticking at its peak forever.
+        */
         npc.setEmotion(Mood.HAPPY, 0.3f, "wellness", 10L + HOLD);
         Assert.floatEqual(npc.emotionIntensity, 0.3f, "after the hold, the weaker dose lands");
 

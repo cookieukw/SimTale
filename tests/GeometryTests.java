@@ -50,10 +50,11 @@ public final class GeometryTests {
     }
 
     private static void offsets() {
-        // The invariant the marker placement depends on: the prefab's own origin stays exactly on
-        // the block the player placed, whichever way the house is turned. Before the change the
-        // box was shifted so it always grew towards +X/+Z, so a different corner of the house
-        // touched the marker at every rotation.
+        /* The invariant the marker placement depends on: the prefab's own origin stays exactly on
+        the block the player placed, whichever way the house is turned. Before the change the
+        box was shifted so it always grew towards +X/+Z, so a different corner of the house
+        touched the marker at every rotation.
+        */
         for (Rotation4 facing : Rotation4.values()) {
             Vector3i origin = new ConstructionHelper.OffsetMapper(facing).offset(0, 0, 0);
             Assert.equal(origin, new Vector3i(0, 0, 0),
@@ -84,8 +85,9 @@ public final class GeometryTests {
     }
 
     private static void blockPos() {
-        // The registries are HashSets of these, and removeAt now removes by value instead of
-        // scanning — which only works because equals and hashCode agree.
+        /* The registries are HashSets of these, and removeAt now removes by value instead of
+        scanning — which only works because equals and hashCode agree.
+        */
         HouseBlockPos a = new HouseBlockPos(10, -4, 7);
         HouseBlockPos b = new HouseBlockPos(10, -4, 7);
         HouseBlockPos c = new HouseBlockPos(10, -4, 8);
@@ -103,8 +105,9 @@ public final class GeometryTests {
     }
 
     private static void siteId() {
-        // The key has to be derivable from the block alone: that is what lets a marker preview be
-        // rebuilt after a restart, with nothing persisted.
+        /* The key has to be derivable from the block alone: that is what lets a marker preview be
+        rebuilt after a restart, with nothing persisted.
+        */
         Vector3i pos = new Vector3i(-51, 80, -97);
         UUID first = ConstructionPreviewManager.idForBlock(pos);
         UUID again = ConstructionPreviewManager.idForBlock(new Vector3i(-51, 80, -97));

@@ -121,9 +121,9 @@ final class RoutineTaskHelpers {
             }
             if (!found) {
                 /* Back off before returning to IDLE. Without this the IDLE branch re-enters the
-                 * search on the very next tick and this ~10.500-block sweep runs at 20 Hz per
-                 * dirty NPC, with the NPC frozen in place the whole time.
-                 */
+                search on the very next tick and this ~10.500-block sweep runs at 20 Hz per
+                dirty NPC, with the NPC frozen in place the whole time.
+                */
                 ai.nextBathSearchTick = world.getTick() + RoutineAISystem.BATH_SEARCH_RETRY_COOLDOWN_TICKS;
                 ai.currentTask = TaskType.IDLE;
             }
@@ -142,8 +142,8 @@ final class RoutineTaskHelpers {
                 NPCMovementHelper.clearMoveTarget(ref, ai);
                 ai.targetBlockPosition = null;
                 /* Unreachable water still scores as the best option, so without the backoff the
-                 * NPC is sent straight back to it on the next tick, forever.
-                 */
+                NPC is sent straight back to it on the next tick, forever.
+                */
                 ai.nextBathSearchTick = world.getTick() + RoutineAISystem.BATH_SEARCH_RETRY_COOLDOWN_TICKS;
                 ai.currentTask = TaskType.IDLE;
                 return true;
@@ -167,8 +167,8 @@ final class RoutineTaskHelpers {
         if (ai.currentTask == TaskType.BATHING) {
             NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) + 1.0f));
             /* The hygiene check alone was the only exit; if anything else clamped hygiene the
-             * NPC would swim forever.
-             */
+            NPC would swim forever.
+            */
             if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) >= 100f
                     || world.getTick() - ai.taskStartTime > RoutineAISystem.BATH_DURATION_LIMIT_TICKS) {
                 ai.currentTask = TaskType.IDLE;
@@ -182,21 +182,21 @@ final class RoutineTaskHelpers {
     static boolean handleReaping(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {
         if (ai.currentTask == TaskType.REAPING && ai.dyingEntityId != null) {
             /* Self-heal against whatever it is (role's own appearance system, most likely —
-             * REAPER spawns on the "SimTale_Human_Male" role for its behavior, and that role's
-             * own "Appearance" is a normal human) keeps putting the human model back after
-             * SimNPCFactory's initial override. Checked every tick instead of once so it doesn't
-             * matter when the conflicting system runs relative to spawn.
-             */
+            REAPER spawns on the "SimTale_Human_Male" role for its behavior, and that role's
+            own "Appearance" is a normal human) keeps putting the human model back after
+            SimNPCFactory's initial override. Checked every tick instead of once so it doesn't
+            matter when the conflicting system runs relative to spawn.
+            */
             PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
             if (pm != null && !SimNPCFactory.REAPER_MODEL_ASSET_ID.equals(pm.getModelReference().getModelAssetId())) {
                 /* Through applyModel, which writes ModelComponent as well as PersistentModel.
-                 *
-                 * This self-heal ran every tick and kept "correcting" a model that visually never
-                 * changed, because only the persisted component was being rewritten — the drawn
-                 * one was never touched and never marked for resend. That is almost certainly the
-                 * whole of the "Reaper still uses the player model" report: the id stored was
-                 * right the entire time.
-                 */
+
+                This self-heal ran every tick and kept "correcting" a model that visually never
+                changed, because only the persisted component was being rewritten — the drawn
+                one was never touched and never marked for resend. That is almost certainly the
+                whole of the "Reaper still uses the player model" report: the id stored was
+                right the entire time.
+                */
                 SimNPCFactory.applyModel(store, ref, SimNPCFactory.REAPER_MODEL_ASSET_ID, 1.0f, new HashMap<>());
             }
 
@@ -204,15 +204,15 @@ final class RoutineTaskHelpers {
             TransformComponent dyingTransform = (dyingRef != null) ? store.getComponent(dyingRef, TransformComponent.getComponentType()) : null;
             if (dyingTransform == null) {
                 /* The corpse is gone (already collected, chunk unloaded, removed by a command).
-                 * This used to drop the Reaper to IDLE, which quietly turned Death into a
-                 * permanent villager: she is spawned per-death and has no other exit, so nothing
-                 * was ever going to despawn her again. She then wandered and socialised like
-                 * anyone else — and, because the model self-heal above only runs while REAPING,
-                 * the role's own Appearance system put the human model back on her within a few
-                 * ticks. That is the "Reaper still in the world" and almost certainly the "Reaper
-                 * is still using the player model" report too. Her target is gone, so her reason
-                 * to exist is gone: she leaves.
-                 */
+                This used to drop the Reaper to IDLE, which quietly turned Death into a
+                permanent villager: she is spawned per-death and has no other exit, so nothing
+                was ever going to despawn her again. She then wandered and socialised like
+                anyone else — and, because the model self-heal above only runs while REAPING,
+                the role's own Appearance system put the human model back on her within a few
+                ticks. That is the "Reaper still in the world" and almost certainly the "Reaper
+                is still using the player model" report too. Her target is gone, so her reason
+                to exist is gone: she leaves.
+                */
                 RoutineAISystem.LOGGER.info("[SimTale] Reaper's target is gone — despawning her instead of leaving her in the world");
                 RoutineAISystem.dismissReaper(npc, ref, commandBuffer);
                 return true;
@@ -234,8 +234,8 @@ final class RoutineTaskHelpers {
                         p.sendMessage(Message.translation("general.reaper.soul_taken").param("name", deceasedName));
                         try {
                             /* A raw stone stood in only because there was nothing better on hand.
-                             * Life_Essence actually reads as a collected soul.
-                             */
+                            Life_Essence actually reads as a collected soul.
+                            */
                             CommandManager.get().handleCommand(p, "give " + p.getUsername() + " Ingredient_Life_Essence --quantity=1");
                         } catch (Exception e) {
                             RoutineAISystem.LOGGER.error("Error giving soul to player", e);
@@ -244,17 +244,17 @@ final class RoutineTaskHelpers {
                     if (dyingNpc != null && dyingNpc.entityId != null) {
                         PlumbobSystem.removePlumbob(dyingNpc.entityId);
                         /* Record survives now instead of being deleted outright — foundation for
-                         * a future revive/cemetery feature (SimNPCPersistence.archiveToGraveyard).
-                         */
+                        a future revive/cemetery feature (SimNPCPersistence.archiveToGraveyard).
+                        */
                         SimNPCPersistence.archiveToGraveyard(dyingNpc.entityId);
                     }
                     /* Same class of leak as the DB one above, just in memory: the corpse entity
-                     * was removed from the world here, but its SimNPCComponent stayed in
-                     * ACTIVE_NPCS/NPCS_BY_ID forever with a now-invalid entityRef — a permanent
-                     * ghost entry for every NPC that ever died, for the life of the server
-                     * process. Every list scan and lookup elsewhere had to keep guarding against
-                     * it via isValid() checks instead of it simply not being there.
-                     */
+                    was removed from the world here, but its SimNPCComponent stayed in
+                    ACTIVE_NPCS/NPCS_BY_ID forever with a now-invalid entityRef — a permanent
+                    ghost entry for every NPC that ever died, for the life of the server
+                    process. Every list scan and lookup elsewhere had to keep guarding against
+                    it via isValid() checks instead of it simply not being there.
+                    */
                     if (dyingNpc != null) {
                         SimTale.untrackNpc(dyingNpc);
                     }

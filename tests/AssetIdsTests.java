@@ -90,8 +90,9 @@ public final class AssetIdsTests {
 
         Assert.isTrue(ChestRegistry.isChestId("Furniture_Village_Chest"), "chest by name");
         Assert.isTrue(ChestRegistry.isChestId("Deco_Barrel"), "barrel by name");
-        // Pins a known limitation rather than pretending it works: this is exactly why
-        // isContainerAt exists and why the name check is only a fallback.
+        /* Pins a known limitation rather than pretending it works: this is exactly why
+        isContainerAt exists and why the name check is only a fallback.
+        */
         Assert.isFalse(ChestRegistry.isChestId("Furniture_Storage_Crate"),
                 "known gap — a storage block named nothing on the list is missed by name alone");
 
@@ -107,8 +108,9 @@ public final class AssetIdsTests {
         Assert.isTrue(FarmlandRegistry.isFarmlandId("Soil_Grass"), "plain grass is plantable");
         Assert.isFalse(FarmlandRegistry.isFarmlandId("Rock_Stone"), "stone is not farmland");
 
-        // These three were equalsIgnoreCase until the AssetIds unification. The variant cases are
-        // the regression guard.
+        /* These three were equalsIgnoreCase until the AssetIds unification. The variant cases are
+        the regression guard.
+        */
         Assert.isTrue(FishingPostRegistry.isFishingPostId("Tool_Fishing_Trap"), "fishing post");
         Assert.isTrue(FishingPostRegistry.isFishingPostId("*Tool_Fishing_Trap_State_Definitions_Full"),
                 "fishing post as a state variant");
@@ -117,8 +119,9 @@ public final class AssetIdsTests {
         Assert.isTrue(FarmPostRegistry.isFarmPostId("*Deco_Scarecrow_State_Definitions_Middle"),
                 "scarecrow is 3 blocks tall — the non-anchor blocks arrive decorated");
 
-        // NPCWorkHelper.isSeed is private, but it is this exact comparison, and the rule decides
-        // whether a Farmer deposits the seeds she was about to plant.
+        /* NPCWorkHelper.isSeed is private, but it is this exact comparison, and the rule decides
+        whether a Farmer deposits the seeds she was about to plant.
+        */
         Assert.isTrue(AssetIds.containsAny("Plant_Seeds_Carrot", "plant_seeds"), "carrot seeds");
         Assert.isTrue(AssetIds.containsAny("Plant_Seeds_Wheat", "plant_seeds"), "wheat seeds");
         Assert.isFalse(AssetIds.containsAny("Plant_Crop_Carrot_Block", "plant_seeds"),
