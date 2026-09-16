@@ -107,7 +107,7 @@ final class RoutineTaskHelpers {
             int sx = (int) pos.x; int sy = (int) pos.y; int sz = (int) pos.z;
             boolean found = false;
 
-            Vector3i nearestBath = BathRegistry.nearestTo(pos.x, pos.y, pos.z);
+            Vector3i nearestBath = BathRegistry.nearestTo(pos.x, pos.y, pos.z, npc.entityId);
             if (nearestBath != null) {
                 double dx = nearestBath.x - sx;
                 double dz = nearestBath.z - sz;
@@ -172,6 +172,7 @@ final class RoutineTaskHelpers {
             if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) >= 100f
                     || world.getTick() - ai.taskStartTime > RoutineAISystem.BATH_DURATION_LIMIT_TICKS) {
                 ai.currentTask = TaskType.IDLE;
+                ai.targetBlockPosition = null;
                 NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             }
         }
@@ -305,6 +306,7 @@ final class RoutineTaskHelpers {
             }
             if (activeSite == null) {
                 ai.currentTask = TaskType.IDLE;
+                ai.targetBlockPosition = null;
                 NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             } else {
                 if ((world.getTick() - ai.taskStartTime) % 40 == 0) {
@@ -313,6 +315,7 @@ final class RoutineTaskHelpers {
                 NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID, Math.max(0f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) - 0.05f));
                 if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) <= 10f) {
                     ai.currentTask = TaskType.IDLE;
+                    ai.targetBlockPosition = null;
                     NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
                 }
             }
