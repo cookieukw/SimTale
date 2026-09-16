@@ -119,8 +119,9 @@ public class SimTaleTests {
         assertEqual(preg.trimester, 1, "Trimestre inicial de gravidez");
         assertEqual(preg.fatherId, fatherId, "ID do pai gravado");
 
-        // Trimestre 2 (33% a 66% de progresso)
-        // 5 dias = 120.000 ticks. T2 começa após 120000 * 0.33 = ~39600 ticks
+        /* Trimestre 2 (33% a 66% de progresso)
+        5 dias = 120.000 ticks. T2 começa após 120000 * 0.33 = ~39600 ticks
+        */
         long tickT2 = startTick + 45000;
         boolean t2Changed = preg.updateTrimester(tickT2);
         assertEqual(t2Changed, true, "Trimestre mudou para T2");
@@ -193,15 +194,16 @@ public class SimTaleTests {
         System.out.println("OK");
     }
 
-    // testNeedsDecay was removed, not ported.
-    //
-    // It exercised com.cookieukw.SimTale.core.Needs, which no longer exists: needs moved to the
-    // engine's native EntityStats, so reading or writing one now requires a live Store and an
-    // entity that carries an EntityStatMap. The same applies to applyPregnancyBehavior, which the
-    // old test also called — it is now three NeedsHelper calls against a real entity.
-    //
-    // Keeping the test compiling would have meant faking the ECS. The decay rates it guarded are
-    // instead checked in game, through the calibration table in testing_checklist.md.
+    /* testNeedsDecay was removed, not ported.
+
+    It exercised com.cookieukw.SimTale.core.Needs, which no longer exists: needs moved to the
+    engine's native EntityStats, so reading or writing one now requires a live Store and an
+    entity that carries an EntityStatMap. The same applies to applyPregnancyBehavior, which the
+    old test also called — it is now three NeedsHelper calls against a real entity.
+
+    Keeping the test compiling would have meant faking the ECS. The decay rates it guarded are
+    instead checked in game, through the calibration table in testing_checklist.md.
+    */
 
     private static void testBabyCareSharing() {
         System.out.print("Testando Cuidado Compartilhado (BabyCare)... ");
@@ -222,8 +224,9 @@ public class SimTaleTests {
         long now = System.currentTimeMillis();
         assertEqual(now < care.nextSwapAllowedTime, true, "Cooldown ativo inicialmente");
 
-        // Forcar tempo passar e testar toggle manual de turno
-        // Trocando turno: da mae para o pai
+        /* Forcar tempo passar e testar toggle manual de turno
+        Trocando turno: da mae para o pai
+        */
         care.currentTurnOwnerId = fatherId.toString();
         care.currentHolderId = fatherId.toString();
         assertEqual(care.currentTurnOwnerId, fatherId.toString(), "Turno alterado para o pai");
@@ -342,8 +345,9 @@ public class SimTaleTests {
         }
     }
 
-    // Kept as thin wrappers so the pre-existing suites read unchanged, while the assertion count
-    // reported at the end covers everything rather than only the newer files.
+    /* Kept as thin wrappers so the pre-existing suites read unchanged, while the assertion count
+    reported at the end covers everything rather than only the newer files.
+    */
     private static void assertEqual(Object actual, Object expected, String message) {
         Assert.equal(actual, expected, message);
     }
