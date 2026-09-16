@@ -101,15 +101,38 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
                         TransformComponent parentT = store.getComponent(parentRef, TransformComponent.getComponentType());
                         if (childT != null && parentT != null) {
                             double distSq = childT.getPosition().distanceSquared(parentT.getPosition());
-                            if (distSq > 36.0) { // More than 6 blocks away
-                                NPCEntity npcEntity = store.getComponent(childRef, Objects.requireNonNull(NPCEntity.getComponentType()));
-                                if (npcEntity != null) {
-                                    npcEntity.setLeashPoint(new Vector3d(parentT.getPosition().x, parentT.getPosition().y, parentT.getPosition().z));
-                                    StateSupport stateSupport = StateSupport.get(childRef, store);
-                                    if (stateSupport != null) {
-                                        // "Moving" does not exist in the SimTale roles; reuse the
-                                        // same state the movement helper drives.
-                                        stateSupport.setState(childRef, NPCMovementHelper.STATE_MOVING, null, store);
+                            if (distSq > 36.0) { // More than 6 blocks away -> follow parent with individual offset
+                                int hash = child.childId != null ? child.childId.hashCode() : 0;
+                                double angle = (hash & 0xFFFF) * (Math.PI * 2.0 / 65536.0);
+                                double offsetDist = 2.0 + ((hash >> 16) & 1); // 2 to 3 blocks
+                                double targetX = parentT.getPosition().x + Math.cos(angle) * offsetDist;
+                                double targetZ = parentT.getPosition().z + Math.sin(angle) * offsetDist;
+                                Vector3d targetPos = new Vector3d(targetX, parentT.getPosition().y, targetZ);
+
+                                if (ai != null) {
+                                    NPCMovementHelper.moveTo(childRef, ai, world, targetPos);
+                                } else {
+                                    NPCEntity npcEntity = store.getComponent(childRef, Objects.requireNonNull(NPCEntity.getComponentType()));
+                                    if (npcEntity != null) {
+                                        npcEntity.setLeashPoint(targetPos);
+                                        StateSupport stateSupport = StateSupport.get(childRef, store);
+                                        if (stateSupport != null) {
+                                            stateSupport.setState(childRef, NPCMovementHelper.STATE_MOVING, null, store);
+                                        }
+                                    }
+                                }
+                            } else if (distSq <= 16.0) { // Within 4 blocks -> arrived, return to idle
+                                StateSupport stateSupport = StateSupport.get(childRef, store);
+                                if (stateSupport != null && stateSupport.getStateName() != null
+                                        && stateSupport.getStateName().startsWith(NPCMovementHelper.STATE_MOVING)) {
+                                    if (ai != null) {
+                                        NPCMovementHelper.clearMoveTarget(childRef, ai);
+                                    } else {
+                                        NPCEntity npcEntity = store.getComponent(childRef, Objects.requireNonNull(NPCEntity.getComponentType()));
+                                        if (npcEntity != null) {
+                                            npcEntity.setLeashPoint(new Vector3d(childT.getPosition().x, childT.getPosition().y, childT.getPosition().z));
+                                            stateSupport.setState(childRef, "Idle", null, store);
+                                        }
                                     }
                                 }
                             }
