@@ -50,6 +50,35 @@ public class NPCSocialHelper {
     private static final int SOCIALIZE_DURATION_TICKS = 140;
     /** Give up walking to the partner after this long (unreachable, wandered off, ...). */
     private static final int SOCIALIZE_TIMEOUT_TICKS = 400;
+    /**
+     * Safety net for the RESERVED side of a conversation, not the one walking over (that side
+     * already has SOCIALIZE_TIMEOUT_TICKS). A reservation is supposed to end via the suitor
+     * reaching her (-> SOCIALIZING) or giving up (-> abortSocial, which cross-clears her too) --
+     * but if the suitor stops ticking before either happens (despawned, unloaded, or any other
+     * case not accounted for), nothing was ever going to clear reservedForSocialUuid again, and
+     * the reserved NPC would sit out every idle/work decision forever. A little longer than
+     * SOCIALIZE_TIMEOUT_TICKS so the suitor's own cleanup gets first chance to run normally.
+     */
+    private static final int RESERVATION_STALE_TICKS = SOCIALIZE_TIMEOUT_TICKS + 100;
+
+    /**
+     * Whether {@code ai} is currently held by a live reservation (used to gate the IDLE
+     * decision ladders in RoutineSleepHelpers and NPCWorkHelper). A reservation older than
+     * {@link #RESERVATION_STALE_TICKS} -- or one whose timestamp doesn't make sense against the
+     * current tick at all, which is what an old save loaded into a fresh session looks like --
+     * is cleared right here instead of trusted, so a stuck flag self-heals the first time
+     * anything checks it rather than freezing the NPC permanently.
+     */
+    public static boolean isReservedAndActive(RoutineAIComponent ai, long tick) {
+        if (ai.reservedForSocialUuid == null) {
+            return false;
+        }
+        if (ai.taskStartTime <= 0 || tick < ai.taskStartTime || tick - ai.taskStartTime > RESERVATION_STALE_TICKS) {
+            ai.reservedForSocialUuid = null;
+            return false;
+        }
+        return true;
+    }
     /** Social need restored to both participants by a successful chat. */
     private static final float SOCIAL_RESTORE = 35f;
 
@@ -143,6 +172,7 @@ public class NPCSocialHelper {
 
         if (dx * dx + dz * dz < SOCIALIZE_REACH_DISTANCE_SQ) {
             NPCMovementHelper.clearMoveTarget(ref, ai);
+            ai.targetBlockPosition = null;
             ai.currentTask = TaskType.SOCIALIZING;
             ai.socializeHost = true;
             ai.taskStartTime = world.getTick();
@@ -158,6 +188,7 @@ public class NPCSocialHelper {
 
             // Pull partner into conversation and face each other
             targetAi.currentTask = TaskType.SOCIALIZING;
+            targetAi.targetBlockPosition = null;
             targetAi.socializeHost = false;
             targetAi.socializeTargetId = npc.entityId;
             targetAi.taskStartTime = world.getTick();
@@ -190,7 +221,14 @@ public class NPCSocialHelper {
                 SimTaleJuiceHelper.spawnHeartParticles(targetPos, store);
             }
         } else {
-            NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(targetPos.x, myPos.y, targetPos.z));
+            double distSq = dx * dx + dz * dz;
+            if (distSq > 1e-4) {
+                double dist = Math.sqrt(distSq);
+                double stopDist = 1.5;
+                double approachX = targetPos.x - (dx / dist) * stopDist;
+                double approachZ = targetPos.z - (dz / dist) * stopDist;
+                NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(approachX, myPos.y, approachZ));
+            }
         }
     }
 
@@ -224,7 +262,9 @@ public class NPCSocialHelper {
                     Vector3d targetPos = targetTrans.getPosition();
                     double dx = targetPos.x - myPos.x;
                     double dz = targetPos.z - myPos.z;
-                    if (dx * dx + dz * dz > 1e-4) {
+                    double d2 = dx * dx + dz * dz;
+                    // Only re-align rotation on speech turns if NPCs are at a stable distance (> 0.25 blocks)
+                    if (d2 > 0.25 && (elapsed == 15 || elapsed == 70)) {
                         transform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
                         targetTrans.teleportRotation(new Rotation3f(0f, (float) Math.atan2(dx, dz), 0f));
                     }
@@ -716,6 +756,8 @@ public class NPCSocialHelper {
     }
 
     private static void endSocial(Ref<EntityStore> ref, RoutineAIComponent ai, Store<EntityStore> store) {
+        NPCMovementHelper.clearMoveTarget(ref, ai);
+        ai.targetBlockPosition = null;
         ai.socializeTargetId = null;
         ai.reservedForSocialUuid = null;
         ai.socializeHost = false;
