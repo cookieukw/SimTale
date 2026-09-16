@@ -34,7 +34,24 @@ Se você descobrir a comida favorita de alguém e entregar de presente justament
 
 Para sustentar tudo isso sem parecer repetitivo, eu escrevi e programei mais de 800 falas diferentes dentro do código , só que isso foi há tempos atrás, e atualmente tem beeem mais coisas que vou falar mais para frente. São 200 variações para homens, 200 para mulheres e 400 falas exclusivas para crianças, divididas entre meninos e meninas. Cada fala muda de acordo com o humor, a personalidade e o que está acontecendo na vila naquele momento.
 
-E para fazer esses personagens andarem sem bugar no cenário, eu precisei inventar uma âncora invisível chamada Leash Point, que serve como referência para a física do Hytale guiar o caminho do NPC. Guarda bem esse nome, porque esse Leash Point salvou a gente de um dos bugs mais bizarros que vai surgir mais para frente
+E para fazer esses personagens andarem sem bugar no cenário, eu precisei inventar uma âncora invisível chamada Leash Point, que serve como referência para a física do Hytale guiar o caminho do NPC. Guarda bem esse nome, porque esse Leash Point salvou a gente de um dos bugs mais bizarros que vai surgir mais para frente.
+
+---
+
+### [04:30] O PLUMBOB E AS EXPRESSÕES FACIAIS: ELES SENTEM NA PELE
+
+[CENA: Câmera fechada no rosto de diferentes NPCs mostrando expressões faciais mudando (sorriso, raiva, tristeza, susto). Em cima da cabeça, o cristal do Plumbob girando e trocando de cor conforme o humor.]
+
+**Locução:**
+E como a proposta era trazer o The Sims pro Hytale, não podia faltar o clássico Plumbob — aquele cristal que fica flutuando em cima da cabeça indicando o humor e o estado do morador.
+
+Eu criei o Plumbob como uma entidade própria que segue o NPC. Ele mede a altura da cabeça do personagem, adiciona um espaço pra não colar no cabelo e fica ali girando a cada tick do mundo. Se o NPC tá feliz, o cristal fica verde; se as necessidades caem e ele fica mal, o cristal muda de modelo e de cor na hora. E eu tive que colocar várias regras práticas nele: se o morador sai numa expedição, o plumbob some; se for o Ceifador vindo buscar alguém, não tem plumbob; e se você pega uma criança no colo, o cristal dela some temporariamente pra não ficar dois plumbobs colados um no outro flutuando na sua cabeça.
+
+Só que não adiantava ter o cristal em cima se o rosto do NPC parecesse uma pedra. Então eu usei o sistema de animações faciais do Hytale pra dar vida a eles. 
+
+Quando o morador tá feliz, ele abre um sorriso; se ele tá irritado, franze a testa; se a raiva tiver no talo, ele entra em modo fúria com cara de ódio; se tá triste ou com sono, fica de bico; se toma um susto, arregala os olhos; e se tá muito animado, dá uma risada aberta. E eu programei isso pra tocar a cada oito segundos no rosto deles, pra não parecer nem um espasmo sem parar e nem uma estátua congelada.
+
+---
 
 ### [05:30] ARQUITETURA E LAR: O ALGORITMO DE CASAS E BAÚS INTELIGENTES
 
@@ -53,37 +70,50 @@ E uma coisa que eu tive que tomar bastante cuidado no código foi garantir que e
 
 ---
 
-### [09:00] AMOR E FAMÍLIA: CASAMENTO, GRAVIDEZ E CUIDADOS
+### [09:00] AMOR E FAMÍLIA: CASAMENTO, GRAVIDEZ E COPARENTALIDADE
 
-[CENA: Jogador entregando o anel de casamento para uma NPC. Corações na tela. Depois, corte para o período de gravidez, o nascimento do bebê e os cuidados no berço.]
+[CENA: Jogador entregando o anel de casamento para uma NPC. Corações na tela. Depois, corte para a interface de gestação com trimestres e sintomas, o parto e a troca de turno do bebê.]
 
 **Locução:**
 Depois de construir uma casa e passar um bom tempo conversando e presenteando, o nível de afeto fica alto o suficiente pra você poder entregar o Anel de Casamento.
 
-Quando casa, os dois passam a morar juntos, dividem a cama e compartilham o inventário da casa. E aí naturalmente veio a ideia de fazer o sistema de família e gravidez.
+Quando casa, os dois passam a morar juntos, dividem a cama e compartilham o baú da casa. E aí veio o sistema de família e gravidez, que funciona tanto pro jogador quanto pros NPCs.
 
-Quando você instala o mod, você escolhe o sexo do seu personagem para essa parte funcionar. A gestação dura uns cinco dias do jogo e afeta a gameplay de verdade: a mãe perde velocidade, a energia cai muito mais rápido e a stamina trava para atividades pesadas. Então nada de sair correndo, minerar ou lutar enquanto tiver grávida.
+Quando você instala o mod, você escolhe o sexo do seu personagem pra isso rodar direitinho. A gestação dura uns cinco dias do jogo e tem uma interface própria que mostra tudo: em qual trimestre a gravidez tá, barra de progresso, tempo restante e até os sintomas do momento.
 
-Na hora do parto, o personagem perde metade da vida pelo esforço, então tem que descansar. O bebê nasce como um item que você carrega no colo, e a partir daí começa o sistema de co-parentalidade: os pais dividem turnos para segurar a criança. Se o bebê começa a chorar no berço, quem estiver no turno tem que largar o que tiver fazendo e ir lá cuidar dele.
+E esses sintomas afetam a gameplay de verdade. Se a sua personagem for a mãe, você sente isso na pele: a velocidade de movimento cai com um debuff real, a energia esgota muito mais rápido e a barra de stamina trava pra você não conseguir sair correndo, minerar ou lutar. Se a grávida for a sua esposa NPC, ela também desacelera a rotina e passa mais tempo descansando.
 
-O filho herda traços genéticos dos pais, tipo cor de cabelo e olhos, e tem um sistema que mistura os nomes do casal pra gerar o sobrenome da criança.
+No terceiro trimestre, o parto fica iminente e a mãe perde metade da vida no nascimento pelo esforço. O bebê nasce como um item nos seus braços, e a partir daí entra o sistema de coparentalidade.
+
+E isso aqui não é só um detalhe visual: tem turnos reais de 4 horas divididos entre o casal. O mod gerencia a custódia da criança. Se o turno virar e for a vez do seu cônjuge cuidar, o bebê sai do seu inventário e vai pro colo do NPC. Se você estiver offline e o turno virar, no momento em que você logar de volta o mod atualiza a guarda automaticamente. E se o bebê começar a chorar no berço, quem tiver no turno precisa largar o que tiver fazendo e ir lá cuidar dele, senão o humor despenca e a relação do casal se desgasta.
+
+O filho herda traços genéticos dos pais, tipo cor de cabelo e olhos, e tem um algoritmo que combina os nomes do casal pra gerar o sobrenome da criança.
 
 E aqui aconteceu uma coisa muito engraçada nos testes: o bebê ficava no inventário como qualquer outro item. Isso quer dizer que você podia abrir o menu de presentes de um vizinho e dar o seu próprio filho recém-nascido de presente pra ele. Eu tive que ir lá e programar uma trava no código pra impedir isso.
 
 ---
 
-### [12:30] CRESCIMENTO, ESCALAS E A PILHA DE FILHOS
+### [12:30] CRESCIMENTO, BRONCAS E DIÁLOGOS DE FAMÍLIA
 
-[CENA: Comparação em fila das fases de idade: bebê recém-nascido minúsculo, criança em tamanho infantil, adolescente e adulto. Em seguida, o jogador caminhando enquanto empilha crianças na cabeça.]
+[CENA: Comparação em fila das fases de idade: bebê recém-nascido minúsculo, criança em tamanho infantil, adolescente e adulto. Em seguida, menu de interação mostrando falas de pai/filho e a opção de dar bronca com reações diferentes.]
 
 **Locução:**
 Com o passar dos dias, o bebê cresce pelas fases: Bebê, Criança, Adolescente e Adulto. Quando chega na maioridade, ele arruma um emprego e vai atrás da própria casa.
 
-Pra fazer isso sem pesar o jogo, eu não podia criar dezenas de modelos 3D diferentes pra cada idade e refazer todas as roupas e armaduras do Hytale pra cada tamanho. Ia ser completamente inviável. Então eu criei um único modelo de criança feito de um jeito que dá pra reaproveitar os mesmos assets de roupa e itens do jogo original. Isso quer dizer que futuramente se o pessoal do hytale enfiar mais assets no jogo, eles já ficam adaptados para os os NPCs crianças
+Pra fazer isso sem pesar o jogo, eu não podia criar dezenas de modelos 3D diferentes pra cada idade e refazer todas as roupas e armaduras do Hytale pra cada tamanho. Ia ser completamente inviável. Então eu criei um único modelo de criança feito de um jeito que dá pra reaproveitar os mesmos assets de roupa e itens do jogo original. Isso quer dizer que se o Hytale colocar novas roupas ou armaduras no futuro, o modelo de criança já vai conseguir usar automaticamente.
 
 Quando a criança nasce, esse modelo é renderizado numa escala bem pequena. Conforme ela vai crescendo, a escala vai aumentando aos poucos. Na adolescência, o mod troca pro modelo padrão do Hytale só que em tamanho menor, e quando vira adulto chega nos 100%.
 
-E tem uma zoeira que eu deixei no mod de propósito: o sistema de carregar crianças permite empilhar seus filhos uns em cima dos outros na sua cabeça. Você sai andando pela vila com uma torre de crianças na cabeça como se nada tivesse acontecendo.
+E a relação com o filho não é genérica. O sistema de diálogos identifica se a criança que tá falando com você é só um morador qualquer da vila ou o seu próprio filho. O seu filho tem falas exclusivas chamando você de pai ou mãe, com respostas que mudam conforme ele vai ficando mais velho.
+
+Além disso, tem a opção de dar bronca no seu filho. Só que isso não funciona como um insulto qualquer de rua — a reação depende da idade dele:
+- Se você der bronca numa Criança, ela fica triste, começa a chorar e não tem coragem de responder de volta.
+- Se for um Adolescente, ele entra na fase rebelde: fica puto da vida, faz cara de raiva e bate de frente com você.
+- E se você tentar dar bronca no seu filho já Adulto, ele simplesmente te ignora ou fica constrangido, com aquela cara de "pai, eu já sou adulto, não viaja".
+
+E se você for um pai tóxico e ficar dando bronca repetidamente no mesmo dia, você estoura a paciência dele: a afinidade e a confiança despencam, e o filho grava na memória dele o trauma de ter sido insultado pelos pais.
+
+E claro, tem uma zoeira que eu deixei no mod de propósito: o sistema de carregar crianças permite empilhar seus filhos uns em cima dos outros na sua cabeça. Você sai andando pela vila com uma torre de três crianças na cabeça como se nada tivesse acontecendo.
 
 ---
 
