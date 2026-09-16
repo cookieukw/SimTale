@@ -86,9 +86,25 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
                 Ref<EntityStore> childRef = world.getEntityStore().getRefFromUUID(child.childId);
                 if (childRef != null && childRef.isValid()) {
                     RoutineAIComponent ai = store.getComponent(childRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    /* Same protection RoutineAISystem's own sleep/hunger interrupts already give
+                    SITTING/MOVING_TO_CHAIR (exitSitting first) and the child-play states
+                    (inChildPlay) -- this system reaches the same RoutineAIComponent from outside
+                    that state machine and calls moveTo directly on whatever currentTask she is
+                    already in. Skipping only SLEEPING/ENTERING_BED/MOVING_TO_BED protected the
+                    bed, but a mid-sit or mid-game child could still be leashed off toward a
+                    parent -- mounted on a chair with nothing here ever unmounting her or
+                    releasing the chair, or yanked out of a game of tag/hide-and-seek her
+                    partner is still waiting on.*/
                     if (ai != null && (ai.currentTask == RoutineAIComponent.TaskType.SLEEPING
                             || ai.currentTask == RoutineAIComponent.TaskType.ENTERING_BED
-                            || ai.currentTask == RoutineAIComponent.TaskType.MOVING_TO_BED)) {
+                            || ai.currentTask == RoutineAIComponent.TaskType.MOVING_TO_BED
+                            || ai.currentTask == RoutineAIComponent.TaskType.SITTING
+                            || ai.currentTask == RoutineAIComponent.TaskType.MOVING_TO_CHAIR
+                            || ai.currentTask == RoutineAIComponent.TaskType.TAG_CHASING
+                            || ai.currentTask == RoutineAIComponent.TaskType.TAG_FLEEING
+                            || ai.currentTask == RoutineAIComponent.TaskType.MOVING_TO_HIDE
+                            || ai.currentTask == RoutineAIComponent.TaskType.HIDING
+                            || ai.currentTask == RoutineAIComponent.TaskType.SEEKING)) {
                         continue;
                     }
 
