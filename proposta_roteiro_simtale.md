@@ -104,14 +104,52 @@ A solução foi cruzar o Leash Point com a direção do olhar do NPC: ele só ab
 
 ---
 
-### [16:30] ENCERRAMENTO E O FUTURO DO SIMTALE
+### [16:00] O SISTEMA DE REGISTRO: UMA SOLUÇÃO PRA TUDO
+
+[CENA: Jogador colocando cadeiras, banheiras e baús em diferentes casas. Interface de debug mostrando os registros.]
+
+**Locução:**
+Lembra que eu falei que o mod escuta o momento exato em que o jogador coloca uma cama no chão pra cadastrar ela? Pois é, essa ideia funcionou tão bem que eu acabei replicando ela pra praticamente todos os móveis do jogo. Cadeiras, banheiras, baús, postes de pesca, fazendas — tudo usa o mesmo padrão de registro.
+
+Quando você coloca uma cadeira no chão, o mod cadastra ela num ChairRegistry. O NPC depois vai lá, senta, e a cadeira fica marcada como ocupada até ele levantar. A mesma coisa com a banheira: ele toma banho, recupera higiene, e nenhum outro morador tenta entrar na mesma banheira ao mesmo tempo.
+
+Se eu não tivesse feito assim, cada NPC ia precisar escanear centenas de blocos toda hora pra achar onde sentar ou onde tomar banho. Com esse sistema, a informação já tá pronta, catalogada e sem lag nenhum.
+
+---
+
+### [17:30] INTERAÇÕES SOCIAIS E BRINCADEIRAS DE CRIANÇA
+
+[CENA: Dois NPCs adultos conversando entre si na praça da vila com balões de fala. Depois, corte para duas crianças correndo uma atrás da outra brincando de pega-pega.]
+
+**Locução:**
+Os moradores não interagem só com o jogador. Eles conversam entre si também. Quando dois NPCs ficam ociosos perto um do outro, eles começam a socializar: escolhem um assunto, viram um pro outro e trocam falas baseadas na personalidade e no humor de cada um.
+
+Isso vale pra tudo. Se dois NPCs adultos que não são casados ficam conversando bastante, eles vão criando afinidade aos poucos. Se essa afinidade chegar num certo ponto, eles podem começar um romance, casar e ter filhos por conta própria, sem o jogador precisar fazer nada. A vila cresce sozinha.
+
+E as crianças? As crianças brincam. Se duas crianças estão ociosas perto uma da outra, elas podem começar uma partida de pega-pega ou de esconde-esconde. Uma sai correndo, a outra vai atrás, com diálogos próprios durante a brincadeira.
+---
+
+### [19:00] ROUPAS FESTIVAS E GUARDAS
+
+[CENA: NPCs vestidos com roupas de Natal andando pela vila com neve. Depois, corte para um NPC Guarda patrulhando e enfrentando um mob hostil.]
+
+**Locução:**
+Uma coisa que eu queria muito era que a vila reagisse às datas do ano. Então eu fiz um sistema de roupas festivas que funciona pelo calendário do jogo. Quando chega dezembro, os NPCs trocam de roupa sozinhos e vestem roupas de Natal. No final de outubro, eles vestem fantasias de Halloween. Quando a data passa, eles voltam pro visual normal automaticamente.
+
+E cada NPC tem o modelo de fantasia gerado individualmente, então eles não ficam todos iguais. Cada morador mantém o rosto e os traços dele mesmo com a roupa festiva.
+
+Também tem a profissão de Guarda. Você entrega uma arma pro NPC e ele vira um guarda da vila. Ele patrulha o perímetro e quando detecta um mob hostil por perto, ele parte pra cima e luta. E o mais legal é que o sistema identifica se a arma é corpo a corpo ou à distância, tipo arco ou besta, e muda o comportamento de combate de acordo — o guarda com espada vai pra cima, o com arco fica na distância.
+
+---
+
+### [20:30] ENCERRAMENTO E O FUTURO DO SIMTALE
 
 [CENA: Pôr do sol na vila com as luzes das casas acendendo, fumaça saindo das chaminés e os moradores indo dormir em suas respectivas camas.]
 
 **Locução:**
 Um tempo atrás eu tava conversando com um amigo sobre tudo isso, e ele falou que o SimTale parecia uma mistura de MineColonies com Comes Alive do Minecraft. Eu fui pesquisar depois e realmente se parece bastante. O engraçado é que eu nem conhecia esse MineColonies antes, acabei chegando numa proposta parecida por conta própria.
 
-O mod ainda tem muita coisa pra receber. Eu quero colocar profissões mais diferentes, tipo comerciantes, festivais de vilarejo e mecânicas sociais mais elaboradas.
+O mod ainda tem muita coisa pra crescer. Eu quero trazer profissões mais fora da curva, tipo vendedores com economia própria, eventos de vilarejo mais elaborados e mecânicas de interação ainda mais profundas.
 
 Se você curtiu e quer acompanhar o SimTale, deixa o like, se inscreve e comenta o que você faria primeiro com esse mod.
 
