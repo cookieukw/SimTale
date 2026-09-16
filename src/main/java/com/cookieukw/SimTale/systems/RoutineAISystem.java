@@ -558,8 +558,8 @@ once per NPC per tick for nothing.
         /* Player Proximity Greeting */
         checkPlayerProximityGreeting(ref, npc, ai, transform, world, store);
 
-        /* Face a nearby player while idle/wandering (docs/ROADMAP.md: "NPC olhando pra parede") */
-        faceNearbyPlayerWhileIdle(npc, ai, transform, world, store);
+        /* Face a nearby player while idle (docs/ROADMAP.md: "NPC olhando pra parede") */
+        faceNearbyPlayerWhileIdle(ref, npc, ai, transform, world, store);
 
         /* World-event commentary: NPC notices a sightworthy creature nearby (docs/ROADMAP.md:
          * "Kweebec avistado") */
@@ -801,11 +801,15 @@ once per NPC per tick for nothing.
             if (d2 <= greetRadiusSq) {
                 ai.lastPlayerGreetingTick = world.getTick();
 
-                // Turn briefly towards player
-                double dx = pt.getPosition().x - npcPos.x;
-                double dz = pt.getPosition().z - npcPos.z;
-                if (dx * dx + dz * dz > 1e-4) {
-                    transform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
+                // Turn briefly towards player only if not actively walking
+                MovementStatesComponent msc = ref != null ? store.getComponent(ref, MovementStatesComponent.getComponentType()) : null;
+                boolean isWalking = msc != null && msc.getMovementStates().walking;
+                if (!isWalking) {
+                    double dx = pt.getPosition().x - npcPos.x;
+                    double dz = pt.getPosition().z - npcPos.z;
+                    if (dx * dx + dz * dz > 1e-4) {
+                        transform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
+                    }
                 }
 
                 // Play wave and smile
@@ -836,7 +840,7 @@ once per NPC per tick for nothing.
     }
 
     /**
-     * docs/ROADMAP.md, "Comportamento ocioso -- NPC olhando para parede": an idle/wandering NPC
+     * docs/ROADMAP.md, "Comportamento ocioso -- NPC olhando para parede": an idle NPC
      * kept whatever rotation its last errand left it in -- most visibly, whatever direction it
      * happened to be walking when a wander destination was reached, wall or fence included --
      * because the only place that ever turned it towards a player was
@@ -846,16 +850,18 @@ once per NPC per tick for nothing.
      * <p>
      * Same {@code atan2(-dx, -dz)} formula as {@link #faceConversationPartner} and
      * {@link #checkPlayerProximityGreeting}, just decoupled from the greeting cooldown and
-     * scoped to the two states that mean "not otherwise occupied" ({@link
-     * NPCSocialHelper#isAvailableToTalk} uses the same pair). Throttled to roughly twice a
-     * second per NPC, staggered by entity id so not every idle NPC re-scans players on the same
-     * tick -- this is a cosmetic nicety, not worth a full player scan every tick.
+     * scoped strictly to IDLE (never while WANDERING, which has its own pathfinding orientation).
+     * Throttled to roughly twice a second per NPC, staggered by entity id so not every idle NPC
+     * re-scans players on the same tick.
      */
-    private static void faceNearbyPlayerWhileIdle(SimNPCComponent npc, RoutineAIComponent ai,
+    private static void faceNearbyPlayerWhileIdle(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
                                                    TransformComponent transform, World world,
                                                    Store<EntityStore> store) {
-        if (ai.currentTask != TaskType.IDLE && ai.currentTask != TaskType.WANDERING) return;
+        if (ai.currentTask != TaskType.IDLE) return;
         if (npc.isInteractingViaUI) return;
+
+        MovementStatesComponent msc = ref != null ? store.getComponent(ref, MovementStatesComponent.getComponentType()) : null;
+        if (msc != null && msc.getMovementStates().walking) return;
 
         long tick = world.getTick();
         int stagger = npc.entityId != null ? (npc.entityId.hashCode() & 0x7fffffff) : 0;
