@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.SimLog;
@@ -337,6 +338,17 @@ public final class NPCDoorHelper {
     private static boolean isAnyNpcNear(HouseBlockPos pos) {
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc.entityRef == null || !npc.entityRef.isValid()) continue;
+
+            // A settled NPC isn't "still crossing the doorway" just because she lives or works
+            // within KEEP_OPEN_RADIUS_SQ of it -- treating her as such was why a door an NPC
+            // walked through and then settled near (a small house's bed or chair, often well
+            // within this radius) never got the chance to close: she counted as "someone's
+            // mid-doorway" for as long as she stayed home. lastLeashPos is the same "do I have
+            // somewhere I'm actively walking to right now" signal handleNpcDoors already reads
+            // to compute doorDestination -- null means she arrived and stopped (clearMoveTarget
+            // ran), whatever task she's doing now.
+            RoutineAIComponent otherAi = npc.entityRef.getStore().getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (otherAi == null || otherAi.lastLeashPos == null) continue;
 
             TransformComponent tc = npc.entityRef.getStore()
                     .getComponent(npc.entityRef, TransformComponent.getComponentType());
