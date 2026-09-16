@@ -209,6 +209,44 @@ final class RoutineSleepHelpers {
                 ai.taskStartTime = world.getTick();
             }
 
+            /* Child play: two nearby children start a real game of tag or hide-and-seek instead
+            of each separately drifting into solo leisure or a normal chat. Deliberately its own
+            statement after every real need above, same reasoning the stroll fallback below
+            already documents -- a hungry or exhausted child still eats or sits down first, and
+            this only ever claims a tick that would otherwise fall through to the aimless stroll,
+            so it costs nothing on the many ticks nobody is around to play with. */
+            if (ai.currentTask == TaskType.IDLE
+                    && InteractionManager.isNpcAChild(npc)
+                    && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.FUN_ID) < NPCLeisureHelper.FUN_THRESHOLD || Math.random() < 0.15)
+                    && world.getTick() >= ai.nextPlaySearchTick) {
+                SimNPCComponent playmate = null;
+                double bestPlayDist = ChildPlayHelper.PLAY_SEARCH_RANGE_SQ;
+                for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
+                    if (other == npc || other.entityRef == null || !other.entityRef.isValid() || other.entityId == null) continue;
+                    if (!InteractionManager.isNpcAChild(other)) continue;
+
+                    RoutineAIComponent otherAi = store.getComponent(other.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (otherAi == null || !ChildPlayHelper.isAvailableToPlay(otherAi)) continue;
+
+                    TransformComponent ot = store.getComponent(other.entityRef, TransformComponent.getComponentType());
+                    if (ot == null) continue;
+
+                    double d2 = transform.getPosition().distanceSquared(ot.getPosition());
+                    if (d2 < bestPlayDist) {
+                        bestPlayDist = d2;
+                        playmate = other;
+                    }
+                }
+                if (playmate != null) {
+                    RoutineAIComponent playmateAi = store.getComponent(playmate.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (playmateAi != null) {
+                        ChildPlayHelper.startGame(ref, npc, ai, playmate.entityRef, playmate, playmateAi, world, store, null);
+                    }
+                } else {
+                    ai.nextPlaySearchTick = world.getTick() + 200;
+                }
+            }
+
             /* Deliberately its own statement rather than the tail of the ladder above.
             Every branch up there can claim the tick and then not set a task: the searches fail
             silently, and the socialise roll can win with nobody available to talk to. As the
