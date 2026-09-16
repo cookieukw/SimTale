@@ -97,6 +97,7 @@ journal.task.away = away on an expedition
 journal.task.dying = in a bad way
 journal.task.building = working on a construction
 journal.task.resting = resting in a chair
+journal.task.playing = playing with a friend
 journal.task.working = working
 
 house.check.unenclosed = The house is not fully enclosed by walls or is too large!
