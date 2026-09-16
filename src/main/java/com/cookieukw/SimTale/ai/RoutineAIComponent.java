@@ -47,7 +47,12 @@ public class RoutineAIComponent implements Component<EntityStore> {
         FIGHTING,
         FINDING_CHAIR,
         MOVING_TO_CHAIR,
-        SITTING
+        SITTING,
+        TAG_CHASING,
+        TAG_FLEEING,
+        MOVING_TO_HIDE,
+        HIDING,
+        SEEKING
     }
 
     public TaskType currentTask = TaskType.IDLE;
@@ -92,6 +97,14 @@ public class RoutineAIComponent implements Component<EntityStore> {
      * instead would look like ordinary wandering that happens to stay near the edge.
      */
     public double patrolAngle = 0;
+
+    // Child play (tag / hide-and-seek) fields
+    /** Who this child is currently playing tag or hide-and-seek with. */
+    public UUID playPartnerId = null;
+    /** Tags/finds remaining before the current game winds down on its own. */
+    public int playRoundsLeft = 0;
+    /** Same guard as {@link #nextBathSearchTick} et al., for the child-play search. */
+    public long nextPlaySearchTick = 0;
     
     // Debug
     public boolean forcedByDebug = false;
@@ -188,6 +201,9 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.socializeHost = this.socializeHost;
         comp.wanderTimer = this.wanderTimer;
         comp.patrolAngle = this.patrolAngle;
+        comp.playPartnerId = this.playPartnerId;
+        comp.playRoundsLeft = this.playRoundsLeft;
+        comp.nextPlaySearchTick = this.nextPlaySearchTick;
         comp.lastLeashPos = this.lastLeashPos;
         comp.lastLeashTick = this.lastLeashTick;
         comp.forcedByDebug = this.forcedByDebug;
