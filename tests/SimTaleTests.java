@@ -271,11 +271,11 @@ public class SimTaleTests {
 
         child.birthTick = -21 * 24000L;
         child.stage = GrowthStage.TEEN;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.75f, "Escala do Adolescente Inicial");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.85f, "Escala do Adolescente Inicial");
 
         child.birthTick = -40 * 24000L;
         child.stage = GrowthStage.TEEN;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.95f, "Escala do Adolescente Final");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 1.00f, "Escala do Adolescente Final");
 
         child.birthTick = -41 * 24000L;
         child.stage = GrowthStage.ADULT;
