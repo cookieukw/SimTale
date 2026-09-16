@@ -1,81 +1,118 @@
-# Roteiro de Vídeo / Devlog: SimTale (Transformando o Hytale num Simulador de Vida)
-
-Este documento traz a estrutura de roteiro, texto de narração e guia de gravações para um vídeo no estilo **Documentário / Devlog**. O foco principal é mostrar o **conteúdo, as mecânicas e os sistemas de gameplay** do mod SimTale de forma envolvente, didática e divertida.
+# Roteiro de Vídeo: SimTale — O The Sims Dentro do Hytale
 
 ---
 
-## 🎬 1. Estrutura Narrativa (Falas em Primeira Pessoa)
+### [00:00] INTRODUÇÃO: O THE SIMS NO HYTALE
 
-### **Ato 1: A Ideia — Dando Alma aos NPCs do Hytale (00:00 - 02:00)**
-*   **O Gancho:** *"Os NPCs padrão do Hytale são legais para preencher o mapa, mas vamos ser sinceros: depois de alguns minutos, você percebe que eles são basicamente estátuas ambulantes. Eles não têm casa, não têm história, não têm sentimentos e não interagem com o mundo ao redor. E foi olhando para isso que eu me perguntei: e se a gente pudesse transformar o Hytale em um simulador de vida completo, no estilo The Sims?"*
-*   **A Origem da Ideia:** *"Minha ideia inicial era super simples: eu só queria portar um addon de NPC que eu já tinha desenvolvido no Minecraft Bedrock e adaptá-lo para o Hytale. Mas quando comecei a fuçar nas ferramentas e na API do jogo, a ficha caiu. Eu percebi o potencial absurdo que a gente tinha nas mãos e vi que dava para ir MUITO além de caixas de diálogo simples. Foi aí que decidi criar o **SimTale** do zero."*
-*   **O Conceito SimTale:** *"A proposta do mod é simples de entender, mas gigante de executar: dar alma, personalidade, rotina e laços familiares para os habitantes do mundo. Cada NPC que você encontra passa a ter necessidades fisiológicas, preferências de vida, empregos, relacionamentos e até a capacidade de formar uma família e ter filhos."*
-*   **A Filosofia de Design:** *"Eu não queria apenas criar botões na tela. Eu queria que os NPCs realmente vivessem no mundo: que tivessem suas próprias casas, que sentissem fome, que dormissem à noite, que tivessem hobbies e que reagissem de formas completamente diferentes dependendo de quem eles são."*
+[CENA: Câmera livre cinematográfica em terceira pessoa sobrevoando um vilarejo vivo no Hytale. NPCs caminhando, conversando, cuidando de plantações e interagindo entre si.]
 
----
+**Locução:**
+Eu recriei o The Sims completo dentro do Hytale.
 
-### **Ato 2: A Psicologia — Necessidades, Traits e o "Leash Point" (02:00 - 05:30)**
-*   **As Necessidades (Needs):** *"O coração da inteligência dos NPCs gira em torno de cinco necessidades fundamentais: **Fome, Energia, Social, Diversão e Higiene**. Se um NPC passa muito tempo sem comer ou sem tomar banho, a barra dele cai e ele fica visivelmente de mau humor — mudando a forma como responde ao jogador."*
-*   **Personalidade & Traços (Traits):** *"Mas o que torna cada cidadão único é o sistema de **Personalidade e Traços**. Um NPC pode ter traços como *Amigável, Agressivo, Preguiçoso, Carente, Ganancioso ou Paranóico*. Se você tentar contar uma piada para um NPC faminto que é 'Agressivo', ele provavelmente vai te dar um coice. Já um NPC 'Carente' vai adorar qualquer atenção que você der a ele."*
-*   **Preferências e Gostos:** *"Além da personalidade, cada morador tem seus próprios **Gostos Pessoais**. Eles têm comidas favoritas e odiadas, itens que amam receber de presente, uma estação do ano preferida e até hobbies específicos — como pescar na beira do rio, cultivar plantas ou explorar cavernas."*
-*   **Interações e Afinidade:** *"Ao abrir o menu de interação, você pode conversar, contar piadas, flertar ou presentear. Se você der de presente a comida favorita de um NPC quando ele estiver morrendo de fome, o nível de afinidade e confiança de vocês vai dar um salto gigante!"*
-*   **A Variedade de Diálogos:** *"E para deixar tudo isso ainda mais dinâmico, eu programei uma variedade gigantesca de diálogos. No total, são mais de 800 falas diferentes no código. São 200 variantes para homens, 200 para mulheres e 400 exclusivas para as crianças, divididas entre meninos e meninas. Cada um tem diálogos, reações e frases completamente únicas que mudam de acordo com a personalidade, os gostos do NPC e até mesmo alguma ocasião especial no jogo."*
-*   **O Conceito do Leash Point (Guarde essa informação!):** *"Para fazer a movimentação funcionar sem bug, eu criei uma âncora chamada **Leash Point** — um ponto de referência dinâmico que o mod passa para a física do Hytale controlar o caminho do NPC. Guarde bem essa informação, porque esse Leash Point vai resolver um problema inacreditável mais para frente!"*
+Essa história começou lá atrás, quando eu criei uma versão de addon para o Minecraft Bedrock que basicamente transformava os villagers em players que interagiam pelo chat. Na época, eu acabei não atualizando e nem dando continuidade para esse addon por conta de várias limitações técnicas da plataforma. Mas aí o Hytale chegou e eu fiquei uns belos meses testando as paradas, fazendo mods mais simples e etc. Foi aí que surgiu a ideia de portar aquele mod que eu tinha feito para o Bedrock e ver até onde eu conseguia chegar. Foi assim que nasceu o SimTale, e isso foi em março desse ano.
+
+Os NPCs padrão do Hytale são legais para preencher cenário, mas vamos ser sinceros: depois de alguns minutos você percebe que eles são quase estátuas ambulantes. Não têm casa, não têm história, não têm sentimentos e nem rotina. No início, a minha intenção era apenas portar aquele meu addon antigo e colocar caixas de diálogo simples. Só que, quando eu comecei a mexer na API e nas ferramentas do Hytale, a ficha caiu: a gente tinha em mãos um potencial absurdo para ir muito além de só um monte de texto na tela.
+
+Eu decidi criar um simulador de vida mais completo. Cada habitante do mundo agora tem necessidades fisiológicas, personalidade, rotina de trabalho, memórias, relacionamentos amorosos e até a capacidade de casar, engravidar e construir família.
 
 ---
 
-### **Ato 3: Arquitetura & Lar — O Algoritmo de Casas e Baús Inteligentes (05:30 - 09:00)**
-*   **A Inspiração no Terraria:** *"Um dos sistemas mais legais do SimTale é como os NPCs reconhecem o que é uma casa. Não adianta só colocar um NPC no meio do nada; ele precisa de um lar de verdade. Eu desenvolvi esse sistema fortemente inspirado no **Terraria** e na forma como os habitantes de lá exigem moradias adequadas."*
-*   **O Desafio da CPU (Chunk Scan vs Eventos):** *"Mas como o jogo sabe onde estão as camas no mundo? Se cada NPC ficasse escaneando os chunks o tempo todo, com 100 NPCs o servidor teria que fazer milhões de checagens por segundo e iria derreter a CPU. A solução foi inteligente: o mod escuta o evento exato em que o jogador coloca um bloco de cama no chão e cadastra ela instantaneamente no nosso registro global (`BedRegistry`) com custo zero de lag!"*
-*   **O Algoritmo de Validação da Casa:** *"A partir da cama cadastrada, o sistema faz uma validação em 2 etapas. Primeiro, um curto-circuito rápido: se não houver paredes ao redor, ele cancela na hora. Se houver paredes, ele verifica se o cômodo está 100% vedado e sem buracos no teto. Por fim, ele checa se o local tem o kit básico de uma moradia: **uma cama, uma mesa, uma cadeira, iluminação e um baú**. Se faltar algo ou se o espaço for apertado demais, o NPC ignora a casa."*
-*   **Inventário da Casa & Baús Inteligentes:** *"Os baús da residência funcionam como o inventário global da família. O NPC sabe exatamente onde fica cada baú da sua casa e o que tem dentro. Se ele sente fome, vai direto no seu baú pegar um lanche; se coleta materiais no trabalho, guarda tudo na despensa. E o melhor: o código é inteligente para que os moradores **nunca confundam com os baús dos vizinhos e jamais tentem saquear baús de masmorras ou do mapa aberto!**"*
+### [02:00] A PSICOLOGIA DOS NPCS: NECESSIDADES E PERSONALIDADE
+
+[CENA: O jogador se aproxima de um morador da vila e clica com botão direito. A interface do SimTale abre, exibindo as barras de status, traços de personalidade e botões de interação.]
+
+**Locução:**
+Tudo começa na cabeça de cada npc. O coração do comportamento deles gira em torno de cinco necessidades fundamentais, exatamente como no The Sims: Fome, Energia, Social, Diversão e Higiene.
+
+Se um morador passa o dia inteiro trabalhando sem comer ou sem tomar um banho, a energia dele se esgota. Ele fica visivelmente de mau humor e muda a postura e a forma como responde a você.
+
+Só que ninguém é igual. Cada cidadão nasce com traços de personalidade próprios, como Amigável, Agressivo, Preguiçoso, Carente, Ganancioso ou Paranóico. E isso muda completamente várias interações e comportamentos. Se você tentar contar uma piada para um morador com fome que tem o traço Agressivo, ele provavelmente vai te dar um coice e mandar você sumir da frente dele. Já um NPC Carente vai comemorar qualquer atenção mínima que você der.
+
+Além disso, eles têm preferências e gostos individuais: comidas favoritas, pratos que odeiam, itens preferidos para ganhar de presente, uma estação do ano favorita e até hobbies — como passar a tarde pescando na beira do rio, cuidando da horta ou explorando cavernas.
+
+Se você descobrir a comida favorita de alguém e entregar de presente justamente quando essa pessoa estiver morrendo de fome, a afinidade e a confiança de vocês cresce bastante
+
+Para sustentar tudo isso sem parecer repetitivo, eu escrevi e programei mais de 800 falas diferentes dentro do código , só que isso foi há tempos atrás, e atualmente tem beeem mais coisas que vou falar mais para frente. São 200 variações para homens, 200 para mulheres e 400 falas exclusivas para crianças, divididas entre meninos e meninas. Cada fala muda de acordo com o humor, a personalidade e o que está acontecendo na vila naquele momento.
+
+E para fazer esses personagens andarem sem bugar no cenário, eu precisei inventar uma âncora invisível chamada Leash Point, que serve como referência para a física do Hytale guiar o caminho do NPC. Guarda bem esse nome, porque esse Leash Point salvou a gente de um dos bugs mais bizarros que vai surgir mais para frente
+
+### [05:30] ARQUITETURA E LAR: O ALGORITMO DE CASAS E BAÚS INTELIGENTES
+
+[CENA: Jogador montando uma casa do zero com blocos de madeira e pedra. O jogador coloca a porta, a cama, mesa, cadeira, iluminação e o baú. O NPC sem-teto reconhece o local na hora.]
+
+**Locução:**
+Beleza, os NPCs já tinham personalidade, necessidades e tudo mais. Mas eles ainda precisavam de um lugar para morar. E para esse sistema eu me inspirei bastante no Terraria e na forma como os habitantes de lá exigem casas adequadas.
+
+Só que aqui teve um desafio técnico grande. Se cada morador ficasse escaneando os blocos do mapa o tempo todo tentando achar onde dormir, cem NPCs fariam milhões de checagens por segundo e iam derreter o processador do servidor. A solução que eu achei foi fazer o mod escutar o exato momento em que o jogador coloca uma cama no chão e cadastrar essa cama na hora dentro de um registro global, sem custo nenhum de desempenho.
+
+A partir dessa cama, o algoritmo do SimTale faz uma validação rápida em duas etapas. Primeiro, um teste de curto-circuito: tem paredes ao redor? Se não tiver, ele nem perde tempo processando. Se tiver, ele checa se o cômodo está totalmente vedado, sem buracos no teto, e confere se a casa possui os itens obrigatórios: uma cama, uma mesa, uma cadeira, uma fonte de luz e um baú. Se faltar qualquer um desses itens, ou se o quarto for apertado demais, o morador simplesmente recusa a casa.
+
+E o baú da casa funciona como o estoque da família. O NPC sabe onde fica o baú dele e o que tem guardado ali dentro. Se bater fome, ele vai sozinho até lá buscar comida; se ele colheu trigo na fazenda, guarda tudo na despensa.
+
+E uma coisa que eu tive que tomar bastante cuidado no código foi garantir que eles nunca mexam nos baús dos vizinhos e nem tentem saquear baús de masmorras ou estruturas do mapa aberto.
 
 ---
 
-### **Ato 4: Amor e Família — Gravidez, Genética e o Cuidado com os Bebês (09:00 - 13:00)**
-*   **Relacionamentos e Casamento:** *"Conforme a afinidade aumenta, você pode entregar o **Anel de Casamento** para se casar com um NPC. Ao se casarem, os NPCs passam a dividir a mesma casa, a mesma cama e compartilham o inventário entre si. Se você for casado com uma NPC, ela se muda para a sua casa e fica com você — e vice-versa!"*
-*   **O Sistema de Gravidez Realista:** *"Depois do casamento vem o sistema de **Gravidez**. Ao instalar o mod pela primeira vez, você escolhe um sexo para a mecânica de reprodução. Homens engravidam NPCs femininas, e mulheres engravidarem do marido NPC. A gestação dura cerca de 5 dias do jogo e traz alterações de gameplay reais: a mãe perde velocidade de caminhada, a stamina não recarrega para atividades físicas pesadas (como correr, minerar ou lutar) e a energia cai rapidamente."*
-*   **Parto e Co-Parentalidade:** *"No momento do parto, o personagem perde cerca de metade da vida pelo esforço, exigindo cuidados reforçados. O bebê nasce como um item de colo e ativa o sistema de **Co-Parentalidade**: os pais dividem turnos trocando o bebê de colo a cada poucas horas reais. Se a criança chora no berço, quem estiver no turno para o que está fazendo para ir amamentar, dar carinho ou colocar pra dormir."*
-*   **Genética & A Trava Anti-Troll:** *"A criança herda características físicas dos pais por probabilidade genética (duas pessoas de cabelo castanho têm chance maior de filho castanho, mas com pequena margem para loiro ou preto). Nós temos um sistema exlusivamente para nomes, que pega o nome do player e do NPC para fazer uma mistura e dar de sobrenome para o filho. E um detalhe divertido de bastidores: eu tive que programar uma **trava de segurança** no sistema de presentes, porque nos primeiros testes os jogadores podiam oferecer o próprio bebê recém-nascido como presente para outros NPCs no menu de troca!"*
-*   **Crescimento em Fases:** *"Com o tempo, o bebê evolui pelas fases de desenvolvimento: **Bebê → Criança → Adolescente → Adulto**, aprendendo tarefas de casa e buscando sua própria vida ao atingir a maioridade."*
-*   **O Truque de Escala nas Crianças:** *"Sobre esse sistema de crescimento, ele funciona de um jeito bem inteligente. Eu criei um único modelo 3D exclusivo para os NPCs crianças, feito de uma forma tão boa que nos permite reaproveitar todos os assets de roupas e itens do jogo sem precisar modelar nada do zero. Quando o bebê nasce, esse modelo de criança é renderizado em uma escala bem menor. Conforme ele cresce, a escala vai aumentando gradualmente. A partir da adolescência, o modelo muda para o do jogador comum, só que ainda em escala menor, até que na fase adulta assume a escala normal de 100%."*
+### [09:00] AMOR E FAMÍLIA: CASAMENTO, GRAVIDEZ E CUIDADOS
+
+[CENA: Jogador entregando o anel de casamento para uma NPC. Corações na tela. Depois, corte para o período de gravidez, o nascimento do bebê e os cuidados no berço.]
+
+**Locução:**
+Depois de construir uma casa e passar um bom tempo conversando e presenteando, o nível de afeto fica alto o suficiente pra você poder entregar o Anel de Casamento.
+
+Quando casa, os dois passam a morar juntos, dividem a cama e compartilham o inventário da casa. E aí naturalmente veio a ideia de fazer o sistema de família e gravidez.
+
+Quando você instala o mod, você escolhe o sexo do seu personagem para essa parte funcionar. A gestação dura uns cinco dias do jogo e afeta a gameplay de verdade: a mãe perde velocidade, a energia cai muito mais rápido e a stamina trava para atividades pesadas. Então nada de sair correndo, minerar ou lutar enquanto tiver grávida.
+
+Na hora do parto, o personagem perde metade da vida pelo esforço, então tem que descansar. O bebê nasce como um item que você carrega no colo, e a partir daí começa o sistema de co-parentalidade: os pais dividem turnos para segurar a criança. Se o bebê começa a chorar no berço, quem estiver no turno tem que largar o que tiver fazendo e ir lá cuidar dele.
+
+O filho herda traços genéticos dos pais, tipo cor de cabelo e olhos, e tem um sistema que mistura os nomes do casal pra gerar o sobrenome da criança.
+
+E aqui aconteceu uma coisa muito engraçada nos testes: o bebê ficava no inventário como qualquer outro item. Isso quer dizer que você podia abrir o menu de presentes de um vizinho e dar o seu próprio filho recém-nascido de presente pra ele. Eu tive que ir lá e programar uma trava no código pra impedir isso.
 
 ---
 
-### **Ato 5: Uma Vila Viva — Profissões, Expedições e a Diversão com Crianças (13:00 - End)**
-*   **Profissões e Estações de Trabalho:** *"Você pode atribuir profissões posicionando blocos de trabalho específicos. O **Pescador** trabalha perto de armadilhas de peixe no rio; o **Fazendeiro** pega sementes no baú da casa, semeia a horta e colhe automaticamente toda a produção para a comunidade."*
-*   **Expedições (Mineradores e Caçadores):** *"Já para o **Minerador** e o **Caçador**, fazer a IA caminhar pelo mundo aberto coletando recursos geraria dois problemas: lag de escaneamento e o risco do caçador matar os animais de estimação da sua fazenda! A solução foi criar o sistema de **Expedição**: eles simplesmente se ausentam do mapa por um tempo (como se tivessem saído para explorar a selva ou cavernas profundas) e retornam mais tarde trazendo os minérios e carnes para o estoque da vila."*
-*   **O Bug das Portas e a Solução do Leash Point:** *"E lembram do **Leash Point** que comentei lá no começo? Ele resolveu um dos bugs mais esquisitos que teve: antes, quando um NPC passava perto da casa do vizinho, ele saía abrindo todas as portas da rua sem a menor intenção de entrar! Agora, nós verificamos a posição do Leash Point e a direção do olhar do NPC: ele só abre a porta se o seu ponto de referência realmente estiver dentro daquela casa e se ele estiver olhando diretamente para a entrada!"*
-*   **Empilhamento de Crianças e Profissões Futuras:** *"E o mod tem vários outros pequenos detalhes divertidos que você vai percebendo enquanto joga, como o sistema de carregar crianças, que basicamente permite que você empilhe os seus filhos uns em cima dos outros na sua cabeça e saia andando pela vila como se nada estivesse acontecendo. Atualmente não temos nenhuma profissão muito fora da curva, tipo um vendedor exclusivo ou um caçador de dragões, mas isso é algo que pretendo adicionar nas próximas versões."*
-*   **Comparações e Inspirações:** *"Inclusive, eu andei conversando sobre essas mecânicas com um amigo e ele disse que a ideia parecia muito com o MineColonies misturado com o Comes Alive do Minecraft. Eu pesquisei depois e realmente se parece muito! Eu não conhecia esses mods antes, mas é engraçado ver como acabei recriando a mesma essência de forma independente para o Hytale. Futuramente, quero colocar sistemas ainda mais elaborados para tornar o SimTale a experiência definitiva de simulação de vida."*
+### [12:30] CRESCIMENTO, ESCALAS E A PILHA DE FILHOS
 
+[CENA: Comparação em fila das fases de idade: bebê recém-nascido minúsculo, criança em tamanho infantil, adolescente e adulto. Em seguida, o jogador caminhando enquanto empilha crianças na cabeça.]
 
+**Locução:**
+Com o passar dos dias, o bebê cresce pelas fases: Bebê, Criança, Adolescente e Adulto. Quando chega na maioridade, ele arruma um emprego e vai atrás da própria casa.
+
+Pra fazer isso sem pesar o jogo, eu não podia criar dezenas de modelos 3D diferentes pra cada idade e refazer todas as roupas e armaduras do Hytale pra cada tamanho. Ia ser completamente inviável. Então eu criei um único modelo de criança feito de um jeito que dá pra reaproveitar os mesmos assets de roupa e itens do jogo original. Isso quer dizer que futuramente se o pessoal do hytale enfiar mais assets no jogo, eles já ficam adaptados para os os NPCs crianças
+
+Quando a criança nasce, esse modelo é renderizado numa escala bem pequena. Conforme ela vai crescendo, a escala vai aumentando aos poucos. Na adolescência, o mod troca pro modelo padrão do Hytale só que em tamanho menor, e quando vira adulto chega nos 100%.
+
+E tem uma zoeira que eu deixei no mod de propósito: o sistema de carregar crianças permite empilhar seus filhos uns em cima dos outros na sua cabeça. Você sai andando pela vila com uma torre de crianças na cabeça como se nada tivesse acontecendo.
+
+---
+
+### [14:30] UMA VILA AUTÔNOMA: TRABALHOS, EXPEDIÇÕES E O BUG DAS PORTAS
+
+[CENA: Fazendeiro plantando sementes na horta; pescador recolhendo peixes no rio; caçador e minerador partindo para expedição e voltando com mochilas cheias.]
+
+**Locução:**
+Os moradores também precisam trabalhar. Pra definir a profissão de cada um, você entrega o item correspondente pro NPC — uma picareta faz dele um Minerador, uma enxada faz Fazendeiro, arco faz Caçador, e assim por diante.
+
+O Fazendeiro vai sozinho até o baú da casa pegar sementes, planta na horta, colhe quando tá maduro e guarda a comida pra todo mundo. O Pescador fica cuidando das armadilhas na beira do rio.
+
+Agora, pro Minerador e pro Caçador eu não podia simplesmente soltar a IA deles pelo mapa. Ia travar o servidor calculando rotas e o caçador provavelmente ia sair matando os animais de estimação da sua própria fazenda. Então eu criei o sistema de Expedições: eles saem do mapa por um tempo, como se tivessem ido explorar cavernas ou florestas, e voltam depois trazendo minérios, couro e carnes pro depósito da vila.
+
+E lembra do Leash Point que eu falei lá no começo? Pois é. Antes dele, a gente tinha um bug muito chato: qualquer morador que passasse na calçada saía abrindo as portas de todas as casas da rua, sem o menor motivo.
+
+A solução foi cruzar o Leash Point com a direção do olhar do NPC: ele só abre a porta se o ponto de ancoragem dele estiver dentro daquele cômodo e se ele estiver olhando pra porta. Resolveu na hora.
 
 ---
 
-## 📹 2. Guia de Gravação (Lista de Takes / B-Roll)
+### [16:30] ENCERRAMENTO E O FUTURO DO SIMTALE
 
-| # | Cena / Mecânica | O que mostrar na tela | Dica de Produção |
-| :--- | :--- | :--- | :--- |
-| **01** | **Intro / Hook** | Time-lapse do jogo em velocidade alta com vilarejo movimentado e NPCs andando. | Use câmera livre em modo espectador com tom cinematográfico. |
-| **02** | **Origem do Mod** | Gravação rápida do addon antigo no Bedrock vs o visual fluido do SimTale no Hytale. | Mostre o contraste de evolução do projeto. |
-| **03** | **Menu de Interação & Needs** | Clicando no NPC e mostrando o painel de Fome, Energia, Social, Diversão e Higiene. | Zoom nos ícones das necessidades e no indicador de humor. |
-| **04** | **Traços de Personalidade & Gostos** | NPC 'Agressivo' rejeitando uma piada vs entrega de comida favorita para NPC faminto. | Grave a reação imediata e o salto na barra de afinidade. |
-| **05** | **Leash Point em Ação** | Tela de debug com as coordenadas/marcador do Leash Point mostrando a IA navegando. | Use `/simtale debugbeds` ou marcador visual no mapa. |
-| **06** | **Construção de Casa (Terraria Style)** | Jogador construindo um cômodo com paredes, teto, porta, cama, mesa, cadeira e iluminação. | Time-lapse rápido da construção sendo montada e validada. |
-| **07** | **Colocação da Cama (BedRegistry)** | Jogador colocando uma cama no chão e o NPC sem-teto reivindicando ela instantaneamente. | Registre o log/notificação e o NPC caminhando até a cama ao anoitecer. |
-| **08** | **Baú da Família / Despensa** | NPC com fome caminhando autonomamente até o baú da sua casa para pegar comida. | Mostre o NPC abrindo o baú certo (e ignorando baús de vizinhos ou masmorras). |
-| **09** | **Proposta de Casamento** | Entregando o *Wedding Ring* para o parceiro romântico e a NPC se mudando para a sua casa. | Registre a mensagem de aceitação e a mudança de residência no painel. |
-| **10** | **Gravidez & Nerf de Stamina** | Jogadora/NPC grávida tentando correr ou minerar com a barra de stamina travada e velocidade reduzida. | Destaque no HUD o indicador de gestação e a lentidão de passos. |
-| **11** | **Parto & Perda de Vida** | O momento da entrega do bebê com a perda de metade da vida e o bebê surgindo como item de colo. | Mostre o ícone do bebê no inventário/colo e o status de saúde. |
-| **12** | **Troca de Bebê (Co-Parentalidade)** | O casal trocando o bebê de colo entre si após algumas horas do jogo. | Mostre o NPC vindo pegar o bebê do colo do jogador/parceiro. |
-| **13** | **Genética & Mistura de Nomes** | Comparativo de pais e filhos mostrando a cor dos cabelos/olhos e o sobrenome fundido na UI. | Monte um frame lado a lado mostrando o nome da família e o visual herdado. |
-| **14** | **Trava Anti-Troll (Bebê Presente)** | Jogador tentando selecionar o bebê no menu de presentes e a trava de segurança bloqueando. | Grave a tentativa de entrega com a mensagem cômica de bloqueio na tela. |
-| **15** | **Evolução da Criança (Escalas)** | Lado a lado de recém-nascido (mini), criança (escala média), adolescente e adulto. | Posicione os 4 estágios de crescimento em fileira para mostrar a evolução de tamanho. |
-| **16** | **Empilhando Crianças na Cabeça** | Jogador carregando 2 ou 3 crianças empilhadas na cabeça enquanto caminha pela vila. | Take cômico e descontraído mostrando a pilha de crianças andando no mapa. |
-| **17** | **Fazendeiro & Pescador** | Fazendeiro pegando sementes no baú e semeando a horta + Pescador na armadilha do rio. | Grave a automação da colheita e do depósito dos vegetais no baú. |
-| **18** | **Expedição (Minerador & Caçador)** | Minerador e caçador se ausentando da vila em expedição e retornando com minérios e carnes. | Mostre o NPC saindo do mapa e reaparecendo com os baús cheios de recursos. |
-| **19** | **Inteligência de Portas** | NPC caminhando na rua sem abrir portas dos vizinhos, abrindo somente a porta da sua própria casa. | Grave o NPC passando reto pelas casas da rua e entrando direto no seu lar. |
-| **20** | **Variedade de Diálogos (+800 Variantes)** | Conversando com crianças, homens e mulheres em diferentes humores e horários. | Mostre as caixas de texto com diálogos variados e reações engraçadas. |
+[CENA: Pôr do sol na vila com as luzes das casas acendendo, fumaça saindo das chaminés e os moradores indo dormir em suas respectivas camas.]
 
----
+**Locução:**
+Um tempo atrás eu tava conversando com um amigo sobre tudo isso, e ele falou que o SimTale parecia uma mistura de MineColonies com Comes Alive do Minecraft. Eu fui pesquisar depois e realmente se parece bastante. O engraçado é que eu nem conhecia esse MineColonies antes, acabei chegando numa proposta parecida por conta própria.
+
+O mod ainda tem muita coisa pra receber. Eu quero colocar profissões mais diferentes, tipo comerciantes, festivais de vilarejo e mecânicas sociais mais elaboradas.
+
+Se você curtiu e quer acompanhar o SimTale, deixa o like, se inscreve e comenta o que você faria primeiro com esse mod.
+
+Valeu por assistir, e até o próximo!
