@@ -228,7 +228,7 @@ once per NPC per tick for nothing.
             invalid chunk and hand her a Teleport -- which MountSystems$TeleportMountedEntity
             reacts to by silently stripping her MountedComponent (bytecode-confirmed: it strips
             MountedComponent from ANY entity that receives a Teleport, no exceptions, no
-            fallback). That is the root cause behind "crianca some do nada ao pular/voar":
+            fallback). That is the root cause behind "child disappears out of nowhere when jumping/flying":
             keeping her position always valid removes the precondition the chunk check needs to
             ever flag her, whatever the exact async timing that trips it.
             */
@@ -585,11 +585,11 @@ once per NPC per tick for nothing.
         /* Player Proximity Greeting */
         checkPlayerProximityGreeting(ref, npc, ai, transform, world, store);
 
-        /* Face a nearby player while idle (docs/ROADMAP.md: "NPC olhando pra parede") */
+        /* Face a nearby player while idle (docs/ROADMAP.md: "NPC staring at wall") */
         faceNearbyPlayerWhileIdle(ref, npc, ai, transform, world, store);
 
         /* World-event commentary: NPC notices a sightworthy creature nearby (docs/ROADMAP.md:
-        "Kweebec avistado")  */
+        "Kweebec spotted")  */
         checkWorldEventCommentary(npc, ai, transform, world, store);
 
         /* Finding Bath (Optimization)
@@ -899,7 +899,7 @@ once per NPC per tick for nothing.
     }
 
     /**
-     * docs/ROADMAP.md, "Comportamento ocioso -- NPC olhando para parede": an idle NPC
+     * docs/ROADMAP.md, "Idle behavior -- NPC staring at wall": an idle NPC
      * kept whatever rotation its last errand left it in -- most visibly, whatever direction it
      * happened to be walking when a wander destination was reached, wall or fence included --
      * because the only place that ever turned it towards a player was

@@ -10,47 +10,44 @@ import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 import org.joml.Vector3i;
 
 /**
- * Descobre qual bloco e a ANCORA de um movel que ocupa varios blocos.
+ * Discovers which block is the ANCHOR of a multi-block furniture piece.
  *
- * <h3>O problema que isto resolve</h3>
- * Moveis no Hytale nao ocupam um bloco. Uma cama ocupa <b>seis</b>. O jogo representa isso com
- * um bloco ancora, que carrega o movel de verdade, mais blocos de <i>filler</i> que apenas
- * marcam o espaco ocupado.
+ * <h3>The problem this solves</h3>
+ * Furniture pieces in Hytale do not occupy a single block. A bed occupies <b>six</b>. The game
+ * represents this with an anchor block carrying the actual furniture, plus <i>filler</i> blocks
+ * that merely reserve occupied space.
  *
- * <p>O SimTale ignorava essa distincao e tratava cada bloco como um movel independente. O
- * sintoma direto aparecia no {@code /simtale debugnear}: duas camas fisicas viravam
- * <b>doze</b> camas registradas.
+ * <p>SimTale previously ignored this distinction and treated each block as an independent furniture piece.
+ * The direct symptom showed up in {@code /simtale debugnear}: two physical beds became <b>twelve</b>
+ * registered beds.
  *
- * <p>O estrago real era no sono. {@code BlockMountAPI.mountOnBlock} calcula onde o corpo deita
- * a partir do ponto de montagem declarado no asset — para a cama do vilarejo,
- * {@code Beds: [{Offset {X:0.4, Y:0.4, Z:1.0}}]} — e esse offset e medido <b>a partir do bloco
- * ancora</b>. Passando um filler, o corpo sai deslocado exatamente pela distancia daquele filler
- * ate a ancora.
+ * <p>The real damage was during sleep. {@code BlockMountAPI.mountOnBlock} calculates where the body lies
+ * from the mounting point declared in the asset — for the village bed,
+ * {@code Beds: [{Offset {X:0.4, Y:0.4, Z:1.0}}]} — and that offset is measured <b>from the anchor block</b>.
+ * Passing a filler offsets the body by exactly the distance from that filler to the anchor.
  *
- * <p>Isso explica por que a NPC ficava sempre "quase" no lugar certo, e por que nenhuma
- * compensacao por posicao resolvia: o erro nao era constante, mudava conforme qual dos seis
- * blocos tinha sido sorteado.
+ * <p>This explains why the NPC was always "almost" in the right place, and why position offsets never
+ * fixed it: the error was not constant, but varied depending on which of the six blocks was chosen.
  *
- * <h3>Como o motor marca isso</h3>
- * Cada filler guarda um inteiro com o deslocamento ate sua ancora. O proprio jogo tem um
- * {@code /inspectfiller} que le exatamente isso, via
- * {@code BlockSection.getFiller(x,y,z)} + {@code FillerBlockUtil.unpackX/Y/Z}. As portas ja
- * usavam o mesmo mecanismo — {@code DoorInteraction.DoorInfo} carrega um campo {@code filler}.
+ * <h3>How the engine flags this</h3>
+ * Each filler stores an integer with the offset to its anchor. The game itself has an {@code /inspectfiller}
+ * command that reads this via {@code BlockSection.getFiller(x,y,z)} + {@code FillerBlockUtil.unpackX/Y/Z}.
+ * Doors already used the same mechanism — {@code DoorInteraction.DoorInfo} carries a {@code filler} field.
  */
 public final class FurnitureAnchorHelper {
 
     private static final SimLog LOGGER = SimLog.forClass(FurnitureAnchorHelper.class);
 
     private FurnitureAnchorHelper() {
-        // Classe utilitaria.
+        // Utility class.
     }
 
     /**
-     * Devolve a ancora do movel que ocupa {@code pos}, ou o proprio {@code pos} quando ele ja e a
-     * ancora (ou quando nao da para determinar).
+     * Returns the anchor of the furniture piece occupying {@code pos}, or {@code pos} itself when
+     * it is already the anchor (or when it cannot be determined).
      *
-     * <p>Nunca devolve null: na duvida, devolve a entrada. Assim quem chama nao precisa tratar
-     * caso especial, e o comportamento no pior cenario e o de antes desta classe existir.
+     * <p>Never returns null: when in doubt, returns the input. This avoids special cases for callers,
+     * and worst-case behavior matches the behavior prior to this class's existence.
      */
     public static Vector3i anchorOf(World world, int x, int y, int z) {
         Vector3i entrada = new Vector3i(x, y, z);
@@ -59,7 +56,7 @@ public final class FurnitureAnchorHelper {
         try {
             int filler = readFiller(world, x, y, z);
             if (filler == 0) {
-                // Zero significa "nao sou filler" — este bloco ja e a ancora.
+                // Zero means "not a filler" — this block is already the anchor.
                 return entrada;
             }
 
@@ -67,9 +64,9 @@ public final class FurnitureAnchorHelper {
             int dy = FillerBlockUtil.unpackY(filler);
             int dz = FillerBlockUtil.unpackZ(filler);
 
-            /* O sinal do deslocamento nao esta documentado, e chutar errado apontaria para o
-            lado oposto do movel. Em vez de assumir, testa-se os dois sentidos e aceita-se o
-            que realmente parece uma ancora: mesmo tipo de bloco e filler zerado.
+            /* The offset sign is not documented, and guessing wrong would point to the
+            opposite side of the furniture piece. Instead of assuming, both directions are tested
+            and the one that actually looks like an anchor is accepted: same block type and zero filler.
             */
             Vector3i menos = new Vector3i(x - dx, y - dy, z - dz);
             if (looksLikeAnchor(world, menos, x, y, z)) return menos;
@@ -77,24 +74,24 @@ public final class FurnitureAnchorHelper {
             Vector3i mais = new Vector3i(x + dx, y + dy, z + dz);
             if (looksLikeAnchor(world, mais, x, y, z)) return mais;
 
-            LOGGER.debug("[SimTale] filler em ({},{},{}) = {} nao levou a uma ancora valida; usando o proprio bloco.",
+            LOGGER.debug("[SimTale] filler at ({},{},{}) = {} did not lead to a valid anchor; using block itself.",
                     x, y, z, filler);
             return entrada;
         } catch (Exception e) {
-            /* Chunk descarregado, secao ausente, API divergente: seguir com o bloco original e
-            sempre melhor do que abortar o sono da NPC.
+            /* Unloaded chunk, missing section, divergent API: sticking with the original block is
+            always better than aborting NPC sleep.
             */
-            LOGGER.debug("[SimTale] falha ao resolver ancora de ({},{},{}): {}", x, y, z, e.toString());
+            LOGGER.debug("[SimTale] failed to resolve anchor of ({},{},{}): {}", x, y, z, e.toString());
             return entrada;
         }
     }
 
-    /** Conveniencia para quem ja tem um {@link Vector3i}. */
+    /** Convenience overload for callers with a {@link Vector3i}. */
     public static Vector3i anchorOf(World world, Vector3i pos) {
         return pos == null ? null : anchorOf(world, pos.x, pos.y, pos.z);
     }
 
-    /** True quando {@code pos} e um bloco do mesmo movel e nao aponta para outra ancora. */
+    /** True when {@code pos} is a block of the same furniture piece and does not point to another anchor. */
     private static boolean looksLikeAnchor(World world, Vector3i pos, int origemX, int origemY, int origemZ) {
         if (pos.x == origemX && pos.y == origemY && pos.z == origemZ) return false;
 
@@ -104,22 +101,22 @@ public final class FurnitureAnchorHelper {
         BlockType origem = world.getBlockType(origemX, origemY, origemZ);
         if (origem == null || origem.getId() == null) return false;
 
-        /* Mesmo id: os blocos de um movel compartilham o tipo. Isso evita aceitar um bloco
-        qualquer que por acaso esteja no deslocamento calculado.
+        /* Same id: blocks of a furniture piece share the same type. This avoids accepting an
+        unrelated block that happens to sit at the calculated offset.
         */
         if (!tipo.getId().equals(origem.getId())) return false;
 
-        // A ancora nao e filler de ninguem.
+        // The anchor is nobody's filler.
         return readFiller(world, pos.x, pos.y, pos.z) == 0;
     }
 
     /**
-     * Le o inteiro de filler de um bloco.
+     * Reads a block's filler integer.
      * <p>
-     * Caminho copiado do {@code /inspectfiller} do proprio jogo: a informacao vive na
-     * {@code BlockSection}, nao no {@code World}, entao e preciso descer ate a secao do chunk.
-     * A variante sincrona {@code getChunkSectionReferenceAtBlock} evita lidar com
-     * {@code CompletableFuture} no meio do tick.
+     * Path copied from the game's own {@code /inspectfiller}: the information lives in the
+     * {@code BlockSection}, not in the {@code World}, so we must traverse down to the chunk section.
+     * The synchronous variant {@code getChunkSectionReferenceAtBlock} avoids dealing with
+     * {@code CompletableFuture} in the middle of a tick.
      */
     private static int readFiller(World world, int x, int y, int z) {
         ChunkStore chunkStore = world.getChunkStore();

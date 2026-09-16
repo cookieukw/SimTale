@@ -3,39 +3,39 @@ package com.cookieukw.SimTale.core;
 import com.hypixel.hytale.logger.HytaleLogger;
 
 /**
- * Logger do SimTale. Mantem a assinatura do SLF4J e entrega no logger do Hytale.
+ * SimTale logger. Preserves the SLF4J signature and delivers into Hytale's logger.
  *
- * <h3>Por que isto existe</h3>
- * Metade do mod logava via {@code org.slf4j.LoggerFactory}, e <b>nada disso aparecia</b>. O
- * servidor nao fornece um binding do SLF4J, entao o proprio boot avisa:
+ * <h3>Why this exists</h3>
+ * Half the mod logged via {@code org.slf4j.LoggerFactory}, and <b>none of it appeared</b>. The
+ * server does not provide an SLF4J binding, so the boot process itself warns:
  *
  * <pre>
  *   SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
  *   SLF4J: Defaulting to no-operation (NOP) logger implementation
  * </pre>
  *
- * NOP significa descartar tudo, em silencio. Quatorze classes — RoutineAISystem, HouseManager,
- * BedRegistry, os helpers de porta, trabalho, fome e lazer — escreviam para o vazio. Isso nao e
- * so falta de informacao: mascarava diagnostico. Ao investigar por que a NPC dormia errado,
- * nenhuma linha do ciclo de sono aparecia no log, o que dava a impressao de que o codigo nem
- * estava rodando.
+ * NOP means discarding everything silently. Fourteen classes — RoutineAISystem, HouseManager,
+ * BedRegistry, helpers for doors, work, hunger and leisure — wrote to the void. This was not just
+ * lack of information: it masked diagnostics. When investigating why an NPC slept incorrectly,
+ * no lines of the sleep cycle appeared in the log, giving the impression that the code wasn't even
+ * running.
  *
- * <p>As classes que usavam {@code HytaleLogger} direto sempre funcionaram, e e por isso que
- * mensagens de {@code SimNPCSpawnSystem} e {@code SimTaleUseNPCInteraction} apareciam no log
- * enquanto as vizinhas nao.
+ * <p>Classes that used {@code HytaleLogger} directly always worked, which is why messages from
+ * {@code SimNPCSpawnSystem} and {@code SimTaleUseNPCInteraction} appeared in the log while
+ * neighboring classes did not.
  *
- * <p>A alternativa seria reescrever centenas de chamadas {@code LOGGER.info("x {}", v)} para o
- * formato do Hytale. Este adaptador troca isso por uma linha por arquivo, e mantem o estilo de
- * chamada que o codigo ja usa.
+ * <p>The alternative would be rewriting hundreds of {@code LOGGER.info("x {}", v)} calls into
+ * Hytale format. This adapter replaces that with one line per file, preserving the calling style
+ * the codebase already uses.
  */
 public final class SimLog {
 
     /**
-     * Chamadas {@code debug} sao descartadas por padrao.
+     * {@code debug} calls are discarded by default.
      * <p>
-     * Nao e perda: elas ja eram descartadas pelo NOP. Ligar tudo de uma vez encheria o log do
-     * servidor com varreduras por tick (busca de cama, de agua, de baus). Quem precisar liga
-     * pontualmente.
+     * No loss: they were already discarded by NOP. Enabling everything at once would flood the
+     * server log with per-tick scans (searching for beds, water, chests). Enable selectively when
+     * needed.
      */
     public static volatile boolean debugEnabled = false;
 
@@ -54,7 +54,7 @@ public final class SimLog {
     }
 
     /* ---------------------------------------------------------------------
-    API no estilo SLF4J
+    SLF4J-style API
     ---------------------------------------------------------------------
     */
 
@@ -67,7 +67,7 @@ public final class SimLog {
     }
 
     public void error(String format, Object... args) {
-        // Throwable no fim do varargs e a convencao do SLF4J: vira causa, nao argumento.
+        // Throwable at the end of varargs is the SLF4J convention: it becomes the cause, not an argument.
         Throwable cause = extractCause(args);
         if (cause != null) {
             delegate.atSevere().withCause(cause).log(format(format, args));
@@ -95,16 +95,16 @@ public final class SimLog {
     }
 
     /* ---------------------------------------------------------------------
-    Formatacao
+    Formatting
     ---------------------------------------------------------------------
     */
 
     /**
-     * Substitui cada {@code {}} pelo argumento correspondente, como faz o SLF4J.
+     * Replaces each {@code {}} with the corresponding argument, just like SLF4J does.
      * <p>
-     * Argumentos sobrando sao anexados ao fim em vez de sumirem: uma mensagem com um
-     * placeholder a menos ainda mostra o dado, o que e melhor do que perde-lo justo quando
-     * alguem esta investigando um problema.
+     * Leftover arguments are appended at the end instead of disappearing: a message with one
+     * placeholder too few still shows the data, which is better than losing it right when someone
+     * is investigating an issue.
      */
     private static String format(String format, Object... args) {
         if (format == null) return "null";
@@ -124,7 +124,7 @@ public final class SimLog {
             }
         }
 
-        // O ultimo argumento pode ser a causa de um error(); nesse caso ele ja foi tratado.
+        // The last argument may be the cause of an error(); in that case it was already handled.
         int remaining = args.length;
         if (remaining > 0 && args[remaining - 1] instanceof Throwable) {
             remaining--;
@@ -141,8 +141,8 @@ public final class SimLog {
         try {
             return String.valueOf(o);
         } catch (Exception e) {
-            // Um toString() quebrado nao pode derrubar quem so queria logar.
-            return o.getClass().getSimpleName() + "@<toString falhou>";
+            // A broken toString() must not crash whatever just wanted to log.
+            return o.getClass().getSimpleName() + "@<toString failed>";
         }
     }
 

@@ -113,13 +113,13 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                 LOGGER.info("[SimTale] Bed page pruned {} stale bed(s), {} left", pruned, BedRegistry.BEDS.size());
             }
             List<BedPos> list = new ArrayList<>();
-            /* Sem filtro de exibicao: o registro agora guarda apenas a ancora de cada movel.
+            /* No display filtering: the registry now only stores the anchor of each furniture item.
 
-            Antes cada um dos seis blocos de uma cama virava um registro, e esta tela tentava
-            esconder as sobras com a heuristica isPrimaryBedBlock. Consertada a origem (o
-            registro passa pelo FurnitureAnchorHelper), o filtro deixou de ser necessario — e
-            passaria a esconder camas legitimas, ja que a ancora nem sempre satisfaz aquela
-            heuristica de vizinhanca.
+            Previously, each of the six blocks of a bed became a registry entry, and this screen
+            tried to hide the surplus with the isPrimaryBedBlock heuristic. With the root cause
+            fixed (the registry goes through FurnitureAnchorHelper), the filter is no longer
+            necessary — and would hide legitimate beds, since the anchor does not always satisfy
+            that neighborhood heuristic.
             */
             list.addAll(BedRegistry.BEDS);
             list.sort((b1, b2) -> {

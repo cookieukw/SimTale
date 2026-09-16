@@ -309,18 +309,18 @@ final class DiagnosticsCommands {
 
             int fixed = 0;
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                /* Uma crianca no colo tem MountedComponent (aponta pro carrier) e fica
-                deliberadamente Frozen o tempo todo (ver ChildCarryHelper.pickUp) -- exatamente
-                os dois estados que este comando existe para limpar de NPCs travadas de verdade.
-                Sem este guard, /simtale unstick varria TODAS as ACTIVE_NPCS e arrancava o
-                MountedComponent de toda crianca carregada, sem passar pelo caminho de
-                restauracao (BoundingBox de volta via PARKED_BOXES, NpcFreezeUtil.unfreeze) que
-                ChildCarryHelper.putDown faz -- ela ficava congelada, com hitbox quase-zero, presa
-                na posicao antiga de quando foi pega no colo (o TransformComponent dela para de
-                atualizar assim que e montada), e sem MountedComponent nenhum -- exatamente o que
-                findCarriedBy/putDown usam para achar quem esta no colo, entao "/simtale putdown"
-                depois nao achava mais ninguem. E acontecia pra pilha inteira de uma vez, nao so
-                a de cima, porque o loop nao para na primeira.
+                /* A carried child has a MountedComponent (points to the carrier) and is
+                deliberately Frozen at all times (see ChildCarryHelper.pickUp) -- precisely
+                the two states that this command exists to clear from truly stuck NPCs.
+                Without this guard, /simtale unstick swept through ALL ACTIVE_NPCS and stripped the
+                MountedComponent from every carried child, without going through the restoration
+                path (BoundingBox back via PARKED_BOXES, NpcFreezeUtil.unfreeze) that
+                ChildCarryHelper.putDown performs -- she was left frozen, with a near-zero hitbox, stuck
+                at the old position from when she was picked up (her TransformComponent stops
+                updating as soon as she is mounted), and without any MountedComponent -- exactly what
+                findCarriedBy/putDown use to find who is being carried, so "/simtale putdown"
+                afterwards could no longer find anyone. And this happened to the entire stack at once,
+                not just the top one, because the loop does not stop at the first.
                 */
                 if (npc.entityRef != null && npc.entityRef.isValid()
                         && ChildCarryHelper.isBeingCarried(npc.entityRef.getStore(), npc)) {
@@ -342,12 +342,12 @@ final class DiagnosticsCommands {
                         touched = true;
                     }
 
-                    /* Solta tambem quem ficou preso na cama.
+                    /* Also release anyone who was stuck in bed.
 
-                    Sem isto o unstick zerava a task para IDLE mas deixava a NPC montada e com
-                    MovementStates.sleeping ligado. Na tentativa seguinte de dormir o
-                    mountOnBlock respondia ALREADY_MOUNTED e a NPC nunca voltava para a cama —
-                    o que tambem tornava impossivel reproduzir o ciclo de sono para testar.
+                    Without this, unstick reset the task to IDLE but left the NPC mounted and with
+                    MovementStates.sleeping enabled. On the next attempt to sleep,
+                    mountOnBlock returned ALREADY_MOUNTED and the NPC never went back to bed —
+                    which also made it impossible to reproduce the sleep cycle for testing.
                     */
                     if (npc.entityRef.getStore().getComponent(
                             npc.entityRef, MountedComponent.getComponentType()) != null) {

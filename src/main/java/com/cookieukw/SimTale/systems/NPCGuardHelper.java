@@ -224,8 +224,8 @@ public class NPCGuardHelper {
     private static final double HEARING_RANGE_SQ = 25.0 * 25.0;
 
     /**
-     * A guard defeating a hostile is small village news (docs/ROADMAP.md: "comentario sobre...
-     * guarda heroico"). If a child happens to be close enough to have watched, she reacts to it
+     * A guard defeating a hostile is small village news (docs/ROADMAP.md: "commentary on...
+     * heroic guard"). If a child happens to be close enough to have watched, she reacts to it
      * herself instead of the guard -- wide-eyed, not detached, the way a kid would -- otherwise
      * the guard gets to say her own triumphant line. Exactly one chat line per victory either
      * way, never both.

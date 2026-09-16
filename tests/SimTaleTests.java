@@ -69,128 +69,128 @@ public class SimTaleTests {
     }
 
     private static void testDatabaseShellIsolation() {
-        System.out.print("Testando Isolamento da Shell do Banco (simtale.db)... ");
+        System.out.print("Testing Database Shell Isolation (simtale.db)... ");
         
-        // Inicializa o Caskara temporário
+        // Initialize temporary Caskara
         java.io.File testFolder = new java.io.File("scratch/test_db");
         com.cookie.caskara.Caskara.init(testFolder);
         
-        // Valida instanciamento do Shell do SimTale
-        assertEqual(SimNPCPersistence.DB_SHELL != null, true, "DB_SHELL deve estar instanciado");
-        assertEqual(SimNPCPersistence.DB_SHELL.getFile().getName(), "simtale.db", "Nome do banco");
+        // Validate SimTale Shell instantiation
+        assertEqual(SimNPCPersistence.DB_SHELL != null, true, "DB_SHELL must be instantiated");
+        assertEqual(SimNPCPersistence.DB_SHELL.getFile().getName(), "simtale.db", "Database file name");
 
-        // Prepara dados fictícios
+        // Prepare dummy data
         UUID npcId = UUID.randomUUID();
         SimNPCData npcData = new SimNPCData();
         npcData.id = npcId.toString();
         npcData.name = "Test NPC Name";
 
-        // Grava no Core de SimNPCData do DB_SHELL
+        // Save to SimNPCData Core of DB_SHELL
         String savedId = SimNPCPersistence.DB_SHELL.core(SimNPCData.class).preserve(npcId.toString(), npcData);
-        assertEqual(savedId, npcId.toString(), "ID retornado pelo salvamento");
+        assertEqual(savedId, npcId.toString(), "ID returned by save");
 
-        // Carrega do Core
+        // Load from Core
         SimNPCData loaded = SimNPCPersistence.DB_SHELL.core(SimNPCData.class).extract(npcId.toString()).sync().orElse(null);
-        assertEqual(loaded != null, true, "NPC carregado");
-        assertEqual(loaded.name, "Test NPC Name", "Validação do nome gravado");
+        assertEqual(loaded != null, true, "NPC loaded");
+        assertEqual(loaded.name, "Test NPC Name", "Validation of saved name");
 
-        // Deleta
+        // Delete
         SimNPCPersistence.DB_SHELL.core(SimNPCData.class).discard(npcId.toString());
         SimNPCData deleted = SimNPCPersistence.DB_SHELL.core(SimNPCData.class).extract(npcId.toString()).sync().orElse(null);
-        assertEqual(deleted == null, true, "NPC removido do banco");
+        assertEqual(deleted == null, true, "NPC removed from database");
 
         System.out.println("OK");
     }
 
     private static void testPregnancyComponent() {
-        System.out.print("Testando PregnancyComponent... ");
+        System.out.print("Testing PregnancyComponent... ");
         PregnancyComponent preg = new PregnancyComponent();
         
-        // Estado inicial
-        assertEqual(preg.pregnant, false, "Inicialmente grávida");
-        assertEqual(preg.trimester, 0, "Trimestre inicial");
+        // Initial state
+        assertEqual(preg.pregnant, false, "Initially pregnant");
+        assertEqual(preg.trimester, 0, "Initial trimester");
 
-        // Início
+        // Start
         UUID fatherId = UUID.randomUUID();
         long startTick = 1000L;
         preg.start(fatherId, startTick);
 
-        assertEqual(preg.pregnant, true, "Grávida após start");
-        assertEqual(preg.trimester, 1, "Trimestre inicial de gravidez");
-        assertEqual(preg.fatherId, fatherId, "ID do pai gravado");
+        assertEqual(preg.pregnant, true, "Pregnant after start");
+        assertEqual(preg.trimester, 1, "Initial pregnancy trimester");
+        assertEqual(preg.fatherId, fatherId, "Recorded father ID");
 
-        /* Trimestre 2 (33% a 66% de progresso)
-        5 dias = 120.000 ticks. T2 começa após 120000 * 0.33 = ~39600 ticks
+        /* Trimester 2 (33% to 66% progress)
+        5 days = 120,000 ticks. T2 starts after 120000 * 0.33 = ~39600 ticks
         */
         long tickT2 = startTick + 45000;
         boolean t2Changed = preg.updateTrimester(tickT2);
-        assertEqual(t2Changed, true, "Trimestre mudou para T2");
-        assertEqual(preg.trimester, 2, "Trimester deve ser 2");
+        assertEqual(t2Changed, true, "Trimester changed to T2");
+        assertEqual(preg.trimester, 2, "Trimester should be 2");
 
-        // Trimestre 3 (66% a 100% de progresso)
+        // Trimester 3 (66% to 100% progress)
         long tickT3 = startTick + 85000;
         boolean t3Changed = preg.updateTrimester(tickT3);
-        assertEqual(t3Changed, true, "Trimestre mudou para T3");
-        assertEqual(preg.trimester, 3, "Trimester deve ser 3");
+        assertEqual(t3Changed, true, "Trimester changed to T3");
+        assertEqual(preg.trimester, 3, "Trimester should be 3");
 
-        // Pronto para nascer
-        assertEqual(preg.isReadyToBirth(startTick + 120000), true, "Pronto para nascer");
-        assertEqual(preg.isReadyToBirth(startTick + 119000), false, "Não deve estar pronto antes do tempo");
+        // Ready to birth
+        assertEqual(preg.isReadyToBirth(startTick + 120000), true, "Ready to birth");
+        assertEqual(preg.isReadyToBirth(startTick + 119000), false, "Must not be ready before time");
 
         // Reset
         preg.reset();
-        assertEqual(preg.pregnant, false, "Reset limpou a gravidez");
-        assertEqual(preg.trimester, 0, "Reset zerou trimestre");
+        assertEqual(preg.pregnant, false, "Reset cleared pregnancy");
+        assertEqual(preg.trimester, 0, "Reset zeroed trimester");
         System.out.println("OK");
     }
 
     private static void testLifecycleManagerPregnancy() {
-        System.out.print("Testando LifecycleManager (Gravidez)... ");
+        System.out.print("Testing LifecycleManager (Pregnancy)... ");
         
         SimNPCComponent mother = new SimNPCComponent(UUID.randomUUID(), "Maria");
         mother.gender = Gender.FEMALE;
 
         UUID fatherId = UUID.randomUUID();
 
-        // Falha 1: Não casada
+        // Failure 1: Not married
         boolean start1 = LifecycleManager.startPregnancy(mother, fatherId, 100L);
-        assertEqual(start1, false, "Permitiu gravidez sem casamento");
+        assertEqual(start1, false, "Allowed pregnancy without marriage");
 
-        // Casar
+        // Marry
         mother.family.marry(fatherId, null);
 
-        // Falha 2: Sem romance suficiente (relacionamento romance padrão é < 50)
+        // Failure 2: Insufficient romance (default romance relationship is < 50)
         boolean start2 = LifecycleManager.startPregnancy(mother, fatherId, 100L);
-        assertEqual(start2, false, "Permitiu gravidez com romance baixo");
+        assertEqual(start2, false, "Allowed pregnancy with low romance");
 
-        // Romance alto
+        // High romance
         mother.getRelationship(fatherId).romance = 75;
 
-        // Sucesso
+        // Success
         boolean startSuccess = LifecycleManager.startPregnancy(mother, fatherId, 100L);
-        assertEqual(startSuccess, true, "Falhou ao iniciar gravidez válida");
-        assertEqual(mother.pregnancy.pregnant, true, "PregnancyComponent não marcado grávido");
+        assertEqual(startSuccess, true, "Failed to start valid pregnancy");
+        assertEqual(mother.pregnancy.pregnant, true, "PregnancyComponent not marked pregnant");
         System.out.println("OK");
     }
 
     private static void testRelationships() {
-        System.out.print("Testando Relacionamentos... ");
+        System.out.print("Testing Relationships... ");
         UUID targetId = UUID.randomUUID();
         Relationship rel = new Relationship(targetId);
 
-        // Romance e Amizade inicial
-        assertEqual(rel.romance, 0, "Romance inicial");
-        assertEqual(rel.friendship, 0, "Amizade inicial");
-        assertEqual(rel.status, RelationshipStatus.STRANGER, "Status inicial");
+        // Initial Romance and Friendship
+        assertEqual(rel.romance, 0, "Initial romance");
+        assertEqual(rel.friendship, 0, "Initial friendship");
+        assertEqual(rel.status, RelationshipStatus.STRANGER, "Initial status");
 
-        // Alterações
+        // Modifications
         rel.romance = 60;
         rel.friendship = 80;
         rel.status = RelationshipStatus.DATING;
 
-        assertEqual(rel.romance, 60, "Romance alterado");
-        assertEqual(rel.friendship, 80, "Amizade alterada");
-        assertEqual(rel.status, RelationshipStatus.DATING, "Status alterado");
+        assertEqual(rel.romance, 60, "Modified romance");
+        assertEqual(rel.friendship, 80, "Modified friendship");
+        assertEqual(rel.status, RelationshipStatus.DATING, "Modified status");
         System.out.println("OK");
     }
 
@@ -206,37 +206,37 @@ public class SimTaleTests {
     */
 
     private static void testBabyCareSharing() {
-        System.out.print("Testando Cuidado Compartilhado (BabyCare)... ");
+        System.out.print("Testing Shared Baby Care (BabyCare)... ");
         
         UUID childId = UUID.randomUUID();
         UUID motherId = UUID.randomUUID();
         UUID fatherId = UUID.randomUUID();
 
-        // 1. Inicializacao
+        // 1. Initialization
         BabyCareData care = new BabyCareData(childId.toString(), motherId.toString(), fatherId.toString());
-        assertEqual(care.childId, childId.toString(), "ID do filho");
-        assertEqual(care.motherId, motherId.toString(), "ID da mae");
-        assertEqual(care.fatherId, fatherId.toString(), "ID do pai");
-        assertEqual(care.currentHolderId, motherId.toString(), "Portador inicial");
-        assertEqual(care.currentTurnOwnerId, motherId.toString(), "Dono do turno inicial");
+        assertEqual(care.childId, childId.toString(), "Child ID");
+        assertEqual(care.motherId, motherId.toString(), "Mother ID");
+        assertEqual(care.fatherId, fatherId.toString(), "Father ID");
+        assertEqual(care.currentHolderId, motherId.toString(), "Initial holder");
+        assertEqual(care.currentTurnOwnerId, motherId.toString(), "Initial turn owner");
 
-        // 2. Testar troca permitida (cooldown)
+        // 2. Test allowed swap (cooldown)
         long now = System.currentTimeMillis();
-        assertEqual(now < care.nextSwapAllowedTime, true, "Cooldown ativo inicialmente");
+        assertEqual(now < care.nextSwapAllowedTime, true, "Cooldown active initially");
 
-        /* Forcar tempo passar e testar toggle manual de turno
-        Trocando turno: da mae para o pai
+        /* Force time to advance and test manual shift toggle
+        Swapping shift: from mother to father
         */
         care.currentTurnOwnerId = fatherId.toString();
         care.currentHolderId = fatherId.toString();
-        assertEqual(care.currentTurnOwnerId, fatherId.toString(), "Turno alterado para o pai");
-        assertEqual(care.currentHolderId, fatherId.toString(), "Portador alterado para o pai");
+        assertEqual(care.currentTurnOwnerId, fatherId.toString(), "Shift swapped to father");
+        assertEqual(care.currentHolderId, fatherId.toString(), "Holder swapped to father");
 
         System.out.println("OK");
     }
 
     private static void testChildGrowth() {
-        System.out.print("Testando Crescimento Infantil (Visual Scale)... ");
+        System.out.print("Testing Child Growth (Visual Scale)... ");
 
         UUID motherId = UUID.randomUUID();
         UUID fatherId = UUID.randomUUID();
@@ -251,38 +251,38 @@ public class SimTaleTests {
             "SimTale"
         );
 
-        // 1. Testar escalas iniciais nas fases de crescimento
+        // 1. Test initial scales across growth stages
         child.birthTick = 0L;
         child.stage = GrowthStage.BABY;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.35f, "Escala do Bebe");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.35f, "Baby scale");
 
         child.birthTick = -4 * 24000L;
         child.stage = GrowthStage.TODDLER;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.45f, "Escala do Toddler Inicial");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.45f, "Initial toddler scale");
 
         child.birthTick = -8 * 24000L;
         child.stage = GrowthStage.TODDLER;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.55f, "Escala do Toddler Final");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.55f, "Final toddler scale");
 
         child.birthTick = -9 * 24000L;
         child.stage = GrowthStage.CHILD;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.55f, "Escala da Crianca Inicial");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.55f, "Initial child scale");
 
         child.birthTick = -20 * 24000L;
         child.stage = GrowthStage.CHILD;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.85f, "Escala da Crianca Final");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.85f, "Final child scale");
 
         child.birthTick = -21 * 24000L;
         child.stage = GrowthStage.TEEN;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.85f, "Escala do Adolescente Inicial");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 0.85f, "Initial teen scale");
 
         child.birthTick = -40 * 24000L;
         child.stage = GrowthStage.TEEN;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 1.00f, "Escala do Adolescente Final");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 1.00f, "Final teen scale");
 
         child.birthTick = -41 * 24000L;
         child.stage = GrowthStage.ADULT;
-        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 1.00f, "Escala do Adulto");
+        assertFloatEqual(LifecycleManager.calculateTargetScale(child, 0L), 1.00f, "Adult scale");
 
         System.out.println("OK");
     }

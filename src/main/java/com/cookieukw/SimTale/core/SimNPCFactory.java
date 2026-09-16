@@ -220,27 +220,27 @@ public class SimNPCFactory {
         // 5. Track for chat system
         SimTale.trackNpc(simComponent);
 
-        /* 6. Grava no banco IMEDIATAMENTE.
+        /* 6. Write to database IMMEDIATELY.
 
-        Antes, um NPC recem-criado so existia em memoria. Ele so ganhava registro no banco se,
-        mais tarde, alguma rotina de IA por acaso chamasse saveNPC — dormir, comer, conversar.
-        Ate la ele estava vivo no mundo e invisivel para a persistencia.
+        Previously, a newly created NPC only existed in memory. It only acquired a database
+        record if, later on, some AI routine happened to call saveNPC — sleeping, eating, chatting.
+        Until then it was alive in the world and invisible to persistence.
 
-        Duas consequencias, as duas observadas em jogo:
-          1. Sair e voltar ao mundo fazia os NPCs recem-criados sumirem, porque nunca foram
-             salvos.
-          2. As contagens nao batiam: /simtale forcespawn quatro vezes seguido de clearall
-             limpava "3 registros", porque os quatro novos nao tinham registro nenhum.
+        Two consequences, both observed in-game:
+          1. Leaving and re-entering the world caused newly created NPCs to disappear, because
+             they were never saved.
+          2. Counts did not match: running /simtale forcespawn four times followed by clearall
+             cleared "3 records", because the four new ones had no record at all.
 
-        O Reaper fica de fora de proposito: e uma entidade temporaria de cerimonia de morte,
-        nao um morador, e nem sequer passa por loadNPC acima.
+        The Reaper is deliberately excluded: it is a temporary death ceremony entity, not a
+        villager, and does not even go through loadNPC above.
         */
         if (type != NPCType.REAPER) {
             try {
                 SimNPCPersistence.saveNPC(simComponent);
             } catch (Exception e) {
                 HytaleLogger.forEnclosingClass().atWarning()
-                        .log("SimTale: NPC " + entityId + " criado mas nao persistido: " + e);
+                        .log("SimTale: NPC " + entityId + " created but not persisted: " + e);
             }
         }
 

@@ -5,9 +5,9 @@ import com.cookieukw.SimTale.core.SimNPCNameGenerator;
 import java.util.Random;
 
 /**
- * Seeds genéticas que determinam a aparência e personalidade de um filho.
- * Todas as propriedades visuais e comportamentais podem ser regeneradas
- * deterministicamente a partir dessas seeds, evitando salvar dezenas de atributos.
+ * Genetic seeds that determine the appearance and personality of a child.
+ * All visual and behavioral properties can be deterministically regenerated
+ * from these seeds, avoiding the need to save dozens of individual attributes.
  */
 public class GeneticsData {
 

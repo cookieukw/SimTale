@@ -54,8 +54,8 @@ public class GrowthManager {
                 yield 0.55f + childProgress * 0.30f;
             }
             case TEEN -> {
-                /* Was `0.75f + teenProgress * 0.20f` (0.75 -> 0.95). Root cause of "crianca
-                maiorzinha diminuiu de tamanho" (14/09): CHILD's own formula above ends at
+                /* Was `0.75f + teenProgress * 0.20f` (0.75 -> 0.95). Root cause of "older child
+                shrunk in size" (14/09): CHILD's own formula above ends at
                 age 20 (childProgress=1) with scale 0.55 + 0.30 = 0.85 -- and CHILD->TEEN
                 respawns the body right there (GrowthManager.promoteToAdultBody), reading
                 this same method for the new body's scale. The very next in-game day, age 21,
@@ -448,7 +448,7 @@ public class GrowthManager {
     }
 
     private static void onBecameAdult(GrowthComponent child) {
-        LOGGER.atInfo().log("SimTale: " + child.getFullName() + " se tornou adulto!");
+        LOGGER.atInfo().log("SimTale: " + child.getFullName() + " became an adult!");
         
         /* Dropped from the growth-tick list — an adult does not age further, and
         GrowthTickSystem's own scan already does the same removal as a backstop for
@@ -459,7 +459,7 @@ public class GrowthManager {
         exact key back. Deleting it here — which is what this used to do — reads as "an
         adult is done growing, so the growth record is garbage now", but it silently deletes
         the one thing that still says "this adult IS your child": Scold/Insult on the panel,
-        the mãe/papai/name address term, and every other adult-child check would go back to
+        the mother/father/name address term, and every other adult-child check would go back to
         treating them as a stranger the moment they grew up, no matter how good the
         relationship was raised to be as a kid. Persisted instead of deleted, same as every
         other stage promotion in this file — the child's identity does not stop being real

@@ -7,7 +7,7 @@ public class MemoryManager {
     public LinkedList<Memory> recentMemories = new LinkedList<>();
 
     public void addMemory(MemoryEvent event, UUID player) {
-        // Limita a memória aos últimos 10 acontecimentos (Short-term memory)
+        // Limit memory to the last 10 events (short-term memory)
         if (recentMemories.size() >= 10) {
             recentMemories.removeFirst();
         }

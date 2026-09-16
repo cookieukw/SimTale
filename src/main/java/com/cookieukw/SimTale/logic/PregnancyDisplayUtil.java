@@ -24,7 +24,7 @@ public final class PregnancyDisplayUtil {
     /**
      * Narrowest the fill may be drawn. @ProgressFill is a 9-slice with Border 6, so it needs room
      * for a left and a right cap; below 12px the two caps overlap and the texture renders as a
-     * couple of stray marks floating in the track. That is what "Não grávida" looked like, because
+     * couple of stray marks floating in the track. That is what "Not pregnant" looked like, because
      * that path sets the width to 0 and a zero-width 9-slice still draws its corners.
      */
     private static final int PROGRESS_BAR_MIN_WIDTH = 12;

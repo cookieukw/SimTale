@@ -49,7 +49,7 @@ public class BabyNeeds {
 
   
     public float getWellbeingScore() {
-        float totalPositive = positiveExperiences + 1f; // evita divisão por zero
+        float totalPositive = positiveExperiences + 1f; // avoid division by zero
         float totalNegative = negativeExperiences + 1f;
         return Math.min(1.0f, totalPositive / (totalPositive + totalNegative));
     }

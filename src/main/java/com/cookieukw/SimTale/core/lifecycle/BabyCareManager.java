@@ -161,11 +161,11 @@ public class BabyCareManager {
             }
 
             LifecycleState.ACTIVE_CHILDREN.addAll(byIdentity.values());
-            /* testing_checklist.md #20 pede pra conferir essa linha no log depois de um
-            restart; sem ela nao tinha como confirmar visualmente que o reload aconteceu.
+            /* testing_checklist.md #20 asks to check this line in the log after a
+            restart; without it there was no way to visually confirm that the reload happened.
             */
-            LOGGER.atInfo().log("SimTale: " + restored + " filho(s) em crescimento recarregado(s) do banco ("
-                    + orphans + " orfao(s) ignorado(s), " + duplicates + " duplicata(s) descartada(s))");
+            LOGGER.atInfo().log("SimTale: " + restored + " growing child(ren) reloaded from database ("
+                    + orphans + " orphan(s) ignored, " + duplicates + " duplicate(s) discarded)");
         } catch (Exception e) {
             LOGGER.atWarning().log("SimTale: Error reloading growing children: " + e.getMessage());
         }

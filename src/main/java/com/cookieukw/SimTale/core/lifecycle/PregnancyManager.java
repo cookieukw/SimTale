@@ -42,38 +42,38 @@ public class PregnancyManager {
 
     public static boolean startPregnancy(SimNPCComponent mother, UUID fatherId, long worldTick) {
         if (mother.gender != Gender.FEMALE) {
-            LOGGER.atWarning().log("SimTale: Tentativa de gravidez em NPC não-feminino: " + mother.name);
+            LOGGER.atWarning().log("SimTale: Attempted pregnancy on non-female NPC: " + mother.name);
             return false;
         }
 
         if (mother.entityRef != null) {
             NPCEntity npcEntity = mother.entityRef.getStore().getComponent(mother.entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
             if (npcEntity != null && npcEntity.getRoleName() != null && npcEntity.getRoleName().toLowerCase().contains("child")) {
-                LOGGER.atWarning().log("SimTale: Gravidez cancelada. A NPC " + mother.name + " e uma criança!");
+                LOGGER.atWarning().log("SimTale: Pregnancy cancelled. NPC " + mother.name + " is a child!");
                 return false;
             }
         }
 
         for (GrowthComponent child : LifecycleState.ACTIVE_CHILDREN) {
             if (mother.entityId != null && mother.entityId.equals(child.childId) && !child.isAdult()) {
-                LOGGER.atWarning().log("SimTale: Gravidez cancelada. A NPC " + mother.name + " e um filho em crescimento!");
+                LOGGER.atWarning().log("SimTale: Pregnancy cancelled. NPC " + mother.name + " is a growing child!");
                 return false;
             }
         }
 
         if (mother.pregnancy != null && mother.pregnancy.pregnant) {
-            LOGGER.atInfo().log("SimTale: " + mother.name + " já está grávida.");
+            LOGGER.atInfo().log("SimTale: " + mother.name + " is already pregnant.");
             return false;
         }
 
         if (!mother.family.isMarried || !fatherId.equals(mother.family.spouseId)) {
-            LOGGER.atInfo().log("SimTale: " + mother.name + " não é casada com o pai.");
+            LOGGER.atInfo().log("SimTale: " + mother.name + " is not married to the father.");
             return false;
         }
 
         Relationship rel = mother.getRelationship(fatherId);
         if (rel.romance < 50) {
-            LOGGER.atInfo().log("SimTale: Romance insuficiente para gravidez (" + rel.romance + "/50)");
+            LOGGER.atInfo().log("SimTale: Insufficient romance for pregnancy (" + rel.romance + "/50)");
             return false;
         }
 
@@ -82,7 +82,7 @@ public class PregnancyManager {
         }
         mother.pregnancy.start(fatherId, worldTick);
 
-        LOGGER.atInfo().log("SimTale: " + mother.name + " está grávida! Pai: " + fatherId);
+        LOGGER.atInfo().log("SimTale: " + mother.name + " is pregnant! Father: " + fatherId);
         return true;
     }
 
@@ -158,11 +158,11 @@ public class PregnancyManager {
             */
             BabyCareManager.addCarriedBaby(mother.entityId, child.childId);
 
-            LOGGER.atInfo().log("SimTale: Nasceu " + child.getFullName() + " ("
-                + childGender.getDisplayName() + ") — filho(a) de " + mother.name);
+            LOGGER.atInfo().log("SimTale: Born " + child.getFullName() + " ("
+                + childGender.getDisplayName() + ") — child of " + mother.name);
 
         } catch (Exception e) {
-            LOGGER.atWarning().log("SimTale: Falha ao spawnar bebê: " + e.getMessage());
+            LOGGER.atWarning().log("SimTale: Failed to spawn baby: " + e.getMessage());
             return null;
         }
 

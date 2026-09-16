@@ -373,7 +373,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         }
 
         /* Clear any active chat conversation so the timeout system doesn't
-        fire "Você parece distraído" while the player is using the UI
+        fire "You seem distracted" while the player is using the UI
         */
         if (npc != null) {
             npc.currentConversationPartner = null;

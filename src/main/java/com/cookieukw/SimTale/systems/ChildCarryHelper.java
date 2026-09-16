@@ -177,8 +177,8 @@ public final class ChildCarryHelper {
         /* Stacked on the ACTUAL height of the child she is landing on, not a one-size-fits-all
         step. A fixed STACK_STEP looked right only when every rider happened to be the same
         growth stage: mix a Toddler (scale 0.50) under a Child (0.70) and the fixed gap either
-        buried one in the other or left a visible gap under the next one's feet — "só o primeiro
-        fica encaixado, os outros flutuam acima da cabeça" is exactly a constant gap failing to
+        buried one in the other or left a visible gap under the next one's feet — "only the first
+        one fits properly, the others float above the head" is exactly a constant gap failing to
         track a variable height. PARKED_BOXES is read here, not each child's live BoundingBox,
         because a child already in the stack has hers hollowed to Box.ZERO for exactly the
         reason documented on that map above.
@@ -469,7 +469,7 @@ public final class ChildCarryHelper {
      * Keeps a carried child's OWN {@code TransformComponent} tracking the carrier live, instead
      * of leaving it frozen at wherever she was standing at pickup.
      *
-     * <p>Root cause of "crianca some do nada ao pular/voar" (13-14/09): the client draws a
+     * <p>Root cause of "child disappears out of nowhere when jumping/flying" (13-14/09): the client draws a
      * carried child from {@code carrier position + attachmentOffset}, never from her own
      * Transform, so nothing about the carry feature itself needed her real position to move --
      * that assumption is documented all over this file and in GrowthManager. But

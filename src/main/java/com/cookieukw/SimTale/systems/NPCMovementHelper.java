@@ -95,24 +95,24 @@ public class NPCMovementHelper {
     }
 
     /**
-     * Prende o leash numa posicao explicita, sem tocar no estado do role.
+     * Pins the leash at an explicit position, without altering role state.
      *
-     * <p>Existe por causa de uma diferenca sutil em relacao ao {@link #clearMoveTarget}: aquele
-     * fixa o leash onde o NPC <em>esta</em> e forca o estado {@code Idle}. Isso serve para quem
-     * acabou de chegar a um destino a pe, mas nao para quem vai ser teleportado logo em seguida
-     * — e nem para quem precisa ficar num estado proprio, como {@code Sleep}.
+     * <p>Exists because of a subtle distinction from {@link #clearMoveTarget}: that one
+     * locks the leash where the NPC currently <em>is</em> and forces the {@code Idle} state.
+     * This works for an NPC who just arrived at a destination on foot, but not for one about
+     * to be teleported immediately afterwards — nor for one that needs a distinct state like {@code Sleep}.
      *
-     * <p>O caso concreto e a cama. O NPC caminha ate o bloco <em>ao lado</em> da cama, o
-     * clearMoveTarget prende o leash ali, e so entao ele e teleportado para cima do colchao.
-     * O leash continuava apontando para o bloco vizinho, entao a propria IA do role puxava o NPC
-     * de volta: ele escorregava da cama para o chao a noite inteira.
+     * <p>The concrete case is the bed. The NPC walks to the block <em>next to</em> the bed,
+     * clearMoveTarget pins the leash there, and only then is the NPC teleported onto the mattress.
+     * The leash continued pointing to the neighbor block, so the role's own AI pulled the NPC
+     * right back: sliding off the bed onto the floor all night.
      */
     public static void pinLeashAt(Ref<EntityStore> npcRef, RoutineAIComponent ai, Vector3d pos) {
         if (npcRef == null || pos == null) return;
 
         if (ai != null) {
-            /* Mantido em sincronia com o leash real, senao o proximo moveTo compara com um valor
-            antigo e pode concluir que nao precisa atualizar nada.
+            /* Kept in sync with the actual leash, otherwise the next moveTo compares against an
+            old value and may conclude that nothing needs updating.
             */
             ai.lastLeashPos = new Vector3d(pos);
         }
@@ -166,11 +166,11 @@ public class NPCMovementHelper {
     }
 
     /**
-     * Versao sem {@link CommandBuffer}, para uso fora de um sistema de tick (comandos).
+     * Variant without {@link CommandBuffer}, for use outside of a tick system (commands).
      * <p>
-     * {@code store.getComponent} devolve a instancia viva, entao mexer nos campos ja altera o
-     * componente. O {@code replaceComponent} da versao completa existe para sinalizar a
-     * atualizacao, nao para a escrita em si — e comando nao tem CommandBuffer para chamar.
+     * {@code store.getComponent} returns the live instance, so mutating fields already alters
+     * the component. The {@code replaceComponent} of the full overload exists to signal the
+     * update, not for the write itself — and commands have no CommandBuffer to invoke.
      */
     public static void setSleepingState(Ref<EntityStore> ref, Store<EntityStore> store, boolean sleeping) {
         setSleepingState(ref, store, null, sleeping);
@@ -189,20 +189,20 @@ public class NPCMovementHelper {
         ms.falling = false;
         ms.mantling = false;
         ms.sliding = false;
-        /* sitting e uma flag SEPARADA de sleeping, e ficava intocada aqui. Se qualquer coisa a
-        tiver ligado antes, ela permanecia ligada durante o sono — e o corpo era desenhado
-        sentado em vez de deitado. Vale zerar em ambos os sentidos: ao dormir e ao acordar,
-        nunca queremos a NPC sentada.
+        /* sitting is a SEPARATE flag from sleeping, and was left untouched here. If anything
+        enabled it prior, it stayed enabled throughout sleep — and the body was drawn sitting
+        instead of lying down. Clearing in both directions is worthwhile: when sleeping and waking,
+        we never want the NPC sitting.
 
-        Nao e so pose: ModelSystems$UpdateMovementStateBoundingBox deriva a caixa de colisao
-        dessas flags, entao sitting/sleeping errados dao a hitbox errada — que e justamente a
-        origem do empurrao lateral na cama.
+        This is not just pose: ModelSystems$UpdateMovementStateBoundingBox derives the collision
+        box from these flags, so incorrect sitting/sleeping gives the wrong hitbox — which is
+        precisely the cause of the lateral push on the bed.
         */
         ms.sitting = false;
         ms.mounting = sleeping;
         ms.sleeping = sleeping;
-        /* Nulo quando chamado de um comando (ver a sobrecarga acima). Os campos ja foram
-        alterados na instancia viva; o replaceComponent apenas sinaliza a mudanca.
+        /* Null when invoked from a command (see overload above). Fields have already been
+        modified on the live instance; replaceComponent merely signals the change.
         */
         if (commandBuffer != null) {
             commandBuffer.replaceComponent(ref, MovementStatesComponent.getComponentType(), msc);

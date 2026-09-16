@@ -59,8 +59,8 @@ public final class ParentChildBond {
     }
 
     /**
-     * Affinity at or above this is a warm bond — {@code mamãe}/{@code papai} instead of the plain
-     * {@code mãe}/{@code pai}.
+     * Affinity at or above this is a warm bond — {@code mommy}/{@code daddy} instead of the plain
+     * {@code mom}/{@code dad}.
      */
     private static final int WARM_BOND_THRESHOLD = 40;
 

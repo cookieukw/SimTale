@@ -131,22 +131,21 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             SimNPCPersistence.loadNPC(npc);
         }
 
-        /* A referencia da propria entidade, tirada do chunk que esta sendo tickado agora.
+        /* The entity's own reference, taken from the chunk currently being ticked.
 
-        Isto conserta um efeito colateral da mudanca que fez o SimNPCComponent persistir
-        nativamente. Antes, um NPC recarregado chegava SEM o componente, caia no ramo
-        `npc == null` la em cima e ganhava entityRef via getRefFromUUID. Depois que o
-        componente passou a voltar junto com a entidade, aquele ramo deixou de rodar — e era
-        o unico lugar que preenchia entityRef.
+        This fixes a side effect of making SimNPCComponent persist natively. Previously, a
+        reloaded NPC arrived WITHOUT the component, fell into the `npc == null` branch above,
+        and received entityRef via getRefFromUUID. Once the component started returning with the
+        entity, that branch stopped running — and it was the only place populating entityRef.
 
-        Resultado: o NPC entrava em ACTIVE_NPCS com entityRef == null. Como todo subcomando
-        filtra por `if (npc.entityRef != null)`, o mod respondia "Nenhum NPC por perto" com o
-        NPC parado na frente do jogador. A tecla F continuava funcionando porque recebe a
-        referencia direto do evento de interacao, sem passar por ACTIVE_NPCS — e era
-        exatamente esse contraste que denunciava o problema.
+        Result: the NPC entered ACTIVE_NPCS with entityRef == null. Since every subcommand
+        filters with `if (npc.entityRef != null)`, the mod responded "No NPCs nearby" with the
+        NPC standing right in front of the player. The F key kept working because it receives the
+        reference directly from the interaction event without passing through ACTIVE_NPCS — and
+        it was precisely that contrast that revealed the issue.
 
-        entityRef e transient de proposito (referencia viva nao se serializa), entao a fonte
-        certa e o proprio chunk, nao o banco.
+        entityRef is transient on purpose (a live reference cannot be serialized), so the
+        correct source is the chunk itself, not the database.
         */
         Ref<EntityStore> selfRef = chunk.getReferenceTo(index);
         if (npc.entityRef == null || !npc.entityRef.isValid()) {
@@ -160,8 +159,8 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             SimNPCPersistence.loadNPC(npc);
             SimTale.trackNpc(npc);
         } else if (activeMatch != npc) {
-            /* A instancia rastreada e a que os comandos enxergam, entao ela tambem precisa de
-            uma referencia valida — nao adianta consertar so a copia que veio do chunk.
+            /* The tracked instance is what commands inspect, so it also needs a valid
+            reference — fixing only the copy from the chunk is not enough.
             */
             if (activeMatch.entityRef == null || !activeMatch.entityRef.isValid()) {
                 activeMatch.entityRef = selfRef;

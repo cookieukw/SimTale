@@ -789,7 +789,7 @@ public class InteractionManager {
         return InteractionOutcome.ofItem(8, 0, 5, 15, prefix.insert(reaction), MemoryEvent.CHATTED, true);
     }
 
-    // --- Helpers Lógicos ---
+    // --- Logic Helpers ---
 
     private static void applyOutcome(SimNPCComponent npc, UUID playerUuid, Relationship rel, InteractionOutcome outcome, boolean isChild) {
         if (outcome.memoryEvent() != null) {
@@ -962,7 +962,7 @@ public class InteractionManager {
             return Message.translation("npc-dialogues.context.insulted.recent").param("name", npc.name);
         }
 
-        // Modificações guiadas pelo RelationshipStatus
+        // Modifications guided by RelationshipStatus
         return switch (rel.status) {
             case MARRIED, PARTNER, ENGAGED -> pickRandomTranslation("npc-dialogues.greeting.romantic", 5, npc.name);
             case ENEMIES -> pickRandomTranslation("npc-dialogues.greeting.enemy", 3, npc.name);
@@ -1001,7 +1001,7 @@ public class InteractionManager {
 
     /**
      * What a child currently calls {@code playerUuid} as their parent, for a {@code {parent}}
-     * placeholder in a young-voice line: "mamãe"/"papai", degrading to the plain "mãe"/"pai" and
+     * placeholder in a young-voice line: "mommy"/"daddy", degrading to the plain "mom"/"dad" and
      * then to the player's own name as {@link ParentChildBond#parentTermKey} sours. Wrapped as a
      * nested {@link Message} (not a raw string) so the term itself stays translated per client —
      * only the name fallback is untranslated, being a proper noun already.
