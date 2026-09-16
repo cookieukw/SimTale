@@ -94,6 +94,10 @@ E tem uma zoeira que eu deixei no mod de propósito: o sistema de carregar crian
 **Locução:**
 Os moradores também precisam trabalhar. Pra definir a profissão de cada um, você entrega o item correspondente pro NPC — uma picareta faz dele um Minerador, uma enxada faz Fazendeiro, arco faz Caçador, e assim por diante.
 
+Só que não é só entregar o item e pronto. O NPC pode recusar. Se ele for inimigo ou desconhecido seu, ele não vai aceitar nada de você. Se a profissão tiver na lista de coisas que ele não gosta, ele recusa também. Um NPC preguiçoso tem boa chance de recusar trabalho pesado tipo mineração ou lenhador. Um NPC agressivo provavelmente vai negar profissões tranquilas tipo fazendeiro ou pescador. E se ele tiver de mau humor, pode simplesmente mandar você embora. Agora, se a profissão for justamente uma que ele gosta, ele aceita de primeira e ainda fica feliz.
+
+Depois de aceitar, aí sim ele começa a trabalhar. Mas pra isso ele precisa de um posto de trabalho. Você coloca o bloco correspondente no mundo — uma bancada de serraria perto das árvores pro Lenhador, uma armadilha de pesca na beira do rio pro Pescador, e assim vai. O mod registra esse bloco na hora usando o mesmo sistema de registro que falei das camas e cadeiras, e o NPC vai trabalhar lá.
+
 O Fazendeiro vai sozinho até o baú da casa pegar sementes, planta na horta, colhe quando tá maduro e guarda a comida pra todo mundo. O Pescador fica cuidando das armadilhas na beira do rio.
 
 Agora, pro Minerador e pro Caçador eu não podia simplesmente soltar a IA deles pelo mapa. Ia travar o servidor calculando rotas e o caçador provavelmente ia sair matando os animais de estimação da sua própria fazenda. Então eu criei o sistema de Expedições: eles saem do mapa por um tempo, como se tivessem ido explorar cavernas ou florestas, e voltam depois trazendo minérios, couro e carnes pro depósito da vila.
@@ -109,9 +113,9 @@ A solução foi cruzar o Leash Point com a direção do olhar do NPC: ele só ab
 [CENA: Jogador colocando cadeiras, banheiras e baús em diferentes casas. Interface de debug mostrando os registros.]
 
 **Locução:**
-Lembra que eu falei que o mod escuta o momento exato em que o jogador coloca uma cama no chão pra cadastrar ela? Pois é, essa ideia funcionou tão bem que eu acabei replicando ela pra praticamente todos os móveis do jogo. Cadeiras, banheiras, baús, postes de pesca, fazendas — tudo usa o mesmo padrão de registro.
+Lembra que eu falei que o mod escuta o momento exato em que o jogador coloca uma cama no chão pra cadastrar ela? Pois é, essa ideia funcionou tão bem que eu acabei usando o mesmo padrão pra praticamente tudo no mod. Cadeiras, banheiras, baús, postes de pesca, bancadas de serraria, fazendas — tudo entra num registro próprio no momento em que o bloco é colocado.
 
-Quando você coloca uma cadeira no chão, o mod cadastra ela num ChairRegistry. O NPC depois vai lá, senta, e a cadeira fica marcada como ocupada até ele levantar. A mesma coisa com a banheira: ele toma banho, recupera higiene, e nenhum outro morador tenta entrar na mesma banheira ao mesmo tempo.
+Quando você coloca uma cadeira, o mod cadastra ela. O NPC vai lá, senta, e a cadeira fica marcada como ocupada até ele levantar. A mesma coisa com a banheira: ele toma banho, recupera higiene, e nenhum outro morador tenta entrar na mesma banheira ao mesmo tempo. E a mesma coisa com os postos de trabalho: a bancada de serraria já localiza o tronco de árvore mais próximo no momento em que é colocada, e o lenhador já sabe exatamente onde ir cortar.
 
 Se eu não tivesse feito assim, cada NPC ia precisar escanear centenas de blocos toda hora pra achar onde sentar ou onde tomar banho. Com esse sistema, a informação já tá pronta, catalogada e sem lag nenhum.
 
