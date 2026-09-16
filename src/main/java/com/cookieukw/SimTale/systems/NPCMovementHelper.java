@@ -44,17 +44,19 @@ public class NPCMovementHelper {
     public static final String STATE_MOVING = "ReturnHome";
 
     public static void moveTo(Ref<EntityStore> ref, RoutineAIComponent ai, World world, Vector3d targetPos) {
-        // Without the NPC's name here, this line is useless for telling two NPCs' movement
-        // apart in a busy log — which one is dragging around near (X,Y,Z) was previously a
-        // guessing game whenever more than one NPC was active at once.
+        /* Without the NPC's name here, this line is useless for telling two NPCs' movement
+        apart in a busy log — which one is dragging around near (X,Y,Z) was previously a
+        guessing game whenever more than one NPC was active at once.
+        */
         SimNPCComponent npc = ref.getStore().getComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE);
 
         Vector3d effectiveTarget = targetPos;
-        // AUDITORIA.md #4.1 workaround: there is no public API to set an NPC's real movement
-        // speed (see PregnancyManager.isPausedTick for why), so a pregnant NPC's slowdown is
-        // simulated here by periodically re-pinning the leash to her own current position
-        // instead of the real target — reads as a stutter/waddle, not a real speed change.
-        // Visual approximation only; not yet confirmed in a live game.
+        /* AUDITORIA.md #4.1 workaround: there is no public API to set an NPC's real movement
+        speed (see PregnancyManager.isPausedTick for why), so a pregnant NPC's slowdown is
+        simulated here by periodically re-pinning the leash to her own current position
+        instead of the real target — reads as a stutter/waddle, not a real speed change.
+        Visual approximation only; not yet confirmed in a live game.
+        */
         if (npc != null && PregnancyManager.isPausedTick(npc.pregnancy, world.getTick())) {
             TransformComponent transform = ref.getStore().getComponent(ref, TransformComponent.getComponentType());
             if (transform != null) {
@@ -72,9 +74,10 @@ public class NPCMovementHelper {
         }
 
         if (needsUpdate) {
-            // currentTask alongside the name: nine different call sites across five helper
-            // classes all funnel through here, and a moveTo firing for a task the caller wasn't
-            // expecting (e.g. an interrupt nobody logged) was previously invisible.
+            /* currentTask alongside the name: nine different call sites across five helper
+            classes all funnel through here, and a moveTo firing for a task the caller wasn't
+            expecting (e.g. an interrupt nobody logged) was previously invisible.
+            */
             LOGGER.debug("[SimTale] moveTo({}, task={}) updating leash point to ({},{},{})",
                     npc != null ? npc.name : "?", ai.currentTask, effectiveTarget.x, effectiveTarget.y, effectiveTarget.z);
             ai.lastLeashPos = new Vector3d(effectiveTarget);
@@ -108,8 +111,9 @@ public class NPCMovementHelper {
         if (npcRef == null || pos == null) return;
 
         if (ai != null) {
-            // Mantido em sincronia com o leash real, senao o proximo moveTo compara com um valor
-            // antigo e pode concluir que nao precisa atualizar nada.
+            /* Mantido em sincronia com o leash real, senao o proximo moveTo compara com um valor
+            antigo e pode concluir que nao precisa atualizar nada.
+            */
             ai.lastLeashPos = new Vector3d(pos);
         }
 
@@ -141,20 +145,21 @@ public class NPCMovementHelper {
     }
 
     public static void playAnim(Ref<EntityStore> ref, AnimationSlot slot, String anim, String name, Store<EntityStore> store) {
-        // This used to forward (anim, name) straight into AnimationUtils.playAnimation, which
-        // resolves by type to the (itemAnimationsId, animationId, ComponentAccessor) overload --
-        // putting the real clip path in itemAnimationsId (meant for held-item view animations,
-        // unrelated here) and the short debug label in animationId, the field the engine actually
-        // uses to pick the clip.
-        //
-        // The correct value for animationId depends on the slot:
-        //  - Face/Movement/Status/ServerAction: AnimationUtils.playAnimation checks the call against
-        //    model.getAnimationSetMap(), so animationId must be a SET NAME registered on the model
-        //    (own or inherited via "Parent", e.g. "Walk"/"Idle"/"Sleep" come from the base Player
-        //    model) -- that's `name` here, not the raw clip path.
-        //  - Action/Emote: the engine skips that registry check for these two slots (its own
-        //    comment says combat/charging get custom client handling), so there is no registered
-        //    name to match -- `anim`, the real .blockyanim path, is what should go out instead.
+        /* This used to forward (anim, name) straight into AnimationUtils.playAnimation, which
+        resolves by type to the (itemAnimationsId, animationId, ComponentAccessor) overload --
+        putting the real clip path in itemAnimationsId (meant for held-item view animations,
+        unrelated here) and the short debug label in animationId, the field the engine actually
+        uses to pick the clip.
+
+        The correct value for animationId depends on the slot:
+         - Face/Movement/Status/ServerAction: AnimationUtils.playAnimation checks the call against
+           model.getAnimationSetMap(), so animationId must be a SET NAME registered on the model
+           (own or inherited via "Parent", e.g. "Walk"/"Idle"/"Sleep" come from the base Player
+           model) -- that's `name` here, not the raw clip path.
+         - Action/Emote: the engine skips that registry check for these two slots (its own
+           comment says combat/charging get custom client handling), so there is no registered
+           name to match -- `anim`, the real .blockyanim path, is what should go out instead.
+        */
         boolean usesModelRegistry = slot != AnimationSlot.Action && slot != AnimationSlot.Emote;
         LOGGER.debug("[NPCMovementHelper] Playing '{}' ({}) on slot {}", name, anim, slot);
         AnimationUtils.playAnimation(ref, slot, usesModelRegistry ? name : anim, store);
@@ -184,19 +189,21 @@ public class NPCMovementHelper {
         ms.falling = false;
         ms.mantling = false;
         ms.sliding = false;
-        // sitting e uma flag SEPARADA de sleeping, e ficava intocada aqui. Se qualquer coisa a
-        // tiver ligado antes, ela permanecia ligada durante o sono — e o corpo era desenhado
-        // sentado em vez de deitado. Vale zerar em ambos os sentidos: ao dormir e ao acordar,
-        // nunca queremos a NPC sentada.
-        //
-        // Nao e so pose: ModelSystems$UpdateMovementStateBoundingBox deriva a caixa de colisao
-        // dessas flags, entao sitting/sleeping errados dao a hitbox errada — que e justamente a
-        // origem do empurrao lateral na cama.
+        /* sitting e uma flag SEPARADA de sleeping, e ficava intocada aqui. Se qualquer coisa a
+        tiver ligado antes, ela permanecia ligada durante o sono — e o corpo era desenhado
+        sentado em vez de deitado. Vale zerar em ambos os sentidos: ao dormir e ao acordar,
+        nunca queremos a NPC sentada.
+
+        Nao e so pose: ModelSystems$UpdateMovementStateBoundingBox deriva a caixa de colisao
+        dessas flags, entao sitting/sleeping errados dao a hitbox errada — que e justamente a
+        origem do empurrao lateral na cama.
+        */
         ms.sitting = false;
         ms.mounting = sleeping;
         ms.sleeping = sleeping;
-        // Nulo quando chamado de um comando (ver a sobrecarga acima). Os campos ja foram
-        // alterados na instancia viva; o replaceComponent apenas sinaliza a mudanca.
+        /* Nulo quando chamado de um comando (ver a sobrecarga acima). Os campos ja foram
+        alterados na instancia viva; o replaceComponent apenas sinaliza a mudanca.
+        */
         if (commandBuffer != null) {
             commandBuffer.replaceComponent(ref, MovementStatesComponent.getComponentType(), msc);
         }

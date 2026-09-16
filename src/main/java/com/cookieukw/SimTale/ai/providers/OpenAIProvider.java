@@ -50,11 +50,12 @@ public class OpenAIProvider implements NpcAiProvider {
 
     @Override
     public AiResponse generate(AiRequest request) {
-        // OpenAI expects:
-        // [
-        //   { "role": "system", "content": systemPrompt },
-        //   { "role": "user", "content": userMsg1 }, ...
-        // ]
+        /* OpenAI expects:
+        [
+          { "role": "system", "content": systemPrompt },
+          { "role": "user", "content": userMsg1 }, ...
+        ]
+        */
         List<AiMessage> openAiMsgs = new ArrayList<>();
         if (request.systemPrompt() != null && !request.systemPrompt().isBlank()) {
             openAiMsgs.add(new AiMessage("system", request.systemPrompt()));

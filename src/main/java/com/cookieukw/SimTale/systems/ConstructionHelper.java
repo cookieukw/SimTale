@@ -29,9 +29,10 @@ public final class ConstructionHelper {
     private static final long COORD_OFFSET = 1L << 20;
     private static final long COORD_MASK = (1L << COORD_BITS) - 1L;
 
-    // ---------------------------------------------------------------------
-    // Public API
-    // ---------------------------------------------------------------------
+    /* ---------------------------------------------------------------------
+    Public API
+    ---------------------------------------------------------------------
+    */
 
     /** Removes the site's hologram, plus any leftover marker blocks from a pre-migration preview. */
     public static void clearPreview(World world, ConstructionSiteComponent site) {
@@ -39,8 +40,9 @@ public final class ConstructionHelper {
 
         PrefabGhostHelper.hide(world, site);
 
-        // Everything below only ever finds something for a preview that was placed by the old
-        // marker-block code earlier in this same session. New previews touch no blocks at all.
+        /* Everything below only ever finds something for a preview that was placed by the old
+        marker-block code earlier in this same session. New previews touch no blocks at all.
+        */
         for (long packed : site.previewBody) {
             int[] pos = unpack(packed);
             restoreBlock(world, site, pos[0], pos[1], pos[2], packed);
@@ -152,9 +154,10 @@ public final class ConstructionHelper {
         };
     }
 
-    // ---------------------------------------------------------------------
-    // Bounds & rotation helpers
-    // ---------------------------------------------------------------------
+    /* ---------------------------------------------------------------------
+    Bounds & rotation helpers
+    ---------------------------------------------------------------------
+    */
 
     private record BoxSize(int sizeX, int sizeY, int sizeZ) {}
 
@@ -175,9 +178,10 @@ public final class ConstructionHelper {
         return new BoxSize(maxX - minX + 1, maxY - minY + 1, maxZ - minZ + 1);
     }
 
-    // ---------------------------------------------------------------------
-    // Obstruction scan
-    // ---------------------------------------------------------------------
+    /* ---------------------------------------------------------------------
+    Obstruction scan
+    ---------------------------------------------------------------------
+    */
 
     private static boolean hasObstruction(World world, ConstructionSiteComponent site, Prefab prefab) {
         BoxSize size = computeBoxSize(prefab);
@@ -190,10 +194,11 @@ public final class ConstructionHelper {
                     int wx = site.anchor.x + offset.x;
                     int wy = site.anchor.y + offset.y;
                     int wz = site.anchor.z + offset.z;
-                    // The anchor cell itself is where whatever placed this preview is standing
-                    // (a player, or — for a marker-block-triggered site — the marker block
-                    // itself). Either way it's occupied on purpose and will be consumed/replaced
-                    // once building actually starts, not a real obstruction to warn about.
+                    /* The anchor cell itself is where whatever placed this preview is standing
+                    (a player, or — for a marker-block-triggered site — the marker block
+                    itself). Either way it's occupied on purpose and will be consumed/replaced
+                    once building actually starts, not a real obstruction to warn about.
+                    */
                     if (wx == site.anchor.x && wy == site.anchor.y && wz == site.anchor.z) continue;
                     if (isOccupied(world, wx, wy, wz)) {
                         return true;
@@ -218,9 +223,10 @@ public final class ConstructionHelper {
         return type != null && !type.getId().equalsIgnoreCase(EMPTY_BLOCK_ID);
     }
 
-    // ---------------------------------------------------------------------
-    // Legacy marker cleanup
-    // ---------------------------------------------------------------------
+    /* ---------------------------------------------------------------------
+    Legacy marker cleanup
+    ---------------------------------------------------------------------
+    */
 
     private static void restoreBlock(World world, ConstructionSiteComponent site, int x, int y, int z, long packed) {
         ConstructionSiteComponent.OriginalBlockState original = site.originalBlocks.remove(packed);
@@ -231,9 +237,10 @@ public final class ConstructionHelper {
         }
     }
 
-    // ---------------------------------------------------------------------
-    // Coordinate packing (x, y, z -> single long key for map storage)
-    // ---------------------------------------------------------------------
+    /* ---------------------------------------------------------------------
+    Coordinate packing (x, y, z -> single long key for map storage)
+    ---------------------------------------------------------------------
+    */
 
     private static int[] unpack(long packed) {
         long bz = packed & COORD_MASK;

@@ -90,9 +90,10 @@ public class SimBathDebugPage extends InteractiveCustomUIPage<String> {
         synchronized (BathRegistry.BATHS) {
             int before = BathRegistry.BATHS.size();
             if (world != null) {
-                // Self-healing, same rule as the bed/chest pages: only prune a tile whose chunk is
-                // actually loaded and confirmed to no longer be a bath block. An unloaded chunk
-                // cannot be checked, so it is assumed to still be there.
+                /* Self-healing, same rule as the bed/chest pages: only prune a tile whose chunk is
+                actually loaded and confirmed to no longer be a bath block. An unloaded chunk
+                cannot be checked, so it is assumed to still be there.
+                */
                 BathRegistry.BATHS.removeIf(bp -> {
                     WorldChunk chunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunkFromBlock(bp.x, bp.z), WorldChunk.getComponentType());
                     if (chunk != null) {

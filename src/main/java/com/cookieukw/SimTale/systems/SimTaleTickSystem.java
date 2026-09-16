@@ -76,19 +76,22 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         if (world == null) return;
         long absoluteTick = world.getTick();
 
-        // The world map runs on its own thread and cannot touch the ECS, so it reads a snapshot
-        // taken here instead. Self-throttled; calling it from every NPC's tick is cheap because
-        // all but one call returns immediately.
+        /* The world map runs on its own thread and cannot touch the ECS, so it reads a snapshot
+        taken here instead. Self-throttled; calling it from every NPC's tick is cheap because
+        all but one call returns immediately.
+        */
         SimTaleMarkerProvider.captureSnapshot(world, store);
 
-        // Same free ride: a no-op unless somebody has a house outline up, and it needs a tick from
-        // somewhere to expire on its own rather than lingering until the next inspection.
+        /* Same free ride: a no-op unless somebody has a house outline up, and it needs a tick from
+        somewhere to expire on its own rather than lingering until the next inspection.
+        */
         HouseBlueprintHelper.tickExpiry(world);
 
-        // Same free ride again: checks the calendar at most once every CHECK_INTERVAL_TICKS
-        // (all other NPCs ticked in that same tick just compare a long and return). Applies/
-        // removes seasonal costumes automatically -- see SeasonalCostumeHelper and
-        // docs/experimentos.md for the full reasoning (13/09).
+        /* Same free ride again: checks the calendar at most once every CHECK_INTERVAL_TICKS
+        (all other NPCs ticked in that same tick just compare a long and return). Applies/
+        removes seasonal costumes automatically -- see SeasonalCostumeHelper and
+        docs/experimentos.md for the full reasoning (13/09).
+        */
         SeasonalCostumeHelper.tick(world, store, absoluteTick);
 
         // Process mounted/sleeping NPCs whose routine AI ticks are suspended by the engine
@@ -98,8 +101,9 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             UUIDComponent uuidComp = chunk.getComponent(index, UUIDComponent.getComponentType());
             if (uuidComp != null) {
                 UUID uuid = uuidComp.getUuid();
-                // Caskara.load() resolves to the "default" shell; NPC data lives in "simtale".
-                // This used to always return null, so this whole re-attach path never ran.
+                /* Caskara.load() resolves to the "default" shell; NPC data lives in "simtale".
+                This used to always return null, so this whole re-attach path never ran.
+                */
                 SimNPCData data = SimNPCPersistence.loadData(uuid);
                 if (data != null) {
                     HytaleLogger.forEnclosingClass().atInfo().log("SimTale: NPC " + data.name + " remontado ao entrar no mundo/carregar chunk!");
@@ -120,28 +124,30 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             return;
         }
 
-        // The codec restores only id and name, so a component that came back with the entity
-        // still needs its real data pulled from Caskara before anything reads or saves it.
+        /* The codec restores only id and name, so a component that came back with the entity
+        still needs its real data pulled from Caskara before anything reads or saves it.
+        */
         if (!npc.dataLoaded) {
             SimNPCPersistence.loadNPC(npc);
         }
 
-        // A referencia da propria entidade, tirada do chunk que esta sendo tickado agora.
-        //
-        // Isto conserta um efeito colateral da mudanca que fez o SimNPCComponent persistir
-        // nativamente. Antes, um NPC recarregado chegava SEM o componente, caia no ramo
-        // `npc == null` la em cima e ganhava entityRef via getRefFromUUID. Depois que o
-        // componente passou a voltar junto com a entidade, aquele ramo deixou de rodar — e era
-        // o unico lugar que preenchia entityRef.
-        //
-        // Resultado: o NPC entrava em ACTIVE_NPCS com entityRef == null. Como todo subcomando
-        // filtra por `if (npc.entityRef != null)`, o mod respondia "Nenhum NPC por perto" com o
-        // NPC parado na frente do jogador. A tecla F continuava funcionando porque recebe a
-        // referencia direto do evento de interacao, sem passar por ACTIVE_NPCS — e era
-        // exatamente esse contraste que denunciava o problema.
-        //
-        // entityRef e transient de proposito (referencia viva nao se serializa), entao a fonte
-        // certa e o proprio chunk, nao o banco.
+        /* A referencia da propria entidade, tirada do chunk que esta sendo tickado agora.
+
+        Isto conserta um efeito colateral da mudanca que fez o SimNPCComponent persistir
+        nativamente. Antes, um NPC recarregado chegava SEM o componente, caia no ramo
+        `npc == null` la em cima e ganhava entityRef via getRefFromUUID. Depois que o
+        componente passou a voltar junto com a entidade, aquele ramo deixou de rodar — e era
+        o unico lugar que preenchia entityRef.
+
+        Resultado: o NPC entrava em ACTIVE_NPCS com entityRef == null. Como todo subcomando
+        filtra por `if (npc.entityRef != null)`, o mod respondia "Nenhum NPC por perto" com o
+        NPC parado na frente do jogador. A tecla F continuava funcionando porque recebe a
+        referencia direto do evento de interacao, sem passar por ACTIVE_NPCS — e era
+        exatamente esse contraste que denunciava o problema.
+
+        entityRef e transient de proposito (referencia viva nao se serializa), entao a fonte
+        certa e o proprio chunk, nao o banco.
+        */
         Ref<EntityStore> selfRef = chunk.getReferenceTo(index);
         if (npc.entityRef == null || !npc.entityRef.isValid()) {
             npc.entityRef = selfRef;
@@ -154,8 +160,9 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             SimNPCPersistence.loadNPC(npc);
             SimTale.trackNpc(npc);
         } else if (activeMatch != npc) {
-            // A instancia rastreada e a que os comandos enxergam, entao ela tambem precisa de
-            // uma referencia valida — nao adianta consertar so a copia que veio do chunk.
+            /* A instancia rastreada e a que os comandos enxergam, entao ela tambem precisa de
+            uma referencia valida — nao adianta consertar so a copia que veio do chunk.
+            */
             if (activeMatch.entityRef == null || !activeMatch.entityRef.isValid()) {
                 activeMatch.entityRef = selfRef;
             }
@@ -164,16 +171,17 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             npc = activeMatch;
         }
 
-        // The Reaper is deliberately never written to SimTale's own database -- she is ephemeral
-        // by design (SimNPCFactory.spawnNPC: "O Reaper fica de fora de proposito"). If the server
-        // restarts, or a chunk saves and reloads, while one is mid-ceremony, the engine's own
-        // entity codec restores this component with only id and name intact (see the comment on
-        // `!npc.dataLoaded` above) -- isReaper silently comes back false, and with no SimTale DB
-        // record to load either, she re-enters ACTIVE_NPCS as an ordinary, permanently
-        // interactable villager literally named "Grim Reaper" (13/09 report: found standing
-        // around with a normal mood plumbob, interactable like anyone else). Her ceremonial model
-        // is the one part of her that survives that round trip intact, so it's what identifies
-        // her here, after the isReaper flag itself is already gone.
+        /* The Reaper is deliberately never written to SimTale's own database -- she is ephemeral
+        by design (SimNPCFactory.spawnNPC: "O Reaper fica de fora de proposito"). If the server
+        restarts, or a chunk saves and reloads, while one is mid-ceremony, the engine's own
+        entity codec restores this component with only id and name intact (see the comment on
+        `!npc.dataLoaded` above) -- isReaper silently comes back false, and with no SimTale DB
+        record to load either, she re-enters ACTIVE_NPCS as an ordinary, permanently
+        interactable villager literally named "Grim Reaper" (13/09 report: found standing
+        around with a normal mood plumbob, interactable like anyone else). Her ceremonial model
+        is the one part of her that survives that round trip intact, so it's what identifies
+        her here, after the isReaper flag itself is already gone.
+        */
         if (!npc.isReaper) {
             PersistentModel selfModel = store.getComponent(selfRef, PersistentModel.getComponentType());
             if (selfModel != null && selfModel.getModelReference() != null
@@ -186,15 +194,17 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // Staggered by entity id: `absoluteTick % 600` made every NPC in the world write to
-        // disk on the very same tick, producing a periodic I/O spike proportional to the roster.
+        /* Staggered by entity id: `absoluteTick % 600` made every NPC in the world write to
+        disk on the very same tick, producing a periodic I/O spike proportional to the roster.
+        */
         if (npc.entityId != null && Math.floorMod(absoluteTick + npc.entityId.hashCode(), 600) == 0) {
             SimNPCPersistence.saveNPC(npc);
         }
 
-        // Same staggering idea as the save above, offset by one tick so the two don't pile onto
-        // the same frame for every NPC sharing a hash bucket. Cheap no-op for the common case
-        // (no armour ever given, or already equipped correctly).
+        /* Same staggering idea as the save above, offset by one tick so the two don't pile onto
+        the same frame for every NPC sharing a hash bucket. Cheap no-op for the common case
+        (no armour ever given, or already equipped correctly).
+        */
         if (npc.entityId != null && Math.floorMod(absoluteTick + npc.entityId.hashCode() + 1, 200) == 0) {
             NPCArmorHelper.ensureArmorEquipped(npc.entityRef, npc, store);
         }
@@ -205,10 +215,11 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                 Relationship spouseRel = npc.getRelationship(npc.family.spouseId);
                 // 25% chance of getting pregnant daily if romance is high (romance >= 75)
                 if (spouseRel.romance >= 75 && Math.random() < 0.25) {
-                    // The spouse being another NPC (not a player) is the only case where we can
-                    // ask "does the spouse actually want this too?" — a player has no FamilySystem
-                    // to hold that preference, so a player marriage keeps its original behaviour
-                    // exactly as it was: romance + chance is the whole gate.
+                    /* The spouse being another NPC (not a player) is the only case where we can
+                    ask "does the spouse actually want this too?" — a player has no FamilySystem
+                    to hold that preference, so a player marriage keeps its original behaviour
+                    exactly as it was: romance + chance is the whole gate.
+                    */
                     SimNPCComponent spouseNpc = LifecycleUtils.findNPCById(npc.family.spouseId);
                     boolean bothWantIt = spouseNpc == null || (npc.family.wantsAnotherChild() && spouseNpc.family.wantsAnotherChild());
                     if (bothWantIt) {
@@ -222,11 +233,12 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
 
         NeedsHelper.tickDecay(store, npc.entityRef, npc.personality.traits);
 
-        // Decay emotion intensity over time.
-        //
-        // 0.001 per tick burned a full-intensity mood in 45 s, and the ambient HAPPY at 0.3 in ten.
-        // At 0.0002 a strong feeling lasts around 7 min and a mild one around 1.5 min, which is the
-        // difference between a village with moods and a village with flickering icons.
+        /* Decay emotion intensity over time.
+
+        0.001 per tick burned a full-intensity mood in 45 s, and the ambient HAPPY at 0.3 in ten.
+        At 0.0002 a strong feeling lasts around 7 min and a mild one around 1.5 min, which is the
+        difference between a village with moods and a village with flickering icons.
+        */
         if (npc.activeEmotion != Mood.NEUTRAL) {
             npc.emotionIntensity = Math.max(0f, npc.emotionIntensity - 0.0002f);
             if (npc.emotionIntensity < 0.1f) {
@@ -253,9 +265,10 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                 if (entityRef != null) {
                     RoutineAIComponent aiComp = store.getComponent(entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
                     if (aiComp != null && (aiComp.currentTask == RoutineAIComponent.TaskType.IDLE || aiComp.currentTask == RoutineAIComponent.TaskType.WANDERING)) {
-                        // 0.005 per tick is one in ten seconds — boredom arrived almost the moment
-                        // an NPC stopped moving. At 0.0004 it takes around two minutes of idling,
-                        // which is closer to what "bored" is supposed to mean.
+                        /* 0.005 per tick is one in ten seconds — boredom arrived almost the moment
+                        an NPC stopped moving. At 0.0004 it takes around two minutes of idling,
+                        which is closer to what "bored" is supposed to mean.
+                        */
                         if (Math.random() < 0.0004) {
                             npc.setEmotion(Mood.BORED, 0.4f, "idleness", absoluteTick);
                         }
@@ -320,8 +333,9 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                 npc.isAway = false;
             }
         } else if (absoluteTick % 200 == 0 && Math.random() < 0.05) {
-            // Previously this rolled every single tick, which meant roughly one interaction
-            // per second per NPC — each of those writes the NPC to disk via saveNPC().
+            /* Previously this rolled every single tick, which meant roughly one interaction
+            per second per NPC — each of those writes the NPC to disk via saveNPC().
+            */
             InteractionManager.performInteraction(npc, npc.entityId, null, InteractionType.RANDOM);
         }
     }
@@ -389,20 +403,21 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
 
             if (mounted == null && !isSleepingTask) continue;
 
-            // A carried child's own AI/needs tick is suspended by the engine exactly like a
-            // sleeping one's, so this is the only place left that can still keep her energy need
-            // from starving while she is up there -- she is not doing anything, so let her recover
-            // the whole time she is carried. This must never by itself end the carry, though: the
-            // ONLY place in this whole codebase that ever creates a MountedComponent is
-            // ChildCarryHelper, so an entity can be "mounted" here purely by being carried, with
-            // nothing to do with sleep. A previous version of this method used `mounted != null` as
-            // an extra way into the wake-up/un-mount logic below (removing MountedComponent,
-            // resetting the task, teleporting to the bed) -- which fired on the very next tick after
-            // ANY daytime pickup, since `sleepPeriodClosed` just means "it is currently not night".
-            // Confirmed in game (13/09): the pickup message and its log both fired, then this
-            // method's own "waking up" log fired ~30ms later and silently undid the pickup. Energy
-            // top-up now happens unconditionally for a carried child; the wake-up/un-mount path
-            // below only ever runs for an entity genuinely on a sleeping/waking task.
+            /* A carried child's own AI/needs tick is suspended by the engine exactly like a
+            sleeping one's, so this is the only place left that can still keep her energy need
+            from starving while she is up there -- she is not doing anything, so let her recover
+            the whole time she is carried. This must never by itself end the carry, though: the
+            ONLY place in this whole codebase that ever creates a MountedComponent is
+            ChildCarryHelper, so an entity can be "mounted" here purely by being carried, with
+            nothing to do with sleep. A previous version of this method used `mounted != null` as
+            an extra way into the wake-up/un-mount logic below (removing MountedComponent,
+            resetting the task, teleporting to the bed) -- which fired on the very next tick after
+            ANY daytime pickup, since `sleepPeriodClosed` just means "it is currently not night".
+            Confirmed in game (13/09): the pickup message and its log both fired, then this
+            method's own "waking up" log fired ~30ms later and silently undid the pickup. Energy
+            top-up now happens unconditionally for a carried child; the wake-up/un-mount path
+            below only ever runs for an entity genuinely on a sleeping/waking task.
+            */
             if (mounted != null) {
                 NeedsHelper.setNeed(npcStore, ref, NeedsHelper.ENERGY_ID, 100f);
             }

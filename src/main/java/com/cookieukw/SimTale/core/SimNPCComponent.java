@@ -166,8 +166,9 @@ public class SimNPCComponent implements Component<EntityStore> {
         SimNPCComponent clone = new SimNPCComponent(entityId, name);
         clone.personality = new Personality(personality.kindness, personality.humor, personality.aggression,
                 personality.charisma);
-        // Traits are the whole point of Personality — without this the clone silently lost
-        // GREEDY/SHY/LAZY/... and behaved like a blank NPC.
+        /* Traits are the whole point of Personality — without this the clone silently lost
+        GREEDY/SHY/LAZY/... and behaved like a blank NPC.
+        */
         if (personality.traits != null) {
             clone.personality.traits = new HashSet<>(personality.traits);
         }
@@ -176,8 +177,9 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.stats.xp = stats.xp;
         clone.memory = new MemoryManager();
         clone.memory.recentMemories.addAll(memory.recentMemories);
-        // Deep copy: a shallow HashMap copy shares the Relationship objects, so mutating the
-        // clone's affinity/romance also mutated the original's.
+        /* Deep copy: a shallow HashMap copy shares the Relationship objects, so mutating the
+        clone's affinity/romance also mutated the original's.
+        */
         clone.relationships = new HashMap<>();
         for (Map.Entry<UUID, Relationship> entry : relationships.entrySet()) {
             Relationship source = entry.getValue();
@@ -208,12 +210,14 @@ public class SimNPCComponent implements Component<EntityStore> {
             clone.bedLocation = new BedPos(bedLocation.x, bedLocation.y, bedLocation.z, bedLocation.yaw);
         }
 
-        // Carried over so a clone of a loaded component is still allowed to save; otherwise the
-        // ECS swapping in a clone would silently block persistence for that NPC.
+        /* Carried over so a clone of a loaded component is still allowed to save; otherwise the
+        ECS swapping in a clone would silently block persistence for that NPC.
+        */
         clone.dataLoaded = dataLoaded;
 
-        // Identity/family state — must be copied explicitly, otherwise the
-        // default constructor's random profession would leak into the clone.
+        /* Identity/family state — must be copied explicitly, otherwise the
+        default constructor's random profession would leak into the clone.
+        */
         clone.profession = profession;
         clone.guardWeaponCategory = guardWeaponCategory;
         clone.guardWeaponItemId = guardWeaponItemId;

@@ -46,8 +46,9 @@ public class JsonParser {
     }
 
     private static String getObjectField(String json, String field) {
-        // Simple search for key "field" followed by optional space, colon, optional space
-        // Handles quotes: either "field" or 'field' (standard is double quotes)
+        /* Simple search for key "field" followed by optional space, colon, optional space
+        Handles quotes: either "field" or 'field' (standard is double quotes)
+        */
         String patternStr = "\"" + Pattern.quote(field) + "\"\\s*:\\s*";
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(json);

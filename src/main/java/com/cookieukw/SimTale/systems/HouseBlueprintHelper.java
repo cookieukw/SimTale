@@ -150,8 +150,9 @@ public final class HouseBlueprintHelper {
         HouseBlockPos anchorPos = footprint.iterator().next();
         Vector3i anchor = new Vector3i(anchorPos.x, anchorPos.y, anchorPos.z);
 
-        // BlockChange takes the numeric block id, not the name — resolved once for the whole
-        // footprint rather than per block.
+        /* BlockChange takes the numeric block id, not the name — resolved once for the whole
+        footprint rather than per block.
+        */
         String blockName = valid ? OUTLINE_VALID : OUTLINE_INVALID;
         int blockId = BlockType.getBlockIdOrUnknown(
                 blockName, "SimTale: bloco de contorno desconhecido: %s", blockName);

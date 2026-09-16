@@ -44,18 +44,20 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         Vector3i pos = event.getTargetBlock();
         World world = store.getExternalData().getWorld();
 
-        // Furniture spans several blocks, and the break event reports whichever one was hit.
-        // Registries key on the anchor, so resolve it before removing; otherwise breaking a
-        // chest from its far side leaves a phantom entry and NPCs keep walking to it.
+        /* Furniture spans several blocks, and the break event reports whichever one was hit.
+        Registries key on the anchor, so resolve it before removing; otherwise breaking a
+        chest from its far side leaves a phantom entry and NPCs keep walking to it.
+        */
         Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
 
         BedRegistry.removeAt(anchor.x, anchor.y, anchor.z);
         ChestRegistry.removeAt(anchor.x, anchor.y, anchor.z);
 
-        // A house is identified by its bed, so losing the bed ends the house — and with it, the
-        // house's contribution to whatever village it belonged to. Without this the registry kept
-        // insisting a demolished building was a home, which is precisely the stale-village
-        // behaviour the village system exists to avoid.
+        /* A house is identified by its bed, so losing the bed ends the house — and with it, the
+        house's contribution to whatever village it belonged to. Without this the registry kept
+        insisting a demolished building was a home, which is precisely the stale-village
+        behaviour the village system exists to avoid.
+        */
         HouseManager.deleteHouseByBed(new HouseBlockPos(anchor.x, anchor.y, anchor.z));
 
         // Crops and farmland are single blocks, so they use the hit position directly.
@@ -66,18 +68,21 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         BathRegistry.removeAt(anchor.x, anchor.y, anchor.z);
         LeisureRegistry.removeAt(anchor.x, anchor.y, anchor.z);
         ChairRegistry.removeAt(anchor.x, anchor.y, anchor.z);
-        // The post itself may still stand while its registered tree gets chopped (by a player or
-        // the lumberjack NPC it sent) — that leaves the post pointing at an empty spot forever
-        // unless the tree's own removal deregisters it too.
+        /* The post itself may still stand while its registered tree gets chopped (by a player or
+        the lumberjack NPC it sent) — that leaves the post pointing at an empty spot forever
+        unless the tree's own removal deregisters it too.
+        */
         LumberPostRegistry.removeByTree(pos.x, pos.y, pos.z);
-        // Registered by anchor (the scarecrow is 3 blocks tall) — remove by anchor too, or
-        // breaking a non-anchor block of it leaves the registration behind.
+        /* Registered by anchor (the scarecrow is 3 blocks tall) — remove by anchor too, or
+        breaking a non-anchor block of it leaves the registration behind.
+        */
         FarmPostRegistry.removeAt(anchor.x, anchor.y, anchor.z);
 
-        // Breaking a blueprint marker cancels its preview — safe to call unconditionally, same
-        // as every removeAt above: a no-op if nothing was ever registered at this position (e.g.
-        // it was some other block, or the site had already been confirmed via '/build start' /
-        // the right-click confirm and so is no longer a pending session at all).
+        /* Breaking a blueprint marker cancels its preview — safe to call unconditionally, same
+        as every removeAt above: a no-op if nothing was ever registered at this position (e.g.
+        it was some other block, or the site had already been confirmed via '/build start' /
+        the right-click confirm and so is no longer a pending session at all).
+        */
         ConstructionPreviewManager.clear(ConstructionPreviewManager.idForBlock(pos), world);
     }
 }

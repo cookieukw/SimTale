@@ -110,8 +110,9 @@ public class HouseManager {
 
             if (orphans.isEmpty()) continue;
 
-            // Leaving a house with zero owners would make its chests unusable by everyone, which
-            // is worse than a stale name. The bed claim path will adopt it again.
+            /* Leaving a house with zero owners would make its chests unusable by everyone, which
+            is worse than a stale name. The bed claim path will adopt it again.
+            */
             unindexHouse(house);
             house.owners.removeAll(orphans);
             indexHouse(house);
@@ -155,8 +156,9 @@ public class HouseManager {
         }
         if (target == null) return false;
 
-        // The residents lose their claim: leaving bedLocation pointing at a bed that no longer
-        // exists would send them walking to it every night.
+        /* The residents lose their claim: leaving bedLocation pointing at a bed that no longer
+        exists would send them walking to it every night.
+        */
         HouseData house = HOUSES_BY_ID.get(target);
         if (house != null) {
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
@@ -188,10 +190,11 @@ public class HouseManager {
 
     public static void registerHouse(HouseData house) {
         UUID houseId = UUID.fromString(house.houseId);
-        // Un-index whatever was registered under this id first; re-registering a house whose
-        // footprint shrank used to leave the dropped blocks pointing at it in
-        // BLOCK_TO_HOUSE_ID forever, so chest permissions kept honouring walls that no longer
-        // existed.
+        /* Un-index whatever was registered under this id first; re-registering a house whose
+        footprint shrank used to leave the dropped blocks pointing at it in
+        BLOCK_TO_HOUSE_ID forever, so chest permissions kept honouring walls that no longer
+        existed.
+        */
         HouseData previous = HOUSES_BY_ID.put(houseId, house);
         if (previous != null) {
             unindexHouse(previous);
@@ -250,10 +253,11 @@ public class HouseManager {
 
                 BlockType type = world.getBlockType(neighbor.x, neighbor.y, neighbor.z);
 
-                // A null type means "not loaded", not "air". isSolid() reported false for it,
-                // so the fill poured out through unloaded chunks until it hit the 512-block cap
-                // and the house was rejected as unenclosed. Treat it as a boundary and flag the
-                // scan as incomplete instead of burning the whole budget.
+                /* A null type means "not loaded", not "air". isSolid() reported false for it,
+                so the fill poured out through unloaded chunks until it hit the 512-block cap
+                and the house was rejected as unenclosed. Treat it as a boundary and flag the
+                scan as incomplete instead of burning the whole budget.
+                */
                 if (type == null) {
                     hitUnloaded = true;
                     continue;
@@ -268,14 +272,15 @@ public class HouseManager {
                     visited.add(neighbor);
                     continue; 
                 }
-                // Furniture is recorded AND traversed. It used to be recorded and treated as a
-                // wall, which made the fill stop at it — and a bed spans six blocks, so the bed the
-                // scan starts from walled its own scan in. One house passed and the identical one
-                // next door failed purely because of where the bed sat relative to free space; a
-                // real case reported four interior blocks visited.
-                //
-                // Doors stay non-traversable on purpose: a door is the way out, and walking the
-                // fill through it would leak the scan into the world.
+                /* Furniture is recorded AND traversed. It used to be recorded and treated as a
+                wall, which made the fill stop at it — and a bed spans six blocks, so the bed the
+                scan starts from walled its own scan in. One house passed and the identical one
+                next door failed purely because of where the bed sat relative to free space; a
+                real case reported four interior blocks visited.
+
+                Doors stay non-traversable on purpose: a door is the way out, and walking the
+                fill through it would leak the scan into the world.
+                */
                 if (isBed(type)) {
                     if (!neighbor.equals(bedPos)) {
                         otherBeds.add(neighbor);
@@ -291,10 +296,11 @@ public class HouseManager {
                     continue;
                 }
                 if (isSolid(type)) {
-                    // Still a wall for the fill — but if it is recognisable furniture, remember
-                    // where it was. Chairs, tables and most lamps are solid, so skipping them
-                    // silently is what made "needs a chair, a table" impossible to clear even in a
-                    // room that had both.
+                    /* Still a wall for the fill — but if it is recognisable furniture, remember
+                    where it was. Chairs, tables and most lamps are solid, so skipping them
+                    silently is what made "needs a chair, a table" impossible to clear even in a
+                    room that had both.
+                    */
                     if (type.getId() != null
                             && FurnitureRequirement.classify(type.getId().toLowerCase()).isPresent()) {
                         furniture.add(neighbor);
@@ -382,8 +388,9 @@ public class HouseManager {
         HouseData house = HOUSES_BY_ID.get(houseId);
         if (house == null) return false;
 
-        // npcId is null for NPCs that have not been persisted yet; it used to NPE here,
-        // aborting the whole hunger/deposit scan for that NPC.
+        /* npcId is null for NPCs that have not been persisted yet; it used to NPE here,
+        aborting the whole hunger/deposit scan for that NPC.
+        */
         if (npcId == null) return false;
         return house.owners.contains(npcId.toString());
     }
@@ -546,8 +553,9 @@ public class HouseManager {
             return new HouseCompatibilityResult(structural.outcome, null, false);
         }
 
-        // Interior plus the furniture found in the walls of that interior. Passing only the
-        // interior is what made "needs a chair, a table" permanent.
+        /* Interior plus the furniture found in the walls of that interior. Passing only the
+        interior is what made "needs a chair, a table" permanent.
+        */
         Set<HouseBlockPos> scanArea = new HashSet<>(structural.raw.interiorBlocks);
         scanArea.addAll(structural.raw.furnitureBlocks);
 
@@ -570,12 +578,13 @@ public class HouseManager {
             return Message.translation("general.house.check.valid");
         }
 
-        // The separating space is raw(), not the end of the .lang value.
-        //
-        // "Precisa de: " ended with a space in both language files and it rendered as
-        // "Precisa de:uma cadeira" — the .lang parser trims trailing whitespace, so a value can
-        // never carry its own spacing. Any string that has to butt up against another one has to
-        // put the gap here, on the Java side.
+        /* The separating space is raw(), not the end of the .lang value.
+
+        "Precisa de: " ended with a space in both language files and it rendered as
+        "Precisa de:uma cadeira" — the .lang parser trims trailing whitespace, so a value can
+        never carry its own spacing. Any string that has to butt up against another one has to
+        put the gap here, on the Java side.
+        */
         Message missingList = Message.raw(" ");
         boolean first = true;
         for (FurnitureRequirement missing : result.furniture().missingMandatory()) {
@@ -595,17 +604,18 @@ public class HouseManager {
         if (report.outcome == ScanOutcome.NEW_HOUSE_SINGLE_OWNER || 
             report.outcome == ScanOutcome.NEW_HOUSE_MULTI_OWNER) {
             
-            // Reaproveita o id de quem ja ocupa este comodo, em vez de sortear um novo.
-            //
-            // Aqui estava a origem do acumulo de registros: era sempre UUID.randomUUID(), e o
-            // saveHouse grava em "house_<uuid>". Como o id mudava a cada reivindicacao, o MESMO
-            // comodo virava um registro novo toda vez que uma NPC pegava uma cama nele. Um mundo
-            // com UMA casa fisica chegou a 109 registros no Caskara.
-            //
-            // O estrago nao era so lixo no banco: no loadAllHouses todos sao indexados, e o
-            // BLOCK_TO_HOUSE_ID acabava apontando para um registro antigo cuja bedPos era outra
-            // cama. Dai o scanAndClassify devolvia CONFLICT_WITH_EXISTING para o comodo inteiro e
-            // nenhuma NPC conseguia mais reivindicar cama nenhuma ali.
+            /* Reaproveita o id de quem ja ocupa este comodo, em vez de sortear um novo.
+
+            Aqui estava a origem do acumulo de registros: era sempre UUID.randomUUID(), e o
+            saveHouse grava em "house_<uuid>". Como o id mudava a cada reivindicacao, o MESMO
+            comodo virava um registro novo toda vez que uma NPC pegava uma cama nele. Um mundo
+            com UMA casa fisica chegou a 109 registros no Caskara.
+
+            O estrago nao era so lixo no banco: no loadAllHouses todos sao indexados, e o
+            BLOCK_TO_HOUSE_ID acabava apontando para um registro antigo cuja bedPos era outra
+            cama. Dai o scanAndClassify devolvia CONFLICT_WITH_EXISTING para o comodo inteiro e
+            nenhuma NPC conseguia mais reivindicar cama nenhuma ali.
+            */
             UUID reusedId = findHouseIdForRoom(houseBed, report.raw.interiorBlocks);
             Set<UUID> owners = new HashSet<>(report.freshBedOwners);
 
@@ -642,30 +652,32 @@ public class HouseManager {
         } else if (report.outcome == ScanOutcome.CONFLICT_WITH_EXISTING
                 || report.outcome == ScanOutcome.MERGED_INTO_EXISTING) {
 
-            // O comodo ja pertence a uma casa registrada. Isso nao e motivo para recusar: a NPC
-            // simplesmente se muda para la.
-            //
-            // Antes, qualquer um desses dois desfechos devolvia false, e o efeito era um
-            // travamento total. O log de uma sessao mostrou o ciclo se repetindo 30x por segundo:
-            //
-            //   is tired (energy=0.0), interrupting task to find bed immediately
-            //   found unclaimed bed at (44,80,30)
-            //   Cama (44,80,30) rejeitada: a casa candidata e invalida (CONFLICT_WITH_EXISTING)
-            //
-            // 3447 rejeicoes em poucos segundos, sempre da mesma cama. A NPC ficava exausta e
-            // parada, sem nunca andar ate a cama, porque FINDING_BED caia em IDLE e a interrupcao
-            // de cansaco reiniciava tudo no tick seguinte.
-            //
-            // A causa de fundo e que o mundo acumulou 109 casas registradas ao longo dos testes,
-            // entao praticamente todo comodo ja pertence a alguma. Recusar todas equivale a
-            // proibir qualquer NPC de dormir.
+            /* O comodo ja pertence a uma casa registrada. Isso nao e motivo para recusar: a NPC
+            simplesmente se muda para la.
+
+            Antes, qualquer um desses dois desfechos devolvia false, e o efeito era um
+            travamento total. O log de uma sessao mostrou o ciclo se repetindo 30x por segundo:
+
+              is tired (energy=0.0), interrupting task to find bed immediately
+              found unclaimed bed at (44,80,30)
+              Cama (44,80,30) rejeitada: a casa candidata e invalida (CONFLICT_WITH_EXISTING)
+
+            3447 rejeicoes em poucos segundos, sempre da mesma cama. A NPC ficava exausta e
+            parada, sem nunca andar ate a cama, porque FINDING_BED caia em IDLE e a interrupcao
+            de cansaco reiniciava tudo no tick seguinte.
+
+            A causa de fundo e que o mundo acumulou 109 casas registradas ao longo dos testes,
+            entao praticamente todo comodo ja pertence a alguma. Recusar todas equivale a
+            proibir qualquer NPC de dormir.
+            */
             HouseData existing = report.conflictingHouseId != null
                     ? HOUSES_BY_ID.get(report.conflictingHouseId)
                     : null;
 
             if (existing == null) {
-                // O id apontava para uma casa que nao existe mais: registro orfao. Nao ha dono a
-                // respeitar, entao o caminho normal de criacao pode seguir na proxima tentativa.
+                /* O id apontava para uma casa que nao existe mais: registro orfao. Nao ha dono a
+                respeitar, entao o caminho normal de criacao pode seguir na proxima tentativa.
+                */
                 LOGGER.warn("[SimTale] Cama ({},{},{}): conflito com casa inexistente {}. Registro orfao ignorado.",
                         bestBed.x, bestBed.y, bestBed.z, report.conflictingHouseId);
                 return false;

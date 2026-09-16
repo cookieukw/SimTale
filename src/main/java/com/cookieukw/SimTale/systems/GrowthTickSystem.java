@@ -57,14 +57,15 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
         if (worldTick - lastTick < TICK_INTERVAL) return;
         lastTick = worldTick;
 
-        // Iterate all active children
-        //
-        // One promotion per pass. A batch of records loaded from disk is typically far past due —
-        // their birthTick is old, so every one of them qualifies to grow the instant the list is
-        // populated. Promoting them all in a single tick spawned five entities at once, on top of
-        // each other, and printed five "your baby grew up" lines in the same frame. Spreading them
-        // across passes costs nothing (this system is already throttled) and keeps a backlog
-        // looking like a sequence of events rather than one glitch.
+        /* Iterate all active children
+
+        One promotion per pass. A batch of records loaded from disk is typically far past due —
+        their birthTick is old, so every one of them qualifies to grow the instant the list is
+        populated. Promoting them all in a single tick spawned five entities at once, on top of
+        each other, and printed five "your baby grew up" lines in the same frame. Spreading them
+        across passes costs nothing (this system is already throttled) and keeps a backlog
+        looking like a sequence of events rather than one glitch.
+        */
         boolean promotedThisPass = false;
 
         for (int i = LifecycleManager.ACTIVE_CHILDREN.size() - 1; i >= 0; i--) {
@@ -141,9 +142,10 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
                 }
             }
 
-            // If they became an adult, drop them from the list. Remove by identity, not by
-            // index: onBecameAdult() already removed the child itself, so remove(i) was
-            // evicting a *different, still-growing* child that had shifted into that slot.
+            /* If they became an adult, drop them from the list. Remove by identity, not by
+            index: onBecameAdult() already removed the child itself, so remove(i) was
+            evicting a *different, still-growing* child that had shifted into that slot.
+            */
             if (child.isAdult()) {
                 LifecycleManager.ACTIVE_CHILDREN.remove(child);
             }

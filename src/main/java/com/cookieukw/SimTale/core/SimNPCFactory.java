@@ -156,8 +156,9 @@ public class SimNPCFactory {
         String name;
         if (type == NPCType.REAPER) {
             name = "Grim Reaper";
-            // Uses applyModel so both PersistentModel and ModelComponent are updated,
-            // otherwise the client keeps rendering the role's default human model.
+            /* Uses applyModel so both PersistentModel and ModelComponent are updated,
+            otherwise the client keeps rendering the role's default human model.
+            */
             applyModel(store, ref, REAPER_MODEL_ASSET_ID, 1.0f, new HashMap<>());
         } else {
             name = SimNPCNameGenerator.generate();
@@ -165,8 +166,9 @@ public class SimNPCFactory {
 
         SimNPCComponent simComponent = new SimNPCComponent(entityId, name);
         simComponent.entityRef = ref;
-        // Freshly rolled NPC: this object *is* the authoritative data, so it may save without
-        // first reading from the database.
+        /* Freshly rolled NPC: this object *is* the authoritative data, so it may save without
+        first reading from the database.
+        */
         simComponent.dataLoaded = true;
         simComponent.isReaper = (type == NPCType.REAPER);
         
@@ -189,9 +191,10 @@ public class SimNPCFactory {
 
         accessor.addComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE, simComponent);
 
-        // NPCPlugin.spawnNPC attaches a Storage component backed by EmptyItemContainer
-        // (capacity 0) by default — fine for vanilla NPCs, but ours need to actually carry
-        // seeds, tools and harvested goods (fish, wood, ore, meat, crops).
+        /* NPCPlugin.spawnNPC attaches a Storage component backed by EmptyItemContainer
+        (capacity 0) by default — fine for vanilla NPCs, but ours need to actually carry
+        seeds, tools and harvested goods (fish, wood, ore, meat, crops).
+        */
         accessor.putComponent(ref, InventoryComponent.Storage.getComponentType(), new InventoryComponent.Storage((short) 20));
 
         // 3. Add overhead name plate and make entity interactable
@@ -209,27 +212,29 @@ public class SimNPCFactory {
             }
         }
 
-        // 4. ACTIVATE AI: Queue for ticking
-        // This is mandatory for NPCs spawned via API to start their AI logic.
+        /* 4. ACTIVATE AI: Queue for ticking
+        This is mandatory for NPCs spawned via API to start their AI logic.
+        */
         NewSpawnStartTickingSystem.queueNewSpawn(ref, store);
         
         // 5. Track for chat system
         SimTale.trackNpc(simComponent);
 
-        // 6. Grava no banco IMEDIATAMENTE.
-        //
-        // Antes, um NPC recem-criado so existia em memoria. Ele so ganhava registro no banco se,
-        // mais tarde, alguma rotina de IA por acaso chamasse saveNPC — dormir, comer, conversar.
-        // Ate la ele estava vivo no mundo e invisivel para a persistencia.
-        //
-        // Duas consequencias, as duas observadas em jogo:
-        //   1. Sair e voltar ao mundo fazia os NPCs recem-criados sumirem, porque nunca foram
-        //      salvos.
-        //   2. As contagens nao batiam: /simtale forcespawn quatro vezes seguido de clearall
-        //      limpava "3 registros", porque os quatro novos nao tinham registro nenhum.
-        //
-        // O Reaper fica de fora de proposito: e uma entidade temporaria de cerimonia de morte,
-        // nao um morador, e nem sequer passa por loadNPC acima.
+        /* 6. Grava no banco IMEDIATAMENTE.
+
+        Antes, um NPC recem-criado so existia em memoria. Ele so ganhava registro no banco se,
+        mais tarde, alguma rotina de IA por acaso chamasse saveNPC — dormir, comer, conversar.
+        Ate la ele estava vivo no mundo e invisivel para a persistencia.
+
+        Duas consequencias, as duas observadas em jogo:
+          1. Sair e voltar ao mundo fazia os NPCs recem-criados sumirem, porque nunca foram
+             salvos.
+          2. As contagens nao batiam: /simtale forcespawn quatro vezes seguido de clearall
+             limpava "3 registros", porque os quatro novos nao tinham registro nenhum.
+
+        O Reaper fica de fora de proposito: e uma entidade temporaria de cerimonia de morte,
+        nao um morador, e nem sequer passa por loadNPC acima.
+        */
         if (type != NPCType.REAPER) {
             try {
                 SimNPCPersistence.saveNPC(simComponent);

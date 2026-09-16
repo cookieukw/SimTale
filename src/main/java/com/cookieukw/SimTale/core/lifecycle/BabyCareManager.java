@@ -115,33 +115,36 @@ public class BabyCareManager {
 
             for (GrowthComponent child : all) {
                 if (child == null || child.childId == null) continue;
-                // An adult is done growing and does not belong in the growth list; it is also the
-                // state most records end in, so skipping them keeps the tick short.
+                /* An adult is done growing and does not belong in the growth list; it is also the
+                state most records end in, so skipping them keeps the tick short.
+                */
                 if (child.stage == GrowthStage.ADULT) continue;
 
-                // A BABY is an item in somebody's hands, never an entity, so the only thing that
-                // proves it still exists is its care record. Restoring one without that record
-                // resurrects a baby from a test session that ended long ago — and because its
-                // birthTick is ancient, it is instantly overdue and grows up the moment the list is
-                // populated. Five of those came back at once, promoted in the same tick, and landed
-                // stacked on the same block.
+                /* A BABY is an item in somebody's hands, never an entity, so the only thing that
+                proves it still exists is its care record. Restoring one without that record
+                resurrects a baby from a test session that ended long ago — and because its
+                birthTick is ancient, it is instantly overdue and grows up the moment the list is
+                populated. Five of those came back at once, promoted in the same tick, and landed
+                stacked on the same block.
+                */
                 if (child.stage == GrowthStage.BABY && load(child.childId) == null) {
                     orphans++;
                     continue;
                 }
 
-                // One record per person, keeping the most advanced stage.
-                //
-                // Every promotion respawns the entity under a new UUID and rewrites the record
-                // under a new key, so a child that grew twice leaves three keys on disk. Nothing
-                // read them back until now, which is why the pile was invisible; the moment this
-                // method started restoring everything, the same child appeared in the list several
-                // times over and each copy promoted independently. The log showed it plainly:
-                // "Brasinvus grew to Criancinha" twice, seconds apart — and each promotion
-                // respawns the body, which is what kept yanking a carried child off the player's
-                // shoulders a few seconds after picking her up.
-                //
-                // The identity that survives a respawn is the parents plus the name, not the id.
+                /* One record per person, keeping the most advanced stage.
+
+                Every promotion respawns the entity under a new UUID and rewrites the record
+                under a new key, so a child that grew twice leaves three keys on disk. Nothing
+                read them back until now, which is why the pile was invisible; the moment this
+                method started restoring everything, the same child appeared in the list several
+                times over and each copy promoted independently. The log showed it plainly:
+                "Brasinvus grew to Criancinha" twice, seconds apart — and each promotion
+                respawns the body, which is what kept yanking a carried child off the player's
+                shoulders a few seconds after picking her up.
+
+                The identity that survives a respawn is the parents plus the name, not the id.
+                */
                 String identity = key(child);
                 GrowthComponent existing = byIdentity.get(identity);
                 if (existing != null) {
@@ -158,8 +161,9 @@ public class BabyCareManager {
             }
 
             LifecycleState.ACTIVE_CHILDREN.addAll(byIdentity.values());
-            // testing_checklist.md #20 pede pra conferir essa linha no log depois de um
-            // restart; sem ela nao tinha como confirmar visualmente que o reload aconteceu.
+            /* testing_checklist.md #20 pede pra conferir essa linha no log depois de um
+            restart; sem ela nao tinha como confirmar visualmente que o reload aconteceu.
+            */
             LOGGER.atInfo().log("SimTale: " + restored + " filho(s) em crescimento recarregado(s) do banco ("
                     + orphans + " orfao(s) ignorado(s), " + duplicates + " duplicata(s) descartada(s))");
         } catch (Exception e) {

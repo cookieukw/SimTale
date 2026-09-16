@@ -49,9 +49,10 @@ public final class StartingTroop {
             return 0;
         }
 
-        // Two independent checks. The database answers "has this world ever had NPCs", which
-        // survives a restart; ACTIVE_NPCS answers "are any loaded right now", which catches the
-        // case of a second player joining before anything has been saved.
+        /* Two independent checks. The database answers "has this world ever had NPCs", which
+        survives a restart; ACTIVE_NPCS answers "are any loaded right now", which catches the
+        case of a second player joining before anything has been saved.
+        */
         if (!SimNPCPersistence.listAll().isEmpty() || !SimTale.ACTIVE_NPCS.isEmpty()) {
             return 0;
         }
@@ -60,8 +61,9 @@ public final class StartingTroop {
 
         int spawned = 0;
         for (int i = 0; i < TROOP_SIZE; i++) {
-            // Spread around a circle rather than picking at random, so the group arrives as a
-            // group instead of clumping on one side by chance.
+            /* Spread around a circle rather than picking at random, so the group arrives as a
+            group instead of clumping on one side by chance.
+            */
             double angle = (Math.PI * 2.0 / TROOP_SIZE) * i + Math.random() * 0.4;
             double radius = MIN_RADIUS + Math.random() * (MAX_RADIUS - MIN_RADIUS);
 
@@ -75,8 +77,9 @@ public final class StartingTroop {
                 continue;
             }
 
-            // Alternate so the founding group can actually pair off and have children later;
-            // an all-male or all-female start would dead-end the whole lifecycle system.
+            /* Alternate so the founding group can actually pair off and have children later;
+            an all-male or all-female start would dead-end the whole lifecycle system.
+            */
             NPCType type = (i % 2 == 0) ? NPCType.HUMAN_MALE : NPCType.HUMAN_FEMALE;
 
             try {
@@ -85,8 +88,9 @@ public final class StartingTroop {
                     spawned++;
                 }
             } catch (Exception e) {
-                // Logged rather than swallowed: the old spawner hid exactly this behind an
-                // empty catch, so a failing spawn looked identical to a disabled feature.
+                /* Logged rather than swallowed: the old spawner hid exactly this behind an
+                empty catch, so a failing spawn looked identical to a disabled feature.
+                */
                 LOGGER.atWarning().log("SimTale: falha ao spawnar NPC da tropa inicial: " + e);
             }
         }

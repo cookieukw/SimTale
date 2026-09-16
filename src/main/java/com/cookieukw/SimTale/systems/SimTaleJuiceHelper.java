@@ -32,9 +32,10 @@ public final class SimTaleJuiceHelper {
     private static final String ANIM_PUNCH_SHOVE = "Characters/Animations/Taunt/Punch.blockyanim";
     private static final String ANIM_TALK = "Characters/Animations/Expressions/Talk/Talk.blockyanim";
 
-    // Two-character romance duo clips. Each pair shares a duration (Kiss_1/Kiss_2 both 35 ticks,
-    // Propose_Kneel/Propose_React both 45 ticks) with holdLastKeyframe, so triggering both on the
-    // same tick keeps them in sync start to finish without any extra bookkeeping.
+    /* Two-character romance duo clips. Each pair shares a duration (Kiss_1/Kiss_2 both 35 ticks,
+    Propose_Kneel/Propose_React both 45 ticks) with holdLastKeyframe, so triggering both on the
+    same tick keeps them in sync start to finish without any extra bookkeeping.
+    */
     private static final String ANIM_KISS_LEAD = "Characters/Animations/Romance/Kiss_1.blockyanim";
     private static final String ANIM_KISS_FOLLOW = "Characters/Animations/Romance/Kiss_2.blockyanim";
     private static final String ANIM_PROPOSE_KNEEL = "Characters/Animations/Romance/Propose_Kneel.blockyanim";
@@ -146,15 +147,16 @@ public final class SimTaleJuiceHelper {
             }
         }
 
-        // Apply physical knockback.
-        //
-        // Deferred: store.ensureAndGetComponent attaches KnockbackComponent if the victim
-        // doesn't already have one, which is a structural write (can move the entity between
-        // archetypes). Calling that synchronously from here crashed the world thread with
-        // "Store is currently processing!" — playShove runs inside RoutineAISystem's own tick,
-        // the same class of bug as the entity-spawn crash elsewhere in this project, fixed the
-        // same way: push it onto WorldUtil.execute so it runs after the current tick, not
-        // during it.
+        /* Apply physical knockback.
+
+        Deferred: store.ensureAndGetComponent attaches KnockbackComponent if the victim
+        doesn't already have one, which is a structural write (can move the entity between
+        archetypes). Calling that synchronously from here crashed the world thread with
+        "Store is currently processing!" — playShove runs inside RoutineAISystem's own tick,
+        the same class of bug as the entity-spawn crash elsewhere in this project, fixed the
+        same way: push it onto WorldUtil.execute so it runs after the current tick, not
+        during it.
+        */
         final Vector3d impulse = new Vector3d(nx * force, 1.4, nz * force);
         WorldUtil.execute(() -> {
             if (!victimRef.isValid()) return;

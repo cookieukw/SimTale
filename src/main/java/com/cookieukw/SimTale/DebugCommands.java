@@ -147,9 +147,10 @@ final class DebugCommands {
                     NPCMovementHelper.setSleepingState(npc.entityRef, npcStore, false);
                 }
 
-                // Deleting the saved record is what makes this stick. SimTaleTickSystem re-attaches
-                // any entity that still has one when its chunk loads, so stripping the component
-                // alone would hand the cow straight back on the next reload.
+                /* Deleting the saved record is what makes this stick. SimTaleTickSystem re-attaches
+                any entity that still has one when its chunk loads, so stripping the component
+                alone would hand the cow straight back on the next reload.
+                */
                 if (npc.entityId != null) {
                     SimNPCPersistence.deleteNPC(npc.entityId);
                 }
@@ -175,18 +176,19 @@ final class DebugCommands {
             Player player = store.getComponent(ref, Player.getComponentType());
             if (player == null) return;
 
-            // The radius scan that used to run here is gone, and it is why the command took
-            // seconds to answer: radius 32 is a 65x65x33 box, about 139 thousand getBlockType
-            // calls, each followed by an ItemContainerBlock component lookup — all synchronous,
-            // before a single row was drawn.
-            //
-            // It was only ever a workaround. Furniture was not registered on placement because
-            // PlaceBlockEvent never reached the handler, so these pages scanned on every open to
-            // hide that. With placement registering correctly, the registry is already right and
-            // the scan is redundant work that also made the bug invisible.
-            //
-            // Worlds that predate the fix still need one sweep: that is what the join scan and
-            // '/simtale rescan' are for, and rescan stays explicit so the cost is asked for.
+            /* The radius scan that used to run here is gone, and it is why the command took
+            seconds to answer: radius 32 is a 65x65x33 box, about 139 thousand getBlockType
+            calls, each followed by an ItemContainerBlock component lookup — all synchronous,
+            before a single row was drawn.
+
+            It was only ever a workaround. Furniture was not registered on placement because
+            PlaceBlockEvent never reached the handler, so these pages scanned on every open to
+            hide that. With placement registering correctly, the registry is already right and
+            the scan is redundant work that also made the bug invisible.
+
+            Worlds that predate the fix still need one sweep: that is what the join scan and
+            '/simtale rescan' are for, and rescan stays explicit so the cost is asked for.
+            */
             player.getPageManager().openCustomPage(ref, store,
                     new SimChestDebugPage(playerRef, player));
         }
@@ -247,8 +249,9 @@ final class DebugCommands {
 
                 if (pos == null) continue;
 
-                // Saying where the player stands relative to each village is what turns the
-                // numbers into something checkable while walking around.
+                /* Saying where the player stands relative to each village is what turns the
+                numbers into something checkable while walking around.
+                */
                 double distance = Math.sqrt(village.distanceSqTo(pos.x, pos.z));
                 ctx.sendMessage(village.contains(pos.x, pos.z)
                         ? Message.translation("general.cmd.village.inside")
@@ -319,10 +322,11 @@ final class DebugCommands {
                 }
             }
 
-            // Temporary: dump every nearby modelled entity (SimTale NPCs, hostile mobs, animals,
-            // etc.) with its raw model asset id — needed to find out what identifies a hostile
-            // mob (skeleton, zombie...) before Guard combat can detect one instead of guessing at
-            // a keyword like the old broken Hunter "contains creature" filter did.
+            /* Temporary: dump every nearby modelled entity (SimTale NPCs, hostile mobs, animals,
+            etc.) with its raw model asset id — needed to find out what identifies a hostile
+            mob (skeleton, zombie...) before Guard combat can detect one instead of guessing at
+            a keyword like the old broken Hunter "contains creature" filter did.
+            */
             sb.append("\nNearby modelled entities (any type):");
             store.forEachChunk(PersistentModel.getComponentType(), (chunk, cb) -> {
                 for (int i = 0; i < chunk.size(); i++) {
@@ -336,8 +340,9 @@ final class DebugCommands {
                 }
             });
 
-            // Results go to the server log, not chat — this dumps a lot of lines and chat isn't
-            // a good place to read/scroll through them.
+            /* Results go to the server log, not chat — this dumps a lot of lines and chat isn't
+            a good place to read/scroll through them.
+            */
             HytaleLogger.forEnclosingClass().atInfo().log(sb.toString());
             ctx.sendMessage(Message.raw("[SimTale] debugnear: results printed to server log."));
         }

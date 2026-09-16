@@ -52,15 +52,16 @@ public final class ChairRegistry {
         UUID holder = OCCUPIED.get(pos);
         if (holder == null) return false;
         if (isStale(holder)) {
-            // Self-heal: whoever claimed this chair is gone with nothing left to call
-            // releaseChair for her -- most commonly a player leaving and rejoining the same
-            // server, which leaves ACTIVE_NPCS/OCCUPIED exactly as they were (nothing clears
-            // either automatically, only the manual /simtale clearall command does), while the
-            // entity she was sitting on no longer exists in the reloaded world. Without this the
-            // chair reads "ocupada" forever and no NPC -- and no /simtale chaircheck -- can ever
-            // tell why, since nobody is actually mounted on it. Same "the world is the source of
-            // truth, the registry is just a cache" rule BedWorldBootstrap already applies to
-            // chests/farmland/posts, applied here to occupancy instead of existence.
+            /* Self-heal: whoever claimed this chair is gone with nothing left to call
+            releaseChair for her -- most commonly a player leaving and rejoining the same
+            server, which leaves ACTIVE_NPCS/OCCUPIED exactly as they were (nothing clears
+            either automatically, only the manual /simtale clearall command does), while the
+            entity she was sitting on no longer exists in the reloaded world. Without this the
+            chair reads "ocupada" forever and no NPC -- and no /simtale chaircheck -- can ever
+            tell why, since nobody is actually mounted on it. Same "the world is the source of
+            truth, the registry is just a cache" rule BedWorldBootstrap already applies to
+            chests/farmland/posts, applied here to occupancy instead of existence.
+            */
             OCCUPIED.remove(pos);
             return false;
         }

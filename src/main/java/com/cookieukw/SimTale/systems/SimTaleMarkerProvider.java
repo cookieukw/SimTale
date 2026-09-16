@@ -114,8 +114,9 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
 
     private static Color rgb(int r, int g, int b) {
         Color color = new Color();
-        // The protocol stores channels as signed bytes, so values above 127 wrap negative. That is
-        // the wire format, not a bug — the client reads them back unsigned.
+        /* The protocol stores channels as signed bytes, so values above 127 wrap negative. That is
+        the wire format, not a bug — the client reads them back unsigned.
+        */
         color.red = (byte) r;
         color.green = (byte) g;
         color.blue = (byte) b;
@@ -178,18 +179,20 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             }
             if (ref == null || !ref.isValid()) continue;
 
-            // An NPC away on an expedition is meant to read as gone. She is still standing in the
-            // world at scale 0.001 because the engine has no invisibility flag, so leaving her on
-            // the map draws an arrow onto an NPC the player cannot find.
+            /* An NPC away on an expedition is meant to read as gone. She is still standing in the
+            world at scale 0.001 because the engine has no invisibility flag, so leaving her on
+            the map draws an arrow onto an NPC the player cannot find.
+            */
             if (NPCWorkHelper.isAwayOnExpedition(store, ref)) continue;
 
-            // A carried child (MountedComponent) has her TransformComponent frozen at the exact
-            // spot she was picked up -- only the client draws her following the carrier, the
-            // server-side position never moves (same fact ChildCarryHelper's own javadoc already
-            // relies on). Leaving her on the map would pin a second marker at that stale pickup
-            // spot forever, standing still while the player who is actually carrying her walks
-            // away from it -- confusing at best, and a second "person" appearing to have been
-            // abandoned exactly where she was picked up.
+            /* A carried child (MountedComponent) has her TransformComponent frozen at the exact
+            spot she was picked up -- only the client draws her following the carrier, the
+            server-side position never moves (same fact ChildCarryHelper's own javadoc already
+            relies on). Leaving her on the map would pin a second marker at that stale pickup
+            spot forever, standing still while the player who is actually carrying her walks
+            away from it -- confusing at best, and a second "person" appearing to have been
+            abandoned exactly where she was picked up.
+            */
             if (store.getComponent(ref, MountedComponent.getComponentType()) != null) continue;
 
             TransformComponent transform =
@@ -233,15 +236,16 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                     outOfRange++;
                 }
 
-                // Position and icon go through the constructor, not through with* calls: the
-                // builder keeps id, image and transform as fixed state and only the optional parts
-                // are chainable.
-                //
-                // addIgnoreViewDistance, not add: `add` silently drops anything the collector
-                // considers out of view, and villagers are exactly the thing you want to find on a
-                // map without already being next to them. It is also what the vanilla
-                // OtherPlayersMarkerProvider uses, for the same reason — POIMarkerProvider is the
-                // one that opts into the distance filter.
+                /* Position and icon go through the constructor, not through with* calls: the
+                builder keeps id, image and transform as fixed state and only the optional parts
+                are chainable.
+
+                addIgnoreViewDistance, not add: `add` silently drops anything the collector
+                considers out of view, and villagers are exactly the thing you want to find on a
+                map without already being next to them. It is also what the vanilla
+                OtherPlayersMarkerProvider uses, for the same reason — POIMarkerProvider is the
+                one that opts into the distance filter.
+                */
                 collector.addIgnoreViewDistance(
                         new MapMarkerBuilder(PROVIDER_ID + ":" + npc.id(), MARKER_IMAGE, markerTransform)
                                 .withCustomName(npc.name())
@@ -255,10 +259,11 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             }
         }
 
-        // Separates "we are not producing markers" from "we are producing them and the client is
-        // not drawing them" — the two looked identical through three rounds of guessing while the
-        // markers were broken. Now that they work it is pure noise on a provider that runs every
-        // frame, so it is down at debug with the rest.
+        /* Separates "we are not producing markers" from "we are producing them and the client is
+        not drawing them" — the two looked identical through three rounds of guessing while the
+        markers were broken. Now that they work it is pure noise on a provider that runs every
+        frame, so it is down at debug with the rest.
+        */
         if (LOG_PASSES.incrementAndGet() % 100 == 1) {
             LOGGER.debug("[MAPA] {} NPC(s) no snapshot, {} marcador(es) emitido(s), {} fora da distancia de visao",
                     current.size(), emitted, outOfRange);

@@ -209,11 +209,12 @@ public class SimNPCPersistence {
         if (component.entityId == null)
             return;
 
-        // Guard against writing a placeholder over real data. Since SimNPCComponent is now
-        // persisted by Hytale with a codec that only carries id and name, a reloaded entity
-        // arrives with a component whose remaining fields came from the default constructor —
-        // including a randomly rolled profession. Anything that saved before loadNPC() ran
-        // would have committed that random state to the database.
+        /* Guard against writing a placeholder over real data. Since SimNPCComponent is now
+        persisted by Hytale with a codec that only carries id and name, a reloaded entity
+        arrives with a component whose remaining fields came from the default constructor —
+        including a randomly rolled profession. Anything that saved before loadNPC() ran
+        would have committed that random state to the database.
+        */
         if (!component.dataLoaded) {
             HytaleLogger.forEnclosingClass().atWarning()
                 .log("SimTale: ignorando save de " + component.entityId + " (dados ainda nao carregados do banco)");
@@ -258,8 +259,9 @@ public class SimNPCPersistence {
         if (data != null) {
             applyData(component, data);
         }
-        // Set even when there is no record: the component now reflects the database as well as
-        // it ever will, and a never-saved NPC must still be allowed to save for the first time.
+        /* Set even when there is no record: the component now reflects the database as well as
+        it ever will, and a never-saved NPC must still be allowed to save for the first time.
+        */
         component.dataLoaded = true;
     }
 
@@ -282,10 +284,11 @@ public class SimNPCPersistence {
     public static SimNPCComponent tryReattach(ComponentAccessor<EntityStore> accessor, Ref<EntityStore> targetRef) {
         if (accessor == null || targetRef == null) return null;
 
-        // It used to adopt ANY entity: right-clicking a chicken, a hostile mob or another player
-        // added SIM_NPC_COMPONENT_TYPE to it and gave it a generated name. Since
-        // RoutineAISystem's query is exactly that component, the victim then started running the
-        // villager routine — walking to beds, being mounted, getting Frozen — with no way out.
+        /* It used to adopt ANY entity: right-clicking a chicken, a hostile mob or another player
+        added SIM_NPC_COMPONENT_TYPE to it and gave it a generated name. Since
+        RoutineAISystem's query is exactly that component, the victim then started running the
+        villager routine — walking to beds, being mounted, getting Frozen — with no way out.
+        */
         if (accessor.getComponent(targetRef, Player.getComponentType()) != null) {
             return null;
         }
@@ -293,9 +296,10 @@ public class SimNPCPersistence {
         UUIDComponent uuidComp = accessor.getComponent(targetRef, UUIDComponent.getComponentType());
         if (uuidComp == null) return null;
 
-        // "simtale" shell, not Caskara's "default" — see DB_SHELL above. A record here is the
-        // proof that this entity really is one of ours; without it there is nothing to
-        // re-attach and adopting the entity would be an invention.
+        /* "simtale" shell, not Caskara's "default" — see DB_SHELL above. A record here is the
+        proof that this entity really is one of ours; without it there is nothing to
+        re-attach and adopting the entity would be an invention.
+        */
         SimNPCData data = loadData(uuidComp.getUuid());
         if (data == null) {
             HytaleLogger.forEnclosingClass().atFine()
@@ -331,9 +335,10 @@ public class SimNPCPersistence {
         if (data.name != null) {
             component.name = data.name;
         }
-        // These three used to be assigned unconditionally: an older or partial record with a
-        // null personality wiped the live one, and every `npc.personality.traits` read
-        // downstream then threw NullPointerException.
+        /* These three used to be assigned unconditionally: an older or partial record with a
+        null personality wiped the live one, and every `npc.personality.traits` read
+        downstream then threw NullPointerException.
+        */
         if (data.personality != null) {
             component.personality = data.personality;
         }
@@ -350,9 +355,10 @@ public class SimNPCPersistence {
                 component.profession = Profession.UNEMPLOYED;
             }
         }
-        // Absent on a record saved before this field existed — MELEE (the SimNPCComponent
-        // default) is exactly what every Guard was back then, so leaving it unset is correct,
-        // not just harmless.
+        /* Absent on a record saved before this field existed — MELEE (the SimNPCComponent
+        default) is exactly what every Guard was back then, so leaving it unset is correct,
+        not just harmless.
+        */
         if (data.guardWeaponCategory != null) {
             component.guardWeaponCategory = data.guardWeaponCategory;
         }
@@ -452,20 +458,21 @@ public class SimNPCPersistence {
         for (SimNPCComponent comp : savedNPCs) {
             if (comp.entityId == null) continue;
 
-            // O(1) index lookup instead of streaming the whole roster per saved NPC.
-            //
-            // Only a tracked entry with a STILL-VALID entityRef counts as "already reassembled".
-            // ACTIVE_NPCS/NPCS_BY_ID are plain static fields -- nothing clears them when a player
-            // leaves a world, only the manual /simtale clearall debug command does. Leave and
-            // rejoin the SAME server (no restart) and every NPC from the previous session is
-            // still sitting in the index with an entityRef pointing at that old, now-gone
-            // EntityStore. The old `findNpc(...) != null` check treated that stale leftover as
-            // "already handled" and skipped it forever -- so on rejoin NOTHING ever got
-            // reconnected to the entities the engine actually reloaded: sendAllToPlayer still
-            // listed every NPC by name from the stale ACTIVE_NPCS (matching what looked like the
-            // NPCs "being in the player list"), but their dead refs meant no map marker and
-            // nothing for RoutineAISystem to tick, i.e. NPCs never came back even though their
-            // entities were sitting right there in the reloaded world waiting to be reattached.
+            /* O(1) index lookup instead of streaming the whole roster per saved NPC.
+
+            Only a tracked entry with a STILL-VALID entityRef counts as "already reassembled".
+            ACTIVE_NPCS/NPCS_BY_ID are plain static fields -- nothing clears them when a player
+            leaves a world, only the manual /simtale clearall debug command does. Leave and
+            rejoin the SAME server (no restart) and every NPC from the previous session is
+            still sitting in the index with an entityRef pointing at that old, now-gone
+            EntityStore. The old `findNpc(...) != null` check treated that stale leftover as
+            "already handled" and skipped it forever -- so on rejoin NOTHING ever got
+            reconnected to the entities the engine actually reloaded: sendAllToPlayer still
+            listed every NPC by name from the stale ACTIVE_NPCS (matching what looked like the
+            NPCs "being in the player list"), but their dead refs meant no map marker and
+            nothing for RoutineAISystem to tick, i.e. NPCs never came back even though their
+            entities were sitting right there in the reloaded world waiting to be reattached.
+            */
             SimNPCComponent alreadyTracked = SimTale.findNpc(comp.entityId);
             if (alreadyTracked != null && alreadyTracked.entityRef != null && alreadyTracked.entityRef.isValid()) {
                 continue;
@@ -479,13 +486,13 @@ public class SimNPCPersistence {
                 comp.entityRef = entityRef;
 
                 /* Re-attach component to entity. addComponent fails when the entity already
-                 * carries a stale instance (a normal case after some reloads); putComponent
-                 * overwrites it instead. If BOTH fail, the entity keeps loading without
-                 * SIM_NPC_COMPONENT_TYPE attached at all — tracking it anyway would make it show
-                 * up as an "active" NPC that no other system can actually query (a silent ghost
-                 * entry), so this is logged and the tracking is skipped instead of continuing
-                 * quietly.
-                 */
+                carries a stale instance (a normal case after some reloads); putComponent
+                overwrites it instead. If BOTH fail, the entity keeps loading without
+                SIM_NPC_COMPONENT_TYPE attached at all — tracking it anyway would make it show
+                up as an "active" NPC that no other system can actually query (a silent ghost
+                entry), so this is logged and the tracking is skipped instead of continuing
+                quietly.
+                */
                 boolean attached = true;
                 try {
                     accessor.addComponent(entityRef, SimTale.SIM_NPC_COMPONENT_TYPE, comp);

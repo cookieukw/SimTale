@@ -69,10 +69,11 @@ public final class BathRegistry {
             if (other.entityRef == null || !other.entityRef.isValid()) continue;
             RoutineAIComponent otherAi = other.entityRef.getStore().getComponent(other.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
             if (otherAi == null || otherAi.targetBlockPosition == null) continue;
-            // Unlike a harvested crop (which vanishes from the block scan the instant it's taken),
-            // a bath tile stays a valid bath the whole time someone is in it -- so BATHING has to
-            // count as a claim too, not just the MOVING_TO_BATH approach, or a second NPC's search
-            // would walk right into an occupied tub the moment the first one finished arriving.
+            /* Unlike a harvested crop (which vanishes from the block scan the instant it's taken),
+            a bath tile stays a valid bath the whole time someone is in it -- so BATHING has to
+            count as a claim too, not just the MOVING_TO_BATH approach, or a second NPC's search
+            would walk right into an occupied tub the moment the first one finished arriving.
+            */
             if ((otherAi.currentTask == RoutineAIComponent.TaskType.MOVING_TO_BATH
                     || otherAi.currentTask == RoutineAIComponent.TaskType.BATHING)
                     && otherAi.targetBlockPosition.x == tile.x

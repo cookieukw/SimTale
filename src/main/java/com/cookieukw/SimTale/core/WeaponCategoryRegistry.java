@@ -59,14 +59,16 @@ public final class WeaponCategoryRegistry {
             "weaponblowgun", "weaponrifle", "weaponassaultrifle"
     };
 
-    // Populated only by register() — another mod's own code calling in directly. Never touched by
-    // load(), so a JSON (re)load can never undo a compile-time registration, regardless of which
-    // ran first. Checked before everything else: code that explicitly registered an item wins
-    // over a guess from a config file or a keyword list.
+    /* Populated only by register() — another mod's own code calling in directly. Never touched by
+    load(), so a JSON (re)load can never undo a compile-time registration, regardless of which
+    ran first. Checked before everything else: code that explicitly registered an item wins
+    over a guess from a config file or a keyword list.
+    */
     private static final Map<String, WeaponCategory> registeredOverrides = new ConcurrentHashMap<>();
 
-    // Normalized keyword/fragment -> category, loaded from simtale-weapons.json. Replaced wholesale
-    // on each load() call; checked before the built-in lists below.
+    /* Normalized keyword/fragment -> category, loaded from simtale-weapons.json. Replaced wholesale
+    on each load() call; checked before the built-in lists below.
+    */
     private static volatile Map<String, WeaponCategory> configOverrides = new LinkedHashMap<>();
 
     private WeaponCategoryRegistry() {

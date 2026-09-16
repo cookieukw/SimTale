@@ -66,8 +66,9 @@ public class ChildPutDownSystem extends EntityEventSystem<EntityStore, UseBlockE
         Ref<EntityStore> playerRef = chunk.getReferenceTo(index);
         if (playerRef == null || !playerRef.isValid()) return;
 
-        // Crouch first: it is the cheap half, and it is rare enough that gating the log on it costs
-        // nothing while still telling us which half failed if this ever goes quiet again.
+        /* Crouch first: it is the cheap half, and it is rare enough that gating the log on it costs
+        nothing while still telling us which half failed if this ever goes quiet again.
+        */
         if (!ChildCarryHelper.isCrouching(store, playerRef)) return;
 
         boolean carrying = ChildCarryHelper.isCarryingSomeone(store, playerRef);

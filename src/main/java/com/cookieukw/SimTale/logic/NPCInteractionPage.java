@@ -145,17 +145,19 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         double rx = -uz;
         double rz = ux;
 
-        // Head height read from the actual bounding box instead of a hardcoded 1.45. The mod
-        // spawns babies, toddlers and children at reduced scale, and on those the fixed value
-        // aimed the camera well above the head. Same source PlumbobSystem already uses.
+        /* Head height read from the actual bounding box instead of a hardcoded 1.45. The mod
+        spawns babies, toddlers and children at reduced scale, and on those the fixed value
+        aimed the camera well above the head. Same source PlumbobSystem already uses.
+        */
         double headHeight = 1.45;
         BoundingBox npcBox = store.getComponent(npc.entityRef, BoundingBox.getComponentType());
         if (npcBox != null && npcBox.getBoundingBox() != null) {
             headHeight = npcBox.getBoundingBox().height() * 0.8;
         }
 
-        // Camera position: 2.0 meters from NPC towards player, offset by 0.55 meters to the right
-        // This shifts the NPC to the left side of the player's screen
+        /* Camera position: 2.0 meters from NPC towards player, offset by 0.55 meters to the right
+        This shifts the NPC to the left side of the player's screen
+        */
         double camX = nPos.x + ux * 2.0 + rx * 0.55;
         double camZ = nPos.z + uz * 2.0 + rz * 0.55;
         double camY = nPos.y + headHeight;
@@ -171,23 +173,24 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         double dirZ = targetZ - camZ;
         double distH = Math.sqrt(dirX * dirX + dirZ * dirZ);
 
-        // Yaw and Pitch in RADIANS.
-        //
-        // protocol.Direction is radians, not degrees: PlayerInput$SetHead reads Direction's
-        // yaw/pitch/roll straight into Rotation3f.set(f,f,f) with no unit conversion, and
-        // Rotation3f is radians everywhere in this codebase. Of the 55 server classes that
-        // touch Direction, only 3 convert units, and none of those are rotation-related.
-        //
-        // This used to call Math.toDegrees(), so a yaw of 1.5 rad was sent as 85.9 — read back
-        // as 85.9 radians, i.e. ~13.7 full turns. That is why the camera never pointed at the NPC.
-        // Hytale's forward axis is -Z, so to look along (dirX, dirZ) the yaw is atan2 of the
-        // NEGATED direction. With atan2(dirX, dirZ) the camera was aimed exactly 180° away —
-        // which is why the shot was an empty field with the NPC behind the lens.
-        //
-        // Two independent symptoms pinned this down: the camera never framed the NPC, and the
-        // NPC-facing code below (same convention) left the NPC with its back to the player.
-        // A self-consistency check on atan2 alone cannot catch this: inverting the angle
-        // reproduces the input vector either way. Only the engine's axis convention decides.
+        /* Yaw and Pitch in RADIANS.
+
+        protocol.Direction is radians, not degrees: PlayerInput$SetHead reads Direction's
+        yaw/pitch/roll straight into Rotation3f.set(f,f,f) with no unit conversion, and
+        Rotation3f is radians everywhere in this codebase. Of the 55 server classes that
+        touch Direction, only 3 convert units, and none of those are rotation-related.
+
+        This used to call Math.toDegrees(), so a yaw of 1.5 rad was sent as 85.9 — read back
+        as 85.9 radians, i.e. ~13.7 full turns. That is why the camera never pointed at the NPC.
+        Hytale's forward axis is -Z, so to look along (dirX, dirZ) the yaw is atan2 of the
+        NEGATED direction. With atan2(dirX, dirZ) the camera was aimed exactly 180° away —
+        which is why the shot was an empty field with the NPC behind the lens.
+
+        Two independent symptoms pinned this down: the camera never framed the NPC, and the
+        NPC-facing code below (same convention) left the NPC with its back to the player.
+        A self-consistency check on atan2 alone cannot catch this: inverting the angle
+        reproduces the input vector either way. Only the engine's axis convention decides.
+        */
         double yaw = Math.atan2(-dirX, -dirZ);
         double pitch = Math.atan2(dirY, distH);
 
@@ -211,13 +214,14 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         settings.canMoveType = CanMoveType.AttachedToLocalPlayer;
         settings.applyMovementType = ApplyMovementType.CharacterController;
 
-        // Pitch input is disabled because applyLookType already pins the orientation to the
-        // server-sent rotation; leaving it on just lets the client fight that.
-        //
-        // NOTE: do NOT set skipCharacterPhysics here. It was tried once to stop the camera
-        // drifting and it dropped the player through the world — the resulting void death
-        // opened the death screen, which dismissed this page from inside Store.tick. The drift
-        // it was meant to fix was really the degrees/radians bug above.
+        /* Pitch input is disabled because applyLookType already pins the orientation to the
+        server-sent rotation; leaving it on just lets the client fight that.
+
+        NOTE: do NOT set skipCharacterPhysics here. It was tried once to stop the camera
+        drifting and it dropped the player through the world — the resulting void death
+        opened the death screen, which dismissed this page from inside Store.tick. The drift
+        it was meant to fix was really the degrees/radians bug above.
+        */
         settings.allowPitchControls = false;
 
         // Hide default UI overlays
@@ -233,9 +237,10 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             debug("DIR  (" + fmt(dirX) + ", " + fmt(dirY) + ", " + fmt(dirZ) + ")  distH=" + fmt(distH));
             debug("YAW  " + fmt(yaw) + " rad  =  " + fmt(Math.toDegrees(yaw)) + " graus");
             debug("PIT  " + fmt(pitch) + " rad  =  " + fmt(Math.toDegrees(pitch)) + " graus");
-            // Both axis conventions are printed because a self-consistency check cannot tell
-            // them apart — inverting atan2 reproduces the input vector for either one. Look at
-            // the game: whichever line matches what you actually see is the engine's.
+            /* Both axis conventions are printed because a self-consistency check cannot tell
+            them apart — inverting atan2 reproduces the input vector for either one. Look at
+            the game: whichever line matches what you actually see is the engine's.
+            */
             double nlen = Math.sqrt(dirX * dirX + dirZ * dirZ);
             double fxA = Math.sin(yaw), fzA = Math.cos(yaw);
             double dotA = nlen < 1e-6 ? 0 : (fxA * dirX + fzA * dirZ) / nlen;
@@ -269,10 +274,11 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         TransformComponent pTrans = store.getComponent(playerRef, TransformComponent.getComponentType());
         if (pTrans == null) return;
 
-        // teleportRotation mutates the live component in place and flags it for sync.
-        // store.putComponent() must NOT be used here: onDismiss can fire from inside a system
-        // tick (the death screen opens a page over this one), and any structural store write
-        // during processing throws "Store is currently processing!".
+        /* teleportRotation mutates the live component in place and flags it for sync.
+        store.putComponent() must NOT be used here: onDismiss can fire from inside a system
+        tick (the death screen opens a page over this one), and any structural store write
+        during processing throws "Store is currently processing!".
+        */
         pTrans.teleportRotation(originalRotation);
         originalRotation = null;
     }
@@ -289,14 +295,15 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     private void releaseMovementAnimation(Store<EntityStore> store) {
         if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) return;
 
-        // stopAnimation() alone is not enough: it stops playback but leaves the slot's entry in
-        // ActiveAnimationComponent still pointing at "Idle", so the NPC's legs stayed in the
-        // idle pose while the AI kept moving its body. That component is pure runtime state,
-        // which is why leaving and re-entering the world "fixed" the NPC.
-        //
-        // This is the same clearing sequence MoodAnimationSystem uses for the Face slot, minus
-        // the commandBuffer write: store.getComponent returns the live instance, so nulling the
-        // entry mutates it directly (and onDismiss cannot do structural store writes anyway).
+        /* stopAnimation() alone is not enough: it stops playback but leaves the slot's entry in
+        ActiveAnimationComponent still pointing at "Idle", so the NPC's legs stayed in the
+        idle pose while the AI kept moving its body. That component is pure runtime state,
+        which is why leaving and re-entering the world "fixed" the NPC.
+
+        This is the same clearing sequence MoodAnimationSystem uses for the Face slot, minus
+        the commandBuffer write: store.getComponent returns the live instance, so nulling the
+        entry mutates it directly (and onDismiss cannot do structural store writes anyway).
+        */
         ActiveAnimationComponent animComp =
                 store.getComponent(npc.entityRef, ActiveAnimationComponent.getComponentType());
         if (animComp != null) {
@@ -317,8 +324,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     public void build(@Nonnull Ref<EntityStore> playerRef, @Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
         if (npc != null) {
             npc.isInteractingViaUI = true;
-            // RoutineAISystem re-applies the facing every tick from this; a one-shot rotation
-            // gets steered away by the role's own Idle motion.
+            /* RoutineAISystem re-applies the facing every tick from this; a one-shot rotation
+            gets steered away by the role's own Idle motion.
+            */
             npc.uiInteractionPlayer = playerRefComp.getUuid();
             if (npc.entityRef != null && npc.entityRef.isValid()) {
                 // 1. Rotate NPC to face the player
@@ -329,22 +337,25 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                     Vector3d nPos = nTrans.getPosition();
                     double dx = pPos.x - nPos.x;
                     double dz = pPos.z - nPos.z;
-                    // Same -Z forward convention as the camera: without the negation the NPC
-                    // turned its back on the player instead of facing them.
+                    /* Same -Z forward convention as the camera: without the negation the NPC
+                    turned its back on the player instead of facing them.
+                    */
                     double yaw = Math.atan2(-dx, -dz);
-                    // In-place mutation, no store.putComponent(): build() also runs inside a
-                    // system tick when a page is opened from one (see unfreezeNpc).
+                    /* In-place mutation, no store.putComponent(): build() also runs inside a
+                    system tick when a page is opened from one (see unfreezeNpc).
+                    */
                     nTrans.teleportRotation(new Rotation3f(0f, (float) yaw, 0f));
                 }
                 
                 // 2. Reset NPC movement animation to Idle
                 AnimationUtils.playAnimation(npc.entityRef, AnimationSlot.Movement, "Idle", store);
 
-                // 3. Cancel any pending movement BEFORE freezing.
-                // The NPC keeps its leash point (its walk destination) while frozen. On
-                // unfreeze the engine resumes gliding toward that stale point, but the walk
-                // animation has been replaced by Idle above — which reads in-game as the NPC
-                // sliding around on ice. clearMoveTarget pins the leash to where it is standing.
+                /* 3. Cancel any pending movement BEFORE freezing.
+                The NPC keeps its leash point (its walk destination) while frozen. On
+                unfreeze the engine resumes gliding toward that stale point, but the walk
+                animation has been replaced by Idle above — which reads in-game as the NPC
+                sliding around on ice. clearMoveTarget pins the leash to where it is standing.
+                */
                 RoutineAIComponent ai = store.getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
                 if (ai != null) {
                     NPCMovementHelper.clearMoveTarget(npc.entityRef, ai);
@@ -361,8 +372,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             applyNpcCloseUpCamera(playerRef, store);
         }
 
-        // Clear any active chat conversation so the timeout system doesn't
-        // fire "Você parece distraído" while the player is using the UI
+        /* Clear any active chat conversation so the timeout system doesn't
+        fire "Você parece distraído" while the player is using the UI
+        */
         if (npc != null) {
             npc.currentConversationPartner = null;
         }
@@ -421,9 +433,10 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         commandBuilder.set("#JokeButtonText.TextSpans", Message.translation("ui.button.joke"));
         commandBuilder.set("#FlirtButtonText.TextSpans", Message.translation("ui.button.flirt"));
         commandBuilder.set("#GiftButtonText.TextSpans", Message.translation("ui.button.gift"));
-        // Your own child gets "Scold" where everyone else gets "Insult". Same button, because the
-        // slot is the same social gesture — but insulting your daughter and insulting a stranger
-        // are not the same act, and the panel should not pretend they are.
+        /* Your own child gets "Scold" where everyone else gets "Insult". Same button, because the
+        slot is the same social gesture — but insulting your daughter and insulting a stranger
+        are not the same act, and the panel should not pretend they are.
+        */
         boolean ownChild = ParentChildBond.isChildOf(npc, playerRefComp.getUuid());
         commandBuilder.set("#InsultButtonText.TextSpans",
                 Message.translation(ownChild ? "ui.button.scold" : "ui.button.insult"));
@@ -461,8 +474,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             commandBuilder.set("#NpcSeason.TextSpans", Message.translation("ui.season").insert(Message.raw(" ")).insert(Message.translation("ui." + seasonKey)));
         }
         
-        // Outside the preferences block on purpose: needs exist even for an NPC whose personality
-        // data failed to load, and that is exactly when knowing it is starving matters most.
+        /* Outside the preferences block on purpose: needs exist even for an NPC whose personality
+        data failed to load, and that is exactly when knowing it is starving matters most.
+        */
         buildNeedsLine(commandBuilder, npc);
 
         GrowthComponent npcGrowth = (npc.entityId != null)
@@ -561,9 +575,10 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             commandBuilder.set("#AssignProfessionButton.Visible", false);
         }
 
-        // Carrying is offered only for the player's own small children, and only while she is not
-        // already on somebody's shoulders — the button would otherwise promise a second pick-up
-        // that ChildCarryHelper refuses.
+        /* Carrying is offered only for the player's own small children, and only while she is not
+        already on somebody's shoulders — the button would otherwise promise a second pick-up
+        that ChildCarryHelper refuses.
+        */
         boolean canCarry = ChildCarryHelper.isCarriable(npc, playerRefComp.getUuid())
                 && !ChildCarryHelper.isBeingCarried(store, npc);
         commandBuilder.set("#CarryButton.Visible", canCarry);
@@ -582,8 +597,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         boolean isMarried = rel.status == RelationshipStatus.MARRIED;
         commandBuilder.set("#InventoryButton.Visible", isMarried);
 
-        // Kiss is a deeper gesture than Flirt: only offered once the relationship already reads
-        // as a real couple, same bar isRomantic() elsewhere uses for PARTNER/ENGAGED/MARRIED.
+        /* Kiss is a deeper gesture than Flirt: only offered once the relationship already reads
+        as a real couple, same bar isRomantic() elsewhere uses for PARTNER/ENGAGED/MARRIED.
+        */
         boolean canKiss = !isChild
                 && (rel.status == RelationshipStatus.PARTNER
                     || rel.status == RelationshipStatus.ENGAGED
@@ -660,8 +676,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             Message resp = InteractionManager.performInteraction(npc, playerRefComp.getUuid(), playerRefComp, InteractionType.KISS);
             playerRefComp.sendMessage(resp);
         } else if (eventData.contains("InsultButton")) {
-            // Resolved here rather than trusted from the label: the page could have been built
-            // before the child grew up, and the two paths score very differently.
+            /* Resolved here rather than trusted from the label: the page could have been built
+            before the child grew up, and the two paths score very differently.
+            */
             InteractionType type = ParentChildBond.isChildOf(npc, playerRefComp.getUuid())
                     ? InteractionType.SCOLD
                     : InteractionType.MEAN;
@@ -676,8 +693,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         } else if (eventData.contains("PregnancyButton")) {
             player.getPageManager().openCustomPage(storeRef, store, new NPCPregnancyPage(playerRefComp, player, npc));
         } else if (eventData.contains("CarryButton")) {
-            // Closes the panel: the child is about to be on the player's shoulders, and leaving a
-            // screen open about someone who is now riding you reads as broken.
+            /* Closes the panel: the child is about to be on the player's shoulders, and leaving a
+            screen open about someone who is now riding you reads as broken.
+            */
             player.getPageManager().setPage(storeRef, store, Page.None);
             ChildCarryHelper.pickUp(store, storeRef, playerRefComp, npc);
         } else if (eventData.contains("InventoryButton")) {
@@ -766,16 +784,18 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
      */
     private void buildShowcase(UICommandBuilder commandBuilder, SimNPCComponent npc,
             List<String> likes, List<String> hates) {
-        // Captions reuse the keys the rest of the panel already uses for professions and hobbies,
-        // so a profession renamed in the .lang file changes here too instead of drifting.
+        /* Captions reuse the keys the rest of the panel already uses for professions and hobbies,
+        so a profession renamed in the .lang file changes here too instead of drifting.
+        */
         Message professionCaption = npc.profession != null
                 ? Message.translation("ui.prof." + npc.profession.name().toLowerCase())
                 : null;
         setSlot(commandBuilder, "#SlotProfession",
                 NPCShowcaseItems.forProfession(npc.profession), professionCaption);
 
-        // Row captions come from the same ui.likes/ui.hates keys the old text lines used, so the
-        // .ui placeholders never end up as the string players actually read.
+        /* Row captions come from the same ui.likes/ui.hates keys the old text lines used, so the
+        .ui placeholders never end up as the string players actually read.
+        */
         commandBuilder.set("#LikesCaption.TextSpans", Message.translation("ui.likes"));
         commandBuilder.set("#HatesCaption.TextSpans", Message.translation("ui.hates"));
         setTasteRow(commandBuilder, "#Like", likes);
@@ -838,8 +858,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
 
         Message hungerState;
         String hungerColor;
-        // Same three cuts the routine AI acts on (NeedsHelper.HUNGER_*_THRESHOLD) — they used to
-        // be repeated here as bare literals, out of sync with the code more than once.
+        /* Same three cuts the routine AI acts on (NeedsHelper.HUNGER_*_THRESHOLD) — they used to
+        be repeated here as bare literals, out of sync with the code more than once.
+        */
         if (hunger < NeedsHelper.HUNGER_STARVATION_THRESHOLD) {
             hungerState = Message.translation("ui.hunger.starving");
             hungerColor = "#ff4455";

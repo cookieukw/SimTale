@@ -74,8 +74,9 @@ public final class InspectorJournalHelper {
         playerRef.sendMessage(Message.translation("general.journal.mood").insert(mood));
         playerRef.sendMessage(Message.translation("general.journal.profession").insert(profession));
 
-        // The task is reported in words the player already knows from the rest of the UI rather
-        // than as the raw TaskType constant, which is an implementation detail.
+        /* The task is reported in words the player already knows from the rest of the UI rather
+        than as the raw TaskType constant, which is an implementation detail.
+        */
         RoutineAIComponent ai = store.getComponent(target, SimTale.ROUTINE_AI_COMPONENT_TYPE);
         playerRef.sendMessage(Message.translation("general.journal.doing")
                 .insert(describeTask(ai)));

@@ -125,11 +125,12 @@ final class SocialTestCommands {
         public SetMoodSubCommand() {
             super("setmood", "Sets the mood/expression of the nearest NPC");
             this.moodArg = this.withRequiredArg("mood", "NEUTRAL|HAPPY|ANGRY|SAD|SCARED|SLEEPY|EXCITED|BORED", ArgTypes.STRING);
-            // percent integer, not decimal.
-            //
-            // This was the only command in the project using ArgTypes.DOUBLE, and also the only that
-            // failed. The Hytale parser rejects decimal point — the same problem that already had
-            // torn down the old `bedtune`. Accepting 0 to 100 and converting here avoids the parser.
+            /* percent integer, not decimal.
+
+            This was the only command in the project using ArgTypes.DOUBLE, and also the only that
+            failed. The Hytale parser rejects decimal point — the same problem that already had
+            torn down the old `bedtune`. Accepting 0 to 100 and converting here avoids the parser.
+            */
             this.intensityArg = this.withOptionalArg("intensity", "Intensidade em % (0 a 100)", ArgTypes.STRING);
         }
 
@@ -181,10 +182,11 @@ final class SocialTestCommands {
                 return;
             }
 
-            // force, not setEmotion: an explicit debug command must not be silently denied by
-            // the priority/hold guard that protects organic mood changes from ambient triggers —
-            // see SimNPCComponent.forceEmotion's own javadoc for the exact failure this replaced
-            // (command printed success while a still-protected ANGRY/SAD quietly won anyway).
+            /* force, not setEmotion: an explicit debug command must not be silently denied by
+            the priority/hold guard that protects organic mood changes from ambient triggers —
+            see SimNPCComponent.forceEmotion's own javadoc for the exact failure this replaced
+            (command printed success while a still-protected ANGRY/SAD quietly won anyway).
+            */
             nearestNPC.forceEmotion(targetMood, intensity, "command", world.getTick());
             SimNPCPersistence.saveNPC(nearestNPC);
 
@@ -362,8 +364,9 @@ final class SocialTestCommands {
                 return;
             }
 
-            // Bring them together first, same fallback ForceSocialSubCommand uses, so the game
-            // doesn't open with an instant chase-timeout because they spawned out of range.
+            /* Bring them together first, same fallback ForceSocialSubCommand uses, so the game
+            doesn't open with an instant chase-timeout because they spawned out of range.
+            */
             Vector3d p1 = trans1.getPosition();
             Vector3d p2 = trans2.getPosition();
             double distSq = p1.distanceSquared(p2);

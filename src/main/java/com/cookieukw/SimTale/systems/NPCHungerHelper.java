@@ -81,20 +81,23 @@ public class NPCHungerHelper {
         RoutineAIComponent ai = store.getComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE);
         if (ai == null || isFeedingTask(ai.currentTask) || isDeathTask(ai.currentTask)) return;
 
-        // Sleep is not interrupted either: yanking a sleeping NPC to IDLE left it flagged as
-        // sleeping with no bed task, which the self-heal in RoutineAISystem then had to undo
-        // every tick.
+        /* Sleep is not interrupted either: yanking a sleeping NPC to IDLE left it flagged as
+        sleeping with no bed task, which the self-heal in RoutineAISystem then had to undo
+        every tick.
+        */
         if (isSleepTask(ai.currentTask)) return;
 
-        // Nor is a Guard mid-encounter (see NPCGuardHelper, wired up 13/09 -- after this method
-        // was written, which is why it was missing here same as it was missing from the sleep/
-        // hunger interrupts in RoutineAISystem). MOVING_TO_FIGHT/FIGHTING already have their own
-        // short timeouts (30s chase, 3s swing); yanking her to IDLE mid-fight just to cry from
-        // starvation abandons the skeleton she was already engaging.
+        /* Nor is a Guard mid-encounter (see NPCGuardHelper, wired up 13/09 -- after this method
+        was written, which is why it was missing here same as it was missing from the sleep/
+        hunger interrupts in RoutineAISystem). MOVING_TO_FIGHT/FIGHTING already have their own
+        short timeouts (30s chase, 3s swing); yanking her to IDLE mid-fight just to cry from
+        starvation abandons the skeleton she was already engaging.
+        */
         if (isFightTask(ai.currentTask)) return;
 
-        // Re-issuing this on a tick where the NPC is already idle and crying just resets the
-        // animation, so it never gets past the first frame.
+        /* Re-issuing this on a tick where the NPC is already idle and crying just resets the
+        animation, so it never gets past the first frame.
+        */
         if (ai.currentTask == TaskType.IDLE) return;
 
         NPCMovementHelper.clearMoveTarget(ref, ai);
@@ -138,8 +141,9 @@ public class NPCHungerHelper {
             ai.taskStartTime = world.getTick();
             Vector3d pos = transform.getPosition();
             
-            // Pick the tastiest meal in reach, not the nearest chest that happens to hold food.
-            // Distance only breaks ties between equally appealing options.
+            /* Pick the tastiest meal in reach, not the nearest chest that happens to hold food.
+            Distance only breaks ties between equally appealing options.
+            */
             ChestFood best = null;
 
             synchronized (ChestRegistry.CHESTS) {
@@ -168,8 +172,9 @@ public class NPCHungerHelper {
                 ai.currentTask = TaskType.MOVING_TO_FOOD;
                 NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
             } else {
-                // Hold off the hunger interrupt, which fires from any task and would otherwise
-                // re-enter this search on the very next tick for as long as there is no food.
+                /* Hold off the hunger interrupt, which fires from any task and would otherwise
+                re-enter this search on the very next tick for as long as there is no food.
+                */
                 ai.nextFoodSearchTick = world.getTick() + FOOD_SEARCH_COOLDOWN_TICKS;
                 ai.currentTask = TaskType.IDLE;
             }
@@ -183,8 +188,9 @@ public class NPCHungerHelper {
                 LOGGER.debug("[COMIDA] {} desistiu de chegar ao bau de comida", npc.name);
                 NPCMovementHelper.clearMoveTarget(ref, ai);
                 ai.targetBlockPosition = null;
-                // An unreachable chest still looks like the best option to the search, so without
-                // this the hunger interrupt would send the NPC back to it immediately, forever.
+                /* An unreachable chest still looks like the best option to the search, so without
+                this the hunger interrupt would send the NPC back to it immediately, forever.
+                */
                 ai.nextFoodSearchTick = world.getTick() + FOOD_SEARCH_COOLDOWN_TICKS;
                 ai.currentTask = TaskType.IDLE;
                 return;

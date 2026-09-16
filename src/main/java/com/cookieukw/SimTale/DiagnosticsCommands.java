@@ -204,27 +204,30 @@ final class DiagnosticsCommands {
                   .append("  sinceWake=")
                   .append(ai.lastWakeTick == 0 ? "never" : String.valueOf(world.getTick() - ai.lastWakeTick));
 
-                // Ticks left on each search backoff, which is the difference between "idle because
-                // it has nothing to do" and "idle because a need it cannot satisfy keeps pulling it
-                // back". An NPC that stood still for an entire session was unreadable without
-                // these: every branch involved fails silently.
+                /* Ticks left on each search backoff, which is the difference between "idle because
+                it has nothing to do" and "idle because a need it cannot satisfy keeps pulling it
+                back". An NPC that stood still for an entire session was unreadable without
+                these: every branch involved fails silently.
+                */
                 long tick = world.getTick();
                 sb.append("\n  cooldowns: bed=").append(Math.max(0, ai.nextBedSearchTick - tick))
                   .append(" food=").append(Math.max(0, ai.nextFoodSearchTick - tick))
                   .append(" bath=").append(Math.max(0, ai.nextBathSearchTick - tick));
             }
 
-            // The needs drive every IDLE decision, so without them the dump shows the outcome and
-            // hides the reason.
+            /* The needs drive every IDLE decision, so without them the dump shows the outcome and
+            hides the reason.
+            */
             sb.append("\n  needs: hunger=").append(fmt(NeedsHelper.getNeed(store, nref, NeedsHelper.HUNGER_ID)))
               .append(" energy=").append(fmt(NeedsHelper.getNeed(store, nref, NeedsHelper.ENERGY_ID)))
               .append(" hygiene=").append(fmt(NeedsHelper.getNeed(store, nref, NeedsHelper.HYGIENE_ID)))
               .append(" fun=").append(fmt(NeedsHelper.getNeed(store, nref, NeedsHelper.FUN_ID)))
               .append(" social=").append(fmt(NeedsHelper.getNeed(store, nref, NeedsHelper.SOCIAL_ID)));
 
-            // Everything needed to tell "guard on the day shift" apart from "stuck in bed": the
-            // profession, whether the world clock says this NPC's sleep window is open, and the
-            // raw day progress behind that answer.
+            /* Everything needed to tell "guard on the day shift" apart from "stuck in bed": the
+            profession, whether the world clock says this NPC's sleep window is open, and the
+            raw day progress behind that answer.
+            */
             sb.append("\n  profession=").append(best.profession)
               .append("  sleepWindow=")
               .append(NPCSleepHelper.isSleepPeriod(best, world))
@@ -285,10 +288,11 @@ final class DiagnosticsCommands {
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
-            // Free the player first: getting stuck in a bed with no way out, not even in creative,
-            // leaves no other escape from inside the game. Nothing in SimTale mounts the player, so
-            // this is a rescue hatch rather than a fix — but the components are the same ones the
-            // NPC path clears, and clearing them when they are absent is harmless.
+            /* Free the player first: getting stuck in a bed with no way out, not even in creative,
+            leaves no other escape from inside the game. Nothing in SimTale mounts the player, so
+            this is a rescue hatch rather than a fix — but the components are the same ones the
+            NPC path clears, and clearing them when they are absent is harmless.
+            */
             boolean playerFreed = false;
             if (store.getComponent(ref, MountedComponent.getComponentType()) != null) {
                 store.tryRemoveComponent(ref, MountedComponent.getComponentType());
@@ -305,18 +309,19 @@ final class DiagnosticsCommands {
 
             int fixed = 0;
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                // Uma crianca no colo tem MountedComponent (aponta pro carrier) e fica
-                // deliberadamente Frozen o tempo todo (ver ChildCarryHelper.pickUp) -- exatamente
-                // os dois estados que este comando existe para limpar de NPCs travadas de verdade.
-                // Sem este guard, /simtale unstick varria TODAS as ACTIVE_NPCS e arrancava o
-                // MountedComponent de toda crianca carregada, sem passar pelo caminho de
-                // restauracao (BoundingBox de volta via PARKED_BOXES, NpcFreezeUtil.unfreeze) que
-                // ChildCarryHelper.putDown faz -- ela ficava congelada, com hitbox quase-zero, presa
-                // na posicao antiga de quando foi pega no colo (o TransformComponent dela para de
-                // atualizar assim que e montada), e sem MountedComponent nenhum -- exatamente o que
-                // findCarriedBy/putDown usam para achar quem esta no colo, entao "/simtale putdown"
-                // depois nao achava mais ninguem. E acontecia pra pilha inteira de uma vez, nao so
-                // a de cima, porque o loop nao para na primeira.
+                /* Uma crianca no colo tem MountedComponent (aponta pro carrier) e fica
+                deliberadamente Frozen o tempo todo (ver ChildCarryHelper.pickUp) -- exatamente
+                os dois estados que este comando existe para limpar de NPCs travadas de verdade.
+                Sem este guard, /simtale unstick varria TODAS as ACTIVE_NPCS e arrancava o
+                MountedComponent de toda crianca carregada, sem passar pelo caminho de
+                restauracao (BoundingBox de volta via PARKED_BOXES, NpcFreezeUtil.unfreeze) que
+                ChildCarryHelper.putDown faz -- ela ficava congelada, com hitbox quase-zero, presa
+                na posicao antiga de quando foi pega no colo (o TransformComponent dela para de
+                atualizar assim que e montada), e sem MountedComponent nenhum -- exatamente o que
+                findCarriedBy/putDown usam para achar quem esta no colo, entao "/simtale putdown"
+                depois nao achava mais ninguem. E acontecia pra pilha inteira de uma vez, nao so
+                a de cima, porque o loop nao para na primeira.
+                */
                 if (npc.entityRef != null && npc.entityRef.isValid()
                         && ChildCarryHelper.isBeingCarried(npc.entityRef.getStore(), npc)) {
                     continue;
@@ -337,12 +342,13 @@ final class DiagnosticsCommands {
                         touched = true;
                     }
 
-                    // Solta tambem quem ficou preso na cama.
-                    //
-                    // Sem isto o unstick zerava a task para IDLE mas deixava a NPC montada e com
-                    // MovementStates.sleeping ligado. Na tentativa seguinte de dormir o
-                    // mountOnBlock respondia ALREADY_MOUNTED e a NPC nunca voltava para a cama —
-                    // o que tambem tornava impossivel reproduzir o ciclo de sono para testar.
+                    /* Solta tambem quem ficou preso na cama.
+
+                    Sem isto o unstick zerava a task para IDLE mas deixava a NPC montada e com
+                    MovementStates.sleeping ligado. Na tentativa seguinte de dormir o
+                    mountOnBlock respondia ALREADY_MOUNTED e a NPC nunca voltava para a cama —
+                    o que tambem tornava impossivel reproduzir o ciclo de sono para testar.
+                    */
                     if (npc.entityRef.getStore().getComponent(
                             npc.entityRef, MountedComponent.getComponentType()) != null) {
                         npc.entityRef.getStore().tryRemoveComponent(
@@ -350,12 +356,13 @@ final class DiagnosticsCommands {
                         touched = true;
                     }
                     NPCMovementHelper.setSleepingState(npc.entityRef, npc.entityRef.getStore(), false);
-                    // setSleepingState only resets the MovementStates flags (physics/hitbox).
-                    // The Sleep clip itself plays on a separate Status animation slot
-                    // (RoutineAISystem's SLEEPING entry) that this never stopped — she kept
-                    // playing the lying-down animation while walking around. The natural WAKING
-                    // completion (RoutineAISystem.java) stops it the same way; unstick needs to
-                    // do the same rescue, not just clear the task state.
+                    /* setSleepingState only resets the MovementStates flags (physics/hitbox).
+                    The Sleep clip itself plays on a separate Status animation slot
+                    (RoutineAISystem's SLEEPING entry) that this never stopped — she kept
+                    playing the lying-down animation while walking around. The natural WAKING
+                    completion (RoutineAISystem.java) stops it the same way; unstick needs to
+                    do the same rescue, not just clear the task state.
+                    */
                     AnimationUtils.stopAnimation(npc.entityRef, AnimationSlot.Status, true, npc.entityRef.getStore());
                     NPCEntity npcEntityComponent = npc.entityRef.getStore().getComponent(npc.entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
                     if (npcEntityComponent != null) {
@@ -368,19 +375,22 @@ final class DiagnosticsCommands {
                     touched = true;
                     RoutineAIComponent ai = npc.entityRef.getStore().getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
                     if (ai != null) {
-                        // Drops the stale leash so the next moveTo re-issues the "Moving" state
-                        // and the walk animation comes back.
+                        /* Drops the stale leash so the next moveTo re-issues the "Moving" state
+                        and the walk animation comes back.
+                        */
                         NPCMovementHelper.clearMoveTarget(npc.entityRef, ai);
                         ai.currentTask = RoutineAIComponent.TaskType.IDLE;
                         ai.targetBlockPosition = null;
                         ai.socializeTargetId = null;
                         ai.socializeHost = false;
                         ai.wanderTimer = 0;
-                        // Without clearing this, an NPC freed from bed still counts as a scheduled
-                        // sleeper, and the SLEEPING branch would wait for a window that is not open.
+                        /* Without clearing this, an NPC freed from bed still counts as a scheduled
+                        sleeper, and the SLEEPING branch would wait for a window that is not open.
+                        */
                         ai.sleepingOnSchedule = false;
-                        // Push both searches out so the interrupts do not drag her straight back
-                        // to the bed the command just freed her from.
+                        /* Push both searches out so the interrupts do not drag her straight back
+                        to the bed the command just freed her from.
+                        */
                         ai.nextBedSearchTick = world.getTick() + 200;
                         ai.nextFoodSearchTick = world.getTick() + 200;
                     }
@@ -531,8 +541,9 @@ final class DiagnosticsCommands {
             }
             Vector3d pos = tc.getPosition();
 
-            // Scan first, like housecheck already did. Otherwise this command reports "nothing
-            // registered" for a chest that simply had not been picked up yet.
+            /* Scan first, like housecheck already did. Otherwise this command reports "nothing
+            registered" for a chest that simply had not been picked up yet.
+            */
             BedWorldBootstrap.bootstrapLoadedRadius(world, pos, 16);
 
             HouseBlockPos nearestChest = null;
@@ -601,8 +612,9 @@ final class DiagnosticsCommands {
             }
             Vector3d pos = tc.getPosition();
 
-            // Scan first, same reasoning as chestcheck: otherwise this reports "nothing
-            // registered" for a chair the world simply had not rescanned yet.
+            /* Scan first, same reasoning as chestcheck: otherwise this reports "nothing
+            registered" for a chair the world simply had not rescanned yet.
+            */
             BedWorldBootstrap.bootstrapLoadedRadius(world, pos, 16);
 
             Vector3i nearestChair = null;

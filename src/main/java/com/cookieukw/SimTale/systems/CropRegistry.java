@@ -11,11 +11,12 @@ public final class CropRegistry {
 
     public static final Set<HouseBlockPos> CROPS = Collections.synchronizedSet(new HashSet<>());
 
-    // Growth is an in-place BlockType state machine, not a separate registered id per stage — a
-    // grown crop's runtime getId() comes back as
-    // "*plant_crop_carrot_block_state_definitions_stagefinal": a leading "*" (Hytale's marker for
-    // a state-variant block, confirmed via /simtale debugnear) plus "_state_definitions_<stage>"
-    // instead of the bare "..._block" used at plant time. Matching has to survive both shapes.
+    /* Growth is an in-place BlockType state machine, not a separate registered id per stage — a
+    grown crop's runtime getId() comes back as
+    "*plant_crop_carrot_block_state_definitions_stagefinal": a leading "*" (Hytale's marker for
+    a state-variant block, confirmed via /simtale debugnear) plus "_state_definitions_<stage>"
+    instead of the bare "..._block" used at plant time. Matching has to survive both shapes.
+    */
     public static boolean isCropId(String id) {
         return AssetIds.containsAny(id, "plant_crop")
                 && AssetIds.containsAny(id, "block")

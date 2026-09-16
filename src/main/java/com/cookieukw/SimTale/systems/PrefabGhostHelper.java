@@ -71,9 +71,10 @@ public final class PrefabGhostHelper {
     public static final int TINT_BLOCKED = 0xB03A2E;
     private static final int WATER_TINT = 0x0A3355;
 
-    // ---------------------------------------------------------------------
-    // Public API
-    // ---------------------------------------------------------------------
+    /* ---------------------------------------------------------------------
+    Public API
+    ---------------------------------------------------------------------
+    */
 
     /**
      * Shows (or reshows) the hologram for {@code site}, replacing any hologram it already had.
@@ -88,9 +89,10 @@ public final class PrefabGhostHelper {
         int layers = countLayers(prefab);
         int tint = isClear ? TINT_CLEAR : TINT_BLOCKED;
 
-        // Spawning an entity is a structural store write and blows up with
-        // "Store is currently processing!" if it lands mid-tick. placePreview is reachable from
-        // an event handler, so that is a real possibility rather than a theoretical one.
+        /* Spawning an entity is a structural store write and blows up with
+        "Store is currently processing!" if it lands mid-tick. placePreview is reachable from
+        an event handler, so that is a real possibility rather than a theoretical one.
+        */
         runOnWorldThread(world, () -> {
             hideNow(world, site);
             site.previewGhost = spawnGhost(world, site.anchor, blocks, tint, layers);
@@ -114,17 +116,19 @@ public final class PrefabGhostHelper {
         Ref<EntityStore> ref = site.previewGhost;
         if (!ref.isValid()) return;
 
-        // A plain field write on an existing component: no structural change, so this one is
-        // safe mid-tick and needs no deferral.
+        /* A plain field write on an existing component: no structural change, so this one is
+        safe mid-tick and needs no deferral.
+        */
         PrefabPreview preview = store.getComponent(ref, PrefabPreview.getComponentType());
         if (preview != null) {
             preview.setVisibleLayerCount(Math.max(0, visibleLayers));
         }
     }
 
-    // ---------------------------------------------------------------------
-    // Geometry
-    // ---------------------------------------------------------------------
+    /* ---------------------------------------------------------------------
+    Geometry
+    ---------------------------------------------------------------------
+    */
 
     /**
      * Converts the mod's prefab blocks into the protocol's {@link BlockChange} array.
@@ -171,9 +175,10 @@ public final class PrefabGhostHelper {
         return maxY >= minY ? (maxY - minY + 1) : 0;
     }
 
-    // ---------------------------------------------------------------------
-    // Entity lifecycle
-    // ---------------------------------------------------------------------
+    /* ---------------------------------------------------------------------
+    Entity lifecycle
+    ---------------------------------------------------------------------
+    */
 
     /**
      * Assembles the hologram entity.
@@ -219,10 +224,11 @@ public final class PrefabGhostHelper {
             holder.addComponent(TransformComponent.getComponentType(),
                     new TransformComponent(
                             new Vector3d(anchor.x, anchor.y, anchor.z), new Rotation3f()));
-            // Argument order is (blocks, fluids, visibleLayerCount, biomeTint, waterTint) — note
-            // that it does NOT follow the field declaration order, which lists the tints first.
-            // Verified against the constructor bytecode rather than inferred: swapping them
-            // compiles fine and simply renders the hologram almost black.
+            /* Argument order is (blocks, fluids, visibleLayerCount, biomeTint, waterTint) — note
+            that it does NOT follow the field declaration order, which lists the tints first.
+            Verified against the constructor bytecode rather than inferred: swapping them
+            compiles fine and simply renders the hologram almost black.
+            */
             holder.addComponent(PrefabPreview.getComponentType(),
                     new PrefabPreview(blocks, new FluidChange[0], layers, biomeTint, WATER_TINT));
             holder.ensureComponent(UUIDComponent.getComponentType());
@@ -237,8 +243,9 @@ public final class PrefabGhostHelper {
     /** Actually despawns the hologram. Must already be on the world thread. */
     private static void hideNow(World world, ConstructionSiteComponent site) {
         Ref<EntityStore> ref = site.previewGhost;
-        // Cleared first: if removeEntity throws, the site must not keep pointing at an entity
-        // it can no longer manage, or every later show() would leak another hologram.
+        /* Cleared first: if removeEntity throws, the site must not keep pointing at an entity
+        it can no longer manage, or every later show() would leak another hologram.
+        */
         site.previewGhost = null;
         if (ref == null || !ref.isValid()) return;
 

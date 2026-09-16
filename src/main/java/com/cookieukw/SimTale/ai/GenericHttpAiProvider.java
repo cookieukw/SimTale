@@ -75,12 +75,14 @@ public class GenericHttpAiProvider implements NpcAiProvider {
 
         if (config.sendMessages) {
             builder.key(config.messagesField).value(request.messages());
-            // For message-based APIs the system prompt is already the first message. Emitting a
-            // stray top-level "systemPrompt" field made OpenAI-compatible endpoints reject the
-            // request with HTTP 400.
+            /* For message-based APIs the system prompt is already the first message. Emitting a
+            stray top-level "systemPrompt" field made OpenAI-compatible endpoints reject the
+            request with HTTP 400.
+            */
         } else {
-            // promptStructurer wraps the text in whatever shape the provider needs
-            // (Gemini: contents[].parts[].text). Default is the raw string.
+            /* promptStructurer wraps the text in whatever shape the provider needs
+            (Gemini: contents[].parts[].text). Default is the raw string.
+            */
             builder.key(config.promptField).value(config.promptStructurer.apply(mergePrompt(request)));
         }
 

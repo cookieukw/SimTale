@@ -54,13 +54,14 @@ public class NPCWorkHelper {
     private static final String ANIM_CHOP = "Characters/Animations/Items/Main_Handed/Hatchet/Attacks/Chop/Chop.blockyanim";
     private static final String ANIM_LOOK_AROUND = "Characters/Animations/Flavor/Look_Around.blockyanim";
 
-    // keyword -> value, checked in insertion order; falls back to the first entry's value if nothing matches.
-    //
-    // NOTE: Hytale item ids carry no namespace — `item_ids.txt` lists 3690 entries and not one
-    // uses a "hytale:" prefix. Every id below used to be prefixed, so none of them resolved:
-    // harvesting handed out a nonexistent item and planting placed a nonexistent block. The
-    // food ids were doubly wrong ("food_carrot" does not exist in any casing); the real
-    // harvested crop is `Plant_Crop_<Name>_Item`.
+    /* keyword -> value, checked in insertion order; falls back to the first entry's value if nothing matches.
+
+    NOTE: Hytale item ids carry no namespace — `item_ids.txt` lists 3690 entries and not one
+    uses a "hytale:" prefix. Every id below used to be prefixed, so none of them resolved:
+    harvesting handed out a nonexistent item and planting placed a nonexistent block. The
+    food ids were doubly wrong ("food_carrot" does not exist in any casing); the real
+    harvested crop is `Plant_Crop_<Name>_Item`.
+    */
     private static final Map<String, String> CROP_TO_FOOD = orderedMap(
             "carrot", "Plant_Crop_Carrot_Item",
             "wheat", "Plant_Crop_Wheat_Item",
@@ -164,13 +165,14 @@ public class NPCWorkHelper {
         PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
         if (pm != null) {
             ModelReference oldRef = pm.getModelReference();
-            // replaceComponent is a structural write — same "Store is currently processing!"
-            // issue as spawnNPC. This runs from inside RoutineAISystem's own tick, so it has to be
-            // deferred, not called straight from here.
-            //
-            // Attachments are carried over now, and applyModel writes the drawn component too:
-            // rewriting only PersistentModel left the shrink invisible, so "away on an expedition"
-            // was an NPC standing there at full size with her plumbob and map marker on.
+            /* replaceComponent is a structural write — same "Store is currently processing!"
+            issue as spawnNPC. This runs from inside RoutineAISystem's own tick, so it has to be
+            deferred, not called straight from here.
+
+            Attachments are carried over now, and applyModel writes the drawn component too:
+            rewriting only PersistentModel left the shrink invisible, so "away on an expedition"
+            was an NPC standing there at full size with her plumbob and map marker on.
+            */
             WorldUtil.execute(() -> SimNPCFactory.applyModel(
                     store, ref, oldRef.getModelAssetId(), EXPEDITION_SCALE, oldRef.getRandomAttachmentIds()));
         }
@@ -190,9 +192,10 @@ public class NPCWorkHelper {
      * in the simulation noticed.
      */
     private static void applyWorkSatisfaction(SimNPCComponent npc, long tick) {
-        // docs/ROADMAP.md, "Reputacao por profissao": every one of this method's 5 call sites
-        // is a finished unit of work (harvest, planting, catch, chop, hunter/miner expedition),
-        // so this one line is the whole counter -- no per-profession duplication needed.
+        /* docs/ROADMAP.md, "Reputacao por profissao": every one of this method's 5 call sites
+        is a finished unit of work (harvest, planting, catch, chop, hunter/miner expedition),
+        so this one line is the whole counter -- no per-profession duplication needed.
+        */
         npc.jobsCompleted++;
 
         // Work naturally drops fun, unless it's a good mood/traits combo
@@ -211,15 +214,17 @@ public class NPCWorkHelper {
             World world,
             Store<EntityStore> store
     ) {
-        // Too young for this particular job — see WorkEligibility. Checked before the state
-        // machine rather than inside it so a child never enters a work state at all, instead of
-        // entering one and being pulled out mid-way with a claimed post or a shrunken model.
+        /* Too young for this particular job — see WorkEligibility. Checked before the state
+        machine rather than inside it so a child never enters a work state at all, instead of
+        entering one and being pulled out mid-way with a claimed post or a shrunken model.
+        */
         if (!WorkEligibility.canWork(npc)) return;
 
-        // Evaluate Transition to Work/Deposit from IDLE
-        // reservedForSocialUuid: same reasoning as RoutineSleepHelpers.handleIdle -- this is a
-        // second, independent path into a new task from IDLE, and needs the same guard so a
-        // reserved NPC does not get pulled into a work errand before her suitor arrives.
+        /* Evaluate Transition to Work/Deposit from IDLE
+        reservedForSocialUuid: same reasoning as RoutineSleepHelpers.handleIdle -- this is a
+        second, independent path into a new task from IDLE, and needs the same guard so a
+        reserved NPC does not get pulled into a work errand before her suitor arrives.
+        */
         if (ai.currentTask == TaskType.IDLE && !NPCSocialHelper.isReservedAndActive(ai, world.getTick()) && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK || npc.profession == Profession.MINER)) {
             ItemContainer inventory = getInventory(store, ref);
             boolean hasItemsToDeposit = hasAnyDepositableItem(inventory);
@@ -237,29 +242,32 @@ public class NPCWorkHelper {
                 }
             }
 
-            // Stagger scans (e.g. random chance or time check). Bypassed immediately when a debug
-            // command just forced this NPC — reset centrally in RoutineAISystem right after this
-            // call returns, not here, so every caller of the flag gets cleared, not just this one.
+            /* Stagger scans (e.g. random chance or time check). Bypassed immediately when a debug
+            command just forced this NPC — reset centrally in RoutineAISystem right after this
+            call returns, not here, so every caller of the flag gets cleared, not just this one.
+            */
             if (world.getTick() % 100 == 0 || ai.forcedByDebug) {
                 if (npc.profession == Profession.FARMER) {
-                    // A registered Deco_Scarecrow is what makes a patch of ground "the farm", the
-                    // same way a bed is what makes a room a house. No scarecrow, no farming.
-                    //
-                    // There used to be a fallback that scanned 15 blocks around the NPC herself
-                    // whenever no post was claimed, so that farming worked without placing one.
-                    // That fallback was the bug: FarmlandRegistry is global and the boot scan sweeps
-                    // the loaded world for tilled soil — one real world reported 16.873 entries, all
-                    // of it terrain the generator made. "Nearby farmland" therefore meant any
-                    // world-generated soil the NPC happened to wander past, which is exactly what
-                    // "planting outside the farm" looked like. Children showed it first because
-                    // they stroll further than an adult with a bed to go home to.
+                    /* A registered Deco_Scarecrow is what makes a patch of ground "the farm", the
+                    same way a bed is what makes a room a house. No scarecrow, no farming.
+
+                    There used to be a fallback that scanned 15 blocks around the NPC herself
+                    whenever no post was claimed, so that farming worked without placing one.
+                    That fallback was the bug: FarmlandRegistry is global and the boot scan sweeps
+                    the loaded world for tilled soil — one real world reported 16.873 entries, all
+                    of it terrain the generator made. "Nearby farmland" therefore meant any
+                    world-generated soil the NPC happened to wander past, which is exactly what
+                    "planting outside the farm" looked like. Children showed it first because
+                    they stroll further than an adult with a bed to go home to.
+                    */
                     Vector3d npcPos = transform.getPosition();
                     FarmPostRegistry.FarmPost claimedPost = FarmPostRegistry.claimNearest(npcPos.x, npcPos.y, npcPos.z, npc.entityId);
 
-                    // Scoped rather than returned: this runs inside the IDLE branch, and an early
-                    // return would also skip the MOVING_TO_WORK / PLANTING handling further down
-                    // for every farmer with no plot — including one already walking to a plot she
-                    // claimed on an earlier tick.
+                    /* Scoped rather than returned: this runs inside the IDLE branch, and an early
+                    return would also skip the MOVING_TO_WORK / PLANTING handling further down
+                    for every farmer with no plot — including one already walking to a plot she
+                    claimed on an earlier tick.
+                    */
                     if (claimedPost != null) {
                     Vector3d scanCenter = new Vector3d(
                                 claimedPost.postX() + 0.5, claimedPost.postY(), claimedPost.postZ() + 0.5);
@@ -283,13 +291,15 @@ public class NPCWorkHelper {
                                 ai.taskStartTime = world.getTick();
                                 playWalk(ref, store);
                             } else if (seed == null) {
-                                // Out of seeds and nothing to harvest — go restock from a chest she
-                                // can open, instead of standing at the claimed post doing nothing.
+                                /* Out of seeds and nothing to harvest — go restock from a chest she
+                                can open, instead of standing at the claimed post doing nothing.
+                                */
                                 HouseBlockPos seedChest = findSeedChest(npc, world);
                                 if (seedChest != null) {
                                     ai.targetBlockPosition = new Vector3i(seedChest.x, seedChest.y, seedChest.z);
-                                    // Release the plot claim — fetching seeds may take a while and
-                                    // another farmer shouldn't be blocked from using it meanwhile.
+                                    /* Release the plot claim — fetching seeds may take a while and
+                                    another farmer shouldn't be blocked from using it meanwhile.
+                                    */
                                     FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
                                     ai.currentTask = TaskType.MOVING_TO_SEEDS;
                                     ai.taskStartTime = world.getTick();
@@ -298,8 +308,9 @@ public class NPCWorkHelper {
                                     FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
                                 }
                             } else {
-                                // Nothing to do at this plot right now — don't sit on the claim,
-                                // another farmer (or this one, next cycle) might find work there.
+                                /* Nothing to do at this plot right now — don't sit on the claim,
+                                another farmer (or this one, next cycle) might find work there.
+                                */
                                 FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
                             }
                         }
@@ -307,8 +318,9 @@ public class NPCWorkHelper {
                 } else if (npc.profession == Profession.HUNTER || npc.profession == Profession.MINER) {
                     startExpedition(ref, ai, npc, world, store);
                 } else if (npc.profession == Profession.FISHERMAN) {
-                    // Water was already resolved once, when the fishing post was placed — no
-                    // scan needed here, just look the post up. One NPC per post at a time.
+                    /* Water was already resolved once, when the fishing post was placed — no
+                    scan needed here, just look the post up. One NPC per post at a time.
+                    */
                     Vector3d pos = transform.getPosition();
                     FishingPostRegistry.FishingPost post = FishingPostRegistry.claimNearest(pos.x, pos.y, pos.z, npc.entityId);
                     if (post != null) {
@@ -319,8 +331,9 @@ public class NPCWorkHelper {
                         playWalk(ref, store);
                     }
                 } else if (npc.profession == Profession.LUMBERJACK) {
-                    // Same trade as fishing: the tree was already found when the lumbermill was
-                    // placed, so this is a lookup, not a scan.
+                    /* Same trade as fishing: the tree was already found when the lumbermill was
+                    placed, so this is a lookup, not a scan.
+                    */
                     Vector3d pos = transform.getPosition();
                     LumberPostRegistry.LumberPost post = LumberPostRegistry.claimNearest(pos.x, pos.y, pos.z, npc.entityId);
                     if (post != null) {
@@ -344,19 +357,21 @@ public class NPCWorkHelper {
             Vector3d npcPos = transform.getPosition();
             if (npc.profession == Profession.FARMER) {
                 if (ai.targetBlockPosition == null) {
-                    // Previously silent — an NPC could drop from MOVING_TO_WORK straight to IDLE
-                    // (and from there get picked up by the 2% WANDERING roll seconds later) with
-                    // no trace in the log of why the target it had just been given vanished.
+                    /* Previously silent — an NPC could drop from MOVING_TO_WORK straight to IDLE
+                    (and from there get picked up by the 2% WANDERING roll seconds later) with
+                    no trace in the log of why the target it had just been given vanished.
+                    */
                     LOGGER.debug("[SimTale] Farmer NPC {} lost its work target mid-walk (targetBlockPosition null), tick={}", npc.name, world.getTick());
                     ai.currentTask = TaskType.IDLE;
                     return;
                 }
                 if (isNear(npcPos, ai.targetBlockPosition.x + 0.5, ai.targetBlockPosition.z + 0.5)) {
                     NPCMovementHelper.clearMoveTarget(ref, ai);
-                    // Determine if harvesting or planting. Ripeness (not mere crop presence)
-                    // decides FARMING — otherwise a target reached while its crop was still
-                    // growing (e.g. re-checked after someone else got there first) got harvested
-                    // immediately regardless of stage.
+                    /* Determine if harvesting or planting. Ripeness (not mere crop presence)
+                    decides FARMING — otherwise a target reached while its crop was still
+                    growing (e.g. re-checked after someone else got there first) got harvested
+                    immediately regardless of stage.
+                    */
                     BlockType blockType = world.getBlockType(ai.targetBlockPosition.x, ai.targetBlockPosition.y, ai.targetBlockPosition.z);
                     String blockId = blockType != null ? blockType.getId() : null;
                     boolean isEmpty = blockId == null || blockId.equalsIgnoreCase(EMPTY_BLOCK);
@@ -419,8 +434,9 @@ public class NPCWorkHelper {
                     String seedItem = lookup(CROP_TO_SEED, cropId, "Plant_Seeds_Carrot");
                     ItemContainer inv = getInventory(store, ref);
                     if (inv != null) {
-                        // Checked, not blind-added: an add into a full inventory silently drops
-                        // the item while this log line still claimed success every time.
+                        /* Checked, not blind-added: an add into a full inventory silently drops
+                        the item while this log line still claimed success every time.
+                        */
                         ItemStack produce = new ItemStack(meatOrVeg, 1);
                         if (inv.canAddItemStack(produce)) {
                             inv.addItemStack(produce);
@@ -463,13 +479,14 @@ public class NPCWorkHelper {
                             inv.removeItemStackFromSlot(slot, 1);
                             String cropBlock = getCropBlockFromSeed(seed);
                             world.setBlock(plantPos.x, plantPos.y, plantPos.z, cropBlock);
-                            // world.setBlock is a raw storage write with no event dispatch —
-                            // unlike a hand-placed crop (registered by BedPlaceBlockEventSystem
-                            // reacting to the engine's PlaceBlockEvent), this block is invisible
-                            // to CropRegistry unless registered here explicitly. Without this,
-                            // the plot was farmland (empty tile) right up until the NPC's own
-                            // planting made it neither farmland nor a trackable crop — permanently
-                            // dead after the first auto-replant.
+                            /* world.setBlock is a raw storage write with no event dispatch —
+                            unlike a hand-placed crop (registered by BedPlaceBlockEventSystem
+                            reacting to the engine's PlaceBlockEvent), this block is invisible
+                            to CropRegistry unless registered here explicitly. Without this,
+                            the plot was farmland (empty tile) right up until the NPC's own
+                            planting made it neither farmland nor a trackable crop — permanently
+                            dead after the first auto-replant.
+                            */
                             CropRegistry.add(plantPos.x, plantPos.y, plantPos.z);
                             LOGGER.debug("[SimTale] Farmer NPC {} planted {} at {}", npc.name, cropBlock, plantPos);
                         } else {
@@ -524,12 +541,14 @@ public class NPCWorkHelper {
                 Vector3i treePos = ai.targetBlockPosition;
                 BlockType blockType = world.getBlockType(treePos.x, treePos.y, treePos.z);
                 if (LumberPostRegistry.isTreeTrunk(blockType)) {
-                    // The trunk block id doubles as the item id — no CROP_TO_FOOD-style lookup
-                    // table exists per species, and none is needed.
+                    /* The trunk block id doubles as the item id — no CROP_TO_FOOD-style lookup
+                    table exists per species, and none is needed.
+                    */
                     String logId = blockType.getId();
                     world.setBlock(treePos.x, treePos.y, treePos.z, EMPTY_BLOCK);
-                    // The post this NPC used pointed at exactly this trunk; it's gone now, so the
-                    // post has to go looking again next time (a re-placed or new lumbermill).
+                    /* The post this NPC used pointed at exactly this trunk; it's gone now, so the
+                    post has to go looking again next time (a re-placed or new lumbermill).
+                    */
                     LumberPostRegistry.removeByTree(treePos.x, treePos.y, treePos.z);
 
                     ItemContainer inv = getInventory(store, ref);
@@ -543,8 +562,9 @@ public class NPCWorkHelper {
                         }
                     }
                 } else {
-                    // Someone else got here first (player, or another lumberjack before the
-                    // registry caught up) — nothing to chop, just stop cleanly.
+                    /* Someone else got here first (player, or another lumberjack before the
+                    registry caught up) — nothing to chop, just stop cleanly.
+                    */
                     LOGGER.debug("[SimTale] Lumberjack NPC {} arrived at ({},{},{}) but it wasn't a tree anymore", npc.name, treePos.x, treePos.y, treePos.z);
                 }
                 applyWorkSatisfaction(npc, world.getTick());
@@ -607,10 +627,11 @@ public class NPCWorkHelper {
                             // Seeds are supplies she's keeping for herself, not loot.
                             if (isSeed(item.getItemId())) continue;
 
-                            // Copy first and check the chest has room, then clear the NPC slot.
-                            // The old order removed the item from the NPC and handed the
-                            // now-emptied reference to the chest, destroying the loot whenever
-                            // the chest was full.
+                            /* Copy first and check the chest has room, then clear the NPC slot.
+                            The old order removed the item from the NPC and handed the
+                            now-emptied reference to the chest, destroying the loot whenever
+                            the chest was full.
+                            */
                             ItemStack toDeposit = new ItemStack(item.getItemId(), item.getQuantity());
                             if (!chestInv.canAddItemStack(toDeposit)) continue;
 
@@ -645,8 +666,9 @@ public class NPCWorkHelper {
                     ItemContainer chestInv = cb.getItemContainer();
                     ItemContainer npcInv = getInventory(store, ref);
                     if (chestInv != null && npcInv != null) {
-                        // Re-check on arrival: another farmer may have emptied the chest during
-                        // the walk over.
+                        /* Re-check on arrival: another farmer may have emptied the chest during
+                        the walk over.
+                        */
                         String seedId = findSeedInInventory(chestInv);
                         if (seedId != null) {
                             short slot = findSeedSlot(chestInv, seedId);
@@ -724,9 +746,10 @@ public class NPCWorkHelper {
     public static void releaseWorkPost(RoutineAIComponent ai, SimNPCComponent npc) {
         if (ai.claimedWorkPost == null) return;
         if (npc != null && npc.entityId != null) {
-            // claimedWorkPost doesn't record which registry it came from, and release() on the
-            // wrong one is a harmless no-op (it only removes an entry that matches both the exact
-            // position and this NPC's id) — simpler than threading the profession through here.
+            /* claimedWorkPost doesn't record which registry it came from, and release() on the
+            wrong one is a harmless no-op (it only removes an entry that matches both the exact
+            position and this NPC's id) — simpler than threading the profession through here.
+            */
             FishingPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
             LumberPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
             FarmPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);

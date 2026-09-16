@@ -78,9 +78,10 @@ public class GeneticsData {
      * @return inherited surname, or "N/A" if neither parent has a surname
      */
     public static String inheritSurname(String motherName, String fatherName) {
-        // The rule itself lives in SimNPCNameGenerator, next to the halves it cuts on: blending
-        // Greenfield and Steelbinder into Greenbinder only works if the code doing the cutting can
-        // see the same head/tail arrays the names were built from.
+        /* The rule itself lives in SimNPCNameGenerator, next to the halves it cuts on: blending
+        Greenfield and Steelbinder into Greenbinder only works if the code doing the cutting can
+        see the same head/tail arrays the names were built from.
+        */
         return SimNPCNameGenerator.inheritSurname(
                 SimNPCNameGenerator.extractSurname(motherName),
                 SimNPCNameGenerator.extractSurname(fatherName));

@@ -73,9 +73,10 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
-        // Was UUIDComponent, i.e. *every entity in the world*, every tick — dropped items,
-        // projectiles, the lot. Only three archetypes matter here: the NPCs and players that
-        // own a plumbob, plus modelled entities so orphaned plumbobs can still be reaped.
+        /* Was UUIDComponent, i.e. *every entity in the world*, every tick — dropped items,
+        projectiles, the lot. Only three archetypes matter here: the NPCs and players that
+        own a plumbob, plus modelled entities so orphaned plumbobs can still be reaped.
+        */
         return Query.or(
                 SimTale.SIM_NPC_COMPONENT_TYPE,
                 Player.getComponentType(),
@@ -113,40 +114,43 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
 
         if (!isPlayer && !isNpc) return;
 
-        // The Reaper is a ceremonial entity that exists for one death and is despawned when the
-        // ritual ends — a mood indicator over Death itself reads as a bug even when it works, and
-        // the plumbob outliving her was one.
-        //
-        // Despawning rather than just skipping: this system can tick the Reaper once in the window
-        // between her entity being added and isReaper being set, and that one tick is enough to
-        // give her a plumbob. Returning early from then on meant the crystal was never updated and
-        // never cleaned either — it stayed in trackedPlumbobRefs, which is exactly what the orphan
-        // sweep above refuses to touch — so it hung at her spawn point forever, outliving her.
+        /* The Reaper is a ceremonial entity that exists for one death and is despawned when the
+        ritual ends — a mood indicator over Death itself reads as a bug even when it works, and
+        the plumbob outliving her was one.
+
+        Despawning rather than just skipping: this system can tick the Reaper once in the window
+        between her entity being added and isReaper being set, and that one tick is enough to
+        give her a plumbob. Returning early from then on meant the crystal was never updated and
+        never cleaned either — it stayed in trackedPlumbobRefs, which is exactly what the orphan
+        sweep above refuses to touch — so it hung at her spawn point forever, outliving her.
+        */
         UUID entityUuid = uuidComp.getUuid();
         if (npcHere != null && npcHere.isReaper) {
             despawnPlumbob(entityUuid, commandBuffer);
             return;
         }
 
-        // Away on an expedition. Skipping the update is not enough — the plumbob already exists and
-        // would simply stop being moved, leaving a mood crystal parked in mid-air over an NPC the
-        // player was told had left. It has to actually go, and come back when she does.
+        /* Away on an expedition. Skipping the update is not enough — the plumbob already exists and
+        would simply stop being moved, leaving a mood crystal parked in mid-air over an NPC the
+        player was told had left. It has to actually go, and come back when she does.
+        */
         if (npcHere != null && NPCWorkHelper.isAwayOnExpedition(store, chunk.getReferenceTo(index))) {
             despawnPlumbob(entityUuid, commandBuffer);
             return;
         }
 
-        // Being carried hides the crystal entirely, third case after the Reaper and the expedition.
-        //
-        // The first attempt made it follow the carrier instead, which fixed the stale position but
-        // produced a worse picture: the child's plumbob and the carrier's own ended up side by side
-        // over one head. Two mood crystals on one player reads as a bug even though both are
-        // "correct". A carried child is not going about her business anyway, which is what the
-        // crystal is there to report.
-        //
-        // (The stale position is real and worth remembering: a mounted entity is drawn attached to
-        // its mount, but its own TransformComponent stays where it was when it mounted. Anything
-        // that follows a carried NPC has to read the carrier, not her.)
+        /* Being carried hides the crystal entirely, third case after the Reaper and the expedition.
+
+        The first attempt made it follow the carrier instead, which fixed the stale position but
+        produced a worse picture: the child's plumbob and the carrier's own ended up side by side
+        over one head. Two mood crystals on one player reads as a bug even though both are
+        "correct". A carried child is not going about her business anyway, which is what the
+        crystal is there to report.
+
+        (The stale position is real and worth remembering: a mounted entity is drawn attached to
+        its mount, but its own TransformComponent stays where it was when it mounted. Anything
+        that follows a carried NPC has to read the carrier, not her.)
+        */
         if (chunk.getComponent(index, MountedComponent.getComponentType()) != null) {
             despawnPlumbob(entityUuid, commandBuffer);
             return;
@@ -220,10 +224,11 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
                 holder.addComponent(TransformComponent.getComponentType(), new TransformComponent(new Vector3d(entityTransform.getPosition().x, entityTransform.getPosition().y + height, entityTransform.getPosition().z), new Rotation3f()));
                 holder.addComponent(PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
                 holder.addComponent(ModelComponent.getComponentType(), new ModelComponent(model));
-                // Deliberately no BoundingBox: this is a purely cosmetic floating icon, and
-                // giving it a real collision box (copied from the model's own bounds) made it
-                // block interaction/break raycasts aimed through it — e.g. looking up at an
-                // NPC's Plumbob and trying to hit a block behind it just failed.
+                /* Deliberately no BoundingBox: this is a purely cosmetic floating icon, and
+                giving it a real collision box (copied from the model's own bounds) made it
+                block interaction/break raycasts aimed through it — e.g. looking up at an
+                NPC's Plumbob and trying to hit a block behind it just failed.
+                */
                 holder.addComponent(NetworkId.getComponentType(), new NetworkId(store.getExternalData().takeNextNetworkId()));
                 holder.ensureComponent(UUIDComponent.getComponentType());
                 

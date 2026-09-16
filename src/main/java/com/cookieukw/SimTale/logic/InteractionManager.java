@@ -146,9 +146,10 @@ public class InteractionManager {
             case ASSIGN_PROFESSION -> handleProfession(npc, playerRef, rel);
         };
 
-        // Explicit flag instead of inferring rejection from the data shape. The old check was
-        // `memoryEvent == null && friendship == 0 && affinity == 0`, which silently threw away
-        // any legitimate outcome that happened to have no friendship/affinity delta.
+        /* Explicit flag instead of inferring rejection from the data shape. The old check was
+        `memoryEvent == null && friendship == 0 && affinity == 0`, which silently threw away
+        any legitimate outcome that happened to have no friendship/affinity delta.
+        */
         if (outcome.rejected() || (type == InteractionType.ROMANTIC && outcome.affinity() < 0)) {
             if (type == InteractionType.ROMANTIC) {
                 SimTaleJuiceHelper.playFlirtReject(npc.entityRef, npc, playerRef,
@@ -203,13 +204,15 @@ public class InteractionManager {
                     }
                     if (playerRef == null) return;
 
-                    // The callback runs on a CompletableFuture worker. sendMessage touches
-                    // engine state, so it has to be handed back to the world thread.
+                    /* The callback runs on a CompletableFuture worker. sendMessage touches
+                    engine state, so it has to be handed back to the world thread.
+                    */
                     WorldUtil.execute(() ->
                             playerRef.sendMessage(Message.raw(npc.name + ": " + NpcContextBuilder.stripLeadingNameTag(aiRes.text()))));
                 })
-                // Without this, any exception inside the callback (or the HTTP call) vanished
-                // into the CompletableFuture with no trace at all.
+                /* Without this, any exception inside the callback (or the HTTP call) vanished
+                into the CompletableFuture with no trace at all.
+                */
                 .exceptionally(ex -> {
                     LOGGER.atWarning().log("SimTale: erro na resposta assincrona da IA: " + ex);
                     return null;
@@ -234,10 +237,11 @@ public class InteractionManager {
     );
 
     private static InteractionOutcome handleFunny(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, Relationship rel) {
-        // The young voices come before the rule table on purpose. Those rules branch on mood and
-        // relationship status, which are the right axes for an adult — but a nine-year-old finding
-        // a bad joke hilarious is funnier and truer than the same "ENEMIES so they scoff" line
-        // everyone else gets.
+        /* The young voices come before the rule table on purpose. Those rules branch on mood and
+        relationship status, which are the right axes for an adult — but a nine-year-old finding
+        a bad joke hilarious is funnier and truer than the same "ENEMIES so they scoff" line
+        everyone else gets.
+        */
         String youngKey = ChildDialogue.keyFor(npc, playerUuid, "joke");
         if (youngKey != null) {
             Message line = pickRandomTranslation(youngKey, YOUNG_LINE_VARIANTS, npc.name)
@@ -254,9 +258,10 @@ public class InteractionManager {
     }
 
     /** How many variants each young-voice line set ships with. */
-    // Bumped 5 -> 7 (15/09): more variety across every young voice (village child, own
-    // child/teen/adult) x both intents (chat, joke) it drives -- see the .lang files for the
-    // two new lines each.
+    /* Bumped 5 -> 7 (15/09): more variety across every young voice (village child, own
+    child/teen/adult) x both intents (chat, joke) it drives -- see the .lang files for the
+    two new lines each.
+    */
     private static final int YOUNG_LINE_VARIANTS = 12;
 
     private record RomanticContext(SimNPCComponent npc, Relationship rel, Mood mood) {}
@@ -358,8 +363,9 @@ public class InteractionManager {
     private static InteractionOutcome handleScold(SimNPCComponent npc, UUID playerUuid, Relationship rel) {
         GrowthStage stage = ParentChildBond.stageOf(npc, playerUuid);
         if (stage == null) {
-            // Not this player's child after all — the page should not have offered the button, so
-            // fall back rather than inventing a parental reaction between strangers.
+            /* Not this player's child after all — the page should not have offered the button, so
+            fall back rather than inventing a parental reaction between strangers.
+            */
             return handleMean(npc, rel);
         }
 
@@ -420,15 +426,17 @@ public class InteractionManager {
         String itemName = heldItem.getDisplayName().getAnsiMessage();
         String itemId = heldItem.getItemId().toLowerCase(Locale.ROOT);
 
-        // The real id has been guessed wrong three times over (with and without a "simtale:"
-        // prefix, CamelCase and snake_case), so log it once and stop guessing.
+        /* The real id has been guessed wrong three times over (with and without a "simtale:"
+        prefix, CamelCase and snake_case), so log it once and stop guessing.
+        */
         LOGGER.atInfo().log("SimTale: presente recebido, itemId bruto = '%s'", heldItem.getItemId());
 
-        // "Baby" must never fall into the generic gift path: it would silently delete the item
-        // (consumeHeldItemFromPlayer) and score a normal gift affinity without BabyCareManager
-        // ever seeing it, orphaning the child's custody record. Custody transfer only happens
-        // through the spouse's inventory (BabyCareManager.registerInventoryListener) or the
-        // automatic proximity swap (BabyCareTickSystem) — both points-neutral by design.
+        /* "Baby" must never fall into the generic gift path: it would silently delete the item
+        (consumeHeldItemFromPlayer) and score a normal gift affinity without BabyCareManager
+        ever seeing it, orphaning the child's custody record. Custody transfer only happens
+        through the spouse's inventory (BabyCareManager.registerInventoryListener) or the
+        automatic proximity swap (BabyCareTickSystem) — both points-neutral by design.
+        */
         if (heldItem.getItemId().equals("Baby")) {
             return InteractionOutcome.error(Message.translation("npc-dialogues.gift.baby_reject"));
         }
@@ -526,8 +534,9 @@ public class InteractionManager {
             NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) - 10f);
         }
 
-        // Feeding someone who is starving lands harder than handing over a trinket, and a hated
-        // food still helps the body while souring the mood — hence the reduced, not negative, gain.
+        /* Feeding someone who is starving lands harder than handing over a trinket, and a hated
+        food still helps the body while souring the mood — hence the reduced, not negative, gain.
+        */
         int friendship = hated ? 6 : (favorite ? 25 : 15);
         int trust = hated ? 4 : (favorite ? 15 : 10);
         int affinity = hated ? 5 : (favorite ? 30 : 18);
@@ -567,11 +576,12 @@ public class InteractionManager {
                 pickRandomTranslation("npc-dialogues.gift.accelerated", 3, npc.name).param("item", itemName), 
                 MemoryEvent.GIFTED, true);
         }
-        // The "try giving food instead" suggestion now lives inside every child_reject variant
-        // itself (pt-BR and en-US both), instead of a raw English string appended here -- that
-        // used to show literal, untranslated English text after the translated line even for
-        // pt-BR players (worse: duplicated, since the pt-BR line already said the same thing in
-        // Portuguese).
+        /* The "try giving food instead" suggestion now lives inside every child_reject variant
+        itself (pt-BR and en-US both), instead of a raw English string appended here -- that
+        used to show literal, untranslated English text after the translated line even for
+        pt-BR players (worse: duplicated, since the pt-BR line already said the same thing in
+        Portuguese).
+        */
         return InteractionOutcome.error(pickRandomTranslation("npc-dialogues.gift.child_reject", 3, npc.name));
     }
 
@@ -603,9 +613,10 @@ public class InteractionManager {
     private static final List<GiftRule> GIFT_RULES = List.of(
         new GiftRule(ctx -> isLoved(ctx), ctx -> giftOutcome(20, 12, 30, "loves", ctx)),
         new GiftRule(ctx -> isHated(ctx), ctx -> giftOutcome(-20, -15, -25, "hates", ctx)),
-        // Ranked below the explicit favorite/hated lists (those are personal and beat a generic
-        // interest) but above trash/basic, so a gardener reads seeds as a thoughtful gift
-        // instead of as filler.
+        /* Ranked below the explicit favorite/hated lists (those are personal and beat a generic
+        interest) but above trash/basic, so a gardener reads seeds as a thoughtful gift
+        instead of as filler.
+        */
         new GiftRule(ctx -> isHobbyRelated(ctx), ctx -> giftOutcome(14, 8, 22, "hobby", ctx)),
         new GiftRule(ctx -> isTrash(ctx), ctx -> giftOutcomeFlat(-15, -10, -20, "trash", ctx)),
         new GiftRule(ctx -> ctx.npc().personality.traits.contains(Trait.GREEDY),
@@ -680,8 +691,9 @@ public class InteractionManager {
             .orElseGet(() -> giftOutcome(8, 4, 15, "normal", ctx));
     }
 
-    // profName is a Message, not a String: it is a localized profession name and must render in
-    // the player's language rather than carry the enum's Portuguese label into the sentence.
+    /* profName is a Message, not a String: it is a localized profession name and must render in
+    the player's language rather than carry the enum's Portuguese label into the sentence.
+    */
     private record ProfessionContext(SimNPCComponent npc, Relationship rel, Profession targetProf, Message profName, String itemName, double roll) {}
     private record ProfessionRule(Predicate<ProfessionContext> condition, Function<ProfessionContext, InteractionOutcome> outcome) {}
 
@@ -751,17 +763,19 @@ public class InteractionManager {
 
         npc.profession = targetProf;
 
-        // Remember which kind of weapon actually earned the Guard title, so NPCGuardHelper can
-        // fight at the right range instead of always closing to melee distance. Falls back to
-        // MELEE (the field's own default) on the practically-impossible case where the item that
-        // just satisfied GUARD.matches() somehow no longer resolves to a category.
+        /* Remember which kind of weapon actually earned the Guard title, so NPCGuardHelper can
+        fight at the right range instead of always closing to melee distance. Falls back to
+        MELEE (the field's own default) on the practically-impossible case where the item that
+        just satisfied GUARD.matches() somehow no longer resolves to a category.
+        */
         if (targetProf == Profession.GUARD) {
             WeaponCategory category = WeaponCategoryRegistry.of(itemId);
             if (category != null) {
                 npc.guardWeaponCategory = category;
-                // The literal item, not just its category -- so the Guard is seen holding
-                // whatever was actually handed over (an Iron sword stays an Iron sword)
-                // instead of always a generic copper stand-in.
+                /* The literal item, not just its category -- so the Guard is seen holding
+                whatever was actually handed over (an Iron sword stays an Iron sword)
+                instead of always a generic copper stand-in.
+                */
                 npc.guardWeaponItemId = itemId;
             }
         }
@@ -906,9 +920,10 @@ public class InteractionManager {
     // --- Helpers de UI e Mensagens ---
 
     private static Message getContextualGreeting(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, Relationship rel) {
-        // Ahead of every contextual rule below, which are all written for adults: they check the
-        // player's health, recent insults, what happened to a friend. A small child does not open
-        // with any of that — she opens with whatever she is looking at.
+        /* Ahead of every contextual rule below, which are all written for adults: they check the
+        player's health, recent insults, what happened to a friend. A small child does not open
+        with any of that — she opens with whatever she is looking at.
+        */
         String youngKey = ChildDialogue.keyFor(npc, playerUuid, "chat");
         if (youngKey != null) {
             return pickRandomTranslation(youngKey, YOUNG_LINE_VARIANTS, npc.name)
@@ -928,8 +943,9 @@ public class InteractionManager {
                     }
                 }
             } catch (RuntimeException ignored) {
-                // Stat lookup is best-effort; catching Throwable here also swallowed
-                // OutOfMemoryError/StackOverflowError and any Error thrown by the engine.
+                /* Stat lookup is best-effort; catching Throwable here also swallowed
+                OutOfMemoryError/StackOverflowError and any Error thrown by the engine.
+                */
             }
 
             World world = WorldUtil.first();

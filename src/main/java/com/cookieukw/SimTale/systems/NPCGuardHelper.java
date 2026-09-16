@@ -95,19 +95,22 @@ public class NPCGuardHelper {
 
         if (npc.profession != Profession.GUARD) return;
 
-        // A child guard would patrol the perimeter looking for skeletons at roughly half height.
-        // The job stays hers; she just starts doing it at TEEN.
+        /* A child guard would patrol the perimeter looking for skeletons at roughly half height.
+        The job stays hers; she just starts doing it at TEEN.
+        */
         if (!WorkEligibility.canWork(npc)) return;
 
-        // Every tick, not just on the scan cadence: cheap (both helpers below bail out
-        // immediately once the weapon already matches), and a guard that just got promoted
-        // or switched category should not wait up to a second empty-handed before it shows.
+        /* Every tick, not just on the scan cadence: cheap (both helpers below bail out
+        immediately once the weapon already matches), and a guard that just got promoted
+        or switched category should not wait up to a second empty-handed before it shows.
+        */
         ensureWeaponEquipped(ref, npc, store);
 
         if (ai.currentTask == TaskType.IDLE) {
-            // Staggered per guard rather than on a shared tick boundary: every guard checking on
-            // the same tick meant the whole squad's work landed in one frame, which is the shape
-            // that produces a visible hitch even when the total work is modest.
+            /* Staggered per guard rather than on a shared tick boundary: every guard checking on
+            the same tick meant the whole squad's work landed in one frame, which is the shape
+            that produces a visible hitch even when the total work is modest.
+            */
             if (!ai.forcedByDebug && (world.getTick() + guardPhase(npc)) % GUARD_SCAN_PERIOD_TICKS != 0) {
                 return;
             }
@@ -122,12 +125,13 @@ public class NPCGuardHelper {
                 return;
             }
 
-            // Nothing to fight: walk the village edge instead of standing still.
-            //
-            // The perimeter is where the threats arrive from, so patrolling it puts the guard's
-            // scan radius over the frontier rather than over the middle of town, where it overlaps
-            // everyone else's. It also gives the village a visible garrison, which is most of the
-            // point of having guards at all.
+            /* Nothing to fight: walk the village edge instead of standing still.
+
+            The perimeter is where the threats arrive from, so patrolling it puts the guard's
+            scan radius over the frontier rather than over the middle of town, where it overlaps
+            everyone else's. It also gives the village a visible garrison, which is most of the
+            point of having guards at all.
+            */
             patrolPerimeter(ref, npc, ai, transform, world, store);
             return;
         }
@@ -158,8 +162,9 @@ public class NPCGuardHelper {
             double dx = hostileTransform.getPosition().x - pos.x;
             double dz = hostileTransform.getPosition().z - pos.z;
             double distSq = dx * dx + dz * dz;
-            // A ranged Guard stops well short of melee range instead of walking into the
-            // hostile's face — a bow held at 2.5 blocks reads as broken, not as combat.
+            /* A ranged Guard stops well short of melee range instead of walking into the
+            hostile's face — a bow held at 2.5 blocks reads as broken, not as combat.
+            */
             double engageRangeSq = npc.guardWeaponCategory == WeaponCategory.RANGED
                     ? RANGED_RANGE_SQ : MELEE_RANGE_SQ;
             if (distSq <= engageRangeSq) {
@@ -186,13 +191,15 @@ public class NPCGuardHelper {
 
             if (world.getTick() - ai.taskStartTime == 1) {
                 if (npc.guardWeaponCategory == WeaponCategory.RANGED) {
-                    // No dedicated aim/draw animation available either — reusing the same
-                    // "look around" flavor clip the routine already has on hand beats standing
-                    // in the melee "Smith" pose while visibly holding a bow or gun.
+                    /* No dedicated aim/draw animation available either — reusing the same
+                    "look around" flavor clip the routine already has on hand beats standing
+                    in the melee "Smith" pose while visibly holding a bow or gun.
+                    */
                     NPCMovementHelper.playAnim(ref, "Characters/Animations/Flavor/Look_Around.blockyanim", "LookAround", store);
                 } else {
-                    // No dedicated sword-swing animation available — same "Smith" stand-in the other
-                    // professions reuse for "NPC is doing manual work at a fixed spot".
+                    /* No dedicated sword-swing animation available — same "Smith" stand-in the other
+                    professions reuse for "NPC is doing manual work at a fixed spot".
+                    */
                     NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Smith.blockyanim", "Smith", store);
                 }
             }
@@ -297,9 +304,10 @@ public class NPCGuardHelper {
      * the guard is holding the right thing, so this is safe to call unconditionally every tick.
      */
     private static void ensureWeaponEquipped(Ref<EntityStore> ref, SimNPCComponent npc, Store<EntityStore> store) {
-        // Prefer the exact item that promoted this NPC to Guard (an Iron sword shows up as an
-        // Iron sword) -- the category-based stand-in only covers saves from before
-        // guardWeaponItemId existed, or the practically-impossible case where it was cleared.
+        /* Prefer the exact item that promoted this NPC to Guard (an Iron sword shows up as an
+        Iron sword) -- the category-based stand-in only covers saves from before
+        guardWeaponItemId existed, or the practically-impossible case where it was cleared.
+        */
         String itemId = npc.guardWeaponItemId != null && !npc.guardWeaponItemId.isEmpty()
                 ? npc.guardWeaponItemId : weaponItemIdFor(npc.guardWeaponCategory);
         if (InventoryHelper.setHotbarItem(ref, itemId, (byte) 0, store)) {
@@ -362,8 +370,9 @@ public class NPCGuardHelper {
         VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
         if (village == null) return;
 
-        // Start the circuit where the guard already stands, so it does not march across town to
-        // reach an arbitrary "stop one".
+        /* Start the circuit where the guard already stands, so it does not march across town to
+        reach an arbitrary "stop one".
+        */
         if (ai.patrolAngle == 0) {
             ai.patrolAngle = Math.atan2(pos.z - village.centerZ(), pos.x - village.centerX());
         }

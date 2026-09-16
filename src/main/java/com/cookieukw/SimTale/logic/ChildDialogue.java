@@ -53,8 +53,9 @@ public final class ChildDialogue {
             return switch (stage) {
                 case TEEN -> Voice.OWN_TEEN;
                 case ADULT -> Voice.OWN_ADULT;
-                // BABY and TODDLER cannot open this panel, but if they ever do, the child voice is
-                // the right one — certainly more right than an adult's.
+                /* BABY and TODDLER cannot open this panel, but if they ever do, the child voice is
+                the right one — certainly more right than an adult's.
+                */
                 default -> Voice.OWN_CHILD;
             };
         }

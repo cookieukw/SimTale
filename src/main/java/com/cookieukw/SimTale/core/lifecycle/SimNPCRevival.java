@@ -75,8 +75,9 @@ public final class SimNPCRevival {
             return new Result(null, Failure.NO_RECORD, false);
         }
 
-        // Spawn by the recorded gender so the model matches who she was, rather than rolling a new
-        // one and reviving someone visibly different from the person who died.
+        /* Spawn by the recorded gender so the model matches who she was, rather than rolling a new
+        one and reviving someone visibly different from the person who died.
+        */
         SimNPCFactory.NPCType type = data.gender == Gender.MALE
                 ? SimNPCFactory.NPCType.HUMAN_MALE
                 : SimNPCFactory.NPCType.HUMAN_FEMALE;
@@ -96,15 +97,17 @@ public final class SimNPCRevival {
 
         UUID newId = npc.entityId;
 
-        // The bed is handled separately below, so the restore must not quietly re-register the old
-        // one as if it were still hers. Everything else about her comes back untouched.
+        /* The bed is handled separately below, so the restore must not quietly re-register the old
+        one as if it were still hers. Everything else about her comes back untouched.
+        */
         SimBedData.BedPos oldBed = data.bedLocation;
         data.bedLocation = null;
         SimNPCPersistence.applyArchivedData(npc, data);
         data.bedLocation = oldBed;
 
-        // The nameplate was stamped with the random name the factory rolled, before the real name
-        // was restored over it.
+        /* The nameplate was stamped with the random name the factory rolled, before the real name
+        was restored over it.
+        */
         SimNPCFactory.refreshNameplate(store, ref, npc.name);
 
         remapReferences(graveId, newId);

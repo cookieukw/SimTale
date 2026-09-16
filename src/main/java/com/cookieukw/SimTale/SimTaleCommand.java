@@ -249,14 +249,15 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
-            // O asset de fantasia aponta "Parent" para o id ESPECIFICO desta NPC (nao para uma
-            // base generica), gerado por scripts/generate_costume_assets.py em
-            // Server/Models/Events/Generated/<currentId>_<evento>.json -- assim a NPC mantem a
-            // propria cara (cabelo/rosto/roupa unicos dela) em vez de virar visualmente
-            // identica a qualquer outra NPC fantasiada. Ver docs/experimentos.md, secao "a
-            // limitacao de 'trocar o modelo inteiro'" (13/09). Mesma logica de aplicar/reverter
-            // usada pelo gatilho automatico de calendario em SeasonalCostumeHelper, entao os
-            // dois nunca ficam com um estado diferente do que a NPC realmente esta vestindo.
+            /* O asset de fantasia aponta "Parent" para o id ESPECIFICO desta NPC (nao para uma
+            base generica), gerado por scripts/generate_costume_assets.py em
+            Server/Models/Events/Generated/<currentId>_<evento>.json -- assim a NPC mantem a
+            propria cara (cabelo/rosto/roupa unicos dela) em vez de virar visualmente
+            identica a qualquer outra NPC fantasiada. Ver docs/experimentos.md, secao "a
+            limitacao de 'trocar o modelo inteiro'" (13/09). Mesma logica de aplicar/reverter
+            usada pelo gatilho automatico de calendario em SeasonalCostumeHelper, entao os
+            dois nunca ficam com um estado diferente do que a NPC realmente esta vestindo.
+            */
             boolean ok = SeasonalCostumeHelper.applyCostume(store, npcRef, nearestNPC, suffix);
             ctx.sendMessage(Message.raw(ok
                     ? "[SimTale] " + nearestNPC.name + " dressed for event '" + evento + "'. Use '/simtale costume off' to undo."
@@ -284,9 +285,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.translation("general.cmd.spawn.error").param("type", "SLOTHIAN/TRORK/HUMAN_MALE/HUMAN_FEMALE/CHILD_MALE/CHILD_FEMALE"));
                 return;
             }
-            // The Reaper is ephemeral now — spawned automatically for a specific death and
-            // removed once the ritual finishes (RoutineAISystem's DYING->DEAD transition), not a
-            // standing NPC the player summons ahead of time.
+            /* The Reaper is ephemeral now — spawned automatically for a specific death and
+            removed once the ritual finishes (RoutineAISystem's DYING->DEAD transition), not a
+            standing NPC the player summons ahead of time.
+            */
             if (type == SimNPCFactory.NPCType.REAPER) {
                 ctx.sendMessage(Message.raw("[SimTale] The Reaper can no longer be summoned manually -- he appears automatically when an NPC dies."));
                 return;
@@ -298,8 +300,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("Could not get your position."));
                 return;
             }
-            // Copied first: joml's add mutates in place, so offsetting the live transform vector
-            // teleports the player instead of picking a spot beside them.
+            /* Copied first: joml's add mutates in place, so offsetting the live transform vector
+            teleports the player instead of picking a spot beside them.
+            */
             Vector3d pos = new Vector3d(transform.getPosition()).add(2, 0, 2);
 
             Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
@@ -404,22 +407,24 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     count++;
                 }
                 PlumbobSystem.removePlumbob(npc.entityId);
-                // Buried, not deleted. Everything the Reaper collects ends up in the graveyard and
-                // can be brought back; clearing the village by command used to be the one way to
-                // destroy an NPC outright, which made it a trap — one command and a whole village
-                // of histories was gone with no way back.
+                /* Buried, not deleted. Everything the Reaper collects ends up in the graveyard and
+                can be brought back; clearing the village by command used to be the one way to
+                destroy an NPC outright, which made it a trap — one command and a whole village
+                of histories was gone with no way back.
+                */
                 SimNPCPersistence.archiveToGraveyard(npc.entityId);
             }
             SimTale.clearActiveNpcs();
 
-            // Sweep the database as well. Removing the entities is not enough: records for NPCs
-            // that are not currently tracked (unloaded chunks, entities already gone, leftovers
-            // from earlier sessions) would otherwise survive and be resurrected. This used to be
-            // guaranteed to leak, because Caskara.delete() targeted the "default" shell while
-            // the records live in "simtale".
-            //
-            // Archived first, one by one, so the untracked ones reach the graveyard too instead of
-            // being the only NPCs the command can still destroy for good.
+            /* Sweep the database as well. Removing the entities is not enough: records for NPCs
+            that are not currently tracked (unloaded chunks, entities already gone, leftovers
+            from earlier sessions) would otherwise survive and be resurrected. This used to be
+            guaranteed to leak, because Caskara.delete() targeted the "default" shell while
+            the records live in "simtale".
+
+            Archived first, one by one, so the untracked ones reach the graveyard too instead of
+            being the only NPCs the command can still destroy for good.
+            */
             for (SimNPCData data : SimNPCPersistence.listAll()) {
                 if (data.id == null) continue;
                 try {
@@ -464,8 +469,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("Could not get your position."));
                 return;
             }
-            // Copied first: joml's add mutates in place, so offsetting the live transform vector
-            // teleports the player instead of picking a spot beside them.
+            /* Copied first: joml's add mutates in place, so offsetting the live transform vector
+            teleports the player instead of picking a spot beside them.
+            */
             Vector3d pos = new Vector3d(transform.getPosition()).add(2, 0, 2);
 
             Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
@@ -691,9 +697,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             SimNPCComponent nearestNPC = null;
             double minDistance = Double.MAX_VALUE;
 
-            // NPCWorkHelper.handleWorkLogic only ever reacts to this trigger for Farmer/Hunter/
-            // Fisherman (systems/NPCWorkHelper.java:121) — every other profession picked here
-            // would set the debug flag on an NPC nothing ever reads it from, and silently do nothing.
+            /* NPCWorkHelper.handleWorkLogic only ever reacts to this trigger for Farmer/Hunter/
+            Fisherman (systems/NPCWorkHelper.java:121) — every other profession picked here
+            would set the debug flag on an NPC nothing ever reads it from, and silently do nothing.
+            */
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
                 if (npc.entityRef != null && npc.entityRef.isValid()
                         && (npc.profession == Profession.FARMER
@@ -725,10 +732,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ai.forcedByDebug = true;
                 ai.taskStartTime = world.getTick();
                 store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
-                // The actual scan (deposit-if-carrying, then harvest-or-plant / hunt) runs on
-                // NPCWorkHelper's next tick, not synchronously here, so this can't promise it found
-                // something — only that the check will run immediately instead of on its normal
-                // 100-tick stagger.
+                /* The actual scan (deposit-if-carrying, then harvest-or-plant / hunt) runs on
+                NPCWorkHelper's next tick, not synchronously here, so this can't promise it found
+                something — only that the check will run immediately instead of on its normal
+                100-tick stagger.
+                */
                 ctx.sendMessage(Message.raw(nearestNPC.name + " (" + nearestNPC.profession.name()
                     + ") will check for work on next tick -- will only have a visible effect if "
                     + "harvesting/planting/hunting/fishing/woodcutting is available nearby."));
@@ -876,9 +884,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
-            // Ensure they have seeds. Goes through NPCWorkHelper.getInventory rather than reading
-            // the Storage component directly — it self-heals NPCs still carrying the engine's
-            // default zero-capacity EmptyItemContainer (see NPCWorkHelper.getInventory).
+            /* Ensure they have seeds. Goes through NPCWorkHelper.getInventory rather than reading
+            the Storage component directly — it self-heals NPCs still carrying the engine's
+            default zero-capacity EmptyItemContainer (see NPCWorkHelper.getInventory).
+            */
             ItemContainer inv = NPCWorkHelper.getInventory(store, nearestNPC.entityRef);
             if (inv != null) {
                 String seed = NPCWorkHelper.findSeedInInventory(inv);
@@ -912,9 +921,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 TransformComponent npcTransform = store.getComponent(nearestNPC.entityRef, TransformComponent.getComponentType());
                 Vector3d npcPos = npcTransform.getPosition();
 
-                // Same registered-plot lookup handleWorkLogic uses: a Deco_Scarecrow lets her
-                // find farmland from anywhere, not just within scanning range of where she's
-                // standing right now.
+                /* Same registered-plot lookup handleWorkLogic uses: a Deco_Scarecrow lets her
+                find farmland from anywhere, not just within scanning range of where she's
+                standing right now.
+                */
                 FarmPostRegistry.FarmPost claimedPost =
                         FarmPostRegistry.claimNearest(npcPos.x, npcPos.y, npcPos.z, nearestNPC.entityId);
                 Vector3d scanCenter = claimedPost != null

@@ -162,9 +162,10 @@ public final class ChildCarryHelper {
             return false;
         }
 
-        // Where this one goes: on the shoulders if she is the first, on the previous child's
-        // shoulders otherwise. Counting the existing stack is what turns "three children occupying
-        // the same point" into a tower.
+        /* Where this one goes: on the shoulders if she is the first, on the previous child's
+        shoulders otherwise. Counting the existing stack is what turns "three children occupying
+        the same point" into a tower.
+        */
         List<SimNPCComponent> existingStack = carriedBy(store, carrier);
         int alreadyCarried = existingStack.size();
         if (alreadyCarried >= MAX_STACK) {
@@ -173,14 +174,15 @@ public final class ChildCarryHelper {
             return false;
         }
 
-        // Stacked on the ACTUAL height of the child she is landing on, not a one-size-fits-all
-        // step. A fixed STACK_STEP looked right only when every rider happened to be the same
-        // growth stage: mix a Toddler (scale 0.50) under a Child (0.70) and the fixed gap either
-        // buried one in the other or left a visible gap under the next one's feet — "só o primeiro
-        // fica encaixado, os outros flutuam acima da cabeça" is exactly a constant gap failing to
-        // track a variable height. PARKED_BOXES is read here, not each child's live BoundingBox,
-        // because a child already in the stack has hers hollowed to Box.ZERO for exactly the
-        // reason documented on that map above.
+        /* Stacked on the ACTUAL height of the child she is landing on, not a one-size-fits-all
+        step. A fixed STACK_STEP looked right only when every rider happened to be the same
+        growth stage: mix a Toddler (scale 0.50) under a Child (0.70) and the fixed gap either
+        buried one in the other or left a visible gap under the next one's feet — "só o primeiro
+        fica encaixado, os outros flutuam acima da cabeça" is exactly a constant gap failing to
+        track a variable height. PARKED_BOXES is read here, not each child's live BoundingBox,
+        because a child already in the stack has hers hollowed to Box.ZERO for exactly the
+        reason documented on that map above.
+        */
         final float ridingHeight;
         if (alreadyCarried == 0) {
             ridingHeight = SHOULDER_HEIGHT;
@@ -192,120 +194,129 @@ public final class ChildCarryHelper {
             ridingHeight = belowTop + belowHeight;
         }
 
-        // The routine has to stand down first. A carried child still ticks, and an AI that keeps
-        // setting leash points and walking states while its body is pinned to someone's shoulders
-        // is how an NPC ends up sliding along the floor — the exact failure mode that took a whole
-        // session to diagnose the first time.
+        /* The routine has to stand down first. A carried child still ticks, and an AI that keeps
+        setting leash points and walking states while its body is pinned to someone's shoulders
+        is how an NPC ends up sliding along the floor — the exact failure mode that took a whole
+        session to diagnose the first time.
+        */
         RoutineAIComponent ai = store.getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
         if (ai != null) {
             NPCMovementHelper.clearMoveTarget(npc.entityRef, ai);
             ai.currentTask = RoutineAIComponent.TaskType.IDLE;
         }
 
-        // Structural write from inside an interaction's processing window — deferred like every
-        // other one in this project.
-        // Built through the constructor, not by mutating: every field on MountedComponent is
-        // private and there are no setters, so the three-arg constructor is the only way in.
-        //
-        // MountController.Minecart is the entity-mount controller — the enum has exactly two
-        // values, and the other one (BlockMount) is for chairs and beds. It normally means "the
-        // rider steers", which is harmless here because the rider is an NPC with no input at all.
-        //
-        // Confirmed safe via bytecode (testing_checklist.md #21): MountSystems$HandleMountInput —
-        // the only system that reads a rider's movement input — has an AND query requiring BOTH
-        // MountedComponent and PlayerInput on the SAME entity to tick at all. The child here only
-        // ever gets MountedComponent; she has no PlayerInput component (only real players do), so
-        // this system's query never matches her and its tick() body — the part that would read a
-        // movement-update queue and act on it — never runs for her, regardless of controller type.
-        // There is no live minecart entity in between either: `carrier` below is the player's own
-        // Ref, not a spawned vehicle.
+        /* Structural write from inside an interaction's processing window — deferred like every
+        other one in this project.
+        Built through the constructor, not by mutating: every field on MountedComponent is
+        private and there are no setters, so the three-arg constructor is the only way in.
+
+        MountController.Minecart is the entity-mount controller — the enum has exactly two
+        values, and the other one (BlockMount) is for chairs and beds. It normally means "the
+        rider steers", which is harmless here because the rider is an NPC with no input at all.
+
+        Confirmed safe via bytecode (testing_checklist.md #21): MountSystems$HandleMountInput —
+        the only system that reads a rider's movement input — has an AND query requiring BOTH
+        MountedComponent and PlayerInput on the SAME entity to tick at all. The child here only
+        ever gets MountedComponent; she has no PlayerInput component (only real players do), so
+        this system's query never matches her and its tick() body — the part that would read a
+        movement-update queue and act on it — never runs for her, regardless of controller type.
+        There is no live minecart entity in between either: `carrier` below is the player's own
+        Ref, not a spawned vehicle.
+        */
         final Ref<EntityStore> childRef = npc.entityRef;
         WorldUtil.execute(() -> {
-            // This check existed already, but until now a failure here failed SILENTLY while
-            // the caller had already sent "picked up" and set her mood HAPPY, both unconditional,
-            // both synchronous, both already gone through before this deferred block even runs.
-            // The gap between "pickUp() was called" and "this lambda actually executes" is a real
-            // window — a growth-stage promotion (CHILD -> TEEN) firing in between removes exactly
-            // this childRef, since it respawns her under a new entity — and a player who picked up
-            // a child right as she aged out from under them got told it worked, watched her mood
-            // go happy, and then nothing happened: no one ever appeared on their shoulders. Moving
-            // the outcome-dependent parts here, behind the SAME check that was already guarding
-            // the mount itself, is what makes the message finally match reality.
+            /* This check existed already, but until now a failure here failed SILENTLY while
+            the caller had already sent "picked up" and set her mood HAPPY, both unconditional,
+            both synchronous, both already gone through before this deferred block even runs.
+            The gap between "pickUp() was called" and "this lambda actually executes" is a real
+            window — a growth-stage promotion (CHILD -> TEEN) firing in between removes exactly
+            this childRef, since it respawns her under a new entity — and a player who picked up
+            a child right as she aged out from under them got told it worked, watched her mood
+            go happy, and then nothing happened: no one ever appeared on their shoulders. Moving
+            the outcome-dependent parts here, behind the SAME check that was already guarding
+            the mount itself, is what makes the message finally match reality.
+            */
             if (!childRef.isValid() || !carrier.isValid()) return;
             MountedComponent mounted = new MountedComponent(
                     carrier, new Vector3f(0f, ridingHeight, 0f), MountController.Minecart);
             store.putComponent(childRef, MountedComponent.getComponentType(), mounted);
 
-            // Her collision box has to stop catching hits while she is up there — but the
-            // component itself has to stay. Riding on your shoulders puts her hitbox right where
-            // your own attack and block raycasts start, so every swing and every mined block hit
-            // the child instead; that part is the same lesson the plumbob taught, anything parked
-            // in front of the player's camera must not carry a real hitbox. What the plumbob's
-            // lesson missed is that she is not a decorative prop like the crystal — she is a real,
-            // still-ticking NPC role, and the engine's own movement AI
-            // (BodyMotionFindWithTarget.canComputeMotion) reads her BoundingBox component
-            // unconditionally on every tick it processes her, with no null check surviving into a
-            // release build. Removing the component outright (the previous version of this code)
-            // left that engine system dereferencing null the next time it ticked her — a bare
-            // NullPointerException, most visibly the moment a growth promotion fired on a carried
-            // child a tick later. Shrinking the box in place with setBoundingBox keeps the
-            // component non-null (assign() mutates the existing Box object, it is never replaced)
-            // while making it a zero-volume box nothing can hit. The real shape is cloned into
-            // PARKED_BOXES first so put down — and stacking a second child on her, see pickUp's
-            // ridingHeight above — can still see her actual size.
+            /* Her collision box has to stop catching hits while she is up there — but the
+            component itself has to stay. Riding on your shoulders puts her hitbox right where
+            your own attack and block raycasts start, so every swing and every mined block hit
+            the child instead; that part is the same lesson the plumbob taught, anything parked
+            in front of the player's camera must not carry a real hitbox. What the plumbob's
+            lesson missed is that she is not a decorative prop like the crystal — she is a real,
+            still-ticking NPC role, and the engine's own movement AI
+            (BodyMotionFindWithTarget.canComputeMotion) reads her BoundingBox component
+            unconditionally on every tick it processes her, with no null check surviving into a
+            release build. Removing the component outright (the previous version of this code)
+            left that engine system dereferencing null the next time it ticked her — a bare
+            NullPointerException, most visibly the moment a growth promotion fired on a carried
+            child a tick later. Shrinking the box in place with setBoundingBox keeps the
+            component non-null (assign() mutates the existing Box object, it is never replaced)
+            while making it a zero-volume box nothing can hit. The real shape is cloned into
+            PARKED_BOXES first so put down — and stacking a second child on her, see pickUp's
+            ridingHeight above — can still see her actual size.
+            */
             BoundingBox box = store.getComponent(childRef, BoundingBox.getComponentType());
             if (box != null && npc.entityId != null) {
                 PARKED_BOXES.put(npc.entityId, box.getBoundingBox().clone());
-                // NOT Box.ZERO. Confirmed in game (12/09): with an exactly-zero box, the carried
-                // child stopped rendering entirely — invisible the whole time she was mounted,
-                // reappearing only on put down, at the frozen position her plumbob had been stuck
-                // at the whole time. This engine has no real invisibility flag at all — the
-                // expedition system (see SimTaleMarkerProvider's own comment on it) already learned
-                // that lesson and works around it with scale 0.001, deliberately never exactly 0,
-                // for what is presumably this same reason: something in the client's render/attach
-                // math treats a truly zero-size box as "nothing to draw" rather than "draw a very
-                // small thing here". HOLLOW_BOX is that same 0.001-style epsilon applied to the
-                // collision box instead of scale — small enough that no melee swing or mining
-                // raycast can practically land inside it, without being the exact zero that broke
-                // rendering.
+                /* NOT Box.ZERO. Confirmed in game (12/09): with an exactly-zero box, the carried
+                child stopped rendering entirely — invisible the whole time she was mounted,
+                reappearing only on put down, at the frozen position her plumbob had been stuck
+                at the whole time. This engine has no real invisibility flag at all — the
+                expedition system (see SimTaleMarkerProvider's own comment on it) already learned
+                that lesson and works around it with scale 0.001, deliberately never exactly 0,
+                for what is presumably this same reason: something in the client's render/attach
+                math treats a truly zero-size box as "nothing to draw" rather than "draw a very
+                small thing here". HOLLOW_BOX is that same 0.001-style epsilon applied to the
+                collision box instead of scale — small enough that no melee swing or mining
+                raycast can practically land inside it, without being the exact zero that broke
+                rendering.
+                */
                 box.setBoundingBox(HOLLOW_BOX);
             }
 
-            // Being carried by a parent is a happy thing. Without this the mood kept decaying
-            // while she rode along, and the plumbob overhead settled on BORED — which reads as
-            // the game telling you the child hates being picked up.
+            /* Being carried by a parent is a happy thing. Without this the mood kept decaying
+            while she rode along, and the plumbob overhead settled on BORED — which reads as
+            the game telling you the child hates being picked up.
+            */
             npc.setEmotion(Mood.HAPPY, 0.7f, "carried", WorldUtil.tick());
 
             carrierRef.sendMessage(Message.translation(
                             alreadyCarried > 0 ? "npc-dialogues.carry.stacked" : "npc-dialogues.carry.picked_up")
                     .param("name", npc.name));
-            // Said at the moment it becomes relevant, and only for the first child: a gesture
-            // nobody is told about is a mechanic that does not exist, but repeating it up a
-            // three-child tower is just noise.
+            /* Said at the moment it becomes relevant, and only for the first child: a gesture
+            nobody is told about is a mechanic that does not exist, but repeating it up a
+            three-child tower is just noise.
+            */
             if (alreadyCarried == 0) {
                 carrierRef.sendMessage(Message.translation("npc-dialogues.carry.hint"));
             }
             LOGGER.info("[SimTale] {} foi pega no colo", npc.name);
         });
 
-        // Freeze plus stop the action animation.
-        //
-        // Standing the routine down is not enough on its own: the Hytale role keeps running its own
-        // Idle instructions underneath, which is what kept a carried child walking on the spot and
-        // turning to look around while pinned to a shoulder. This is the same pair the dialogue
-        // lock already uses for exactly the same reason.
-        //
-        // Left unconditional and outside the deferred block above (unlike the mount itself): if
-        // the race described above does invalidate childRef a moment later, this entity is being
-        // deleted anyway as part of that same promotion, so freezing/stopping it first changes
-        // nothing observable — there is no risk of leaving a stray NPC stuck frozen with nobody
-        // ever having actually picked her up.
+        /* Freeze plus stop the action animation.
+
+        Standing the routine down is not enough on its own: the Hytale role keeps running its own
+        Idle instructions underneath, which is what kept a carried child walking on the spot and
+        turning to look around while pinned to a shoulder. This is the same pair the dialogue
+        lock already uses for exactly the same reason.
+
+        Left unconditional and outside the deferred block above (unlike the mount itself): if
+        the race described above does invalidate childRef a moment later, this entity is being
+        deleted anyway as part of that same promotion, so freezing/stopping it first changes
+        nothing observable — there is no risk of leaving a stray NPC stuck frozen with nobody
+        ever having actually picked her up.
+        */
         NpcFreezeUtil.freeze(store, npc.entityRef);
         AnimationUtils.stopAnimation(npc.entityRef, AnimationSlot.Action, true, store);
         AnimationUtils.stopAnimation(npc.entityRef, AnimationSlot.Status, true, store);
 
-        // Queued after the freeze, which defers itself the same way, so the settle is the last
-        // word on her pose.
+        /* Queued after the freeze, which defers itself the same way, so the settle is the last
+        word on her pose.
+        */
         WorldUtil.execute(() -> {
             if (childRef.isValid()) {
                 settleMovementStates(store, childRef);
@@ -331,31 +342,34 @@ public final class ChildCarryHelper {
             if (childRef != null && childRef.isValid()) {
                 store.tryRemoveComponent(childRef, MountedComponent.getComponentType());
 
-                // Her hitbox comes back, or she stays permanently unhittable and walks through
-                // things. The component was never removed (see PARKED_BOXES's javadoc for why),
-                // only shrunk to Box.ZERO in place, so restoring is the same in-place write back —
-                // never a putComponent, which would mean adding back a component that was never
-                // actually gone.
+                /* Her hitbox comes back, or she stays permanently unhittable and walks through
+                things. The component was never removed (see PARKED_BOXES's javadoc for why),
+                only shrunk to Box.ZERO in place, so restoring is the same in-place write back —
+                never a putComponent, which would mean adding back a component that was never
+                actually gone.
+                */
                 BoundingBox box = store.getComponent(childRef, BoundingBox.getComponentType());
                 Box parked = carried.entityId != null ? PARKED_BOXES.remove(carried.entityId) : null;
                 if (box != null && parked != null) {
                     box.setBoundingBox(parked);
                 }
 
-                // Unfreezing has to happen here, not before the deferral: dropping Frozen while the
-                // mount is still attached would let the role start steering a body that is still
-                // pinned, which is the sliding-NPC failure again.
+                /* Unfreezing has to happen here, not before the deferral: dropping Frozen while the
+                mount is still attached would let the role start steering a body that is still
+                pinned, which is the sliding-NPC failure again.
+                */
                 NpcFreezeUtil.unfreeze(store, childRef);
             }
 
-            // Close the gap the departure left.
-            //
-            // Nobody is standing on anybody: each child is mounted to the *player* at an absolute
-            // height, so removing one does not bring the others down and does not shuffle them
-            // along either — it leaves a hole, and the rest keep floating exactly where they were.
-            // Normally the one leaving is the top one and there is no hole to close, but a child
-            // can also leave from the middle without asking: growing a stage respawns her body, and
-            // the mount goes with the old entity.
+            /* Close the gap the departure left.
+
+            Nobody is standing on anybody: each child is mounted to the *player* at an absolute
+            height, so removing one does not bring the others down and does not shuffle them
+            along either — it leaves a hole, and the rest keep floating exactly where they were.
+            Normally the one leaving is the top one and there is no hole to close, but a child
+            can also leave from the middle without asking: growing a stage respawns her body, and
+            the mount goes with the old entity.
+            */
             reseat(store, carrier);
         });
 
@@ -378,10 +392,11 @@ public final class ChildCarryHelper {
      */
     public static void reseat(Store<EntityStore> store, Ref<EntityStore> carrier) {
         List<SimNPCComponent> stack = carriedBy(store, carrier);
-        // Same running-height logic as pickUp's ridingHeight: each seat sits on the actual height
-        // of whoever is riding just below it, not a fixed multiple of i. A fixed step re-seated a
-        // mixed-stage tower onto heights nobody was actually occupying the moment the child in the
-        // middle of it left (the exact case this method exists for).
+        /* Same running-height logic as pickUp's ridingHeight: each seat sits on the actual height
+        of whoever is riding just below it, not a fixed multiple of i. A fixed step re-seated a
+        mixed-stage tower onto heights nobody was actually occupying the moment the child in the
+        middle of it left (the exact case this method exists for).
+        */
         float nextHeight = SHOULDER_HEIGHT;
         for (SimNPCComponent npc : stack) {
             if (npc.entityRef == null || !npc.entityRef.isValid()) continue;
@@ -550,8 +565,9 @@ public final class ChildCarryHelper {
      */
     private static SimNPCComponent findCarriedBy(Store<EntityStore> store, Ref<EntityStore> carrier) {
         List<SimNPCComponent> stack = carriedBy(store, carrier);
-        // The one on top comes off first — taking someone out of the middle would leave the rest
-        // floating a step above nothing.
+        /* The one on top comes off first — taking someone out of the middle would leave the rest
+        floating a step above nothing.
+        */
         return stack.isEmpty() ? null : stack.get(stack.size() - 1);
     }
 

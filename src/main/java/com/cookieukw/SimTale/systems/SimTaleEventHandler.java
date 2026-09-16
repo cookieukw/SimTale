@@ -58,14 +58,15 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
     @Override
     public void accept(PlayerMouseButtonEvent event) {
-        // Logged before the Right+Pressed filter below, unconditionally, for every single mouse
-        // button event this handler is ever handed. Every diagnostic added for the crouch+click
-        // release gesture so far sits AFTER that filter, so if the client sends something other
-        // than exactly (Right, Pressed) while the player is crouching -- a different
-        // MouseButtonType, a Held/Repeat state instead of Pressed, or nothing at all -- every one
-        // of those logs stays silent and looks identical to "the event never fired". This line is
-        // the only way to tell those two apart: it fires on literally anything this handler
-        // receives, filtered or not.
+        /* Logged before the Right+Pressed filter below, unconditionally, for every single mouse
+        button event this handler is ever handed. Every diagnostic added for the crouch+click
+        release gesture so far sits AFTER that filter, so if the client sends something other
+        than exactly (Right, Pressed) while the player is crouching -- a different
+        MouseButtonType, a Held/Repeat state instead of Pressed, or nothing at all -- every one
+        of those logs stays silent and looks identical to "the event never fired". This line is
+        the only way to tell those two apart: it fires on literally anything this handler
+        receives, filtered or not.
+        */
         LOGGER.atInfo().log("SimTale Debug: PlayerMouseButtonEvent received - button=" +
                 (event.getMouseButton() == null ? "null" : event.getMouseButton().mouseButtonType
                         + "/" + event.getMouseButton().state));
@@ -87,26 +88,28 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         PlayerRef playerRefComp = playerAccessor.getComponent(playerRef, Universe.get().getPlayerRefComponentType());
         if (playerRefComp == null) return;
 
-        // Crouch + right-click anywhere puts down a carried child (testing_checklist.md #21).
-        // This used to live on ChildPutDownSystem/UseBlockEvent.Pre instead, which only fires
-        // when the click actually lands on a block — so crouching and clicking into open air
-        // (no block in range) did nothing, and there was no way to get the child off your
-        // shoulders in the open. It was never moved here because, at the time, this whole
-        // handler was believed dead (see the stale comment below, from before the
-        // .register()/.registerGlobal() fix a few lines up in SimTale.java) — but this handler
-        // demonstrably runs now (it is what places the Baby item and confirms blueprints, both
-        // below), so the crouch gesture belongs here, not on a block-only event. Checked first,
-        // before any target-specific logic, so dropping the child always wins over whatever is
-        // under the cursor.
+        /* Crouch + right-click anywhere puts down a carried child (testing_checklist.md #21).
+        This used to live on ChildPutDownSystem/UseBlockEvent.Pre instead, which only fires
+        when the click actually lands on a block — so crouching and clicking into open air
+        (no block in range) did nothing, and there was no way to get the child off your
+        shoulders in the open. It was never moved here because, at the time, this whole
+        handler was believed dead (see the stale comment below, from before the
+        .register()/.registerGlobal() fix a few lines up in SimTale.java) — but this handler
+        demonstrably runs now (it is what places the Baby item and confirms blueprints, both
+        below), so the crouch gesture belongs here, not on a block-only event. Checked first,
+        before any target-specific logic, so dropping the child always wins over whatever is
+        under the cursor.
+        */
         Store<EntityStore> carryStore = playerRef.getStore();
         boolean crouchingForRelease = ChildCarryHelper.isCrouching(carryStore, playerRef);
         boolean carryingSomeone = ChildCarryHelper.isCarryingSomeone(carryStore, playerRef);
-        // Logged unconditionally whenever either half is true, not only on success: this branch
-        // had zero logging before, so a player who crouch-clicks and nothing happens gave no way
-        // to tell whether crouch was not being detected, isCarryingSomeone was not seeing the
-        // mount, or putDown itself ran and returned false. That is exactly the kind of silent
-        // failure that took two rounds of guessing to diagnose for the open-air click bug
-        // (testing_checklist.md #21) — this time the log is in from the start.
+        /* Logged unconditionally whenever either half is true, not only on success: this branch
+        had zero logging before, so a player who crouch-clicks and nothing happens gave no way
+        to tell whether crouch was not being detected, isCarryingSomeone was not seeing the
+        mount, or putDown itself ran and returned false. That is exactly the kind of silent
+        failure that took two rounds of guessing to diagnose for the open-air click bug
+        (testing_checklist.md #21) — this time the log is in from the start.
+        */
         if (crouchingForRelease || carryingSomeone) {
             LOGGER.atInfo().log("SimTale Debug: carry release attempt - crouching=" + crouchingForRelease
                     + ", carryingSomeone=" + carryingSomeone);
@@ -146,34 +149,34 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         }
 
         /* The crouch-to-put-down gesture lives at the top of this method now, not here.
-         *
-         * It used to be ChildPutDownSystem, on UseBlockEvent.Pre (block-only), because this
-         * handler was believed to never fire at all. It does fire — see the .registerGlobal()
-         * fix noted in SimTale.java — so the gesture moved up to work in open air too, not just
-         * on a block. ChildPutDownSystem itself was left alone as a second path for the specific
-         * case of clicking a block (it still cancels the click so it doesn't also open a chest).
-         */
+
+        It used to be ChildPutDownSystem, on UseBlockEvent.Pre (block-only), because this
+        handler was believed to never fire at all. It does fire — see the .registerGlobal()
+        fix noted in SimTale.java — so the gesture moved up to work in open air too, not just
+        on a block. ChildPutDownSystem itself was left alone as a second path for the specific
+        case of clicking a block (it still cancels the click so it doesn't also open a chest).
+        */
 
         /* The tool items are NOT handled here — see SimTaleItemRegistry.
-         *
-         * They were, briefly, on the assumption that none of them declared an "Interactions" block.
-         * Three of the four do: they point at RuneCore_GenericItemUse, whose handler runs first and
-         * consumes the click, so nothing added here ever fired for them. Every custom item in this
-         * mod goes through RuneCoreItemManager, and these are no exception.
-         */
+
+        They were, briefly, on the assumption that none of them declared an "Interactions" block.
+        Three of the four do: they point at RuneCore_GenericItemUse, whose handler runs first and
+        consumes the click, so nothing added here ever fired for them. Every custom item in this
+        mod goes through RuneCoreItemManager, and these are no exception.
+        */
 
         /* --- Confirm a blueprint marker's construction on right-click ---
-         * Placing Blueprint_TavernHouse (BedPlaceBlockEventSystem) shows the hologram; this is
-         * the other half — right-clicking that same marker block starts the real build, the same
-         * way '/build start' commits a command-driven preview. Breaking the marker instead
-         * (BedBlockEventSystem) cancels it.
-         */
+        Placing Blueprint_TavernHouse (BedPlaceBlockEventSystem) shows the hologram; this is
+        the other half — right-clicking that same marker block starts the real build, the same
+        way '/build start' commits a command-driven preview. Breaking the marker instead
+        (BedBlockEventSystem) cancels it.
+        */
         Vector3i confirmTarget = event.getTargetBlock();
         if (confirmTarget != null) {
             BlockType confirmType = world.getBlockType(confirmTarget.x, confirmTarget.y, confirmTarget.z);
             /* Same tolerant match the placement half uses — an exact equals here would confirm
-             * nothing for exactly the ids that the placement half already failed to recognise.
-             */
+            nothing for exactly the ids that the placement half already failed to recognise.
+            */
             if (confirmType != null && BedPlaceBlockEventSystem.isBlueprintMarker(confirmType.getId())) {
                 UUID siteId = ConstructionPreviewManager.idForBlock(confirmTarget);
                 ConstructionSiteComponent pendingSite = ConstructionPreviewManager.get(siteId);
@@ -198,25 +201,25 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         Ref<EntityStore> targetRef = event.getTargetEntityRef();
         
         /* This used to log at INFO on *every* right click by *every* player, flooding the
-         * server console. Nothing is logged until an NPC is actually involved.
-         */
+        server console. Nothing is logged until an NPC is actually involved.
+        */
         if (targetRef == null)
             return;
 
         /* world.getEntityStore() returns EntityStore, which has getStore() ->
-         * Store<EntityStore>
-         */
+        Store<EntityStore>
+        */
         Store<EntityStore> store = world.getEntityStore().getStore();
         SimNPCComponent npc = store.getComponent(targetRef,
                 SimTale.SIM_NPC_COMPONENT_TYPE);
 
         if (npc == null) {
             /* Re-attach path, for a SimTale NPC whose component did not survive a world reload.
-             * Shared with SimTaleUseNPCInteraction (the F key) via SimNPCPersistence.tryReattach
-             * — this used to be copied by hand in both places, and that duplication is exactly
-             * why an earlier fix to the "any entity gets adopted" bug landed in only one of the
-             * two paths while the other kept adopting cows and other players.
-             */
+            Shared with SimTaleUseNPCInteraction (the F key) via SimNPCPersistence.tryReattach
+            — this used to be copied by hand in both places, and that duplication is exactly
+            why an earlier fix to the "any entity gets adopted" bug landed in only one of the
+            two paths while the other kept adopting cows and other players.
+            */
             npc = SimNPCPersistence.tryReattach(store, targetRef);
             if (npc != null) {
                 LOGGER.atInfo().log("SimTale: NPC " + npc.name + " remontado apos carregamento do mundo!");
@@ -227,10 +230,10 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             return;
 
         /* Entities adopted before the guard above still carry the component, so the cow keeps
-         * opening the villager panel until it is cleaned up. Gender is the tell: spawnNPC always
-         * sets it, the old adoption path never did. Same criterion /simtale forget uses, so what
-         * refuses to open here is exactly what that command will clear.
-         */
+        opening the villager panel until it is cleaned up. Gender is the tell: spawnNPC always
+        sets it, the old adoption path never did. Same criterion /simtale forget uses, so what
+        refuses to open here is exactly what that command will clear.
+        */
         if (npc.gender == null) {
             LOGGER.atFine().log("SimTale: entidade adotada por engano ignorada. Use /simtale forget.");
             return;
@@ -296,8 +299,8 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             childId = UUID.fromString(childIdStr);
         } catch (IllegalArgumentException badId) {
             /* Corrupt/hand-edited item metadata used to throw straight out of the click handler
-             * instead of just ignoring the item.
-             */
+            instead of just ignoring the item.
+            */
             LOGGER.atWarning().log("SimTale: item de bebe com childId invalido: " + childIdStr);
             return false;
         }
@@ -325,13 +328,13 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         }
 
         /* The body follows the stage, not the fact that this came out of a "Baby" item.
-         *
-         * It was always a child model, which is fine while the item is what it says on the tin.
-         * /simtale growbaby can hand you a teenager or an adult still in item form, and placing
-         * one of those produced an adult in a child body — the same mismatch GrowthManager had at
-         * the ADULT branch, reached by a different door. Nothing corrects it afterwards either:
-         * the body swap hangs off a stage *change*, and this one already happened in the item.
-         */
+
+        It was always a child model, which is fine while the item is what it says on the tin.
+        /simtale growbaby can hand you a teenager or an adult still in item form, and placing
+        one of those produced an adult in a child body — the same mismatch GrowthManager had at
+        the ADULT branch, reached by a different door. Nothing corrects it afterwards either:
+        the body swap hangs off a stage *change*, and this one already happened in the item.
+        */
         boolean grownBody = childComp.stage != null
                 && childComp.stage.ordinal() >= GrowthStage.TEEN.ordinal();
         SimNPCFactory.NPCType childType;
@@ -346,8 +349,8 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         }
 
         /* Scale at spawn rather than a resize afterwards: the resize below left a frame where she
-         * was drawn full size before shrinking, which is the flash reported during carry testing.
-         */
+        was drawn full size before shrinking, which is the flash reported during carry testing.
+        */
         Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType,
                 LifecycleManager.calculateTargetScale(childComp, WorldUtil.tick()));
         childComp.childId = Objects.requireNonNull(store.getComponent(childRef, UUIDComponent.getComponentType())).getUuid();
@@ -361,16 +364,16 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                 new Nameplate(childComp.getFullName()));
 
             /* A child used to be born a social stranger to its own parents: the family data lived
-             * in GrowthComponent and was never projected onto the relationship map that gifts,
-             * dialogue and the map tint actually read.
-             */
+            in GrowthComponent and was never projected onto the relationship map that gifts,
+            dialogue and the map tint actually read.
+            */
             FamilyBonds.linkToFamily(childNPCComp, childComp);
             SimNPCPersistence.saveNPC(childNPCComp);
         }
 
         /* Kept in sync with what the entity was actually spawned at, so the growth tick and the
-         * saved record start from the same number.
-         */
+        saved record start from the same number.
+        */
         childComp.currentScale = LifecycleManager.calculateTargetScale(childComp, WorldUtil.tick());
 
         childComp.putDown();

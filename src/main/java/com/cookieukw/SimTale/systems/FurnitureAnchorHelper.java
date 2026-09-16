@@ -67,9 +67,10 @@ public final class FurnitureAnchorHelper {
             int dy = FillerBlockUtil.unpackY(filler);
             int dz = FillerBlockUtil.unpackZ(filler);
 
-            // O sinal do deslocamento nao esta documentado, e chutar errado apontaria para o
-            // lado oposto do movel. Em vez de assumir, testa-se os dois sentidos e aceita-se o
-            // que realmente parece uma ancora: mesmo tipo de bloco e filler zerado.
+            /* O sinal do deslocamento nao esta documentado, e chutar errado apontaria para o
+            lado oposto do movel. Em vez de assumir, testa-se os dois sentidos e aceita-se o
+            que realmente parece uma ancora: mesmo tipo de bloco e filler zerado.
+            */
             Vector3i menos = new Vector3i(x - dx, y - dy, z - dz);
             if (looksLikeAnchor(world, menos, x, y, z)) return menos;
 
@@ -80,8 +81,9 @@ public final class FurnitureAnchorHelper {
                     x, y, z, filler);
             return entrada;
         } catch (Exception e) {
-            // Chunk descarregado, secao ausente, API divergente: seguir com o bloco original e
-            // sempre melhor do que abortar o sono da NPC.
+            /* Chunk descarregado, secao ausente, API divergente: seguir com o bloco original e
+            sempre melhor do que abortar o sono da NPC.
+            */
             LOGGER.debug("[SimTale] falha ao resolver ancora de ({},{},{}): {}", x, y, z, e.toString());
             return entrada;
         }
@@ -102,8 +104,9 @@ public final class FurnitureAnchorHelper {
         BlockType origem = world.getBlockType(origemX, origemY, origemZ);
         if (origem == null || origem.getId() == null) return false;
 
-        // Mesmo id: os blocos de um movel compartilham o tipo. Isso evita aceitar um bloco
-        // qualquer que por acaso esteja no deslocamento calculado.
+        /* Mesmo id: os blocos de um movel compartilham o tipo. Isso evita aceitar um bloco
+        qualquer que por acaso esteja no deslocamento calculado.
+        */
         if (!tipo.getId().equals(origem.getId())) return false;
 
         // A ancora nao e filler de ninguem.

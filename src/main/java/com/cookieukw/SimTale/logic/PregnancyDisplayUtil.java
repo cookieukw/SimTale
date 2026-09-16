@@ -150,8 +150,9 @@ public final class PregnancyDisplayUtil {
         cmd.set("#TotalChildren.TextSpans", Message.translation("ui.pregnancy.children").param("count", String.valueOf(totalChildren)));
 
         int fillWidth = Math.clamp(Math.round(progress * PROGRESS_BAR_MAX_WIDTH), 0, PROGRESS_BAR_MAX_WIDTH);
-        // Round a sliver up to the minimum the 9-slice can draw, rather than hiding it: on day one
-        // of a pregnancy the bar should read as "just started", not as "no bar at all".
+        /* Round a sliver up to the minimum the 9-slice can draw, rather than hiding it: on day one
+        of a pregnancy the bar should read as "just started", not as "no bar at all".
+        */
         if (fillWidth > 0 && fillWidth < PROGRESS_BAR_MIN_WIDTH) {
             fillWidth = PROGRESS_BAR_MIN_WIDTH;
         }

@@ -37,8 +37,9 @@ public class MagicDataLoader {
                 StandardCharsets.UTF_8)) {
             Gson gson = new Gson();
             List<Animal> animals = gson.fromJson(reader, new TypeToken<List<Animal>>(){}.getType());
-            // Gson returns null for an empty/`null` document; caching null re-parsed the file
-            // on every single call.
+            /* Gson returns null for an empty/`null` document; caching null re-parsed the file
+            on every single call.
+            */
             return animals != null ? animals : List.of();
         } catch (Exception e) {
             LOGGER.atWarning().log("SimTale: falha ao carregar animals.json do minigame: " + e);

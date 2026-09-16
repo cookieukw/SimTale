@@ -96,16 +96,16 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         }
 
         /* Only log when we actually routed the message to an NPC — logging every single
-         * chat line (plus the full NPC roster) floods the server console.
-         */
+        chat line (plus the full NPC roster) floods the server console.
+        */
         final String routedMessage = message;
         HytaleLogger.forEnclosingClass().atFine()
                 .log("SimTale [CHAT]: '" + routedMessage + "' -> " + targetNpc.name);
 
         /* Everything below mutates NPC state (conversation partner, profession, current job,
-         * the magic game) that the tick systems read concurrently. The chat event fires on the
-         * networking thread, so the whole handler is marshalled onto the world thread.
-         */
+        the magic game) that the tick systems read concurrently. The chat event fires on the
+        networking thread, so the whole handler is marshalled onto the world thread.
+        */
         WorldUtil.execute(() -> {
             if (targetNpc.currentConversationPartner != null && world.getTick() >= targetNpc.conversationTimeoutTick) {
                 targetNpc.currentConversationPartner = null;
@@ -118,12 +118,12 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             }
 
             /* `routedMessage` keeps the raw text for the log line above; `detect()` and the
-             * rest of the handler match on exact words/phrases, so a trailing "!"/"?"/"." (the
-             * most natural way to type "Oi!", "Valeu!", "Tchau!") must be stripped here the same
-             * way `findTargetNpc` already normalizes the text to find the NPC by name. Without
-             * this, those one-word messages fell through to SMALLTALK instead of their real
-             * intent.
-             */
+            rest of the handler match on exact words/phrases, so a trailing "!"/"?"/"." (the
+            most natural way to type "Oi!", "Valeu!", "Tchau!") must be stripped here the same
+            way `findTargetNpc` already normalizes the text to find the NPC by name. Without
+            this, those one-word messages fell through to SMALLTALK instead of their real
+            intent.
+            */
             handleNpcCommand(sender, normalize(routedMessage), targetNpc, world);
         });
     }
@@ -134,16 +134,16 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         if (message == null) return null;
 
         /* Clean message: lowercase, strip basic punctuation, normalize spaces.
-         * `message` already arrives lowercased from accept().
-         */
+        `message` already arrives lowercased from accept().
+        */
         String cleanMessage = normalize(message);
 
         SimNPCComponent approximateNpc = null;
         int bestDistance = Integer.MAX_VALUE;
 
         /* Split the message once instead of once per NPC — this loop runs for every chat line
-         * on the server, times the whole NPC roster.
-         */
+        on the server, times the whole NPC roster.
+        */
         String[] messageWords = SPACES.split(cleanMessage);
 
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
@@ -274,14 +274,14 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             case INSULT_CHAT -> {
                 openConversation(npc, sender, currentTick);
                 /* Insulting an NPC through chat used to be free: it printed a hurt line and
-                 * changed nothing, while the exact same insult through the interaction UI cost
-                 * friendship and was remembered.
-                 */
+                changed nothing, while the exact same insult through the interaction UI cost
+                friendship and was remembered.
+                */
                 applyChatSentiment(npc, sender, false, currentTick);
                 /* Unlike every other intent, the insult lines bake the tier into the key name
-                 * itself (insult_hostile.1, insult_friend.1, ...), so the 2-arg overload is used
-                 * and the tier is appended to the base instead of being inserted after it.
-                 */
+                itself (insult_hostile.1, insult_friend.1, ...), so the 2-arg overload is used
+                and the tier is appended to the base instead of being inserted after it.
+                */
                 sendReply(sender, Message.translation(getRandomVariant("npc-interactions.insult_" + tier.translationKey, 5)).param("name", npc.name));
             }
             case HELP_REQUEST -> {
@@ -305,12 +305,12 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         }
 
         /* The canned line above always goes out synchronously — nothing here replaces it. If AI
-         * is configured, the real reply arrives as a *second*, separate chat message once the
-         * provider responds, same layering InteractionManager.handleFriendly already uses for the
-         * interaction-panel "chat" button. Job/movement commands (MINE, COME, ...) intentionally
-         * skip this: they already got their functional reply, and an AI aside on top of a work
-         * order is noise, not conversation.
-         */
+        is configured, the real reply arrives as a *second*, separate chat message once the
+        provider responds, same layering InteractionManager.handleFriendly already uses for the
+        interaction-panel "chat" button. Job/movement commands (MINE, COME, ...) intentionally
+        skip this: they already got their functional reply, and an AI aside on top of a work
+        order is noise, not conversation.
+        */
         if (isConversational(intent)) {
             maybeSendAiReply(npc, sender, message);
         }
@@ -503,8 +503,9 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         else if (message.contains("lenhador")) newProf = Profession.LUMBERJACK;
         else if (message.contains("guarda") || message.contains("soldado")) newProf = Profession.GUARD;
         else if (message.contains("explorador") || message.contains("aventureiro")) newProf = Profession.EXPLORER;
-        // BUILDER and HUNTER exist in the Profession enum and are fully implemented in
-        // NPCWorkHelper, but were unreachable through chat.
+        /* BUILDER and HUNTER exist in the Profession enum and are fully implemented in
+        NPCWorkHelper, but were unreachable through chat.
+        */
         else if (message.contains("construtor") || message.contains("pedreiro")) newProf = Profession.BUILDER;
         else if (message.contains("caçador") || message.contains("cacador")) newProf = Profession.HUNTER;
         return newProf;
@@ -725,11 +726,12 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
                 return COMPLIMENT;
             }
 
-            // INSULT
-            // "fei" used to be a stem here and fired on "feito", "feira" and "feijao"; the
-            // explicit forms are listed instead. "some" was dropped from this list too — it is
-            // the everyday conjugation of "sumir" ("ele sempre some"), not necessarily an
-            // insult, and hasWord's exact match still let it fire on that innocent case.
+            /* INSULT
+            "fei" used to be a stem here and fired on "feito", "feira" and "feijao"; the
+            explicit forms are listed instead. "some" was dropped from this list too — it is
+            the everyday conjugation of "sumir" ("ele sempre some"), not necessarily an
+            insult, and hasWord's exact match still let it fire on that innocent case.
+            */
             if (hasStem(message, "nojent", "ridicul", "ridícul", "irritant")
                     || hasWord(message, "feio", "feia", "feios", "feias", "chato", "chata",
                             "idiota", "burro", "burra", "odeio", "inútil", "inutil",
@@ -746,8 +748,9 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
                 return GRATITUDE;
             }
 
-            // HUMOR / JOKE
-            // Laughter is stem-matched so "kkkkkk" and "hahahaha" still land.
+            /* HUMOR / JOKE
+            Laughter is stem-matched so "kkkkkk" and "hahahaha" still land.
+            */
             if (hasStem(message, "engraçad", "engracad", "kk", "haha", "hehe")
                     || hasWord(message, "piada", "joke", "risos", "lol")
                     || hasPhrase(message, "conta uma", "faz rir")) {
@@ -772,9 +775,10 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
                 return SELF_TALK;
             }
 
-            // GREETING
-            // hasWord() splits on whitespace, so multi-word greetings can never match there —
-            // they have to go through hasPhrase().
+            /* GREETING
+            hasWord() splits on whitespace, so multi-word greetings can never match there —
+            they have to go through hasPhrase().
+            */
             boolean isGreeting = hasWord(message, "olá", "ola", "hello", "hi", "oi", "eae", "eai",
                     "fala", "salve")
                     || hasPhrase(message, "bom dia", "boa tarde", "boa noite", "e aí", "e ai");

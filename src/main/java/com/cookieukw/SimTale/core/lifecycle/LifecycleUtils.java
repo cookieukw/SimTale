@@ -84,8 +84,9 @@ public class LifecycleUtils {
     }
 
     public static SimNPCComponent findNPCById(UUID id) {
-        // O(1) via the UUID index instead of scanning the whole roster. RoutineAISystem calls
-        // this from its per-NPC tick path, so the old linear scan was O(n²) per tick.
+        /* O(1) via the UUID index instead of scanning the whole roster. RoutineAISystem calls
+        this from its per-NPC tick path, so the old linear scan was O(n²) per tick.
+        */
         return SimTale.findNpc(id);
     }
 

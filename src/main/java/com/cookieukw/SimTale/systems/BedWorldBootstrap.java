@@ -45,16 +45,18 @@ public final class BedWorldBootstrap {
                         continue;
                     }
 
-                    // Chests the player placed before the server came up were invisible to the
-                    // NPCs, since only the place event ever registered them.
+                    /* Chests the player placed before the server came up were invisible to the
+                    NPCs, since only the place event ever registered them.
+                    */
                     if (ChestRegistry.isContainerAt(world, x, y, z)) {
                         Vector3i chestAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
                         ChestRegistry.add(chestAnchor.x, chestAnchor.y, chestAnchor.z);
                     }
 
-                    // Work posts (fishing/lumber/farm) have the exact same gap the chests did:
-                    // registered only by the place event, so a fresh server boot forgot every one
-                    // placed in an earlier session even though the block was still standing there.
+                    /* Work posts (fishing/lumber/farm) have the exact same gap the chests did:
+                    registered only by the place event, so a fresh server boot forgot every one
+                    placed in an earlier session even though the block was still standing there.
+                    */
                     if (FishingPostRegistry.isFishingPostId(type.getId())) {
                         FishingPostRegistry.registerAt(world, x, y, z);
                     } else if (LumberPostRegistry.isLumberPostId(type.getId())) {
@@ -77,21 +79,23 @@ public final class BedWorldBootstrap {
                         ChairRegistry.add(chairAnchor.x, chairAnchor.y, chairAnchor.z);
                     }
 
-                    // Same gap again, this time on the farmland/crops themselves — tilled soil or
-                    // a planted crop from an earlier session was invisible to scanForFarmland/
-                    // scanForCrops (which only ever read the registry, never the live world)
-                    // until the server was restarted again after a place event re-registered it.
+                    /* Same gap again, this time on the farmland/crops themselves — tilled soil or
+                    a planted crop from an earlier session was invisible to scanForFarmland/
+                    scanForCrops (which only ever read the registry, never the live world)
+                    until the server was restarted again after a place event re-registered it.
+                    */
                     if (FarmlandRegistry.isFarmlandId(type.getId())) {
                         FarmlandRegistry.add(x, y, z);
                     } else if (CropRegistry.isCropId(type.getId())) {
                         CropRegistry.add(x, y, z);
                     }
 
-                    // Preview sessions live only in memory, so a marker block survived a restart
-                    // with no hologram and no site behind it — the block was still standing but
-                    // nothing could be confirmed or forced from it. Rebuilding the session from
-                    // the block is the same trick the beds, chests and posts above already use:
-                    // the world is the source of truth, the registry is just a cache of it.
+                    /* Preview sessions live only in memory, so a marker block survived a restart
+                    with no hologram and no site behind it — the block was still standing but
+                    nothing could be confirmed or forced from it. Rebuilding the session from
+                    the block is the same trick the beds, chests and posts above already use:
+                    the world is the source of truth, the registry is just a cache of it.
+                    */
                     if (BedPlaceBlockEventSystem.isBlueprintMarker(type.getId())) {
                         Vector3i markerPos = new Vector3i(x, y, z);
                         UUID siteId = ConstructionPreviewManager.idForBlock(markerPos);
@@ -120,8 +124,9 @@ public final class BedWorldBootstrap {
         }
         if (newBeds > 0 || newChests > 0 || newFishingPosts > 0 || newLumberPosts > 0 || newFarmPosts > 0
                 || newFarmland > 0 || newCrops > 0 || newBaths > 0 || newLeisure > 0) {
-            // At info level: this now runs on join, and it is the one line that tells whether the
-            // world's existing furniture was picked up at all.
+            /* At info level: this now runs on join, and it is the one line that tells whether the
+            world's existing furniture was picked up at all.
+            */
             LOGGER.info("[SimTale] Scan found {} new beds, {} new chests, {} new fishing posts, {} new lumber posts, {} new farm posts, {} new farmland, {} new crops, {} new baths, {} new leisure. Totals: {} beds, {} chests, {} fishing, {} lumber, {} farm, {} farmland, {} crops, {} baths, {} leisure",
                     newBeds, newChests, newFishingPosts, newLumberPosts, newFarmPosts, newFarmland, newCrops, newBaths, newLeisure,
                     BedRegistry.size(), ChestRegistry.size(), FishingPostRegistry.POSTS.size(), LumberPostRegistry.POSTS.size(), FarmPostRegistry.POSTS.size(),

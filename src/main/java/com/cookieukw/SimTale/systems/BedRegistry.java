@@ -25,10 +25,11 @@ public final class BedRegistry {
 
     public static void addOrReplace(int x, int y, int z, float yaw) {
         synchronized (BEDS) {
-            // Exact position: genuinely replace, so a re-registration refreshes the yaw.
-            // The old code returned early from the proximity loop below before ever reaching
-            // the removeIf/add pair, so "addOrReplace" never actually replaced anything and
-            // a bed's yaw could never be corrected.
+            /* Exact position: genuinely replace, so a re-registration refreshes the yaw.
+            The old code returned early from the proximity loop below before ever reaching
+            the removeIf/add pair, so "addOrReplace" never actually replaced anything and
+            a bed's yaw could never be corrected.
+            */
             BedPos existing = null;
             for (BedPos b : BEDS) {
                 if (b.x == x && b.y == y && b.z == z) {

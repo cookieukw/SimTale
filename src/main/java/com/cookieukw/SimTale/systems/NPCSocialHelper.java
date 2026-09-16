@@ -123,9 +123,10 @@ public class NPCSocialHelper {
         handleWandering(ref, ai, transform, world, store);
     }
 
-    // ------------------------------------------------------------------
-    // MOVING_TO_SOCIALIZE
-    // ------------------------------------------------------------------
+    /* ------------------------------------------------------------------
+    MOVING_TO_SOCIALIZE
+    ------------------------------------------------------------------
+    */
 
     private static void handleMovingToSocialize(
             Ref<EntityStore> ref,
@@ -232,9 +233,10 @@ public class NPCSocialHelper {
         }
     }
 
-    // ------------------------------------------------------------------
-    // SOCIALIZING
-    // ------------------------------------------------------------------
+    /* ------------------------------------------------------------------
+    SOCIALIZING
+    ------------------------------------------------------------------
+    */
 
     private static void handleSocializing(
             Ref<EntityStore> ref,
@@ -309,8 +311,9 @@ public class NPCSocialHelper {
             return;
         }
 
-        // The guest side just waits out the conversation; the host owns the outcome so the
-        // rewards are not applied twice.
+        /* The guest side just waits out the conversation; the host owns the outcome so the
+        rewards are not applied twice.
+        */
         if (!ai.socializeHost) {
             endSocial(ref, ai, store);
             return;
@@ -350,13 +353,14 @@ public class NPCSocialHelper {
         Relationship hostView = host.getRelationship(guest.entityId);
         Relationship guestView = guest.getRelationship(host.entityId);
 
-        // 0. Children get their own topic pool first. Without this, a child could be scored
-        // straight into TOPIC_ROMANTIC or TOPIC_HOSTILE below by whatever relationship/trait
-        // state the adults' scoring cares about -- neither belongs in a kid's conversation.
-        // Two children together get a dedicated play topic; a child paired with an adult (the
-        // mixed case) just has those two adult-only topics taken off the table and falls
-        // through to whichever age-neutral one below scores highest (weather, village, mood, a
-        // parent's own work) -- those already read fine from either side of the conversation.
+        /* 0. Children get their own topic pool first. Without this, a child could be scored
+        straight into TOPIC_ROMANTIC or TOPIC_HOSTILE below by whatever relationship/trait
+        state the adults' scoring cares about -- neither belongs in a kid's conversation.
+        Two children together get a dedicated play topic; a child paired with an adult (the
+        mixed case) just has those two adult-only topics taken off the table and falls
+        through to whichever age-neutral one below scores highest (weather, village, mood, a
+        parent's own work) -- those already read fine from either side of the conversation.
+        */
         boolean hostChild = InteractionManager.isNpcAChild(host);
         boolean guestChild = InteractionManager.isNpcAChild(guest);
         if (hostChild && guestChild) {
@@ -591,8 +595,9 @@ public class NPCSocialHelper {
         Relationship hostView = host.getRelationship(guest.entityId);
         Relationship guestView = guest.getRelationship(host.entityId);
 
-        // Already married to each other: nothing left to propose, but still worth reinforcing —
-        // the daily natural-pregnancy roll in SimTaleTickSystem reads this same romance value.
+        /* Already married to each other: nothing left to propose, but still worth reinforcing —
+        the daily natural-pregnancy roll in SimTaleTickSystem reads this same romance value.
+        */
         boolean alreadyToEachOther = host.family.isMarried && guest.entityId.equals(host.family.spouseId);
 
         hostView.addRomance(NPC_ROMANCE_GAIN);
@@ -640,8 +645,9 @@ public class NPCSocialHelper {
         int affinity = hostile ? -3 : 4;
         int trust = hostile ? -1 : 1;
 
-        // Shared interests give people more to talk about. Only applies to a friendly chat —
-        // a common hobby does not make an argument go any better.
+        /* Shared interests give people more to talk about. Only applies to a friendly chat —
+        a common hobby does not make an argument go any better.
+        */
         if (!hostile && NPCLeisureHelper.hobbyOf(host) == NPCLeisureHelper.hobbyOf(guest)) {
             friendship += 2;
             affinity += 3;
@@ -682,9 +688,10 @@ public class NPCSocialHelper {
         }
     }
 
-    // ------------------------------------------------------------------
-    // WANDERING
-    // ------------------------------------------------------------------
+    /* ------------------------------------------------------------------
+    WANDERING
+    ------------------------------------------------------------------
+    */
 
     private static void handleWandering(
             Ref<EntityStore> ref,
@@ -720,9 +727,10 @@ public class NPCSocialHelper {
         NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(target.x + 0.5, pos.y, target.z + 0.5));
     }
 
-    // ------------------------------------------------------------------
-    // Shared helpers
-    // ------------------------------------------------------------------
+    /* ------------------------------------------------------------------
+    Shared helpers
+    ------------------------------------------------------------------
+    */
 
     /** An NPC can only be pulled into a chat while it is not doing something important. */
     public static boolean isAvailableToTalk(RoutineAIComponent ai) {

@@ -73,9 +73,10 @@ public class NpcContextBuilder {
 
     public static AiRequest build(SimNPCComponent npc, UUID playerUuid, String playerName, List<AiMessage> conversationHistory) {
        
-        // `UUID.fromString(playerUuid.toString())` was a no-op round-trip, and the null check
-        // was an `assert`, which the JVM disables by default — so on a real server the NPE
-        // fell straight through to `catch (Throwable)` and was silently swallowed.
+        /* `UUID.fromString(playerUuid.toString())` was a no-op round-trip, and the null check
+        was an `assert`, which the JVM disables by default — so on a real server the NPE
+        fell straight through to `catch (Throwable)` and was silently swallowed.
+        */
         String language = "en-US";
         PlayerRef player = Universe.get().getPlayer(playerUuid);
         if (player != null) {
@@ -113,8 +114,9 @@ public class NpcContextBuilder {
 
         // 3. Current Mood
         Mood mood = npc.getMood();
-        // mood.name(), not mood.ptName: the rest of this prompt is English, and the reply
-        // language is dictated by the directive at the end instead.
+        /* mood.name(), not mood.ptName: the rest of this prompt is English, and the reply
+        language is dictated by the directive at the end instead.
+        */
         systemPrompt.append("Your current mood is ").append(mood.name());
         if (npc.emotionIntensity > 0) {
             systemPrompt.append(" (intensity: ").append(String.format("%.1f", npc.emotionIntensity)).append("/1.0, cause: ").append(npc.emotionSource).append(")");
@@ -224,12 +226,13 @@ public class NpcContextBuilder {
                         .append(", ").append(ageSecs).append(" seconds ago.\n");
             }
         }
-        // 9b. World Awareness -- location, time, health, home, nearby players, other NPC bonds
-        //
-        // Added per docs/ROADMAP.md's "Contexto da IA" item: all of this reads data that already
-        // exists elsewhere in the mod (position, the built-in Health stat, HouseManager's owner
-        // map, the relationships map already used for the player above) -- no new system, just
-        // wiring more of what is already tracked into the prompt.
+        /* 9b. World Awareness -- location, time, health, home, nearby players, other NPC bonds
+
+        Added per docs/ROADMAP.md's "Contexto da IA" item: all of this reads data that already
+        exists elsewhere in the mod (position, the built-in Health stat, HouseManager's owner
+        map, the relationships map already used for the player above) -- no new system, just
+        wiring more of what is already tracked into the prompt.
+        */
         Ref<EntityStore> npcRef = npc.entityRef;
         Store<EntityStore> npcStore = (npcRef != null && npcRef.isValid()) ? npcRef.getStore() : null;
 
@@ -263,9 +266,10 @@ public class NpcContextBuilder {
                 : "You do not have a home of your own yet.\n");
 
         if (npcPos != null) {
-            // Same 20-block radius RoutineAISystem.SOCIALIZE_SEARCH_RANGE_SQ uses to decide
-            // who counts as "nearby" for its own social-partner search, so what the NPC says
-            // about who's around lines up with what its AI actually treats as close by.
+            /* Same 20-block radius RoutineAISystem.SOCIALIZE_SEARCH_RANGE_SQ uses to decide
+            who counts as "nearby" for its own social-partner search, so what the NPC says
+            about who's around lines up with what its AI actually treats as close by.
+            */
             List<String> nearbyPlayers = new ArrayList<>();
             for (PlayerRef pr : Universe.get().getPlayers()) {
                 if (pr.getUuid() != null && pr.getUuid().equals(playerUuid)) continue; // the one already talking
@@ -298,12 +302,13 @@ public class NpcContextBuilder {
             }
         }
 
-        // 10. Directives
-        //
-        // Without an explicit ban, the model tends to imitate chat-script formatting from its
-        // training data and prefixes its own reply with a speaker tag — sometimes even a literal,
-        // unsubstituted placeholder like "[NomeNPC]" instead of the real name — which then doubles
-        // up with the "[Name] " prefix the game itself adds when displaying the message.
+        /* 10. Directives
+
+        Without an explicit ban, the model tends to imitate chat-script formatting from its
+        training data and prefixes its own reply with a speaker tag — sometimes even a literal,
+        unsubstituted placeholder like "[NomeNPC]" instead of the real name — which then doubles
+        up with the "[Name] " prefix the game itself adds when displaying the message.
+        */
         systemPrompt.append("\nRespond in the first person in a natural way, maintaining total consistency with your personality, mood, traits and feelings towards the player. Do not break character. Reply with ONLY the words you say — no name tag, no speaker label, no brackets, no quotation marks around the whole reply, no formatting of any kind. The game already shows your name next to the message. Important: you must reply exclusively in the language with the locale code ").append(language).append(".");
 
         // Metadata Map construction for tracing/debug

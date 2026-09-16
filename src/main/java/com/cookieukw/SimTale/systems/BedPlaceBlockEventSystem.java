@@ -50,8 +50,9 @@ import javax.annotation.Nonnull;
  */
 public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, PlaceBlockEvent> {
     private static final SimLog LOGGER = SimLog.forClass(BedPlaceBlockEventSystem.class);
-    // Unconditional (not gated behind /simtale debug) — temporary, to confirm handle() itself is
-    // being invoked at all before chasing anything further downstream.
+    /* Unconditional (not gated behind /simtale debug) — temporary, to confirm handle() itself is
+    being invoked at all before chasing anything further downstream.
+    */
     private static final HytaleLogger RAW_LOGGER = HytaleLogger.forEnclosingClass();
 
     public BedPlaceBlockEventSystem() {
@@ -78,13 +79,14 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
 
         World world = store.getExternalData().getWorld();
 
-        // What is being placed comes from the item, not from the world.
-        //
-        // PlaceBlockEvent extends CancellableEcsEvent and exposes setTargetBlock/setRotation/
-        // setConsumeItem — it fires *before* the block exists, so reading getBlockType at the
-        // target position returns whatever was there previously (usually air). Every id test
-        // below was therefore being run against the wrong block, which is why nothing was ever
-        // registered on placement even once the event started arriving.
+        /* What is being placed comes from the item, not from the world.
+
+        PlaceBlockEvent extends CancellableEcsEvent and exposes setTargetBlock/setRotation/
+        setConsumeItem — it fires *before* the block exists, so reading getBlockType at the
+        target position returns whatever was there previously (usually air). Every id test
+        below was therefore being run against the wrong block, which is why nothing was ever
+        registered on placement even once the event started arriving.
+        */
         String resolvedId = null;
         ItemStack inHand = event.getItemInHand();
         if (inHand != null) {
@@ -97,50 +99,54 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
         }
         if (resolvedId == null) return;
 
-        // Copied into a final local because the deferred registration below captures it, and the
-        // resolution above assigns in two branches.
+        /* Copied into a final local because the deferred registration below captures it, and the
+        resolution above assigns in two branches.
+        */
         final String placedId = resolvedId;
 
         LOGGER.debug("[SimTale] Block placed: " + placedId + " isBed=" + BedRegistry.isBedId(placedId));
 
-        // Everything below reads the world at the target position, and the block is not there yet.
-        //
-        // PlaceBlockEvent is a pre-event (see the class javadoc), so this handler runs in the
-        // window where the placement can still be cancelled. Identifying *what* is being placed
-        // works, because that comes off the item — but resolving the multi-block anchor, the bed
-        // yaw, or asking the engine whether the block carries an item container all query a cell
-        // that still holds air. Registration was landing on the wrong anchor, and chests fell
-        // through to the name heuristic that was the original bug this handler exists to fix.
-        //
-        // Deferring to the world thread puts the work one step after the placement completes.
-        // The deferred task re-reads the block first: if the event was cancelled downstream, or
-        // the player broke it immediately, there is nothing to register and it bails.
+        /* Everything below reads the world at the target position, and the block is not there yet.
+
+        PlaceBlockEvent is a pre-event (see the class javadoc), so this handler runs in the
+        window where the placement can still be cancelled. Identifying *what* is being placed
+        works, because that comes off the item — but resolving the multi-block anchor, the bed
+        yaw, or asking the engine whether the block carries an item container all query a cell
+        that still holds air. Registration was landing on the wrong anchor, and chests fell
+        through to the name heuristic that was the original bug this handler exists to fix.
+
+        Deferring to the world thread puts the work one step after the placement completes.
+        The deferred task re-reads the block first: if the event was cancelled downstream, or
+        the player broke it immediately, there is nothing to register and it bails.
+        */
         final Vector3i placedAt = new Vector3i(pos);
         WorldUtil.execute(() -> registerPlacedBlock(world, placedAt, placedId));
 
-        // The blueprint preview stays on this side on purpose: it needs no world lookup at the
-        // marker cell (the obstruction scan skips the anchor by design), and showing the hologram
-        // in the same frame as the click is what makes the placement feel responsive.
-        //
-        // Blueprint marker block: the hologram preview shows up the instant this is placed, and
-        // the obstruction check runs exactly once, right here — not continuously. An earlier
-        // version had the preview follow the placing player around and re-check on every turn,
-        // which meant re-scanning the whole prefab's footprint for obstructions several times a
-        // second; expensive enough on its own to visibly stall the server. A block sidesteps all
-        // of that: it just sits where it was placed, same as a scarecrow or a fishing post.
+        /* The blueprint preview stays on this side on purpose: it needs no world lookup at the
+        marker cell (the obstruction scan skips the anchor by design), and showing the hologram
+        in the same frame as the click is what makes the placement feel responsive.
+
+        Blueprint marker block: the hologram preview shows up the instant this is placed, and
+        the obstruction check runs exactly once, right here — not continuously. An earlier
+        version had the preview follow the placing player around and re-check on every turn,
+        which meant re-scanning the whole prefab's footprint for obstructions several times a
+        second; expensive enough on its own to visibly stall the server. A block sidesteps all
+        of that: it just sits where it was placed, same as a scarecrow or a fishing post.
+        */
         if (isBlueprintMarker(placedId)) {
             LOGGER.info("[SimTale] Blueprint marker placed at ({},{},{}), block id '{}'",
                     pos.x, pos.y, pos.z, placedId);
             UUID siteId = ConstructionPreviewManager.idForBlock(pos);
             ConstructionSiteComponent site = ConstructionPreviewManager.start(siteId, "TavernHouse", pos);
 
-            // Orient the house by where the placer is looking.
-            //
-            // ConstructionSiteComponent.facing defaults to NORTH and nothing on this path ever
-            // changed it, so every marker-placed house came out facing north regardless of the
-            // player. '/build' already did this correctly (BuildCommand:152) — this is the same
-            // two lines, which is the point: the two entry points should not disagree about
-            // orientation.
+            /* Orient the house by where the placer is looking.
+
+            ConstructionSiteComponent.facing defaults to NORTH and nothing on this path ever
+            changed it, so every marker-placed house came out facing north regardless of the
+            player. '/build' already did this correctly (BuildCommand:152) — this is the same
+            two lines, which is the point: the two entry points should not disagree about
+            orientation.
+            */
             TransformComponent placer = chunk.getComponent(index, TransformComponent.getComponentType());
             if (placer != null) {
                 Rotation4 facing = Rotation4.fromYawDegrees(Math.toDegrees(placer.getRotation().yaw()));
@@ -151,10 +157,11 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
             ConstructionHelper.placePreview(world, site);
 
             if (!site.isClear) {
-                // The hologram *does* tint red/green (PrefabGhostHelper.TINT_BLOCKED/CLEAR), but
-                // that is a biome tint — it only recolours grass/leaves/foliage, so on a
-                // stone-and-wood prefab like this one the difference is barely visible. A chat
-                // message is the only reliable way to actually tell the player.
+                /* The hologram *does* tint red/green (PrefabGhostHelper.TINT_BLOCKED/CLEAR), but
+                that is a biome tint — it only recolours grass/leaves/foliage, so on a
+                stone-and-wood prefab like this one the difference is barely visible. A chat
+                message is the only reliable way to actually tell the player.
+                */
                 Message warning = Message.raw("[SimTale] The area around the construction marker is obstructed -- clear the space or remove the block to try somewhere else.");
                 Universe.get().getPlayers().forEach(p -> p.sendMessage(warning));
             }
@@ -190,8 +197,9 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
     private static void registerPlacedBlock(World world, Vector3i pos, String placedId) {
         if (world == null) return;
 
-        // The event is cancellable. If something downstream vetoed the placement — or the player
-        // broke the block in the meantime — the cell is empty and there is nothing to register.
+        /* The event is cancellable. If something downstream vetoed the placement — or the player
+        broke the block in the meantime — the cell is empty and there is nothing to register.
+        */
         BlockType placed = world.getBlockType(pos.x, pos.y, pos.z);
         if (placed == null || placed.getId() == null || placed.getId().equalsIgnoreCase("Empty")) {
             return;
@@ -201,11 +209,12 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
             BedWorldBootstrap.registerBedAt(world, pos.x, pos.y, pos.z);
         }
 
-        // Ask the engine whether the block holds an item container instead of guessing from its
-        // name. The name heuristic silently missed any storage block Hytale does not happen to
-        // call chest/barrel/cupboard/cabinet, which is why chestcheck reported nothing after
-        // three chests had been placed — and it is exactly what this check fell back to while it
-        // was running before the block existed.
+        /* Ask the engine whether the block holds an item container instead of guessing from its
+        name. The name heuristic silently missed any storage block Hytale does not happen to
+        call chest/barrel/cupboard/cabinet, which is why chestcheck reported nothing after
+        three chests had been placed — and it is exactly what this check fell back to while it
+        was running before the block existed.
+        */
         if (ChestRegistry.isContainerAt(world, pos.x, pos.y, pos.z)
                 || ChestRegistry.isChestId(placedId)) {
             // Register the anchor so placement and removal agree on one position per chest.
@@ -232,8 +241,9 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
         }
 
         if (FarmPostRegistry.isFarmPostId(placedId)) {
-            // The scarecrow is 3 blocks tall — anchor first, or each constituent block becomes
-            // its own separate (and redundant) registered post.
+            /* The scarecrow is 3 blocks tall — anchor first, or each constituent block becomes
+            its own separate (and redundant) registered post.
+            */
             Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
             FarmPostRegistry.registerAt(scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
         }

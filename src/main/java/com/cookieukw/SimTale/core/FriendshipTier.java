@@ -35,9 +35,10 @@ public enum FriendshipTier {
                 return tier;
             }
         }
-        // Off any tier (affinity below the minimum or above the
-        // maximum expected) -- falls to the nearest extreme instead of
-        // throwing an exception, so never lock the chat because of it.
+        /* Off any tier (affinity below the minimum or above the
+        maximum expected) -- falls to the nearest extreme instead of
+        throwing an exception, so never lock the chat because of it.
+        */
         return affinity < HOSTILE.min ? HOSTILE : CLOSE_FRIEND;
     }
 }

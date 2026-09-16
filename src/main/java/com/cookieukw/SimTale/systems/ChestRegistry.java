@@ -54,8 +54,9 @@ public final class ChestRegistry {
 
     public static void add(int x, int y, int z) {
         if (CHESTS.add(new HouseBlockPos(x, y, z))) {
-            // Only on a genuine addition: the boot sweep re-registers everything it walks past, and
-            // writing on every one of those would be a disk write per chest per join.
+            /* Only on a genuine addition: the boot sweep re-registers everything it walks past, and
+            writing on every one of those would be a disk write per chest per join.
+            */
             persist(x, y, z);
         }
         LOGGER.debug("[SimTale] Chest registered at (" + x + ", " + y + ", " + z + "). Total: " + CHESTS.size());

@@ -96,8 +96,9 @@ public class SimNPCNameGenerator {
         boolean hasMother = motherSurname != null && !motherSurname.isEmpty();
         boolean hasFather = fatherSurname != null && !fatherSurname.isEmpty();
 
-        // A child of a parent with no family name still gets one, rather than growing up nameless
-        // and passing that gap to its own children.
+        /* A child of a parent with no family name still gets one, rather than growing up nameless
+        and passing that gap to its own children.
+        */
         if (!hasMother && !hasFather) return generateSurname();
         if (!hasMother) return fatherSurname;
         if (!hasFather) return motherSurname;

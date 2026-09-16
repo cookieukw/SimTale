@@ -68,9 +68,10 @@ public final class NPCLeisureHelper {
         handleDoingHobby(ref, npc, ai, world, store);
     }
 
-    // ------------------------------------------------------------------
-    // FINDING_LEISURE
-    // ------------------------------------------------------------------
+    /* ------------------------------------------------------------------
+    FINDING_LEISURE
+    ------------------------------------------------------------------
+    */
 
     private static void handleFindingLeisure(
             Ref<EntityStore> ref,
@@ -104,17 +105,19 @@ public final class NPCLeisureHelper {
             NPCMovementHelper.playAnim(ref, ANIM_WALK, "Walk", store);
             LOGGER.debug("[SimTale] NPC '{}' found a spot for {} at {}", npc.name, hobby, found);
         } else {
-            // Nothing suitable nearby — fall back to relaxing at home instead of standing
-            // around bored forever.
+            /* Nothing suitable nearby — fall back to relaxing at home instead of standing
+            around bored forever.
+            */
             ai.targetBlockPosition = homeSpot(npc, transform);
             ai.currentTask = TaskType.MOVING_TO_LEISURE;
             NPCMovementHelper.playAnim(ref, ANIM_WALK, "Walk", store);
         }
     }
 
-    // ------------------------------------------------------------------
-    // MOVING_TO_LEISURE
-    // ------------------------------------------------------------------
+    /* ------------------------------------------------------------------
+    MOVING_TO_LEISURE
+    ------------------------------------------------------------------
+    */
 
     private static void handleMovingToLeisure(
             Ref<EntityStore> ref,
@@ -151,9 +154,10 @@ public final class NPCLeisureHelper {
         }
     }
 
-    // ------------------------------------------------------------------
-    // DOING_HOBBY
-    // ------------------------------------------------------------------
+    /* ------------------------------------------------------------------
+    DOING_HOBBY
+    ------------------------------------------------------------------
+    */
 
     private static void handleDoingHobby(
             Ref<EntityStore> ref,
@@ -185,9 +189,10 @@ public final class NPCLeisureHelper {
         }
     }
 
-    // ------------------------------------------------------------------
-    // Hobby mapping
-    // ------------------------------------------------------------------
+    /* ------------------------------------------------------------------
+    Hobby mapping
+    ------------------------------------------------------------------
+    */
 
     /** Never null — NPCs loaded from older saves may have no preferences yet. */
     public static Hobby hobbyOf(SimNPCComponent npc) {
@@ -258,9 +263,10 @@ public final class NPCLeisureHelper {
         };
     }
 
-    // ------------------------------------------------------------------
-    // Internals
-    // ------------------------------------------------------------------
+    /* ------------------------------------------------------------------
+    Internals
+    ------------------------------------------------------------------
+    */
 
     /** The NPC's bed, or its current position when it has no home yet. */
     private static Vector3i homeSpot(SimNPCComponent npc, TransformComponent transform) {

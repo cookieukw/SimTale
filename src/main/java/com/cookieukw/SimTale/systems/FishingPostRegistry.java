@@ -40,8 +40,9 @@ public final class FishingPostRegistry {
         return x + "," + y + "," + z;
     }
 
-    // Was equalsIgnoreCase, which is the same trap the blueprint marker fell into: a rotation or
-    // state variant comes back decorated and equality silently stops matching.
+    /* Was equalsIgnoreCase, which is the same trap the blueprint marker fell into: a rotation or
+    state variant comes back decorated and equality silently stops matching.
+    */
     public static boolean isFishingPostId(String id) {
         return AssetIds.matchesAsset(id, "Tool_Fishing_Trap");
     }

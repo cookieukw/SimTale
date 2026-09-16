@@ -149,8 +149,9 @@ public final class FamilyBonds {
         rel.trust = Math.max(rel.trust, trust);
         rel.affinity = Math.max(rel.affinity, affinity);
 
-        // Never downgrade a status the players earned themselves, and never let a family bond
-        // overwrite a romance the status machine is tracking.
+        /* Never downgrade a status the players earned themselves, and never let a family bond
+        overwrite a romance the status machine is tracking.
+        */
         if (rel.status == RelationshipStatus.UNKNOWN
                 || rel.status == RelationshipStatus.STRANGER
                 || rel.status == RelationshipStatus.ACQUAINTANCE

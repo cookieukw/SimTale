@@ -108,9 +108,10 @@ public class ConstructionSiteComponent implements Component<EntityStore> {
         clone.facing = this.facing;
         clone.roofFacing = this.roofFacing;
         clone.isClear = this.isClear;
-        // previewGhost is deliberately not copied. It is a handle to one live hologram entity,
-        // and two components both believing they own it means either a double despawn or a
-        // hologram that nobody removes. The clone simply has no preview.
+        /* previewGhost is deliberately not copied. It is a handle to one live hologram entity,
+        and two components both believing they own it means either a double despawn or a
+        hologram that nobody removes. The clone simply has no preview.
+        */
         return clone;
     }
 }

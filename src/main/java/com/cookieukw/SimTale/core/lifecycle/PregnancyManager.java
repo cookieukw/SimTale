@@ -103,11 +103,12 @@ public class PregnancyManager {
         String fatherName = father != null ? father.name : "";
         String childSurname = GeneticsData.inheritSurname(mother.name, fatherName);
 
-        // generateUniqueFirstName instead of generate() plus a substring: the old code built a
-        // full name and threw the surname away, which meant the uniqueness check inside
-        // generate() was being run against a string that was then discarded. It also ran before
-        // the surname existed, so no uniqueness check ever applied here at all -- two unrelated
-        // children born around the same time could (and did) end up sharing a full name.
+        /* generateUniqueFirstName instead of generate() plus a substring: the old code built a
+        full name and threw the surname away, which meant the uniqueness check inside
+        generate() was being run against a string that was then discarded. It also ran before
+        the surname existed, so no uniqueness check ever applied here at all -- two unrelated
+        children born around the same time could (and did) end up sharing a full name.
+        */
         String childFirstName = SimNPCNameGenerator.generateUniqueFirstName(childSurname);
 
         GrowthComponent child = new GrowthComponent(
@@ -151,9 +152,10 @@ public class PregnancyManager {
             LifecycleState.ACTIVE_CHILDREN.add(child);
             Caskara.save("child_" + child.childId.toString(), child);
             BabyCareManager.initializeForChild(child);
-            // initializeForChild only persists BabyCareData; the in-memory cache that drives the
-            // inventory sync needs the same starting holder or the "Baby" item never appears until
-            // a world/server restart forces loadCache() to read it back from disk.
+            /* initializeForChild only persists BabyCareData; the in-memory cache that drives the
+            inventory sync needs the same starting holder or the "Baby" item never appears until
+            a world/server restart forces loadCache() to read it back from disk.
+            */
             BabyCareManager.addCarriedBaby(mother.entityId, child.childId);
 
             LOGGER.atInfo().log("SimTale: Nasceu " + child.getFullName() + " ("
@@ -270,13 +272,14 @@ public class PregnancyManager {
         UUID fatherId = playerComp.pregnancy.fatherId;
         Gender childGender = Math.random() < 0.5 ? Gender.MALE : Gender.FEMALE;
 
-        // The family name comes from the NPC parent, not from a constant.
-        //
-        // This was hardcoded to "SimTale", so every child a player ever had shared a surname with
-        // every other player's children and with nobody they were actually related to — the mod's
-        // own name showing up as a family name across the village. The player has no surname to
-        // pass on, so the NPC partner's line is the only real one in the pair, and inheriting it
-        // puts player children on the same footing as everyone else's.
+        /* The family name comes from the NPC parent, not from a constant.
+
+        This was hardcoded to "SimTale", so every child a player ever had shared a surname with
+        every other player's children and with nobody they were actually related to — the mod's
+        own name showing up as a family name across the village. The player has no surname to
+        pass on, so the NPC partner's line is the only real one in the pair, and inheriting it
+        puts player children on the same footing as everyone else's.
+        */
         String partnerSurname = "";
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc != null && npc.entityId != null && npc.entityId.equals(fatherId)) {
@@ -284,14 +287,16 @@ public class PregnancyManager {
                 break;
             }
         }
-        // No blending here, because there is only one line to inherit from — blending a name with
-        // itself is either a no-op or noise.
+        /* No blending here, because there is only one line to inherit from — blending a name with
+        itself is either a no-op or noise.
+        */
         String childSurname = partnerSurname.isEmpty()
                 ? SimNPCNameGenerator.generateSurname()
                 : partnerSurname;
 
-        // See the NPC-NPC birth flow above for why this checks uniqueness against the surname
-        // instead of calling generateFirstName() directly.
+        /* See the NPC-NPC birth flow above for why this checks uniqueness against the surname
+        instead of calling generateFirstName() directly.
+        */
         String childFirstName = SimNPCNameGenerator.generateUniqueFirstName(childSurname);
 
         GeneticsData childGenetics = GeneticsData.combine(new GeneticsData(), new GeneticsData());

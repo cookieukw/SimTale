@@ -119,8 +119,9 @@ public final class VillageManager {
         for (int i = 0; i < beds.size(); i++) {
             if (taken[i]) continue;
 
-            // Flood fill: seed with one house, then keep absorbing any house close to one already
-            // absorbed. This is what makes the chaining work.
+            /* Flood fill: seed with one house, then keep absorbing any house close to one already
+            absorbed. This is what makes the chaining work.
+            */
             List<HouseBlockPos> cluster = new ArrayList<>();
             cluster.add(beds.get(i));
             taken[i] = true;

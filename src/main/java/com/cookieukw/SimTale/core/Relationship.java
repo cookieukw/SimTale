@@ -79,9 +79,10 @@ public class Relationship {
         } else if (romance > 50 && friendship > 40) {
             status = RelationshipStatus.DATING;
         }
-        // A crush only outranks friendship up to BEST_FRIEND. Previously `romance > 20` was
-        // checked first, so a BEST_FRIEND who happened to have a bit of romance was demoted
-        // to CRUSH — a downgrade the player saw as the relationship going backwards.
+        /* A crush only outranks friendship up to BEST_FRIEND. Previously `romance > 20` was
+        checked first, so a BEST_FRIEND who happened to have a bit of romance was demoted
+        to CRUSH — a downgrade the player saw as the relationship going backwards.
+        */
         else if (romance > 20 && friendship <= 80) {
             status = RelationshipStatus.CRUSH;
         }

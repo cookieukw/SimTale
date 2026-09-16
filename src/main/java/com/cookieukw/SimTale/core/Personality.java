@@ -41,8 +41,9 @@ public class Personality {
         Personality p = new Personality(50, 50, 20, 50);
         List<Trait> traitList = new ArrayList<>(Arrays.asList(Trait.values()));
         Collections.shuffle(traitList);
-        // Bounded by the enum size: the old code indexed 0/1/2 unconditionally and would throw
-        // IndexOutOfBounds if Trait ever dropped below three constants.
+        /* Bounded by the enum size: the old code indexed 0/1/2 unconditionally and would throw
+        IndexOutOfBounds if Trait ever dropped below three constants.
+        */
         int count = Math.min(TRAITS_PER_NPC, traitList.size());
         for (int i = 0; i < count; i++) {
             p.traits.add(traitList.get(i));

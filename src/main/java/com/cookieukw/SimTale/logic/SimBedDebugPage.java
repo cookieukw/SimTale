@@ -107,18 +107,20 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             }
             int pruned = before - BedRegistry.BEDS.size();
             if (pruned > 0) {
-                // If this ever prunes everything the screen looks broken, when in fact the anchor
-                // stored in the registry no longer reads as a bed block. Worth seeing.
+                /* If this ever prunes everything the screen looks broken, when in fact the anchor
+                stored in the registry no longer reads as a bed block. Worth seeing.
+                */
                 LOGGER.info("[SimTale] Bed page pruned {} stale bed(s), {} left", pruned, BedRegistry.BEDS.size());
             }
             List<BedPos> list = new ArrayList<>();
-            // Sem filtro de exibicao: o registro agora guarda apenas a ancora de cada movel.
-            //
-            // Antes cada um dos seis blocos de uma cama virava um registro, e esta tela tentava
-            // esconder as sobras com a heuristica isPrimaryBedBlock. Consertada a origem (o
-            // registro passa pelo FurnitureAnchorHelper), o filtro deixou de ser necessario — e
-            // passaria a esconder camas legitimas, ja que a ancora nem sempre satisfaz aquela
-            // heuristica de vizinhanca.
+            /* Sem filtro de exibicao: o registro agora guarda apenas a ancora de cada movel.
+
+            Antes cada um dos seis blocos de uma cama virava um registro, e esta tela tentava
+            esconder as sobras com a heuristica isPrimaryBedBlock. Consertada a origem (o
+            registro passa pelo FurnitureAnchorHelper), o filtro deixou de ser necessario — e
+            passaria a esconder camas legitimas, ja que a ancora nem sempre satisfaz aquela
+            heuristica de vizinhanca.
+            */
             list.addAll(BedRegistry.BEDS);
             list.sort((b1, b2) -> {
                 if (b1.x != b2.x) return Integer.compare(b1.x, b2.x);
@@ -178,8 +180,9 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                 }
 
 
-                // Hidden as well as unbound in read-only mode: leaving the buttons on screen with
-                // nothing behind them reads as broken, which is worse than not offering them.
+                /* Hidden as well as unbound in read-only mode: leaving the buttons on screen with
+                nothing behind them reads as broken, which is worse than not offering them.
+                */
                 boolean canEdit = canEdit();
                 cmd.set(rowSelector + " #BtnTp.Visible", canEdit);
                 cmd.set(rowSelector + " #BtnUnclaim.Visible", canEdit);
@@ -243,9 +246,10 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             return;
         }
         if (eventData.contains("back")) {
-            // Only a screen the hub opened has anywhere to go back to. An item or a direct command
-            // did not come from the developer panel, and dropping the player into it is how the
-            // force-sleep controls kept surfacing in a survival session.
+            /* Only a screen the hub opened has anywhere to go back to. An item or a direct command
+            did not come from the developer panel, and dropping the player into it is how the
+            force-sleep controls kept surfacing in a survival session.
+            */
             if (fromHub) {
                 player.getPageManager().openCustomPage(storeRef, store, new SimDebugPage(playerRefComp, player));
             } else {
@@ -254,8 +258,9 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             return;
         }
 
-        // The bindings are already withheld, but the client sends the action string, so the guard
-        // belongs here too rather than only on the button that produced it.
+        /* The bindings are already withheld, but the client sends the action string, so the guard
+        belongs here too rather than only on the button that produced it.
+        */
         if ((eventData.contains("tp_") || eventData.contains("unclaim_")) && !canEdit()) {
             return;
         }

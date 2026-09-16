@@ -92,12 +92,13 @@ public class BuildCommand extends AbstractPlayerCommand {
                 }
             }
 
-            // A marker-block preview is not in ACTIVE_SITES — it only gets there when something
-            // confirms it, and commit() is what moves it. So this search only ever saw sites that
-            // had already been confirmed, and reported "no pending construction site" while the
-            // player was standing inside a hologram. Confirming the nearest pending preview here
-            // is what the command claims to do, and makes '/build force' a complete test path on
-            // its own: place the marker, run it, watch the house go up.
+            /* A marker-block preview is not in ACTIVE_SITES — it only gets there when something
+            confirms it, and commit() is what moves it. So this search only ever saw sites that
+            had already been confirmed, and reported "no pending construction site" while the
+            player was standing inside a hologram. Confirming the nearest pending preview here
+            is what the command claims to do, and makes '/build force' a complete test path on
+            its own: place the marker, run it, watch the house go up.
+            */
             if (closestSite == null) {
                 ConstructionSiteComponent pending = null;
                 double pendingDistance = Double.MAX_VALUE;

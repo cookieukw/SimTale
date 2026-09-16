@@ -154,9 +154,10 @@ public class ChildPlayHelper {
         partnerAi.taskStartTime = tick;
     }
 
-    // ------------------------------------------------------------------
-    // TAG_CHASING / TAG_FLEEING
-    // ------------------------------------------------------------------
+    /* ------------------------------------------------------------------
+    TAG_CHASING / TAG_FLEEING
+    ------------------------------------------------------------------
+    */
 
     private static void handleTagChasing(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
             TransformComponent transform, World world, Store<EntityStore> store) {
@@ -220,9 +221,10 @@ public class ChildPlayHelper {
             return;
         }
 
-        // Catches are detected on the chaser's own tick (handleTagChasing) -- this side only
-        // needs to run away once the chaser is actually closing in, and stand still otherwise
-        // rather than fidgeting every tick with nowhere in particular to go.
+        /* Catches are detected on the chaser's own tick (handleTagChasing) -- this side only
+        needs to run away once the chaser is actually closing in, and stand still otherwise
+        rather than fidgeting every tick with nowhere in particular to go.
+        */
         Vector3d myPos = transform.getPosition();
         double distSq = myPos.distanceSquared(chaserT.getPosition());
         if (distSq < TAG_FLEE_TRIGGER_SQ) {
@@ -243,9 +245,10 @@ public class ChildPlayHelper {
         }
     }
 
-    // ------------------------------------------------------------------
-    // MOVING_TO_HIDE / HIDING / SEEKING
-    // ------------------------------------------------------------------
+    /* ------------------------------------------------------------------
+    MOVING_TO_HIDE / HIDING / SEEKING
+    ------------------------------------------------------------------
+    */
 
     private static void handleMovingToHide(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
             TransformComponent transform, World world, Store<EntityStore> store) {
@@ -293,8 +296,9 @@ public class ChildPlayHelper {
             return;
         }
         if (elapsed == HIDE_COUNT_TICKS) {
-            // Counting just ended -- kick the walk animation off exactly once instead of every
-            // tick moveTo() re-targets.
+            /* Counting just ended -- kick the walk animation off exactly once instead of every
+            tick moveTo() re-targets.
+            */
             NPCMovementHelper.playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
         }
         if (elapsed < HIDE_COUNT_TICKS) {

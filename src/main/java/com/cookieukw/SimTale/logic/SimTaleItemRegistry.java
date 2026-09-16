@@ -100,8 +100,9 @@ public class SimTaleItemRegistry {
             playerRef.sendMessage(Message.translation("general.bell.rang").param("count", count));
         });
         
-        // The three lenses below replace placeholder handlers that only printed a line of hardcoded
-        // Portuguese with an emoji the client renders as "??".
+        /* The three lenses below replace placeholder handlers that only printed a line of hardcoded
+        Portuguese with an emoji the client renders as "??".
+        */
         RuneCoreItemManager.register("InspectorsJournal", (player, playerRef) ->
                 withPlayerPosition(playerRef, pos ->
                         InspectorJournalHelper.inspect(WorldUtil.first(), playerRef, pos)));
@@ -135,19 +136,21 @@ public class SimTaleItemRegistry {
                 ? SimNPCFactory.NPCType.HUMAN_MALE
                 : SimNPCFactory.NPCType.HUMAN_FEMALE;
 
-            // "Consumable": true in the item JSON only drives the engine's built-in food/potion
-            // consumption — it has no effect on a custom RuneCore_GenericItemUse interaction, so
-            // the contract has to be removed from the hotbar by hand, same as InteractionManager
-            // does for gifts.
+            /* "Consumable": true in the item JSON only drives the engine's built-in food/potion
+            consumption — it has no effect on a custom RuneCore_GenericItemUse interaction, so
+            the contract has to be removed from the hotbar by hand, same as InteractionManager
+            does for gifts.
+            */
             InventoryComponent.Hotbar hotbar = store.getComponent(pRef, InventoryComponent.Hotbar.getComponentType());
             if (hotbar != null) {
                 hotbar.getInventory().removeItemStackFromSlot(hotbar.getActiveSlot(), 1);
             }
 
-            // Item interactions tick from inside the store's own processing window;
-            // Store.addEntity (inside spawnNPC) is a structural write and throws
-            // "Store is currently processing!" if called straight from here. Same fix as
-            // everywhere else in the mod that mutates entities off a system's own tick.
+            /* Item interactions tick from inside the store's own processing window;
+            Store.addEntity (inside spawnNPC) is a structural write and throws
+            "Store is currently processing!" if called straight from here. Same fix as
+            everywhere else in the mod that mutates entities off a system's own tick.
+            */
             WorldUtil.execute(() -> {
                 Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
                 if (npcRef == null) {
@@ -162,10 +165,11 @@ public class SimTaleItemRegistry {
             });
         });
         
-        // Was entirely missing — Baby.json points its Secondary interaction at
-        // "RuneCore_GenericItemUse" same as every other custom item here, but with no matching
-        // register() call RuneCoreGenericItemInteraction always logged "No handler registered
-        // for item: Baby" and the interaction just failed.
+        /* Was entirely missing — Baby.json points its Secondary interaction at
+        "RuneCore_GenericItemUse" same as every other custom item here, but with no matching
+        register() call RuneCoreGenericItemInteraction always logged "No handler registered
+        for item: Baby" and the interaction just failed.
+        */
         RuneCoreItemManager.register("Baby", (player, playerRef) -> {
             if (playerRef.getReference() == null || !playerRef.getReference().isValid()) {
                 return;
@@ -181,21 +185,24 @@ public class SimTaleItemRegistry {
                 return;
             }
 
-            // No target block available from this interaction (unlike a raycasted click) — same
-            // "just in front of the player" placement ImmigrationContract above uses.
+            /* No target block available from this interaction (unlike a raycasted click) — same
+            "just in front of the player" placement ImmigrationContract above uses.
+            */
             Vector3d spawnPos = new Vector3d(transform.getPosition()).add(2, 0, 2);
 
-            // Structural write (spawnNPC -> Store.addEntity) from inside the interaction's own
-            // processing window — same deferral ImmigrationContract needs above.
+            /* Structural write (spawnNPC -> Store.addEntity) from inside the interaction's own
+            processing window — same deferral ImmigrationContract needs above.
+            */
             WorldUtil.execute(() -> SimTaleEventHandler.placeBabyFromHeldItem(store, pRef, playerRef, heldItem, spawnPos));
         });
 
-        // Blueprint_TavernHouse is a real placeable block now (BedPlaceBlockEventSystem/
-        // BedBlockEventSystem react to it being placed/broken, and SimTaleEventHandler reacts to
-        // it being right-clicked), not an item interaction — see those classes for why: a
-        // live-following hologram (tried first) turned out to cost a full obstruction re-scan of
-        // the whole prefab on every rotation, which was expensive enough to bog down the server
-        // for the one active preview alone. Nothing to register here anymore.
+        /* Blueprint_TavernHouse is a real placeable block now (BedPlaceBlockEventSystem/
+        BedBlockEventSystem react to it being placed/broken, and SimTaleEventHandler reacts to
+        it being right-clicked), not an item interaction — see those classes for why: a
+        live-following hologram (tried first) turned out to cost a full obstruction re-scan of
+        the whole prefab on every rotation, which was expensive enough to bog down the server
+        for the one active preview alone. Nothing to register here anymore.
+        */
 
         RuneCoreItemManager.register("QuartermastersGlass", (player, playerRef) ->
                 openPage(player, playerRef, (pRef, store) ->
@@ -250,8 +257,9 @@ public class SimTaleItemRegistry {
             }
         });
         
-        // The ring's real behaviour lives in the gift path (InteractionManager); this only fires
-        // when it is used on nothing.
+        /* The ring's real behaviour lives in the gift path (InteractionManager); this only fires
+        when it is used on nothing.
+        */
         RuneCoreItemManager.register("WeddingRing", (player, playerRef) ->
                 playerRef.sendMessage(Message.translation("general.ring.holding")));
     }

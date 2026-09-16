@@ -38,8 +38,9 @@ public final class FarmPostRegistry {
         return x + "," + y + "," + z;
     }
 
-    // The scarecrow is three blocks tall, so its non-anchor blocks arrive as state variants —
-    // equalsIgnoreCase only ever matched one of the three.
+    /* The scarecrow is three blocks tall, so its non-anchor blocks arrive as state variants —
+    equalsIgnoreCase only ever matched one of the three.
+    */
     public static boolean isFarmPostId(String id) {
         return AssetIds.matchesAsset(id, "Deco_Scarecrow");
     }

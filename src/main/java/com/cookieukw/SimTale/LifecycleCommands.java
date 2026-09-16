@@ -141,11 +141,12 @@ final class LifecycleCommands {
                 if (playerComp.pregnancy == null) {
                     playerComp.pregnancy = new PregnancyComponent();
                 }
-                // No real father to reference for a solo /simtale forcepreg --target=me — a
-                // random UUID here used to silently fail every lookup that tried to resolve it
-                // against a real NPC (the birth-time "add child to father's family" loop, any
-                // future "who's the father" check), instead of the fatherId just being absent
-                // like it legitimately is in this case.
+                /* No real father to reference for a solo /simtale forcepreg --target=me — a
+                random UUID here used to silently fail every lookup that tried to resolve it
+                against a real NPC (the birth-time "add child to father's family" loop, any
+                future "who's the father" check), instead of the fatherId just being absent
+                like it legitimately is in this case.
+                */
                 playerComp.pregnancy.start(null, world.getTick());
                 SimPlayerPersistence.savePlayer(playerComp);
                 ctx.sendMessage(Message.translation("general.cmd.forcepreg.success"));
@@ -298,13 +299,14 @@ final class LifecycleCommands {
                 return;
             }
 
-            // Self-heal before searching.
-            //
-            // The list is rebuilt from disk in PlayerJoinHandler, and anything that stops that from
-            // running — an early return, a join that fired before the world was ready, a reload of
-            // the mod without a rejoin — leaves it empty for the rest of the session with no way to
-            // recover short of relogging. Refilling here is idempotent and costs one database read
-            // on a command nobody spams.
+            /* Self-heal before searching.
+
+            The list is rebuilt from disk in PlayerJoinHandler, and anything that stops that from
+            running — an early return, a join that fired before the world was ready, a reload of
+            the mod without a rejoin — leaves it empty for the rest of the session with no way to
+            recover short of relogging. Refilling here is idempotent and costs one database read
+            on a command nobody spams.
+            */
             LifecycleState.ensureLoaded();
 
             TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
@@ -336,9 +338,10 @@ final class LifecycleCommands {
             }
 
             if (nearestChild == null) {
-                // Three failures wore the same message and need opposite fixes: no growth records
-                // at all, records whose entities are not in the world, and a player with no
-                // transform. Saying which one it is turns a guess into a lookup.
+                /* Three failures wore the same message and need opposite fixes: no growth records
+                at all, records whose entities are not in the world, and a player with no
+                transform. Saying which one it is turns a guess into a lookup.
+                */
                 int total = LifecycleManager.ACTIVE_CHILDREN.size();
                 String miss;
                 if (total == 0) {
@@ -357,17 +360,18 @@ final class LifecycleCommands {
             nearestChild.stage = targetStage;
             nearestChild.birthTick = world.getTick() - (targetStage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
 
-            // The scale comes from GrowthManager, not from GrowthStage.getScale().
-            //
-            // There were two different scale tables and this command used the wrong one. The enum
-            // says 0.35/0.50/0.70/0.90/1.00; GrowthManager.calculateTargetScale interpolates inside
-            // each stage and yields 0.45/0.55/0.75 at the start of TODDLER/CHILD/TEEN. Since
-            // GrowthTickSystem recomputes with its own table every tick, whatever this command
-            // wrote was overwritten within a frame — the command looked like it did nothing, or
-            // like it resized by a bit and then refused to go back.
-            //
-            // Setting the age above and asking the growth code for the matching scale leaves one
-            // source of truth, so the command and the passage of time can no longer disagree.
+            /* The scale comes from GrowthManager, not from GrowthStage.getScale().
+
+            There were two different scale tables and this command used the wrong one. The enum
+            says 0.35/0.50/0.70/0.90/1.00; GrowthManager.calculateTargetScale interpolates inside
+            each stage and yields 0.45/0.55/0.75 at the start of TODDLER/CHILD/TEEN. Since
+            GrowthTickSystem recomputes with its own table every tick, whatever this command
+            wrote was overwritten within a frame — the command looked like it did nothing, or
+            like it resized by a bit and then refused to go back.
+
+            Setting the age above and asking the growth code for the matching scale leaves one
+            source of truth, so the command and the passage of time can no longer disagree.
+            */
             nearestChild.currentScale = LifecycleManager.calculateTargetScale(nearestChild, world.getTick());
 
             Ref<EntityStore> childRef = resolveChildRef(world, nearestChild.childId);
@@ -375,9 +379,10 @@ final class LifecycleCommands {
                 LifecycleManager.applyVisualScale(childRef, nearestChild.currentScale);
             }
 
-            // Logged, not only sent to chat: seven setstage runs in one session left no trace in
-            // the server log at all, so there was no way to tell a command that silently found no
-            // child from one that ran and was undone a tick later.
+            /* Logged, not only sent to chat: seven setstage runs in one session left no trace in
+            the server log at all, so there was no way to tell a command that silently found no
+            child from one that ran and was undone a tick later.
+            */
             String report = "[SimTale] setstage: " + nearestChild.getFullName() + " -> " + targetStage.name()
                     + " (scale " + nearestChild.currentScale + ", age " + nearestChild.getAgeDays(world.getTick()) + "d)";
             HytaleLogger.forEnclosingClass().atInfo().log(report);
@@ -409,8 +414,9 @@ final class LifecycleCommands {
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
-            // Target stage is TODDLER: the lowest stage that placeBabyFromHeldItem actually
-            // permits dropping.
+            /* Target stage is TODDLER: the lowest stage that placeBabyFromHeldItem actually
+            permits dropping.
+            */
             GrowthStage targetStage = PLACEABLE;
 
             ItemStack heldItem = InventoryComponent.getItemInHand(store, ref);
@@ -450,22 +456,25 @@ final class LifecycleCommands {
                 return;
             }
 
-            // No live entity to update — the point of this command is that one doesn't exist
-            // yet. The stage/scale take effect the moment it's placed down (SimTaleEventHandler
-            // reads childComp.currentScale/stage at that point) or picked up again.
+            /* No live entity to update — the point of this command is that one doesn't exist
+            yet. The stage/scale take effect the moment it's placed down (SimTaleEventHandler
+            reads childComp.currentScale/stage at that point) or picked up again.
+            */
             childComp.stage = targetStage;
             childComp.birthTick = world.getTick() - (targetStage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
-            // Age first, then ask the growth code for the matching scale — the same correction
-            // setstage already got. GrowthStage.getScale() is a second, coarser table
-            // (0.35/0.50/0.70/0.90/1.00) that disagrees with calculateTargetScale's interpolation,
-            // and since GrowthTickSystem recomputes with the latter every tick, anything written
-            // from the enum table was overwritten within a frame.
+            /* Age first, then ask the growth code for the matching scale — the same correction
+            setstage already got. GrowthStage.getScale() is a second, coarser table
+            (0.35/0.50/0.70/0.90/1.00) that disagrees with calculateTargetScale's interpolation,
+            and since GrowthTickSystem recomputes with the latter every tick, anything written
+            from the enum table was overwritten within a frame.
+            */
             childComp.currentScale = LifecycleManager.calculateTargetScale(childComp, world.getTick());
             Caskara.save("child_" + childId, childComp);
 
-            // No BABY case any more: none of the accepted values map to it, precisely because
-            // placeBabyFromHeldItem refuses a newborn and the command would be reporting success on
-            // something that still cannot be put down.
+            /* No BABY case any more: none of the accepted values map to it, precisely because
+            placeBabyFromHeldItem refuses a newborn and the command would be reporting success on
+            something that still cannot be put down.
+            */
             ctx.sendMessage(Message.raw("[SimTale] " + childComp.getFullName() + " grew to "
                     + targetStage.getDisplayName() + " (scale: " + childComp.currentScale
                     + "). Can now be placed on the ground."));
@@ -505,8 +514,9 @@ final class LifecycleCommands {
                 ctx.sendMessage(Message.raw("[SimTale] Could not get your position."));
                 return;
             }
-            // Copied first: joml's add mutates in place, so offsetting the live transform vector
-            // teleports the player instead of picking a spot beside them.
+            /* Copied first: joml's add mutates in place, so offsetting the live transform vector
+            teleports the player instead of picking a spot beside them.
+            */
             Vector3d spawnPos = new Vector3d(transform.getPosition()).add(2, 0, 2);
 
             boolean placed = SimTaleEventHandler.placeBabyFromHeldItem(store, ref, playerRef, heldItem, spawnPos);

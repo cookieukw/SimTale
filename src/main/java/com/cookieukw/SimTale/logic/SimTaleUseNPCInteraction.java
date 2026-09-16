@@ -72,25 +72,27 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             Player player = ref.getStore().getComponent(ref, Player.getComponentType());
             SimNPCComponent npc = targetRef.getStore().getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
             
-            // Re-attach path, which used to adopt ANY entity into the mod (a chicken, a hostile
-            // mob, another player). Shared with SimTaleEventHandler (right click) via
-            // SimNPCPersistence.tryReattach — this used to be copied by hand in both places, and
-            // that duplication is exactly why an earlier fix to that bug landed in only one of
-            // the two paths while the other kept adopting things it shouldn't.
-            //
-            // tryReattach deliberately does NOT touch context.getState() and this does NOT
-            // return early. This class is registered over the engine's own
-            // UseNPCInteraction.DEFAULT_ID, so failing the interaction here does not merely
-            // decline to open our screen — it breaks the shared interaction pipeline, and with
-            // it doors, blocks and everything else. Declining is done by simply leaving `npc`
-            // null, which the page condition below already handles.
+            /* Re-attach path, which used to adopt ANY entity into the mod (a chicken, a hostile
+            mob, another player). Shared with SimTaleEventHandler (right click) via
+            SimNPCPersistence.tryReattach — this used to be copied by hand in both places, and
+            that duplication is exactly why an earlier fix to that bug landed in only one of
+            the two paths while the other kept adopting things it shouldn't.
+
+            tryReattach deliberately does NOT touch context.getState() and this does NOT
+            return early. This class is registered over the engine's own
+            UseNPCInteraction.DEFAULT_ID, so failing the interaction here does not merely
+            decline to open our screen — it breaks the shared interaction pipeline, and with
+            it doors, blocks and everything else. Declining is done by simply leaving `npc`
+            null, which the page condition below already handles.
+            */
             if (npc == null) {
                 npc = SimNPCPersistence.tryReattach(commandBuffer, targetRef);
             }
 
-            // Entities adopted before these guards still carry the component and a saved record.
-            // Gender is the tell: spawnNPC always sets it, adoption never did. Same rule as
-            // /simtale forget, so what refuses to open here is exactly what that command clears.
+            /* Entities adopted before these guards still carry the component and a saved record.
+            Gender is the tell: spawnNPC always sets it, adoption never did. Same rule as
+            /simtale forget, so what refuses to open here is exactly what that command clears.
+            */
             boolean wronglyAdopted = npc != null && npc.gender == null;
 
             // Block interaction if NPC is currently sleeping or heading to bed
@@ -103,11 +105,12 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
                 return;
             }
 
-            // Pleading for a life, mid-collection: interacting with the Reaper while she's
-            // actively REAPING short-circuits the normal interaction panel entirely — no
-            // friendly chat, no gifts, no marriage proposal to Death. Holding an
-            // Ingredient_Voidheart buys the NPC back; anything else (or nothing) just gets
-            // turned away.
+            /* Pleading for a life, mid-collection: interacting with the Reaper while she's
+            actively REAPING short-circuits the normal interaction panel entirely — no
+            friendly chat, no gifts, no marriage proposal to Death. Holding an
+            Ingredient_Voidheart buys the NPC back; anything else (or nothing) just gets
+            turned away.
+            */
             if (npc != null && npc.isReaper && ai != null && ai.currentTask == RoutineAIComponent.TaskType.REAPING) {
                 World world = targetRef.getStore().getExternalData().getWorld();
                 ItemStack heldItem = InventoryComponent.getItemInHand(ref.getStore(), ref);

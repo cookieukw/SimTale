@@ -82,8 +82,9 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
                     .param("name", data.name != null ? data.name : "?"));
             cmd.set(row + " #Detail.TextSpans", buildDetail(data));
 
-            // Keyed by UUID rather than by list position: reviving reorders the list, and a stale
-            // index would revive whoever slid into that slot.
+            /* Keyed by UUID rather than by list position: reviving reorders the list, and a stale
+            index would revive whoever slid into that slot.
+            */
             eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, row + " #BtnRevive",
                     new EventData().append("action", "revive_" + data.id), false);
         }
@@ -107,9 +108,10 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
                 ? Message.translation("ui.prof." + data.profession.name().toLowerCase())
                 : Message.translation("ui.prof.unemployed");
         int children = data.family != null && data.family.children != null ? data.family.children.size() : 0;
-        // Composed rather than one string with a {profession} slot: the profession is itself a
-        // translation, and the separator lives in raw() so neither .lang value has to carry
-        // leading or trailing whitespace that a parser is free to trim.
+        /* Composed rather than one string with a {profession} slot: the profession is itself a
+        translation, and the separator lives in raw() so neither .lang value has to carry
+        leading or trailing whitespace that a parser is free to trim.
+        */
         return profession.insert(Message.raw(" · "))
                 .insert(Message.translation("ui.graveyard.detail").param("children", children));
     }
@@ -132,8 +134,9 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
             return;
         }
         if (eventData.contains("back")) {
-            // Closes rather than opening the control panel: nothing opens the graveyard from the
-            // hub, so "back" there was a one-way door into the developer screen.
+            /* Closes rather than opening the control panel: nothing opens the graveyard from the
+            hub, so "back" there was a one-way door into the developer screen.
+            */
             player.getPageManager().setPage(storeRef, store, Page.None);
             return;
         }
@@ -159,12 +162,14 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
             return;
         }
 
-        // Copy before offsetting: joml's add mutates the receiver, and getPosition() hands back the
-        // component's live vector — offsetting it in place would teleport the player instead.
+        /* Copy before offsetting: joml's add mutates the receiver, and getPosition() hands back the
+        component's live vector — offsetting it in place would teleport the player instead.
+        */
         Vector3d spawnAt = new Vector3d(transform.getPosition()).add(1.0, 0.0, 1.0);
 
-        // Spawning is a structural write and this runs from inside the store's own processing, so
-        // it has to be deferred the same way the Reaper spawn is.
+        /* Spawning is a structural write and this runs from inside the store's own processing, so
+        it has to be deferred the same way the Reaper spawn is.
+        */
         world.execute(() -> {
             SimNPCRevival.Result result = SimNPCRevival.revive(store, world, spawnAt, graveId);
             if (!result.ok()) {
@@ -175,9 +180,10 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
                             result.reclaimedBed() ? "ui.graveyard.msgRevivedWithBed" : "ui.graveyard.msgRevived")
                     .param("name", result.npc().name));
 
-            // Redrawn in here, not after scheduling: the revival is deferred, so refreshing
-            // straight away rebuilds the list from a graveyard that still holds the record and
-            // the row the player just clicked stays on screen as if nothing happened.
+            /* Redrawn in here, not after scheduling: the revival is deferred, so refreshing
+            straight away rebuilds the list from a graveyard that still holds the record and
+            the row the player just clicked stays on screen as if nothing happened.
+            */
             refreshUI(storeRef, store);
         });
     }

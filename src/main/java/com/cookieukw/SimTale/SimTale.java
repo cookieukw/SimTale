@@ -157,9 +157,10 @@ public class SimTale extends JavaPlugin {
         // Initialize AI manager
         aiManager = new NpcAiManager();
 
-        // customModel/customUrl override only the provider actually selected in the config.
-        // Applying them to every provider meant that setting, say, an OpenRouter model also
-        // sent that model id to Gemini and OpenAI, breaking both.
+        /* customModel/customUrl override only the provider actually selected in the config.
+        Applying them to every provider meant that setting, say, an OpenRouter model also
+        sent that model id to Gemini and OpenAI, breaking both.
+        */
         String selected = config.provider != null ? config.provider.trim().toLowerCase(Locale.ROOT) : "";
 
         // 1. Setup Gemini
@@ -195,13 +196,14 @@ public class SimTale extends JavaPlugin {
 
         logAiStartupState(config);
 
-        // Register data components
-        // registerComponent(Class, Supplier) is the available method in
-        // ComponentRegistryProxy
-        // Registered WITH a persistence id and codec so the component survives entity reloads.
-        // Previously it used the codec-less overload, which made it runtime-only: NPCs came
-        // back from a reload with no SimNPCComponent and had to be re-attached by
-        // SimTaleTickSystem, which only runs while the entity is ticking.
+        /* Register data components
+        registerComponent(Class, Supplier) is the available method in
+        ComponentRegistryProxy
+        Registered WITH a persistence id and codec so the component survives entity reloads.
+        Previously it used the codec-less overload, which made it runtime-only: NPCs came
+        back from a reload with no SimNPCComponent and had to be re-attached by
+        SimTaleTickSystem, which only runs while the entity is ticking.
+        */
         SIM_NPC_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(SimNPCComponent.class,
                 "simtale:npc", SimNPCComponent.CODEC);
         ROUTINE_AI_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(RoutineAIComponent.class, 
@@ -226,32 +228,35 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new BabyCareTickSystem());
         this.getEntityStoreRegistry().registerSystem(new GrowthTickSystem());
         this.getEntityStoreRegistry().registerSystem(new BabyBabbleSystem());
-        // Crouch + use a block to put a carried child down. An EntityEventSystem rather than an
-        // event-registry listener because UseBlockEvent is an EcsEvent — see the class doc for why
-        // the PlayerMouseButtonEvent version had to be abandoned.
+        /* Crouch + use a block to put a carried child down. An EntityEventSystem rather than an
+        event-registry listener because UseBlockEvent is an EcsEvent — see the class doc for why
+        the PlayerMouseButtonEvent version had to be abandoned.
+        */
         this.getEntityStoreRegistry().registerSystem(new ChildPutDownSystem());
         this.getEntityStoreRegistry().registerSystem(new ChildCarryReleaseTickSystem());
 
-        // Map markers are NOT registered here.
-        //
-        // This was a loop over Universe.get().getWorlds().values(), and it ran during registry
-        // setup — about a minute before the first world is loaded, as the server log shows. The
-        // collection was empty, the loop body never executed, and no provider was ever attached,
-        // so the NPC markers could not appear no matter what the provider did.
-        //
-        // Registration moved to PlayerJoinHandler, which by definition has a world in hand. See
-        // SimTaleMarkerProvider.ensureRegistered.
+        /* Map markers are NOT registered here.
 
-        // Register event handlers
-        //
-        // Was .register(...) instead of .registerGlobal(...) — the only PlayerMouseButtonEvent
-        // registration in either this project or RuneCore using that method, and the only one
-        // that never fired. Every other listener for this event (SimTaleChatHandler's own
-        // PlayerChatEvent registration right below, and all four of RuneCore's
-        // PlayerMouseButtonEvent listeners) uses registerGlobal. This is why the baby/blueprint
-        // block-placement logic in SimTaleEventHandler never ran, no matter what item was held —
-        // confirmed via a log line at the very top of accept() that never printed once across an
-        // entire testing session full of right-clicks.
+        This was a loop over Universe.get().getWorlds().values(), and it ran during registry
+        setup — about a minute before the first world is loaded, as the server log shows. The
+        collection was empty, the loop body never executed, and no provider was ever attached,
+        so the NPC markers could not appear no matter what the provider did.
+
+        Registration moved to PlayerJoinHandler, which by definition has a world in hand. See
+        SimTaleMarkerProvider.ensureRegistered.
+        */
+
+        /* Register event handlers
+
+        Was .register(...) instead of .registerGlobal(...) — the only PlayerMouseButtonEvent
+        registration in either this project or RuneCore using that method, and the only one
+        that never fired. Every other listener for this event (SimTaleChatHandler's own
+        PlayerChatEvent registration right below, and all four of RuneCore's
+        PlayerMouseButtonEvent listeners) uses registerGlobal. This is why the baby/blueprint
+        block-placement logic in SimTaleEventHandler never ran, no matter what item was held —
+        confirmed via a log line at the very top of accept() that never printed once across an
+        entire testing session full of right-clicks.
+        */
         this.getEventRegistry().registerGlobal(EventPriority.NORMAL.getValue(), PlayerMouseButtonEvent.class,
                 new SimTaleEventHandler());
         

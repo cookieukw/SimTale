@@ -101,13 +101,14 @@ final class RoutineSleepHelpers {
     private RoutineSleepHelpers() {}
 
     static boolean handleIdle(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {
-        // Reserved (waiting for a conversation partner to arrive) must mean actually standing
-        // still: reservedForSocialUuid previously only stopped OTHER NPCs' searches from picking
-        // this one (NPCSocialHelper.isAvailableToTalk) -- nothing stopped THIS ladder from handing
-        // her a brand new errand, or even a second conversation, on a later tick while she waited.
-        // When her real suitor then arrived, isReservedForMe let it force her into SOCIALIZING out
-        // from under whatever she'd started, which is what showed up in-game as an NPC snapping
-        // out of one task mid-stride ("giro e volta").
+        /* Reserved (waiting for a conversation partner to arrive) must mean actually standing
+        still: reservedForSocialUuid previously only stopped OTHER NPCs' searches from picking
+        this one (NPCSocialHelper.isAvailableToTalk) -- nothing stopped THIS ladder from handing
+        her a brand new errand, or even a second conversation, on a later tick while she waited.
+        When her real suitor then arrived, isReservedForMe let it force her into SOCIALIZING out
+        from under whatever she'd started, which is what showed up in-game as an NPC snapping
+        out of one task mid-stride ("giro e volta").
+        */
         if (ai.currentTask == TaskType.IDLE && !NPCSocialHelper.isReservedAndActive(ai, world.getTick())) {
             if (npc.bedLocation == null && world.getTick() % 60 == 0) {
                 BedPos bestBed = RoutineAISystem.getBedPos(transform);
@@ -185,15 +186,17 @@ final class RoutineSleepHelpers {
                         otherAi.reservedForSocialUuid = npc.entityId;
                         otherAi.currentTask = TaskType.IDLE;
                         otherAi.wanderTimer = 0;
-                        // Was left dangling here: everything else clears targetBlockPosition
-                        // whenever it forces currentTask back to IDLE (see the FINDING_FOOD/
-                        // FINDING_BATH/FINDING_LEISURE branches above, or abandonTask/stopWandering/
-                        // endSocial elsewhere) except this one -- so a reserved NPC kept whatever
-                        // destination she was already walking to, stale, sitting on an otherwise
-                        // idle AI state until something used it again.
+                        /* Was left dangling here: everything else clears targetBlockPosition
+                        whenever it forces currentTask back to IDLE (see the FINDING_FOOD/
+                        FINDING_BATH/FINDING_LEISURE branches above, or abandonTask/stopWandering/
+                        endSocial elsewhere) except this one -- so a reserved NPC kept whatever
+                        destination she was already walking to, stale, sitting on an otherwise
+                        idle AI state until something used it again.
+                        */
                         otherAi.targetBlockPosition = null;
-                        // Starts the staleness clock NPCSocialHelper.isReservedAndActive checks --
-                        // without this the reservation had no timestamp of its own to judge against.
+                        /* Starts the staleness clock NPCSocialHelper.isReservedAndActive checks --
+                        without this the reservation had no timestamp of its own to judge against.
+                        */
                         otherAi.taskStartTime = world.getTick();
                         NPCMovementHelper.clearMoveTarget(bestTarget.entityRef, otherAi);
                     }
@@ -276,8 +279,9 @@ final class RoutineSleepHelpers {
                     if (village != null) {
                         centerX = village.centerX();
                         centerZ = village.centerZ();
-                        // Roam the whole village rather than a private patch of it, so the homeless
-                        // spread out instead of piling onto the centre tile.
+                        /* Roam the whole village rather than a private patch of it, so the homeless
+                        spread out instead of piling onto the centre tile.
+                        */
                         wanderRadius = village.radius();
                     }
                 }
@@ -416,9 +420,9 @@ final class RoutineSleepHelpers {
             double dz = (approachPos.z + 0.5) - pos.z;
 
             /*Proximity alone is not enough to get into bed.
-             * This test used to be flat XZ distance, which ignored both height and walls: an NPC
-             * standing outside the house, one wall away from the bed, satisfied it and mounted
-             * straight through the wall. From the outside it looked like the NPC vanished.*/
+            This test used to be flat XZ distance, which ignored both height and walls: an NPC
+            standing outside the house, one wall away from the bed, satisfied it and mounted
+            straight through the wall. From the outside it looked like the NPC vanished. */
             boolean closeEnough = dx * dx + dz * dz < RoutineAISystem.BED_REACH_DISTANCE_SQ && Math.abs(dy) <= 2.0;
             boolean reachable = closeEnough
                     && NPCMovementHelper.hasClearPath(world, pos, approachPos);
@@ -524,8 +528,9 @@ final class RoutineSleepHelpers {
                 stumble cost the NPC her bed permanently, and she would go look for another
                 one from scratch.
                 */
-                // Here the old mount is removed and the next attempt happens on the next
-                // tick, with the bed preserved.*/
+                /* Here the old mount is removed and the next attempt happens on the next
+                tick, with the bed preserved.
+                */
                 if (result == BlockMountAPI.DidNotMount.ALREADY_MOUNTED) {
                     commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
                     NPCMovementHelper.setSleepingState(ref, store, commandBuffer, false);

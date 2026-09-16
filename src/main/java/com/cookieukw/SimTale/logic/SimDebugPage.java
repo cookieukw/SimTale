@@ -67,9 +67,10 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             populateNPCData(cmd, npc, store);
         }
 
-        // The whole action panel is a set of cheats — forcing a routine, and killing an NPC
-        // outright. Outside creative the screen stays open as an inspector: paging and the two
-        // registry views are reading, not editing.
+        /* The whole action panel is a set of cheats — forcing a routine, and killing an NPC
+        outright. Outside creative the screen stays open as an inspector: paging and the two
+        registry views are reading, not editing.
+        */
         boolean canEdit = DebugAccess.canEdit(player);
         cmd.set("#ActionPanel.Visible", canEdit);
 
@@ -147,16 +148,17 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             refreshUI(storeRef, store);
             return;
         }
-        // Neither view rescans any more.
-        //
-        // Both ran bootstrapLoadedRadius at radius 96, which is a 193x193x33 box: about 1.2
-        // million getBlockType calls, each followed by an ItemContainerBlock component lookup,
-        // synchronously on a button press. That is nine times the radius-32 scan that already made
-        // /simtale debugchests take seconds to answer.
-        //
-        // Like that one, it was a workaround for furniture not being registered on placement. With
-        // the placement event actually reaching its handler, the registries are current and the
-        // sweep buys nothing. '/simtale rescan' remains for worlds built before the fix.
+        /* Neither view rescans any more.
+
+        Both ran bootstrapLoadedRadius at radius 96, which is a 193x193x33 box: about 1.2
+        million getBlockType calls, each followed by an ItemContainerBlock component lookup,
+        synchronously on a button press. That is nine times the radius-32 scan that already made
+        /simtale debugchests take seconds to answer.
+
+        Like that one, it was a workaround for furniture not being registered on placement. With
+        the placement event actually reaching its handler, the registries are current and the
+        sweep buys nothing. '/simtale rescan' remains for worlds built before the fix.
+        */
         if (eventData.contains("view_beds")) {
             player.getPageManager().openCustomPage(storeRef, store,
                     new SimBedDebugPage(playerRefComp, player, 0, false, true));
@@ -175,8 +177,9 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             return;
         }
 
-        // Force actions, creative only — the bindings are withheld above, but the client still
-        // sends whatever action string it likes.
+        /* Force actions, creative only — the bindings are withheld above, but the client still
+        sends whatever action string it likes.
+        */
         if (!DebugAccess.canEdit(player)) {
             return;
         }

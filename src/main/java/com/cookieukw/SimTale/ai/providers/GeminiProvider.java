@@ -37,8 +37,9 @@ public class GeminiProvider implements NpcAiProvider {
         config.apiKey = apiKey;
         config.authHeader = "x-goog-api-key";
         config.authPrefix = "";
-        // The model is part of the URL for generateContent; sending it in the body as well
-        // would be an unknown field.
+        /* The model is part of the URL for generateContent; sending it in the body as well
+        would be an unknown field.
+        */
         config.model = null;
 
         config.sendMessages = false;
@@ -57,8 +58,9 @@ public class GeminiProvider implements NpcAiProvider {
 
     @Override
     public AiResponse generate(AiRequest request) {
-        // The generic provider already merges systemPrompt + messages into a single prompt
-        // string and wraps it via promptStructurer, so no request rewriting is needed here.
+        /* The generic provider already merges systemPrompt + messages into a single prompt
+        string and wraps it via promptStructurer, so no request rewriting is needed here.
+        */
         return delegate.generate(request);
     }
 }

@@ -162,9 +162,10 @@ public final class NPCDoorHelper {
                 }
             }
 
-            // 3. Cross-plane probe check:
-            // Probing where the NPC will be shortly separates "heading through" from "walking alongside":
-            // a step taken parallel to a wall stays on the same side of it, a step taken into a doorway does not.
+            /* 3. Cross-plane probe check:
+            Probing where the NPC will be shortly separates "heading through" from "walking alongside":
+            a step taken parallel to a wall stays on the same side of it, a step taken into a doorway does not.
+            */
             Vector3d crossProbe = new Vector3d(
                     npcPos.x + forwardX * CROSSING_PROBE_DISTANCE,
                     npcPos.y,
@@ -197,8 +198,9 @@ public final class NPCDoorHelper {
 
             DoorState current = door.getDoorState();
             if (current != DoorState.CLOSED) {
-                // Already open independently of us (most commonly: a player opened it by hand).
-                // We now hold the claim and keep its timer alive; nothing else to do.
+                /* Already open independently of us (most commonly: a player opened it by hand).
+                We now hold the claim and keep its timer alive; nothing else to do.
+                */
                 return;
             }
 
@@ -217,9 +219,10 @@ public final class NPCDoorHelper {
                 target = DoorBlockUtils.getOppositeDoorState(target);
                 interactionState = DoorBlockUtils.getInteractionState(current, target);
                 if (interactionState == null || !DoorBlockUtils.canOpenDoor(world.getChunkStore(), anchorPos, interactionState)) {
-                    // Blocked on both sides: release the claim, or the door would stay "reserved"
-                    // for two full seconds without ever actually opening, locking every other NPC
-                    // out of even trying.
+                    /* Blocked on both sides: release the claim, or the door would stay "reserved"
+                    for two full seconds without ever actually opening, locking every other NPC
+                    out of even trying.
+                    */
                     OPENED_DOORS.remove(doorKey, AUTO_CLOSE_TICKS);
                     return;
                 }
@@ -339,14 +342,15 @@ public final class NPCDoorHelper {
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc.entityRef == null || !npc.entityRef.isValid()) continue;
 
-            // A settled NPC isn't "still crossing the doorway" just because she lives or works
-            // within KEEP_OPEN_RADIUS_SQ of it -- treating her as such was why a door an NPC
-            // walked through and then settled near (a small house's bed or chair, often well
-            // within this radius) never got the chance to close: she counted as "someone's
-            // mid-doorway" for as long as she stayed home. lastLeashPos is the same "do I have
-            // somewhere I'm actively walking to right now" signal handleNpcDoors already reads
-            // to compute doorDestination -- null means she arrived and stopped (clearMoveTarget
-            // ran), whatever task she's doing now.
+            /* A settled NPC isn't "still crossing the doorway" just because she lives or works
+            within KEEP_OPEN_RADIUS_SQ of it -- treating her as such was why a door an NPC
+            walked through and then settled near (a small house's bed or chair, often well
+            within this radius) never got the chance to close: she counted as "someone's
+            mid-doorway" for as long as she stayed home. lastLeashPos is the same "do I have
+            somewhere I'm actively walking to right now" signal handleNpcDoors already reads
+            to compute doorDestination -- null means she arrived and stopped (clearMoveTarget
+            ran), whatever task she's doing now.
+            */
             RoutineAIComponent otherAi = npc.entityRef.getStore().getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
             if (otherAi == null || otherAi.lastLeashPos == null) continue;
 

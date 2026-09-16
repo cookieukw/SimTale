@@ -99,13 +99,14 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // Replaying on a timer is what keeps the face alive.
-        //
-        // These clips are one-shot: they play, they end, and the head goes back to neutral. Firing
-        // only on change meant a mood that stayed put showed its face once and never again — an NPC
-        // could be HAPPY for ten minutes wearing a blank stare. It used to hide behind the fast
-        // emotion decay, which dropped moods to NEUTRAL every few seconds and re-triggered the
-        // animation by accident; slowing the decay removed the accident and exposed this.
+        /* Replaying on a timer is what keeps the face alive.
+
+        These clips are one-shot: they play, they end, and the head goes back to neutral. Firing
+        only on change meant a mood that stayed put showed its face once and never again — an NPC
+        could be HAPPY for ten minutes wearing a blank stare. It used to hide behind the fast
+        emotion decay, which dropped moods to NEUTRAL every few seconds and re-triggered the
+        animation by accident; slowing the decay removed the accident and exposed this.
+        */
         npc.expressionAge++;
         if (animName != null && npc.expressionAge >= REPLAY_INTERVAL_TICKS) {
             expressionChanged = true;

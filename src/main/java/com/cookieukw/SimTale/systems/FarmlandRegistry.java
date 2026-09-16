@@ -14,8 +14,9 @@ public final class FarmlandRegistry {
 
     /** Matches vanilla Hytale planting, which doesn't require tilled soil — any grass/dirt-type
      *  ground block works, not just Soil_Dirt_Tilled. */
-    // Watered tilled soil comes back as "*soil_dirt_tilled_state_definitions_watered", so the
-    // match has to ignore both the leading marker and the state suffix.
+    /* Watered tilled soil comes back as "*soil_dirt_tilled_state_definitions_watered", so the
+    match has to ignore both the leading marker and the state suffix.
+    */
     public static boolean isFarmlandId(String id) {
         return AssetIds.containsAny(id, "tilled", "grass", "soil_dirt", "soil_mud");
     }

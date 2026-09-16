@@ -54,24 +54,25 @@ public class GrowthManager {
                 yield 0.55f + childProgress * 0.30f;
             }
             case TEEN -> {
-                // Was `0.75f + teenProgress * 0.20f` (0.75 -> 0.95). Root cause of "crianca
-                // maiorzinha diminuiu de tamanho" (14/09): CHILD's own formula above ends at
-                // age 20 (childProgress=1) with scale 0.55 + 0.30 = 0.85 -- and CHILD->TEEN
-                // respawns the body right there (GrowthManager.promoteToAdultBody), reading
-                // this same method for the new body's scale. The very next in-game day, age 21,
-                // used to hand back 0.75: a real, deterministic 0.10 shrink baked into the table
-                // itself, nothing to do with timing or the engine -- any child crossing this
-                // boundary popped visibly smaller the instant she became a teen, worst on an
-                // older/bigger CHILD (closer to 0.85) like the one reported, and just as
-                // reachable through the accelerated-growth food gift (InteractionManager
-                // .handleChildGift, birthTick -= 24000) or `/simtale setstage TEEN` as through
-                // natural aging -- all three read this exact method.
-                // Rebased so TEEN starts at 0.85 (matches CHILD's end, same anchoring already
-                // used correctly at the TODDLER/CHILD seam: 0.55 -> 0.55) and ends at 1.00
-                // (matches ADULT's flat scale below, closing the smaller, upward TEEN->ADULT gap
-                // too since this formula was already being touched). age 9 through ADULT is now
-                // one continuous, monotonically non-decreasing curve -- no stage crossing in
-                // that range can ever render a body smaller than the one it replaced.
+                /* Was `0.75f + teenProgress * 0.20f` (0.75 -> 0.95). Root cause of "crianca
+                maiorzinha diminuiu de tamanho" (14/09): CHILD's own formula above ends at
+                age 20 (childProgress=1) with scale 0.55 + 0.30 = 0.85 -- and CHILD->TEEN
+                respawns the body right there (GrowthManager.promoteToAdultBody), reading
+                this same method for the new body's scale. The very next in-game day, age 21,
+                used to hand back 0.75: a real, deterministic 0.10 shrink baked into the table
+                itself, nothing to do with timing or the engine -- any child crossing this
+                boundary popped visibly smaller the instant she became a teen, worst on an
+                older/bigger CHILD (closer to 0.85) like the one reported, and just as
+                reachable through the accelerated-growth food gift (InteractionManager
+                .handleChildGift, birthTick -= 24000) or `/simtale setstage TEEN` as through
+                natural aging -- all three read this exact method.
+                Rebased so TEEN starts at 0.85 (matches CHILD's end, same anchoring already
+                used correctly at the TODDLER/CHILD seam: 0.55 -> 0.55) and ends at 1.00
+                (matches ADULT's flat scale below, closing the smaller, upward TEEN->ADULT gap
+                too since this formula was already being touched). age 9 through ADULT is now
+                one continuous, monotonically non-decreasing curve -- no stage crossing in
+                that range can ever render a body smaller than the one it replaced.
+                */
                 float teenProgress = (float) (age - 21) / 19.0f;
                 yield 0.85f + teenProgress * 0.15f;
             }
@@ -109,27 +110,28 @@ public class GrowthManager {
         ModelReference oldRef = pm.getModelReference();
         if (Math.abs(oldRef.getScale() - scale) <= 0.01f) return;
 
-        // BOTH components have to be written, and this is the whole reason resizing never showed
-        // up in game.
-        //
-        // PersistentModel is what gets saved and respawned; ModelComponent is what is drawn, and it
-        // is the one carrying the isNetworkOutdated flag that makes the server resend the model to
-        // clients. Writing only PersistentModel changes the saved size and nothing else — the
-        // server believes the NPC is smaller, the client keeps drawing the old one, and it stays
-        // that way until the entity is reloaded from disk. That is why /simtale setstage appeared
-        // to do nothing at all, and why newborns kept spawning at adult size even though the
-        // placement code sets 0.35 on them.
-        //
-        // PlumbobSystem is the one place in the mod that already wrote both, and the plumbob is
-        // also the one model that visibly changes on demand. That was the tell.
-        //
-        // Nothing is mutated before the write lands either. The previous version called
-        // pm.setModelReference(newRef) first and only then queued the write, which meant the guard
-        // above already read the new scale on the next tick and returned early — so a write that
-        // never reached the client was never retried either.
-        //
-        // The detour off the tick stays: these are structural writes and growth runs from inside
-        // GrowthTickSystem, where the Store refuses them.
+        /* BOTH components have to be written, and this is the whole reason resizing never showed
+        up in game.
+
+        PersistentModel is what gets saved and respawned; ModelComponent is what is drawn, and it
+        is the one carrying the isNetworkOutdated flag that makes the server resend the model to
+        clients. Writing only PersistentModel changes the saved size and nothing else — the
+        server believes the NPC is smaller, the client keeps drawing the old one, and it stays
+        that way until the entity is reloaded from disk. That is why /simtale setstage appeared
+        to do nothing at all, and why newborns kept spawning at adult size even though the
+        placement code sets 0.35 on them.
+
+        PlumbobSystem is the one place in the mod that already wrote both, and the plumbob is
+        also the one model that visibly changes on demand. That was the tell.
+
+        Nothing is mutated before the write lands either. The previous version called
+        pm.setModelReference(newRef) first and only then queued the write, which meant the guard
+        above already read the new scale on the next tick and returned early — so a write that
+        never reached the client was never retried either.
+
+        The detour off the tick stays: these are structural writes and growth runs from inside
+        GrowthTickSystem, where the Store refuses them.
+        */
         String modelId = oldRef.getModelAssetId();
         Map<String, String> attachments = oldRef.getRandomAttachmentIds();
         runOutsideTick(store, () -> SimNPCFactory.applyModel(store, ref, modelId, scale, attachments));
@@ -148,11 +150,12 @@ public class GrowthManager {
             LOGGER.atInfo().log("SimTale: " + child.getFullName() + " grew to "
                 + child.stage.getDisplayName() + " (scale: " + child.currentScale + ")");
 
-            // The entire promotion is deferred, not just the spawn. It creates the new entity and
-            // immediately after uses its reference for name, nameplate, family and persistence
-            // — deferring only the spawn would leave this whole block working with a reference
-            // that does not exist yet. As this chain starts in GrowthTickSystem.tick(), without
-            // this, no child would ever change stage in normal gameplay.
+            /* The entire promotion is deferred, not just the spawn. It creates the new entity and
+            immediately after uses its reference for name, nameplate, family and persistence
+            — deferring only the spawn would leave this whole block working with a reference
+            that does not exist yet. As this chain starts in GrowthTickSystem.tick(), without
+            this, no child would ever change stage in normal gameplay.
+            */
             World world = WorldUtil.first();
             Store<EntityStore> store = world != null ? world.getEntityStore().getStore() : null;
             runOutsideTick(store, () -> onStageChanged(child));
@@ -165,17 +168,18 @@ public class GrowthManager {
 
     private static void onStageChanged(GrowthComponent child) {
         if (child.stage == GrowthStage.TODDLER) {
-            // Guard against this branch running more than once for the same BABY->TODDLER
-            // transition. Confirmed in game (12/09): "Orden SimTale" and "Kiden Swiftvale" each
-            // ended up with 2-3 fully live, independently-ticking bodies sharing one name and one
-            // rolled variant, after the log showed exactly ONE "grew to Criancinha" line for each
-            // — so the single logged transition somehow re-entered this method, and every extra
-            // entry never got cleaned up, because this branch (unlike promoteToAdultBody, guarded
-            // by usesChildBody) never checks whether the child it is about to create already has
-            // one. Each re-run also reassigns child.childId to its own new entity before returning,
-            // so by the time a second run starts, childId already points at the first run's body —
-            // checking for that live body here is what promoteToAdultBody already does for its own
-            // TEEN/ADULT respawns, applied to the one respawn site that never had it.
+            /* Guard against this branch running more than once for the same BABY->TODDLER
+            transition. Confirmed in game (12/09): "Orden SimTale" and "Kiden Swiftvale" each
+            ended up with 2-3 fully live, independently-ticking bodies sharing one name and one
+            rolled variant, after the log showed exactly ONE "grew to Criancinha" line for each
+            — so the single logged transition somehow re-entered this method, and every extra
+            entry never got cleaned up, because this branch (unlike promoteToAdultBody, guarded
+            by usesChildBody) never checks whether the child it is about to create already has
+            one. Each re-run also reassigns child.childId to its own new entity before returning,
+            so by the time a second run starts, childId already points at the first run's body —
+            checking for that live body here is what promoteToAdultBody already does for its own
+            TEEN/ADULT respawns, applied to the one respawn site that never had it.
+            */
             if (child.childId != null) {
                 Ref<EntityStore> existingBody = LifecycleUtils.getEntityRef(child.childId);
                 if (existingBody != null && existingBody.isValid()) {
@@ -201,12 +205,13 @@ public class GrowthManager {
                 }
             }
 
-            // Scattered around the holder instead of exactly on them.
-            //
-            // Several children promoted in the same tick landed on identical coordinates, and five
-            // toddlers sharing one point look like one glitched entity: the nameplates draw on top
-            // of each other and they walk in perfect lockstep because they are all being pushed by
-            // the same physics from the same spot.
+            /* Scattered around the holder instead of exactly on them.
+
+            Several children promoted in the same tick landed on identical coordinates, and five
+            toddlers sharing one point look like one glitched entity: the nameplates draw on top
+            of each other and they walk in perfect lockstep because they are all being pushed by
+            the same physics from the same spot.
+            */
             double angle = Math.random() * Math.PI * 2.0;
             spawnPos.add(Math.cos(angle) * 1.5, 0, Math.sin(angle) * 1.5);
 
@@ -220,9 +225,10 @@ public class GrowthManager {
                 return;
             }
             Store<EntityStore> store = world.getEntityStore().getStore();
-            // First live body this child ever gets. Rolled once and kept on the record (see
-            // GrowthComponent.variant's javadoc) so every later promotion reuses the same face
-            // instead of handing her a new random one each time.
+            /* First live body this child ever gets. Rolled once and kept on the record (see
+            GrowthComponent.variant's javadoc) so every later promotion reuses the same face
+            instead of handing her a new random one each time.
+            */
             if (child.variant < 0) {
                 child.variant = 1 + (int) (Math.random() * 200);
             }
@@ -240,8 +246,9 @@ public class GrowthManager {
                 toddlerNpc.name = child.getFullName();
                 childRef.getStore().putComponent(childRef, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(toddlerNpc.name)));
                 childRef.getStore().putComponent(childRef, Nameplate.getComponentType(), new Nameplate(toddlerNpc.name));
-                // Growing up respawns the entity under a new id, so the family bond has to be
-                // rebuilt or the child becomes a stranger to its parents every promotion.
+                /* Growing up respawns the entity under a new id, so the family bond has to be
+                rebuilt or the child becomes a stranger to its parents every promotion.
+                */
                 FamilyBonds.linkToFamily(toddlerNpc, child);
                 SimNPCPersistence.saveNPC(toddlerNpc);
             }
@@ -271,16 +278,17 @@ public class GrowthManager {
             promoteToAdultBody(child, true);
         }
         else if (child.isAdult()) {
-            // Also here, not only on TEEN.
-            //
-            // The stage branches read the stage the child landed on, not the one it came from, so
-            // jumping straight to ADULT — which is exactly what /simtale setstage does — skipped
-            // the only branch that swaps the body. The result was an adult wearing the child model
-            // scaled up: right size, wrong proportions. Growing up naturally passed through TEEN
-            // and hid it.
-            //
-            // Guarded so the normal path does not respawn twice: promoteToAdultBody is a no-op
-            // once the entity is already on an adult body.
+            /* Also here, not only on TEEN.
+
+            The stage branches read the stage the child landed on, not the one it came from, so
+            jumping straight to ADULT — which is exactly what /simtale setstage does — skipped
+            the only branch that swaps the body. The result was an adult wearing the child model
+            scaled up: right size, wrong proportions. Growing up naturally passed through TEEN
+            and hid it.
+
+            Guarded so the normal path does not respawn twice: promoteToAdultBody is a no-op
+            once the entity is already on an adult body.
+            */
             promoteToAdultBody(child, false);
             onBecameAdult(child);
         }
@@ -323,16 +331,17 @@ public class GrowthManager {
         boolean wasBeingCarried = false;
         UUID carrierId = null;
         if (childRef != null && childRef.isValid()) {
-            // A carried child has a MountedComponent, and ChildCarryHelper/PlumbobSystem both
-            // already document why that matters here: her OWN TransformComponent freezes at
-            // wherever she was standing the moment she got picked up and never updates again
-            // while mounted — the client draws her attached to the carrier instead. Reading her
-            // transform here spawned the grown-up body back at that frozen pickup spot, however
-            // far the player had since walked with her on their shoulders: "she vanished right in
-            // front of me and turned up somewhere else on the map" the instant CHILD->TEEN fired,
-            // which is also exactly the stage OLDEST_CARRIABLE stops allowing pickup at. Reading
-            // the carrier's own live position instead is the fix — same rule PlumbobSystem
-            // already follows for a carried NPC's crystal.
+            /* A carried child has a MountedComponent, and ChildCarryHelper/PlumbobSystem both
+            already document why that matters here: her OWN TransformComponent freezes at
+            wherever she was standing the moment she got picked up and never updates again
+            while mounted — the client draws her attached to the carrier instead. Reading her
+            transform here spawned the grown-up body back at that frozen pickup spot, however
+            far the player had since walked with her on their shoulders: "she vanished right in
+            front of me and turned up somewhere else on the map" the instant CHILD->TEEN fired,
+            which is also exactly the stage OLDEST_CARRIABLE stops allowing pickup at. Reading
+            the carrier's own live position instead is the fix — same rule PlumbobSystem
+            already follows for a carried NPC's crystal.
+            */
             MountedComponent mounted = childRef.getStore().getComponent(childRef, MountedComponent.getComponentType());
             Ref<EntityStore> carrierRef = mounted != null ? mounted.getMountedToEntity() : null;
             if (carrierRef != null && carrierRef.isValid()) {
@@ -348,10 +357,11 @@ public class GrowthManager {
             world.getEntityStore().getStore().removeEntity(childRef, RemoveReason.REMOVE);
         }
 
-        // She can no longer be picked up past this stage (OLDEST_CARRIABLE stops at CHILD), so a
-        // carry in progress has nowhere to continue — tell the player instead of letting her just
-        // disappear off their shoulders with no explanation, which is the other half of the same
-        // surprise the stale-position bug above caused.
+        /* She can no longer be picked up past this stage (OLDEST_CARRIABLE stops at CHILD), so a
+        carry in progress has nowhere to continue — tell the player instead of letting her just
+        disappear off their shoulders with no explanation, which is the other half of the same
+        surprise the stale-position bug above caused.
+        */
         if (wasBeingCarried && carrierId != null) {
             PlayerRef carrierPlayerRef = LifecycleUtils.getPlayerRef(carrierId);
             if (carrierPlayerRef != null) {
@@ -374,11 +384,12 @@ public class GrowthManager {
             : SimNPCFactory.NPCType.HUMAN_FEMALE;
             
         Store<EntityStore> store = world.getEntityStore().getStore();
-        // Same variant number as the body just removed above (a record from before this field
-        // existed has never had one rolled at all, so this is the only place that can still
-        // happen — falling back here instead of leaving it unset keeps at least every promotion
-        // FROM HERE ON consistent with itself, even if the very first swap for an old child still
-        // changes her face once).
+        /* Same variant number as the body just removed above (a record from before this field
+        existed has never had one rolled at all, so this is the only place that can still
+        happen — falling back here instead of leaving it unset keeps at least every promotion
+        FROM HERE ON consistent with itself, even if the very first swap for an old child still
+        changes her face once).
+        */
         if (child.variant < 0) {
             child.variant = 1 + (int) (Math.random() * 200);
         }
@@ -392,16 +403,17 @@ public class GrowthManager {
         Caskara.delete("child_" + oldChildId.toString(), GrowthComponent.class);
         Caskara.save("child_" + newEntityId, child);
 
-        // The body just removed above had its own Plumbob, tracked under oldChildId. Nothing
-        // ever ticks that UUID again once the entity is gone, so PlumbobSystem's own orphan
-        // sweep never notices — it only reaps a crystal that is NOT in trackedPlumbobRefs, and
-        // this one still is, forever, because untracking it was never anybody's job. Left alone
-        // it floats exactly where the promotion happened for the rest of the server's life,
-        // while a second, correct Plumbob spawns fresh for the new body and follows it around —
-        // "two Plumbobs stuck in the air" after every single CHILD->TEEN or TEEN->ADULT growth.
-        // Untracking here (not removing outright: no CommandBuffer to do that with from here)
-        // lets the very next PlumbobSystem tick reap it through the same orphan sweep that
-        // already cleans up every other kind of stale crystal.
+        /* The body just removed above had its own Plumbob, tracked under oldChildId. Nothing
+        ever ticks that UUID again once the entity is gone, so PlumbobSystem's own orphan
+        sweep never notices — it only reaps a crystal that is NOT in trackedPlumbobRefs, and
+        this one still is, forever, because untracking it was never anybody's job. Left alone
+        it floats exactly where the promotion happened for the rest of the server's life,
+        while a second, correct Plumbob spawns fresh for the new body and follows it around —
+        "two Plumbobs stuck in the air" after every single CHILD->TEEN or TEEN->ADULT growth.
+        Untracking here (not removing outright: no CommandBuffer to do that with from here)
+        lets the very next PlumbobSystem tick reap it through the same orphan sweep that
+        already cleans up every other kind of stale crystal.
+        */
         PlumbobSystem.removePlumbob(oldChildId);
         
         SimNPCComponent teenNpc = store.getComponent(teenRef, SimTale.SIM_NPC_COMPONENT_TYPE);
@@ -416,8 +428,9 @@ public class GrowthManager {
             }
             teenRef.getStore().putComponent(teenRef, PersistentDisplayName.getComponentType(), new PersistentDisplayName(Message.raw(teenNpc.name)));
             teenRef.getStore().putComponent(teenRef, Nameplate.getComponentType(), new Nameplate(teenNpc.name));
-            // Personality and preferences are carried over above; the family bond has to be
-            // carried over too, or growing up costs the teenager its parents.
+            /* Personality and preferences are carried over above; the family bond has to be
+            carried over too, or growing up costs the teenager its parents.
+            */
             FamilyBonds.linkToFamily(teenNpc, child);
             SimNPCPersistence.saveNPC(teenNpc);
         }
@@ -437,20 +450,21 @@ public class GrowthManager {
     private static void onBecameAdult(GrowthComponent child) {
         LOGGER.atInfo().log("SimTale: " + child.getFullName() + " se tornou adulto!");
         
-        // Dropped from the growth-tick list — an adult does not age further, and
-        // GrowthTickSystem's own scan already does the same removal as a backstop for
-        // /simtale setstage jumping a child straight to ADULT. But the record itself has to
-        // survive on disk: ParentChildBond.findChildOf answers "is this NPC my child, at any
-        // life stage" (see its own javadoc), and once ACTIVE_CHILDREN has dropped this entry
-        // its ONLY remaining path is Caskara.load("child_" + npc.entityId, ...) reading this
-        // exact key back. Deleting it here — which is what this used to do — reads as "an
-        // adult is done growing, so the growth record is garbage now", but it silently deletes
-        // the one thing that still says "this adult IS your child": Scold/Insult on the panel,
-        // the mãe/papai/name address term, and every other adult-child check would go back to
-        // treating them as a stranger the moment they grew up, no matter how good the
-        // relationship was raised to be as a kid. Persisted instead of deleted, same as every
-        // other stage promotion in this file — the child's identity does not stop being real
-        // just because GrowthTickSystem no longer needs to tick it.
+        /* Dropped from the growth-tick list — an adult does not age further, and
+        GrowthTickSystem's own scan already does the same removal as a backstop for
+        /simtale setstage jumping a child straight to ADULT. But the record itself has to
+        survive on disk: ParentChildBond.findChildOf answers "is this NPC my child, at any
+        life stage" (see its own javadoc), and once ACTIVE_CHILDREN has dropped this entry
+        its ONLY remaining path is Caskara.load("child_" + npc.entityId, ...) reading this
+        exact key back. Deleting it here — which is what this used to do — reads as "an
+        adult is done growing, so the growth record is garbage now", but it silently deletes
+        the one thing that still says "this adult IS your child": Scold/Insult on the panel,
+        the mãe/papai/name address term, and every other adult-child check would go back to
+        treating them as a stranger the moment they grew up, no matter how good the
+        relationship was raised to be as a kid. Persisted instead of deleted, same as every
+        other stage promotion in this file — the child's identity does not stop being real
+        just because GrowthTickSystem no longer needs to tick it.
+        */
         LifecycleState.ACTIVE_CHILDREN.remove(child);
         Caskara.save("child_" + child.childId.toString(), child);
         

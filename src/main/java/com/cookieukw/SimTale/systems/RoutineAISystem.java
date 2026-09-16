@@ -140,7 +140,7 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         /* Skip routine AI for babies and toddlers (cared for by parents).
 The isEmpty() guard matters: without any children in the world this loop still ran
 once per NPC per tick for nothing.
-*/
+        */
         if (npc.entityId != null && !LifecycleManager.ACTIVE_CHILDREN.isEmpty()) {
             for (GrowthComponent gc : LifecycleManager.ACTIVE_CHILDREN) {
                 if (!npc.entityId.equals(gc.childId)) continue;
@@ -172,10 +172,11 @@ once per NPC per tick for nothing.
             made the existing RoutineAIComponent invisible to this tick's chunk view.
             */
             LOGGER.info("[SimTale] {} had no RoutineAIComponent this tick — creating a fresh one (state reset to IDLE)", npc.name);
-            // Without this, taskStartTime stays 0 on a fresh component, and the idle ladder's
-            // stroll fallback (taskStartTime > 0 && tick - taskStartTime > 40) never trips --
-            // she's then stuck relying on an unbounded ~5%-per-tick dice roll to start moving
-            // again. Stamping it now gives every reset NPC the same ~2s hard ceiling instead.
+            /* Without this, taskStartTime stays 0 on a fresh component, and the idle ladder's
+            stroll fallback (taskStartTime > 0 && tick - taskStartTime > 40) never trips --
+            she's then stuck relying on an unbounded ~5%-per-tick dice roll to start moving
+            again. Stamping it now gives every reset NPC the same ~2s hard ceiling instead.
+            */
             World freshWorld = WorldUtil.fromEntityRef(ref);
             if (freshWorld != null) {
                 ai.taskStartTime = freshWorld.getTick();
@@ -237,16 +238,18 @@ once per NPC per tick for nothing.
             return;
         }
 
-        // unmounts and clears MountedComponent if the distant NPC is no longer in active sleep or sit state
-        // or if its bed chunk has been unloaded, avoiding crashes in Hytale's ChunkUnloadingSystem.
+        /* unmounts and clears MountedComponent if the distant NPC is no longer in active sleep or sit state
+        or if its bed chunk has been unloaded, avoiding crashes in Hytale's ChunkUnloadingSystem.
+        */
         if (ai.currentTask != TaskType.SLEEPING && ai.currentTask != TaskType.ENTERING_BED && ai.currentTask != TaskType.SITTING) {
             if (chunk.getComponent(index, MountedComponent.getComponentType()) != null) {
                 commandBuffer.tryRemoveComponent(ref, MountedComponent.getComponentType());
             }
         }
 
-        // The leash point is where the NPC is actually walking to, which is a far better statement
-        // of intent than which way its body happens to be turned.
+        /* The leash point is where the NPC is actually walking to, which is a far better statement
+        of intent than which way its body happens to be turned.
+        */
         NPCEntity doorNpcEntity = chunk.getComponent(index, Objects.requireNonNull(NPCEntity.getComponentType()));
         Vector3d doorDestination = doorNpcEntity != null ? doorNpcEntity.getLeashPoint() : null;
         if (doorDestination == null && ai != null) {
@@ -341,13 +344,14 @@ once per NPC per tick for nothing.
             otherwise the NPC just stands there giving no indication anything is happening.
             */
             if (world.getTick() - ai.taskStartTime == 1) {
-                // StatusEffectHelper.applyBleeding only toggles a HUD icon on a connected
-                // player's own screen (see RuneCore AUDITORIA.md #4.2) — silently does nothing on
-                // an NPC ref, which is why this warning never actually showed up. applyVisualEffect
-                // is the generic, player-agnostic half of the same native effect: it puts the real
-                // "Bleeding" particle effect on the NPC itself, visible to anyone standing nearby.
-                // 10s matches this DYING window (200 ticks) exactly, so it also naturally clears
-                // itself even if the removeVisualEffect call below is ever skipped.
+                /* StatusEffectHelper.applyBleeding only toggles a HUD icon on a connected
+                player's own screen (see RuneCore AUDITORIA.md #4.2) — silently does nothing on
+                an NPC ref, which is why this warning never actually showed up. applyVisualEffect
+                is the generic, player-agnostic half of the same native effect: it puts the real
+                "Bleeding" particle effect on the NPC itself, visible to anyone standing nearby.
+                10s matches this DYING window (200 ticks) exactly, so it also naturally clears
+                itself even if the removeVisualEffect call below is ever skipped.
+                */
                 EffectHelper.applyVisualEffect(ref, "Bleeding", 10.0f);
             }
             if (world.getTick() - ai.taskStartTime > 200) {
@@ -558,16 +562,16 @@ once per NPC per tick for nothing.
         NPCSocialHelper.handleSocialLogic(ref, npc, ai, transform, world, store);
 
         /* Child play: tag and hide-and-seek between two nearby children (Delegated to
-         * ChildPlayHelper). Paired up from RoutineSleepHelpers' own IDLE ladder, same place
-         * NPCSocialHelper picks a chat partner -- everything after that lives here.
-         */
+        ChildPlayHelper). Paired up from RoutineSleepHelpers' own IDLE ladder, same place
+        NPCSocialHelper picks a chat partner -- everything after that lives here.
+        */
         ChildPlayHelper.handleChildPlayLogic(ref, npc, ai, transform, world, store);
 
         /* Guard combat: detect a hostile mob nearby and deal with it (Delegated to NPCGuardHelper).
-         * Written the same session Profession.GUARD started meaning anything, but never actually
-         * wired in here -- the method self-guards on `npc.profession != Profession.GUARD`, so it
-         * was silently dead for every NPC the whole time. Same call shape as its siblings above.
-         */
+        Written the same session Profession.GUARD started meaning anything, but never actually
+        wired in here -- the method self-guards on `npc.profession != Profession.GUARD`, so it
+        was silently dead for every NPC the whole time. Same call shape as its siblings above.
+        */
         NPCGuardHelper.handleGuardLogic(ref, npc, ai, transform, world, store, commandBuffer);
 
         /* Leisure / Hobby (Delegated to NPCLeisureHelper) 
@@ -585,7 +589,7 @@ once per NPC per tick for nothing.
         faceNearbyPlayerWhileIdle(ref, npc, ai, transform, world, store);
 
         /* World-event commentary: NPC notices a sightworthy creature nearby (docs/ROADMAP.md:
-         * "Kweebec avistado") */
+        "Kweebec avistado")  */
         checkWorldEventCommentary(npc, ai, transform, world, store);
 
         /* Finding Bath (Optimization)
@@ -605,18 +609,18 @@ once per NPC per tick for nothing.
         if (RoutineTaskHelpers.handleBuilding(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
         /* No replaceComponent here on purpose.
-         *
-         * ArchetypeChunk.getComponent() hands back the instance stored in the chunk itself —
-         * it does not clone — so every `ai.currentTask = ...` above is already visible to
-         * every other reader. Re-submitting the same instance only mattered if
-         * Store.replaceComponent had side effects, and its only one is notifying a
-         * RefChangeSystem registered for the component type; the mod's single RefChangeSystem
-         * (BedEntityRegistrySystem) is bound to PersistentModel, not to RoutineAIComponent.
-         *
-         * So the call was a per-NPC, per-tick no-op that still allocated a lambda and queued
-         * an entry on the command buffer. Dropping it also settles the question of the ~10
-         * early `return`s in this method: they never lost state to begin with.
-         */
+
+        ArchetypeChunk.getComponent() hands back the instance stored in the chunk itself —
+        it does not clone — so every `ai.currentTask = ...` above is already visible to
+        every other reader. Re-submitting the same instance only mattered if
+        Store.replaceComponent had side effects, and its only one is notifying a
+        RefChangeSystem registered for the component type; the mod's single RefChangeSystem
+        (BedEntityRegistrySystem) is bound to PersistentModel, not to RoutineAIComponent.
+
+        So the call was a per-NPC, per-tick no-op that still allocated a lambda and queued
+        an entry on the command buffer. Dropping it also settles the question of the ~10
+        early `return`s in this method: they never lost state to begin with.
+        */
     }
 
     /**
@@ -646,9 +650,9 @@ once per NPC per tick for nothing.
         Vector3d myPos = transform.getPosition();
 
         /* BedPos already implements equals/hashCode over x/y/z, so the set can hold the
-         * positions directly. Building "x,y,z" strings meant two throwaway allocations per
-         * bed per lookup, on a path that runs whenever an NPC goes looking for a bed.
-         */
+        positions directly. Building "x,y,z" strings meant two throwaway allocations per
+        bed per lookup, on a path that runs whenever an NPC goes looking for a bed.
+        */
         Set<BedPos> claimedBeds = new HashSet<>();
         for (SimNPCComponent otherNpc : SimTale.ACTIVE_NPCS) {
             if (otherNpc.bedLocation != null) {
@@ -734,8 +738,9 @@ once per NPC per tick for nothing.
                                                 Store<EntityStore> store) {
         Vector3d myPos = transform.getPosition();
 
-        // Pin the leash to where the NPC stands, so the injected Idle -> ReturnHome transition
-        // cannot fire and try to walk it off mid-conversation.
+        /* Pin the leash to where the NPC stands, so the injected Idle -> ReturnHome transition
+        cannot fire and try to walk it off mid-conversation.
+        */
         NPCEntity npcEntity = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
         if (npcEntity != null) {
             npcEntity.setLeashPoint(new Vector3d(myPos.x, myPos.y, myPos.z));
@@ -835,24 +840,26 @@ once per NPC per tick for nothing.
                     }
                 }
 
-                // Play wave and smile -- skipped mid-chase/mid-flight (a full sprint visibly
-                // interrupted by a wave reads as broken); every other state, including a hiding
-                // or counting child standing still, still gets it.
+                /* Play wave and smile -- skipped mid-chase/mid-flight (a full sprint visibly
+                interrupted by a wave reads as broken); every other state, including a hiding
+                or counting child standing still, still gets it.
+                */
                 if (ai.currentTask != TaskType.TAG_CHASING && ai.currentTask != TaskType.TAG_FLEEING) {
                     SimTaleJuiceHelper.playGreeting(ref, store);
                 }
 
                 // Send contextual greeting message
                 Relationship rel = npc.getRelationship(pr.getUuid());
-                // A child's/teen's own voice takes priority over the adult relationship-status
-                // lines below -- same precedence InteractionManager already gives the young
-                // voice ahead of its own rule tables for the chat/joke intents. This is what
-                // makes a child say "Oi, papai!" instead of the generic proximity.friend line
-                // when the player walking up happens to be their own parent.
-                // A child mid tag/hide-and-seek comments on the game itself instead of greeting
-                // normally -- checked ahead of the young/parent voice below for the same reason
-                // that one already outranks the adult relationship lines: the more specific,
-                // situational line wins. See ChildPlayHelper for the states themselves.
+                /* A child's/teen's own voice takes priority over the adult relationship-status
+                lines below -- same precedence InteractionManager already gives the young
+                voice ahead of its own rule tables for the chat/joke intents. This is what
+                makes a child say "Oi, papai!" instead of the generic proximity.friend line
+                when the player walking up happens to be their own parent.
+                A child mid tag/hide-and-seek comments on the game itself instead of greeting
+                normally -- checked ahead of the young/parent voice below for the same reason
+                that one already outranks the adult relationship lines: the more specific,
+                situational line wins. See ChildPlayHelper for the states themselves.
+                */
                 Message playLine = playDialogueLine(ai.currentTask);
                 Message greetingMsg;
                 if (playLine != null) {
@@ -1089,8 +1096,9 @@ once per NPC per tick for nothing.
             Ref<EntityStore> targetRef = world.getEntityStore().getRefFromUUID(ai.socializeTargetId);
             if (targetRef != null && targetRef.isValid()) {
                 RoutineAIComponent targetAi = store.getComponent(targetRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
-                // Only release it if it is still ours to release -- she may since have been
-                // legitimately claimed by somebody else's successful approach.
+                /* Only release it if it is still ours to release -- she may since have been
+                legitimately claimed by somebody else's successful approach.
+                */
                 if (targetAi != null && npc.entityId.equals(targetAi.reservedForSocialUuid)) {
                     targetAi.reservedForSocialUuid = null;
                 }
@@ -1102,11 +1110,12 @@ once per NPC per tick for nothing.
         ai.socializeHost = false;
         ai.socialTalkTimer = 0;
         ai.wanderTimer = 0;
-        // No cross-partner release needed here the way socializeTargetId's has just above --
-        // every ChildPlayHelper state already re-checks the partner's own currentTask every
-        // tick and quietly ends itself the moment it stops matching, so clearing just these two
-        // is enough for a forcibly-interrupted child (e.g. npc.forceSleep, which bypasses
-        // inChildPlay same as it bypasses inCombat) to leave a clean slate for her next IDLE.
+        /* No cross-partner release needed here the way socializeTargetId's has just above --
+        every ChildPlayHelper state already re-checks the partner's own currentTask every
+        tick and quietly ends itself the moment it stops matching, so clearing just these two
+        is enough for a forcibly-interrupted child (e.g. npc.forceSleep, which bypasses
+        inChildPlay same as it bypasses inCombat) to leave a clean slate for her next IDLE.
+        */
         ai.playPartnerId = null;
         ai.playRoundsLeft = 0;
         if (ai.targetChairPos != null) {

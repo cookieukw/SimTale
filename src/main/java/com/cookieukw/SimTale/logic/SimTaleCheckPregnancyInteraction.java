@@ -70,12 +70,13 @@ public class SimTaleCheckPregnancyInteraction extends SimpleInstantInteraction {
 
         Ref<EntityStore> targetRef = context.getTargetEntity();
 
-        // A pregnancy test reports a state; it does not decide who is allowed to be in one.
-        //
-        // Gender was checked first, so a pregnancy forced through /simtale forcepreg on a male
-        // subject was invisible to the very item meant to reveal it — the test denied a pregnancy
-        // that demonstrably existed. Actual state now wins, and gender is only the fallback for
-        // "you are not pregnant, and here is why you were never going to be".
+        /* A pregnancy test reports a state; it does not decide who is allowed to be in one.
+
+        Gender was checked first, so a pregnancy forced through /simtale forcepreg on a male
+        subject was invisible to the very item meant to reveal it — the test denied a pregnancy
+        that demonstrably existed. Actual state now wins, and gender is only the fallback for
+        "you are not pregnant, and here is why you were never going to be".
+        */
         if (targetRef != null) {
             SimNPCComponent targetNPC = store.getComponent(targetRef, SimTale.SIM_NPC_COMPONENT_TYPE);
             if (targetNPC == null) {
@@ -84,19 +85,21 @@ public class SimTaleCheckPregnancyInteraction extends SimpleInstantInteraction {
                 return;
             }
 
-            // The Reaper is not a villager and is not a candidate for anything this item asks. She
-            // is also mid-ceremony whenever she exists, and every page here freezes its target and
-            // sets isInteractingViaUI — which is how a Reaper ended up standing in the world for
-            // good. RoutineAISystem no longer lets a page stall the ritual, but opening a pregnancy
-            // panel on Death is nonsense on its own terms.
+            /* The Reaper is not a villager and is not a candidate for anything this item asks. She
+            is also mid-ceremony whenever she exists, and every page here freezes its target and
+            sets isInteractingViaUI — which is how a Reaper ended up standing in the world for
+            good. RoutineAISystem no longer lets a page stall the ritual, but opening a pregnancy
+            panel on Death is nonsense on its own terms.
+            */
             if (targetNPC.isReaper) {
                 playerRefComponent.sendMessage(Message.translation("general.pregtest.reaper"));
                 context.getState().state = InteractionState.Failed;
                 return;
             }
 
-            // Children are off limits regardless of anything else, and before any state check —
-            // the panel this opens is a pregnancy panel.
+            /* Children are off limits regardless of anything else, and before any state check —
+            the panel this opens is a pregnancy panel.
+            */
             if (InteractionManager.isNpcAChild(targetNPC)) {
                 playerRefComponent.sendMessage(Message.translation("general.pregtest.child").param("name", targetNPC.name));
                 context.getState().state = InteractionState.Failed;

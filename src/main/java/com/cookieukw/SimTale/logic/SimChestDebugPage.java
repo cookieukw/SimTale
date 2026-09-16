@@ -153,9 +153,10 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
 
         if (items == 0) return Message.translation("ui.debugchests.contentsEmpty");
 
-        // The count and its noun are composed as Messages: writing "item"/"itens" inline would
-        // print Portuguese to a player running the game in English, which is the same leak the
-        // profession names had.
+        /* The count and its noun are composed as Messages: writing "item"/"itens" inline would
+        print Portuguese to a player running the game in English, which is the same leak the
+        profession names had.
+        */
         Message itemWord = Message.translation(
                 items == 1 ? "ui.debugchests.itemSingular" : "ui.debugchests.itemPlural");
         Message itemsPart = Message.raw(items + " ").insert(itemWord);
@@ -167,8 +168,9 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
 
     /** Resolves the house link, naming the NPC owners when they are loaded. */
     private Message describeOwner(HouseBlockPos pos) {
-        // Chests outside a house are unusable by design — that is what keeps NPCs out of the
-        // world generator's loot chests — so say so instead of calling them "public".
+        /* Chests outside a house are unusable by design — that is what keeps NPCs out of the
+        world generator's loot chests — so say so instead of calling them "public".
+        */
         UUID houseId = HouseManager.findHouseIdForChest(pos);
         if (houseId == null) return Message.translation("ui.debugchests.ownerNoHouse");
 
@@ -176,8 +178,9 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
         if (house == null) return Message.translation("ui.debugchests.ownerNoData").param("id", shortId(houseId));
         if (house.owners.isEmpty()) return Message.translation("ui.debugchests.ownerNoOwners").param("id", shortId(houseId));
 
-        // One database read per owner, not two: resolving the name and classifying the state both
-        // need the same record, and this runs for every row every time the page renders.
+        /* One database read per owner, not two: resolving the name and classifying the state both
+        need the same record, and this runs for every row every time the page renders.
+        */
         List<String> names = new ArrayList<>();
         boolean anyOrphan = false;
         boolean anyOffline = false;
@@ -188,8 +191,9 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
             if (resolved.state() == OwnerState.OFFLINE) anyOffline = true;
         }
 
-        // The worst state wins the label: an orphan is a data problem worth acting on, while an
-        // owner that is merely out of range is normal and should not raise an alarm.
+        /* The worst state wins the label: an orphan is a data problem worth acting on, while an
+        owner that is merely out of range is normal and should not raise an alarm.
+        */
         String joined = String.join(", ", names);
         if (anyOrphan) {
             return Message.translation("ui.debugchests.ownerNamesOrphan").param("owners", joined);
@@ -239,8 +243,9 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
             return new ResolvedOwner(shortForm, OwnerState.ORPHAN);
         }
 
-        // The record still carries the name of an NPC that is simply not loaded, which is far more
-        // useful than eight hex characters.
+        /* The record still carries the name of an NPC that is simply not loaded, which is far more
+        useful than eight hex characters.
+        */
         String name = stored.name != null && !stored.name.isBlank() ? stored.name : shortForm;
         return new ResolvedOwner(name, OwnerState.OFFLINE);
     }
@@ -288,8 +293,9 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
 
             Message contentsMsg = describeContents(world, cp);
             cmd.set(rowSelector + " #Contents.TextSpans", contentsMsg);
-            // Green when an NPC could actually eat from here, so the hunger routine can be judged
-            // at a glance instead of by opening every chest.
+            /* Green when an NPC could actually eat from here, so the hunger routine can be judged
+            at a glance instead of by opening every chest.
+            */
             cmd.set(rowSelector + " #Contents.Style.TextColor", "#44ff88");
 
 
@@ -350,8 +356,9 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
             return;
         }
 
-        // The bindings are already withheld, but the client sends the action string, so the guard
-        // belongs here too rather than only on the button that produced it.
+        /* The bindings are already withheld, but the client sends the action string, so the guard
+        belongs here too rather than only on the button that produced it.
+        */
         if ((eventData.contains("tp_") || eventData.contains("forget_")) && !canEdit()) {
             return;
         }
