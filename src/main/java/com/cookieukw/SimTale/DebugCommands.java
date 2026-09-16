@@ -2,6 +2,7 @@ package com.cookieukw.SimTale;
 
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.logic.SimBathDebugPage;
 import com.cookieukw.SimTale.logic.SimBedDebugPage;
 import com.cookieukw.SimTale.logic.SimChestDebugPage;
 import com.cookieukw.SimTale.logic.SimGraveyardPage;
@@ -188,6 +189,21 @@ final class DebugCommands {
             // '/simtale rescan' are for, and rescan stays explicit so the cost is asked for.
             player.getPageManager().openCustomPage(ref, store,
                     new SimChestDebugPage(playerRef, player));
+        }
+    }
+
+    static class DebugBathsSubCommand extends AbstractPlayerCommand {
+        public DebugBathsSubCommand() {
+            super("debugbaths", "Opens the registered baths debug screen");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            Player player = store.getComponent(ref, Player.getComponentType());
+            if (player == null) return;
+
+            player.getPageManager().openCustomPage(ref, store, new SimBathDebugPage(playerRef, player));
         }
     }
 
