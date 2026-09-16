@@ -436,6 +436,16 @@ once per NPC per tick for nothing.
         give-up path added here -- they simply join the existing "already busy" exclusions.*/
         boolean inCombat = ai.currentTask == TaskType.MOVING_TO_FIGHT || ai.currentTask == TaskType.FIGHTING;
 
+        /* A child mid tag or hide-and-seek is no more interruptible than a Guard mid-fight, and
+        for the same reason: both leave a partner NPC reading this NPC's own currentTask every
+        tick (TAG_FLEEING/SEEKING/HIDING all check the other side, see ChildPlayHelper), so an
+        interrupt yanking just one of them to bed or off to eat would strand the other mid-game
+        instead of ending it cleanly. Both self-timeout already, same as combat, so nothing else
+        is needed here beyond joining the exclusion.*/
+        boolean inChildPlay = ai.currentTask == TaskType.TAG_CHASING || ai.currentTask == TaskType.TAG_FLEEING
+                || ai.currentTask == TaskType.MOVING_TO_HIDE || ai.currentTask == TaskType.HIDING
+                || ai.currentTask == TaskType.SEEKING;
+
         /* A claimed work post (fishing, and future lumberjack/farmer posts) must not outlive the
         NPC that claimed it — otherwise a killed fisherman leaves its post permanently
         reserved, with no one left to release it. releaseWorkPost is a no-op once the claim is
@@ -452,7 +462,7 @@ once per NPC per tick for nothing.
         boolean forcedByCommand = ai.forcedByDebug;
 
         if ((sleepWindowOpen || exhausted) && world.getTick() >= ai.nextBedSearchTick
-                && !alreadyHeadedToBed && !inDeathFlow && !forcedByCommand && !inCombat) {
+                && !alreadyHeadedToBed && !inDeathFlow && !forcedByCommand && !inCombat && !inChildPlay) {
 
             if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
                 NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
@@ -482,7 +492,7 @@ once per NPC per tick for nothing.
                 && ai.currentTask != TaskType.FINDING_BED && ai.currentTask != TaskType.MOVING_TO_BED
                 && ai.currentTask != TaskType.ENTERING_BED && ai.currentTask != TaskType.SLEEPING
                 && ai.currentTask != TaskType.WAKING
-                && !inDeathFlow && !forcedByCommand && !inCombat) {
+                && !inDeathFlow && !forcedByCommand && !inCombat && !inChildPlay) {
 
             if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
                 NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
@@ -546,6 +556,12 @@ once per NPC per tick for nothing.
         /* Socializing & Wandering (Delegated to NPCSocialHelper) 
         */
         NPCSocialHelper.handleSocialLogic(ref, npc, ai, transform, world, store);
+
+        /* Child play: tag and hide-and-seek between two nearby children (Delegated to
+         * ChildPlayHelper). Paired up from RoutineSleepHelpers' own IDLE ladder, same place
+         * NPCSocialHelper picks a chat partner -- everything after that lives here.
+         */
+        ChildPlayHelper.handleChildPlayLogic(ref, npc, ai, transform, world, store);
 
         /* Guard combat: detect a hostile mob nearby and deal with it (Delegated to NPCGuardHelper).
          * Written the same session Profession.GUARD started meaning anything, but never actually
@@ -819,8 +835,12 @@ once per NPC per tick for nothing.
                     }
                 }
 
-                // Play wave and smile
-                SimTaleJuiceHelper.playGreeting(ref, store);
+                // Play wave and smile -- skipped mid-chase/mid-flight (a full sprint visibly
+                // interrupted by a wave reads as broken); every other state, including a hiding
+                // or counting child standing still, still gets it.
+                if (ai.currentTask != TaskType.TAG_CHASING && ai.currentTask != TaskType.TAG_FLEEING) {
+                    SimTaleJuiceHelper.playGreeting(ref, store);
+                }
 
                 // Send contextual greeting message
                 Relationship rel = npc.getRelationship(pr.getUuid());
@@ -829,21 +849,46 @@ once per NPC per tick for nothing.
                 // voice ahead of its own rule tables for the chat/joke intents. This is what
                 // makes a child say "Oi, papai!" instead of the generic proximity.friend line
                 // when the player walking up happens to be their own parent.
-                String youngKey = ChildDialogue.keyFor(npc, pr.getUuid(), "proximity");
-                Message greetingMsg = youngKey != null
-                        ? pickRandomTranslation(youngKey, YOUNG_PROXIMITY_LINE_VARIANTS)
-                                .param("parent", parentAddressTerm(npc, pr.getUuid(), pr))
-                        : switch (rel.status) {
-                            case MARRIED, PARTNER, ENGAGED, DATING, CRUSH -> pickRandomTranslation("npc-dialogues.proximity.partner", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
-                            case BEST_FRIEND, GOOD_FRIEND, FRIEND -> pickRandomTranslation("npc-dialogues.proximity.friend", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
-                            case ENEMIES -> pickRandomTranslation("npc-dialogues.proximity.enemy", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
-                            default -> pickRandomTranslation("npc-dialogues.proximity.stranger", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
-                        };
+                // A child mid tag/hide-and-seek comments on the game itself instead of greeting
+                // normally -- checked ahead of the young/parent voice below for the same reason
+                // that one already outranks the adult relationship lines: the more specific,
+                // situational line wins. See ChildPlayHelper for the states themselves.
+                Message playLine = playDialogueLine(ai.currentTask);
+                Message greetingMsg;
+                if (playLine != null) {
+                    greetingMsg = playLine;
+                } else {
+                    String youngKey = ChildDialogue.keyFor(npc, pr.getUuid(), "proximity");
+                    greetingMsg = youngKey != null
+                            ? pickRandomTranslation(youngKey, YOUNG_PROXIMITY_LINE_VARIANTS)
+                                    .param("parent", parentAddressTerm(npc, pr.getUuid(), pr))
+                            : switch (rel.status) {
+                                case MARRIED, PARTNER, ENGAGED, DATING, CRUSH -> pickRandomTranslation("npc-dialogues.proximity.partner", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                                case BEST_FRIEND, GOOD_FRIEND, FRIEND -> pickRandomTranslation("npc-dialogues.proximity.friend", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                                case ENEMIES -> pickRandomTranslation("npc-dialogues.proximity.enemy", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                                default -> pickRandomTranslation("npc-dialogues.proximity.stranger", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                            };
+                }
                 pr.sendMessage(Message.raw(npc.name + ": ").insert(greetingMsg));
                 LOGGER.debug("[SimTale] NPC '{}' greeted player '{}'", npc.name, pr.getUsername());
                 break;
             }
         }
+    }
+
+    /**
+     * Situational line for a child mid tag/hide-and-seek, or null when the ordinary proximity
+     * greeting should run instead. {@code MOVING_TO_HIDE} is deliberately left out -- it's a
+     * short enough walk to the hiding spot that the ordinary greeting reads fine for it too.
+     */
+    private static Message playDialogueLine(TaskType task) {
+        return switch (task) {
+            case TAG_CHASING -> pickRandomTranslation("npc-dialogues.playing.tag_chasing", 3);
+            case TAG_FLEEING -> pickRandomTranslation("npc-dialogues.playing.tag_fleeing", 3);
+            case HIDING -> pickRandomTranslation("npc-dialogues.playing.hideseek_hiding", 3);
+            case SEEKING -> pickRandomTranslation("npc-dialogues.playing.hideseek_seeking", 3);
+            default -> null;
+        };
     }
 
     /**
@@ -1057,6 +1102,13 @@ once per NPC per tick for nothing.
         ai.socializeHost = false;
         ai.socialTalkTimer = 0;
         ai.wanderTimer = 0;
+        // No cross-partner release needed here the way socializeTargetId's has just above --
+        // every ChildPlayHelper state already re-checks the partner's own currentTask every
+        // tick and quietly ends itself the moment it stops matching, so clearing just these two
+        // is enough for a forcibly-interrupted child (e.g. npc.forceSleep, which bypasses
+        // inChildPlay same as it bypasses inCombat) to leave a clean slate for her next IDLE.
+        ai.playPartnerId = null;
+        ai.playRoundsLeft = 0;
         if (ai.targetChairPos != null) {
             ChairRegistry.releaseChair(ai.targetChairPos);
             ai.targetChairPos = null;
