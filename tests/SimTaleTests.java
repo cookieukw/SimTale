@@ -25,6 +25,7 @@ import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookieukw.SimTale.logic.InteractionManager.InteractionOutcome;
 import com.hypixel.hytale.server.core.Message;
 import com.cookieukw.SimTale.systems.ChairRegistry;
+import com.cookieukw.SimTale.systems.SimTaleJuiceHelper;
 import org.joml.Vector3i;
 
 import java.util.Optional;
@@ -68,6 +69,7 @@ public class SimTaleTests {
             testDatabaseShellIsolation();
             testMemoryAndGossip();
             testProfessionAcceptance();
+            testFacialReactionJuice();
 
             System.out.println("Seating & Chairs");
             testChairRegistry();
@@ -527,6 +529,30 @@ public class SimTaleTests {
         } finally {
             ChairRegistry.staleCheckEnabled = true;
         }
+    }
+
+    private static void testFacialReactionJuice() {
+        System.out.print("Testing Facial Reactions & Juice Helper... ");
+
+        // Verify expression animation paths
+        Assert.equal(SimTaleJuiceHelper.faceSmile(), "Characters/Animations/Expressions/Smile.blockyanim", "faceSmile path");
+        Assert.equal(SimTaleJuiceHelper.faceCheerful(), "Characters/Animations/Expressions/Cheerful.blockyanim", "faceCheerful path");
+        Assert.equal(SimTaleJuiceHelper.faceAngry(), "Characters/Animations/Expressions/Angry.blockyanim", "faceAngry path");
+        Assert.equal(SimTaleJuiceHelper.faceFrown(), "Characters/Animations/Expressions/Frown.blockyanim", "faceFrown path");
+        Assert.equal(SimTaleJuiceHelper.faceSurprised(), "Characters/Animations/Expressions/Suprised.blockyanim", "faceSurprised path");
+
+        // Verify null safety of juice calls
+        SimTaleJuiceHelper.playJokeSuccess(null, null, null, 0);
+        SimTaleJuiceHelper.playJokeFail(null, null, null, 0);
+        SimTaleJuiceHelper.playGiftReaction(null, null, 25, null, 0);
+        SimTaleJuiceHelper.playGiftReaction(null, null, -10, null, 0);
+        SimTaleJuiceHelper.playGiftReaction(null, null, 5, null, 0);
+        SimTaleJuiceHelper.playProfessionReaction(null, null, true, true, null, 0);
+        SimTaleJuiceHelper.playProfessionReaction(null, null, true, false, null, 0);
+        SimTaleJuiceHelper.playProfessionReaction(null, null, false, false, null, 0);
+        SimTaleJuiceHelper.playDamagePanic(null, null, null, 0);
+
+        System.out.println("OK");
     }
 
     /* Kept as thin wrappers so the pre-existing suites read unchanged, while the assertion count
