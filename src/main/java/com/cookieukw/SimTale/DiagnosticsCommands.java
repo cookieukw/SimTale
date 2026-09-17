@@ -68,6 +68,8 @@ import com.cookieukw.SimTale.systems.BedRegistry;
 import com.cookieukw.SimTale.systems.ChestRegistry;
 import com.cookieukw.SimTale.systems.ChairRegistry;
 import com.cookieukw.SimTale.systems.FurnitureAnchorHelper;
+import com.cookieukw.SimTale.systems.VillageManager;
+import com.cookieukw.SimTale.systems.VillageStockManager;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
@@ -576,6 +578,9 @@ final class DiagnosticsCommands {
             ctx.sendMessage(Message.translation("general.cmd.chestcheck.located")
                 .param("x", nearestChest.x).param("y", nearestChest.y).param("z", nearestChest.z));
 
+            boolean isShared = ChestRegistry.isShared(nearestChest);
+            ctx.sendMessage(Message.raw("[Tipo do Baú] " + (isShared ? "§aCOMPARTILHADO (Estoque Comunitário da Vila)" : "§ePRIVADO (Casa)")));
+
             UUID houseId = HouseManager.findHouseIdForChest(nearestChest);
             if (houseId != null) {
                 HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
@@ -587,6 +592,82 @@ final class DiagnosticsCommands {
                 }
             } else {
                 ctx.sendMessage(Message.translation("general.cmd.chestcheck.public_chest"));
+            }
+        }
+    }
+
+    static class ChestShareSubCommand extends AbstractPlayerCommand {
+        public ChestShareSubCommand() {
+            super("chestshare", "Toggles whether the nearest chest is private or shared village storage");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
+            if (tc == null) return;
+            Vector3d pos = tc.getPosition();
+            BedWorldBootstrap.bootstrapLoadedRadius(world, pos, 16);
+
+            HouseBlockPos nearestChest = null;
+            double minDist = Double.MAX_VALUE;
+            synchronized (ChestRegistry.CHESTS) {
+                for (HouseBlockPos cp : ChestRegistry.CHESTS) {
+                    double dx = cp.x - pos.x;
+                    double dy = cp.y - pos.y;
+                    double dz = cp.z - pos.z;
+                    double distSq = dx*dx + dy*dy + dz*dz;
+                    if (distSq < minDist) {
+                        minDist = distSq;
+                        nearestChest = cp;
+                    }
+                }
+            }
+
+            if (nearestChest == null || minDist > 16 * 16) {
+                ctx.sendMessage(Message.raw("§cNenhum baú registrado próximo (raio de 16 blocos)."));
+                return;
+            }
+
+            boolean nowShared = !ChestRegistry.isShared(nearestChest);
+            ChestRegistry.setShared(nearestChest.x, nearestChest.y, nearestChest.z, nowShared);
+            ctx.sendMessage(Message.raw("§aBaú em (" + nearestChest.x + ", " + nearestChest.y + ", " + nearestChest.z + ") agora é "
+                    + (nowShared ? "§6COMPARTILHADO (Estoque Comunitário da Vila)" : "§7PRIVADO (Uso Doméstico)")));
+        }
+    }
+
+    static class VillageStockSubCommand extends AbstractPlayerCommand {
+        public VillageStockSubCommand() {
+            super("villagestock", "Shows the communal inventory summary of the nearest village");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent tc = store.getComponent(ref, TransformComponent.getComponentType());
+            if (tc == null) return;
+            Vector3d pos = tc.getPosition();
+
+            VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
+            if (village == null) {
+                ctx.sendMessage(Message.raw("§cNenhuma vila encontrada nas proximidades."));
+                return;
+            }
+
+            List<HouseBlockPos> sharedChests = VillageStockManager.getSharedChestsInVillage(village);
+            Map<String, Integer> stock = VillageStockManager.getVillageStockSummary(village, world);
+
+            ctx.sendMessage(Message.raw("§6=== Estoque da Vila ==="));
+            ctx.sendMessage(Message.raw("§eCentro: (" + (int) village.centerX() + ", " + (int) village.centerZ() + ") | Raio: " + (int) village.radius() + "m | Casas: " + village.houses()));
+            ctx.sendMessage(Message.raw("§eBaús Compartilhados: §a" + sharedChests.size()));
+
+            if (stock.isEmpty()) {
+                ctx.sendMessage(Message.raw("§7Estoque vazio nos baús comunitários."));
+            } else {
+                ctx.sendMessage(Message.raw("§aItens Estocados:"));
+                for (Map.Entry<String, Integer> entry : stock.entrySet()) {
+                    ctx.sendMessage(Message.raw("  §f- " + entry.getKey() + ": §e" + entry.getValue()));
+                }
             }
         }
     }
