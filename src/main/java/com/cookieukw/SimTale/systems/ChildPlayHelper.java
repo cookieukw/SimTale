@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
+import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -381,6 +382,7 @@ public class ChildPlayHelper {
         if (restoreFun && npc != null && npc.entityRef != null) {
             NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID,
                     Math.min(100f, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) + PLAY_FUN_RESTORE));
+            npc.setEmotion(Mood.HAPPY, 0.6f, "playing", world.getTick());
         }
     }
 
