@@ -166,6 +166,41 @@ public class GrowthManager {
         }
     }
 
+    /**
+     * Promotes a child to their next growth stage immediately (e.g. via BirthdayCake).
+     *
+     * @param child the growth component to promote
+     * @return true if promoted, false if already adult or null
+     */
+    public static boolean promoteChildStage(GrowthComponent child) {
+        if (child == null || child.isAdult()) return false;
+
+        GrowthStage nextStage = switch (child.stage) {
+            case BABY -> GrowthStage.TODDLER;
+            case TODDLER -> GrowthStage.CHILD;
+            case CHILD -> GrowthStage.TEEN;
+            case TEEN -> GrowthStage.ADULT;
+            default -> GrowthStage.ADULT;
+        };
+
+        World world = WorldUtil.first();
+        long currentTick = world != null ? world.getTick() : 0L;
+
+        child.stage = nextStage;
+        child.birthTick = currentTick - (nextStage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
+        child.currentScale = calculateTargetScale(child, currentTick);
+
+        Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
+        if (childRef != null && childRef.isValid()) {
+            applyVisualScale(childRef, child.currentScale);
+        }
+
+        World w = WorldUtil.first();
+        Store<EntityStore> store = w != null ? w.getEntityStore().getStore() : null;
+        runOutsideTick(store, () -> onStageChanged(child));
+        return true;
+    }
+
     private static void onStageChanged(GrowthComponent child) {
         if (child.stage == GrowthStage.TODDLER) {
             /* Guard against this branch running more than once for the same BABY->TODDLER

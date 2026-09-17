@@ -24,12 +24,18 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 
+import com.cookieukw.SimTale.ai.RoutineAIComponent;
+import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.lifecycle.GrowthManager;
+import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleState;
+import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
 import com.hypixel.hytale.protocol.SoundCategory;
 
@@ -57,6 +63,8 @@ public class SimTaleItemRegistry {
             Ref<EntityStore> pRef = playerRef.getReference();
             if (pRef == null || !pRef.isValid()) return;
             Store<EntityStore> store = pRef.getStore();
+            TransformComponent transform = store.getComponent(pRef, TransformComponent.getComponentType());
+            if (transform == null) return;
 
             InventoryComponent.Hotbar hotbar = store.getComponent(pRef, InventoryComponent.Hotbar.getComponentType());
             if (hotbar != null) {
@@ -78,26 +86,33 @@ public class SimTaleItemRegistry {
                         ItemStack newBell = bellItem.withMetadata("simtale_uses_left", Codec.STRING, String.valueOf(usesLeft));
                         hotbar.getInventory().removeItemStackFromSlot(hotbar.getActiveSlot(), 1);
                         hotbar.getInventory().addItemStack(newBell);
-                        playerRef.sendMessage(Message.raw("[SimTale] Town bell rung! " + usesLeft + " uses left."));
-                        
-                        TransformComponent transform = store.getComponent(pRef, TransformComponent.getComponentType());
-                        if (transform != null) {
-                            int soundIndex = SoundEvent.getAssetMap().getIndex("SimTale/TownBell");
-                            SoundUtil.playSoundEvent3dToPlayer(pRef, soundIndex, SoundCategory.UI, transform.getPosition(), store);
-                        }
+                        playerRef.sendMessage(Message.translation("general.bell.uses_left").param("count", usesLeft));
                     }
+                    int soundIndex = SoundEvent.getAssetMap().getIndex("SimTale/TownBell");
+                    SoundUtil.playSoundEvent3dToPlayer(pRef, soundIndex, SoundCategory.UI, transform.getPosition(), store);
                 }
             }
 
+            Vector3d pPos = transform.getPosition();
             int count = 0;
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef != null && npc.entityRef.isValid()) {
-                    NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.ENERGY_ID, 0f);
-                    npc.forceSleep = true;
-                    count++;
-                }
+                if (npc.entityRef == null || !npc.entityRef.isValid() || npc.isReaper) continue;
+
+                TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                if (npcTransform == null) continue;
+
+                double distSq = npcTransform.getPosition().distanceSquared(pPos);
+                if (distSq > 50.0 * 50.0) continue;
+
+                npc.forceSleep = true;
+                count++;
             }
-            playerRef.sendMessage(Message.translation("general.bell.rang").param("count", count));
+
+            if (count > 0) {
+                playerRef.sendMessage(Message.translation("general.bell.rang").param("count", count));
+            } else {
+                playerRef.sendMessage(Message.translation("general.bell.rang_none"));
+            }
         });
         
         /* The three lenses below replace placeholder handlers that only printed a line of hardcoded
@@ -215,46 +230,58 @@ public class SimTaleItemRegistry {
             TransformComponent playerTransform = store.getComponent(pRef, TransformComponent.getComponentType());
             if (playerTransform == null) return;
 
-            SimNPCComponent nearestChild = null;
-            GrowthComponent nearestGrowth = null;
+            SimNPCComponent nearestNpc = null;
             double minDistance = Double.MAX_VALUE;
 
-            LifecycleState.ensureLoaded();
-
             for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.entityRef != null && npc.entityRef.isValid()) {
-                    for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
-                        if (child.childId != null && child.childId.equals(npc.entityId)) {
-                            TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
-                            if (npcTransform != null) {
-                                double distSq = playerTransform.getPosition().distanceSquared(npcTransform.getPosition());
-                                if (distSq < minDistance) {
-                                    minDistance = distSq;
-                                    nearestChild = npc;
-                                    nearestGrowth = child;
-                                }
-                            }
-                            break;
-                        }
-                    }
+                if (npc.entityRef == null || !npc.entityRef.isValid() || npc.isReaper) continue;
+
+                TransformComponent npcTransform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+                if (npcTransform == null) continue;
+
+                double distSq = playerTransform.getPosition().distanceSquared(npcTransform.getPosition());
+                if (distSq < minDistance && distSq <= 36.0) { // Within 6 blocks
+                    minDistance = distSq;
+                    nearestNpc = npc;
                 }
             }
 
-            if (nearestChild == null || nearestGrowth == null || minDistance > 100.0) { // Within approx 10 blocks
-                /* docs/ROADMAP.md flagged this: one generic message covered two very different
-                situations -- no children anywhere in the world yet, versus some existing
-                somewhere far away right now. A player with a newborn across the map got the same
-                "no child nearby" line as one with none at all, with no way to tell which was
-                true without teleporting around to check. Distinguishing costs nothing extra: the
-                emptiness of ACTIVE_CHILDREN was already known from the loop above. */
-                if (LifecycleManager.ACTIVE_CHILDREN.isEmpty()) {
-                    playerRef.sendMessage(Message.raw("[SimTale] No children in this world yet."));
-                } else {
-                    playerRef.sendMessage(Message.raw("[SimTale] There are children in the world, but none nearby (within 10 blocks)."));
-                }
-            } else {
-                playerRef.sendMessage(Message.raw("[SimTale] " + nearestChild.name + " is at stage: " + nearestGrowth.stage.name()));
+            if (nearestNpc == null) {
+                playerRef.sendMessage(Message.translation("general.cake.no_npc_nearby"));
+                return;
             }
+
+            InventoryComponent.Hotbar hotbar = store.getComponent(pRef, InventoryComponent.Hotbar.getComponentType());
+            if (hotbar != null) {
+                hotbar.getInventory().removeItemStackFromSlot(hotbar.getActiveSlot(), 1);
+            }
+
+            // Fill hunger and fun needs
+            NeedsHelper.setNeed(store, nearestNpc.entityRef, NeedsHelper.HUNGER_ID, 100f);
+            NeedsHelper.setNeed(store, nearestNpc.entityRef, NeedsHelper.FUN_ID, 100f);
+
+            // Boost relationship
+            com.cookieukw.SimTale.core.Relationship rel = nearestNpc.getRelationship(playerRef.getUuid());
+            if (rel != null) {
+                rel.addAffinity(15);
+                rel.addFriendship(15);
+            }
+
+            // If child with BabyNeeds, grant affection and feed bonus
+            if (nearestNpc.entityId != null) {
+                GrowthComponent gc = com.cookie.caskara.Caskara.load("child_" + nearestNpc.entityId, GrowthComponent.class);
+                if (gc != null && gc.babyNeeds != null) {
+                    gc.babyNeeds.showAffection(30f);
+                    gc.babyNeeds.feed(30f);
+                    com.cookie.caskara.Caskara.save("child_" + gc.childId, gc);
+                }
+            }
+
+            long tick = WorldUtil.tick();
+            nearestNpc.setEmotion(Mood.EXCITED, 1.0f, "birthday_cake", tick);
+
+            playerRef.sendMessage(Message.translation("general.cake.celebrated")
+                    .param("name", nearestNpc.name));
         });
         
         /* The ring's real behaviour lives in the gift path (InteractionManager); this only fires
