@@ -160,6 +160,9 @@ public class NPCMovementHelper {
            comment says combat/charging get custom client handling), so there is no registered
            name to match -- `anim`, the real .blockyanim path, is what should go out instead.
         */
+        if (slot == AnimationSlot.Action && ("Walk".equals(name) || "Idle".equals(name))) {
+            return;
+        }
         boolean usesModelRegistry = slot != AnimationSlot.Action && slot != AnimationSlot.Emote;
         LOGGER.debug("[NPCMovementHelper] Playing '{}' ({}) on slot {}", name, anim, slot);
         AnimationUtils.playAnimation(ref, slot, usesModelRegistry ? name : anim, store);
