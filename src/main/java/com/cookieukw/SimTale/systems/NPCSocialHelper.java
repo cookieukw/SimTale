@@ -545,7 +545,7 @@ public class NPCSocialHelper {
             if (pRef != null && pRef.isValid()) {
                 TransformComponent pt = pRef.getStore().getComponent(pRef, TransformComponent.getComponentType());
                 if (pt != null && pt.getPosition().distanceSquared(pos) <= EARSHOT_DISTANCE_SQ) { // 4 blocks
-                    pr.sendMessage(Message.raw("[Vila] ").insert(msg));
+                    pr.sendMessage(Message.translation("general.chat.village_prefix").insert(msg));
                 }
             }
         }
