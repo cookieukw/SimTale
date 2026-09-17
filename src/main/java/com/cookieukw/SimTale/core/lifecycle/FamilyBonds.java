@@ -217,8 +217,13 @@ public final class FamilyBonds {
         UUID houseId = HouseManager.OWNER_TO_HOUSE_ID.get(parentId);
         if (houseId != null) {
             HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
-            if (house != null && house.bedPos != null) {
-                return new BedPos(house.bedPos.x, house.bedPos.y, house.bedPos.z, 0f);
+            if (house != null) {
+                if (house.bedPos != null) {
+                    return new BedPos(house.bedPos.x, house.bedPos.y, house.bedPos.z, 0f);
+                } else if (house.beds != null && !house.beds.isEmpty()) {
+                    HouseBlockPos first = house.beds.iterator().next();
+                    return new BedPos(first.x, first.y, first.z, 0f);
+                }
             }
         }
         return null;
