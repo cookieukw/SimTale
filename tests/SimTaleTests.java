@@ -1,5 +1,6 @@
 package com.cookieukw.SimTale.tests;
 
+import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
@@ -24,10 +25,15 @@ import com.cookieukw.SimTale.core.NPCPreferences;
 import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookieukw.SimTale.logic.InteractionManager.InteractionOutcome;
 import com.hypixel.hytale.server.core.Message;
+import com.cookieukw.SimTale.core.HouseBlockPos;
+import com.cookieukw.SimTale.core.HouseData;
+import com.cookieukw.SimTale.db.SimBedData;
 import com.cookieukw.SimTale.systems.ChairRegistry;
+import com.cookieukw.SimTale.systems.HouseManager;
 import com.cookieukw.SimTale.systems.SimTaleJuiceHelper;
 import org.joml.Vector3i;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -73,6 +79,9 @@ public class SimTaleTests {
 
             System.out.println("Seating & Chairs");
             testChairRegistry();
+
+            System.out.println("Houses & Bed Independence");
+            testHouseBedIndependence();
 
             System.out.println("========================================");
             System.out.println("All tests passed (" + Assert.checks + " assertions)");
@@ -553,6 +562,97 @@ public class SimTaleTests {
         SimTaleJuiceHelper.playDamagePanic(null, null, null, 0);
 
         System.out.println("OK");
+    }
+
+    private static void testHouseBedIndependence() {
+        System.out.print("Testing House Independence & Bed Lifecycle... ");
+
+        UUID houseUuid = UUID.randomUUID();
+        UUID owner1 = UUID.randomUUID();
+        UUID owner2 = UUID.randomUUID();
+
+        HouseBlockPos bed1 = new HouseBlockPos(100, 65, 100);
+        HouseBlockPos bed2 = new HouseBlockPos(104, 65, 100);
+        HouseBlockPos door = new HouseBlockPos(102, 65, 96);
+        HouseBlockPos chest = new HouseBlockPos(105, 65, 102);
+
+        Set<HouseBlockPos> interior = new HashSet<>();
+        for (int x = 98; x <= 106; x++) {
+            for (int z = 97; z <= 105; z++) {
+                interior.add(new HouseBlockPos(x, 65, z));
+            }
+        }
+
+        // 1. HouseData creation and anchor calculation
+        HouseData house = new HouseData(houseUuid, Set.of(owner1, owner2), bed1, interior, Set.of(door), Set.of(chest));
+        Assert.equal(house.beds.contains(bed1), true, "Primary bed registered in beds set");
+        Assert.equal(house.getAnchor() != null, true, "Anchor computed successfully");
+
+        // 2. Add multiple beds to house
+        house.addBed(bed2);
+        Assert.equal(house.beds.size(), 2, "House has 2 beds");
+        Assert.equal(house.beds.contains(bed2), true, "Second bed registered");
+
+        // 3. Register house in HouseManager
+        HouseManager.registerHouse(house);
+        Assert.equal(HouseManager.HOUSES_BY_ID.containsKey(houseUuid), true, "House registered in HouseManager");
+        Assert.equal(HouseManager.BLOCK_TO_HOUSE_ID.get(interior.iterator().next()), houseUuid, "Interior indexed to houseId");
+
+        // 4. Setup mock NPC resident sleeping in bed1
+        SimNPCComponent npc = new SimNPCComponent();
+        npc.entityId = owner1;
+        npc.name = "Resident";
+        npc.bedLocation = new SimBedData.BedPos(bed1.x, bed1.y, bed1.z, 0f);
+        npc.family.hasSharedHome = true;
+        npc.family.homeX = bed1.x;
+        npc.family.homeY = bed1.y;
+        npc.family.homeZ = bed1.z;
+        SimTale.ACTIVE_NPCS.add(npc);
+
+        try {
+            // 5. Break bed1: verify house is NOT deleted and NPC switches to alternate bed2
+            boolean broken = HouseManager.handleBedBroken(bed1);
+            Assert.equal(broken, true, "handleBedBroken returned true");
+            Assert.equal(HouseManager.HOUSES_BY_ID.containsKey(houseUuid), true, "House STILL exists after bed broke!");
+            Assert.equal(house.beds.contains(bed1), false, "bed1 removed from house.beds");
+            Assert.equal(house.beds.contains(bed2), true, "bed2 remains in house.beds");
+            Assert.equal(npc.bedLocation != null, true, "NPC got assigned alternate bed2");
+            Assert.equal(npc.bedLocation.x == bed2.x && npc.bedLocation.z == bed2.z, true, "NPC bedLocation updated to bed2");
+
+            // 6. Break bed2: house has 0 beds, but house remains registered!
+            HouseManager.handleBedBroken(bed2);
+            Assert.equal(HouseManager.HOUSES_BY_ID.containsKey(houseUuid), true, "House STILL exists with 0 beds!");
+            Assert.equal(house.beds.isEmpty(), true, "House has 0 beds");
+            Assert.equal(npc.bedLocation, null, "NPC has null bedLocation when no beds available");
+
+            // 7. Place new bed3 inside house: dynamically adopted
+            HouseBlockPos bed3 = new HouseBlockPos(101, 65, 101);
+            boolean registeredNewBed = HouseManager.registerBedInHouse(bed3);
+            Assert.equal(registeredNewBed, true, "New bed3 registered into existing house");
+            Assert.equal(house.beds.contains(bed3), true, "house.beds now contains bed3");
+
+            // 8. Door broken: door removed, house still preserved
+            boolean doorBroken = HouseManager.handleDoorBroken(door);
+            Assert.equal(doorBroken, true, "Door break handled");
+            Assert.equal(house.doors.isEmpty(), true, "Door removed from house.doors");
+            Assert.equal(HouseManager.HOUSES_BY_ID.containsKey(houseUuid), true, "House still preserved");
+
+            // 9. Legacy syncBeds test: loads record with only bedPos
+            HouseData legacy = new HouseData();
+            legacy.houseId = UUID.randomUUID().toString();
+            legacy.bedPos = new HouseBlockPos(200, 64, 200);
+            legacy.syncBeds();
+            Assert.equal(legacy.beds.contains(legacy.bedPos), true, "syncBeds populated beds set from legacy bedPos");
+            Assert.equal(legacy.getAnchor() != null, true, "legacy getAnchor resolved");
+
+            // Cleanup
+            HouseManager.deleteHouse(houseUuid);
+            Assert.equal(HouseManager.HOUSES_BY_ID.containsKey(houseUuid), false, "Explicit deleteHouse removed house");
+            System.out.println("OK");
+        } finally {
+            SimTale.ACTIVE_NPCS.remove(npc);
+            HouseManager.deleteHouse(houseUuid);
+        }
     }
 
     /* Kept as thin wrappers so the pre-existing suites read unchanged, while the assertion count
