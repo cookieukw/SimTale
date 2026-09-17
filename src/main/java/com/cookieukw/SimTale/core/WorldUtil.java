@@ -34,6 +34,9 @@ public final class WorldUtil {
      *         Callers must null-check instead of assuming a world exists.
      */
     public static World first() {
+        if (Universe.get() == null || Universe.get().getWorlds() == null) {
+            return null;
+        }
         for (World w : Universe.get().getWorlds().values()) {
             return w;
         }
