@@ -46,6 +46,7 @@ public final class SimTaleJuiceHelper {
     private static final String FACE_ANGRY = "Characters/Animations/Expressions/Angry.blockyanim";
     private static final String FACE_RAGE = "Characters/Animations/Expressions/Rage.blockyanim";
     private static final String FACE_FROWN = "Characters/Animations/Expressions/Frown.blockyanim";
+    private static final String FACE_SURPRISED = "Characters/Animations/Expressions/Suprised.blockyanim";
 
     private SimTaleJuiceHelper() {
     }
@@ -272,5 +273,71 @@ public final class SimTaleJuiceHelper {
 
     public static String faceFrown() {
         return FACE_FROWN;
+    }
+
+    public static String faceSurprised() {
+        return FACE_SURPRISED;
+    }
+
+    public static void playJokeSuccess(Ref<EntityStore> npcRef, SimNPCComponent npc, Store<EntityStore> store, long tick) {
+        if (npcRef == null || store == null) return;
+        NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_CHEERFUL, "Cheerful", store);
+        if (npc != null) {
+            npc.setEmotion(Mood.HAPPY, 0.75f, "joke_laughed", tick);
+        }
+    }
+
+    public static void playJokeFail(Ref<EntityStore> npcRef, SimNPCComponent npc, Store<EntityStore> store, long tick) {
+        if (npcRef == null || store == null) return;
+        NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_FROWN, "Frown", store);
+        if (npc != null) {
+            npc.setEmotion(Mood.ANGRY, 0.4f, "bad_joke", tick);
+        }
+    }
+
+    public static void playGiftReaction(Ref<EntityStore> npcRef, SimNPCComponent npc, int affinity, Store<EntityStore> store, long tick) {
+        if (npcRef == null || store == null) return;
+        if (affinity >= 20) {
+            NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_CHEERFUL, "Cheerful", store);
+            TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
+            if (trans != null) {
+                spawnHeartParticles(trans.getPosition(), store);
+            }
+            if (npc != null) {
+                npc.setEmotion(Mood.EXCITED, 0.9f, "loved_gift", tick);
+            }
+        } else if (affinity < 0) {
+            NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_ANGRY, "Angry", store);
+            if (npc != null) {
+                npc.setEmotion(Mood.ANGRY, 0.6f, "hated_gift", tick);
+            }
+        } else {
+            NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_SMILE, "Smile", store);
+            if (npc != null) {
+                npc.setEmotion(Mood.HAPPY, 0.5f, "liked_gift", tick);
+            }
+        }
+    }
+
+    public static void playProfessionReaction(Ref<EntityStore> npcRef, SimNPCComponent npc, boolean accepted, boolean liked, Store<EntityStore> store, long tick) {
+        if (npcRef == null || store == null) return;
+        if (accepted) {
+            if (liked) {
+                NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_CHEERFUL, "Cheerful", store);
+                TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
+                if (trans != null) {
+                    spawnHeartParticles(trans.getPosition(), store);
+                }
+            } else {
+                NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_SMILE, "Smile", store);
+            }
+        } else {
+            NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_FROWN, "Frown", store);
+        }
+    }
+
+    public static void playDamagePanic(Ref<EntityStore> npcRef, SimNPCComponent npc, Store<EntityStore> store, long tick) {
+        if (npcRef == null || store == null) return;
+        NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_SURPRISED, "Surprised", store);
     }
 }
