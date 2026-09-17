@@ -410,8 +410,8 @@ public class SimTaleTests {
         InteractionOutcome acceptOutcome = InteractionManager.buildProfessionAcceptance(
                 enthusiastic, rel, Profession.FARMER, Message.raw("Farmer"), "Wood_Hoe", Message.raw(""), ctxLiked
         );
-        Assert.equal(acceptOutcome.friendshipChange(), 15, "Liked profession grants bonus friendship");
-        Assert.equal(acceptOutcome.affinityChange(), 25, "Liked profession grants bonus affinity");
+        Assert.equal(acceptOutcome.friendship(), 15, "Liked profession grants bonus friendship");
+        Assert.equal(acceptOutcome.affinity(), 25, "Liked profession grants bonus affinity");
         Assert.equal(enthusiastic.getMood(), Mood.EXCITED, "Liked profession sets EXCITED mood");
 
         // 2. Disliked profession: refused
@@ -457,7 +457,7 @@ public class SimTaleTests {
         InteractionOutcome loyalAccept = InteractionManager.buildProfessionAcceptance(
                 loyalNpc, loyalRel, Profession.FISHERMAN, Message.raw("Fisherman"), "Fishing_Rod", Message.raw(""), ctxLoyal
         );
-        Assert.equal(loyalAccept.friendshipChange(), 10, "Loyal NPC gives 10 friendship on accept");
+        Assert.equal(loyalAccept.friendship(), 10, "Loyal NPC gives 10 friendship on accept");
         Assert.equal(loyalNpc.getMood(), Mood.HAPPY, "Loyal NPC is HAPPY to accept");
 
         System.out.println("OK");
