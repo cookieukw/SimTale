@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
+import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NpcFreezeUtil;
 import com.cookieukw.SimTale.core.SimLog;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Carrying a small child on your shoulders.
@@ -352,6 +354,28 @@ public final class ChildCarryHelper {
                 Box parked = carried.entityId != null ? PARKED_BOXES.remove(carried.entityId) : null;
                 if (box != null && parked != null) {
                     box.setBoundingBox(parked);
+                }
+
+                /* Place child gently on the ground slightly scattered around the carrier so
+                multiple children dropped from shoulders don't land on top of each other.
+                */
+                TransformComponent carrierT = store.getComponent(carrier, TransformComponent.getComponentType());
+                TransformComponent childT = store.getComponent(childRef, TransformComponent.getComponentType());
+                if (carrierT != null && childT != null) {
+                    Vector3d cPos = carrierT.getPosition();
+                    double angle = ThreadLocalRandom.current().nextDouble(0, Math.PI * 2.0);
+                    double dist = 1.0 + ThreadLocalRandom.current().nextDouble(0.2, 0.8);
+                    Vector3d dropPos = new Vector3d(cPos.x + Math.cos(angle) * dist, cPos.y, cPos.z + Math.sin(angle) * dist);
+                    childT.setPosition(dropPos);
+
+                    RoutineAIComponent ai = store.getComponent(childRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (ai != null) {
+                        ai.currentTask = TaskType.IDLE;
+                        ai.taskStartTime = WorldUtil.tick();
+                        ai.nextPlaySearchTick = WorldUtil.tick() + 200;
+                        NPCMovementHelper.clearMoveTarget(childRef, ai);
+                        NPCMovementHelper.pinLeashAt(childRef, ai, dropPos);
+                    }
                 }
 
                 /* Unfreezing has to happen here, not before the deferral: dropping Frozen while the
