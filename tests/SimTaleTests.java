@@ -559,6 +559,16 @@ public class SimTaleTests {
         Assert.equal(SimTaleJuiceHelper.faceSurprised(), "Characters/Animations/Expressions/Suprised.blockyanim", "faceSurprised path");
 
         // Verify null safety of juice calls
+        SimTaleJuiceHelper.spawnHeartParticles(null, null);
+        SimTaleJuiceHelper.spawnAngryParticles(null, null);
+        SimTaleJuiceHelper.playSoundSafe(null, null, null);
+        SimTaleJuiceHelper.playSoundSafe("SimTale/TownBell", null, null);
+        SimTaleJuiceHelper.playFlirtSuccess(null, null, null, null, 0);
+        SimTaleJuiceHelper.playFlirtReject(null, null, null, null, 0);
+        SimTaleJuiceHelper.playShove(null, null, null, null, null, 1.0f, 0);
+        SimTaleJuiceHelper.playKiss(null, null, null);
+        SimTaleJuiceHelper.playMarriageProposal(null, null, null);
+        SimTaleJuiceHelper.playGreeting(null, null);
         SimTaleJuiceHelper.playJokeSuccess(null, null, null, 0);
         SimTaleJuiceHelper.playJokeFail(null, null, null, 0);
         SimTaleJuiceHelper.playGiftReaction(null, null, 25, null, 0);
