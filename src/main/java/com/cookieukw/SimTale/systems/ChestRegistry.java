@@ -23,6 +23,7 @@ public final class ChestRegistry {
     private ChestRegistry() {}
 
     public static final Set<HouseBlockPos> CHESTS = Collections.synchronizedSet(new HashSet<>());
+    public static final Set<HouseBlockPos> SHARED_CHESTS = Collections.synchronizedSet(new HashSet<>());
 
     /**
      * Name-based guess, kept only as a fallback for callers that have an id and no world.
@@ -52,6 +53,26 @@ public final class ChestRegistry {
         }
     }
 
+    public static boolean isShared(HouseBlockPos pos) {
+        return pos != null && SHARED_CHESTS.contains(pos);
+    }
+
+    public static boolean isShared(int x, int y, int z) {
+        return SHARED_CHESTS.contains(new HouseBlockPos(x, y, z));
+    }
+
+    public static void setShared(int x, int y, int z, boolean shared) {
+        HouseBlockPos pos = new HouseBlockPos(x, y, z);
+        CHESTS.add(pos);
+        if (shared) {
+            SHARED_CHESTS.add(pos);
+        } else {
+            SHARED_CHESTS.remove(pos);
+        }
+        persist(x, y, z, shared);
+        LOGGER.info("[SimTale] Bau em ({},{},{}) definido como compartilhado: {}", x, y, z, shared);
+    }
+
     public static void add(int x, int y, int z) {
         if (CHESTS.add(new HouseBlockPos(x, y, z))) {
             /* Only on a genuine addition: the boot sweep re-registers everything it walks past, and
@@ -63,7 +84,9 @@ public final class ChestRegistry {
     }
 
     public static void removeAt(int x, int y, int z) {
-        CHESTS.remove(new HouseBlockPos(x, y, z));
+        HouseBlockPos pos = new HouseBlockPos(x, y, z);
+        CHESTS.remove(pos);
+        SHARED_CHESTS.remove(pos);
         try {
             SimNPCPersistence.worldShell().core(ChestData.class).discard(ChestData.key(x, y, z));
         } catch (Exception e) {
@@ -72,9 +95,13 @@ public final class ChestRegistry {
     }
 
     private static void persist(int x, int y, int z) {
+        persist(x, y, z, isShared(x, y, z));
+    }
+
+    private static void persist(int x, int y, int z, boolean shared) {
         try {
             SimNPCPersistence.worldShell().core(ChestData.class)
-                    .preserve(ChestData.key(x, y, z), new ChestData(x, y, z));
+                    .preserve(ChestData.key(x, y, z), new ChestData(x, y, z, shared));
         } catch (Exception e) {
             LOGGER.warn("[SimTale] falha ao salvar o registro do bau ({},{},{}): {}", x, y, z, e.getMessage());
         }
@@ -107,11 +134,15 @@ public final class ChestRegistry {
                     continue;
                 }
 
-                CHESTS.add(new HouseBlockPos(data.x, data.y, data.z));
+                HouseBlockPos pos = new HouseBlockPos(data.x, data.y, data.z);
+                CHESTS.add(pos);
+                if (data.shared) {
+                    SHARED_CHESTS.add(pos);
+                }
                 restored++;
             }
-            LOGGER.info("[SimTale] {} bau(s) recarregado(s) do banco, {} descartado(s) por nao existirem mais",
-                    restored, dropped);
+            LOGGER.info("[SimTale] {} bau(s) recarregado(s) do banco ({} compartilhados), {} descartado(s)",
+                    restored, SHARED_CHESTS.size(), dropped);
         } catch (Exception e) {
             LOGGER.warn("[SimTale] falha ao recarregar os baus: {}", e.getMessage());
         }
