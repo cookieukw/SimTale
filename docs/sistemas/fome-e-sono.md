@@ -131,7 +131,7 @@ morrendo" repetia para sempre sem ela nunca morrer.
 
 ---
 
-## 5. Alimentar pela mão
+## 5. Alimentar pela mão e Celebrações
 
 Com fome em **50 ou menos**, dar comida de presente faz a NPC comer na hora em vez de guardar
 (`InteractionManager.tryFeed`). Restaura fome e vida pelo mesmo tier do sistema de baú, zera a
@@ -141,3 +141,16 @@ Comida odiada ainda alimenta, com ganho reduzido e −10 de `fun`: ela come recl
 
 Usa o mesmo `NPCFoodHelper` do baú, então não é possível forçar goela abaixo algo que ela não
 comeria sozinha. Sem fome, a comida volta a ser um presente comum.
+
+### Bolo de Aniversário (Birthday Cake)
+Celebrar com um morador oferecendo o **Bolo de Aniversário** restaura integralmente a fome e saciedade, concede um bônus expressivo de afinidade e eleva o humor do colono para o nível máximo de alegria (**Mood: EXCITED** com intensidade 1.0).
+
+---
+
+## 6. Estoque Compartilhado da Vila e Sino de Recolher
+
+### Armazém Comunitário (`VillageStockManager`)
+Quando um morador fica com fome, ele prioriza os baús da sua própria residência. Se a despensa de sua casa estiver desprovida de alimentos (ou se ele for um colono novo sem residência definida), o sistema recorre aos **baús compartilhados da vila** (`ChestRegistry.isShared(pos) == true`). Isso permite a construção de celeiros e armazéns centrais que abastecem todos os cidadãos da colônia.
+
+### O Sino da Vila (`TownBell`) e Recolher Imediato
+Além do ciclo natural de dia/noite gerenciado pelo relógio do mundo, o jogador pode utilizar o **Sino da Vila (`TownBell`)**. Ao ser tocado, o sino reproduz um repique sonoro em 3D e aciona a flag `npc.forceSleep = true` para todos os moradores (exceto Guardas e o Ceifador) dentro de um raio de 50 blocos, ordenando que todos interrompam suas tarefas e retornem imediatamente para suas camas para dormir.

@@ -17,10 +17,20 @@ SimTale adds a set of craftable tools. They exist so the village can be understo
 | <img src="/img/QuartermastersGlass.png" width="32" align="absmiddle"/> Quartermaster's Glass | anything | Lists every village chest and what is inside. (Enhance... Enhance... Enhance) |
 | <img src="/img/InspectorsJournal.png" width="32" align="absmiddle"/> Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
 | <img src="/img/ImmigrationContract.png" width="32" align="absmiddle"/> Immigration Contract | anything | Invites a new resident to settle in the village |
-| <img src="/img/TownBell.png" width="32" align="absmiddle"/> Town Bell | anything | Rings the town bell, alerting nearby villagers |
+| <img src="/img/TownBell.png" width="32" align="absmiddle"/> Town Bell | anything | Rings the town curfew bell (10 uses), calling all villagers within 50 blocks to head home and sleep immediately |
 | <img src="/img/WeddingRing.png" width="32" align="absmiddle"/> Wedding Ring | a villager | Proposes marriage (requires 80 Romance, 70 Friendship) |
 | <img src="/img/Baby.png" width="32" align="absmiddle"/> Baby | nothing | A carried infant that will eventually spawn as a child NPC |
-| <img src="/img/BirthdayCake.png" width="32" align="absmiddle"/> Birthday Cake | anything | Crafted but does nothing yet |
+| <img src="/img/BirthdayCake.png" width="32" align="absmiddle"/> Birthday Cake | a nearby villager | Celebrates with a villager, maximizing happiness (Mood EXCITED), filling hunger, and boosting affinity |
+
+## Town Bell
+
+<div align="center">
+  <img src="/img/TownBell.png" width="128" style={{imageRendering: 'pixelated'}} />
+</div>
+
+The Town Bell is a handheld brass bell used as a village curfew signal. Ringing it plays an authentic town bell chime in 3D audio and instructs all non-reaper villagers within a 50-block radius to drop their activities and head home to sleep immediately.
+- **Durability:** Has 10 charges/uses (`simtale_uses_left`). Each ring displays the remaining charges in chat and consumes one charge; when depleted, it breaks.
+- **Crafted at:** Workbench.
 
 ## Wedding Ring
 
@@ -44,7 +54,9 @@ The Baby is a unique item that represents a newborn child. It cannot be crafted.
   <img src="/img/BirthdayCake.png" width="128" style={{imageRendering: 'pixelated'}} />
 </div>
 
-A festive cake that can be crafted at the Workbench. Currently, the Birthday Cake is just a decorative item and doesn't have a special function yet, but who knows what the future holds for village celebrations!
+A festive celebratory cake that can be shared with villagers. Stand near an NPC and right-click with the cake in hand to celebrate together:
+- **Effects:** The villager eats a generous slice, completely satisfying hunger and boosting their emotional state to maximum happiness (**Mood: EXCITED** with 1.0 intensity), sparking joyful particle effects and granting an affinity boost.
+- **Crafted at:** Cookingbench (Baked goods).
 
 ## Crafting Recipes
 
@@ -59,7 +71,7 @@ All items can be crafted at their respective workstations:
 | **Inspector's Journal** | Inventory (Fieldcraft) | 1x <img src="/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Small Book Pile, 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell |
 | **Immigration Contract** | Inventory (Fieldcraft) | 1x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll, 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather |
 | **Town Bell** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 3x Gold Bar, 2x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks |
-| **Birthday Cake** | Workbench | 1x Apple Pie, 1x Orange Light Source |
+| **Birthday Cake** | Cookingbench | 1x Apple Pie (`Food_Pie_Apple`), 1x Orange Light Source / Candle (`Build_Lightsource_Orange`) |
 
 ### Item Icons
 

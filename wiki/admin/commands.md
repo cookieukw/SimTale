@@ -31,6 +31,8 @@ rejects decimal points.
 | `/simtale debugchests` | Screen listing registered chests, their house and their contents |
 | `/simtale debugnear` | Dumps nearby blocks and entities |
 | `/simtale village` | Lists the villages derived from the houses: centre, radius, house count, and whether you are inside |
+| `/simtale villagestock` | Summarizes communal storage and resources in the nearest village (food, crops, wood, ores) |
+| `/simtale chestshare` | Toggles the nearest chest between **Private** (home only) and **Shared** (communal village stock) |
 | `/simtale graveyard` | Screen listing every NPC the Reaper collected, with a revive button each |
 | `/simtale npcstate` | State of the nearest NPC: role, animation, movement, needs, search cooldowns and the world clock |
 | `/simtale search` | Finds NPCs |

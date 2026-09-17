@@ -109,14 +109,26 @@ Permite validar em tempo real o registro e posse de baús digitando `/simtale ch
 ## 7. Perguntas Frequentes (FAQ)
 
 ### NPCs podem abrir baús de casas de outros moradores?
-Não. O método `HouseManager.canOpenChest(npcId, chestPos)` intercepta as buscas de comida da IA autônoma e checa se a coordenada do baú está registrada em alguma residência. Se estiver, o acesso só é liberado caso o UUID do NPC conste no conjunto `owners` daquela residência específica no Caskara.
+Não para baús residenciais privados: o método `HouseManager.canOpenChest(npcId, chestPos)` intercepta as buscas da IA e exige que o NPC conste no conjunto `owners` daquela residência específica.
+No entanto, caso o baú seja marcado como **Comunitário / Compartilhado da Vila** (`ChestRegistry.isShared(chestPos)`), qualquer morador pertencente àquela vila tem permissão de abrir o baú para depositar excedentes de colheita/trabalho ou buscar mantimentos quando a despensa familiar estiver vazia.
+
+### Independência de Cama e Resiliência Estrutural da Casa
+Historicamente, as residências eram 100% indexadas à posição de uma única cama. Se a cama fosse movida ou quebrada, a residência era completamente excluída da memória e do banco de dados Caskara.
+No modelo arquitetural atual:
+*   **Identidade e Âncora Estável (`anchorPos`)**: A residência possui UUID próprio e uma âncora centróide independente da cama.
+*   **Múltiplas Camas (`Set<HouseBlockPos> beds`)**: Uma mesma residência suporta e rastreia dinamicamente múltiplas camas para casais, filhos ou colegas de quarto.
+*   **Quebra Não-Destrutiva de Camas (`handleBedBroken`)**: Ao quebrar uma cama:
+    1. A cama quebrada é desvinculada do conjunto `beds`.
+    2. O morador afetado é realocado automaticamente para outra cama vaga dentro da mesma casa.
+    3. Se não houver outra cama vaga, ele passa a procurar uma nova cama, mas a **residência, seus proprietários, portas e baús permanecem intactos**.
+    4. A residência só é deletada se suas portas forem totalmente destruídas ou se as paredes forem rompidas invalidando a vedação física da casa.
 
 ### Como um casal compartilha a mesma residência?
 Se o flood fill de uma cama A encontrar uma cama B na mesma região de ar fechada sem registros prévios, o scan classifica o resultado como `NEW_HOUSE_MULTI_OWNER` e registra ambos os candidatos a donos como proprietários da mesma `HouseData`.
 
 ### Como os NPCs localizam baús de comida sem causar lag de chunk scan?
 O mod implementa um **`ChestRegistry`** (semelhante ao `BedRegistry`) que monitora eventos de colocação e quebra de blocos no mundo (`PlaceBlockEvent` / `BreakBlockEvent`). Quando um jogador coloca ou destrói um baú, barril ou armário, a coordenada é salva em um conjunto leve em memória (`ChestRegistry.CHESTS`).
-*   **Busca Otimizada**: Na tarefa de fome, o `NPCHungerHelper` apenas calcula a distância 3D das coordenadas pré-cadastradas na lista do `ChestRegistry` (dentro de 10 blocos). Ele verifica se o baú está liberado usando o método `HouseManager.canOpenChest(...)` (que valida se a coordenada pertence a alguma casa de outro NPC), movendo-se diretamente para o baú válido mais próximo sem efetuar nenhum scan ou carregamento de blocos de chunks.
+*   **Busca Otimizada**: Na tarefa de fome, o `NPCHungerHelper` apenas calcula a distância 3D das coordenadas pré-cadastradas na lista do `ChestRegistry` (dentro de 10 blocos). Ele verifica se o baú está liberado usando o método `HouseManager.canOpenChest(...)` (que valida se o baú pertence à casa do morador ou se é um baú compartilhado da vila), movendo-se diretamente para o baú válido mais próximo sem efetuar nenhum scan ou carregamento de blocos de chunks.
 
 
 

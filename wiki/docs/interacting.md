@@ -43,7 +43,8 @@ When the interaction panel opens, the camera dynamically adjusts its distance, h
 | **View pregnancy** | Opens the gestation panel |
 | **Inventory** | Opens her inventory |
 
-### Proximity Greetings & Ambient Chatter
+### Celebrations & Ambient Interactions
+- **Birthday Celebration**: Holding a **Birthday Cake** (`BirthdayCake`) and interacting/right-clicking next to a villager triggers an immediate celebration! The NPC eats a slice, completely refilling hunger, sparkling with joyous particles, boosting affinity, and setting their mood to maximum happiness (**EXCITED** at 1.0 intensity).
 - **Player Proximity Greetings**: Approaching an NPC ($\le 4.5m$) prompts them to turn toward you, smile, wave, and send a contextual greeting in chat based on your relationship tier (Partner, Friend, Stranger, Enemy). Cooldown of 45 seconds prevents spam.
 - **NPC-to-NPC Conversations**: When two NPCs meet during their daily routines, they stop, face each other, and converse turn-by-turn. Dialogue topics adapt to their actual context (farmers talk about crops, exhausted NPCs talk about sleep, starving NPCs discuss food, and enemies trade insults before shoving each other). Chatter is audible in chat within a 4-block radius.
 
