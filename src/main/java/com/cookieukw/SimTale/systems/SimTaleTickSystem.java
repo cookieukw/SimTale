@@ -262,17 +262,23 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             } else {
                 Ref<EntityStore> entityRef = world.getEntityStore().getRefFromUUID(npc.entityId);
                 if (entityRef != null) {
-                    RoutineAIComponent aiComp = store.getComponent(entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
-                    if (aiComp != null && (aiComp.currentTask == RoutineAIComponent.TaskType.IDLE || aiComp.currentTask == RoutineAIComponent.TaskType.WANDERING)) {
-                        /* 0.005 per tick is one in ten seconds — boredom arrived almost the moment
-                        an NPC stopped moving. At 0.0004 it takes around two minutes of idling,
-                        which is closer to what "bored" is supposed to mean.
-                        */
-                        if (Math.random() < 0.0004) {
-                            npc.setEmotion(Mood.BORED, 0.4f, "idleness", absoluteTick);
-                        }
-                    } else if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) > 60 && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) > 60 && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) > 60) {
+                    boolean hasWellness = NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) > 60
+                            && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) > 60
+                            && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) > 60;
+
+                    if (hasWellness) {
                         npc.setEmotion(Mood.HAPPY, 0.3f, "wellness", absoluteTick);
+                    } else {
+                        RoutineAIComponent aiComp = store.getComponent(entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                        if (aiComp != null && (aiComp.currentTask == RoutineAIComponent.TaskType.IDLE || aiComp.currentTask == RoutineAIComponent.TaskType.WANDERING)) {
+                            /* 0.005 per tick is one in ten seconds — boredom arrived almost the moment
+                            an NPC stopped moving. At 0.0004 it takes around two minutes of idling,
+                            which is closer to what "bored" is supposed to mean.
+                            */
+                            if (Math.random() < 0.0004) {
+                                npc.setEmotion(Mood.BORED, 0.4f, "idleness", absoluteTick);
+                            }
+                        }
                     }
                 }
             }
