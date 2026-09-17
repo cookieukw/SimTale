@@ -14,6 +14,10 @@ import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.GeneticsData;
 import com.cookieukw.SimTale.core.lifecycle.BabyNeeds;
+import com.cookieukw.SimTale.core.Memory;
+import com.cookieukw.SimTale.core.MemoryEvent;
+import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.systems.NPCSocialHelper;
 import com.cookieukw.SimTale.systems.ChairRegistry;
 import org.joml.Vector3i;
 
