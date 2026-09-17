@@ -182,14 +182,12 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                 ConstructionSiteComponent pendingSite = ConstructionPreviewManager.get(siteId);
                 if (pendingSite != null && !pendingSite.isBuilding) {
                     if (!pendingSite.isClear) {
-                        playerRefComp.sendMessage(Message.raw(
-                                "[SimTale] Não é possível iniciar a construção: a área ao redor do marcador ainda está obstruída."));
+                        playerRefComp.sendMessage(Message.translation("general.construction.blocked"));
                     } else {
                         ConstructionSiteComponent committedSite = ConstructionPreviewManager.commit(siteId, world);
                         if (committedSite != null) {
                             committedSite.isBuilding = true;
-                            playerRefComp.sendMessage(Message.raw(
-                                    "[SimTale] Construção iniciada! NPCs virão construir a TavernHouse."));
+                            playerRefComp.sendMessage(Message.translation("general.construction.started"));
                         }
                     }
                     event.setCancelled(true);
