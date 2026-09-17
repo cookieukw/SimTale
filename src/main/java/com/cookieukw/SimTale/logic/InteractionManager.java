@@ -58,7 +58,7 @@ public class InteractionManager {
       * @param rejected the interaction did not happen (no item held, wrong tool, already
       *                 married, ...). Only the message is delivered; nothing is applied.
       */
-    private record InteractionOutcome(
+    public record InteractionOutcome(
         int friendship,
         int romance,
         int trust,
@@ -695,21 +695,80 @@ public class InteractionManager {
     /* profName is a Message, not a String: it is a localized profession name and must render in
     the player's language rather than carry the enum's Portuguese label into the sentence.
     */
-    private record ProfessionContext(SimNPCComponent npc, Relationship rel, Profession targetProf, Message profName, String itemName, double roll) {}
+    public record ProfessionContext(SimNPCComponent npc, Relationship rel, Profession targetProf, Message profName, String itemName, double roll) {}
     private record ProfessionRule(Predicate<ProfessionContext> condition, Function<ProfessionContext, InteractionOutcome> outcome) {}
+
+    private static boolean isProfLiked(ProfessionContext ctx) {
+        return ctx.npc().preferences != null && ctx.npc().preferences.getLikedProfessions().contains(ctx.targetProf());
+    }
+
+    private static boolean isCloseBond(ProfessionContext ctx) {
+        return ctx.rel().friendship >= 70 || ctx.rel().status == RelationshipStatus.MARRIED
+                || ctx.rel().status == RelationshipStatus.BEST_FRIEND || ctx.rel().status == RelationshipStatus.PARTNER;
+    }
+
+    private static boolean isDangerousWork(Profession prof) {
+        return prof == Profession.GUARD || prof == Profession.EXPLORER || prof == Profession.MINER || prof == Profession.HUNTER;
+    }
 
     private static final List<ProfessionRule> PROFESSION_RULES = List.of(
         new ProfessionRule(ctx -> ctx.rel().status == RelationshipStatus.ENEMIES || ctx.rel().status == RelationshipStatus.STRANGER,
                            ctx -> InteractionOutcome.of(-5, 0, -5, -10, pickRandomTranslation("npc-dialogues.prof.assign.refuse_status", 9, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
         new ProfessionRule(ctx -> ctx.npc().preferences != null && ctx.npc().preferences.getDislikedProfessions().contains(ctx.targetProf()),
                            ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.dislike", 9, ctx.npc().name).param("profName", ctx.profName()).param("itemName", ctx.itemName()), MemoryEvent.CHATTED)),
-        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.LAZY) && isHeavyWork(ctx.targetProf()) && ctx.roll() < 0.6,
+        new ProfessionRule(ctx -> ctx.npc().getMood() == Mood.ANGRY && ctx.roll() < 0.6,
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.angry", 9, ctx.npc().name), MemoryEvent.CHATTED)),
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.LAZY) && isHeavyWork(ctx.targetProf()) && ctx.roll() < 0.8 && !isCloseBond(ctx),
                            ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.lazy", 9, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
-        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.AGGRESSIVE) && isPeacefulWork(ctx.targetProf()) && ctx.roll() < 0.7,
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.AGGRESSIVE) && isPeacefulWork(ctx.targetProf()) && ctx.roll() < 0.8 && !isCloseBond(ctx),
                            ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.aggressive", 9, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
-        new ProfessionRule(ctx -> ctx.npc().getMood() == Mood.ANGRY && ctx.roll() < 0.5,
-                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.angry", 9, ctx.npc().name), MemoryEvent.CHATTED))
+        // Picky / depends on taste: GREEDY refuses non-lucrative work unless liked or close bond
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.GREEDY) && !isProfLiked(ctx) && !isCloseBond(ctx) && ctx.targetProf() != Profession.GUARD && ctx.targetProf() != Profession.MINER,
+                           ctx -> InteractionOutcome.of(-2, 0, -2, -5, pickRandomTranslation("npc-dialogues.prof.assign.greedy", 3, ctx.npc().name).param("profName", ctx.profName()).param("itemName", ctx.itemName()), MemoryEvent.CHATTED)),
+        // Picky / depends on taste: PARANOID refuses dangerous work unless liked or close bond
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.PARANOID) && isDangerousWork(ctx.targetProf()) && !isProfLiked(ctx) && !isCloseBond(ctx),
+                           ctx -> InteractionOutcome.of(-2, 0, -2, -5, pickRandomTranslation("npc-dialogues.prof.assign.paranoid", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+        // Picky / depends on taste: SHY refuses if low trust unless liked or close bond
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.SHY) && !isProfLiked(ctx) && ctx.rel().trust < 35 && !isCloseBond(ctx),
+                           ctx -> InteractionOutcome.of(-2, 0, -1, -3, pickRandomTranslation("npc-dialogues.prof.assign.shy", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+        // Picky / depends on taste: general picky traits reject non-liked jobs without a close bond
+        new ProfessionRule(ctx -> (ctx.npc().personality.traits.contains(Trait.PARANOID) || ctx.npc().personality.traits.contains(Trait.GREEDY) || ctx.npc().personality.traits.contains(Trait.SHY))
+                                  && !isProfLiked(ctx) && !isCloseBond(ctx) && ctx.roll() < 0.75,
+                           ctx -> InteractionOutcome.of(-2, 0, 0, -4, pickRandomTranslation("npc-dialogues.prof.assign.picky", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+        // Indifferent: without familiarity/friendship, refuses random assignments
+        new ProfessionRule(ctx -> !isProfLiked(ctx) && !isCloseBond(ctx) && ctx.rel().friendship < 15 && ctx.roll() < 0.6
+                                  && !ctx.npc().personality.traits.contains(Trait.LOYAL) && !ctx.npc().personality.traits.contains(Trait.FUNNY),
+                           ctx -> InteractionOutcome.of(-1, 0, 0, -2, pickRandomTranslation("npc-dialogues.prof.assign.indifferent_refuse", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED))
     );
+
+    public static Optional<InteractionOutcome> evaluateProfessionRules(ProfessionContext ctx) {
+        return PROFESSION_RULES.stream()
+            .filter(r -> r.condition().test(ctx))
+            .findFirst()
+            .map(r -> r.outcome().apply(ctx));
+    }
+
+    public static InteractionOutcome buildProfessionAcceptance(SimNPCComponent npc, Relationship rel, Profession targetProf, Message profName, String itemName, Message prefix, ProfessionContext ctx) {
+        if (isProfLiked(ctx)) {
+            Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.liked", 9, npc.name).param("profName", profName).param("itemName", itemName);
+            npc.setEmotion(Mood.EXCITED, 0.9f, "dream_job", System.currentTimeMillis());
+            return InteractionOutcome.ofItem(15, 0, 10, 25, prefix.insert(reaction), MemoryEvent.CHATTED, true);
+        }
+
+        if (npc.personality.traits.contains(Trait.LOYAL) || npc.personality.traits.contains(Trait.FUNNY)) {
+            Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.easy", 3, npc.name).param("profName", profName).param("itemName", itemName);
+            npc.setEmotion(Mood.HAPPY, 0.7f, "accepted_job", System.currentTimeMillis());
+            return InteractionOutcome.ofItem(10, 0, 8, 18, prefix.insert(reaction), MemoryEvent.CHATTED, true);
+        }
+
+        if (!npc.personality.traits.contains(Trait.GREEDY) && !npc.personality.traits.contains(Trait.PARANOID) && !npc.personality.traits.contains(Trait.SHY)) {
+            Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.indifferent", 3, npc.name).param("profName", profName).param("itemName", itemName);
+            return InteractionOutcome.ofItem(6, 0, 4, 12, prefix.insert(reaction), MemoryEvent.CHATTED, true);
+        }
+
+        Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.accept", 5, npc.name).param("profName", profName).param("itemName", itemName);
+        return InteractionOutcome.ofItem(8, 0, 5, 15, prefix.insert(reaction), MemoryEvent.CHATTED, true);
+    }
 
     private static boolean isHeavyWork(Profession prof) {
         return prof == Profession.MINER || prof == Profession.LUMBERJACK;
@@ -747,11 +806,7 @@ public class InteractionManager {
         double roll = ThreadLocalRandom.current().nextDouble();
         ProfessionContext ctx = new ProfessionContext(npc, rel, targetProf, profName, itemName, roll);
 
-        Optional<InteractionOutcome> refusal = PROFESSION_RULES.stream()
-            .filter(r -> r.condition().test(ctx))
-            .findFirst()
-            .map(r -> r.outcome().apply(ctx));
-
+        Optional<InteractionOutcome> refusal = evaluateProfessionRules(ctx);
         if (refusal.isPresent()) {
             return refusal.get();
         }
@@ -781,13 +836,7 @@ public class InteractionManager {
             }
         }
 
-        if (npc.preferences != null && npc.preferences.getLikedProfessions().contains(targetProf)) {
-            Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.liked", 9, npc.name).param("profName", profName).param("itemName", itemName);
-            return InteractionOutcome.ofItem(15, 0, 10, 25, prefix.insert(reaction), MemoryEvent.CHATTED, true);
-        }
-
-        Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.accept", 5, npc.name).param("profName", profName).param("itemName", itemName);
-        return InteractionOutcome.ofItem(8, 0, 5, 15, prefix.insert(reaction), MemoryEvent.CHATTED, true);
+        return buildProfessionAcceptance(npc, rel, targetProf, profName, itemName, prefix, ctx);
     }
 
     // --- Logic Helpers ---
