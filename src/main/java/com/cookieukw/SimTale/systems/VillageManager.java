@@ -147,7 +147,7 @@ public final class VillageManager {
 
         villages = List.copyOf(built);
         LOGGER.debug("[SimTale] Vilas recalculadas: {} vila(s) a partir de {} casa(s)",
-                built.size(), beds.size());
+                built.size(), houseAnchors.size());
     }
 
     private static Village toVillage(List<HouseBlockPos> cluster) {
