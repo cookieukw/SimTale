@@ -225,6 +225,7 @@ public class HouseManager {
             if (house != null) {
                 house.addBed(bedPos);
                 saveHouse(house);
+                VillageManager.markDirty();
                 LOGGER.info("[SimTale] Nova cama em ({},{},{}) adicionada à casa existente {}.",
                         bedPos.x, bedPos.y, bedPos.z, house.houseId);
                 return true;
