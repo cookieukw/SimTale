@@ -9,6 +9,7 @@ import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookieukw.SimTale.logic.ChildDialogue;
 import com.cookieukw.SimTale.core.lifecycle.ParentChildBond;
+import com.cookieukw.SimTale.core.ThoughtType;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.Frozen;
@@ -483,6 +484,7 @@ once per NPC per tick for nothing.
             ai.taskStartTime = 0; // bypass cooldown
             ai.sleepingOnSchedule = sleepWindowOpen;
             clearAutonomyState(ai, npc, world, store);
+            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.SLEEPY);
             if (sleepWindowOpen) {
                 LOGGER.info("[SimTale] NPC '{}' sleep window opened, heading to bed", npc.name);
             } else {
@@ -512,6 +514,7 @@ once per NPC per tick for nothing.
             ai.targetBlockPosition = null;
             ai.taskStartTime = world.getTick() - NPCHungerHelper.FOOD_SEARCH_COOLDOWN_TICKS;
             clearAutonomyState(ai, npc, world, store);
+            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.HUNGRY);
             LOGGER.info("[SimTale] NPC '{}' is starving (hunger={}), interrupting task to find food", npc.name, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID));
         }
 
@@ -526,6 +529,12 @@ once per NPC per tick for nothing.
             ai.taskStartTime = 0; // bypass cooldown
             clearAutonomyState(ai, npc, world, store);
             LOGGER.info("[SimTale] Force sleep triggered for NPC '{}', entering FINDING_BED", npc.name);
+        }
+
+        if (ai.currentTask == TaskType.WANDERING || ai.currentTask == TaskType.IDLE) {
+            if (Math.random() < 0.0008) {
+                EmoteBubbleSystem.triggerSpontaneousThought(npc.entityId, ThoughtType.randomCasual(), world.getTick());
+            }
         }
 
         if (RoutineSleepHelpers.handleIdle(ref, npc, ai, store, commandBuffer, world, transform)) return;
