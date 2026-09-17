@@ -171,6 +171,5 @@ cmd.villagestock.info = §eCenter: ({x}, {z}) | Radius: {radius}m | Houses: {hou
 cmd.villagestock.shared_chests = §eShared Chests: §a{count}
 cmd.villagestock.empty = §7Empty stock in communal chests.
 cmd.villagestock.stocked_items = §aStocked Items:
-chat.village_prefix = [Village] 
 construction.blocked = [SimTale] Cannot start construction: the area around the marker is still obstructed.
 construction.started = [SimTale] Construction started! NPCs will come build the TavernHouse.
