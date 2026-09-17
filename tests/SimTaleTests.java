@@ -58,6 +58,7 @@ public class SimTaleTests {
             testBabyNeeds();
             testChildGrowth();
             testDatabaseShellIsolation();
+            testMemoryAndGossip();
 
             System.out.println("Seating & Chairs");
             testChairRegistry();
