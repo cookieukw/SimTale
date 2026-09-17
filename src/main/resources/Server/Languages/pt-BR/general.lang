@@ -155,3 +155,22 @@ cmd.chaircheck.free = Status: Livre.
 yes = Sim
 no = Não
 house.debug.status = [Debug de Casa] Blocos internos visitados: {visited} (Máx: 512) | Portas: {doors} | Baús: {chests} | Transbordou/Aberto: {overflowed} | Chunks Descarregados: {unloaded}
+
+map.village = Vila SimTale ({houses} casas | Raio: {radius}m)
+map.village.border = Limite da Vila ({radius}m)
+map.house.occupied = Casa ({owners})
+map.house.empty = Casa (Desocupada)
+cmd.chestcheck.type_shared = [Tipo do Baú] §aCOMPARTILHADO (Estoque Comunitário da Vila)
+cmd.chestcheck.type_private = [Tipo do Baú] §ePRIVADO (Casa)
+cmd.chestshare.none_nearby = §cNenhum baú registrado próximo (raio de 16 blocos).
+cmd.chestshare.now_shared = §aBaú em ({x}, {y}, {z}) agora é §6COMPARTILHADO (Estoque Comunitário da Vila)
+cmd.chestshare.now_private = §aBaú em ({x}, {y}, {z}) agora é §7PRIVADO (Uso Doméstico)
+cmd.villagestock.no_village = §cNenhuma vila encontrada nas proximidades.
+cmd.villagestock.header = §6=== Estoque da Vila ===
+cmd.villagestock.info = §eCentro: ({x}, {z}) | Raio: {radius}m | Casas: {houses}
+cmd.villagestock.shared_chests = §eBaús Compartilhados: §a{count}
+cmd.villagestock.empty = §7Estoque vazio nos baús comunitários.
+cmd.villagestock.stocked_items = §aItens Estocados:
+chat.village_prefix = [Vila] 
+construction.blocked = [SimTale] Não é possível iniciar a construção: a área ao redor do marcador ainda está obstruída.
+construction.started = [SimTale] Construção iniciada! NPCs virão construir a TavernHouse.

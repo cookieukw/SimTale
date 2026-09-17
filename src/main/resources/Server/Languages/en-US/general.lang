@@ -155,3 +155,22 @@ cmd.chaircheck.free = Status: Free.
 yes = Yes
 no = No
 house.debug.status = [House Debug] Interior blocks visited: {visited} (Max: 512) | Doors: {doors} | Chests: {chests} | Overflowed/Open: {overflowed} | Unloaded Chunks: {unloaded}
+
+map.village = SimTale Village ({houses} houses | Radius: {radius}m)
+map.village.border = Village Boundary ({radius}m)
+map.house.occupied = House ({owners})
+map.house.empty = House (Unoccupied)
+cmd.chestcheck.type_shared = [Chest Type] §aSHARED (Village Community Stock)
+cmd.chestcheck.type_private = [Chest Type] §ePRIVATE (House)
+cmd.chestshare.none_nearby = §cNo chest registered nearby (16-block radius).
+cmd.chestshare.now_shared = §aChest at ({x}, {y}, {z}) is now §6SHARED (Village Community Stock)
+cmd.chestshare.now_private = §aChest at ({x}, {y}, {z}) is now §7PRIVATE (Household Use)
+cmd.villagestock.no_village = §cNo village found nearby.
+cmd.villagestock.header = §6=== Village Stock ===
+cmd.villagestock.info = §eCenter: ({x}, {z}) | Radius: {radius}m | Houses: {houses}
+cmd.villagestock.shared_chests = §eShared Chests: §a{count}
+cmd.villagestock.empty = §7Empty stock in communal chests.
+cmd.villagestock.stocked_items = §aStocked Items:
+chat.village_prefix = [Village] 
+construction.blocked = [SimTale] Cannot start construction: the area around the marker is still obstructed.
+construction.started = [SimTale] Construction started! NPCs will come build the TavernHouse.
