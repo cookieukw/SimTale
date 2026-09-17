@@ -10,6 +10,7 @@ import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.systems.HouseBlueprintHelper;
 import com.cookieukw.SimTale.systems.InspectorJournalHelper;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
+import com.cookieukw.SimTale.systems.SimTaleJuiceHelper;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -279,6 +280,8 @@ public class SimTaleItemRegistry {
 
             long tick = WorldUtil.tick();
             nearestNpc.setEmotion(Mood.EXCITED, 1.0f, "birthday_cake", tick);
+            SimTaleJuiceHelper.spawnHeartParticles(playerTransform.getPosition(), store);
+            SimTaleJuiceHelper.playSoundSafe("SimTale/BirthdayCheer", playerTransform.getPosition(), store);
 
             playerRef.sendMessage(Message.translation("general.cake.celebrated")
                     .param("name", nearestNpc.name));
