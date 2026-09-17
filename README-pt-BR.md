@@ -820,10 +820,20 @@ SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a
 | <img src="wiki/static/img/QuartermastersGlass.png" width="24" align="absmiddle"/> Lupa do Intendente (Quartermaster's Glass)   | qualquer coisa        | Lista todos os baús da vila e o que há dentro deles. (Enhance... Enhance... Enhance) |
 | <img src="wiki/static/img/InspectorsJournal.png" width="24" align="absmiddle"/> Diário do Inspetor (Inspector's Journal)       | um morador            | Mostra suas necessidades, humor, trabalho e o que está fazendo agora                 |
 | <img src="wiki/static/img/ImmigrationContract.png" width="32" align="absmiddle"/> Contrato de Imigração (Immigration Contract) | qualquer coisa        | Convida um novo residente para se estabelecer na vila                                |
-| <img src="wiki/static/img/TownBell.png" width="32" align="absmiddle"/> Sino da Cidade (Town Bell)                              | qualquer coisa        | Toca o sino da cidade, alertando os moradores próximos                               |
+| <img src="wiki/static/img/TownBell.png" width="32" align="absmiddle"/> Sino da Cidade (Town Bell)                              | qualquer coisa        | Toca o sino de recolher da vila (10 usos), ordenando que todos em até 50 blocos vão dormir imediatamente |
 | <img src="wiki/static/img/WeddingRing.png" width="32" align="absmiddle"/> Aliança de Casamento (Wedding Ring)                  | um morador            | Pede em casamento (requer 80 Romance, 70 Amizade)                                    |
 | <img src="wiki/static/img/Baby.png" width="32" align="absmiddle"/> Bebê (Baby)                                                 | nada                  | Um bebê carregado no inventário que eventualmente nascerá como um NPC criança        |
-| <img src="wiki/static/img/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake)                 | qualquer coisa        | Pode ser craftado, mas ainda não tem função                                          |
+| <img src="wiki/static/img/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake)                 | um morador próximo    | Comemora com um morador, maximizando felicidade (Mood EXCITED), saciando a fome e subindo afinidade |
+
+### Sino da Vila (Town Bell)
+
+<div align="center">
+  <img src="wiki/static/img/TownBell.png" width="128" style="image-rendering: pixelated;" />
+</div>
+
+Um sino de mão em latão usado como toque de recolher da vila. Tocá-lo reproduz um repique sonoro em áudio 3D e instrui todos os moradores que não sejam o Ceifador dentro de um raio de 50 blocos a interromperem suas tarefas e irem imediatamente dormir em suas camas.
+- **Durabilidade:** Possui 10 cargas/usos (`simtale_uses_left`). Cada repique exibe os usos restantes no chat e consome 1 carga; quebra ao esgotar.
+- **Craftado na:** Bancada de Trabalho (Workbench).
 
 ### Aliança de Casamento (Wedding Ring)
 
@@ -847,7 +857,9 @@ O Bebê é um item único que representa um recém-nascido. Ele não pode ser cr
   <img src="wiki/static/img/BirthdayCake.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
-Um bolo festivo que pode ser feito na Bancada de Trabalho. Atualmente, o Bolo de Aniversário é apenas um item decorativo e ainda não possui uma função especial, mas quem sabe o que o futuro reserva para as festas da vila!
+Um bolo festivo para comemorar com os moradores. Aproxime-se de um colono com o bolo na mão e clique com o botão direito para celebrar juntos:
+- **Efeitos:** O morador saboreia uma fatia generosa, saciando totalmente a fome e elevando o humor para o ápice de felicidade (**Mood: EXCITED** com intensidade 1.0), soltando partículas alegres e concedendo um forte ganho de afinidade.
+- **Craftado na:** Bancada de Culinária (Cookingbench - Categoria Baked).
 
 ### Receitas de Criação (Crafting)
 
@@ -862,7 +874,7 @@ Todos os itens podem ser craftados em suas respectivas bancadas:
 | **Diário do Inspetor**     | Inventário (Fieldcraft)                                                                                        | 1x <img src="wiki/static/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="wiki/static/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell)                                                                                                                                                      |
 | **Contrato de Imigração**  | Inventário (Fieldcraft)                                                                                        | 1x <img src="wiki/static/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll), 1x <img src="wiki/static/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="wiki/static/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather)                                                                     |
 | **Sino da Cidade**         | <img src="wiki/static/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench)  | 3x Barra de Ouro (Gold Bar), 2x <img src="wiki/static/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks)                                                                                                                                                                                                                                 |
-| **Bolo de Aniversário**    | Bancada de Trabalho (Workbench)                                                                                | 1x Torta de Maçã (Apple Pie), 1x Fonte de Luz Laranja (Orange Light Source)                                                                                                                                                                                                                                                                                                                  |
+| **Bolo de Aniversário**    | Bancada de Culinária (Cookingbench)                                                                            | 1x Torta de Maçã (`Food_Pie_Apple`), 1x Fonte de Luz / Vela Laranja (`Build_Lightsource_Orange`)                                                                                                                                                                                                                                                                                             |
 
 #### Ícones dos Itens
 
