@@ -27,13 +27,18 @@ import com.cookieukw.SimTale.logic.InteractionManager.InteractionOutcome;
 import com.hypixel.hytale.server.core.Message;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.HouseData;
+import com.cookieukw.SimTale.db.ChestData;
 import com.cookieukw.SimTale.db.SimBedData;
 import com.cookieukw.SimTale.systems.ChairRegistry;
+import com.cookieukw.SimTale.systems.ChestRegistry;
 import com.cookieukw.SimTale.systems.HouseManager;
 import com.cookieukw.SimTale.systems.SimTaleJuiceHelper;
+import com.cookieukw.SimTale.systems.VillageManager;
+import com.cookieukw.SimTale.systems.VillageStockManager;
 import org.joml.Vector3i;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -82,6 +87,9 @@ public class SimTaleTests {
 
             System.out.println("Houses & Bed Independence");
             testHouseBedIndependence();
+
+            System.out.println("Village Stock & Shared Chests");
+            testVillageStockAndSharedChests();
 
             System.out.println("========================================");
             System.out.println("All tests passed (" + Assert.checks + " assertions)");
@@ -653,6 +661,56 @@ public class SimTaleTests {
             SimTale.ACTIVE_NPCS.remove(npc);
             HouseManager.deleteHouse(houseUuid);
         }
+    }
+
+    private static void testVillageStockAndSharedChests() {
+        System.out.print("Testing Village Stock & Shared Chests... ");
+
+        // 1. ChestData with Caskara compatibility
+        ChestData cdPrivate = new ChestData(10, 64, 10, false);
+        Assert.equal(cdPrivate.shared, false, "Private chest data");
+        Assert.equal(cdPrivate.id, "10_64_10", "ChestData id key");
+
+        ChestData cdShared = new ChestData(12, 64, 12, true);
+        Assert.equal(cdShared.shared, true, "Shared chest data");
+
+        // 2. ChestRegistry shared state
+        ChestRegistry.setShared(50, 64, 50, true);
+        Assert.equal(ChestRegistry.isShared(50, 64, 50), true, "Chest (50,64,50) is shared");
+        Assert.equal(ChestRegistry.isShared(new HouseBlockPos(50, 64, 50)), true, "Chest isShared via HouseBlockPos");
+        Assert.equal(ChestRegistry.isShared(10, 64, 10), false, "Chest (10,64,10) is not shared");
+
+        // 3. canOpenChest permissions
+        UUID npc1 = UUID.randomUUID();
+        UUID npc2 = UUID.randomUUID();
+
+        // Shared chest can be opened by any NPC
+        HouseBlockPos sharedPos = new HouseBlockPos(50, 64, 50);
+        Assert.equal(HouseManager.canOpenChest(npc1, sharedPos), true, "NPC1 can open shared chest");
+        Assert.equal(HouseManager.canOpenChest(npc2, sharedPos), true, "NPC2 can open shared chest");
+
+        // Unshared chest outside any house cannot be opened
+        HouseBlockPos randomPos = new HouseBlockPos(999, 64, 999);
+        ChestRegistry.add(999, 64, 999);
+        Assert.equal(HouseManager.canOpenChest(npc1, randomPos), false, "Random unshared chest cannot be opened");
+
+        // 4. VillageStockManager helpers
+        SimNPCComponent villager = new SimNPCComponent();
+        villager.entityId = npc1;
+        villager.bedLocation = new SimBedData.BedPos(52, 64, 52, 0f);
+
+        VillageManager.Village village = new VillageManager.Village(50.0, 50.0, 30.0, 1);
+        Assert.equal(VillageStockManager.isNpcInVillage(villager, village), true, "Villager is in village");
+
+        List<HouseBlockPos> sharedInVillage = VillageStockManager.getSharedChestsInVillage(village);
+        Assert.equal(sharedInVillage.contains(sharedPos), true, "Village contains shared chest");
+
+        // 5. Cleanup
+        ChestRegistry.removeAt(50, 64, 50);
+        ChestRegistry.removeAt(999, 64, 999);
+        Assert.equal(ChestRegistry.isShared(50, 64, 50), false, "Shared chest removed");
+
+        System.out.println("OK");
     }
 
     /* Kept as thin wrappers so the pre-existing suites read unchanged, while the assertion count
