@@ -10,6 +10,8 @@ import java.util.Set;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCFactory;
+import com.cookieukw.SimTale.core.ThoughtType;
+import com.cookieukw.SimTale.systems.EmoteBubbleSystem;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.cookieukw.SimTale.logic.PlayerPregnancyPage;
@@ -191,6 +193,53 @@ final class SocialTestCommands {
             SimNPCPersistence.saveNPC(nearestNPC);
 
             ctx.sendMessage(Message.raw("Mood of " + nearestNPC.name + " set to " + targetMood.name() + " with intensity " + intensity + "."));
+        }
+    }
+
+    static class ThoughtSubCommand extends AbstractPlayerCommand {
+        private final RequiredArg<String> thoughtArg;
+
+        public ThoughtSubCommand() {
+            super("thought", "Shows a floating thought bubble above the nearest NPC");
+            this.thoughtArg = this.withRequiredArg("thought", "HAPPY|LOVE|SMUG|HUNGRY|SLEEPY|PARTY|STAR|CAT_UWU|JOY...", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            String name = ctx.get(this.thoughtArg).toUpperCase();
+            ThoughtType targetThought;
+            try {
+                targetThought = ThoughtType.valueOf(name);
+            } catch (IllegalArgumentException e) {
+                ctx.sendMessage(Message.raw("Invalid thought. Options: HAPPY, LOVE, SMUG, HUNGRY, SLEEPY, ANGRY, PARTY, STAR, CAT_UWU, JOY..."));
+                return;
+            }
+
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef != null && npc.entityRef.isValid()) {
+                    TransformComponent npcTransform = npc.entityRef.getStore().getComponent(npc.entityRef, TransformComponent.getComponentType());
+                    if (playerTransform != null && npcTransform != null) {
+                        double distSq = playerTransform.getPosition().distanceSquared(npcTransform.getPosition());
+                        if (distSq < minDistance) {
+                            minDistance = distSq;
+                            nearestNPC = npc;
+                        }
+                    }
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("No NPCs nearby."));
+                return;
+            }
+
+            EmoteBubbleSystem.triggerThought(nearestNPC.entityId, targetThought);
+            ctx.sendMessage(Message.raw("Thought bubble '" + targetThought.name() + "' shown above " + nearestNPC.name + "."));
         }
     }
 
