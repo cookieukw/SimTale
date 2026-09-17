@@ -207,6 +207,8 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
 
         if (BedRegistry.isBedId(placedId)) {
             BedWorldBootstrap.registerBedAt(world, pos.x, pos.y, pos.z);
+            Vector3i bedAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
+            HouseManager.registerBedInHouse(new HouseBlockPos(bedAnchor.x, bedAnchor.y, bedAnchor.z));
         }
 
         /* Ask the engine whether the block holds an item container instead of guessing from its
