@@ -5,6 +5,8 @@ import java.util.UUID;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
+import com.cookieukw.SimTale.core.Memory;
+import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Profession;
@@ -561,9 +563,63 @@ public class NPCSocialHelper {
         exchangeMood(host, guest, pleasant, tick);
         exchangeMood(guest, host, pleasant, tick);
         if (pleasant) {
+            shareGossip(host, guest, tick);
+            shareGossip(guest, host, tick);
             tryCourtship(host, guest);
         }
         return pleasant;
+    }
+
+    /**
+     * Propagates memories of traumatic or negative player events (attacks, insults) between NPCs.
+     * When an NPC learns about a player's misbehavior through gossip, their trust and affinity
+     * towards that player decreases.
+     */
+    public static void shareGossip(SimNPCComponent speaker, SimNPCComponent listener, long tick) {
+        if (speaker == null || listener == null || speaker.memory == null || listener.memory == null) {
+            return;
+        }
+
+        long now = System.currentTimeMillis();
+        // Check memories from the last 5 minutes (300,000 ms)
+        for (Memory m : speaker.memory.recentMemories) {
+            if (now - m.timestamp > 300_000L) {
+                continue;
+            }
+            if (m.event == MemoryEvent.ATTACKED || m.event == MemoryEvent.INSULTED) {
+                if (m.playerSource == null) {
+                    continue;
+                }
+                UUID playerUuid;
+                try {
+                    playerUuid = UUID.fromString(m.playerSource);
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+
+                if (!listener.memory.remembers(m.event, playerUuid, 300_000L)) {
+                    String targetName = m.gossipTargetName != null ? m.gossipTargetName : speaker.name;
+                    listener.memory.addMemory(m.event, playerUuid, true, targetName);
+
+                    Relationship rel = listener.getRelationship(playerUuid);
+                    if (rel != null) {
+                        int penalty = (m.event == MemoryEvent.ATTACKED) ? -10 : -5;
+                        rel.addTrust(penalty);
+                        rel.addAffinity(penalty);
+                        rel.addFriendship(-3);
+                    }
+
+                    if (m.event == MemoryEvent.ATTACKED) {
+                        listener.setEmotion(Mood.SCARED, 0.7f, "gossip_attack", tick);
+                    } else {
+                        listener.setEmotion(Mood.ANGRY, 0.6f, "gossip_insult", tick);
+                    }
+
+                    LOGGER.debug("[SimTale] Gossip: '{}' warned '{}' about player {} (event={}, victim={})",
+                            speaker.name, listener.name, playerUuid, m.event, targetName);
+                }
+            }
+        }
     }
 
     /** Romance a pleasant chat can build between two eligible adult NPCs, and grow their own family. */
