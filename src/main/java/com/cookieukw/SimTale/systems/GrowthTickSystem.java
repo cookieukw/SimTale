@@ -104,7 +104,10 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
                             || ai.currentTask == RoutineAIComponent.TaskType.TAG_FLEEING
                             || ai.currentTask == RoutineAIComponent.TaskType.MOVING_TO_HIDE
                             || ai.currentTask == RoutineAIComponent.TaskType.HIDING
-                            || ai.currentTask == RoutineAIComponent.TaskType.SEEKING)) {
+                            || ai.currentTask == RoutineAIComponent.TaskType.SEEKING
+                            || ai.currentTask == RoutineAIComponent.TaskType.WANDERING
+                            || ai.currentTask == RoutineAIComponent.TaskType.MOVING_TO_FOOD
+                            || ai.currentTask == RoutineAIComponent.TaskType.EATING)) {
                         continue;
                     }
 
@@ -143,7 +146,9 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
                                 if (stateSupport != null && stateSupport.getStateName() != null
                                         && stateSupport.getStateName().startsWith(NPCMovementHelper.STATE_MOVING)) {
                                     if (ai != null) {
-                                        NPCMovementHelper.clearMoveTarget(childRef, ai);
+                                        if (ai.currentTask == RoutineAIComponent.TaskType.IDLE) {
+                                            NPCMovementHelper.clearMoveTarget(childRef, ai);
+                                        }
                                     } else {
                                         NPCEntity npcEntity = store.getComponent(childRef, Objects.requireNonNull(NPCEntity.getComponentType()));
                                         if (npcEntity != null) {
