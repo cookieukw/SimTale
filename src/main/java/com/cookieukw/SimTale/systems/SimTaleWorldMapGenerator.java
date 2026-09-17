@@ -5,11 +5,11 @@ import com.cookieukw.SimTale.systems.VillageManager.Village;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.packets.worldmap.MapImage;
 import com.hypixel.hytale.protocol.packets.worldmap.MapMarker;
-import com.hypixel.hytale.protocol.packets.worldmap.WorldMapSettings;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.palette.BitFieldArr;
 import com.hypixel.hytale.server.core.universe.world.map.WorldMap;
 import com.hypixel.hytale.server.core.universe.world.worldmap.IWorldMap;
+import com.hypixel.hytale.server.core.universe.world.worldmap.WorldMapSettings;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
