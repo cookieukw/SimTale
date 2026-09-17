@@ -189,6 +189,7 @@ once per NPC per tick for nothing.
             she's then stuck relying on an unbounded ~5%-per-tick dice roll to start moving
             again. Stamping it now gives every reset NPC the same ~2s hard ceiling instead.
             */
+            ai = new RoutineAIComponent();
             World freshWorld = WorldUtil.fromEntityRef(ref);
             if (freshWorld != null) {
                 ai.taskStartTime = freshWorld.getTick();
