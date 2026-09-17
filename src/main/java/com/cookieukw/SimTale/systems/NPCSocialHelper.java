@@ -325,7 +325,8 @@ public class NPCSocialHelper {
         if (other != null) {
             boolean pleasant = applyChatOutcome(npc, other, world.getTick());
             // If the chat soured into a fight, have the hostile NPC shove the other!
-            if (!pleasant && other.entityRef != null && other.entityRef.isValid()) {
+            boolean childInvolved = InteractionManager.isNpcAChild(npc) || InteractionManager.isNpcAChild(other);
+            if (!pleasant && !childInvolved && other.entityRef != null && other.entityRef.isValid()) {
                 SimTaleJuiceHelper.playShove(ref, npc, other.entityRef, null, store, 4.0f, world.getTick());
             }
             LOGGER.debug("[SimTale] '{}' and '{}' finished chatting (pleasant={})", npc.name, other.name, pleasant);
@@ -691,11 +692,15 @@ public class NPCSocialHelper {
         Relationship hostView = host.getRelationship(guest.entityId);
         Relationship guestView = guest.getRelationship(host.entityId);
 
+        boolean childInvolved = InteractionManager.isNpcAChild(host) || InteractionManager.isNpcAChild(guest);
+
         // Two NPCs who dislike each other do not have a nice time.
-        boolean hostile = hostView.status == RelationshipStatus.ENEMIES
+        // Children do not enter hostile feuds or adult aggression.
+        boolean hostile = !childInvolved && (
+                hostView.status == RelationshipStatus.ENEMIES
                 || guestView.status == RelationshipStatus.ENEMIES
                 || host.personality.traits.contains(Trait.AGGRESSIVE)
-                || guest.personality.traits.contains(Trait.AGGRESSIVE);
+                || guest.personality.traits.contains(Trait.AGGRESSIVE));
 
         int friendship = hostile ? -2 : 3;
         int affinity = hostile ? -3 : 4;
@@ -736,7 +741,12 @@ public class NPCSocialHelper {
             // Good mood rubs off, more strongly on someone who was feeling down.
             Mood listenerMood = listener.getMood();
             boolean wasDown = listenerMood == Mood.SAD || listenerMood == Mood.BORED || listenerMood == Mood.ANGRY;
-            listener.setEmotion(Mood.HAPPY, wasDown ? 0.7f : 0.4f, "good_company", tick);
+            if (wasDown) {
+                // Cheering someone up breaks through their negative mood
+                listener.forceEmotion(Mood.HAPPY, 0.6f, "good_company", tick);
+            } else {
+                listener.setEmotion(Mood.HAPPY, 0.4f, "good_company", tick);
+            }
         } else if (speakerMood == Mood.ANGRY) {
             listener.setEmotion(Mood.SAD, 0.4f, "bad_company", tick);
         } else {
