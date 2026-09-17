@@ -171,10 +171,10 @@ public class InteractionManager {
 
         if (type == InteractionType.ROMANTIC && outcome.affinity() > 0) {
             SimTaleJuiceHelper.playFlirtSuccess(npc.entityRef, npc, playerRef, store, tick);
-        } else if (type == InteractionType.MEAN || (type == InteractionType.SCOLD && outcome.friendship() < 0)) {
+        } else if ((type == InteractionType.MEAN || (type == InteractionType.SCOLD && outcome.friendship() < 0)) && !isChild) {
             if (playerRef != null && playerRef.getReference() != null && npc.entityRef != null && store != null) {
                 SimTaleJuiceHelper.playShove(npc.entityRef, npc, playerRef.getReference(), playerRef,
-                        store, 5.0f, tick);
+                        store, 2.0f, tick);
             }
         } else if (type == InteractionType.FUNNY) {
             if (outcome.affinity() > 0 || outcome.friendship() > 0) {
