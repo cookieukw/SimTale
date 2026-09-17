@@ -1,9 +1,14 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.HouseBlockPos;
+import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.systems.HouseManager;
+import com.cookieukw.SimTale.systems.VillageManager;
+import com.cookieukw.SimTale.systems.VillageManager.Village;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -66,6 +71,9 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
      * separate problem from making markers appear at all.
      */
     private static final String MARKER_IMAGE = "Player.png";
+    private static final String MARKER_IMAGE_VILLAGE = "Spawn.png";
+    private static final String MARKER_IMAGE_BORDER = "Spawn.png";
+    private static final String MARKER_IMAGE_HOUSE = "Home.png";
 
     /**
      * Worlds already carrying the provider, so a re-registration is a no-op instead of a stack.
@@ -103,7 +111,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         }
 
         manager.addMarkerProvider(PROVIDER_ID, new SimTaleMarkerProvider());
-        LOGGER.info("[SimTale] Marcadores de mapa registrados no mundo '{}'", worldName);
+        LOGGER.info("[SimTale] Map markers registered in world '{}'", worldName);
     }
 
     private static final Color COLOR_ENEMY = rgb(220, 70, 70);
@@ -111,6 +119,10 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private static final Color COLOR_FRIEND = rgb(90, 210, 120);
     private static final Color COLOR_CLOSE = rgb(255, 200, 90);
     private static final Color COLOR_ROMANCE = rgb(240, 130, 200);
+    private static final Color COLOR_VILLAGE_CENTER = rgb(255, 215, 0);
+    private static final Color COLOR_VILLAGE_BORDER = rgb(255, 180, 50);
+    private static final Color COLOR_HOUSE_OCCUPIED = rgb(80, 220, 120);
+    private static final Color COLOR_HOUSE_EMPTY = rgb(100, 200, 255);
 
     private static Color rgb(int r, int g, int b) {
         Color color = new Color();
@@ -133,7 +145,12 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                              Map<UUID, RelationshipStatus> statuses) {
     }
 
+    private record HouseMapMarker(String id, List<String> ownerNames, HouseBlockPos anchor, boolean occupied) {
+    }
+
     private static volatile List<NpcMarker> snapshot = List.of();
+    private static volatile List<Village> villageSnapshot = List.of();
+    private static volatile List<HouseMapMarker> houseSnapshot = List.of();
 
     /**
      * Tick of the last capture, or {@code -1} when there has not been one.
@@ -213,6 +230,35 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         }
 
         snapshot = List.copyOf(captured);
+
+        // Capture active villages
+        villageSnapshot = List.copyOf(VillageManager.villages());
+
+        // Capture registered houses
+        List<HouseMapMarker> capturedHouses = new ArrayList<>();
+        for (HouseData house : HouseManager.HOUSES_BY_ID.values()) {
+            if (house == null) continue;
+            HouseBlockPos anchor = house.getAnchor();
+            if (anchor == null) continue;
+
+            List<String> names = new ArrayList<>();
+            if (house.owners != null) {
+                for (String ownerStr : house.owners) {
+                    try {
+                        UUID u = UUID.fromString(ownerStr);
+                        SimNPCComponent resident = SimTale.findNpc(u);
+                        if (resident != null && resident.name != null && !resident.name.isBlank()) {
+                            names.add(resident.name);
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+            boolean occupied = !names.isEmpty();
+            String houseId = house.houseId != null ? house.houseId : (anchor.x + "_" + anchor.y + "_" + anchor.z);
+            capturedHouses.add(new HouseMapMarker(houseId, List.copyOf(names), anchor, occupied));
+        }
+        houseSnapshot = List.copyOf(capturedHouses);
     }
 
     @Override
@@ -255,7 +301,67 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                 emitted++;
             } catch (RuntimeException e) {
                 // One malformed NPC must not cost every other marker on the map.
-                LOGGER.debug("[MAPA] falha ao marcar '{}': {}", npc.name(), e.toString());
+                LOGGER.debug("[MAP] Failed to mark '{}': {}", npc.name(), e.toString());
+            }
+        }
+
+        // Emit village centers and perimeter boundaries
+        for (Village village : villageSnapshot) {
+            try {
+                // 1. Village Center Marker
+                Transform centerTransform = new Transform(new Vector3d(village.centerX(), 65.0, village.centerZ()));
+                collector.addIgnoreViewDistance(
+                        new MapMarkerBuilder(PROVIDER_ID + ":village:" + (int) village.centerX() + ":" + (int) village.centerZ(),
+                                MARKER_IMAGE_VILLAGE, centerTransform)
+                                .withName(Message.translation("general.map.village")
+                                        .param("houses", village.houses())
+                                        .param("radius", (int) village.radius()))
+                                .withComponent(new TintComponent(COLOR_VILLAGE_CENTER))
+                                .build());
+
+                // 2. Cardinal Boundary Markers to delineate perimeter
+                double r = village.radius();
+                double cx = village.centerX();
+                double cz = village.centerZ();
+                double[][] points = {
+                        {cx, cz - r},
+                        {cx, cz + r},
+                        {cx + r, cz},
+                        {cx - r, cz}
+                };
+                for (int i = 0; i < 4; i++) {
+                    Transform borderTransform = new Transform(new Vector3d(points[i][0], 65.0, points[i][1]));
+                    collector.addIgnoreViewDistance(
+                            new MapMarkerBuilder(PROVIDER_ID + ":border:" + (int) cx + ":" + (int) cz + ":" + i,
+                                    MARKER_IMAGE_BORDER, borderTransform)
+                                    .withName(Message.translation("general.map.village.border")
+                                            .param("radius", (int) r))
+                                    .withComponent(new TintComponent(COLOR_VILLAGE_BORDER))
+                                    .build());
+                }
+                emitted += 5;
+            } catch (RuntimeException e) {
+                LOGGER.debug("[MAP] Failed to mark village: {}", e.toString());
+            }
+        }
+
+        // Emit house markers
+        for (HouseMapMarker house : houseSnapshot) {
+            try {
+                Transform houseTransform = new Transform(new Vector3d(house.anchor().x, house.anchor().y, house.anchor().z));
+                TintComponent tint = new TintComponent(house.occupied() ? COLOR_HOUSE_OCCUPIED : COLOR_HOUSE_EMPTY);
+                Message houseName = house.occupied()
+                        ? Message.translation("general.map.house.occupied").param("owners", String.join(", ", house.ownerNames()))
+                        : Message.translation("general.map.house.empty");
+                collector.addIgnoreViewDistance(
+                        new MapMarkerBuilder(PROVIDER_ID + ":house:" + house.id(),
+                                MARKER_IMAGE_HOUSE, houseTransform)
+                                .withName(houseName)
+                                .withComponent(tint)
+                                .build());
+                emitted++;
+            } catch (RuntimeException e) {
+                LOGGER.debug("[MAP] Failed to mark house '{}': {}", house.id(), e.toString());
             }
         }
 
@@ -265,7 +371,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         frame, so it is down at debug with the rest.
         */
         if (LOG_PASSES.incrementAndGet() % 100 == 1) {
-            LOGGER.debug("[MAPA] {} NPC(s) no snapshot, {} marcador(es) emitido(s), {} fora da distancia de visao",
+            LOGGER.debug("[MAP] {} NPC(s) in snapshot, {} marker(s) emitted, {} outside view distance",
                     current.size(), emitted, outOfRange);
         }
     }
