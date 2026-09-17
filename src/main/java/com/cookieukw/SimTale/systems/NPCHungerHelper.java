@@ -8,6 +8,7 @@ import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.ThoughtType;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
@@ -233,6 +234,8 @@ public class NPCHungerHelper {
         if (ai.currentTask == TaskType.EATING) {
             if (world.getTick() - ai.taskStartTime == 1) {
                 NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Eat.blockyanim", "Eat", store);
+                ThoughtType thought = ai.eatingWasFavorite ? ThoughtType.JOY : (ai.eatingWasHated ? ThoughtType.SICK : ThoughtType.HUNGRY);
+                EmoteBubbleSystem.triggerThought(npc.entityId, thought);
             }
             if (world.getTick() - ai.taskStartTime > 60) {
                 float restored = NPCFoodHelper.hungerRestored(ai.eatingTier);
