@@ -13,6 +13,7 @@ import com.cookieukw.SimTale.core.lifecycle.BabyCareData;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.GeneticsData;
+import com.cookieukw.SimTale.core.lifecycle.BabyNeeds;
 import com.cookieukw.SimTale.systems.ChairRegistry;
 import org.joml.Vector3i;
 
@@ -50,6 +51,7 @@ public class SimTaleTests {
             testLifecycleManagerPregnancy();
             testRelationships();
             testBabyCareSharing();
+            testBabyNeeds();
             testChildGrowth();
             testDatabaseShellIsolation();
 
@@ -231,6 +233,47 @@ public class SimTaleTests {
         care.currentHolderId = fatherId.toString();
         assertEqual(care.currentTurnOwnerId, fatherId.toString(), "Shift swapped to father");
         assertEqual(care.currentHolderId, fatherId.toString(), "Holder swapped to father");
+
+        System.out.println("OK");
+    }
+
+    private static void testBabyNeeds() {
+        System.out.print("Testing Baby Needs & Personality Tendencies... ");
+
+        BabyNeeds needs = new BabyNeeds();
+        assertEqual(needs.hunger, 100f, "Initial baby hunger");
+        assertEqual(needs.affection, 100f, "Initial baby affection");
+        assertEqual(needs.health, 100f, "Initial baby health");
+        assertEqual(needs.isCrying(), false, "Initial baby should not be crying");
+        assertEqual(needs.isCritical(), false, "Initial baby should not be critical");
+
+        // Initial default score is 0.5 (1 / (1 + 1)), which maps to BALANCED
+        assertFloatEqual(needs.getWellbeingScore(), 0.5f, "Initial wellbeing score");
+        assertEqual(needs.getPersonalityTendency(), BabyNeeds.PersonalityTendency.BALANCED, "Initial balanced tendency");
+
+        // Positive experiences: feeding and affection
+        needs.feed(20f);
+        needs.showAffection(20f);
+        // positiveExperiences = 0.5 + 0.3 = 0.8 -> score = 1.8 / 2.8 ~= 0.64 -> still BALANCED
+        assertEqual(needs.getPersonalityTendency(), BabyNeeds.PersonalityTendency.BALANCED, "Balanced after slight care");
+
+        // Give lots of care -> SOCIABLE (>= 0.7)
+        for (int i = 0; i < 10; i++) {
+            needs.feed(10f);
+            needs.showAffection(10f);
+        }
+        assertEqual(needs.getPersonalityTendency(), BabyNeeds.PersonalityTendency.SOCIABLE, "Tendency after extensive care");
+
+        // Neglected baby: low stats, lots of negative experiences -> WITHDRAWN or AGGRESSIVE
+        BabyNeeds neglected = new BabyNeeds();
+        neglected.hunger = 10f;
+        neglected.affection = 10f;
+        assertEqual(neglected.isCrying(), true, "Neglected baby cries");
+        neglected.negativeExperiences = 5.0f; // score = 1 / (1 + 5) = 0.166 < 0.2 -> AGGRESSIVE
+        assertEqual(neglected.getPersonalityTendency(), BabyNeeds.PersonalityTendency.AGGRESSIVE, "Aggressive tendency when severely neglected");
+
+        neglected.negativeExperiences = 2.0f; // score = 1 / (1 + 2) = 0.333 -> WITHDRAWN (0.2 - 0.4)
+        assertEqual(neglected.getPersonalityTendency(), BabyNeeds.PersonalityTendency.WITHDRAWN, "Withdrawn tendency when moderately neglected");
 
         System.out.println("OK");
     }
