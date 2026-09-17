@@ -34,11 +34,8 @@ amizade/afinidade/confiança, `tryCourtship` para romance e, quando os dois lado
 patamar do pedido de casamento do jogador, casamento autônomo). Ver "Relacionamentos entre NPCs" na
 seção ✅ Feito abaixo e `docs/SISTEMA_RELACIONAMENTOS.md` para os números exatos.
 
-### 3. A casa é identificada pela cama, e isso é estrutural
-
-`HouseManager.scanHouseFromBed()` parte da cama, e `HouseData.bedPos` é o que casa uma casa
-existente com um novo scan. Tirar essa dependência não é trocar um campo: é mudar o critério de
-identidade e migrar os registros já salvos. É um item de esforço médio, não pequeno.
+### 3. A casa é identificada pela cama — ✅ implementado nesta sessão
+A casa agora possui identidade própria com UUID e âncora centróide independente, suportando um conjunto de camas (`Set<HouseBlockPos> beds`). A quebra de uma cama realoca dinamicamente o morador para outra cama da mesma casa ou o deixa em busca de cama livre, sem dissolver o imóvel, seus donos, portas ou baús.
 
 ---
 
@@ -261,18 +258,11 @@ comportamento de sempre.
 **Ainda em aberto**: sem decaimento e sem limite diário dedicado para este ganho específico
 (o `interactionsToday` de sempre ainda cobre spam do lado do jogador, não conversa NPC-NPC).
 
-### Casa — persistência independente da cama
-Ver ⚠️ #3. Escopo: id permanente, centro, limites e dono salvos; quebrar cama não apaga a casa;
-outro NPC não registra a mesma casa; só destruir a estrutura libera. Inclui **migração dos
-registros já gravados**, senão as casas existentes somem.
+### ~~Casa — persistência independente da cama~~ ✅ FEITO (17/09)
+Residência migrada para identidade estável própria (UUID e centróide `anchorPos`), conjunto de múltiplas camas (`Set<HouseBlockPos> beds`), e desacoplamento de cama única. Quebra de cama realoca moradores sem apagar a casa; apenas a perda total de portas ou destruição de paredes encerra o imóvel.
 
-### Recursos compartilhados / inventário global
-`ChestRegistry` existe e `HouseData.chests` já guarda os baús de cada casa — a fundação está
-pronta. Falta a camada lógica que trata o conjunto como um estoque só: consultar, depositar,
-consumir, compartilhar excedente.
-
-Depende de: casa com identidade estável (item acima). Fazer antes disso é construir sobre chão
-que vai mudar.
+### ~~Recursos compartilhados / inventário global~~ ✅ FEITO (17/09)
+Implementado via `VillageStockManager` e `ChestData.shared`. Baús de vila podem ser alternados entre privados e comunitários (`/simtale chestshare`). Moradores com fome checam o estoque compartilhado se a casa estiver sem comida, e trabalhadores sem baú doméstico depositam seus excedentes no estoque central da vila (`/simtale villagestock`).
 
 ### Profissões executando tarefas + sistema de objetivos
 O `Profession` enum já mapeia para `JobType`, e existem estados de trabalho (`MOVING_TO_WORK`,
