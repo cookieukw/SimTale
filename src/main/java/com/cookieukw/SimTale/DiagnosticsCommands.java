@@ -512,13 +512,14 @@ final class DiagnosticsCommands {
 
             // Update existing house's structure dynamically if the house is registered
             HouseData existingHouse = HouseManager.HOUSES_BY_ID.values().stream()
-                .filter(h -> h.bedPos != null && h.bedPos.equals(houseBed))
+                .filter(h -> (h.beds != null && h.beds.contains(houseBed)) || (h.bedPos != null && h.bedPos.equals(houseBed)))
                 .findFirst()
                 .orElse(null);
             if (existingHouse != null) {
                 existingHouse.interior = rawScan.interiorBlocks();
                 existingHouse.doors = rawScan.doorBlocks();
                 existingHouse.chests = rawScan.chestBlocks();
+                existingHouse.addBed(houseBed);
                 HouseManager.registerHouse(existingHouse);
                 ctx.sendMessage(Message.raw("[House Debug] Registered house updated in persistence with " 
                     + rawScan.doorBlocks().size() + " door(s) and " + rawScan.chestBlocks().size() + " chest(s).").color("green"));
