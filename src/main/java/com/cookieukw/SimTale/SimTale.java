@@ -37,6 +37,7 @@ import com.cookieukw.SimTale.systems.BedBlockEventSystem;
 import com.cookieukw.SimTale.systems.BedPlaceBlockEventSystem;
 import com.cookieukw.SimTale.systems.BabyBabbleSystem;
 import com.cookieukw.SimTale.systems.GrowthTickSystem;
+import com.cookieukw.SimTale.systems.NPCDamageEventSystem;
 import com.cookieukw.SimTale.systems.ConstructionPreviewSweepSystem;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.component.ComponentType;
@@ -234,6 +235,7 @@ public class SimTale extends JavaPlugin {
         */
         this.getEntityStoreRegistry().registerSystem(new ChildPutDownSystem());
         this.getEntityStoreRegistry().registerSystem(new ChildCarryReleaseTickSystem());
+        this.getEntityStoreRegistry().registerSystem(new NPCDamageEventSystem());
 
         /* Map markers are NOT registered here.
 
