@@ -106,31 +106,33 @@ public final class VillageManager {
      * spatial index would be more code than the problem deserves.
      */
     private static void rebuild() {
-        List<HouseBlockPos> beds = new ArrayList<>();
+        List<HouseBlockPos> houseAnchors = new ArrayList<>();
         for (HouseData house : HouseManager.HOUSES_BY_ID.values()) {
-            if (house.bedPos != null) {
-                beds.add(house.bedPos);
+            if (house == null) continue;
+            HouseBlockPos anchor = house.getAnchor();
+            if (anchor != null) {
+                houseAnchors.add(anchor);
             }
         }
 
         List<Village> built = new ArrayList<>();
-        boolean[] taken = new boolean[beds.size()];
+        boolean[] taken = new boolean[houseAnchors.size()];
 
-        for (int i = 0; i < beds.size(); i++) {
+        for (int i = 0; i < houseAnchors.size(); i++) {
             if (taken[i]) continue;
 
             /* Flood fill: seed with one house, then keep absorbing any house close to one already
             absorbed. This is what makes the chaining work.
             */
             List<HouseBlockPos> cluster = new ArrayList<>();
-            cluster.add(beds.get(i));
+            cluster.add(houseAnchors.get(i));
             taken[i] = true;
 
             for (int scan = 0; scan < cluster.size(); scan++) {
                 HouseBlockPos from = cluster.get(scan);
-                for (int j = 0; j < beds.size(); j++) {
+                for (int j = 0; j < houseAnchors.size(); j++) {
                     if (taken[j]) continue;
-                    HouseBlockPos candidate = beds.get(j);
+                    HouseBlockPos candidate = houseAnchors.get(j);
                     double dx = candidate.x - from.x;
                     double dz = candidate.z - from.z;
                     if (dx * dx + dz * dz <= LINK_DISTANCE_SQ) {
