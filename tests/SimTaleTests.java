@@ -18,9 +18,17 @@ import com.cookieukw.SimTale.core.Memory;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.systems.NPCSocialHelper;
+import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.core.Trait;
+import com.cookieukw.SimTale.core.NPCPreferences;
+import com.cookieukw.SimTale.logic.InteractionManager;
+import com.cookieukw.SimTale.logic.InteractionManager.InteractionOutcome;
+import com.hypixel.hytale.server.core.Message;
 import com.cookieukw.SimTale.systems.ChairRegistry;
 import org.joml.Vector3i;
 
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -59,6 +67,7 @@ public class SimTaleTests {
             testChildGrowth();
             testDatabaseShellIsolation();
             testMemoryAndGossip();
+            testProfessionAcceptance();
 
             System.out.println("Seating & Chairs");
             testChairRegistry();
@@ -371,6 +380,85 @@ public class SimTaleTests {
         Relationship bobRel = bob.getRelationship(playerUuid);
         Assert.isTrue(bobRel.trust < 0, "Bob trust penalized by gossip");
         Assert.isTrue(bobRel.affinity < 0, "Bob affinity penalized by gossip");
+
+        System.out.println("OK");
+    }
+
+    private static void testProfessionAcceptance() {
+        System.out.print("Testing Profession Acceptance Rules... ");
+
+        UUID playerUuid = UUID.randomUUID();
+
+        // 1. Liked profession: always accepted enthusiastically
+        SimNPCComponent enthusiastic = new SimNPCComponent();
+        enthusiastic.name = "FarmerJohn";
+        enthusiastic.preferences = new NPCPreferences(
+                Set.of(), Set.of(), Set.of(), Set.of(),
+                NPCPreferences.Season.SPRING, NPCPreferences.Weather.CLEAR, NPCPreferences.Hobby.GARDENING,
+                Set.of(Profession.FARMER), Set.of(Profession.MINER)
+        );
+        Relationship rel = enthusiastic.getRelationship(playerUuid);
+        rel.status = RelationshipStatus.ACQUAINTANCE;
+        rel.friendship = 30;
+
+        InteractionManager.ProfessionContext ctxLiked = new InteractionManager.ProfessionContext(
+                enthusiastic, rel, Profession.FARMER, Message.raw("Farmer"), "Wood_Hoe", 0.5
+        );
+        Optional<InteractionOutcome> refusal = InteractionManager.evaluateProfessionRules(ctxLiked);
+        Assert.equal(refusal.isPresent(), false, "Liked profession is never refused");
+
+        InteractionOutcome acceptOutcome = InteractionManager.buildProfessionAcceptance(
+                enthusiastic, rel, Profession.FARMER, Message.raw("Farmer"), "Wood_Hoe", Message.raw(""), ctxLiked
+        );
+        Assert.equal(acceptOutcome.friendshipChange(), 15, "Liked profession grants bonus friendship");
+        Assert.equal(acceptOutcome.affinityChange(), 25, "Liked profession grants bonus affinity");
+        Assert.equal(enthusiastic.getMood(), Mood.EXCITED, "Liked profession sets EXCITED mood");
+
+        // 2. Disliked profession: refused
+        InteractionManager.ProfessionContext ctxDisliked = new InteractionManager.ProfessionContext(
+                enthusiastic, rel, Profession.MINER, Message.raw("Miner"), "Wood_Pickaxe", 0.5
+        );
+        Optional<InteractionOutcome> refusalDisliked = InteractionManager.evaluateProfessionRules(ctxDisliked);
+        Assert.equal(refusalDisliked.isPresent(), true, "Disliked profession is refused");
+
+        // 3. Picky / Greedy: refuses non-lucrative neutral profession without close bond
+        SimNPCComponent greedyNpc = new SimNPCComponent();
+        greedyNpc.name = "GreedyBob";
+        greedyNpc.personality.traits.add(Trait.GREEDY);
+        greedyNpc.preferences = new NPCPreferences(
+                Set.of(), Set.of(), Set.of(), Set.of(),
+                NPCPreferences.Season.SUMMER, NPCPreferences.Weather.CLEAR, NPCPreferences.Hobby.MINING,
+                Set.of(Profession.MINER), Set.of()
+        );
+        Relationship greedyRel = greedyNpc.getRelationship(playerUuid);
+        greedyRel.status = RelationshipStatus.ACQUAINTANCE;
+        greedyRel.friendship = 25;
+
+        InteractionManager.ProfessionContext ctxGreedyFarmer = new InteractionManager.ProfessionContext(
+                greedyNpc, greedyRel, Profession.FARMER, Message.raw("Farmer"), "Wood_Hoe", 0.5
+        );
+        Optional<InteractionOutcome> refusalGreedy = InteractionManager.evaluateProfessionRules(ctxGreedyFarmer);
+        Assert.equal(refusalGreedy.isPresent(), true, "Greedy NPC refuses neutral farming");
+
+        // 4. Loyal / Easy NPC: accepts neutral profession easily
+        SimNPCComponent loyalNpc = new SimNPCComponent();
+        loyalNpc.name = "LoyalDoggo";
+        loyalNpc.personality.traits.add(Trait.LOYAL);
+        Relationship loyalRel = loyalNpc.getRelationship(playerUuid);
+        loyalRel.status = RelationshipStatus.ACQUAINTANCE;
+        loyalRel.friendship = 25;
+
+        InteractionManager.ProfessionContext ctxLoyal = new InteractionManager.ProfessionContext(
+                loyalNpc, loyalRel, Profession.FISHERMAN, Message.raw("Fisherman"), "Fishing_Rod", 0.5
+        );
+        Optional<InteractionOutcome> refusalLoyal = InteractionManager.evaluateProfessionRules(ctxLoyal);
+        Assert.equal(refusalLoyal.isPresent(), false, "Loyal NPC accepts neutral profession");
+
+        InteractionOutcome loyalAccept = InteractionManager.buildProfessionAcceptance(
+                loyalNpc, loyalRel, Profession.FISHERMAN, Message.raw("Fisherman"), "Fishing_Rod", Message.raw(""), ctxLoyal
+        );
+        Assert.equal(loyalAccept.friendshipChange(), 10, "Loyal NPC gives 10 friendship on accept");
+        Assert.equal(loyalNpc.getMood(), Mood.HAPPY, "Loyal NPC is HAPPY to accept");
 
         System.out.println("OK");
     }
