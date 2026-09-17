@@ -26,9 +26,9 @@ public class HouseData {
         if (bedPos != null) {
             this.beds.add(bedPos);
         }
-        this.interior = interior;
-        this.doors = doors;
-        this.chests = chests;
+        this.interior = interior != null ? new HashSet<>(interior) : new HashSet<>();
+        this.doors = doors != null ? new HashSet<>(doors) : new HashSet<>();
+        this.chests = chests != null ? new HashSet<>(chests) : new HashSet<>();
         this.anchorPos = computeAnchor();
     }
 
