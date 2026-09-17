@@ -31,6 +31,7 @@ import com.cookieukw.SimTale.systems.NPCArmorHelper;
 import com.cookieukw.SimTale.systems.NPCLeisureHelper;
 import com.cookieukw.SimTale.systems.SimTaleJuiceHelper;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
@@ -151,10 +152,16 @@ public class InteractionManager {
         `memoryEvent == null && friendship == 0 && affinity == 0`, which silently threw away
         any legitimate outcome that happened to have no friendship/affinity delta.
         */
+        Store<EntityStore> store = npc.entityRef != null ? npc.entityRef.getStore() : null;
+        long tick = System.currentTimeMillis() / 50;
+
         if (outcome.rejected() || (type == InteractionType.ROMANTIC && outcome.affinity() < 0)) {
             if (type == InteractionType.ROMANTIC) {
-                SimTaleJuiceHelper.playFlirtReject(npc.entityRef, npc, playerRef,
-                        npc.entityRef != null ? npc.entityRef.getStore() : null, System.currentTimeMillis() / 50);
+                SimTaleJuiceHelper.playFlirtReject(npc.entityRef, npc, playerRef, store, tick);
+            } else if (type == InteractionType.FUNNY) {
+                SimTaleJuiceHelper.playJokeFail(npc.entityRef, npc, store, tick);
+            } else if (type == InteractionType.ASSIGN_PROFESSION) {
+                SimTaleJuiceHelper.playProfessionReaction(npc.entityRef, npc, false, false, store, tick);
             }
             return outcome.response();
         }
@@ -163,13 +170,27 @@ public class InteractionManager {
         applyOutcome(npc, playerUuid, rel, outcome, isChild);
 
         if (type == InteractionType.ROMANTIC && outcome.affinity() > 0) {
-            SimTaleJuiceHelper.playFlirtSuccess(npc.entityRef, npc, playerRef,
-                    npc.entityRef != null ? npc.entityRef.getStore() : null, System.currentTimeMillis() / 50);
+            SimTaleJuiceHelper.playFlirtSuccess(npc.entityRef, npc, playerRef, store, tick);
         } else if (type == InteractionType.MEAN || (type == InteractionType.SCOLD && outcome.friendship() < 0)) {
-            if (playerRef != null && playerRef.getReference() != null && npc.entityRef != null) {
+            if (playerRef != null && playerRef.getReference() != null && npc.entityRef != null && store != null) {
                 SimTaleJuiceHelper.playShove(npc.entityRef, npc, playerRef.getReference(), playerRef,
-                        npc.entityRef.getStore(), 5.0f, System.currentTimeMillis() / 50);
+                        store, 5.0f, tick);
             }
+        } else if (type == InteractionType.FUNNY) {
+            if (outcome.affinity() > 0 || outcome.friendship() > 0) {
+                SimTaleJuiceHelper.playJokeSuccess(npc.entityRef, npc, store, tick);
+            } else {
+                SimTaleJuiceHelper.playJokeFail(npc.entityRef, npc, store, tick);
+            }
+        } else if (type == InteractionType.FRIENDLY) {
+            if (npc.entityRef != null && store != null) {
+                SimTaleJuiceHelper.playGreeting(npc.entityRef, store);
+            }
+        } else if (type == InteractionType.GIFT) {
+            SimTaleJuiceHelper.playGiftReaction(npc.entityRef, npc, outcome.affinity(), store, tick);
+        } else if (type == InteractionType.ASSIGN_PROFESSION) {
+            boolean liked = npc.preferences != null && npc.preferences.getLikedProfessions().contains(npc.profession);
+            SimTaleJuiceHelper.playProfessionReaction(npc.entityRef, npc, true, liked, store, tick);
         }
 
         if (outcome.consumeItem()) {
