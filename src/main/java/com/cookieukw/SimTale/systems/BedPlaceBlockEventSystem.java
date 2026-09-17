@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.hypixel.hytale.component.system.WorldEventSystem;
 import com.cookieukw.SimTale.core.AssetIds;
+import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Rotation4;
 import com.cookieukw.SimTale.core.SimLog;
