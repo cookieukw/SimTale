@@ -97,6 +97,9 @@ public class NPCDamageEventSystem extends DamageEventSystem {
 
         LOGGER.info("[SimTale] NPC '{}' was attacked by player {}", victimNpc.name, playerUuid);
 
+        Ref<EntityStore> victimRef = chunk.getReferenceTo(index);
+        SimTaleJuiceHelper.playDamagePanic(victimRef, victimNpc, store, currentTick);
+
         // Notify nearby bystanders who witness the attack
         TransformComponent victimTrans = chunk.getComponent(index, TransformComponent.getComponentType());
         if (victimTrans != null) {
@@ -116,6 +119,7 @@ public class NPCDamageEventSystem extends DamageEventSystem {
                             bRel.addFriendship(-5);
                         }
                         bystander.setEmotion(Mood.SCARED, 0.8f, "witness_attack", currentTick);
+                        SimTaleJuiceHelper.playDamagePanic(bystander.entityRef, bystander, store, currentTick);
                         LOGGER.debug("[SimTale] NPC '{}' witnessed attack on '{}'", bystander.name, victimNpc.name);
                     }
                 }
