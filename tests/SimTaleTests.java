@@ -392,6 +392,7 @@ public class SimTaleTests {
         // 1. Liked profession: always accepted enthusiastically
         SimNPCComponent enthusiastic = new SimNPCComponent();
         enthusiastic.name = "FarmerJohn";
+        enthusiastic.personality.traits.clear();
         enthusiastic.preferences = new NPCPreferences(
                 Set.of(), Set.of(), Set.of(), Set.of(),
                 NPCPreferences.Season.SPRING, NPCPreferences.Weather.CLEAR, NPCPreferences.Hobby.GARDENING,
@@ -424,6 +425,7 @@ public class SimTaleTests {
         // 3. Picky / Greedy: refuses non-lucrative neutral profession without close bond
         SimNPCComponent greedyNpc = new SimNPCComponent();
         greedyNpc.name = "GreedyBob";
+        greedyNpc.personality.traits.clear();
         greedyNpc.personality.traits.add(Trait.GREEDY);
         greedyNpc.preferences = new NPCPreferences(
                 Set.of(), Set.of(), Set.of(), Set.of(),
@@ -443,7 +445,13 @@ public class SimTaleTests {
         // 4. Loyal / Easy NPC: accepts neutral profession easily
         SimNPCComponent loyalNpc = new SimNPCComponent();
         loyalNpc.name = "LoyalDoggo";
+        loyalNpc.personality.traits.clear();
         loyalNpc.personality.traits.add(Trait.LOYAL);
+        loyalNpc.preferences = new NPCPreferences(
+                Set.of(), Set.of(), Set.of(), Set.of(),
+                NPCPreferences.Season.SPRING, NPCPreferences.Weather.CLEAR, NPCPreferences.Hobby.READING,
+                Set.of(), Set.of()
+        );
         Relationship loyalRel = loyalNpc.getRelationship(playerUuid);
         loyalRel.status = RelationshipStatus.ACQUAINTANCE;
         loyalRel.friendship = 25;
