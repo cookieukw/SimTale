@@ -737,6 +737,13 @@ public class NPCSocialHelper {
             return;
         }
 
+        if (InteractionManager.isNpcAChild(listener)) {
+            Mood childMood = (speakerMood == Mood.HAPPY || speakerMood == Mood.EXCITED || Math.random() < 0.4)
+                    ? Mood.EXCITED : Mood.HAPPY;
+            listener.forceEmotion(childMood, 0.7f, "child_chat", tick);
+            return;
+        }
+
         if (speakerMood == Mood.HAPPY || speakerMood == Mood.EXCITED) {
             // Good mood rubs off, more strongly on someone who was feeling down.
             Mood listenerMood = listener.getMood();

@@ -898,14 +898,20 @@ public class InteractionManager {
                 }
             } else if (outcome.affinity() > 0 && outcome.affinity() <= 4) {
                 // Basic item: do not alter mood
-            } else {
-                if (ThreadLocalRandom.current().nextDouble() < 0.5) {
+                if (isChild) {
+                    npc.forceEmotion(Mood.EXCITED, 0.8f, "child_gift", tick);
+                } else if (ThreadLocalRandom.current().nextDouble() < 0.5) {
                     npc.setEmotion(Mood.HAPPY, 0.6f, "gift_normal", tick);
                 }
             }
         } else {
             if (outcome.affinity() > 0) {
-                npc.setEmotion(Mood.HAPPY, 0.6f, "interaction", tick);
+                if (isChild) {
+                    Mood mood = outcome.affinity() >= 5 ? Mood.EXCITED : Mood.HAPPY;
+                    npc.forceEmotion(mood, 0.8f, "child_interaction", tick);
+                } else {
+                    npc.setEmotion(Mood.HAPPY, 0.6f, "interaction", tick);
+                }
             } else if (outcome.affinity() < 0) {
                 if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
                     npc.setEmotion(Mood.ANGRY, 0.8f, "interaction", tick);

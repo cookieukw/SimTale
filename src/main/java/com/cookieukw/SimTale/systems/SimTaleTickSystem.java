@@ -239,7 +239,10 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         difference between a village with moods and a village with flickering icons.
         */
         if (npc.activeEmotion != Mood.NEUTRAL) {
-            npc.emotionIntensity = Math.max(0f, npc.emotionIntensity - 0.0002f);
+            boolean isChild = InteractionManager.isNpcAChild(npc);
+            float decayRate = (isChild && (npc.activeEmotion == Mood.ANGRY || npc.activeEmotion == Mood.SAD || npc.activeEmotion == Mood.BORED))
+                    ? 0.0006f : 0.0002f;
+            npc.emotionIntensity = Math.max(0f, npc.emotionIntensity - decayRate);
             if (npc.emotionIntensity < 0.1f) {
                 npc.activeEmotion = Mood.NEUTRAL;
                 npc.emotionIntensity = 0f;
@@ -262,20 +265,24 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             } else {
                 Ref<EntityStore> entityRef = world.getEntityStore().getRefFromUUID(npc.entityId);
                 if (entityRef != null) {
-                    boolean hasWellness = NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) > 60
-                            && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) > 60
-                            && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) > 60;
+                    boolean isChild = InteractionManager.isNpcAChild(npc);
+                    float hungerMin = isChild ? 35f : 60f;
+                    float energyMin = isChild ? 30f : 60f;
+                    float socialMin = isChild ? 30f : 60f;
+
+                    boolean hasWellness = NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) > hungerMin
+                            && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) > energyMin
+                            && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) > socialMin;
 
                     if (hasWellness) {
-                        npc.setEmotion(Mood.HAPPY, 0.3f, "wellness", absoluteTick);
+                        Mood mood = (isChild && Math.random() < 0.35) ? Mood.EXCITED : Mood.HAPPY;
+                        float intensity = isChild ? 0.6f : 0.3f;
+                        npc.setEmotion(mood, intensity, isChild ? "childhood_joy" : "wellness", absoluteTick);
                     } else {
                         RoutineAIComponent aiComp = store.getComponent(entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
                         if (aiComp != null && (aiComp.currentTask == RoutineAIComponent.TaskType.IDLE || aiComp.currentTask == RoutineAIComponent.TaskType.WANDERING)) {
-                            /* 0.005 per tick is one in ten seconds — boredom arrived almost the moment
-                            an NPC stopped moving. At 0.0004 it takes around two minutes of idling,
-                            which is closer to what "bored" is supposed to mean.
-                            */
-                            if (Math.random() < 0.0004) {
+                            double boredomChance = isChild ? 0.0001 : 0.0004;
+                            if (Math.random() < boredomChance) {
                                 npc.setEmotion(Mood.BORED, 0.4f, "idleness", absoluteTick);
                             }
                         }
