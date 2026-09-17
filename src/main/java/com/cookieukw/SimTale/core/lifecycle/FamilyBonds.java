@@ -4,6 +4,7 @@ import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Child;
 import com.cookieukw.SimTale.core.HouseData;
+import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
