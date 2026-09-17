@@ -579,7 +579,7 @@ final class DiagnosticsCommands {
                 .param("x", nearestChest.x).param("y", nearestChest.y).param("z", nearestChest.z));
 
             boolean isShared = ChestRegistry.isShared(nearestChest);
-            ctx.sendMessage(Message.raw("[Tipo do Baú] " + (isShared ? "§aCOMPARTILHADO (Estoque Comunitário da Vila)" : "§ePRIVADO (Casa)")));
+            ctx.sendMessage(Message.translation(isShared ? "general.cmd.chestcheck.type_shared" : "general.cmd.chestcheck.type_private"));
 
             UUID houseId = HouseManager.findHouseIdForChest(nearestChest);
             if (houseId != null) {
@@ -625,14 +625,16 @@ final class DiagnosticsCommands {
             }
 
             if (nearestChest == null || minDist > 16 * 16) {
-                ctx.sendMessage(Message.raw("§cNenhum baú registrado próximo (raio de 16 blocos)."));
+                ctx.sendMessage(Message.translation("general.cmd.chestshare.none_nearby"));
                 return;
             }
 
             boolean nowShared = !ChestRegistry.isShared(nearestChest);
             ChestRegistry.setShared(nearestChest.x, nearestChest.y, nearestChest.z, nowShared);
-            ctx.sendMessage(Message.raw("§aBaú em (" + nearestChest.x + ", " + nearestChest.y + ", " + nearestChest.z + ") agora é "
-                    + (nowShared ? "§6COMPARTILHADO (Estoque Comunitário da Vila)" : "§7PRIVADO (Uso Doméstico)")));
+            ctx.sendMessage(Message.translation(nowShared ? "general.cmd.chestshare.now_shared" : "general.cmd.chestshare.now_private")
+                    .param("x", nearestChest.x)
+                    .param("y", nearestChest.y)
+                    .param("z", nearestChest.z));
         }
     }
 
@@ -650,21 +652,26 @@ final class DiagnosticsCommands {
 
             VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
             if (village == null) {
-                ctx.sendMessage(Message.raw("§cNenhuma vila encontrada nas proximidades."));
+                ctx.sendMessage(Message.translation("general.cmd.villagestock.no_village"));
                 return;
             }
 
             List<HouseBlockPos> sharedChests = VillageStockManager.getSharedChestsInVillage(village);
             Map<String, Integer> stock = VillageStockManager.getVillageStockSummary(village, world);
 
-            ctx.sendMessage(Message.raw("§6=== Estoque da Vila ==="));
-            ctx.sendMessage(Message.raw("§eCentro: (" + (int) village.centerX() + ", " + (int) village.centerZ() + ") | Raio: " + (int) village.radius() + "m | Casas: " + village.houses()));
-            ctx.sendMessage(Message.raw("§eBaús Compartilhados: §a" + sharedChests.size()));
+            ctx.sendMessage(Message.translation("general.cmd.villagestock.header"));
+            ctx.sendMessage(Message.translation("general.cmd.villagestock.info")
+                    .param("x", (int) village.centerX())
+                    .param("z", (int) village.centerZ())
+                    .param("radius", (int) village.radius())
+                    .param("houses", village.houses()));
+            ctx.sendMessage(Message.translation("general.cmd.villagestock.shared_chests")
+                    .param("count", sharedChests.size()));
 
             if (stock.isEmpty()) {
-                ctx.sendMessage(Message.raw("§7Estoque vazio nos baús comunitários."));
+                ctx.sendMessage(Message.translation("general.cmd.villagestock.empty"));
             } else {
-                ctx.sendMessage(Message.raw("§aItens Estocados:"));
+                ctx.sendMessage(Message.translation("general.cmd.villagestock.stocked_items"));
                 for (Map.Entry<String, Integer> entry : stock.entrySet()) {
                     ctx.sendMessage(Message.raw("  §f- " + entry.getKey() + ": §e" + entry.getValue()));
                 }
