@@ -56,18 +56,23 @@ public class BabyNeeds {
 
     /**
      * Returns personality tendency based on care received.
-     * > 0.7 = happy/sociable child
-     * 0.4-0.7 = neutral child
-     * < 0.4 = shy/aggressive child
+     * >= 0.7 = happy/sociable child
+     * 0.4 - 0.7 = balanced/neutral child
+     * 0.2 - 0.4 = shy/withdrawn child
+     * < 0.2 = aggressive/neglected child
      */
     public PersonalityTendency getPersonalityTendency() {
         float score = getWellbeingScore();
-        if (score > 0.5f) return PersonalityTendency.SOCIABLE;
-        return PersonalityTendency.WITHDRAWN;
+        if (score >= 0.7f) return PersonalityTendency.SOCIABLE;
+        if (score >= 0.4f) return PersonalityTendency.BALANCED;
+        if (score >= 0.2f) return PersonalityTendency.WITHDRAWN;
+        return PersonalityTendency.AGGRESSIVE;
     }
 
     public enum PersonalityTendency {
         SOCIABLE,
-        WITHDRAWN
+        BALANCED,
+        WITHDRAWN,
+        AGGRESSIVE
     }
 }
