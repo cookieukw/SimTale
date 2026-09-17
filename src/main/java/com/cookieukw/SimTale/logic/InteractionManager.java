@@ -11,6 +11,7 @@ import com.cookieukw.SimTale.ai.AiMessage;
 import com.cookieukw.SimTale.ai.AiRequest;
 import com.cookieukw.SimTale.ai.NpcContextBuilder;
 import com.cookieukw.SimTale.core.NeedsHelper;
+import com.cookieukw.SimTale.core.Memory;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
@@ -958,8 +959,26 @@ public class InteractionManager {
             }
         }
 
-        if (npc.memory.remembers(MemoryEvent.INSULTED, playerUuid, 300000)) {
-            return Message.translation("npc-dialogues.context.insulted.recent").param("name", npc.name);
+        Memory attackedMem = npc.memory.getMemory(MemoryEvent.ATTACKED, playerUuid, 300000);
+        if (attackedMem != null) {
+            if (attackedMem.isGossip) {
+                return Message.translation("npc-dialogues.context.attacked.other")
+                        .param("name", npc.name)
+                        .param("otherName", attackedMem.gossipTargetName != null ? attackedMem.gossipTargetName : "alguém");
+            } else {
+                return Message.translation("npc-dialogues.context.attacked.recent").param("name", npc.name);
+            }
+        }
+
+        Memory insultedMem = npc.memory.getMemory(MemoryEvent.INSULTED, playerUuid, 300000);
+        if (insultedMem != null) {
+            if (insultedMem.isGossip) {
+                return Message.translation("npc-dialogues.context.insulted.other")
+                        .param("name", npc.name)
+                        .param("otherName", insultedMem.gossipTargetName != null ? insultedMem.gossipTargetName : "alguém");
+            } else {
+                return Message.translation("npc-dialogues.context.insulted.recent").param("name", npc.name);
+            }
         }
 
         // Modifications guided by RelationshipStatus
