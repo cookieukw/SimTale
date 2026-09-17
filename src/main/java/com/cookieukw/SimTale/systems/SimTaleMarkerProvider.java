@@ -25,6 +25,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.worldmap.IWorldMap;
 import com.hypixel.hytale.server.core.universe.world.worldmap.WorldMapManager;
 import com.hypixel.hytale.server.core.universe.world.worldmap.markers.MapMarkerBuilder;
 import com.hypixel.hytale.server.core.universe.world.worldmap.markers.MarkersCollector;
@@ -72,7 +73,6 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
      */
     private static final String MARKER_IMAGE = "Player.png";
     private static final String MARKER_IMAGE_VILLAGE = "Spawn.png";
-    private static final String MARKER_IMAGE_BORDER = "Spawn.png";
     private static final String MARKER_IMAGE_HOUSE = "Home.png";
 
     /**
@@ -112,6 +112,12 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
 
         manager.addMarkerProvider(PROVIDER_ID, new SimTaleMarkerProvider());
         LOGGER.info("[SimTale] Map markers registered in world '{}'", worldName);
+
+        IWorldMap currentGen = manager.getGenerator();
+        if (currentGen != null && !(currentGen instanceof SimTaleWorldMapGenerator)) {
+            manager.setGenerator(new SimTaleWorldMapGenerator(currentGen));
+            LOGGER.info("[SimTale] Wrapped WorldMap generator for village chunk coloring in world '{}'", worldName);
+        }
     }
 
     private static final Color COLOR_ENEMY = rgb(220, 70, 70);
@@ -120,7 +126,6 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private static final Color COLOR_CLOSE = rgb(255, 200, 90);
     private static final Color COLOR_ROMANCE = rgb(240, 130, 200);
     private static final Color COLOR_VILLAGE_CENTER = rgb(255, 215, 0);
-    private static final Color COLOR_VILLAGE_BORDER = rgb(255, 180, 50);
     private static final Color COLOR_HOUSE_OCCUPIED = rgb(80, 220, 120);
     private static final Color COLOR_HOUSE_EMPTY = rgb(100, 200, 255);
 
@@ -305,10 +310,9 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             }
         }
 
-        // Emit village centers and perimeter boundaries
+        // Emit village center markers
         for (Village village : villageSnapshot) {
             try {
-                // 1. Village Center Marker
                 Transform centerTransform = new Transform(new Vector3d(village.centerX(), 65.0, village.centerZ()));
                 collector.addIgnoreViewDistance(
                         new MapMarkerBuilder(PROVIDER_ID + ":village:" + (int) village.centerX() + ":" + (int) village.centerZ(),
@@ -318,28 +322,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                                         .param("radius", (int) village.radius()))
                                 .withComponent(new TintComponent(COLOR_VILLAGE_CENTER))
                                 .build());
-
-                // 2. Cardinal Boundary Markers to delineate perimeter
-                double r = village.radius();
-                double cx = village.centerX();
-                double cz = village.centerZ();
-                double[][] points = {
-                        {cx, cz - r},
-                        {cx, cz + r},
-                        {cx + r, cz},
-                        {cx - r, cz}
-                };
-                for (int i = 0; i < 4; i++) {
-                    Transform borderTransform = new Transform(new Vector3d(points[i][0], 65.0, points[i][1]));
-                    collector.addIgnoreViewDistance(
-                            new MapMarkerBuilder(PROVIDER_ID + ":border:" + (int) cx + ":" + (int) cz + ":" + i,
-                                    MARKER_IMAGE_BORDER, borderTransform)
-                                    .withName(Message.translation("general.map.village.border")
-                                            .param("radius", (int) r))
-                                    .withComponent(new TintComponent(COLOR_VILLAGE_BORDER))
-                                    .build());
-                }
-                emitted += 5;
+                emitted++;
             } catch (RuntimeException e) {
                 LOGGER.debug("[MAP] Failed to mark village: {}", e.toString());
             }
