@@ -50,10 +50,10 @@ During instantiation, each NPC is assigned randomized properties for personality
 The shortest path between "I installed the mod" and "I have a living village".
 ### 1. Bring in an NPC
 
-You need to invite a resident to start your village. Craft an **Immigration Contract** at a Fieldcraft bench using:
-- 1x Map/Scroll (`Deco_Scroll`)
-- 1x Inkwell (`Deco_Inkwell`)
-- 1x Light Leather (`Ingredient_Leather_Light`)
+You need to invite a resident to start your village. Craft an <img src="https://simtale.kukkie.org/img/ImmigrationContract.png" width="24" align="absmiddle"/> **Immigration Contract** at a Fieldcraft bench using:
+- 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="22" align="absmiddle"/> Map/Scroll (`Deco_Scroll`)
+- 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="22" align="absmiddle"/> Inkwell (`Deco_Inkwell`)
+- 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="22" align="absmiddle"/> Light Leather (`Ingredient_Leather_Light`)
 
 Use the contract to spawn a new resident. 
 
@@ -63,14 +63,14 @@ The generated NPC receives one of **800 distinct visual models** and is instanti
 
 An NPC without a house wanders aimlessly and never sleeps properly. The minimum that counts as a house:
 
-- walls and a roof enclosing the space
-- a **door**
-- a **light source**
-- a **seat**
-- a **table**
-- a **bed**
+- 🧱 walls and a roof enclosing the space
+- a **door** <img src="https://simtale.kukkie.org/img/furniture/doors/Furniture_Crude_Door.png" width="22" align="absmiddle"/>
+- a **light source** <img src="https://simtale.kukkie.org/img/furniture/lights/Build_Lightsource_Torch.png" width="22" align="absmiddle"/>
+- a **seat** <img src="https://simtale.kukkie.org/img/furniture/seats/Furniture_Crude_Chair.png" width="22" align="absmiddle"/>
+- a **table** <img src="https://simtale.kukkie.org/img/furniture/tables/Furniture_Crude_Table.png" width="22" align="absmiddle"/>
+- a **bed** <img src="https://simtale.kukkie.org/img/furniture/beds/Furniture_Crude_Bed.png" width="22" align="absmiddle"/>
 
-To verify your build, point a **House Blueprint** at the bed.
+To verify your build, point a <img src="https://simtale.kukkie.org/img/HouseBlueprint.png" width="24" align="absmiddle"/> **House Blueprint** at the bed.
 
 ![House Blueprint](https://simtale.kukkie.org/img/HouseBlueprint.png)
 
@@ -79,21 +79,22 @@ The tool tells you whether the structure is valid and what is missing. Details i
 
 ### 3. Let her claim the bed
 
-Once the house is ready, the NPC walks to the bed and registers that place as hers. From then on she lives there: she comes back to sleep, eats from that house's chests, and opens the door on her way in.
+Once the house is ready, the NPC walks to the bed and registers that place as hers. From then on she lives there: she comes back to sleep, eats from that house's chests, and opens the door on her way in. Houses have **independent structural anchors**: if you reorganize or break a bed, the home and ownership remain intact and residents switch to other free beds inside.
 
-Use the **Innkeeper's Ledger** to check who lives where.
+Use the <img src="https://simtale.kukkie.org/img/InnkeepersLedger.png" width="24" align="absmiddle"/> **Innkeeper's Ledger** to check who lives where.
 
 ![Innkeeper Ledger](https://simtale.kukkie.org/img/InnkeepersLedger.png)
 
-### 4. Put out food
+### 4. Put out food & Communal Village Storage
 
 Place a chest **inside the house** and leave food in it. NPCs will search for a chest within a 24-block radius when hungry.
 
-> **Caution:** The chest must belong to a house
-> NPCs only use chests that belong to a recognised house. A chest dropped in an open field is ignored — which is also what keeps them out of the treasure chests scattered around the world.
-> 
+You can also designate **Communal Village Chests** using `/simtale chestshare`! Villagers look in their private home chests first. If the family pantry is empty or if they are homeless workers, they eat from the village shared chests. Harvesters, miners, and woodcutters also deposit surplus production into communal village chests.
 
-See what they can actually reach by using the **Quartermaster's Glass**.
+> **Caution:** The chest must belong to a house or be marked shared
+> NPCs only use chests that belong to a recognised house or are designated as shared village storage. A random chest dropped in an open field or dungeon is ignored — protecting wild treasure chests.
+
+See what they can actually reach by using the <img src="https://simtale.kukkie.org/img/QuartermastersGlass.png" width="24" align="absmiddle"/> **Quartermaster's Glass** or typing `/simtale villagestock`.
 
 ![Quartermaster Glass](https://simtale.kukkie.org/img/QuartermastersGlass.png)
 
@@ -108,9 +109,10 @@ Aim at the NPC and press **F**, or right-click. That opens the interaction panel
 </div>
 
 The outcomes of interactions are calculated based on relationship status, mood, and traits:
-- **Flirt:** Accepted by partners or shy NPCs; rejected by enemies and angry NPCs.
-- **Joke:** Fails on enemies, cheers up sad/angry partners.
-- **Gift:** Food given below 70 hunger will be eaten immediately, restoring health and altering fun.
+- <img src="https://simtale.kukkie.org/img/icon_flirt.svg" width="18" align="absmiddle"/> **Flirt:** Accepted by partners or romantic interests (spawns cheerful blush, blow-kiss emote, and heart particles); rejected by enemies.
+- <img src="https://simtale.kukkie.org/img/icon_joke.svg" width="18" align="absmiddle"/> **Joke:** Fails on enemies, cheers up sad/angry partners.
+- <img src="https://simtale.kukkie.org/img/icon_gift.svg" width="18" align="absmiddle"/> **Gift:** Food given below 70 hunger will be eaten immediately, restoring health and altering fun.
+- <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="18" align="absmiddle"/> **Birthday Celebration:** Offer a Birthday Cake to trigger joyful party particles, maximize happiness (**Mood: EXCITED**), and satisfy hunger.
 
 See [Interacting with NPCs](#interacting).
 
@@ -750,10 +752,20 @@ SimTale adds a set of craftable tools. They exist so the village can be understo
 | <img src="https://simtale.kukkie.org/img/QuartermastersGlass.png" width="32" align="absmiddle"/> Quartermaster's Glass | anything | Lists every village chest and what is inside. (Enhance... Enhance... Enhance) |
 | <img src="https://simtale.kukkie.org/img/InspectorsJournal.png" width="32" align="absmiddle"/> Inspector's Journal | a villager | Her needs, mood, job and what she is doing right now |
 | <img src="https://simtale.kukkie.org/img/ImmigrationContract.png" width="32" align="absmiddle"/> Immigration Contract | anything | Invites a new resident to settle in the village |
-| <img src="https://simtale.kukkie.org/img/TownBell.png" width="32" align="absmiddle"/> Town Bell | anything | Rings the town bell, alerting nearby villagers |
+| <img src="https://simtale.kukkie.org/img/TownBell.png" width="32" align="absmiddle"/> Town Bell | anything | Rings the town curfew bell (10 uses), calling all villagers within 50 blocks to head home and sleep immediately |
 | <img src="https://simtale.kukkie.org/img/WeddingRing.png" width="32" align="absmiddle"/> Wedding Ring | a villager | Proposes marriage (requires 80 Romance, 70 Friendship) |
 | <img src="https://simtale.kukkie.org/img/Baby.png" width="32" align="absmiddle"/> Baby | nothing | A carried infant that will eventually spawn as a child NPC |
-| <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="32" align="absmiddle"/> Birthday Cake | anything | Crafted but does nothing yet |
+| <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="32" align="absmiddle"/> Birthday Cake | a nearby villager | Celebrates with a villager, maximizing happiness (Mood EXCITED), filling hunger, and boosting affinity |
+
+### Town Bell
+
+<div align="center">
+  <img src="https://simtale.kukkie.org/img/TownBell.png" width="128" style="image-rendering: pixelated;" />
+</div>
+
+The Town Bell is a handheld brass bell used as a village curfew signal. Ringing it plays an authentic town bell chime in 3D audio and instructs all non-reaper villagers within a 50-block radius to drop their activities and head home to sleep immediately.
+- **Durability:** Has 10 charges/uses (`simtale_uses_left`). Each ring displays remaining charges in chat and consumes one charge; breaks when exhausted.
+- **Crafted at:** Workbench.
 
 ### Wedding Ring
 
@@ -777,7 +789,9 @@ The Baby is a unique item that represents a newborn child. It cannot be crafted.
   <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
-A festive cake that can be crafted at the Workbench. Currently, the Birthday Cake is just a decorative item and doesn't have a special function yet, but who knows what the future holds for village celebrations!
+A festive celebratory cake that can be shared with villagers. Stand near an NPC and right-click with the cake in hand to celebrate together:
+- **Effects:** The villager eats a generous slice, completely satisfying hunger and boosting their emotional state to maximum happiness (**Mood: EXCITED** with 1.0 intensity), sparking joyful particle effects and granting an affinity boost.
+- **Crafted at:** Cookingbench (Baked goods).
 
 ### Crafting Recipes
 
@@ -792,7 +806,7 @@ All items can be crafted at their respective workstations:
 | **Inspector's Journal** | Inventory (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Small Book Pile, 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell |
 | **Immigration Contract** | Inventory (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll, 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather |
 | **Town Bell** | <img src="https://simtale.kukkie.org/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 3x Gold Bar, 2x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks |
-| **Birthday Cake** | Workbench | 1x Apple Pie, 1x Orange Light Source |
+| **Birthday Cake** | Cookingbench | 1x Apple Pie (`Food_Pie_Apple`), 1x Orange Light Source / Candle (`Build_Lightsource_Orange`) |
 
 #### Item Icons
 

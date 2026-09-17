@@ -49,10 +49,10 @@ O caminho mais curto entre "Instalei o mod" e "Tenho uma vila viva".
 
 ### 1. Traga um NPC
 
-Você precisa convidar um residente para iniciar sua vila. Faça (craft) um **Contrato de Imigração** (Immigration Contract) em uma bancada Fieldcraft usando:
-- 1x Mapa/Pergaminho (`Deco_Scroll`)
-- 1x Tinteiro (`Deco_Inkwell`)
-- 1x Couro Leve (`Ingredient_Leather_Light`)
+Você precisa convidar um residente para iniciar sua vila. Faça (craft) um <img src="https://simtale.kukkie.org/img/ImmigrationContract.png" width="24" align="absmiddle"/> **Contrato de Imigração** (Immigration Contract) em uma bancada Fieldcraft usando:
+- 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="22" align="absmiddle"/> Mapa/Pergaminho (`Deco_Scroll`)
+- 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="22" align="absmiddle"/> Tinteiro (`Deco_Inkwell`)
+- 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="22" align="absmiddle"/> Couro Leve (`Ingredient_Leather_Light`)
 
 Use o contrato para invocar um novo residente. 
 
@@ -62,14 +62,14 @@ O NPC gerado recebe um dos **800 modelos visuais distintos** e é instanciado co
 
 Um NPC sem casa vaga sem rumo e nunca dorme direito. O mínimo que conta como uma casa:
 
-- paredes e um teto fechando o espaço
-- uma **porta**
-- uma **fonte de luz**
-- um **assento**
-- uma **mesa**
-- uma **cama**
+- 🧱 paredes e um teto fechando o espaço
+- uma **porta** <img src="https://simtale.kukkie.org/img/furniture/doors/Furniture_Crude_Door.png" width="22" align="absmiddle"/>
+- uma **fonte de luz** <img src="https://simtale.kukkie.org/img/furniture/lights/Build_Lightsource_Torch.png" width="22" align="absmiddle"/>
+- um **assento** <img src="https://simtale.kukkie.org/img/furniture/seats/Furniture_Crude_Chair.png" width="22" align="absmiddle"/>
+- uma **mesa** <img src="https://simtale.kukkie.org/img/furniture/tables/Furniture_Crude_Table.png" width="22" align="absmiddle"/>
+- uma **cama** <img src="https://simtale.kukkie.org/img/furniture/beds/Furniture_Crude_Bed.png" width="22" align="absmiddle"/>
 
-Para verificar sua construção, aponte um **Projeto de Casa** (House Blueprint) para a cama.
+Para verificar sua construção, aponte um <img src="https://simtale.kukkie.org/img/HouseBlueprint.png" width="24" align="absmiddle"/> **Projeto de Casa** (House Blueprint) para a cama.
 
 ![Projeto de Casa](https://simtale.kukkie.org/img/HouseBlueprint.png)
 
@@ -78,21 +78,22 @@ A ferramenta dirá se a estrutura é válida e o que está faltando. Detalhes em
 
 ### 3. Deixe que ela reivindique a cama
 
-Assim que a casa estiver pronta, o NPC caminhará até a cama e registrará aquele lugar como seu. A partir de então ela mora lá: volta para dormir, come dos baús daquela casa e abre a porta ao entrar.
+Assim que a casa estiver pronta, o NPC caminhará até a cama e registrará aquele lugar como seu. A partir de então ela mora lá: volta para dormir, come dos baús daquela casa e abre a porta ao entrar. As casas possuem **âncoras estruturais independentes**: se você mudar ou quebrar uma cama, a residência e posse são mantidas e os moradores passam a usar outras camas livres do imóvel.
 
-Use o **Livro do Estalajadeiro** (Innkeeper's Ledger) para verificar quem mora onde.
+Use o <img src="https://simtale.kukkie.org/img/InnkeepersLedger.png" width="24" align="absmiddle"/> **Livro do Estalajadeiro** (Innkeeper's Ledger) para verificar quem mora onde.
 
 ![Livro do Estalajadeiro](https://simtale.kukkie.org/img/InnkeepersLedger.png)
 
-### 4. Coloque comida
+### 4. Coloque comida & Estoque Comunitário da Vila
 
 Coloque um baú **dentro da casa** e deixe comida nele. NPCs vão procurar por um baú dentro de um raio de 24 blocos quando estiverem com fome.
 
-> **Atenção:** O baú deve pertencer a uma casa
-> NPCs usam apenas baús que pertencem a uma casa reconhecida. Um baú largado no meio do nada é ignorado — e é isso também que os mantém longe dos baús de tesouro espalhados pelo mundo.
-> 
+Você também pode criar **Baús Compartilhados da Vila** usando `/simtale chestshare`! Moradores checam primeiro a despensa de sua casa. Se a comida acabar ou se forem trabalhadores sem residência própria, eles recorrem ao estoque compartilhado central. Trabalhadores rurais, mineradores e lenhadores também depositam seus excedentes nos baús comunitários da colônia.
 
-Veja o que eles realmente conseguem alcançar usando a **Lupa do Intendente** (Quartermaster's Glass).
+> **Atenção:** O baú deve pertencer a uma casa ou ser compartilhado
+> NPCs usam apenas baús pertencentes a residências reconhecidas ou demarcados como baús comunitários da vila. Baús soltos na natureza ou em masmorras são estritamente ignorados para proteger tesouros do mundo.
+
+Veja o que eles realmente conseguem alcançar usando a <img src="https://simtale.kukkie.org/img/QuartermastersGlass.png" width="24" align="absmiddle"/> **Lupa do Intendente** (Quartermaster's Glass) ou digitando `/simtale villagestock`.
 
 ![Lupa do Intendente](https://simtale.kukkie.org/img/QuartermastersGlass.png)
 
@@ -107,9 +108,10 @@ Aponte para o NPC e aperte **F**, ou clique com o botão direito. Isso abre o pa
 </div>
 
 Os resultados das interações são calculados com base no status do relacionamento, humor e traços:
-- **Flertar (Flirt):** Aceito por parceiros ou NPCs tímidos; rejeitado por inimigos e NPCs irritados.
-- **Piada (Joke):** Falha totalmente com inimigos, melhora o humor de parceiros tristes/irritados.
-- **Presente (Gift):** Comida dada quando a fome está abaixo de 70 será comida imediatamente, restaurando saúde e alterando a diversão.
+- <img src="https://simtale.kukkie.org/img/icon_flirt.svg" width="18" align="absmiddle"/> **Flertar (Flirt):** Aceito por parceiros ou interesses românticos (reage corando, manda beijo com emote e solta partículas de corações); rejeitado por inimigos.
+- <img src="https://simtale.kukkie.org/img/icon_joke.svg" width="18" align="absmiddle"/> **Piada (Joke):** Falha totalmente com inimigos, melhora o humor de parceiros tristes/irritados.
+- <img src="https://simtale.kukkie.org/img/icon_gift.svg" width="18" align="absmiddle"/> **Presente (Gift):** Comida dada quando a fome está abaixo de 70 será comida imediatamente, restaurando saúde e alterando a diversão.
+- <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="18" align="absmiddle"/> **Celebração de Aniversário:** Ofereça um Bolo de Aniversário para soltar partículas festivas, maximizar a alegria (**Mood: EXCITED**) e saciar a fome.
 
 Veja [Interagindo com NPCs](#interacting).
 
@@ -747,10 +749,20 @@ SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a
 | <img src="https://simtale.kukkie.org/img/QuartermastersGlass.png" width="24" align="absmiddle"/> Lupa do Intendente (Quartermaster's Glass) | qualquer coisa | Lista todos os baús da vila e o que há dentro deles. (Enhance... Enhance... Enhance) |
 | <img src="https://simtale.kukkie.org/img/InspectorsJournal.png" width="24" align="absmiddle"/> Diário do Inspetor (Inspector's Journal) | um morador | Mostra suas necessidades, humor, trabalho e o que está fazendo agora |
 | <img src="https://simtale.kukkie.org/img/ImmigrationContract.png" width="32" align="absmiddle"/> Contrato de Imigração (Immigration Contract) | qualquer coisa | Convida um novo residente para se estabelecer na vila |
-| <img src="https://simtale.kukkie.org/img/TownBell.png" width="32" align="absmiddle"/> Sino da Cidade (Town Bell) | qualquer coisa | Toca o sino da cidade, alertando os moradores próximos |
+| <img src="https://simtale.kukkie.org/img/TownBell.png" width="32" align="absmiddle"/> Sino da Cidade (Town Bell) | qualquer coisa | Toca o sino de recolher da vila (10 usos), ordenando que todos em até 50 blocos vão dormir imediatamente |
 | <img src="https://simtale.kukkie.org/img/WeddingRing.png" width="32" align="absmiddle"/> Aliança de Casamento (Wedding Ring) | um morador | Pede em casamento (requer 80 Romance, 70 Amizade) |
 | <img src="https://simtale.kukkie.org/img/Baby.png" width="32" align="absmiddle"/> Bebê (Baby) | nada | Um bebê carregado no inventário que eventualmente nascerá como um NPC criança |
-| <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake) | qualquer coisa | Pode ser craftado, mas ainda não tem função |
+| <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake) | um morador próximo | Comemora com o morador, maximizando a felicidade (Mood EXCITED), saciando a fome e subindo afinidade |
+
+### Sino da Vila (Town Bell)
+
+<div align="center">
+  <img src="https://simtale.kukkie.org/img/TownBell.png" width="128" style="image-rendering: pixelated;" />
+</div>
+
+Um sino de mão em latão usado como toque de recolher da vila. Tocá-lo reproduz um repique sonoro em áudio 3D e instrui todos os moradores que não sejam o Ceifador dentro de um raio de 50 blocos a interromperem suas tarefas e irem imediatamente dormir em suas camas.
+- **Durabilidade:** Possui 10 cargas/usos (`simtale_uses_left`). Cada repique exibe os usos restantes no chat e consome 1 carga; quebra ao esgotar.
+- **Craftado na:** Bancada de Trabalho (Workbench).
 
 ### Aliança de Casamento (Wedding Ring)
 
@@ -774,7 +786,9 @@ O Bebê é um item único que representa um recém-nascido. Ele não pode ser cr
   <img src="https://simtale.kukkie.org/img/BirthdayCake.png" width="128" style="image-rendering: pixelated;" />
 </div>
 
-Um bolo festivo que pode ser feito na Bancada de Trabalho. Atualmente, o Bolo de Aniversário é apenas um item decorativo e ainda não possui uma função especial, mas quem sabe o que o futuro reserva para as festas da vila!
+Um bolo festivo para comemorar com os moradores. Aproxime-se de um colono com o bolo na mão e clique com o botão direito para celebrar juntos:
+- **Efeitos:** O morador saboreia uma fatia generosa, saciando totalmente a fome e elevando o humor para o ápice de felicidade (**Mood: EXCITED** com intensidade 1.0), soltando partículas alegres e concedendo um forte ganho de afinidade.
+- **Craftado na:** Bancada de Culinária (Cookingbench - Categoria Baked).
 
 ### Receitas de Criação (Crafting)
 
@@ -789,7 +803,7 @@ Todos os itens podem ser craftados em suas respectivas bancadas:
 | **Diário do Inspetor** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell) |
 | **Contrato de Imigração** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll), 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
 | **Sino da Cidade** | <img src="https://simtale.kukkie.org/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 3x Barra de Ouro (Gold Bar), 2x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks) |
-| **Bolo de Aniversário** | Bancada de Trabalho (Workbench) | 1x Torta de Maçã (Apple Pie), 1x Fonte de Luz Laranja (Orange Light Source) |
+| **Bolo de Aniversário** | Bancada de Culinária (Cookingbench) | 1x Torta de Maçã (`Food_Pie_Apple`), 1x Fonte de Luz / Vela Laranja (`Build_Lightsource_Orange`) |
 
 #### Ícones dos Itens
 
