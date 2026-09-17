@@ -21,13 +21,20 @@ public class ChestData {
     public int y;
     public int z;
 
+    public boolean shared = false;
+
     public ChestData() {
     }
 
     public ChestData(int x, int y, int z) {
+        this(x, y, z, false);
+    }
+
+    public ChestData(int x, int y, int z, boolean shared) {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.shared = shared;
         this.id = key(x, y, z);
     }
 
