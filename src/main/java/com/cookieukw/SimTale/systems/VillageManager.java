@@ -3,9 +3,18 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.SimLog;
+import com.hypixel.hytale.math.util.ChunkUtil;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
+
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -26,8 +35,8 @@ public final class VillageManager {
 
     private static final SimLog LOGGER = SimLog.forClass(VillageManager.class);
 
-    /** Two houses this close (in blocks, on the XZ plane) are neighbours. */
-    private static final double LINK_DISTANCE = 40.0;
+    /** Two houses this close (in blocks, on the XZ plane) are neighbours (2 chunks). */
+    private static final double LINK_DISTANCE = 64.0;
     private static final double LINK_DISTANCE_SQ = LINK_DISTANCE * LINK_DISTANCE;
 
     /**
@@ -36,7 +45,7 @@ public final class VillageManager {
      * <p>Without it a one-house village would have radius zero, and its resident would be pinned to
      * the doorstep.
      */
-    private static final double RADIUS_MARGIN = 16.0;
+    private static final double RADIUS_MARGIN = 24.0;
 
     private VillageManager() {
     }
@@ -44,12 +53,17 @@ public final class VillageManager {
     /**
      * A cluster of houses.
      *
-     * @param centerX  midpoint of the member beds
-     * @param centerZ  midpoint of the member beds
-     * @param radius   distance from the centre to the furthest member, plus {@link #RADIUS_MARGIN}
-     * @param houses   how many houses formed it
+     * @param centerX       midpoint of the member beds
+     * @param centerZ       midpoint of the member beds
+     * @param radius        distance from the centre to the furthest member, plus {@link #RADIUS_MARGIN}
+     * @param houses        how many houses formed it
+     * @param chunkIndices  the set of all chunk indices covered by this village territory
      */
-    public record Village(double centerX, double centerZ, double radius, int houses) {
+    public record Village(double centerX, double centerZ, double radius, int houses, Set<Long> chunkIndices) {
+
+        public Village(double centerX, double centerZ, double radius, int houses) {
+            this(centerX, centerZ, radius, houses, computeChunks(centerX, centerZ, radius, List.of()));
+        }
 
         public double distanceSqTo(double x, double z) {
             double dx = x - centerX;
@@ -60,16 +74,18 @@ public final class VillageManager {
         public boolean contains(double x, double z) {
             return distanceSqTo(x, z) <= radius * radius;
         }
+
+        public boolean containsChunk(long chunkIndex) {
+            return chunkIndices != null && chunkIndices.contains(chunkIndex);
+        }
     }
 
     private static volatile List<Village> villages = List.of();
+    private static volatile Set<Long> lastKnownVillageChunks = Set.of();
 
     /**
      * Set whenever the house set changes; the rebuild happens on the next query instead of inside
      * the mutation.
-     *
-     * <p>Claiming a bed can register a house, and that runs inside an NPC's tick — recomputing the
-     * clustering there would put the cost on whichever NPC happened to move in.
      */
     private static final AtomicBoolean dirty = new AtomicBoolean(true);
 
@@ -100,10 +116,29 @@ public final class VillageManager {
     }
 
     /**
+     * Returns the village that owns the given chunk coordinates, or {@code null} if unowned.
+     */
+    public static Village getVillageForChunk(int chunkX, int chunkZ) {
+        long idx = ChunkUtil.indexChunk(chunkX, chunkZ);
+        for (Village v : villages()) {
+            if (v.containsChunk(idx)) {
+                return v;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Checks whether the specified chunk belongs to the same given village.
+     */
+    public static boolean isSameVillageChunk(Village village, int chunkX, int chunkZ) {
+        if (village == null) return false;
+        long idx = ChunkUtil.indexChunk(chunkX, chunkZ);
+        return village.containsChunk(idx);
+    }
+
+    /**
      * Single-linkage clustering over the house beds.
-     *
-     * <p>O(n²) on purpose. Houses are counted in dozens, this runs only when they change, and a
-     * spatial index would be more code than the problem deserves.
      */
     private static void rebuild() {
         List<HouseBlockPos> houseAnchors = new ArrayList<>();
@@ -121,9 +156,6 @@ public final class VillageManager {
         for (int i = 0; i < houseAnchors.size(); i++) {
             if (taken[i]) continue;
 
-            /* Flood fill: seed with one house, then keep absorbing any house close to one already
-            absorbed. This is what makes the chaining work.
-            */
             List<HouseBlockPos> cluster = new ArrayList<>();
             cluster.add(houseAnchors.get(i));
             taken[i] = true;
@@ -146,8 +178,46 @@ public final class VillageManager {
         }
 
         villages = List.copyOf(built);
+
+        // Collect all chunks currently occupied by villages
+        Set<Long> currentAllChunks = new HashSet<>();
+        for (Village v : built) {
+            if (v.chunkIndices() != null) {
+                currentAllChunks.addAll(v.chunkIndices());
+            }
+        }
+
+        // Detect modified chunks to invalidate map cache
+        Set<Long> changedChunks = new HashSet<>();
+        for (Long c : lastKnownVillageChunks) {
+            if (!currentAllChunks.contains(c)) changedChunks.add(c);
+        }
+        for (Long c : currentAllChunks) {
+            if (!lastKnownVillageChunks.contains(c)) changedChunks.add(c);
+        }
+        lastKnownVillageChunks = Set.copyOf(currentAllChunks);
+
+        if (!changedChunks.isEmpty()) {
+            invalidateMapChunks(changedChunks);
+        }
+
         LOGGER.debug("[SimTale] Villages recalculated: {} village(s) from {} house(s)",
                 built.size(), houseAnchors.size());
+    }
+
+    private static void invalidateMapChunks(Set<Long> chunkIndices) {
+        try {
+            Universe universe = Universe.get();
+            if (universe == null) return;
+            LongSet set = new LongOpenHashSet(chunkIndices);
+            for (World world : universe.getWorlds().values()) {
+                if (world != null && world.getWorldMapManager() != null) {
+                    world.getWorldMapManager().clearImagesInChunks(set);
+                }
+            }
+        } catch (Throwable t) {
+            LOGGER.debug("[SimTale] Map chunk invalidation skipped: {}", t.toString());
+        }
     }
 
     private static Village toVillage(List<HouseBlockPos> cluster) {
@@ -167,6 +237,47 @@ public final class VillageManager {
             furthestSq = Math.max(furthestSq, dx * dx + dz * dz);
         }
 
-        return new Village(centerX, centerZ, Math.sqrt(furthestSq) + RADIUS_MARGIN, cluster.size());
+        double radius = Math.sqrt(furthestSq) + RADIUS_MARGIN;
+        Set<Long> chunks = computeChunks(centerX, centerZ, radius, cluster);
+
+        return new Village(centerX, centerZ, radius, cluster.size(), chunks);
+    }
+
+    private static Set<Long> computeChunks(double centerX, double centerZ, double radius,
+            List<HouseBlockPos> cluster) {
+        Set<Long> chunks = new HashSet<>();
+
+        // Always include chunks that contain any house anchor bed
+        for (HouseBlockPos bed : cluster) {
+            int cx = ChunkUtil.chunkCoordinate(bed.x);
+            int cz = ChunkUtil.chunkCoordinate(bed.z);
+            chunks.add(ChunkUtil.indexChunk(cx, cz));
+        }
+
+        int minChunkX = ChunkUtil.chunkCoordinate(centerX - radius);
+        int maxChunkX = ChunkUtil.chunkCoordinate(centerX + radius);
+        int minChunkZ = ChunkUtil.chunkCoordinate(centerZ - radius);
+        int maxChunkZ = ChunkUtil.chunkCoordinate(centerZ + radius);
+
+        double rSq = radius * radius;
+        for (int cx = minChunkX; cx <= maxChunkX; cx++) {
+            for (int cz = minChunkZ; cz <= maxChunkZ; cz++) {
+                double minX = cx * 32.0;
+                double maxX = minX + 32.0;
+                double minZ = cz * 32.0;
+                double maxZ = minZ + 32.0;
+
+                double closestX = Math.max(minX, Math.min(centerX, maxX));
+                double closestZ = Math.max(minZ, Math.min(centerZ, maxZ));
+
+                double dx = centerX - closestX;
+                double dz = centerZ - closestZ;
+                if (dx * dx + dz * dz <= rSq) {
+                    chunks.add(ChunkUtil.indexChunk(cx, cz));
+                }
+            }
+        }
+
+        return Collections.unmodifiableSet(chunks);
     }
 }
