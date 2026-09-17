@@ -294,7 +294,7 @@ public class SimNPCComponent implements Component<EntityStore> {
             // Same feeling: a stronger dose refreshes it, a weaker one waits its turn.
             change = intensity >= emotionIntensity || elapsed >= EMOTION_HOLD_TICKS;
         } else {
-            change = elapsed >= EMOTION_HOLD_TICKS && emotionIntensity <= FADED_EMOTION;
+            change = elapsed >= EMOTION_HOLD_TICKS && (emotionIntensity <= FADED_EMOTION || intensity >= 0.6f);
         }
 
         if (change) {
