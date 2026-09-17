@@ -146,7 +146,7 @@ public final class VillageManager {
         }
 
         villages = List.copyOf(built);
-        LOGGER.debug("[SimTale] Vilas recalculadas: {} vila(s) a partir de {} casa(s)",
+        LOGGER.debug("[SimTale] Villages recalculated: {} village(s) from {} house(s)",
                 built.size(), houseAnchors.size());
     }
 
