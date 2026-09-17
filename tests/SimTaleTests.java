@@ -335,6 +335,46 @@ public class SimTaleTests {
         System.out.println("OK");
     }
 
+    private static void testMemoryAndGossip() {
+        System.out.print("Testing Memory & Gossip Propagation... ");
+
+        UUID playerUuid = UUID.randomUUID();
+
+        // 1. Memory creation and distinction between direct and gossip
+        SimNPCComponent alice = new SimNPCComponent();
+        alice.name = "Alice";
+        alice.entityId = UUID.randomUUID();
+
+        alice.memory.addMemory(MemoryEvent.ATTACKED, playerUuid);
+        Assert.equal(alice.memory.remembers(MemoryEvent.ATTACKED, playerUuid, 10000), true, "Alice remembers attack");
+        Memory mem = alice.memory.getMemory(MemoryEvent.ATTACKED, playerUuid, 10000);
+        Assert.isTrue(mem != null, "Memory object found");
+        Assert.equal(mem.isGossip, false, "Direct attack is not gossip");
+        Assert.equal(mem.gossipTargetName, null, "Direct attack has no gossip victim");
+
+        // 2. Gossip propagation to Bob
+        SimNPCComponent bob = new SimNPCComponent();
+        bob.name = "Bob";
+        bob.entityId = UUID.randomUUID();
+
+        Assert.equal(bob.memory.remembers(MemoryEvent.ATTACKED, playerUuid, 10000), false, "Bob does not know yet");
+
+        NPCSocialHelper.shareGossip(alice, bob, 100L);
+
+        Assert.equal(bob.memory.remembers(MemoryEvent.ATTACKED, playerUuid, 10000), true, "Bob heard gossip about attack");
+        Memory bobMem = bob.memory.getMemory(MemoryEvent.ATTACKED, playerUuid, 10000);
+        Assert.isTrue(bobMem != null, "Bob has memory object");
+        Assert.equal(bobMem.isGossip, true, "Bob's memory is gossip");
+        Assert.equal(bobMem.gossipTargetName, "Alice", "Bob knows Alice was attacked");
+        Assert.equal(bob.getMood(), Mood.SCARED, "Bob is scared of attacker");
+
+        Relationship bobRel = bob.getRelationship(playerUuid);
+        Assert.isTrue(bobRel.trust < 0, "Bob trust penalized by gossip");
+        Assert.isTrue(bobRel.affinity < 0, "Bob affinity penalized by gossip");
+
+        System.out.println("OK");
+    }
+
     private static void testChairRegistry() {
         System.out.print("Testing ChairRegistry... ");
         ChairRegistry.clear();
