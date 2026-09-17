@@ -7,6 +7,7 @@ import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.ThoughtType;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -153,6 +154,9 @@ public class ChildPlayHelper {
 
         ai.taskStartTime = tick;
         partnerAi.taskStartTime = tick;
+
+        EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.PARTY);
+        EmoteBubbleSystem.triggerThought(partner.entityId, ThoughtType.CAT_UWU);
     }
 
     /* ------------------------------------------------------------------
@@ -187,6 +191,10 @@ public class ChildPlayHelper {
             NPCMovementHelper.clearMoveTarget(partnerRef, partnerAi);
 
             int roundsLeft = ai.playRoundsLeft - 1;
+            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.SMUG);
+            if (partnerNpc != null) {
+                EmoteBubbleSystem.triggerThought(partnerNpc.entityId, ThoughtType.SURPRISED);
+            }
             if (roundsLeft <= 0) {
                 announcePlayEvent(npc, transform, world, store, "npc-dialogues.playing.tag_end", 2);
                 endGame(ref, npc, ai, world, true);
@@ -383,6 +391,7 @@ public class ChildPlayHelper {
             NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID,
                     Math.min(100f, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) + PLAY_FUN_RESTORE));
             npc.setEmotion(Mood.HAPPY, 0.6f, "playing", world.getTick());
+            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.HAPPY);
         }
     }
 
