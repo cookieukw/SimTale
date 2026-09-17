@@ -477,8 +477,15 @@ public class GrowthManager {
             if (npc.entityId != null && npc.entityId.equals(child.childId)) {
                 if (child.babyNeeds != null) {
                     BabyNeeds.PersonalityTendency tendency = child.babyNeeds.getPersonalityTendency();
-                    Trait extraTrait = tendency == BabyNeeds.PersonalityTendency.SOCIABLE ? Trait.LOYAL : Trait.SHY;
-                    npc.personality.traits.add(extraTrait);
+                    Trait extraTrait = switch (tendency) {
+                        case SOCIABLE -> npc.personality.traits.contains(Trait.LOYAL) ? Trait.FUNNY : Trait.LOYAL;
+                        case BALANCED -> null;
+                        case WITHDRAWN -> npc.personality.traits.contains(Trait.SHY) ? Trait.PARANOID : Trait.SHY;
+                        case AGGRESSIVE -> Trait.AGGRESSIVE;
+                    };
+                    if (extraTrait != null && !npc.personality.traits.contains(extraTrait)) {
+                        npc.personality.traits.add(extraTrait);
+                    }
                 }
                 SimNPCPersistence.saveNPC(npc);
                 break;
