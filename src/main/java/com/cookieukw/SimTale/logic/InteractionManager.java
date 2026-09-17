@@ -20,10 +20,12 @@ import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.ThoughtType;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.core.WeaponCategory;
 import com.cookieukw.SimTale.core.WeaponCategoryRegistry;
+import com.cookieukw.SimTale.systems.EmoteBubbleSystem;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
@@ -171,26 +173,43 @@ public class InteractionManager {
 
         if (type == InteractionType.ROMANTIC && outcome.affinity() > 0) {
             SimTaleJuiceHelper.playFlirtSuccess(npc.entityRef, npc, playerRef, store, tick);
+            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.LOVE);
         } else if ((type == InteractionType.MEAN || (type == InteractionType.SCOLD && outcome.friendship() < 0)) && !isChild) {
             if (playerRef != null && playerRef.getReference() != null && npc.entityRef != null && store != null) {
                 SimTaleJuiceHelper.playShove(npc.entityRef, npc, playerRef.getReference(), playerRef,
                         store, 2.0f, tick);
             }
+            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.ANGRY);
+        } else if (type == InteractionType.MEAN || (type == InteractionType.SCOLD && outcome.friendship() < 0)) {
+            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.SAD);
         } else if (type == InteractionType.FUNNY) {
             if (outcome.affinity() > 0 || outcome.friendship() > 0) {
                 SimTaleJuiceHelper.playJokeSuccess(npc.entityRef, npc, store, tick);
+                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.JOY);
             } else {
                 SimTaleJuiceHelper.playJokeFail(npc.entityRef, npc, store, tick);
+                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.NERVOUS);
             }
         } else if (type == InteractionType.FRIENDLY) {
             if (npc.entityRef != null && store != null) {
                 SimTaleJuiceHelper.playGreeting(npc.entityRef, store);
             }
+            EmoteBubbleSystem.triggerThought(npc.entityId, isChild ? ThoughtType.CHEERFUL : ThoughtType.HAPPY);
         } else if (type == InteractionType.GIFT) {
             SimTaleJuiceHelper.playGiftReaction(npc.entityRef, npc, outcome.affinity(), store, tick);
+            if (outcome.affinity() >= 20) {
+                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.STAR);
+            } else if (outcome.affinity() < 0) {
+                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.SICK);
+            } else {
+                EmoteBubbleSystem.triggerThought(npc.entityId, isChild ? ThoughtType.CAT_UWU : ThoughtType.HAPPY);
+            }
+        } else if (type == InteractionType.KISS) {
+            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.KISS);
         } else if (type == InteractionType.ASSIGN_PROFESSION) {
             boolean liked = npc.preferences != null && npc.preferences.getLikedProfessions().contains(npc.profession);
             SimTaleJuiceHelper.playProfessionReaction(npc.entityRef, npc, true, liked, store, tick);
+            EmoteBubbleSystem.triggerThought(npc.entityId, liked ? ThoughtType.CHEERFUL : ThoughtType.NERD);
         }
 
         if (outcome.consumeItem()) {
