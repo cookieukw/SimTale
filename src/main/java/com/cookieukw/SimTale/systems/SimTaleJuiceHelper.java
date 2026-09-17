@@ -8,13 +8,16 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.protocol.ChangeVelocityType;
+import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
 import com.hypixel.hytale.server.core.entity.knockback.KnockbackComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.ParticleUtil;
+import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 
@@ -68,6 +71,38 @@ public final class SimTaleJuiceHelper {
     }
 
     /**
+     * Spawns angry/frustration particle effect above the given position.
+     */
+    public static void spawnAngryParticles(Vector3d pos, Store<EntityStore> store) {
+        if (pos == null || store == null) return;
+        Vector3d headPos = new Vector3d(pos.x, pos.y + 1.8, pos.z);
+        try {
+            ParticleUtil.spawnParticleEffect("NPC/Emotions/Angry", headPos, store);
+        } catch (Exception e) {
+            try {
+                ParticleUtil.spawnParticleEffect("Smoke", headPos, store);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /**
+     * Safely plays a 3D sound event if registered in the asset store.
+     */
+    public static void playSoundSafe(String soundEventId, Vector3d pos, Store<EntityStore> store) {
+        if (soundEventId == null || pos == null || store == null) return;
+        try {
+            if (SoundEvent.getAssetMap() != null) {
+                int soundIndex = SoundEvent.getAssetMap().getIndex(soundEventId);
+                if (soundIndex > 0) {
+                    SoundUtil.playSoundEvent3d(soundIndex, SoundCategory.UI, pos, store);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /**
      * Triggers the full flirt success reaction on the NPC:
      * cheerful blushing face, blow kiss emote, heart particles, emotion boost, and chat feedback.
      */
@@ -78,10 +113,11 @@ public final class SimTaleJuiceHelper {
         NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_CHEERFUL, "Cheerful", store);
         NPCMovementHelper.playAnim(npcRef, AnimationSlot.Action, ANIM_BLOW_KISS, "BlowKiss", store);
 
-        // Hearts particle effect
+        // Hearts particle effect & audio
         TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
         if (trans != null) {
             spawnHeartParticles(trans.getPosition(), store);
+            playSoundSafe("SimTale/SocialSuccess", trans.getPosition(), store);
         }
 
         // Mood sentiment
@@ -104,6 +140,12 @@ public final class SimTaleJuiceHelper {
 
         NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_FROWN, "Frown", store);
         npc.setEmotion(Mood.ANGRY, 0.6f, "flirt_rejected", tick);
+
+        TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
+        if (trans != null) {
+            spawnAngryParticles(trans.getPosition(), store);
+            playSoundSafe("SimTale/SocialReject", trans.getPosition(), store);
+        }
     }
 
     /**
@@ -123,9 +165,13 @@ public final class SimTaleJuiceHelper {
             attackerNpc.setEmotion(Mood.ANGRY, 0.9f, "irritated", tick);
         }
 
-        if (victimRef == null || !victimRef.isValid()) return;
-
         TransformComponent attackerTrans = store.getComponent(attackerRef, TransformComponent.getComponentType());
+        if (attackerTrans != null) {
+            spawnAngryParticles(attackerTrans.getPosition(), store);
+            playSoundSafe("SimTale/Shove", attackerTrans.getPosition(), store);
+        }
+
+        if (victimRef == null || !victimRef.isValid()) return;
         TransformComponent victimTrans = store.getComponent(victimRef, TransformComponent.getComponentType());
 
         double nx = 0;
@@ -221,7 +267,9 @@ public final class SimTaleJuiceHelper {
         if (leadTrans != null && followTrans != null) {
             Vector3d a = leadTrans.getPosition();
             Vector3d b = followTrans.getPosition();
-            spawnHeartParticles(new Vector3d((a.x + b.x) / 2.0, (a.y + b.y) / 2.0, (a.z + b.z) / 2.0), store);
+            Vector3d mid = new Vector3d((a.x + b.x) / 2.0, (a.y + b.y) / 2.0, (a.z + b.z) / 2.0);
+            spawnHeartParticles(mid, store);
+            playSoundSafe("SimTale/SocialSuccess", mid, store);
         }
     }
 
@@ -237,6 +285,12 @@ public final class SimTaleJuiceHelper {
         faceEachOther(proposerRef, reactorRef, store);
         NPCMovementHelper.playAnim(proposerRef, AnimationSlot.Action, ANIM_PROPOSE_KNEEL, "Propose", store);
         NPCMovementHelper.playAnim(reactorRef, AnimationSlot.Action, ANIM_PROPOSE_REACT, "ProposeReact", store);
+
+        TransformComponent reactorTrans = store.getComponent(reactorRef, TransformComponent.getComponentType());
+        if (reactorTrans != null) {
+            spawnHeartParticles(reactorTrans.getPosition(), store);
+            playSoundSafe("SimTale/SocialSuccess", reactorTrans.getPosition(), store);
+        }
     }
 
     /**
@@ -285,6 +339,10 @@ public final class SimTaleJuiceHelper {
         if (npc != null) {
             npc.setEmotion(Mood.HAPPY, 0.75f, "joke_laughed", tick);
         }
+        TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
+        if (trans != null) {
+            playSoundSafe("SimTale/SocialSuccess", trans.getPosition(), store);
+        }
     }
 
     public static void playJokeFail(Ref<EntityStore> npcRef, SimNPCComponent npc, Store<EntityStore> store, long tick) {
@@ -293,26 +351,39 @@ public final class SimTaleJuiceHelper {
         if (npc != null) {
             npc.setEmotion(Mood.ANGRY, 0.4f, "bad_joke", tick);
         }
+        TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
+        if (trans != null) {
+            spawnAngryParticles(trans.getPosition(), store);
+            playSoundSafe("SimTale/SocialReject", trans.getPosition(), store);
+        }
     }
 
     public static void playGiftReaction(Ref<EntityStore> npcRef, SimNPCComponent npc, int affinity, Store<EntityStore> store, long tick) {
         if (npcRef == null || store == null) return;
+        TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
         if (affinity >= 20) {
             NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_CHEERFUL, "Cheerful", store);
-            TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
             if (trans != null) {
                 spawnHeartParticles(trans.getPosition(), store);
+                playSoundSafe("SimTale/SocialSuccess", trans.getPosition(), store);
             }
             if (npc != null) {
                 npc.setEmotion(Mood.EXCITED, 0.9f, "loved_gift", tick);
             }
         } else if (affinity < 0) {
             NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_ANGRY, "Angry", store);
+            if (trans != null) {
+                spawnAngryParticles(trans.getPosition(), store);
+                playSoundSafe("SimTale/SocialReject", trans.getPosition(), store);
+            }
             if (npc != null) {
                 npc.setEmotion(Mood.ANGRY, 0.6f, "hated_gift", tick);
             }
         } else {
             NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_SMILE, "Smile", store);
+            if (trans != null) {
+                playSoundSafe("SimTale/SocialSuccess", trans.getPosition(), store);
+            }
             if (npc != null) {
                 npc.setEmotion(Mood.HAPPY, 0.5f, "liked_gift", tick);
             }
@@ -321,18 +392,26 @@ public final class SimTaleJuiceHelper {
 
     public static void playProfessionReaction(Ref<EntityStore> npcRef, SimNPCComponent npc, boolean accepted, boolean liked, Store<EntityStore> store, long tick) {
         if (npcRef == null || store == null) return;
+        TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
         if (accepted) {
             if (liked) {
                 NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_CHEERFUL, "Cheerful", store);
-                TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
                 if (trans != null) {
                     spawnHeartParticles(trans.getPosition(), store);
+                    playSoundSafe("SimTale/SocialSuccess", trans.getPosition(), store);
                 }
             } else {
                 NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_SMILE, "Smile", store);
+                if (trans != null) {
+                    playSoundSafe("SimTale/SocialSuccess", trans.getPosition(), store);
+                }
             }
         } else {
             NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_FROWN, "Frown", store);
+            if (trans != null) {
+                spawnAngryParticles(trans.getPosition(), store);
+                playSoundSafe("SimTale/SocialReject", trans.getPosition(), store);
+            }
         }
     }
 
