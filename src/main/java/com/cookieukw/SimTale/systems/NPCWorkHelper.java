@@ -230,8 +230,8 @@ public class NPCWorkHelper {
             boolean hasItemsToDeposit = hasAnyDepositableItem(inventory);
 
             if (hasItemsToDeposit) {
-                // Find a chest owned by NPC to deposit items
-                HouseBlockPos depositChest = findHomeChest(npc);
+                // Find a chest owned by NPC or communal village chest to deposit items
+                HouseBlockPos depositChest = VillageStockManager.findDepositChest(npc, world);
                 if (depositChest != null) {
                     ai.targetBlockPosition = new Vector3i(depositChest.x, depositChest.y, depositChest.z);
                     ai.currentTask = TaskType.MOVING_TO_DEPOSIT;
