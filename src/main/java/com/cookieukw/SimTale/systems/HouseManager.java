@@ -62,12 +62,13 @@ public class HouseManager {
             if (list != null) {
                 for (HouseData house : list) {
                     if (house.houseId == null) continue;
+                    house.syncBeds();
                     HOUSES_BY_ID.put(UUID.fromString(house.houseId), house);
                     indexHouse(house);
                 }
                 LOGGER.info("[SimTale] Carregadas {} casas com sucesso da persistência Caskara", HOUSES_BY_ID.size());
                 pruneOrphanOwners();
-                dedupeHousesByBed();
+                dedupeHousesByOverlap();
                 VillageManager.markDirty();
             }
         } catch (Exception e) {
@@ -142,40 +143,105 @@ public class HouseManager {
      * out not to have.
      *
      * @return true when a house was removed
+    /**
+     * Handles the removal of a bed block.
+     * Unlike legacy behavior, breaking a bed does NOT delete the house.
+     * It unassigns any NPC currently sleeping in that bed, removes the bed from the house's beds set,
+     * and saves the updated house. The house and its chests, interior and residents remain intact.
+     *
+     * @return true if a house containing this bed was updated
      */
-    public static boolean deleteHouseByBed(HouseBlockPos bedPos) {
+    public static boolean handleBedBroken(HouseBlockPos bedPos) {
         if (bedPos == null) return false;
 
-        UUID target = null;
-        for (Map.Entry<UUID, HouseData> entry : HOUSES_BY_ID.entrySet()) {
-            HouseData house = entry.getValue();
-            if (house.bedPos != null && house.bedPos.equals(bedPos)) {
-                target = entry.getKey();
+        HouseData targetHouse = null;
+        for (HouseData house : HOUSES_BY_ID.values()) {
+            if (house == null) continue;
+            if ((house.beds != null && house.beds.contains(bedPos)) || (house.bedPos != null && house.bedPos.equals(bedPos))) {
+                targetHouse = house;
                 break;
             }
         }
-        if (target == null) return false;
-
-        /* The residents lose their claim: leaving bedLocation pointing at a bed that no longer
-        exists would send them walking to it every night.
-        */
-        HouseData house = HOUSES_BY_ID.get(target);
-        if (house != null) {
-            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
-                if (npc.bedLocation != null
-                        && npc.bedLocation.x == bedPos.x
-                        && npc.bedLocation.y == bedPos.y
-                        && npc.bedLocation.z == bedPos.z) {
-                    npc.bedLocation = null;
-                    npc.family.hasSharedHome = false;
-                    SimNPCPersistence.saveNPC(npc);
-                    LOGGER.info("[SimTale] NPC '{}' perdeu a cama; vai procurar outra.", npc.name);
-                }
+        if (targetHouse == null) {
+            UUID houseId = BLOCK_TO_HOUSE_ID.get(bedPos);
+            if (houseId != null) {
+                targetHouse = HOUSES_BY_ID.get(houseId);
             }
         }
 
-        deleteHouse(target);
+        if (targetHouse == null) return false;
+
+        targetHouse.removeBed(bedPos);
+        saveHouse(targetHouse);
+
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc.bedLocation != null
+                    && npc.bedLocation.x == bedPos.x
+                    && npc.bedLocation.y == bedPos.y
+                    && npc.bedLocation.z == bedPos.z) {
+                npc.bedLocation = null;
+                SimBedData.BedPos alternate = findUnclaimedBedInHouse(targetHouse, npc);
+                if (alternate != null) {
+                    npc.bedLocation = alternate;
+                    LOGGER.info("[SimTale] NPC '{}' teve a cama quebrada, mas mudou para outra cama livre na mesma casa ({},{},{}).",
+                            npc.name, alternate.x, alternate.y, alternate.z);
+                } else {
+                    LOGGER.info("[SimTale] NPC '{}' perdeu a cama e vai procurar outra (casa {} mantida).",
+                            npc.name, targetHouse.houseId);
+                }
+                SimNPCPersistence.saveNPC(npc);
+            }
+        }
+
+        VillageManager.markDirty();
         return true;
+    }
+
+    public static boolean deleteHouseByBed(HouseBlockPos bedPos) {
+        return handleBedBroken(bedPos);
+    }
+
+    public static boolean handleDoorBroken(HouseBlockPos doorPos) {
+        if (doorPos == null) return false;
+        for (HouseData house : HOUSES_BY_ID.values()) {
+            if (house == null || house.doors == null) continue;
+            if (house.doors.remove(doorPos)) {
+                saveHouse(house);
+                LOGGER.info("[SimTale] Porta removida da casa {}. Portas restantes: {}", house.houseId, house.doors.size());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean registerBedInHouse(HouseBlockPos bedPos) {
+        if (bedPos == null) return false;
+        UUID houseId = findHouseIdForRoom(bedPos, null);
+        if (houseId == null) {
+            houseId = findHouseIdForChest(bedPos);
+        }
+        if (houseId != null) {
+            HouseData house = HOUSES_BY_ID.get(houseId);
+            if (house != null) {
+                house.addBed(bedPos);
+                saveHouse(house);
+                LOGGER.info("[SimTale] Nova cama em ({},{},{}) adicionada à casa existente {}.",
+                        bedPos.x, bedPos.y, bedPos.z, house.houseId);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static SimBedData.BedPos findUnclaimedBedInHouse(HouseData house, SimNPCComponent self) {
+        if (house == null || house.beds == null || house.beds.isEmpty()) return null;
+        for (HouseBlockPos pos : house.beds) {
+            SimBedData.BedPos bp = new SimBedData.BedPos(pos.x, pos.y, pos.z, 0f);
+            if (!isBedTakenByAnotherNpc(bp, self)) {
+                return bp;
+            }
+        }
+        return null;
     }
 
     public static void deleteHouse(UUID houseId) {
@@ -332,12 +398,15 @@ public class HouseManager {
                 if (existing != null) {
                     boolean matchesOtherBed = false;
                     for (HouseBlockPos otherBed : raw.otherBeds) {
-                        if (existing.bedPos.equals(otherBed)) {
+                        if ((existing.beds != null && existing.beds.contains(otherBed))
+                                || (existing.bedPos != null && existing.bedPos.equals(otherBed))) {
                             matchesOtherBed = true;
                             break;
                         }
                     }
-                    if (!matchesOtherBed && !existing.bedPos.equals(bedPos)) {
+                    boolean matchesMyBed = (existing.beds != null && existing.beds.contains(bedPos))
+                            || (existing.bedPos != null && existing.bedPos.equals(bedPos));
+                    if (!matchesOtherBed && !matchesMyBed) {
                         return new ScanReport(ScanOutcome.CONFLICT_WITH_EXISTING, Set.of(), existingHouseId, raw);
                     }
                 }
@@ -435,7 +504,9 @@ public class HouseManager {
 
     private static UUID getHouseIdByBedPos(HouseBlockPos pos) {
         for (HouseData house : HOUSES_BY_ID.values()) {
-            if (house.bedPos.equals(pos)) {
+            if (house == null) continue;
+            if ((house.beds != null && house.beds.contains(pos))
+                    || (house.bedPos != null && house.bedPos.equals(pos))) {
                 return UUID.fromString(house.houseId);
             }
         }
@@ -639,6 +710,12 @@ public class HouseManager {
                 report.raw.doorBlocks,
                 report.raw.chestBlocks
             );
+            if (report.raw.otherBeds != null) {
+                for (HouseBlockPos other : report.raw.otherBeds) {
+                    house.addBed(other);
+                }
+            }
+            house.addBed(houseBed);
             registerHouse(house);
             
             npc.bedLocation = bestBed;
@@ -690,6 +767,7 @@ public class HouseManager {
             }
 
             existing.owners.add(npc.entityId.toString());
+            existing.addBed(houseBed);
             registerHouse(existing);
 
             npc.bedLocation = bestBed;
@@ -730,40 +808,60 @@ public class HouseManager {
     }
 
     /**
-     * Removes duplicate records of the same bed, keeping one.
-     * <p>
-     * Cleans up leftovers from the random id bug (see {@link #validateAndClaimBed}). Only
-     * groups by identical {@code bedPos}: two records for the SAME bed are necessarily the
-     * same place, so no subjective judgement is required. Houses with different beds remain intact.
+     * Removes duplicate records of the same physical house.
+     * Checks for significant interior block overlap between records.
      */
-    private static void dedupeHousesByBed() {
-        Map<HouseBlockPos, UUID> keptByBed = new HashMap<>();
-        List<UUID> duplicates = new ArrayList<>();
+    private static void dedupeHousesByOverlap() {
+        List<UUID> toDelete = new ArrayList<>();
+        List<HouseData> allHouses = new ArrayList<>(HOUSES_BY_ID.values());
 
-        for (Map.Entry<UUID, HouseData> entry : HOUSES_BY_ID.entrySet()) {
-            HouseData house = entry.getValue();
-            if (house == null || house.bedPos == null) continue;
+        for (int i = 0; i < allHouses.size(); i++) {
+            HouseData h1 = allHouses.get(i);
+            if (h1 == null || h1.houseId == null || toDelete.contains(UUID.fromString(h1.houseId))) continue;
 
-            UUID kept = keptByBed.putIfAbsent(house.bedPos, entry.getKey());
-            if (kept != null) {
-                duplicates.add(entry.getKey());
+            for (int j = i + 1; j < allHouses.size(); j++) {
+                HouseData h2 = allHouses.get(j);
+                if (h2 == null || h2.houseId == null || toDelete.contains(UUID.fromString(h2.houseId))) continue;
+
+                boolean sameBed = (h1.bedPos != null && h2.bedPos != null && h1.bedPos.equals(h2.bedPos));
+                boolean interiorOverlap = false;
+
+                if (!sameBed && h1.interior != null && h2.interior != null && !h1.interior.isEmpty() && !h2.interior.isEmpty()) {
+                    int overlapCount = 0;
+                    for (HouseBlockPos pos : h2.interior) {
+                        if (h1.interior.contains(pos)) {
+                            overlapCount++;
+                            if (overlapCount >= 10) {
+                                interiorOverlap = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (sameBed || interiorOverlap) {
+                    if (h2.owners != null) h1.owners.addAll(h2.owners);
+                    if (h2.beds != null) h1.beds.addAll(h2.beds);
+                    if (h2.doors != null) h1.doors.addAll(h2.doors);
+                    if (h2.chests != null) h1.chests.addAll(h2.chests);
+                    toDelete.add(UUID.fromString(h2.houseId));
+                }
             }
         }
 
-        if (duplicates.isEmpty()) return;
+        if (toDelete.isEmpty()) return;
 
-        for (UUID dup : duplicates) {
+        for (UUID dup : toDelete) {
             deleteHouse(dup);
         }
-        LOGGER.warn("[SimTale] {} duplicate house records removed ({} remaining). "
-                        + "They were leftovers from the random id generated on every bed claim.",
-                duplicates.size(), HOUSES_BY_ID.size());
+        LOGGER.warn("[SimTale] {} duplicate house records removed ({} remaining).",
+                toDelete.size(), HOUSES_BY_ID.size());
 
-        // Reindex: deleted records may have overwritten entries of the remaining house.
         BLOCK_TO_HOUSE_ID.clear();
         OWNER_TO_HOUSE_ID.clear();
         for (HouseData house : HOUSES_BY_ID.values()) {
             indexHouse(house);
+            saveHouse(house);
         }
     }
 
