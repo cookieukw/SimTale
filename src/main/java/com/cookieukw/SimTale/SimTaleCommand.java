@@ -263,6 +263,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             actually wearing.
             */
             boolean ok = SeasonalCostumeHelper.applyCostume(store, npcRef, nearestNPC, suffix);
+            if (ok) {
+                SeasonalCostumeHelper.MANUAL_COSTUMES.add(nearestNPC.entityId);
+            }
             ctx.sendMessage(Message.raw(ok
                     ? "[SimTale] " + nearestNPC.name + " dressed for event '" + evento + "'. Use '/simtale costume off' to undo."
                     : "[SimTale] Failed -- asset not found for this NPC/event. Run scripts/generate_costume_assets.py."));
