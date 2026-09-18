@@ -155,6 +155,11 @@ final class RoutineSleepHelpers {
                 ai.currentTask = TaskType.FINDING_LEISURE;
                 ai.targetBlockPosition = null;
                 ai.taskStartTime = world.getTick() - NPCLeisureHelper.LEISURE_SEARCH_COOLDOWN_TICKS;
+            } else if (ai.currentTask == TaskType.IDLE
+                    && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < 75f || Math.random() < 0.20)
+                    && world.getTick() >= ai.nextChairSearchTick) {
+                ai.currentTask = TaskType.FINDING_CHAIR;
+                ai.taskStartTime = world.getTick();
             } else if (ai.currentTask == TaskType.IDLE && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) < 85 || Math.random() < 0.25)) {
                 SimNPCComponent bestTarget = null;
                 double bestDist = RoutineAISystem.SOCIALIZE_SEARCH_RANGE_SQ;
@@ -186,30 +191,13 @@ final class RoutineSleepHelpers {
                         otherAi.reservedForSocialUuid = npc.entityId;
                         otherAi.currentTask = TaskType.IDLE;
                         otherAi.wanderTimer = 0;
-                        /* Was left dangling here: everything else clears targetBlockPosition
-                        whenever it forces currentTask back to IDLE (see the FINDING_FOOD/
-                        FINDING_BATH/FINDING_LEISURE branches above, or abandonTask/stopWandering/
-                        endSocial elsewhere) except this one -- so a reserved NPC kept whatever
-                        destination she was already walking to, stale, sitting on an otherwise
-                        idle AI state until something used it again.
-                        */
                         otherAi.targetBlockPosition = null;
-                        /* Starts the staleness clock NPCSocialHelper.isReservedAndActive checks --
-                        without this the reservation had no timestamp of its own to judge against.
-                        */
                         otherAi.taskStartTime = world.getTick();
                         NPCMovementHelper.clearMoveTarget(bestTarget.entityRef, otherAi);
                     }
 
                     NPCMovementHelper.playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
                 }
-            }
-
-            if (ai.currentTask == TaskType.IDLE
-                    && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < 70f || Math.random() < 0.15)
-                    && world.getTick() >= ai.nextChairSearchTick) {
-                ai.currentTask = TaskType.FINDING_CHAIR;
-                ai.taskStartTime = world.getTick();
             }
 
             /* Child play: two nearby children start a real game of tag or hide-and-seek instead
