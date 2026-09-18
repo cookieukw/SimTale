@@ -66,8 +66,8 @@ public class ChildPlayHelper {
     private static final int TAG_ROUNDS = 3;
 
     // --- Hide and seek ---
-    private static final double HIDE_SEEK_RADIUS = 6.0;
-    private static final double HIDE_REACH_DISTANCE_SQ = 1.0 * 1.0;
+    private static final double HIDE_SEEK_RADIUS = 12.0;
+    private static final double HIDE_REACH_DISTANCE_SQ = 1.2 * 1.2;
     /** 5s "counting" (eyes closed) before the seeker starts walking. */
     private static final int HIDE_COUNT_TICKS = 100;
     private static final int SEEK_TIMEOUT_TICKS = 500;
@@ -146,7 +146,10 @@ public class ChildPlayHelper {
             partnerAi.currentTask = TaskType.MOVING_TO_HIDE;
             partnerAi.playRoundsLeft = HIDESEEK_ROUNDS;
             if (partnerTransform != null) {
-                partnerAi.targetBlockPosition = pickHideSpot(partnerTransform);
+                Vector3d seekerPos = transform != null ? transform.getPosition() : null;
+                partnerAi.targetBlockPosition = pickHideSpot(partnerTransform, seekerPos);
+                Vector3d target = new Vector3d(partnerAi.targetBlockPosition.x + 0.5, partnerTransform.getPosition().y, partnerAi.targetBlockPosition.z + 0.5);
+                NPCMovementHelper.moveTo(partnerRef, partnerAi, world, target);
                 NPCMovementHelper.playAnim(partnerRef, NPCSocialHelper.walkAnimation(), "Walk", store);
             }
             announcePlayEvent(npc, transform, world, store, "npc-dialogues.playing.hideseek_start", 2);
@@ -270,7 +273,7 @@ public class ChildPlayHelper {
             return;
         }
         if (ai.targetBlockPosition == null) {
-            ai.targetBlockPosition = pickHideSpot(transform);
+            ai.targetBlockPosition = pickHideSpot(transform, null);
         }
 
         Vector3d target = new Vector3d(ai.targetBlockPosition.x + 0.5, transform.getPosition().y, ai.targetBlockPosition.z + 0.5);
@@ -333,6 +336,7 @@ public class ChildPlayHelper {
         if (distSq <= SEEK_FOUND_DISTANCE_SQ) {
             SimNPCComponent hiderNpc = resolveNpc(ai.playPartnerId);
             NPCMovementHelper.clearMoveTarget(ref, ai);
+            NPCMovementHelper.clearMoveTarget(hiderRef, hiderAi);
 
             int roundsLeft = ai.playRoundsLeft - 1;
             if (roundsLeft <= 0) {
@@ -343,13 +347,16 @@ public class ChildPlayHelper {
                 announcePlayEvent(npc, transform, world, store, "npc-dialogues.playing.hideseek_found", 2);
                 // Roles rotate: whoever was just found now seeks, whoever found them hides.
                 ai.currentTask = TaskType.MOVING_TO_HIDE;
-                ai.targetBlockPosition = pickHideSpot(transform);
+                ai.targetBlockPosition = pickHideSpot(transform, hiderT.getPosition());
+                Vector3d target = new Vector3d(ai.targetBlockPosition.x + 0.5, transform.getPosition().y, ai.targetBlockPosition.z + 0.5);
+                NPCMovementHelper.moveTo(ref, ai, world, target);
+                NPCMovementHelper.playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
+
                 hiderAi.currentTask = TaskType.SEEKING;
                 ai.playRoundsLeft = roundsLeft;
                 hiderAi.playRoundsLeft = roundsLeft;
                 ai.taskStartTime = world.getTick();
                 hiderAi.taskStartTime = world.getTick();
-                NPCMovementHelper.playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
             }
             return;
         }
@@ -357,14 +364,24 @@ public class ChildPlayHelper {
         NPCMovementHelper.moveTo(ref, ai, world, hiderT.getPosition());
     }
 
-    /** Random point within {@link #HIDE_SEEK_RADIUS} of where the hider stands right now --
-     *  picked once at the start of the walk, not re-rolled, so she commits to one spot instead
-     *  of wandering. Same polar-offset shape {@code RoutineSleepHelpers}'s own stroll fallback
-     *  uses for picking a wander destination. */
-    private static Vector3i pickHideSpot(TransformComponent transform) {
+    /** Random point within {@link #HIDE_SEEK_RADIUS} of where the hider stands right now,
+     *  biased away from the seeker if known. */
+    private static Vector3i pickHideSpot(TransformComponent transform, Vector3d awayFrom) {
         Vector3d pos = transform.getPosition();
-        double angle = ThreadLocalRandom.current().nextDouble(0, Math.PI * 2.0);
-        double radius = 2.0 + ThreadLocalRandom.current().nextDouble(0, HIDE_SEEK_RADIUS - 2.0);
+        double baseAngle;
+        if (awayFrom != null) {
+            double dx = pos.x - awayFrom.x;
+            double dz = pos.z - awayFrom.z;
+            if (dx * dx + dz * dz > 0.01) {
+                baseAngle = Math.atan2(dz, dx);
+            } else {
+                baseAngle = ThreadLocalRandom.current().nextDouble(0, Math.PI * 2.0);
+            }
+        } else {
+            baseAngle = ThreadLocalRandom.current().nextDouble(0, Math.PI * 2.0);
+        }
+        double angle = baseAngle + ThreadLocalRandom.current().nextDouble(-Math.PI / 3.0, Math.PI / 3.0);
+        double radius = 6.0 + ThreadLocalRandom.current().nextDouble(0, HIDE_SEEK_RADIUS - 6.0);
         return new Vector3i(
                 (int) (pos.x + Math.cos(angle) * radius),
                 (int) pos.y,
@@ -383,15 +400,38 @@ public class ChildPlayHelper {
         NPCMovementHelper.clearMoveTarget(ref, ai);
         ai.currentTask = TaskType.IDLE;
         ai.targetBlockPosition = null;
+        UUID partnerId = ai.playPartnerId;
         ai.playPartnerId = null;
         ai.playRoundsLeft = 0;
         ai.taskStartTime = world.getTick();
+        ai.nextPlaySearchTick = world.getTick() + 400;
 
         if (restoreFun && npc != null && npc.entityRef != null) {
             NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID,
                     Math.min(100f, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) + PLAY_FUN_RESTORE));
             npc.setEmotion(Mood.HAPPY, 0.6f, "playing", world.getTick());
             EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.HAPPY);
+        }
+
+        if (partnerId != null && world != null) {
+            Ref<EntityStore> partnerRef = world.getEntityStore().getRefFromUUID(partnerId);
+            if (partnerRef != null && partnerRef.isValid()) {
+                Store<EntityStore> store = world.getEntityStore().getStore();
+                RoutineAIComponent partnerAi = store.getComponent(partnerRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                if (partnerAi != null) {
+                    if (partnerAi.currentTask == TaskType.TAG_CHASING || partnerAi.currentTask == TaskType.TAG_FLEEING
+                            || partnerAi.currentTask == TaskType.SEEKING || partnerAi.currentTask == TaskType.MOVING_TO_HIDE
+                            || partnerAi.currentTask == TaskType.HIDING) {
+                        NPCMovementHelper.clearMoveTarget(partnerRef, partnerAi);
+                        partnerAi.currentTask = TaskType.IDLE;
+                        partnerAi.targetBlockPosition = null;
+                        partnerAi.playPartnerId = null;
+                        partnerAi.playRoundsLeft = 0;
+                        partnerAi.taskStartTime = world.getTick();
+                        partnerAi.nextPlaySearchTick = world.getTick() + 400;
+                    }
+                }
+            }
         }
     }
 
