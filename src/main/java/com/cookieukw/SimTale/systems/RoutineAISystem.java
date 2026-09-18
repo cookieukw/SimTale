@@ -489,7 +489,13 @@ once per NPC per tick for nothing.
             ai.taskStartTime = 0; // bypass cooldown
             ai.sleepingOnSchedule = sleepWindowOpen;
             clearAutonomyState(ai, npc, world, store);
-            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.SLEEPY);
+
+            // Stagger bedtime thought: only some NPCs show thought bubble, with individual tick delay
+            int npcHash = (npc.entityId != null) ? Math.abs(npc.entityId.hashCode()) : 0;
+            if (exhausted || (npcHash % 3 == 0)) {
+                int delay = npcHash % 80;
+                EmoteBubbleSystem.triggerThoughtWithDelay(npc.entityId, ThoughtType.SLEEPY, delay);
+            }
             if (sleepWindowOpen) {
                 LOGGER.info("[SimTale] NPC '{}' sleep window opened, heading to bed", npc.name);
             } else {
@@ -519,7 +525,9 @@ once per NPC per tick for nothing.
             ai.targetBlockPosition = null;
             ai.taskStartTime = world.getTick() - NPCHungerHelper.FOOD_SEARCH_COOLDOWN_TICKS;
             clearAutonomyState(ai, npc, world, store);
-            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.HUNGRY);
+            int npcHash = (npc.entityId != null) ? Math.abs(npc.entityId.hashCode()) : 0;
+            int delay = npcHash % 40;
+            EmoteBubbleSystem.triggerThoughtWithDelay(npc.entityId, ThoughtType.HUNGRY, delay);
             LOGGER.info("[SimTale] NPC '{}' is starving (hunger={}), interrupting task to find food", npc.name, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID));
         }
 
@@ -537,7 +545,8 @@ once per NPC per tick for nothing.
         }
 
         if (ai.currentTask == TaskType.WANDERING || ai.currentTask == TaskType.IDLE) {
-            if (Math.random() < 0.0001) {
+            int npcHash = (npc.entityId != null) ? Math.abs(npc.entityId.hashCode()) : 0;
+            if ((world.getTick() + npcHash) % 1200 == 0 && Math.random() < 0.15) {
                 EmoteBubbleSystem.triggerSpontaneousThought(npc.entityId, ThoughtType.randomCasual(), world.getTick());
             }
         }
