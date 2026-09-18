@@ -33,6 +33,9 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 
+import com.hypixel.hytale.server.core.modules.entity.system.TransformSystems;
+import com.hypixel.hytale.server.npc.systems.SteeringSystem;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +48,9 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
 
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
+    // Cache of scaled Plumbob models per mood to avoid recreating and parsing models on every mood change
+    private static final Map<String, Model> SCALED_MODEL_CACHE = new ConcurrentHashMap<>();
+
     // Maps Player/NPC UUID to Plumbob Entity Ref
     private static final Map<UUID, Ref<EntityStore>> playerPlumbobs = Collections.synchronizedMap(new HashMap<>());
     /**
@@ -55,28 +61,13 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
     private static final Set<Ref<EntityStore>> trackedPlumbobRefs =
             ConcurrentHashMap.newKeySet();
     /**
-     * Refs already queued for removal by {@link #despawnPlumbob} within the current tick round,
-     * but not yet actually gone (the CommandBuffer only applies removeEntity at the end of the
-     * whole system's tick pass, not immediately).
-     * <p>
-     * Without this, a plumbob despawned this way (owner got mounted/became a Reaper/left on
-     * expedition) untracks itself from {@code trackedPlumbobRefs} synchronously, and if that
-     * plumbob's OWN entity index — it matches this system's query too, via
-     * {@code PersistentModel} — happens to be visited later in the SAME tick round, the orphan
-     * sweep at the top of {@code tick()} sees it as untracked and queues a SECOND removeEntity for
-     * the same ref. The CommandBuffer applies both in order: the first invalidates the ref, the
-     * second then throws {@code IllegalStateException: Invalid entity reference!} — crashed the
-     * whole world the moment a carried child's plumbob got hidden this way.
+     * Refs already queued for removal by {@link #despawnPlumbob} or {@link #removePlumbob}.
      */
     private static final Set<Ref<EntityStore>> pendingDespawns = ConcurrentHashMap.newKeySet();
 
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
-        /* Was UUIDComponent, i.e. *every entity in the world*, every tick — dropped items,
-        projectiles, the lot. Only three archetypes matter here: the NPCs and players that
-        own a plumbob, plus modelled entities so orphaned plumbobs can still be reaped.
-        */
         return Query.or(
                 SimTale.SIM_NPC_COMPONENT_TYPE,
                 Player.getComponentType(),
@@ -84,13 +75,30 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         );
     }
 
-   @Override
+    @Override
     @Nonnull
     public Set<Dependency<EntityStore>> getDependencies() {
         return Set.of(
-            new SystemDependency<>(Order.AFTER, PlayerProcessMovementSystem.class)
+            new SystemDependency<>(Order.AFTER, PlayerProcessMovementSystem.class),
+            new SystemDependency<>(Order.AFTER, SteeringSystem.class),
+            new SystemDependency<>(Order.AFTER, RoutineAISystem.class),
+            new SystemDependency<>(Order.BEFORE, TransformSystems.EntityTrackerUpdate.class)
         );
     }
+
+    private static Model getOrCreateScaledModel(String moodModelName) {
+        return SCALED_MODEL_CACHE.computeIfAbsent(moodModelName, name -> {
+            ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(name);
+            if (modelAsset == null) {
+                modelAsset = ModelAsset.getAssetMap().getAsset("Plumbob");
+            }
+            if (modelAsset != null) {
+                return Model.createScaledModel(modelAsset, 0.9f);
+            }
+            return null;
+        });
+    }
+
     @Override
     public void tick(float dt, int index, @Nonnull ArchetypeChunk<EntityStore> chunk,
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
@@ -101,7 +109,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         PersistentModel pm = chunk.getComponent(index, PersistentModel.getComponentType());
         if (pm != null && pm.getModelReference().getModelAssetId() != null && pm.getModelReference().getModelAssetId().startsWith("Plumbob")) {
             Ref<EntityStore> thisRef = chunk.getReferenceTo(index);
-            if (!trackedPlumbobRefs.contains(thisRef) && !pendingDespawns.remove(thisRef)) {
+            if (!trackedPlumbobRefs.contains(thisRef) || pendingDespawns.remove(thisRef)) {
                 commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
                 LOGGER.atFine().log("[SimTale] Limpando Plumbob orfao do mundo: " + uuidComp.getUuid());
             }
@@ -114,43 +122,17 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
 
         if (!isPlayer && !isNpc) return;
 
-        /* The Reaper is a ceremonial entity that exists for one death and is despawned when the
-        ritual ends — a mood indicator over Death itself reads as a bug even when it works, and
-        the plumbob outliving her was one.
-
-        Despawning rather than just skipping: this system can tick the Reaper once in the window
-        between her entity being added and isReaper being set, and that one tick is enough to
-        give her a plumbob. Returning early from then on meant the crystal was never updated and
-        never cleaned either — it stayed in trackedPlumbobRefs, which is exactly what the orphan
-        sweep above refuses to touch — so it hung at her spawn point forever, outliving her.
-        */
         UUID entityUuid = uuidComp.getUuid();
         if (npcHere != null && npcHere.isReaper) {
             despawnPlumbob(entityUuid, commandBuffer);
             return;
         }
 
-        /* Away on an expedition. Skipping the update is not enough — the plumbob already exists and
-        would simply stop being moved, leaving a mood crystal parked in mid-air over an NPC the
-        player was told had left. It has to actually go, and come back when she does.
-        */
         if (npcHere != null && NPCWorkHelper.isAwayOnExpedition(store, chunk.getReferenceTo(index))) {
             despawnPlumbob(entityUuid, commandBuffer);
             return;
         }
 
-        /* Being carried hides the crystal entirely, third case after the Reaper and the expedition.
-
-        The first attempt made it follow the carrier instead, which fixed the stale position but
-        produced a worse picture: the child's plumbob and the carrier's own ended up side by side
-        over one head. Two mood crystals on one player reads as a bug even though both are
-        "correct". A carried child is not going about her business anyway, which is what the
-        crystal is there to report.
-
-        (The stale position is real and worth remembering: a mounted entity is drawn attached to
-        its mount, but its own TransformComponent stays where it was when it mounted. Anything
-        that follows a carried NPC has to read the carrier, not her.)
-        */
         if (chunk.getComponent(index, MountedComponent.getComponentType()) != null) {
             despawnPlumbob(entityUuid, commandBuffer);
             return;
@@ -187,41 +169,33 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
             if (plumbobTransform == null) {
                 needsNewPlumbob = true;
             } else {
-                // Update position
-                plumbobTransform.teleportPosition(new Vector3d(
-                    entityTransform.getPosition().x,
-                    entityTransform.getPosition().y + height,
-                    entityTransform.getPosition().z
-                ));
+                // Update position in-place without vector allocation
+                Vector3d entityPos = entityTransform.getPosition();
+                plumbobTransform.getPosition().set(entityPos.x, entityPos.y + height, entityPos.z);
+                
+                // Update rotation in-place without rotation allocation
                 float yaw = (float) ((world.getTick() * 0.04f) % (2.0f * Math.PI));
-                plumbobTransform.setRotation(new Rotation3f(0f, yaw, 0f));
+                plumbobTransform.getRotation().set(0f, yaw, 0f);
                 commandBuffer.replaceComponent(plumbobRef, TransformComponent.getComponentType(), plumbobTransform);
                 
-                // Update Model if mood changed
+                // Update Model if mood changed using cached model
                 PersistentModel currPm = store.getComponent(plumbobRef, PersistentModel.getComponentType());
-                if (currPm != null) {
-                    if (!moodModelName.equals(currPm.getModelReference().getModelAssetId())) {
-                        ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(moodModelName);
-                        if (modelAsset != null) {
-                            Model model = Model.createScaledModel(modelAsset, 0.9f);
-                            commandBuffer.replaceComponent(plumbobRef, PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
-                            commandBuffer.replaceComponent(plumbobRef, ModelComponent.getComponentType(), new ModelComponent(model));
-                        }
+                if (currPm != null && !moodModelName.equals(currPm.getModelReference().getModelAssetId())) {
+                    Model model = getOrCreateScaledModel(moodModelName);
+                    if (model != null) {
+                        commandBuffer.replaceComponent(plumbobRef, PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
+                        commandBuffer.replaceComponent(plumbobRef, ModelComponent.getComponentType(), new ModelComponent(model));
                     }
                 }
             }
         }
 
         if (needsNewPlumbob) {
-            Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
-            
-            ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(moodModelName);
-            if (modelAsset == null) {
-                modelAsset = ModelAsset.getAssetMap().getAsset("Plumbob");
-            }
-            if (modelAsset != null) {
-                Model model = Model.createScaledModel(modelAsset, 0.9f);
-                holder.addComponent(TransformComponent.getComponentType(), new TransformComponent(new Vector3d(entityTransform.getPosition().x, entityTransform.getPosition().y + height, entityTransform.getPosition().z), new Rotation3f()));
+            Model model = getOrCreateScaledModel(moodModelName);
+            if (model != null) {
+                Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
+                Vector3d entityPos = entityTransform.getPosition();
+                holder.addComponent(TransformComponent.getComponentType(), new TransformComponent(new Vector3d(entityPos.x, entityPos.y + height, entityPos.z), new Rotation3f()));
                 holder.addComponent(PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
                 holder.addComponent(ModelComponent.getComponentType(), new ModelComponent(model));
                 /* Deliberately no BoundingBox: this is a purely cosmetic floating icon, and
@@ -267,6 +241,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         Ref<EntityStore> removed = playerPlumbobs.remove(entityUuid);
         if (removed != null) {
             trackedPlumbobRefs.remove(removed);
+            pendingDespawns.add(removed);
         }
         LOGGER.atFine().log("[SimTale] Plumbob untracked para a entidade: " + entityUuid);
     }
