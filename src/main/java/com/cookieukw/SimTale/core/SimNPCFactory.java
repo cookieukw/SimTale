@@ -281,8 +281,24 @@ public class SimNPCFactory {
 
         Model model = Model.createScaledModel(asset, scale,
                 attachments != null ? attachments : new HashMap<>());
-        store.replaceComponent(ref, PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
-        store.replaceComponent(ref, ModelComponent.getComponentType(), new ModelComponent(model));
+
+        World world = WorldUtil.fromEntityRef(ref);
+        if (world == null) world = WorldUtil.first();
+
+        Runnable writeTask = () -> {
+            if (ref.isValid()) {
+                store.replaceComponent(ref, PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
+                store.replaceComponent(ref, ModelComponent.getComponentType(), new ModelComponent(model));
+            }
+        };
+
+        if (world != null && world.isInThread() && !world.isTicking()) {
+            writeTask.run();
+        } else if (world != null) {
+            world.execute(writeTask);
+        } else {
+            writeTask.run();
+        }
         return true;
     }
 
@@ -296,8 +312,23 @@ public class SimNPCFactory {
      */
     public static void refreshNameplate(Store<EntityStore> store, Ref<EntityStore> ref, String name) {
         if (store == null || ref == null || !ref.isValid() || name == null) return;
-        store.putComponent(ref, PersistentDisplayName.getComponentType(),
-                new PersistentDisplayName(Message.raw(name)));
-        store.putComponent(ref, Nameplate.getComponentType(), new Nameplate(name));
+        World world = WorldUtil.fromEntityRef(ref);
+        if (world == null) world = WorldUtil.first();
+
+        Runnable writeTask = () -> {
+            if (ref.isValid()) {
+                store.putComponent(ref, PersistentDisplayName.getComponentType(),
+                        new PersistentDisplayName(Message.raw(name)));
+                store.putComponent(ref, Nameplate.getComponentType(), new Nameplate(name));
+            }
+        };
+
+        if (world != null && world.isInThread() && !world.isTicking()) {
+            writeTask.run();
+        } else if (world != null) {
+            world.execute(writeTask);
+        } else {
+            writeTask.run();
+        }
     }
 }
