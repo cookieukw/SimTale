@@ -216,8 +216,9 @@ public class NPCSocialHelper {
             // Initial attention expression
             int topic = ai.socialTopic / 10;
             String face = getTopicExpression(topic);
-            NPCMovementHelper.playAnim(ref, AnimationSlot.Face, face, "Face", store);
-            NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, face, "Face", store);
+            String faceName = getTopicExpressionName(topic);
+            NPCMovementHelper.playAnim(ref, AnimationSlot.Face, face, faceName, store);
+            NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, face, faceName, store);
 
             if (topic == TOPIC_ROMANTIC) {
                 SimTaleJuiceHelper.spawnHeartParticles(myPos, store);
@@ -278,11 +279,12 @@ public class NPCSocialHelper {
                 int variant = Math.max(1, ai.socialTopic % 10);
                 String topicKey = getTopicKey(topic);
                 String face = getTopicExpression(topic);
+                String faceName = getTopicExpressionName(topic);
 
                 // TURN 1 (elapsed == 15): Host speaks line A, Guest listens
                 if (elapsed == 15) {
                     NPCMovementHelper.playAnim(ref, AnimationSlot.Face, SimTaleJuiceHelper.animTalk(), "Talk", store);
-                    NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, face, "Listen", store);
+                    NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, face, faceName, store);
 
                     if (transform != null && isPlayerWithinEarshot(transform.getPosition())) {
                         Message msg = Message.translation("npc-dialogues." + topicKey + "." + variant + ".a")
@@ -293,7 +295,7 @@ public class NPCSocialHelper {
                 // TURN 2 (elapsed == 70): Guest replies with line B, Host listens
                 else if (elapsed == 70) {
                     NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, SimTaleJuiceHelper.animTalk(), "Talk", store);
-                    NPCMovementHelper.playAnim(ref, AnimationSlot.Face, face, "Listen", store);
+                    NPCMovementHelper.playAnim(ref, AnimationSlot.Face, face, faceName, store);
 
                     if (targetTrans != null && isPlayerWithinEarshot(targetTrans.getPosition())) {
                         Message msg = Message.translation("npc-dialogues." + topicKey + "." + variant + ".b")
@@ -303,8 +305,8 @@ public class NPCSocialHelper {
                 }
                 // Wrap up speech animation before parting
                 else if (elapsed == 125) {
-                    NPCMovementHelper.playAnim(ref, AnimationSlot.Face, face, "Face", store);
-                    NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, face, "Face", store);
+                    NPCMovementHelper.playAnim(ref, AnimationSlot.Face, face, faceName, store);
+                    NPCMovementHelper.playAnim(targetRef, AnimationSlot.Face, face, faceName, store);
                 }
             }
         }
@@ -504,6 +506,15 @@ public class NPCSocialHelper {
             case TOPIC_ROMANTIC -> SimTaleJuiceHelper.faceCheerful();
             case TOPIC_MOOD_SAD, TOPIC_FATIGUE -> SimTaleJuiceHelper.faceFrown();
             default -> SimTaleJuiceHelper.faceSmile();
+        };
+    }
+
+    private static String getTopicExpressionName(int topic) {
+        return switch (topic) {
+            case TOPIC_HOSTILE -> "Angry";
+            case TOPIC_ROMANTIC -> "Cheerful";
+            case TOPIC_MOOD_SAD, TOPIC_FATIGUE -> "Frown";
+            default -> "Smile";
         };
     }
 
