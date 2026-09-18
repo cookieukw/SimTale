@@ -85,6 +85,13 @@
           "Animation": "Characters/Animations/Expressions/Smirk.blockyanim"
         }
       ]
+    },
+    "Talk": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Expressions/Talk/Talk.blockyanim"
+        }
+      ]
     }
   }
 }
