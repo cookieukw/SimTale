@@ -7,6 +7,12 @@ package com.cookieukw.SimTale.config;
 public class SimTaleConfig {
 
     /**
+     * Master debug switch. If true, full diagnostics and routine logs are emitted.
+     * If false, all console logs from SimTale are completely silenced.
+     */
+    public volatile boolean debugMode = false;
+
+    /**
      * Master switch for proximity greetings. If false, NPCs will not react
      * when a player approaches.
      */
