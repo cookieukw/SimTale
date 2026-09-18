@@ -415,6 +415,22 @@ These commands are registered for standard game play under the `"Adventure"` per
 *   **Parameters:** None.
 *   **Usage Context:** Can be run at any time to check trimester progress.
 
+### `/simtale proximity [on|off|chat [on|off]|cooldown <sec>|limit <sec>|radius <blocks>]`
+*   **Description:** Displays or configures player proximity greeting behavior and anti-spam settings.
+*   **Parameters:**
+    *   *None*: Prints current configuration status.
+    *   `on` / `off`: Enables or disables proximity greetings entirely.
+    *   `chat on` / `chat off`: Toggles chat messages (when off, NPCs still wave and smile without chat text).
+    *   `cooldown <sec>`: Sets individual NPC greeting cooldown (default: 60s).
+    *   `limit <sec>`: Sets per-player anti-spam interval to prevent multi-NPC greeting floods (default: 15s).
+    *   `radius <blocks>`: Sets player detection radius (default: 4.5 blocks).
+*   **Persistence:** All settings are persisted to `simtale-config.json` on the server root.
+
+### `/simtale thought <type>`
+*   **Description:** Summons a 3D animated thought bubble over the nearest NPC's head with a kawaii emoji icon.
+*   **Parameters:**
+    *   `<type>`: Any valid `ThoughtType` (e.g. `SMUG`, `LOVE`, `PARTY`, `JOY`, `SICK`, `SLEEPY`, `HUNGRY`, `STAR`, `COOL`, `CAT_UWU`).
+
 ---
 
 ## 10. Debug Commands Reference
