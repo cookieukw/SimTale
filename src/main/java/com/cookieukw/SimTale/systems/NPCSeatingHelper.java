@@ -28,8 +28,9 @@ public final class NPCSeatingHelper {
 
     public static final double CHAIR_SEARCH_RADIUS = 32.0;
     public static final int CHAIR_SEARCH_COOLDOWN_TICKS = 100;
-    public static final int CHAIR_SIT_DURATION_TICKS = 600; // 30 seconds
-    public static final int MOVE_TIMEOUT_TICKS = 400;       // 20 seconds
+    public static final int MIN_CHAIR_SIT_DURATION_TICKS = 200; // 10 seconds minimum sitting time
+    public static final int CHAIR_SIT_DURATION_TICKS = 600;     // 30 seconds max sitting time
+    public static final int MOVE_TIMEOUT_TICKS = 400;           // 20 seconds
     private static final double REACH_DISTANCE_SQ = 2.0 * 2.0;
 
     /** Energy recovered per tick while sitting (~1.6 energy/sec). */
@@ -66,6 +67,24 @@ public final class NPCSeatingHelper {
             Store<EntityStore> store
     ) {
         Vector3d pos = transform.getPosition();
+
+        // Local discovery fallback if registry is empty
+        if (ChairRegistry.CHAIRS.isEmpty() && world != null) {
+            int cx = (int) Math.floor(pos.x);
+            int cy = (int) Math.floor(pos.y);
+            int cz = (int) Math.floor(pos.z);
+            for (int dx = -16; dx <= 16; dx += 2) {
+                for (int dz = -16; dz <= 16; dz += 2) {
+                    for (int dy = -2; dy <= 4; dy++) {
+                        BlockType bt = world.getBlockType(cx + dx, cy + dy, cz + dz);
+                        if (bt != null && ChairRegistry.isChair(bt.getId())) {
+                            ChairRegistry.add(cx + dx, cy + dy, cz + dz);
+                        }
+                    }
+                }
+            }
+        }
+
         Vector3i chair = ChairRegistry.findNearestUnoccupied(pos.x, pos.y, pos.z, CHAIR_SEARCH_RADIUS);
 
         if (chair != null && ChairRegistry.claimChair(chair, npc.entityId)) {
@@ -111,29 +130,27 @@ public final class NPCSeatingHelper {
             return;
         }
 
-        Vector3d chairCenter = new Vector3d(ai.targetChairPos.x + 0.5, ai.targetChairPos.y, ai.targetChairPos.z + 0.5);
-        double distSq = transform.getPosition().distanceSquared(chairCenter);
+        Vector3d pos = transform.getPosition();
+        Vector3d chairCenter = new Vector3d(
+                ai.targetChairPos.x + 0.5,
+                ai.targetChairPos.y + 0.35,
+                ai.targetChairPos.z + 0.5
+        );
+
+        double distSq = pos.distanceSquared(chairCenter);
 
         if (distSq <= REACH_DISTANCE_SQ) {
+            // Arrived at chair: sit down and clear locomotion
             NPCMovementHelper.clearMoveTarget(ref, ai);
-
-            Vector3d hitOffset = new Vector3d(ai.targetChairPos.x + 0.5, ai.targetChairPos.y + 0.5, ai.targetChairPos.z + 0.5);
-            BlockMountAPI.BlockMountResult res = BlockMountAPI.mountOnBlock(ref, commandBuffer, ai.targetChairPos, hitOffset);
-
-            if (!(res instanceof BlockMountAPI.Mounted)) {
-                // If block does not declare native Hytale seat mount points, settle transform manually
-                transform.setPosition(new Vector3d(ai.targetChairPos.x + 0.5, ai.targetChairPos.y + 0.4, ai.targetChairPos.z + 0.5));
-            }
-
-            NPCMovementHelper.pinLeashAt(ref, ai, transform.getPosition());
+            transform.getPosition().set(chairCenter);
             NPCMovementHelper.setSittingState(ref, store, commandBuffer, true);
 
             ai.currentTask = TaskType.SITTING;
             ai.taskStartTime = world.getTick();
-            npc.setEmotion(Mood.HAPPY, 0.6f, "resting", world.getTick());
-            LOGGER.info("[SimTale] NPC '{}' is now sitting on chair at ({},{},{})",
+            LOGGER.info("[SimTale] NPC '{}' sat down on chair at ({},{},{})",
                     npc.name, ai.targetChairPos.x, ai.targetChairPos.y, ai.targetChairPos.z);
         } else {
+            // Keep walking towards chair
             Vector3i standPos = NPCMovementHelper.findStandableBeside(ai.targetChairPos, transform, world);
             Vector3d target = standPos != null
                     ? new Vector3d(standPos.x + 0.5, standPos.y, standPos.z + 0.5)
@@ -176,11 +193,14 @@ public final class NPCSeatingHelper {
             NPCMovementHelper.setSittingState(ref, store, commandBuffer, true);
         }
 
-        boolean durationExpired = (world.getTick() - ai.taskStartTime) >= CHAIR_SIT_DURATION_TICKS;
-        boolean energyRested = NeedsHelper.getNeed(store, ref, NeedsHelper.ENERGY_ID) >= 85f;
+        long timeSeated = world.getTick() - ai.taskStartTime;
+        boolean durationExpired = timeSeated >= CHAIR_SIT_DURATION_TICKS;
+        boolean energyRested = timeSeated >= MIN_CHAIR_SIT_DURATION_TICKS &&
+                NeedsHelper.getNeed(store, ref, NeedsHelper.ENERGY_ID) >= 95f;
 
         if (durationExpired || energyRested) {
             exitSitting(ref, store, commandBuffer, npc, ai);
+            NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
             ai.nextChairSearchTick = world.getTick() + 400; // 20s cooldown before next chair search
             ai.currentTask = TaskType.IDLE;
             LOGGER.info("[SimTale] NPC '{}' finished resting on chair, standing up", npc.name);
