@@ -61,6 +61,9 @@ public final class SeasonalCostumeHelper {
      */
     public static final Map<UUID, String> ACTIVE_COSTUME_EVENT = new HashMap<>();
 
+    /** NPCs whose costume was manually set via command, so automatic reconcile doesn't strip it. */
+    public static final Set<UUID> MANUAL_COSTUMES = new java.util.HashSet<>();
+
     /**
      * Decides which event (if any) is active for the given date.
      *
@@ -73,8 +76,14 @@ public final class SeasonalCostumeHelper {
         int month = date.getMonthValue();
         int day = date.getDayOfMonth();
 
-        if (month == 12) return "Christmas"; // entire December
-        if (month == 10 && day >= 25) return "Halloween"; // October 25-31
+        // Christmas: entire month of December
+        if (month == 12) {
+            return "Christmas";
+        }
+        // Halloween: October 24 to 31
+        if (month == 10 && day >= 24) {
+            return "Halloween";
+        }
 
         return null;
     }
@@ -103,6 +112,7 @@ public final class SeasonalCostumeHelper {
     public static void reconcileAll(@Nonnull Store<EntityStore> store, @Nullable String currentEvent) {
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc.entityRef == null || !npc.entityRef.isValid() || npc.isReaper) continue;
+            if (MANUAL_COSTUMES.contains(npc.entityId)) continue; // manually equipped costume
 
             String activeEvent = ACTIVE_COSTUME_EVENT.get(npc.entityId);
             if (Objects.equals(activeEvent, currentEvent)) continue; // already correct, nothing to do
@@ -154,6 +164,7 @@ public final class SeasonalCostumeHelper {
             @Nonnull SimNPCComponent npc) {
         String original = COSTUME_BACKUP_MODEL.remove(npc.entityId);
         ACTIVE_COSTUME_EVENT.remove(npc.entityId);
+        MANUAL_COSTUMES.remove(npc.entityId);
         if (original == null) return false;
 
         PersistentModel pm = store.getComponent(npcRef, PersistentModel.getComponentType());
