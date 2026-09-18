@@ -248,6 +248,12 @@ stays down until morning, so she will not pop out of bed the moment energy fills
 Exhaustion is still a separate trigger: an NPC that runs out of energy during the day takes a nap
 and wakes when rested.
 
+<p align="center">
+  <img src="https://simtale.kukkie.org/img/npc_seated_child_sleeping.png" width="49%" alt="NPC seated while child sleeps" />
+  <img src="https://simtale.kukkie.org/img/child_sitting_chair.png" width="49%" alt="Child NPC sitting on a chair" />
+</p>
+
+
 > **Tip:** Skipping the night wakes them
 > Running `time set day` wakes sleeping NPCs immediately, because waking follows the world clock
 > rather than a fixed timer.
@@ -346,6 +352,12 @@ yellow below 50, orange below 25, red below 5. At 5, the NPC cries and abandons 
   - `/simtale proximity radius <blocks>`: sets player detection radius.
 - **Emote & Thought Bubbles**: Animated 3D bubbles featuring 36 kawaii emoji icons appear above NPCs to express emotions, daily routine states (sleepy, hungry, playing), reactions to gifts, and conversations.
 - **NPC-to-NPC Conversations**: NPCs greet and chat with each other with contextual topics (farming, sleep, food, gossip) when their paths cross.
+
+<p align="center">
+  <img src="https://simtale.kukkie.org/img/player_interacting_children.png" width="49%" alt="Player interacting with children" />
+  <img src="https://simtale.kukkie.org/img/children_playing.png" width="49%" alt="Children interacting and playing together" />
+</p>
+
 
 ### Gifts
 

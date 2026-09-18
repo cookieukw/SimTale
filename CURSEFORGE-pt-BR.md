@@ -246,6 +246,12 @@ fica dormindo até de manhã, para não pular da cama no exato momento em que a 
 A exaustão ainda é um gatilho separado: um NPC que fica sem energia durante o dia tira um cochilo
 e acorda quando estiver descansado.
 
+<p align="center">
+  <img src="https://simtale.kukkie.org/img/npc_seated_child_sleeping.png" width="49%" alt="NPC sentado enquanto uma criança dorme" />
+  <img src="https://simtale.kukkie.org/img/child_sitting_chair.png" width="49%" alt="Criança NPC sentada na cadeira" />
+</p>
+
+
 > **Dica:** Pular a noite os acorda
 > Executar o comando `time set day` acorda NPCs adormecidos imediatamente, porque acordar segue o relógio do mundo
 > em vez de um cronômetro fixo.
@@ -343,6 +349,12 @@ As cores na barra de fome seguem os limites que a rotina realmente usa: verde ac
   - `/simtale proximity radius <blocos>`: ajusta o raio de detecção.
 - **Balões de Pensamento e Reações (Thought Bubbles)**: Balões 3D animados com mais de 36 emojis kawaii aparecem acima dos NPCs para expressar sentimentos, rotinas diárias (sono, fome, brincadeiras), reações a presentes e conversas.
 - **Conversas entre NPCs**: NPCs conversam entre si com temas dinâmicos (trabalho, cansaço, comida, fofocas) quando se encontram na vila.
+
+<p align="center">
+  <img src="https://simtale.kukkie.org/img/player_interacting_children.png" width="49%" alt="Jogador interagindo com crianças" />
+  <img src="https://simtale.kukkie.org/img/children_playing.png" width="49%" alt="Crianças interagindo e brincando juntas" />
+</p>
+
 
 ### Presentes
 

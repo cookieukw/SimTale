@@ -323,6 +323,12 @@ and wakes when rested.
 
 ![A child NPC sleeping](wiki/static/img/child_sleeping.png)
 
+<p align="center">
+  <img src="wiki/static/img/npc_seated_child_sleeping.png" width="49%" alt="NPC seated while a child sleeps" />
+  <img src="wiki/static/img/child_sitting_chair.png" width="49%" alt="Child NPC sitting on a chair" />
+</p>
+
+
 > **Tip:** Skipping the night wakes them
 > Running `time set day` wakes sleeping NPCs immediately, because waking follows the world clock
 > rather than a fixed timer.
@@ -419,6 +425,12 @@ yellow below 50, orange below 25, red below 5. At 5, the NPC cries and abandons 
   - `/simtale proximity radius <blocks>`: sets player detection radius.
 - **Emote & Thought Bubbles**: Animated 3D bubbles featuring 36 kawaii emoji icons appear above NPCs to express emotions, daily routine states (sleepy, hungry, playing), reactions to gifts, and conversations.
 - **NPC-to-NPC Conversations**: NPCs greet and chat with each other with contextual topics (farming, sleep, food, gossip) when their paths cross.
+
+<p align="center">
+  <img src="wiki/static/img/player_interacting_children.png" width="49%" alt="Player interacting with children" />
+  <img src="wiki/static/img/children_playing.png" width="49%" alt="Children interacting and playing together" />
+</p>
+
 
 ### Gifts
 
