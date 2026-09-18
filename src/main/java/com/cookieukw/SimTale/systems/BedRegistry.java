@@ -46,15 +46,6 @@ public final class BedRegistry {
                 return;
             }
 
-            // Neighbouring position: this is the second half of an already-registered bed.
-            for (BedPos b : BEDS) {
-                if (Math.abs(b.x - x) <= DEDUPE_RADIUS_XZ
-                        && Math.abs(b.y - y) <= DEDUPE_RADIUS_Y
-                        && Math.abs(b.z - z) <= DEDUPE_RADIUS_XZ) {
-                    return;
-                }
-            }
-
             BEDS.add(new BedPos(x, y, z, yaw));
             LOGGER.debug("[SimTale] Bed registered at ({},{},{}) yaw={}. Total: {}", x, y, z, yaw, BEDS.size());
         }
@@ -78,5 +69,11 @@ public final class BedRegistry {
 
     public static int size() {
         return BEDS.size();
+    }
+
+    public static void clear() {
+        synchronized (BEDS) {
+            BEDS.clear();
+        }
     }
 }
