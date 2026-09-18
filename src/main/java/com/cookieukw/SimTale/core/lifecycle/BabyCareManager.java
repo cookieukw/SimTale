@@ -122,14 +122,29 @@ public class BabyCareManager {
 
                 /* A BABY is an item in somebody's hands, never an entity, so the only thing that
                 proves it still exists is its care record. Restoring one without that record
-                resurrects a baby from a test session that ended long ago — and because its
-                birthTick is ancient, it is instantly overdue and grows up the moment the list is
-                populated. Five of those came back at once, promoted in the same tick, and landed
-                stacked on the same block.
+                resurrects a baby from a test session that ended long ago.
+                However, if a child was mistakenly saved as BABY due to tick resets while its entity
+                already exists in the world, heal it back to TODDLER.
                 */
-                if (child.stage == GrowthStage.BABY && load(child.childId) == null) {
-                    orphans++;
-                    continue;
+                if (child.stage == GrowthStage.BABY) {
+                    Ref<EntityStore> body = LifecycleUtils.getEntityRef(child.childId);
+                    if (body != null && body.isValid()) {
+                        child.stage = GrowthStage.TODDLER;
+                        child.currentScale = Math.max(0.45f, child.currentScale);
+                        child.birthTick = WorldUtil.tick() - (GrowthStage.TODDLER.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
+                        Caskara.save("child_" + child.childId, child);
+                        LOGGER.atInfo().log("SimTale: Restored child " + child.getFullName() + " from BABY back to TODDLER (entity exists)");
+                    } else if (load(child.childId) == null) {
+                        orphans++;
+                        continue;
+                    }
+                }
+
+                // Re-anchor birthTick if it is ahead of current session's world tick (server restart)
+                long currentTick = WorldUtil.tick();
+                if (child.birthTick > currentTick) {
+                    child.birthTick = currentTick - (child.stage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
+                    Caskara.save("child_" + child.childId, child);
                 }
 
                 /* One record per person, keeping the most advanced stage.
