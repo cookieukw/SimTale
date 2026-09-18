@@ -307,12 +307,22 @@ public class NPCMovementHelper {
     public static boolean hasClearPath(World world, Vector3d from, Vector3i target) {
         if (world == null) return false;
 
+        // If NPC is already within adjacent reach on similar elevation, path is clear
+        double dxDirect = (target.x + 0.5) - from.x;
+        double dzDirect = (target.z + 0.5) - from.z;
+        double dyDirect = Math.abs((target.y + 0.5) - from.y);
+        if ((dxDirect * dxDirect + dzDirect * dzDirect) <= 2.25 && dyDirect <= 1.2) {
+            return true;
+        }
+
         double tx = target.x + 0.5;
-        double ty = target.y + 0.5;
+        double ty = target.y + 0.8; // Torso level to avoid hitting floor voxels
         double tz = target.z + 0.5;
 
+        double fromY = from.y + 0.8; // Torso level
+
         double dx = tx - from.x;
-        double dy = ty - from.y;
+        double dy = ty - fromY;
         double dz = tz - from.z;
 
         double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
@@ -322,21 +332,29 @@ public class NPCMovementHelper {
         for (int i = 1; i < steps; i++) {
             double t = (double) i / steps;
             int bx = (int) Math.floor(from.x + dx * t);
-            int by = (int) Math.floor(from.y + dy * t);
+            int by = (int) Math.floor(fromY + dy * t);
             int bz = (int) Math.floor(from.z + dz * t);
 
             if (bx == target.x && by == target.y && bz == target.z) continue;
 
             BlockType block = world.getBlockType(bx, by, bz);
-            if (block == null || block.getId() == null) continue;
-            String id = block.getId();
-            if (id.equalsIgnoreCase("Empty")) continue;
-            // Furniture on the way is not a wall; the bed itself is the destination.
-            if (BedRegistry.isBedId(id)) continue;
+            if (isPassable(block)) continue;
 
             return false;
         }
         return true;
+    }
+
+    public static boolean isPassable(BlockType type) {
+        if (type == null || type.getId() == null) return true;
+        String id = type.getId();
+        if (id.equalsIgnoreCase("Empty") || id.equalsIgnoreCase("Air")) return true;
+        if (BedRegistry.isBedId(id) || ChairRegistry.isChair(id)) return true;
+        String lower = id.toLowerCase();
+        return lower.contains("door") || lower.contains("gate") || lower.contains("trapdoor")
+                || lower.contains("carpet") || lower.contains("rug") || lower.contains("mat")
+                || lower.contains("flower") || lower.contains("grass") || lower.contains("plant")
+                || lower.contains("fern");
     }
 
     private static boolean isAir(BlockType type) {
@@ -345,9 +363,16 @@ public class NPCMovementHelper {
         return id.equalsIgnoreCase("Empty") || id.equalsIgnoreCase("Air");
     }
 
+    private static boolean isPassableFloorDecor(BlockType type) {
+        if (type == null || type.getId() == null) return true;
+        String lower = type.getId().toLowerCase();
+        return lower.contains("carpet") || lower.contains("rug") || lower.contains("mat")
+                || lower.contains("flower") || lower.contains("grass") || lower.contains("fern");
+    }
+
     public static boolean isStandable(Vector3i pos, World world) {
         BlockType atPos = world.getBlockType(pos.x, pos.y, pos.z);
-        if (!isAir(atPos)) {
+        if (!isAir(atPos) && !isPassableFloorDecor(atPos)) {
             return false;
         }
 
