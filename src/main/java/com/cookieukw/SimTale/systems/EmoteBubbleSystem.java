@@ -31,6 +31,10 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 
+import com.cookieukw.SimTale.core.WorldUtil;
+import com.hypixel.hytale.server.core.modules.entity.system.TransformSystems;
+import com.hypixel.hytale.server.npc.systems.SteeringSystem;
+
 import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Set;
@@ -52,12 +56,16 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
     public static final long SPONTANEOUS_COOLDOWN_TICKS = 3600;
 
     public record ActiveThought(Ref<EntityStore> bubbleRef, long expireTick, ThoughtType thoughtType) {}
+    public record DelayedThought(ThoughtType thought, long targetTick) {}
 
     // Maps NPC UUID -> Active Thought Bubble Data
     private static final Map<UUID, ActiveThought> activeThoughts = new ConcurrentHashMap<>();
 
     // Queued thought requests from other systems: NPC UUID -> ThoughtType
     private static final Map<UUID, ThoughtType> pendingRequests = new ConcurrentHashMap<>();
+
+    // Delayed thought requests for staggering: NPC UUID -> DelayedThought
+    private static final Map<UUID, DelayedThought> delayedRequests = new ConcurrentHashMap<>();
 
     // Last time a thought was triggered for this NPC
     private static final Map<UUID, Long> lastThoughtTicks = new ConcurrentHashMap<>();
@@ -66,6 +74,20 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
     private static final Set<Ref<EntityStore>> trackedBubbleRefs = ConcurrentHashMap.newKeySet();
 
     private static final Set<Ref<EntityStore>> pendingDespawns = ConcurrentHashMap.newKeySet();
+
+    // Cache of scaled bubble models per model name and scale
+    private static final Map<String, Model> SCALED_BUBBLE_MODELS = new ConcurrentHashMap<>();
+
+    private static Model getOrCreateScaledBubble(String modelName, float scale) {
+        String key = modelName + "_" + scale;
+        return SCALED_BUBBLE_MODELS.computeIfAbsent(key, k -> {
+            ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(modelName);
+            if (modelAsset != null) {
+                return Model.createScaledModel(modelAsset, scale);
+            }
+            return null;
+        });
+    }
 
     @Override
     @Nonnull
@@ -80,7 +102,10 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
     @Nonnull
     public Set<Dependency<EntityStore>> getDependencies() {
         return Set.of(
-                new SystemDependency<>(Order.AFTER, PlayerProcessMovementSystem.class)
+                new SystemDependency<>(Order.AFTER, PlayerProcessMovementSystem.class),
+                new SystemDependency<>(Order.AFTER, SteeringSystem.class),
+                new SystemDependency<>(Order.AFTER, RoutineAISystem.class),
+                new SystemDependency<>(Order.BEFORE, TransformSystems.EntityTrackerUpdate.class)
         );
     }
 
@@ -96,7 +121,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
         if (pm != null && pm.getModelReference().getModelAssetId() != null
                 && pm.getModelReference().getModelAssetId().startsWith("Thought_")) {
             Ref<EntityStore> thisRef = chunk.getReferenceTo(index);
-            if (!trackedBubbleRefs.contains(thisRef) && !pendingDespawns.remove(thisRef)) {
+            if (!trackedBubbleRefs.contains(thisRef) || pendingDespawns.remove(thisRef)) {
                 commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
                 LOGGER.atFine().log("[SimTale] Limpando balao de pensamento orfao: " + uuidComp.getUuid());
             }
@@ -123,6 +148,13 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
             currentThought = null;
         }
 
+        // Check delayed requests
+        DelayedThought dtReq = delayedRequests.get(entityUuid);
+        if (dtReq != null && currentTick >= dtReq.targetTick()) {
+            delayedRequests.remove(entityUuid);
+            pendingRequests.put(entityUuid, dtReq.thought());
+        }
+
         // Check if there is a pending request for a new thought
         ThoughtType requestedThought = pendingRequests.remove(entityUuid);
         if (requestedThought != null) {
@@ -135,9 +167,8 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
                 Ref<EntityStore> bubbleRef = currentThought.bubbleRef();
                 if (bubbleRef != null && bubbleRef.isValid()) {
                     String modelName = requestedThought.getModelName();
-                    ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(modelName);
-                    if (modelAsset != null) {
-                        Model model = Model.createScaledModel(modelAsset, scale);
+                    Model model = getOrCreateScaledBubble(modelName, scale);
+                    if (model != null) {
                         commandBuffer.replaceComponent(bubbleRef, PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
                         commandBuffer.replaceComponent(bubbleRef, ModelComponent.getComponentType(), new ModelComponent(model));
                         activeThoughts.put(entityUuid, new ActiveThought(bubbleRef, currentTick + THOUGHT_LIFETIME_TICKS, requestedThought));
@@ -176,12 +207,13 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
             long elapsed = currentTick - (currentThought.expireTick() - THOUGHT_LIFETIME_TICKS);
             double bob = Math.sin(elapsed * 0.18) * 0.04;
 
-            // Position beside the head, not above
-            bubbleTransform.teleportPosition(new Vector3d(
-                    entityTransform.getPosition().x + xOffset,
-                    entityTransform.getPosition().y + headHeight + bob,
-                    entityTransform.getPosition().z
-            ));
+            // Position beside the head in-place without vector allocation
+            Vector3d entityPos = entityTransform.getPosition();
+            bubbleTransform.getPosition().set(
+                    entityPos.x + xOffset,
+                    entityPos.y + headHeight + bob,
+                    entityPos.z
+            );
             commandBuffer.replaceComponent(bubbleRef, TransformComponent.getComponentType(), bubbleTransform);
         }
     }
@@ -191,14 +223,14 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
                               int index, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer,
                               SimNPCComponent npc) {
         String modelName = thought.getModelName();
-        ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(modelName);
-        if (modelAsset == null) {
+        boolean isChild = InteractionManager.isNpcAChild(npc);
+        float scale = isChild ? 0.095f : 0.065f;
+
+        Model model = getOrCreateScaledBubble(modelName, scale);
+        if (model == null) {
             LOGGER.atWarning().log("[SimTale] Thought ModelAsset not found: " + modelName);
             return;
         }
-
-        boolean isChild = InteractionManager.isNpcAChild(npc);
-        float scale = isChild ? 0.095f : 0.065f;
 
         double headHeight = 1.55;
         double xOffset = isChild ? 0.48 : 0.60;
@@ -207,10 +239,10 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
             headHeight = isChild ? (box.getBoundingBox().height() * 0.85) : (box.getBoundingBox().height() * 0.80);
         }
 
-        Model model = Model.createScaledModel(modelAsset, scale);
         Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
+        Vector3d entityPos = entityTransform.getPosition();
         holder.addComponent(TransformComponent.getComponentType(), new TransformComponent(
-                new Vector3d(entityTransform.getPosition().x + xOffset, entityTransform.getPosition().y + headHeight, entityTransform.getPosition().z),
+                new Vector3d(entityPos.x + xOffset, entityPos.y + headHeight, entityPos.z),
                 new Rotation3f()
         ));
         holder.addComponent(PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
@@ -233,14 +265,26 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
     }
 
     /**
-     * Requests a thought bubble to appear above the NPC's head.
-     *
-     * @param npcUuid NPC entity UUID
-     * @param thought The thought/emote type to show
+     * Requests a thought bubble to appear above the NPC's head immediately.
      */
     public static void triggerThought(UUID npcUuid, ThoughtType thought) {
         if (npcUuid == null || thought == null) return;
         pendingRequests.put(npcUuid, thought);
+    }
+
+    /**
+     * Requests a thought bubble to appear above the NPC's head with a delay in ticks,
+     * allowing staggered thoughts between nearby NPCs so they don't pop simultaneously.
+     */
+    public static void triggerThoughtWithDelay(UUID npcUuid, ThoughtType thought, int delayTicks) {
+        if (npcUuid == null || thought == null) return;
+        if (delayTicks <= 0) {
+            triggerThought(npcUuid, thought);
+            return;
+        }
+        World world = WorldUtil.first();
+        long currentTick = world != null ? world.getTick() : 0;
+        delayedRequests.put(npcUuid, new DelayedThought(thought, currentTick + delayTicks));
     }
 
     /**
@@ -262,6 +306,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
     public static void removeThought(UUID npcUuid) {
         if (npcUuid == null) return;
         pendingRequests.remove(npcUuid);
+        delayedRequests.remove(npcUuid);
         ActiveThought at = activeThoughts.remove(npcUuid);
         if (at != null && at.bubbleRef() != null) {
             trackedBubbleRefs.remove(at.bubbleRef());
