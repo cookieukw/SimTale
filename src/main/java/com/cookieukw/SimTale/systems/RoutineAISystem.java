@@ -537,6 +537,8 @@ once per NPC per tick for nothing.
             }
         }
 
+        handleNpcSeparation(ref, npc, transform, ai, store);
+
         if (RoutineSleepHelpers.handleIdle(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
         /* FINDING_BED */
@@ -1168,6 +1170,63 @@ once per NPC per tick for nothing.
                 (int) (centerZ + Math.sin(angle) * radius)
         );
         NPCMovementHelper.playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
+    }
+
+    /**
+     * Gently repels overlapping NPCs if they are standing too close to one another (<0.7m),
+     * preventing them from stacking or clipping inside each other.
+     */
+    private static void handleNpcSeparation(Ref<EntityStore> ref, SimNPCComponent npc, TransformComponent transform, RoutineAIComponent ai, Store<EntityStore> store) {
+        if (ai == null || npc == null || transform == null) return;
+        if (ai.currentTask == TaskType.SLEEPING || ai.currentTask == TaskType.ENTERING_BED
+                || ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR
+                || ChildCarryHelper.isBeingCarried(store, npc)) {
+            return;
+        }
+
+        Vector3d myPos = transform.getPosition();
+        double pushX = 0;
+        double pushZ = 0;
+        int overlapCount = 0;
+
+        for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
+            if (other == npc || other.entityRef == null || !other.entityRef.isValid() || other.entityId == null) continue;
+            TransformComponent ot = store.getComponent(other.entityRef, TransformComponent.getComponentType());
+            if (ot == null) continue;
+
+            Vector3d otherPos = ot.getPosition();
+            double dy = Math.abs(myPos.y - otherPos.y);
+            if (dy > 1.5) continue;
+
+            double dx = myPos.x - otherPos.x;
+            double dz = myPos.z - otherPos.z;
+            double distSq = dx * dx + dz * dz;
+            if (distSq < 0.7 * 0.7) {
+                double dist = Math.sqrt(distSq);
+                if (dist < 0.001) {
+                    int hash = npc.entityId.hashCode();
+                    double angle = (hash & 0xFFFF) * (Math.PI * 2.0 / 65536.0);
+                    pushX += Math.cos(angle) * 0.25;
+                    pushZ += Math.sin(angle) * 0.25;
+                } else {
+                    double strength = (0.7 - dist) * 0.2;
+                    pushX += (dx / dist) * strength;
+                    pushZ += (dz / dist) * strength;
+                }
+                overlapCount++;
+            }
+        }
+
+        if (overlapCount > 0) {
+            Vector3d newPos = new Vector3d(myPos.x + pushX, myPos.y, myPos.z + pushZ);
+            transform.setPosition(newPos);
+            if (ai.currentTask == TaskType.IDLE && ai.lastLeashPos == null) {
+                NPCEntity npcEntity = store.getComponent(ref, NPCEntity.getComponentType());
+                if (npcEntity != null) {
+                    npcEntity.setLeashPoint(new Vector3d(newPos));
+                }
+            }
+        }
     }
 
 }
