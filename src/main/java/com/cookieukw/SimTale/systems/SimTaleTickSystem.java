@@ -275,7 +275,13 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                             && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) > socialMin;
 
                     if (hasWellness) {
-                        Mood mood = (isChild && Math.random() < 0.35) ? Mood.EXCITED : Mood.HAPPY;
+                        Mood mood;
+                        if (isChild && (npc.activeEmotion == Mood.EXCITED || npc.activeEmotion == Mood.HAPPY)) {
+                            // Preserve active positive emotion while well, avoiding tick-by-tick random flickering
+                            mood = npc.activeEmotion;
+                        } else {
+                            mood = (isChild && Math.random() < 0.35) ? Mood.EXCITED : Mood.HAPPY;
+                        }
                         float intensity = isChild ? 0.6f : 0.3f;
                         npc.setEmotion(mood, intensity, isChild ? "childhood_joy" : "wellness", absoluteTick);
                     } else {

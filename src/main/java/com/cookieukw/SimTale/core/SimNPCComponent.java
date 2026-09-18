@@ -290,9 +290,13 @@ public class SimNPCComponent implements Component<EntityStore> {
             change = true;
         } else if (newPriority > currentPriority) {
             change = true;
-        } else if (newPriority == currentPriority) {
+        } else if (emotion == activeEmotion) {
             // Same feeling: a stronger dose refreshes it, a weaker one waits its turn.
             change = intensity >= emotionIntensity || elapsed >= EMOTION_HOLD_TICKS;
+        } else if (newPriority == currentPriority) {
+            // Different feeling of equal priority (e.g. HAPPY vs EXCITED):
+            // Only replaces if strictly stronger, or if the hold window has passed.
+            change = intensity > emotionIntensity || elapsed >= EMOTION_HOLD_TICKS;
         } else {
             change = elapsed >= EMOTION_HOLD_TICKS && (emotionIntensity <= FADED_EMOTION || intensity >= 0.6f);
         }

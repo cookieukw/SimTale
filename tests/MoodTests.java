@@ -25,6 +25,7 @@ public final class MoodTests {
         Assert.suite("Stronger feelings win immediately", MoodTests::stronger);
         Assert.suite("Weaker feelings wait", MoodTests::weaker);
         Assert.suite("Same feeling: intensity decides", MoodTests::sameFeeling);
+        Assert.suite("Equal priority different feelings: hold and intensity decide", MoodTests::equalPriorityDifferentFeelings);
     }
 
     private static SimNPCComponent npc() {
@@ -93,5 +94,22 @@ public final class MoodTests {
         Assert.floatEqual(npc.emotionIntensity, 1.0f, "intensity is clamped to 1");
         npc.setEmotion(Mood.SCARED, -3.0f, "test", 30L + HOLD);
         Assert.floatEqual(npc.emotionIntensity, 0.0f, "and to 0");
+    }
+
+    private static void equalPriorityDifferentFeelings() {
+        SimNPCComponent npc = npc();
+        npc.setEmotion(Mood.HAPPY, 0.6f, "wellness", 0L);
+
+        // Equal priority and equal intensity must NOT overwrite during hold window (prevents flickering)
+        npc.setEmotion(Mood.EXCITED, 0.6f, "wellness", 5L);
+        Assert.equal(npc.getMood(), Mood.HAPPY, "equal priority with equal intensity cannot overwrite during hold");
+
+        // Strictly stronger intensity CAN overwrite equal priority
+        npc.setEmotion(Mood.EXCITED, 0.9f, "gift", 10L);
+        Assert.equal(npc.getMood(), Mood.EXCITED, "strictly stronger intensity overrides equal priority");
+
+        // After hold window, equal priority with equal or lower intensity can land
+        npc.setEmotion(Mood.HAPPY, 0.6f, "wellness", 10L + HOLD);
+        Assert.equal(npc.getMood(), Mood.HAPPY, "after hold window expires, equal priority mood can land");
     }
 }
