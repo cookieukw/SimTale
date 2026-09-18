@@ -48,7 +48,9 @@ public class SimTaleConfigManager {
             SimTaleConfig loaded = GSON.fromJson(reader, SimTaleConfig.class);
             if (loaded != null) {
                 currentConfig = loaded;
-                LOGGER.atInfo().log("[SimTale] Configuracao carregada de " + CONFIG_FILE.getName());
+                if (loaded.debugMode) {
+                    LOGGER.atInfo().log("[SimTale] Configuracao carregada de " + CONFIG_FILE.getName());
+                }
             }
         } catch (Exception e) {
             LOGGER.atWarning().log("[SimTale] Falha ao ler simtale-config.json, mantendo padroes: " + e);

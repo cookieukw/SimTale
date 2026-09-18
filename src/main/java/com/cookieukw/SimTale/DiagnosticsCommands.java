@@ -439,17 +439,33 @@ final class DiagnosticsCommands {
      * chest, door). Without a way to turn them on in-game, investigating anything required recompiling.
      */
     static class DebugLogSubCommand extends AbstractPlayerCommand {
+        private final OptionalArg<String> stateArg;
+
         public DebugLogSubCommand() {
-            super("debug", "Toggles SimTale debug messages in the log");
+            super("debug", "Toggles or sets SimTale debug mode and logs (on|off)");
+            this.stateArg = this.withOptionalArg("state", "on|off", ArgTypes.STRING);
         }
 
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
-            SimLog.debugEnabled = !SimLog.debugEnabled;
-            ctx.sendMessage(Message.raw("[SimTale] debug log "
-                    + (SimLog.debugEnabled ? "ON" : "OFF")
-                    + (SimLog.debugEnabled ? " — remember to turn it off later, it is verbose." : "")));
+            SimTaleConfig config = SimTaleConfigManager.getConfig();
+            String state = ctx.get(this.stateArg);
+            boolean newState;
+            if (state != null && !state.isEmpty()) {
+                newState = state.equalsIgnoreCase("on") || state.equalsIgnoreCase("true") || state.equalsIgnoreCase("1");
+            } else {
+                newState = !SimLog.isDebug();
+            }
+
+            SimLog.debugEnabled = newState;
+            if (config != null) {
+                config.debugMode = newState;
+                SimTaleConfigManager.save();
+            }
+
+            ctx.sendMessage(Message.raw("[SimTale] Modo debug: "
+                    + (newState ? "ATIVADO (logs visiveis)" : "DESATIVADO (logs silenciados)")));
         }
     }
 

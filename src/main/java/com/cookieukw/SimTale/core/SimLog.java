@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.core;
 
+import com.cookieukw.SimTale.config.SimTaleConfig;
+import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.hypixel.hytale.logger.HytaleLogger;
 
 /**
@@ -31,11 +33,8 @@ import com.hypixel.hytale.logger.HytaleLogger;
 public final class SimLog {
 
     /**
-     * {@code debug} calls are discarded by default.
-     * <p>
-     * No loss: they were already discarded by NOP. Enabling everything at once would flood the
-     * server log with per-tick scans (searching for beds, water, chests). Enable selectively when
-     * needed.
+     * Runtime override for debug messages. If true or if {@link SimTaleConfig#debugMode} is true,
+     * logs are emitted. Otherwise all logs are suppressed.
      */
     public static volatile boolean debugEnabled = false;
 
@@ -53,20 +52,36 @@ public final class SimLog {
         return new SimLog(HytaleLogger.get(name));
     }
 
+    /**
+     * Checks if debug logging is enabled either by in-memory flag or persisted config.
+     */
+    public static boolean isDebug() {
+        if (debugEnabled) return true;
+        try {
+            SimTaleConfig cfg = SimTaleConfigManager.getConfig();
+            return cfg != null && cfg.debugMode;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
     /* ---------------------------------------------------------------------
     SLF4J-style API
     ---------------------------------------------------------------------
     */
 
     public void info(String format, Object... args) {
+        if (!isDebug()) return;
         delegate.atInfo().log(format(format, args));
     }
 
     public void warn(String format, Object... args) {
+        if (!isDebug()) return;
         delegate.atWarning().log(format(format, args));
     }
 
     public void error(String format, Object... args) {
+        if (!isDebug()) return;
         // Throwable at the end of varargs is the SLF4J convention: it becomes the cause, not an argument.
         Throwable cause = extractCause(args);
         if (cause != null) {
@@ -77,21 +92,20 @@ public final class SimLog {
     }
 
     public void debug(String format, Object... args) {
-        if (debugEnabled) {
-            delegate.atInfo().log("[debug] " + format(format, args));
-        }
+        if (!isDebug()) return;
+        delegate.atInfo().log("[debug] " + format(format, args));
     }
 
     public boolean isInfoEnabled() {
-        return true;
+        return isDebug();
     }
 
     public boolean isDebugEnabled() {
-        return debugEnabled;
+        return isDebug();
     }
 
     public boolean isWarnEnabled() {
-        return true;
+        return isDebug();
     }
 
     /* ---------------------------------------------------------------------
