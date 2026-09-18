@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.ThoughtType;
+import com.cookieukw.SimTale.logic.InteractionManager;
 import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -38,17 +39,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Ticking ECS system that manages Terraria-style floating thought bubbles (Emote Bubbles)
- * above NPC heads. Displays contextual thoughts for 3.5 seconds and despawns them cleanly.
+ * above NPC heads. Displays contextual thoughts for 15 seconds and despawns them cleanly.
  */
 public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
 
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
-    /** How long a thought bubble remains visible: 70 ticks (3.5 seconds). */
-    public static final int THOUGHT_LIFETIME_TICKS = 70;
+    /** How long a thought bubble remains visible: 300 ticks (15 seconds). */
+    public static final int THOUGHT_LIFETIME_TICKS = 300;
 
-    /** Minimum cooldown between spontaneous idle thoughts: 45 seconds (900 ticks). */
-    public static final long SPONTANEOUS_COOLDOWN_TICKS = 900;
+    /** Minimum cooldown between spontaneous idle thoughts: 3 minutes (3600 ticks). */
+    public static final long SPONTANEOUS_COOLDOWN_TICKS = 3600;
 
     public record ActiveThought(Ref<EntityStore> bubbleRef, long expireTick, ThoughtType thoughtType) {}
 
@@ -126,6 +127,9 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
         ThoughtType requestedThought = pendingRequests.remove(entityUuid);
         if (requestedThought != null) {
             lastThoughtTicks.put(entityUuid, currentTick);
+            boolean isChild = InteractionManager.isNpcAChild(npc);
+            float scale = isChild ? 0.095f : 0.065f;
+
             if (currentThought != null) {
                 // Update existing bubble model and refresh timer
                 Ref<EntityStore> bubbleRef = currentThought.bubbleRef();
@@ -133,7 +137,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
                     String modelName = requestedThought.getModelName();
                     ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(modelName);
                     if (modelAsset != null) {
-                        Model model = Model.createScaledModel(modelAsset, 0.06f);
+                        Model model = Model.createScaledModel(modelAsset, scale);
                         commandBuffer.replaceComponent(bubbleRef, PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
                         commandBuffer.replaceComponent(bubbleRef, ModelComponent.getComponentType(), new ModelComponent(model));
                         activeThoughts.put(entityUuid, new ActiveThought(bubbleRef, currentTick + THOUGHT_LIFETIME_TICKS, requestedThought));
@@ -142,7 +146,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
                 }
             }
             // Spawn new bubble entity
-            spawnThought(entityUuid, requestedThought, currentTick, entityTransform, chunk, index, store, commandBuffer);
+            spawnThought(entityUuid, requestedThought, currentTick, entityTransform, chunk, index, store, commandBuffer, npc);
             return;
         }
 
@@ -160,10 +164,12 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
                 return;
             }
 
+            boolean isChild = InteractionManager.isNpcAChild(npc);
             double headHeight = 1.55;
+            double xOffset = isChild ? 0.48 : 0.60;
             BoundingBox box = chunk.getComponent(index, BoundingBox.getComponentType());
             if (box != null) {
-                headHeight = box.getBoundingBox().height() * 0.75;
+                headHeight = isChild ? (box.getBoundingBox().height() * 0.85) : (box.getBoundingBox().height() * 0.80);
             }
 
             // Gentle vertical bobbing
@@ -172,7 +178,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
 
             // Position beside the head, not above
             bubbleTransform.teleportPosition(new Vector3d(
-                    entityTransform.getPosition().x + 0.65,
+                    entityTransform.getPosition().x + xOffset,
                     entityTransform.getPosition().y + headHeight + bob,
                     entityTransform.getPosition().z
             ));
@@ -182,7 +188,8 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
 
     private void spawnThought(UUID entityUuid, ThoughtType thought, long currentTick,
                               TransformComponent entityTransform, ArchetypeChunk<EntityStore> chunk,
-                              int index, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
+                              int index, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer,
+                              SimNPCComponent npc) {
         String modelName = thought.getModelName();
         ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(modelName);
         if (modelAsset == null) {
@@ -190,16 +197,20 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
             return;
         }
 
+        boolean isChild = InteractionManager.isNpcAChild(npc);
+        float scale = isChild ? 0.095f : 0.065f;
+
         double headHeight = 1.55;
+        double xOffset = isChild ? 0.48 : 0.60;
         BoundingBox box = chunk.getComponent(index, BoundingBox.getComponentType());
         if (box != null) {
-            headHeight = box.getBoundingBox().height() * 0.75;
+            headHeight = isChild ? (box.getBoundingBox().height() * 0.85) : (box.getBoundingBox().height() * 0.80);
         }
 
-        Model model = Model.createScaledModel(modelAsset, 0.06f);
+        Model model = Model.createScaledModel(modelAsset, scale);
         Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
         holder.addComponent(TransformComponent.getComponentType(), new TransformComponent(
-                new Vector3d(entityTransform.getPosition().x + 0.65, entityTransform.getPosition().y + headHeight, entityTransform.getPosition().z),
+                new Vector3d(entityTransform.getPosition().x + xOffset, entityTransform.getPosition().y + headHeight, entityTransform.getPosition().z),
                 new Rotation3f()
         ));
         holder.addComponent(PersistentModel.getComponentType(), new PersistentModel(model.toReference()));

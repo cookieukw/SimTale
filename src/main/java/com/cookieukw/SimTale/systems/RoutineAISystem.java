@@ -537,7 +537,7 @@ once per NPC per tick for nothing.
         }
 
         if (ai.currentTask == TaskType.WANDERING || ai.currentTask == TaskType.IDLE) {
-            if (Math.random() < 0.0008) {
+            if (Math.random() < 0.0001) {
                 EmoteBubbleSystem.triggerSpontaneousThought(npc.entityId, ThoughtType.randomCasual(), world.getTick());
             }
         }
