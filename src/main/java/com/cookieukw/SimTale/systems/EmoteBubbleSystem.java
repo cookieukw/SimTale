@@ -133,7 +133,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
                     String modelName = requestedThought.getModelName();
                     ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(modelName);
                     if (modelAsset != null) {
-                        Model model = Model.createScaledModel(modelAsset, 0.12f);
+                        Model model = Model.createScaledModel(modelAsset, 0.06f);
                         commandBuffer.replaceComponent(bubbleRef, PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
                         commandBuffer.replaceComponent(bubbleRef, ModelComponent.getComponentType(), new ModelComponent(model));
                         activeThoughts.put(entityUuid, new ActiveThought(bubbleRef, currentTick + THOUGHT_LIFETIME_TICKS, requestedThought));
@@ -196,7 +196,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
             headHeight = box.getBoundingBox().height() * 0.75;
         }
 
-        Model model = Model.createScaledModel(modelAsset, 0.12f);
+        Model model = Model.createScaledModel(modelAsset, 0.06f);
         Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
         holder.addComponent(TransformComponent.getComponentType(), new TransformComponent(
                 new Vector3d(entityTransform.getPosition().x + 0.65, entityTransform.getPosition().y + headHeight, entityTransform.getPosition().z),
