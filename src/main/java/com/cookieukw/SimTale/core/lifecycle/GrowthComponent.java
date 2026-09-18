@@ -75,7 +75,12 @@ public class GrowthComponent {
      * Calculates the age in in-game days.
      */
     public int getAgeDays(long currentTick) {
-        return (int) ((currentTick - birthTick) / PregnancyComponent.TICKS_PER_DAY);
+        if (currentTick < birthTick) {
+            // World was restarted / session tick counter reset
+            this.birthTick = currentTick - (this.stage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
+        }
+        int age = (int) ((currentTick - birthTick) / PregnancyComponent.TICKS_PER_DAY);
+        return Math.max(stage.getStartDay(), age);
     }
 
     /**
@@ -90,15 +95,15 @@ public class GrowthComponent {
      * to keep a backlog of overdue children from all growing up in the same tick.
      */
     public boolean wouldChangeStage(long currentTick) {
-        return GrowthStage.fromAge(getAgeDays(currentTick)) != this.stage;
+        return GrowthStage.fromAge(getAgeDays(currentTick)).ordinal() > this.stage.ordinal();
     }
 
     public boolean updateStage(long currentTick) {
         int ageDays = getAgeDays(currentTick);
         GrowthStage newStage = GrowthStage.fromAge(ageDays);
-        if (newStage != this.stage) {
+        if (newStage.ordinal() > this.stage.ordinal()) {
             this.stage = newStage;
-            this.currentScale = newStage.getScale();
+            this.currentScale = Math.max(this.currentScale, newStage.getScale());
             return true;
         }
         return false;
