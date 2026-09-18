@@ -45,7 +45,8 @@ When the interaction panel opens, the camera dynamically adjusts its distance, h
 
 ### Celebrations & Ambient Interactions
 - **Birthday Celebration**: Holding a **Birthday Cake** (`BirthdayCake`) and interacting/right-clicking next to a villager triggers an immediate celebration! The NPC eats a slice, completely refilling hunger, sparkling with joyous particles, boosting affinity, and setting their mood to maximum happiness (**EXCITED** at 1.0 intensity).
-- **Player Proximity Greetings**: Approaching an NPC ($\le 4.5m$) prompts them to turn toward you, smile, wave, and send a contextual greeting in chat based on your relationship tier (Partner, Friend, Stranger, Enemy). Cooldown of 45 seconds prevents spam.
+- **Player Proximity Greetings**: Approaching an NPC ($\le 4.5m$) prompts them to turn toward you, smile, wave, and send a contextual greeting in chat based on your relationship tier (Partner, Friend, Stranger, Enemy). Includes a per-player anti-spam rate limiter (15s window) so that approaching a crowded village square only triggers one greeting at a time instead of a flood of simultaneous messages. Fully configurable via `/simtale proximity` and `simtale-config.json` (supports disabling chat text while keeping visual waves).
+- **Emote & Thought Bubbles**: NPCs express their feelings, routine events, and reactions through animated 3D thought bubbles hovering near their heads (over 36 expressive emoji icons, such as romantic hearts, sleepy Zzz, food cravings, and mischievous smug expressions).
 - **NPC-to-NPC Conversations**: When two NPCs meet during their daily routines, they stop, face each other, and converse turn-by-turn. Dialogue topics adapt to their actual context (farmers talk about crops, exhausted NPCs talk about sleep, starving NPCs discuss food, and enemies trade insults before shoving each other). Chatter is audible in chat within a 4-block radius.
 
 ## Gifts

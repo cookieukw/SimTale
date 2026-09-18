@@ -407,6 +407,19 @@ yellow below 50, orange below 25, red below 5. At 5, the NPC cries and abandons 
 | **View pregnancy** | Opens the gestation panel                                                                                                                                                                                                                                                                 |
 | **Inventory**      | Opens her inventory                                                                                                                                                                                                                                                                       |
 
+### Ambient Interactions & Proximity
+
+- **Player Proximity Greetings**: Approaching an NPC (default radius 4.5 blocks) prompts them to turn toward you, smile, wave, and send a contextual greeting in chat based on your relationship tier (Partner, Friend, Stranger, Enemy).
+- **Anti-Spam & Configuration**: To prevent chat clutter when entering bustling villages, an anti-spam rate limiter ensures only one NPC speaks per player cooldown window (default 15s), with an individual NPC cooldown (default 60s). All settings can be adjusted in-game via `/simtale proximity` or in `simtale-config.json`:
+  - `/simtale proximity`: displays current settings.
+  - `/simtale proximity on|off`: enables/disables proximity greetings.
+  - `/simtale proximity chat on|off`: disables chat text while keeping friendly wave animations.
+  - `/simtale proximity cooldown <sec>`: sets individual NPC greeting cooldown.
+  - `/simtale proximity limit <sec>`: sets player anti-spam window.
+  - `/simtale proximity radius <blocks>`: sets player detection radius.
+- **Emote & Thought Bubbles**: Animated 3D bubbles featuring 36 kawaii emoji icons appear above NPCs to express emotions, daily routine states (sleepy, hungry, playing), reactions to gifts, and conversations.
+- **NPC-to-NPC Conversations**: NPCs greet and chat with each other with contextual topics (farming, sleep, food, gossip) when their paths cross.
+
 ### Gifts
 
 What she thinks of a gift depends, in this order:

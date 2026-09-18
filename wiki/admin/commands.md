@@ -88,14 +88,30 @@ Take no argument: it advances the held baby to the first stage that can be put d
 the ground, `setstage` takes over.
 :::
 
-## State
+## State & Expressions
 
 | Command | What it does |
 |---|---|
 | `/simtale setmood <mood> [0-100]` | Sets mood. Intensity is an **integer percentage** |
 | `/simtale setgender` | Sets gender |
 | `/simtale interact` | Opens the interaction panel |
+| `/simtale thought <type>` | Displays an emote thought bubble over the nearest NPC's head (e.g. `SMUG`, `LOVE`, `PARTY`, `JOY`, `SICK`) |
+
+## Configuration & Proximity
+
+| Command | What it does |
+|---|---|
+| `/simtale proximity` | Displays the current proximity interaction configuration |
+| `/simtale proximity on\|off` | Enables or disables NPC proximity greetings |
+| `/simtale proximity chat [on\|off]` | Toggles chat greeting messages (if off, NPCs only wave and smile without chat text) |
+| `/simtale proximity cooldown <seconds>` | Sets individual NPC greeting cooldown (default: `60`s) |
+| `/simtale proximity limit <seconds>` | Sets player anti-spam window to prevent multiple NPCs greeting at once (default: `15`s) |
+| `/simtale proximity radius <blocks>` | Sets player detection radius in blocks (default: `4.5`) |
+
+:::info Persistent Server Config
+All proximity settings are saved to `simtale-config.json` on the server root and loaded automatically on boot.
+:::
 
 ---
 
-*Verified against the 32 subcommands registered in `SimTaleCommand.java`.*
+*Updated with the latest subcommands registered in `SimTaleCommand.java`.*

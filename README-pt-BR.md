@@ -402,6 +402,19 @@ As cores na barra de fome seguem os limites que a rotina realmente usa: verde ac
 | **Ver gravidez (View pregnancy)**  | Abre o painel de gestação                                                                                                                                                                                                                                                                                                                                         |
 | **Inventário (Inventory)**         | Abre o inventário dela                                                                                                                                                                                                                                                                                                                                            |
 
+### Interações Espontâneas & Proximidade
+
+- **Cumprimento ao se Aproximar**: Ao chegar perto de um NPC (raio padrão de 4.5 blocos), ele se vira para você, sorri, acena e envia uma saudação no chat de acordo com o nível de relacionamento (Cônjuge, Amigo, Estranho ou Inimigo).
+- **Anti-Spam de Chat & Configuração**: Para evitar poluição sonora e visual ao entrar em vilas movimentadas com vários moradores, o sistema inclui proteção anti-spam por jogador (janela padrão de 15s) e recarga individual por NPC (60s). Todas as opções podem ser configuradas no jogo via comando ou no arquivo `simtale-config.json`:
+  - `/simtale proximity`: exibe as configurações ativas.
+  - `/simtale proximity on|off`: ativa/desativa os cumprimentos de proximidade.
+  - `/simtale proximity chat on|off`: desativa as mensagens no chat mantendo os acenos amigáveis.
+  - `/simtale proximity cooldown <seg>`: define a recarga individual do NPC.
+  - `/simtale proximity limit <seg>`: ajusta o intervalo anti-spam por jogador.
+  - `/simtale proximity radius <blocos>`: ajusta o raio de detecção.
+- **Balões de Pensamento e Reações (Thought Bubbles)**: Balões 3D animados com mais de 36 emojis kawaii aparecem acima dos NPCs para expressar sentimentos, rotinas diárias (sono, fome, brincadeiras), reações a presentes e conversas.
+- **Conversas entre NPCs**: NPCs conversam entre si com temas dinâmicos (trabalho, cansaço, comida, fofocas) quando se encontram na vila.
+
 ### Presentes
 
 O que ela acha de um presente depende, nesta ordem:

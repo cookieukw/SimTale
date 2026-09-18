@@ -86,14 +86,30 @@ Take no argument: it advances the held baby to the first stage that can be put d
 the ground, `setstage` takes over.
 :::
 
-## State
+## Estado & Expressões
 
-| Command | What it does |
+| Comando | O que faz |
 |---|---|
-| `/simtale setmood <mood> [0-100]` | Sets mood. Intensity is an **integer percentage** |
-| `/simtale setgender` | Sets gender |
-| `/simtale interact` | Opens the interaction panel |
+| `/simtale setmood <mood> [0-100]` | Define o humor. Intensidade é uma **porcentagem inteira** |
+| `/simtale setgender` | Define o gênero |
+| `/simtale interact` | Abre o painel de interação |
+| `/simtale thought <tipo>` | Exibe um balão de pensamento animado sobre a cabeça do NPC (ex: `SMUG`, `LOVE`, `PARTY`, `JOY`, `SICK`) |
+
+## Configuração & Proximidade
+
+| Comando | O que faz |
+|---|---|
+| `/simtale proximity` | Exibe o status atual da configuração de proximidade |
+| `/simtale proximity on\|off` | Ativa ou desativa as saudações ao se aproximar de NPCs |
+| `/simtale proximity chat [on\|off]` | Alterna envio de mensagens no chat (se desativado, o NPC apenas acena e sorri sem poluir o chat) |
+| `/simtale proximity cooldown <segundos>` | Ajusta a recarga individual de saudação do NPC (padrão: `60`s) |
+| `/simtale proximity limit <segundos>` | Ajusta a janela anti-spam por jogador para evitar múltiplos NPCs falando ao mesmo tempo (padrão: `15`s) |
+| `/simtale proximity radius <blocos>` | Ajusta o raio de detecção de aproximação em blocos (padrão: `4.5`) |
+
+:::info Configuração Persistente do Servidor
+Todas as preferências de proximidade são salvas automaticamente no arquivo `simtale-config.json` na raiz do servidor.
+:::
 
 ---
 
-*Verificado contra os 32 subcomandos registrados em `SimTaleCommand.java`.*
+*Atualizado com os subcomandos mais recentes registrados em `SimTaleCommand.java`.*
