@@ -53,6 +53,12 @@ and wakes when rested.
 
 ![A child NPC sleeping](/img/child_sleeping.png)
 
+<p align="center">
+  <img src="/img/npc_seated_child_sleeping.png" width="49%" alt="NPC seated while a child sleeps" />
+  <img src="/img/child_sitting_chair.png" width="49%" alt="Child NPC sitting on a chair" />
+</p>
+
+
 :::tip Skipping the night wakes them
 Running `time set day` wakes sleeping NPCs immediately, because waking follows the world clock
 rather than a fixed timer.

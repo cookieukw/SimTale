@@ -48,6 +48,12 @@ Ao abrir o painel de interação, a câmera ajusta dinamicamente a distância, e
 - **Balões de Pensamento e Emotes (Thought Bubbles)**: NPCs expressam sentimentos, rotinas e reações através de balões 3D animados flutuando ao lado da cabeça (mais de 36 ícones de emojis kawaii, como corações apaixonados, sono Zzz, pedidos de comida ou carinhas convencidas).
 - **Conversas NPC-com-NPC**: Quando dois moradores se encontram durante suas rotinas diárias, eles param frente a frente e conversam turno-a-turno. Os assuntos são contextuais (fazendeiros conversam sobre a lavoura, NPCs exaustos comentam sobre cama/sono, famintos falam de comida, e inimigos trocam ofensas antes de se empurrarem). O bate-papo é audível no chat em um raio de até 4 blocos.
 
+<p align="center">
+  <img src="/img/player_interacting_children.png" width="49%" alt="Jogador interagindo com crianças" />
+  <img src="/img/children_playing.png" width="49%" alt="Crianças interagindo e brincando juntas" />
+</p>
+
+
 ## Presentes
 
 O que ela acha de um presente depende, nesta ordem:

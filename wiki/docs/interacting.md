@@ -49,6 +49,12 @@ When the interaction panel opens, the camera dynamically adjusts its distance, h
 - **Emote & Thought Bubbles**: NPCs express their feelings, routine events, and reactions through animated 3D thought bubbles hovering near their heads (over 36 expressive emoji icons, such as romantic hearts, sleepy Zzz, food cravings, and mischievous smug expressions).
 - **NPC-to-NPC Conversations**: When two NPCs meet during their daily routines, they stop, face each other, and converse turn-by-turn. Dialogue topics adapt to their actual context (farmers talk about crops, exhausted NPCs talk about sleep, starving NPCs discuss food, and enemies trade insults before shoving each other). Chatter is audible in chat within a 4-block radius.
 
+<p align="center">
+  <img src="/img/player_interacting_children.png" width="49%" alt="Player interacting with children" />
+  <img src="/img/children_playing.png" width="49%" alt="Children interacting and playing together" />
+</p>
+
+
 ## Gifts
 
 What she thinks of a gift depends, in this order:

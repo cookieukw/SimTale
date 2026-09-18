@@ -52,6 +52,12 @@ e acorda quando estiver descansado.
 
 ![Uma NPC criança dormindo](/img/child_sleeping.png)
 
+<p align="center">
+  <img src="/img/npc_seated_child_sleeping.png" width="49%" alt="NPC sentado enquanto uma criança dorme" />
+  <img src="/img/child_sitting_chair.png" width="49%" alt="Criança NPC sentada na cadeira" />
+</p>
+
+
 :::tip Pular a noite os acorda
 Executar o comando `time set day` acorda NPCs adormecidos imediatamente, porque acordar segue o relógio do mundo
 em vez de um cronômetro fixo.
