@@ -15,23 +15,48 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Mood;
 
+import com.cookieukw.SimTale.ai.RoutineAIComponent;
+import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
+
 import javax.annotation.Nonnull;
 
 public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
 
     /**
-     * How often a held mood shows its face again: 8 s.
-     *
-     * <p>Long enough that the NPC is not permanently mugging at the camera, short enough that
-     * walking past a happy villager reliably catches a smile. Counted in ticks rather than from
-     * {@code dt}, because the tick rate is a known 20/s and the unit of {@code dt} is not.
+     * Expression variation pools per mood.
      */
-    private static final int REPLAY_INTERVAL_TICKS = 160;
+    private static final String[] HAPPY_EXPRESSIONS = {"Smile", "Cheerful", "Smirk"};
+    private static final String[] EXCITED_EXPRESSIONS = {"Grin", "Cheerful", "Smile"};
+    private static final String[] ANGRY_EXPRESSIONS = {"Angry", "Frown"};
+    private static final String[] BORED_EXPRESSIONS = {"Smirk", null};
 
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
         return SimTale.SIM_NPC_COMPONENT_TYPE;
+    }
+
+    private static String selectExpression(Mood mood, float intensity, int seed) {
+        if (mood == null) return null;
+        switch (mood) {
+            case HAPPY:
+                return HAPPY_EXPRESSIONS[Math.abs(seed) % HAPPY_EXPRESSIONS.length];
+            case EXCITED:
+                return EXCITED_EXPRESSIONS[Math.abs(seed) % EXCITED_EXPRESSIONS.length];
+            case ANGRY:
+                if (intensity >= 0.7f) return "Rage";
+                return ANGRY_EXPRESSIONS[Math.abs(seed) % ANGRY_EXPRESSIONS.length];
+            case SAD:
+            case SLEEPY:
+                return "Frown";
+            case SCARED:
+                return "Surprised";
+            case BORED:
+                return BORED_EXPRESSIONS[Math.abs(seed) % BORED_EXPRESSIONS.length];
+            case NEUTRAL:
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -41,50 +66,25 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
         
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
         if (npc == null) return;
+
+        RoutineAIComponent ai = chunk.getComponent(index, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+        if (ai != null) {
+            if (ai.currentTask == TaskType.SLEEPING || ai.currentTask == TaskType.ENTERING_BED
+                    || ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.DEAD
+                    || ai.currentTask == TaskType.SOCIALIZING) {
+                return;
+            }
+        }
         
         Mood currentMood = npc.getMood();
         Ref<EntityStore> ref = chunk.getReferenceTo(index);
         
         ActiveAnimationComponent animComp = chunk.getComponent(index, ActiveAnimationComponent.getComponentType());
         if (animComp == null) return;
-        
-        String animPath = null;
-        String animName = null;
-        
-        switch (currentMood) {
-            case HAPPY:
-                animPath = "Characters/Animations/Expressions/Smile.blockyanim";
-                animName = "Smile";
-                break;
-            case ANGRY:
-                if (npc.emotionIntensity >= 0.7f) {
-                    animPath = "Characters/Animations/Expressions/Rage.blockyanim";
-                    animName = "Rage";
-                } else {
-                    animPath = "Characters/Animations/Expressions/Angry.blockyanim";
-                    animName = "Angry";
-                }
-                break;
-            case SAD:
-            case SLEEPY:
-                animPath = "Characters/Animations/Expressions/Frown.blockyanim";
-                animName = "Frown";
-                break;
-            case SCARED:
-                animPath = "Characters/Animations/Expressions/Suprised.blockyanim";
-                animName = "Surprised";
-                break;
-            case EXCITED:
-                animPath = "Characters/Animations/Expressions/Grin.blockyanim";
-                animName = "Grin";
-                break;
-            case BORED:
-                // Neutral face is best for boredom to avoid weird smiles
-                break;
-            case NEUTRAL:
-            default:
-                break;
-        }
+
+        int npcHash = (npc.entityId != null) ? npc.entityId.hashCode() : index;
+        int seed = npcHash + (npc.expressionAge / 100);
+        String animName = selectExpression(currentMood, npc.emotionIntensity, seed);
         
         AnimationSlot slotToUse = AnimationSlot.Face;
 
@@ -99,16 +99,12 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        /* Replaying on a timer is what keeps the face alive.
-
-        These clips are one-shot: they play, they end, and the head goes back to neutral. Firing
-        only on change meant a mood that stayed put showed its face once and never again — an NPC
-        could be HAPPY for ten minutes wearing a blank stare. It used to hide behind the fast
-        emotion decay, which dropped moods to NEUTRAL every few seconds and re-triggered the
-        animation by accident; slowing the decay removed the accident and exposed this.
+        /* Replay interval between 18s and 28s (360-560 ticks), organically staggered per NPC.
+        Avoids rapid 8s mouth open-and-close spam so facial reactions feel natural and varied.
         */
+        int replayInterval = 360 + (Math.abs(npcHash) % 200);
         npc.expressionAge++;
-        if (animName != null && npc.expressionAge >= REPLAY_INTERVAL_TICKS) {
+        if (animName != null && npc.expressionAge >= replayInterval) {
             expressionChanged = true;
         }
 
