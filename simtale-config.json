@@ -1,0 +1,7 @@
+{
+  "proximityEnabled": true,
+  "proximityChatEnabled": true,
+  "proximityNpcCooldownSeconds": 60,
+  "proximityPlayerCooldownSeconds": 15,
+  "proximityRadius": 4.5
+}

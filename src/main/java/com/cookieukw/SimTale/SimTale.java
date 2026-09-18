@@ -8,6 +8,7 @@ import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.cookieukw.SimTale.ai.AiConfig;
 import com.cookieukw.SimTale.ai.AiConfigManager;
+import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.ai.NpcAiManager;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.providers.GeminiProvider;
@@ -150,6 +151,7 @@ public class SimTale extends JavaPlugin {
         LOGGER.atInfo().log("Setting up SimTale registries...");
 
         // Load local JSON configuration
+        SimTaleConfigManager.load();
         AiConfigManager.load();
         AiConfig config = AiConfigManager.getConfig();
 

@@ -135,6 +135,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new DiagnosticsCommands.SearchSubCommand());
         this.addSubCommand(new DiagnosticsCommands.ToggleAiSubCommand());
         this.addSubCommand(new DiagnosticsCommands.AiStatusSubCommand());
+        this.addSubCommand(new DiagnosticsCommands.ProximitySubCommand());
         this.addSubCommand(new DiagnosticsCommands.HouseCheckSubCommand());
         this.addSubCommand(new DiagnosticsCommands.ChestCheckSubCommand());
         this.addSubCommand(new DiagnosticsCommands.ChestShareSubCommand());

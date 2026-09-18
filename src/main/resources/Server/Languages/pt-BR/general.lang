@@ -173,3 +173,20 @@ cmd.villagestock.empty = §7Estoque vazio nos baús comunitários.
 cmd.villagestock.stocked_items = §aItens Estocados:
 construction.blocked = [SimTale] Não é possível iniciar a construção: a área ao redor do marcador ainda está obstruída.
 construction.started = [SimTale] Construção iniciada! NPCs virão construir a TavernHouse.
+
+cmd.proximity.header = §6=== Configuração de Proximidade (SimTale) ===
+cmd.proximity.status = §eProximidade: {status}
+cmd.proximity.chat = §eMensagens no Chat: {status}
+cmd.proximity.cooldown = §eRecarga por NPC: §a{seconds}s
+cmd.proximity.limit = §eAnti-Spam por Jogador: §a{seconds}s
+cmd.proximity.radius = §eRaio de Detecção: §a{radius} blocos
+cmd.proximity.usage = §7Comandos: /simtale proximity <on|off|chat [on|off]|cooldown <seg>|limit <seg>|radius <blocos>>
+cmd.proximity.enabled = §aDiálogos de proximidade ativados com sucesso!
+cmd.proximity.disabled = §cDiálogos de proximidade desativados com sucesso!
+cmd.proximity.chat_enabled = §aMensagens de proximidade no chat ativadas!
+cmd.proximity.chat_disabled = §eMensagens de proximidade no chat desativadas! (NPCs apenas acenam)
+cmd.proximity.cooldown_set = §aTempo de recarga do NPC definido para {seconds}s!
+cmd.proximity.limit_set = §aIntervalo anti-spam do jogador definido para {seconds}s!
+cmd.proximity.radius_set = §aRaio de proximidade definido para {radius} blocos!
+cmd.proximity.invalid_number = §cValor numérico inválido!
+

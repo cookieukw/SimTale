@@ -10,6 +10,8 @@ import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookieukw.SimTale.logic.ChildDialogue;
 import com.cookieukw.SimTale.core.lifecycle.ParentChildBond;
 import com.cookieukw.SimTale.core.ThoughtType;
+import com.cookieukw.SimTale.config.SimTaleConfig;
+import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.Frozen;
@@ -121,6 +123,9 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     /** Max distance from home an idle stroll may take the NPC. */
     static final double WANDER_RADIUS = 8.0;
     static final SimLog LOGGER = SimLog.forClass(RoutineAISystem.class);
+
+    /** Anti-spam tracking per player UUID to prevent multiple NPCs greeting simultaneously. */
+    private static final Map<UUID, Long> lastPlayerGreetedTickByPlayer = new java.util.concurrent.ConcurrentHashMap<>();
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
@@ -828,17 +833,29 @@ once per NPC per tick for nothing.
             return;
         }
 
-        // Cooldown: 45 seconds (900 ticks)
-        if (world.getTick() - ai.lastPlayerGreetingTick < 900) {
+        SimTaleConfig config = SimTaleConfigManager.getConfig();
+        if (!config.proximityEnabled) {
+            return;
+        }
+
+        // NPC-specific cooldown
+        long npcCooldownTicks = config.proximityNpcCooldownSeconds * 20L;
+        if (world.getTick() - ai.lastPlayerGreetingTick < npcCooldownTicks) {
             return;
         }
 
         Vector3d npcPos = transform.getPosition();
-        double greetRadiusSq = 4.5 * 4.5;
+        double greetRadiusSq = config.proximityRadius * config.proximityRadius;
+        long playerAntiSpamTicks = config.proximityPlayerCooldownSeconds * 20L;
 
         for (PlayerRef pr : Universe.get().getPlayers()) {
             Ref<EntityStore> pRef = pr.getReference();
             if (pRef == null || !pRef.isValid()) continue;
+
+            // Anti-spam per player: if greeted by ANY NPC recently, do not flood the player
+            if (world.getTick() - lastPlayerGreetedTickByPlayer.getOrDefault(pr.getUuid(), 0L) < playerAntiSpamTicks) {
+                continue;
+            }
 
             TransformComponent pt = store.getComponent(pRef, TransformComponent.getComponentType());
             if (pt == null) continue;
@@ -846,6 +863,7 @@ once per NPC per tick for nothing.
             double d2 = pt.getPosition().distanceSquared(npcPos);
             if (d2 <= greetRadiusSq) {
                 ai.lastPlayerGreetingTick = world.getTick();
+                lastPlayerGreetedTickByPlayer.put(pr.getUuid(), world.getTick());
 
                 // Turn briefly towards player only if not actively walking
                 MovementStatesComponent msc = ref != null ? store.getComponent(ref, MovementStatesComponent.getComponentType()) : null;
@@ -866,36 +884,38 @@ once per NPC per tick for nothing.
                     SimTaleJuiceHelper.playGreeting(ref, store);
                 }
 
-                // Send contextual greeting message
-                Relationship rel = npc.getRelationship(pr.getUuid());
-                /* A child's/teen's own voice takes priority over the adult relationship-status
-                lines below -- same precedence InteractionManager already gives the young
-                voice ahead of its own rule tables for the chat/joke intents. This is what
-                makes a child say "Oi, papai!" instead of the generic proximity.friend line
-                when the player walking up happens to be their own parent.
-                A child mid tag/hide-and-seek comments on the game itself instead of greeting
-                normally -- checked ahead of the young/parent voice below for the same reason
-                that one already outranks the adult relationship lines: the more specific,
-                situational line wins. See ChildPlayHelper for the states themselves.
-                */
-                Message playLine = playDialogueLine(ai.currentTask);
-                Message greetingMsg;
-                if (playLine != null) {
-                    greetingMsg = playLine;
-                } else {
-                    String youngKey = ChildDialogue.keyFor(npc, pr.getUuid(), "proximity");
-                    greetingMsg = youngKey != null
-                            ? pickRandomTranslation(youngKey, YOUNG_PROXIMITY_LINE_VARIANTS)
-                                    .param("parent", parentAddressTerm(npc, pr.getUuid(), pr))
-                            : switch (rel.status) {
-                                case MARRIED, PARTNER, ENGAGED, DATING, CRUSH -> pickRandomTranslation("npc-dialogues.proximity.partner", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
-                                case BEST_FRIEND, GOOD_FRIEND, FRIEND -> pickRandomTranslation("npc-dialogues.proximity.friend", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
-                                case ENEMIES -> pickRandomTranslation("npc-dialogues.proximity.enemy", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
-                                default -> pickRandomTranslation("npc-dialogues.proximity.stranger", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
-                            };
+                // If chat output is enabled, send contextual greeting message
+                if (config.proximityChatEnabled) {
+                    Relationship rel = npc.getRelationship(pr.getUuid());
+                    /* A child's/teen's own voice takes priority over the adult relationship-status
+                    lines below -- same precedence InteractionManager already gives the young
+                    voice ahead of its own rule tables for the chat/joke intents. This is what
+                    makes a child say "Oi, papai!" instead of the generic proximity.friend line
+                    when the player walking up happens to be their own parent.
+                    A child mid tag/hide-and-seek comments on the game itself instead of greeting
+                    normally -- checked ahead of the young/parent voice below for the same reason
+                    that one already outranks the adult relationship lines: the more specific,
+                    situational line wins. See ChildPlayHelper for the states themselves.
+                    */
+                    Message playLine = playDialogueLine(ai.currentTask);
+                    Message greetingMsg;
+                    if (playLine != null) {
+                        greetingMsg = playLine;
+                    } else {
+                        String youngKey = ChildDialogue.keyFor(npc, pr.getUuid(), "proximity");
+                        greetingMsg = youngKey != null
+                                ? pickRandomTranslation(youngKey, YOUNG_PROXIMITY_LINE_VARIANTS)
+                                        .param("parent", parentAddressTerm(npc, pr.getUuid(), pr))
+                                : switch (rel.status) {
+                                    case MARRIED, PARTNER, ENGAGED, DATING, CRUSH -> pickRandomTranslation("npc-dialogues.proximity.partner", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                                    case BEST_FRIEND, GOOD_FRIEND, FRIEND -> pickRandomTranslation("npc-dialogues.proximity.friend", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                                    case ENEMIES -> pickRandomTranslation("npc-dialogues.proximity.enemy", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                                    default -> pickRandomTranslation("npc-dialogues.proximity.stranger", PROXIMITY_LINE_VARIANTS).param("player", pr.getUsername());
+                                };
+                    }
+                    pr.sendMessage(Message.raw(npc.name + ": ").insert(greetingMsg));
+                    LOGGER.debug("[SimTale] NPC '{}' greeted player '{}'", npc.name, pr.getUsername());
                 }
-                pr.sendMessage(Message.raw(npc.name + ": ").insert(greetingMsg));
-                LOGGER.debug("[SimTale] NPC '{}' greeted player '{}'", npc.name, pr.getUsername());
                 break;
             }
         }

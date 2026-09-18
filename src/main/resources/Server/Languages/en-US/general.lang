@@ -173,3 +173,19 @@ cmd.villagestock.empty = §7Empty stock in communal chests.
 cmd.villagestock.stocked_items = §aStocked Items:
 construction.blocked = [SimTale] Cannot start construction: the area around the marker is still obstructed.
 construction.started = [SimTale] Construction started! NPCs will come build the TavernHouse.
+
+cmd.proximity.header = §6=== Proximity Interaction Settings (SimTale) ===
+cmd.proximity.status = §eProximity Greetings: {status}
+cmd.proximity.chat = §eChat Messages: {status}
+cmd.proximity.cooldown = §ePer-NPC Cooldown: §a{seconds}s
+cmd.proximity.limit = §ePer-Player Anti-Spam: §a{seconds}s
+cmd.proximity.radius = §eDetection Radius: §a{radius} blocks
+cmd.proximity.usage = §7Commands: /simtale proximity <on|off|chat [on|off]|cooldown <sec>|limit <sec>|radius <blocks>>
+cmd.proximity.enabled = §aProximity greetings enabled successfully!
+cmd.proximity.disabled = §cProximity greetings disabled successfully!
+cmd.proximity.chat_enabled = §aProximity chat messages enabled!
+cmd.proximity.chat_disabled = §eProximity chat messages disabled! (NPCs only wave)
+cmd.proximity.cooldown_set = §aNPC greeting cooldown set to {seconds}s!
+cmd.proximity.limit_set = §aPlayer anti-spam limit set to {seconds}s!
+cmd.proximity.radius_set = §aProximity radius set to {radius} blocks!
+cmd.proximity.invalid_number = §cInvalid numeric value!

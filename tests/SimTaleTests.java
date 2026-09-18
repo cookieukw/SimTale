@@ -91,6 +91,9 @@ public class SimTaleTests {
             System.out.println("Village Stock & Shared Chests");
             testVillageStockAndSharedChests();
 
+            System.out.println("Proximity & Configuration");
+            ProximityConfigTests.run();
+
             System.out.println("========================================");
             System.out.println("All tests passed (" + Assert.checks + " assertions)");
             System.out.println("========================================");

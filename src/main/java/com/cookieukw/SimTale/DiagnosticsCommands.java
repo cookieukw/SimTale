@@ -49,6 +49,8 @@ import com.cookieukw.SimTale.db.SimBedData;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.ai.AiConfig;
 import com.cookieukw.SimTale.ai.AiConfigManager;
+import com.cookieukw.SimTale.config.SimTaleConfig;
+import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
@@ -867,6 +869,115 @@ final class DiagnosticsCommands {
                     playerRef.sendMessage(Message.translation("general.cmd.search.error").param("error", e.getMessage()));
                 }
             });
+        }
+    }
+
+    /**
+     * Configures NPC proximity greeting dialogues, chat output toggle, and anti-spam intervals.
+     */
+    public static class ProximitySubCommand extends AbstractPlayerCommand {
+        private final OptionalArg<String> actionArg;
+        private final OptionalArg<String> valueArg;
+
+        public ProximitySubCommand() {
+            super("proximity", "Configures NPC proximity greeting dialogues and anti-spam settings");
+            this.actionArg = this.withOptionalArg("action", "on|off|chat|cooldown|limit|radius", ArgTypes.STRING);
+            this.valueArg = this.withOptionalArg("value", "valor", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                               @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            SimTaleConfig config = SimTaleConfigManager.getConfig();
+            String action = ctx.get(this.actionArg);
+            String value = ctx.get(this.valueArg);
+
+            if (action == null) {
+                sendSummary(ctx, config);
+                return;
+            }
+
+            switch (action.toLowerCase()) {
+                case "on", "enable", "ativar" -> {
+                    config.proximityEnabled = true;
+                    SimTaleConfigManager.save();
+                    ctx.sendMessage(Message.translation("general.cmd.proximity.enabled"));
+                }
+                case "off", "disable", "desativar" -> {
+                    config.proximityEnabled = false;
+                    SimTaleConfigManager.save();
+                    ctx.sendMessage(Message.translation("general.cmd.proximity.disabled"));
+                }
+                case "chat" -> {
+                    if (value == null) {
+                        config.proximityChatEnabled = !config.proximityChatEnabled;
+                    } else if (value.equalsIgnoreCase("on") || value.equalsIgnoreCase("true") || value.equalsIgnoreCase("ativar")) {
+                        config.proximityChatEnabled = true;
+                    } else if (value.equalsIgnoreCase("off") || value.equalsIgnoreCase("false") || value.equalsIgnoreCase("desativar")) {
+                        config.proximityChatEnabled = false;
+                    }
+                    SimTaleConfigManager.save();
+                    ctx.sendMessage(Message.translation(config.proximityChatEnabled
+                            ? "general.cmd.proximity.chat_enabled"
+                            : "general.cmd.proximity.chat_disabled"));
+                }
+                case "cooldown" -> {
+                    if (value == null) {
+                        ctx.sendMessage(Message.translation("general.cmd.proximity.invalid_number"));
+                        return;
+                    }
+                    try {
+                        int sec = Integer.parseInt(value.trim());
+                        config.proximityNpcCooldownSeconds = Math.max(1, sec);
+                        SimTaleConfigManager.save();
+                        ctx.sendMessage(Message.translation("general.cmd.proximity.cooldown_set").param("seconds", config.proximityNpcCooldownSeconds));
+                    } catch (NumberFormatException e) {
+                        ctx.sendMessage(Message.translation("general.cmd.proximity.invalid_number"));
+                    }
+                }
+                case "limit", "antispam", "playercooldown" -> {
+                    if (value == null) {
+                        ctx.sendMessage(Message.translation("general.cmd.proximity.invalid_number"));
+                        return;
+                    }
+                    try {
+                        int sec = Integer.parseInt(value.trim());
+                        config.proximityPlayerCooldownSeconds = Math.max(0, sec);
+                        SimTaleConfigManager.save();
+                        ctx.sendMessage(Message.translation("general.cmd.proximity.limit_set").param("seconds", config.proximityPlayerCooldownSeconds));
+                    } catch (NumberFormatException e) {
+                        ctx.sendMessage(Message.translation("general.cmd.proximity.invalid_number"));
+                    }
+                }
+                case "radius", "raio" -> {
+                    if (value == null) {
+                        ctx.sendMessage(Message.translation("general.cmd.proximity.invalid_number"));
+                        return;
+                    }
+                    try {
+                        double r = Double.parseDouble(value.trim());
+                        config.proximityRadius = Math.max(1.0, r);
+                        SimTaleConfigManager.save();
+                        ctx.sendMessage(Message.translation("general.cmd.proximity.radius_set").param("radius", config.proximityRadius));
+                    } catch (NumberFormatException e) {
+                        ctx.sendMessage(Message.translation("general.cmd.proximity.invalid_number"));
+                    }
+                }
+                default -> sendSummary(ctx, config);
+            }
+        }
+
+        private static void sendSummary(CommandContext ctx, SimTaleConfig config) {
+            Message active = Message.raw("§aATIVADO");
+            Message inactive = Message.raw("§cDESATIVADO");
+
+            ctx.sendMessage(Message.translation("general.cmd.proximity.header"));
+            ctx.sendMessage(Message.translation("general.cmd.proximity.status").param("status", config.proximityEnabled ? active : inactive));
+            ctx.sendMessage(Message.translation("general.cmd.proximity.chat").param("status", config.proximityChatEnabled ? active : inactive));
+            ctx.sendMessage(Message.translation("general.cmd.proximity.cooldown").param("seconds", config.proximityNpcCooldownSeconds));
+            ctx.sendMessage(Message.translation("general.cmd.proximity.limit").param("seconds", config.proximityPlayerCooldownSeconds));
+            ctx.sendMessage(Message.translation("general.cmd.proximity.radius").param("radius", config.proximityRadius));
+            ctx.sendMessage(Message.translation("general.cmd.proximity.usage"));
         }
     }
 }
