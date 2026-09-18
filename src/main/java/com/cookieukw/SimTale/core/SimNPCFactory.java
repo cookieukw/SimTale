@@ -6,6 +6,7 @@ import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.component.ComponentAccessor;
 import org.joml.Vector3d;
 
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
