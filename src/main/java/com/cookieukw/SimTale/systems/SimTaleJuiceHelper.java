@@ -301,7 +301,10 @@ public final class SimTaleJuiceHelper {
     public static void playGreeting(Ref<EntityStore> npcRef, Store<EntityStore> store) {
         if (npcRef == null || store == null) return;
         NPCMovementHelper.playAnim(npcRef, AnimationSlot.Face, FACE_SMILE, "Smile", store);
-        NPCMovementHelper.playAnim(npcRef, AnimationSlot.Action, ANIM_WAVE, "Wave", store);
+        SimNPCComponent npc = store.getComponent(npcRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+        if (npc == null || !InteractionManager.isNpcAChild(npc)) {
+            NPCMovementHelper.playAnim(npcRef, AnimationSlot.Action, ANIM_WAVE, "Wave", store);
+        }
     }
 
     /**
