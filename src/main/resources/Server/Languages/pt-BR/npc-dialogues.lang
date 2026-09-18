@@ -529,31 +529,32 @@ social.child_play.2.b = {name}: Nossa, deixa eu ver! Será que ele morde?
 
 # CHILD PLAY: pega-pega e esconde-esconde entre criancas (falas ditas durante o jogo, nao em
 # resposta ao jogador -- ver playing.* referenciado por ChildPlayHelper/RoutineAISystem)
-playing.tag_start.1 = {name}: Pega-pega! Você não me pega!
-playing.tag_start.2 = {name}: Vamos brincar de pega-pega! Eu conto até três!
-playing.tag_start.3 = {name}: Corre, corre! Pega-pega!
+# Sem {name} embutido -- quem chama já prefixa "NomeDaNPC: " por fora, igual a proximity.*.
+playing.tag_start.1 = Pega-pega! Você não me pega!
+playing.tag_start.2 = Vamos brincar de pega-pega! Eu conto até três!
+playing.tag_start.3 = Corre, corre! Pega-pega!
 playing.tag_chasing.1 = Vou te pegar, vou te pegar!
 playing.tag_chasing.2 = Você não escapa dessa vez!
 playing.tag_chasing.3 = Cadê, cadê... ah, ali!
 playing.tag_fleeing.1 = Não me pega, não me pega!
 playing.tag_fleeing.2 = Ainda não! Corre, corre!
 playing.tag_fleeing.3 = Quase, quase, mas não pegou!
-playing.tag_tagged.1 = {name}: Te peguei! Agora é você!
-playing.tag_tagged.2 = {name}: Passei a batata quente pra você!
-playing.tag_end.1 = {name}: Ufa, cansei! Foi muito divertido!
-playing.tag_end.2 = {name}: De novo depois, tá? Adorei brincar!
-playing.hideseek_start.1 = {name}: Vamos brincar de esconde-esconde! Eu conto até dez, vai se esconder!
-playing.hideseek_start.2 = {name}: Esconde-esconde! Fecha os olhos que eu vou procurar um lugar!
+playing.tag_tagged.1 = Te peguei! Agora é você!
+playing.tag_tagged.2 = Passei a batata quente pra você!
+playing.tag_end.1 = Ufa, cansei! Foi muito divertido!
+playing.tag_end.2 = De novo depois, tá? Adorei brincar!
+playing.hideseek_start.1 = Vamos brincar de esconde-esconde! Eu conto até dez, vai se esconder!
+playing.hideseek_start.2 = Esconde-esconde! Fecha os olhos que eu vou procurar um lugar!
 playing.hideseek_hiding.1 = Shh... será que ela vai me achar aqui?
 playing.hideseek_hiding.2 = Que escondrijo bom eu achei, hein?
 playing.hideseek_hiding.3 = Fica quietinho... quietinho...
 playing.hideseek_seeking.1 = Um, dois, três... cadê você?
 playing.hideseek_seeking.2 = Já vou indo te achar! Onde será que ela foi...
 playing.hideseek_seeking.3 = Hmm, atrás da árvore? Não... deixa eu ver ali!
-playing.hideseek_found.1 = {name}: Achei você!
-playing.hideseek_found.2 = {name}: Te encontrei! Agora é sua vez de procurar!
-playing.hideseek_end.1 = {name}: Foi tão divertido se esconder! De novo outra hora!
-playing.hideseek_end.2 = {name}: Você é ótima em se esconder! Quase não te achei!
+playing.hideseek_found.1 = Achei você!
+playing.hideseek_found.2 = Te encontrei! Agora é sua vez de procurar!
+playing.hideseek_end.1 = Foi tão divertido se esconder! De novo outra hora!
+playing.hideseek_end.2 = Você é ótima em se esconder! Quase não te achei!
 
 npc_marriage.announce = {name} sorri largo, de mãos dadas com {partner}: A gente se casou! Foi tudo tão rápido, mas parece certo.
 
