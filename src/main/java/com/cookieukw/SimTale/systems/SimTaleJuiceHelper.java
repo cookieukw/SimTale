@@ -1,9 +1,11 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.WorldUtil;
+import com.cookieukw.SimTale.logic.InteractionManager;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.AnimationSlot;
