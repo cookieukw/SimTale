@@ -29,9 +29,12 @@ import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.db.ChestData;
 import com.cookieukw.SimTale.db.SimBedData;
+import com.cookieukw.SimTale.systems.BedRegistry;
 import com.cookieukw.SimTale.systems.ChairRegistry;
 import com.cookieukw.SimTale.systems.ChestRegistry;
+import com.cookieukw.SimTale.systems.EmoteBubbleSystem;
 import com.cookieukw.SimTale.systems.HouseManager;
+import com.cookieukw.SimTale.systems.NPCSeatingHelper;
 import com.cookieukw.SimTale.systems.SimTaleJuiceHelper;
 import com.cookieukw.SimTale.systems.VillageManager;
 import com.cookieukw.SimTale.systems.VillageStockManager;
@@ -94,6 +97,9 @@ public class SimTaleTests {
             System.out.println("Proximity & Configuration");
             ProximityConfigTests.run();
 
+            System.out.println("Plumbob, Beds & Seating Optimizations");
+            testPlumbobBedsAndSeating();
+
             System.out.println("========================================");
             System.out.println("All tests passed (" + Assert.checks + " assertions)");
             System.out.println("========================================");
@@ -104,6 +110,30 @@ public class SimTaleTests {
             System.out.println("========================================");
             System.exit(1);
         }
+    }
+
+    private static void testPlumbobBedsAndSeating() {
+        System.out.print("Testing Plumbob, Beds & Seating Optimizations... ");
+
+        // 1. BedRegistry: Adjacent beds in the same room must BOTH register
+        BedRegistry.clear();
+        BedRegistry.addOrReplace(100, 64, 100, 0f);
+        BedRegistry.addOrReplace(101, 64, 100, 0f); // 1 block away (e.g. double bed)
+        BedRegistry.addOrReplace(103, 64, 100, 0f); // 2 blocks away
+        Assert.equal(BedRegistry.size(), 3, "All adjacent beds in same room must be registered");
+        Assert.isTrue(BedRegistry.exists(100, 64, 100), "Bed 1 exists");
+        Assert.isTrue(BedRegistry.exists(101, 64, 100), "Bed 2 exists");
+        Assert.isTrue(BedRegistry.exists(103, 64, 100), "Bed 3 exists");
+        BedRegistry.clear();
+
+        // 2. Seating durations
+        Assert.isTrue(NPCSeatingHelper.MIN_CHAIR_SIT_DURATION_TICKS >= 200, "Min chair sit duration >= 10s");
+        Assert.isTrue(NPCSeatingHelper.CHAIR_SIT_DURATION_TICKS > NPCSeatingHelper.MIN_CHAIR_SIT_DURATION_TICKS, "Max duration > min duration");
+
+        // 3. Emote bubble lifetime
+        Assert.equal(EmoteBubbleSystem.THOUGHT_LIFETIME_TICKS, 300, "Thought lifetime is 15 seconds");
+
+        System.out.println("OK");
     }
 
     private static void testDatabaseShellIsolation() {
