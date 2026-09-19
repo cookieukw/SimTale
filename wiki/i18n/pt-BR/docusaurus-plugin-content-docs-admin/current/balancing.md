@@ -81,10 +81,17 @@ Guards invert the window: they sleep during the day.
 
 | Constant | Value | Why it exists |
 |---|---|---|
-| `CHEST_SEARCH_RADIUS` | 24 blocks | How far an NPC walks for a meal |
-| `FOOD_SEARCH_COOLDOWN_TICKS` | 100 | Stops a search storm when no food is reachable |
-| `MOVE_TIMEOUT_TICKS` | 600 (30 s) | Gives up on an unreachable chest |
-| Furniture scan radius on join | 32 blocks | Picks up pre-existing beds and chests |
+| `CHEST_SEARCH_RADIUS` | 24 blocks | Distância máxima que o NPC caminha para buscar comida |
+| `FOOD_SEARCH_COOLDOWN_TICKS` | 100 | Evita tempestade de buscas quando não há comida acessível |
+| `MOVE_TIMEOUT_TICKS` | 600 (30 s) | Desiste de um baú ou destino inalcançável |
+| Furniture scan radius on join | 32 blocks | Detecta camas e baús pré-existentes ao entrar |
+| `SOCIAL_SEARCH_RADIUS` | 20 blocks | Distância máxima de varredura por um parceiro de conversa |
+| `SOCIAL_COOLDOWN_TICKS` | 800–1200 (40–60 s) | Cooldown obrigatório pós-conversa para ambos os NPCs evitarem bater papo sem parar |
+| `SOCIAL_SEARCH_INTERVAL_TICKS` | 300 (15 s) | Intervalo entre varreduras de socialização quando ocioso |
+| `SOCIAL_THRESHOLD` | `< 45` | Limiar de necessidade social para iniciar conversas (ou 4% chance espontânea) |
+| `WANDER_RADIUS_VILLAGE` | até 48 blocks | Raio de perambulação a partir do centro da vila, espalhando os moradores pela cidade |
+| `WANDER_RADIUS_HOME` | 20 blocks | Raio de passeio ao redor da cama para residentes isolados (expandido de 8 blocos) |
+| `SEPARATION_RADIUS` | 1.15 blocks | Raio de espaço pessoal para evitar aglomerações e NPCs se sobrepondo |
 
 :::warning Do not remove the cooldowns
 Without them, an NPC with no reachable bed or food re-enters the search **every tick**. One real

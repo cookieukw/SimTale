@@ -85,6 +85,13 @@ Guards invert the window: they sleep during the day.
 | `FOOD_SEARCH_COOLDOWN_TICKS` | 100 | Stops a search storm when no food is reachable |
 | `MOVE_TIMEOUT_TICKS` | 600 (30 s) | Gives up on an unreachable chest |
 | Furniture scan radius on join | 32 blocks | Picks up pre-existing beds and chests |
+| `SOCIAL_SEARCH_RADIUS` | 20 blocks | Max distance to search for a talking partner |
+| `SOCIAL_COOLDOWN_TICKS` | 800–1200 (40–60 s) | Mandatory cooldown between talks for both NPCs to prevent non-stop chatting |
+| `SOCIAL_SEARCH_INTERVAL_TICKS` | 300 (15 s) | Throttle for checking nearby conversationalists when idle |
+| `SOCIAL_THRESHOLD` | `< 45` | Need threshold to trigger conversations (with 4% rare spontaneous chance) |
+| `WANDER_RADIUS_VILLAGE` | up to 48 blocks | Village stroll radius from village center, letting villagers walk around streets and squares |
+| `WANDER_RADIUS_HOME` | 20 blocks | Stroll radius around bed for isolated NPCs (expanded from 8 blocks) |
+| `SEPARATION_RADIUS` | 1.15 blocks | Personal space avoidance radius to prevent NPCs from clumping on top of each other |
 
 :::warning Do not remove the cooldowns
 Without them, an NPC with no reachable bed or food re-enters the search **every tick**. One real

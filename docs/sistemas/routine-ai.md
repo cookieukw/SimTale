@@ -38,30 +38,36 @@ O `RoutineAISystem` concentra a **decisão** (qual tarefa assumir a partir de `I
 5.  **Wake Up Phase**: Ao preencher a energia (100) ou atingir a duração máxima da soneca, o NPC executa a animação de despertar (`Wake`), é desmontado da cama e teleportado de volta para a posição adjacente de apoio.
 
 ### O Fluxo de Socialização (`NPCSocialHelper` e `SimTaleJuiceHelper`)
-A socialização ocorre espontaneamente quando um NPC ocioso tem a necessidade `social` abaixo de 85 ou durante caminhadas pela vila (chance aleatória):
+A socialização ocorre de forma equilibrada para evitar aglomerações e conversas incessantes. Ela só é iniciada quando a necessidade `social` cai abaixo de 45 (ou raramente com 4% de chance espontânea quando ocioso) e o NPC não está em tempo de recarga:
 
-1.  **Seleção e Reserva de Alvo**: Varre `SimTale.ACTIVE_NPCS` num raio de 20 blocos. Só NPCs em `IDLE` ou `WANDERING` podem ser abordados (`NPCSocialHelper.isAvailableToTalk`). O parceiro recebe `reservedForSocialUuid`, garantindo que ele espere e não saia correndo antes do anfitrião chegar.
-2.  **`MOVING_TO_SOCIALIZE`**: Caminha até o parceiro revalidando se continua acessível. Timeout de 400 ticks.
-3.  **Início do Bate-papo (`SOCIALIZING`)**:
+1.  **Cooldown e Cadência Social (`nextSocialSearchTick`)**: Ao término de qualquer conversa, ambos os participantes (anfitrião e convidado) recebem um intervalo obrigatório de 40 a 60 segundos (800 a 1200 ticks) antes de poderem iniciar ou aceitar novos diálogos. Além disso, varreduras sem sucesso respeitam um intervalo de 15 segundos (300 ticks).
+2.  **Seleção e Reserva de Alvo**: Varre `SimTale.ACTIVE_NPCS` num raio de até 20 blocos. NPCs ocupados ou perambulando (`WANDERING`) a mais de 6 blocos de distância não são interrompidos. Apenas NPCs em `IDLE` (ou caminhando muito perto) podem ser convidados. O parceiro recebe `reservedForSocialUuid`, garantindo que espere o anfitrião se aproximar.
+3.  **`MOVING_TO_SOCIALIZE`**: Caminha até o parceiro revalidando se continua acessível. Timeout de 400 ticks.
+4.  **Início do Bate-papo (`SOCIALIZING`)**:
     *   Ao chegar a 2,5 blocos, ambos param por 140 ticks (~7 segundos).
     *   Os pontos de *leash* de ambos são ancorados na posição exata em que estão para evitar puxões da IA padrão do Hytale.
     *   Ambos viram de frente um para o outro com `teleportRotation`.
-4.  **Diálogo Contextual Turno-a-Turno**:
+5.  **Diálogo Contextual Turno-a-Turno**:
     *   **Seleção de Tópico**: O sistema pontua o assunto mais relevante no momento: inimizade/hostilidade, romance (se casados/namorados), necessidades críticas (fome $< 40$, cansaço $< 40$), humor ativo, profissão (fazenda, corte de lenha, patrulha de guarda, pesca), escuridão da noite ou amenidades sobre a vila e clima.
     *   **Turno 1 (~0.7s)**: O anfitrião fala sua linha de abertura (`.a`), executa a animação facial de fala (`Talk.blockyanim`) e o parceiro ouve atentamente.
     *   **Turno 2 (~3.5s)**: O convidado responde com a réplica compatível (`.b`), executa a fala (`Talk.blockyanim`) e o anfitrião escuta.
     *   **Filtro de Audição (4 blocos)**: Jogadores a até 4 blocos escutam o bate-papo no chat `[Vila]`. Se nenhum jogador estiver perto, as mensagens de texto são suprimidas para manter o chat limpo e economizar CPU.
-5.  **Resultado e Física de Empurrão**:
+6.  **Resultado, Física e Espaço Pessoal**:
     *   Restaura +35 de `social` para ambos, melhora relação e propaga contágio de humor.
     *   Se a conversa for hostil (`ENEMIES` ou traço `AGGRESSIVE`), o NPC agressor desfere um empurrão físico real (`SimTaleJuiceHelper.playShove`) com animação de soco, expressão de fúria e repulsão por *knockback*!
+    *   **Evitação de Amontoamento (`SEPARATION_RADIUS = 1.15f`)**: NPCs preservam um raio de espaço pessoal de 1,15 blocos para nunca se sobreporem ou formarem aglomerados densos.
 
 ### Expressividade e Cumprimentos de Proximidade (`SimTaleJuiceHelper`)
 *   **Cumprimentos por Proximidade**: Ao aproximar-se a 4.5 metros de um morador, ele se vira, acena (`Wave`), sorri e envia uma saudação no chat de acordo com o nível de relacionamento (cooldown de 45s).
 *   **Flerte Visual**: Cantadas bem-sucedidas disparam rubor facial alegre (`Cheerful`), emote de mandar beijo (`Blow_Kiss`) e partículas de corações (`Hearts`) sobre a cabeça do NPC.
 *   **Animações Autênticas de Trabalho**: Agricultores utilizam golpes de enxada (`Till`), lenhadores desferem machadadas (`Chop`) e pescadores observam o horizonte (`Look_Around`).
 
-### O Fluxo de Perambulação (`WANDERING`)
-NPCs ociosos têm uma pequena chance por tick de dar uma volta. O destino é sorteado por ângulo e raio (até 8 blocos) **ancorado na cama do NPC**, não na posição atual — isso mantém a vila coesa em vez de espalhar os moradores pelo mapa. NPCs sem cama perambulam em torno de onde estiverem. Um timeout de 300 ticks (`wanderTimer`) devolve o NPC a `IDLE` caso o destino sorteado seja inalcançável.
+### O Fluxo de Perambulação e Passeios (`WANDERING`)
+NPCs ociosos têm uma chance equilibrada por tick de dar uma caminhada e explorar os arredores:
+*   **Escala de Vila**: Se o NPC pertence a um vilarejo reconhecido, seu passeio cobre um raio amplo de até **48 blocos** a partir do centro da vila, fazendo com que os moradores caminhem pelas ruas, praças e construções em vez de ficarem confinados num único ponto.
+*   **Escala de Residência**: Se o NPC é solitário e possui cama própria, o raio de perambulação é de até **20 blocos** ao redor de seu leito (substituindo a antiga caixa restrita de 8 blocos).
+*   NPCs sem residência ou vila perambulam num raio de 20 blocos ao redor da posição atual.
+*   Um timeout de 300 ticks (`wanderTimer`) devolve o NPC a `IDLE` caso o destino sorteado seja inalcançável. Durante o passeio, o NPC não é interrompido por convites de conversa distantes.
 
 ### O Fluxo de Lazer (`NPCLeisureHelper`)
 Quando a necessidade `fun` cai abaixo de 40, o NPC ocioso vai fazer o próprio hobby — a **única** fonte de reposição de `fun` no mod.
