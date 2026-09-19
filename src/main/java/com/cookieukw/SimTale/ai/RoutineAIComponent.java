@@ -105,6 +105,8 @@ public class RoutineAIComponent implements Component<EntityStore> {
     public int playRoundsLeft = 0;
     /** Same guard as {@link #nextBathSearchTick} et al., for the child-play search. */
     public long nextPlaySearchTick = 0;
+    /** Earliest tick at which it is worth searching for a chat partner again. */
+    public long nextSocialSearchTick = 0;
     
     // Debug
     public boolean forcedByDebug = false;
@@ -204,6 +206,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.playPartnerId = this.playPartnerId;
         comp.playRoundsLeft = this.playRoundsLeft;
         comp.nextPlaySearchTick = this.nextPlaySearchTick;
+        comp.nextSocialSearchTick = this.nextSocialSearchTick;
         comp.lastLeashPos = this.lastLeashPos;
         comp.lastLeashTick = this.lastLeashTick;
         comp.forcedByDebug = this.forcedByDebug;
