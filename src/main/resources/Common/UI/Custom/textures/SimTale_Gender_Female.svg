@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+      <defs>
+        <linearGradient id="coinGradF" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1C2330"/>
+          <stop offset="100%" stop-color="#0F131A"/>
+        </linearGradient>
+        <linearGradient id="silverRimF" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFFFFF"/>
+          <stop offset="60%" stop-color="#E2E8F0"/>
+          <stop offset="100%" stop-color="#94A3B8"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Full Medallion Coin Frame -->
+      <circle cx="48" cy="48" r="42" fill="url(#coinGradF)" stroke="url(#silverRimF)" stroke-width="3"/>
+      <circle cx="48" cy="48" r="37.5" fill="none" stroke="#475569" stroke-width="1.5"/>
+
+      <!-- Venus Heraldry in Pure White / Silver -->
+      <circle cx="48" cy="40" r="14" fill="none" stroke="#FFFFFF" stroke-width="5"/>
+      <line x1="48" y1="54" x2="48" y2="70" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+      <line x1="38" y1="62" x2="58" y2="62" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+
+      <!-- Center Diamond Rune -->
+      <polygon points="48,36 51,40 48,44 45,40" fill="#FFFFFF"/>
+    </svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 12" width="256" height="12">
+      <!-- Thin brass hairline -->
+      <line x1="20" y1="6" x2="116" y2="6" stroke="#7A6038" stroke-width="1"/>
+      <line x1="140" y1="6" x2="236" y2="6" stroke="#7A6038" stroke-width="1"/>
+      <!-- Center engraved diamond -->
+      <polygon points="128,1 133,6 128,11 123,6" fill="#B89552"/>
+      <polygon points="128,3 131,6 128,9 125,6" fill="#42321C"/>
+      <circle cx="119" cy="6" r="1" fill="#8A6E43"/>
+      <circle cx="137" cy="6" r="1" fill="#8A6E43"/>
+    </svg>
