@@ -357,7 +357,7 @@ final class RoutineSleepHelpers {
             // Validate bed still exists by checking the actual world block, and self-heal BedRegistry if missing
             WorldChunk bedChunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunk(bedPos.x >> 4, bedPos.z >> 4), WorldChunk.getComponentType());
             if (bedChunk != null) {
-                BlockType type = world.getBlockType(bedPos.x, bedPos.y, bedPos.z);
+                BlockType type = bedChunk.getBlockType(bedPos.x, bedPos.y, bedPos.z);
                 if (type == null || type.getId() == null || !BedRegistry.isBedId(type.getId())) {
                     // Chunk loaded but bed block is gone — destroyed
                     RoutineAISystem.LOGGER.info("[SimTale] NPC '{}' bed at ({},{},{}) was destroyed. Releasing.", npc.name, bedPos.x, bedPos.y, bedPos.z);
@@ -554,8 +554,8 @@ final class RoutineSleepHelpers {
             // Verify bed still exists periodically
             if ((world.getTick() - ai.taskStartTime) % 20 == 0) {
                 Vector3i bedPos = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
-                BlockType type = world.getBlockType(bedPos.x, bedPos.y, bedPos.z);
-                if (type == null || type.getId() == null || !BedRegistry.isBedId(type.getId())) {
+                BlockType type = NPCMovementHelper.getBlockTypeSafe(world, bedPos);
+                if (type != null && !BedRegistry.isBedId(type.getId())) {
                     RoutineAISystem.LOGGER.info("[SimTale] NPC '{}' bed at ({},{},{}) was destroyed while sleeping. Waking up.", npc.name, bedPos.x, bedPos.y, bedPos.z);
                     npc.bedLocation = null;
                     npc.family.hasSharedHome = false;
