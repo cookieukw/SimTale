@@ -20,7 +20,14 @@
     "Idle": {
       "Animations": [
         {
-          "Animation": "NPC/Vehicles/Calhambeque/Animations/Calhambeque_Drive.blockyanim"
+          "Animation": "NPC/Vehicles/Calhambeque/Animations/Calhambeque_Idle.blockyanim"
+        }
+      ]
+    },
+    "idle": {
+      "Animations": [
+        {
+          "Animation": "NPC/Vehicles/Calhambeque/Animations/Calhambeque_Idle.blockyanim"
         }
       ]
     },

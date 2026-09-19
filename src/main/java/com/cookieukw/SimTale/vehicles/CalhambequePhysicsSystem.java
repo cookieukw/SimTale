@@ -1,6 +1,8 @@
 package com.cookieukw.SimTale.vehicles;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.systems.BedRegistry;
+import com.cookieukw.SimTale.systems.ChairRegistry;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -23,6 +25,7 @@ import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entity.player.PlayerInput;
 import com.hypixel.hytale.server.core.modules.entity.player.PlayerProcessMovementSystem;
+import com.hypixel.hytale.server.core.modules.entity.player.PlayerSystems;
 import com.hypixel.hytale.server.core.modules.entity.tracker.NetworkId;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
@@ -62,6 +65,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
     @Override
     public Set<Dependency<EntityStore>> getDependencies() {
         return Set.of(
+                new SystemDependency<>(Order.BEFORE, PlayerSystems.ProcessPlayerInput.class),
                 new SystemDependency<>(Order.BEFORE, PlayerProcessMovementSystem.class)
         );
     }
@@ -189,17 +193,29 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
                                 double dot = rm.getX() * dirX + rm.getZ() * dirZ;
                                 if (dot > 0.02) throttle = 1f;
                                 else if (dot < -0.02) throttle = -1f;
+                            } else if (update instanceof PlayerInput.WishMovement wm) {
+                                double dot = wm.getX() * dirX + wm.getZ() * dirZ;
+                                if (dot > 0.02) throttle = 1f;
+                                else if (dot < -0.02) throttle = -1f;
+                                else if (wm.getZ() > 0.02) throttle = 1f;
+                                else if (wm.getZ() < -0.02) throttle = -1f;
                             }
                         }
                     }
 
-                    // Fallback to MovementStates
+                    // Fallback to MovementStates if no explicit throttle was captured
                     if (throttle == 0f && ms != null && (ms.walking || ms.running || ms.sprinting)) {
-                        float viewDiff = Math.abs(normalizeAngle(driverYaw - carYaw));
-                        if (viewDiff < Math.PI / 2.0) {
+                        if (car.speed < -0.2f) {
+                            throttle = -1f;
+                        } else if (car.speed > 0.2f) {
                             throttle = 1f;
                         } else {
-                            throttle = -1f;
+                            float viewDiff = Math.abs(normalizeAngle(driverYaw - carYaw));
+                            if (viewDiff > Math.PI * 0.6) {
+                                throttle = -1f;
+                            } else {
+                                throttle = 1f;
+                            }
                         }
                     }
                 }
@@ -219,7 +235,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // 4. Translation, Step Climbing & Solid Wall Collision
+        // 4. Translation, Step Climbing & Solid / Furniture Obstacle Collision
         double curX = pos.x;
         double curY = pos.y;
         double curZ = pos.z;
@@ -227,25 +243,67 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         if (Math.abs(car.speed) > 0.01f) {
             double dirX = -Math.sin(carYaw);
             double dirZ = -Math.cos(carYaw);
+            double rightX = Math.cos(carYaw);
+            double rightZ = -Math.sin(carYaw);
             double moveDist = car.speed * clampedDt;
 
             double nextX = curX + dirX * moveDist;
             double nextZ = curZ + dirZ * moveDist;
 
-            int targetBlockX = (int) Math.floor(nextX);
-            int targetBlockY = (int) Math.floor(curY + 0.1);
-            int targetBlockZ = (int) Math.floor(nextZ);
+            // Check collision at leading bumper (front bumper if moving forward, rear bumper if reversing)
+            double bumperDist = car.speed > 0 ? 1.8 : -1.8;
+            double checkCenterX = nextX + dirX * bumperDist;
+            double checkCenterZ = nextZ + dirZ * bumperDist;
 
-            if (isSolid(world, targetBlockX, targetBlockY, targetBlockZ)) {
-                // Check if 1-block step up is clear
-                if (!isSolid(world, targetBlockX, targetBlockY + 1, targetBlockZ) &&
-                    !isSolid(world, targetBlockX, targetBlockY + 2, targetBlockZ)) {
-                    // Smoothly climb 1 block
-                    curY += STEP_HEIGHT;
-                    curX = nextX;
-                    curZ = nextZ;
+            // 3 sample points along the bumper: center, left corner, right corner
+            double[][] checkPoints = {
+                    {checkCenterX, checkCenterZ},
+                    {checkCenterX + rightX * 0.8, checkCenterZ + rightZ * 0.8},
+                    {checkCenterX - rightX * 0.8, checkCenterZ - rightZ * 0.8}
+            };
+
+            int footBlockY = (int) Math.floor(curY + 0.1);
+            boolean hitObstacle = false;
+            boolean canStepClimb = (car.speed > 0);
+
+            for (double[] pt : checkPoints) {
+                int bx = (int) Math.floor(pt[0]);
+                int bz = (int) Math.floor(pt[1]);
+
+                if (isObstacle(world, bx, footBlockY, bz)) {
+                    hitObstacle = true;
+                    // Step climbing is only allowed if the obstacle is NOT furniture and has clear headroom
+                    if (!canStepUp(world, bx, footBlockY, bz)) {
+                        canStepClimb = false;
+                    }
+                }
+            }
+
+            if (hitObstacle) {
+                if (canStepClimb) {
+                    // Check overhead clearance above the step for vehicle height (needs at least 3 blocks clear)
+                    boolean headroomClear = true;
+                    for (double[] pt : checkPoints) {
+                        int bx = (int) Math.floor(pt[0]);
+                        int bz = (int) Math.floor(pt[1]);
+                        for (int dy = 1; dy <= 3; dy++) {
+                            if (isObstacle(world, bx, footBlockY + dy, bz)) {
+                                headroomClear = false;
+                                break;
+                            }
+                        }
+                        if (!headroomClear) break;
+                    }
+
+                    if (headroomClear) {
+                        curY += STEP_HEIGHT;
+                        curX = nextX;
+                        curZ = nextZ;
+                    } else {
+                        car.speed = 0f;
+                    }
                 } else {
-                    // Solid wall -> stop car
+                    // Wall / furniture / bed / no clearance -> cleanly stop without jumping or bouncing
                     car.speed = 0f;
                 }
             } else {
@@ -259,7 +317,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         int groundBlockY = (int) Math.floor(curY - 0.2);
         int groundBlockZ = (int) Math.floor(curZ);
 
-        if (isSolid(world, groundBlockX, groundBlockY, groundBlockZ)) {
+        if (isObstacle(world, groundBlockX, groundBlockY, groundBlockZ)) {
             car.velocityY = 0f;
             double groundTopY = groundBlockY + 1.0;
             if (curY < groundTopY || curY - groundTopY < 0.25) {
@@ -271,7 +329,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
 
             // Check floor penetration
             int fallBlockY = (int) Math.floor(curY);
-            if (isSolid(world, groundBlockX, fallBlockY, groundBlockZ)) {
+            if (isObstacle(world, groundBlockX, fallBlockY, groundBlockZ)) {
                 curY = fallBlockY + 1.0;
                 car.velocityY = 0f;
             }
@@ -315,7 +373,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         } else if (car.speed > 0.2f) {
             targetAnim = "Drive";
         } else if (hasActiveDriver || car.engineRunning) {
-            targetAnim = "Drive";
+            targetAnim = "Idle";
         }
 
         if (targetAnim == null) {
@@ -329,13 +387,54 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         }
     }
 
-    private static boolean isSolid(World world, int x, int y, int z) {
+    private static boolean isObstacle(World world, int x, int y, int z) {
         if (world == null) return false;
         long chunkIndex = ChunkUtil.indexChunkFromBlock(x, z);
         WorldChunk chunk = world.getChunkIfLoaded(chunkIndex);
         if (chunk == null) return false;
         BlockType bt = chunk.getBlockType(x, y, z);
-        return bt != null && bt.getMaterial() == BlockMaterial.Solid;
+        if (bt == null) return false;
+        if (bt.getMaterial() == BlockMaterial.Solid) return true;
+        if (bt.getBeds() != null || bt.getSeats() != null || bt.isDoor()) return true;
+        String id = bt.getId();
+        if (id != null) {
+            if (BedRegistry.isBedId(id) || ChairRegistry.isChair(id)) return true;
+            String lower = id.toLowerCase();
+            if (lower.contains("bed") || lower.contains("chair") || lower.contains("chest")
+                    || lower.contains("table") || lower.contains("bench") || lower.contains("sofa")
+                    || lower.contains("couch") || lower.contains("door") || lower.contains("fence")
+                    || lower.contains("gate") || lower.contains("wall") || lower.contains("tub")
+                    || lower.contains("desk") || lower.contains("counter") || lower.contains("shelf")
+                    || lower.contains("cabinet") || lower.contains("cupboard") || lower.contains("wardrobe")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean canStepUp(World world, int x, int footY, int z) {
+        if (world == null) return false;
+        long chunkIndex = ChunkUtil.indexChunkFromBlock(x, z);
+        WorldChunk chunk = world.getChunkIfLoaded(chunkIndex);
+        if (chunk == null) return false;
+        BlockType bt = chunk.getBlockType(x, footY, z);
+        if (bt == null) return false;
+        // Never step-climb onto beds, chairs, or furniture
+        if (bt.getBeds() != null || bt.getSeats() != null || bt.isDoor()) return false;
+        String id = bt.getId();
+        if (id != null) {
+            if (BedRegistry.isBedId(id) || ChairRegistry.isChair(id)) return false;
+            String lower = id.toLowerCase();
+            if (lower.contains("bed") || lower.contains("chair") || lower.contains("chest")
+                    || lower.contains("table") || lower.contains("bench") || lower.contains("sofa")
+                    || lower.contains("couch") || lower.contains("door") || lower.contains("fence")
+                    || lower.contains("gate") || lower.contains("wall") || lower.contains("tub")
+                    || lower.contains("desk") || lower.contains("counter") || lower.contains("shelf")
+                    || lower.contains("cabinet") || lower.contains("cupboard") || lower.contains("wardrobe")) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static float normalizeAngle(float angle) {
