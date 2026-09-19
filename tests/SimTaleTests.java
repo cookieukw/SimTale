@@ -461,7 +461,7 @@ public class SimTaleTests {
         Assert.equal(refusal.isPresent(), false, "Liked profession is never refused");
 
         InteractionOutcome acceptOutcome = InteractionManager.buildProfessionAcceptance(
-                enthusiastic, rel, Profession.FARMER, Message.raw("Farmer"), "Wood_Hoe", Message.raw(""), ctxLiked
+                enthusiastic, Message.raw("Farmer"), "Wood_Hoe", Message.raw(""), ctxLiked
         );
         Assert.equal(acceptOutcome.friendship(), 15, "Liked profession grants bonus friendship");
         Assert.equal(acceptOutcome.affinity(), 25, "Liked profession grants bonus affinity");
@@ -515,7 +515,7 @@ public class SimTaleTests {
         Assert.equal(refusalLoyal.isPresent(), false, "Loyal NPC accepts neutral profession");
 
         InteractionOutcome loyalAccept = InteractionManager.buildProfessionAcceptance(
-                loyalNpc, loyalRel, Profession.FISHERMAN, Message.raw("Fisherman"), "Fishing_Rod", Message.raw(""), ctxLoyal
+                loyalNpc, Message.raw("Fisherman"), "Fishing_Rod", Message.raw(""), ctxLoyal
         );
         Assert.equal(loyalAccept.friendship(), 10, "Loyal NPC gives 10 friendship on accept");
         Assert.equal(loyalNpc.getMood(), Mood.HAPPY, "Loyal NPC is HAPPY to accept");
@@ -607,9 +607,9 @@ public class SimTaleTests {
         SimTaleJuiceHelper.playGiftReaction(null, null, 25, null, 0);
         SimTaleJuiceHelper.playGiftReaction(null, null, -10, null, 0);
         SimTaleJuiceHelper.playGiftReaction(null, null, 5, null, 0);
-        SimTaleJuiceHelper.playProfessionReaction(null, null, true, true, null, 0);
-        SimTaleJuiceHelper.playProfessionReaction(null, null, true, false, null, 0);
-        SimTaleJuiceHelper.playProfessionReaction(null, null, false, false, null, 0);
+        SimTaleJuiceHelper.playProfessionReaction(null, null, true, true, null);
+        SimTaleJuiceHelper.playProfessionReaction(null, null, true, false, null);
+        SimTaleJuiceHelper.playProfessionReaction(null, null, false, false, null);
         SimTaleJuiceHelper.playDamagePanic(null, null, null, 0);
 
         System.out.println("OK");
