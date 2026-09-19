@@ -23,20 +23,12 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import org.joml.Vector3d;
-import org.joml.Vector3i;
 
-import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
-import com.cookieukw.SimTale.core.lifecycle.GrowthManager;
-import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
-import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
-import com.cookieukw.SimTale.core.lifecycle.LifecycleState;
-import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
-import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
 import com.hypixel.hytale.protocol.SoundCategory;
 
@@ -119,19 +111,19 @@ public class SimTaleItemRegistry {
         /* The three lenses below replace placeholder handlers that only printed a line of hardcoded
         Portuguese with an emoji the client renders as "??".
         */
-        RuneCoreItemManager.register("InspectorsJournal", (player, playerRef) ->
+        RuneCoreItemManager.register("InspectorsJournal", (_, playerRef) ->
                 withPlayerPosition(playerRef, pos ->
                         InspectorJournalHelper.inspect(WorldUtil.first(), playerRef, pos)));
 
         RuneCoreItemManager.register("InnkeepersLedger", (player, playerRef) ->
-                openPage(player, playerRef, (pRef, store) ->
+                openPage(player, playerRef, (_, _) ->
                         new SimBedDebugPage(playerRef, player, 0, true)));
 
-        RuneCoreItemManager.register("HouseBlueprint", (player, playerRef) ->
+        RuneCoreItemManager.register("HouseBlueprint", (_, playerRef) ->
                 withPlayerPosition(playerRef, pos ->
                         HouseBlueprintHelper.inspect(WorldUtil.first(), playerRef, pos)));
         
-        RuneCoreItemManager.register("ImmigrationContract", (player, playerRef) -> {
+        RuneCoreItemManager.register("ImmigrationContract", (_, playerRef) -> {
             if (SimTale.ACTIVE_NPCS.size() >= MAX_ACTIVE_NPCS) {
                 playerRef.sendMessage(Message.translation("general.contract.village_full"));
                 return;
@@ -169,10 +161,6 @@ public class SimTaleItemRegistry {
             */
             WorldUtil.execute(() -> {
                 Ref<EntityStore> npcRef = SimNPCFactory.spawnNPC(store, pos, type);
-                if (npcRef == null) {
-                    playerRef.sendMessage(Message.translation("general.contract.failed"));
-                    return;
-                }
                 SimNPCComponent npc = store.getComponent(npcRef, SimTale.SIM_NPC_COMPONENT_TYPE);
                 Message arrival = npc != null
                         ? Message.translation("general.contract.arrived").param("name", npc.name)
@@ -221,10 +209,10 @@ public class SimTaleItemRegistry {
         */
 
         RuneCoreItemManager.register("QuartermastersGlass", (player, playerRef) ->
-                openPage(player, playerRef, (pRef, store) ->
+                openPage(player, playerRef, (_, _) ->
                         new SimChestDebugPage(playerRef, player, 0, true)));
         
-        RuneCoreItemManager.register("BirthdayCake", (player, playerRef) -> {
+        RuneCoreItemManager.register("BirthdayCake", (_, playerRef) -> {
             Ref<EntityStore> pRef = playerRef.getReference();
             if (pRef == null || !pRef.isValid()) return;
             Store<EntityStore> store = pRef.getStore();
@@ -290,7 +278,7 @@ public class SimTaleItemRegistry {
         /* The ring's real behaviour lives in the gift path (InteractionManager); this only fires
         when it is used on nothing.
         */
-        RuneCoreItemManager.register("WeddingRing", (player, playerRef) ->
+        RuneCoreItemManager.register("WeddingRing", (_, playerRef) ->
                 playerRef.sendMessage(Message.translation("general.ring.holding")));
     }
 

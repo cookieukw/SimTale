@@ -12,13 +12,13 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
-import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.server.npc.role.support.StateSupport;
+import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.joml.Vector3d;
 
@@ -31,8 +31,7 @@ import java.util.Objects;
  */
 public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
 
-    private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
-    private static final int TICK_INTERVAL = 100; 
+    private static final int TICK_INTERVAL = 100;
     private long lastTick = 0;
 
     @NullableDecl
@@ -122,12 +121,7 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
                         if (childT != null && parentT != null) {
                             double distSq = childT.getPosition().distanceSquared(parentT.getPosition());
                             if (distSq > 36.0) { // More than 6 blocks away -> follow parent with individual offset
-                                int hash = child.childId != null ? child.childId.hashCode() : 0;
-                                double angle = (hash & 0xFFFF) * (Math.PI * 2.0 / 65536.0);
-                                double offsetDist = 2.0 + ((hash >> 16) & 1); // 2 to 3 blocks
-                                double targetX = parentT.getPosition().x + Math.cos(angle) * offsetDist;
-                                double targetZ = parentT.getPosition().z + Math.sin(angle) * offsetDist;
-                                Vector3d targetPos = new Vector3d(targetX, parentT.getPosition().y, targetZ);
+                                Vector3d targetPos = getVector3d(child, parentT);
 
                                 if (ai != null) {
                                     NPCMovementHelper.moveTo(childRef, ai, world, targetPos);
@@ -136,15 +130,13 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
                                     if (npcEntity != null) {
                                         npcEntity.setLeashPoint(targetPos);
                                         StateSupport stateSupport = StateSupport.get(childRef, store);
-                                        if (stateSupport != null) {
-                                            stateSupport.setState(childRef, NPCMovementHelper.STATE_MOVING, null, store);
-                                        }
+                                        stateSupport.setState(childRef, NPCMovementHelper.STATE_MOVING, null, store);
                                     }
                                 }
                             } else if (distSq <= 16.0) { // Within 4 blocks -> arrived, return to idle
                                 StateSupport stateSupport = StateSupport.get(childRef, store);
-                                if (stateSupport != null && stateSupport.getStateName() != null
-                                        && stateSupport.getStateName().startsWith(NPCMovementHelper.STATE_MOVING)) {
+                                stateSupport.getStateName();
+                                if (stateSupport.getStateName().startsWith(NPCMovementHelper.STATE_MOVING)) {
                                     if (ai != null) {
                                         if (ai.currentTask == RoutineAIComponent.TaskType.IDLE) {
                                             NPCMovementHelper.clearMoveTarget(childRef, ai);
@@ -181,5 +173,16 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
                 LifecycleManager.tickMotherAI(npc, baby, worldTick);
             }
         }
+    }
+
+    @NonNullDecl
+    private static Vector3d getVector3d(GrowthComponent child, TransformComponent parentT) {
+        int hash = child.childId != null ? child.childId.hashCode() : 0;
+        double angle = (hash & 0xFFFF) * (Math.PI * 2.0 / 65536.0);
+        double offsetDist = 2.0 + ((hash >> 16) & 1); // 2 to 3 blocks
+        double targetX = parentT.getPosition().x + Math.cos(angle) * offsetDist;
+        double targetZ = parentT.getPosition().z + Math.sin(angle) * offsetDist;
+        Vector3d targetPos = new Vector3d(targetX, parentT.getPosition().y, targetZ);
+        return targetPos;
     }
 }
