@@ -416,8 +416,7 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     private void refreshUI(Ref<EntityStore> storeRef, Store<EntityStore> store) {
-        player.getPageManager().setPage(storeRef, store, Page.None);
-        player.getPageManager().openCustomPage(storeRef, store,
-                new SimChestDebugPage(playerRefComp, player, selectedIndex, readOnly, fromHub));
+        player.getPageManager().clearCustomPageAcknowledgements();
+        rebuild();
     }
 }

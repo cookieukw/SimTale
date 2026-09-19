@@ -201,8 +201,7 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
     }
 
     private void refreshUI(Ref<EntityStore> storeRef, Store<EntityStore> store) {
-        player.getPageManager().setPage(storeRef, store, Page.None);
-        player.getPageManager().openCustomPage(storeRef, store,
-                new SimGraveyardPage(playerRefComp, player, pageIndex));
+        player.getPageManager().clearCustomPageAcknowledgements();
+        rebuild();
     }
 }
