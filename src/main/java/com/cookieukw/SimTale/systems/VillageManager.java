@@ -132,9 +132,9 @@ public final class VillageManager {
      * Checks whether the specified chunk belongs to the same given village.
      */
     public static boolean isSameVillageChunk(Village village, int chunkX, int chunkZ) {
-        if (village == null) return false;
+        if (village == null) return true;
         long idx = ChunkUtil.indexChunk(chunkX, chunkZ);
-        return village.containsChunk(idx);
+        return !village.containsChunk(idx);
     }
 
     /**
@@ -211,7 +211,7 @@ public final class VillageManager {
             if (universe == null) return;
             LongSet set = new LongOpenHashSet(chunkIndices);
             for (World world : universe.getWorlds().values()) {
-                if (world != null && world.getWorldMapManager() != null) {
+                if (world != null) {
                     world.getWorldMapManager().clearImagesInChunks(set);
                 }
             }
@@ -267,8 +267,8 @@ public final class VillageManager {
                 double minZ = cz * 32.0;
                 double maxZ = minZ + 32.0;
 
-                double closestX = Math.max(minX, Math.min(centerX, maxX));
-                double closestZ = Math.max(minZ, Math.min(centerZ, maxZ));
+                double closestX = Math.clamp(centerX, minX, maxX);
+                double closestZ = Math.clamp(centerZ, minZ, maxZ);
 
                 double dx = centerX - closestX;
                 double dz = centerZ - closestZ;

@@ -22,7 +22,6 @@ import com.cookieukw.SimTale.logic.JobType;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.logger.HytaleLogger;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
@@ -36,7 +35,6 @@ import javax.annotation.Nonnull;
 
 /**
  * Handles chat interactions for controlling SimTale NPCs.
- * 
  * Conversations are context-aware: the NPC responds differently based on
  * the friendship tier AND what the player actually said (compliment, question,
  * joke, job request, etc). This makes dialogue feel alive and connected

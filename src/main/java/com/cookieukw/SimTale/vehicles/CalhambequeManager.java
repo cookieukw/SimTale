@@ -2,7 +2,6 @@ package com.cookieukw.SimTale.vehicles;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCFactory;
-import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
@@ -17,7 +16,6 @@ import com.hypixel.hytale.server.core.modules.entity.component.Interactable;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entity.tracker.NetworkId;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
 import it.unimi.dsi.fastutil.Pair;
@@ -96,13 +94,13 @@ public class CalhambequeManager {
 
         // If car has no driver, mount as driver
         if (!car.hasDriver()) {
-            mountDriver(store, carRef, car, playerRef, playerRefComp);
+            mountDriver(store, carRef, car, playerRefComp);
             return;
         }
 
         // Already has driver: mount as passenger if empty
         if (car.passengerUuid == null) {
-            mountPassenger(store, carRef, car, playerRef, playerRefComp);
+            mountPassenger(store, carRef, car, playerRefComp);
             return;
         }
 
@@ -113,7 +111,7 @@ public class CalhambequeManager {
      * Mounts the player into the driver seat (BenchCushion left side).
      */
     public static void mountDriver(Store<EntityStore> store, Ref<EntityStore> carRef,
-                                    CalhambequeComponent car, Ref<EntityStore> playerRef, PlayerRef playerRefComp) {
+                                   CalhambequeComponent car, PlayerRef playerRefComp) {
         NetworkId carNetId = store.getComponent(carRef, NetworkId.getComponentType());
         if (carNetId == null) return;
 
@@ -128,9 +126,7 @@ public class CalhambequeManager {
                 car.driverSeatOffset.z,
                 netId
         );
-        if (playerRefComp.getPacketHandler() != null) {
-            playerRefComp.getPacketHandler().write(mountPacket);
-        }
+        playerRefComp.getPacketHandler().write(mountPacket);
 
         playerRefComp.sendMessage(Message.raw("§6[Calhambeque 1930s] §aMotor ligado! Use §fW/S §apara acelerar e dar ré, e §fShift §apara descer."));
     }
@@ -139,7 +135,7 @@ public class CalhambequeManager {
      * Mounts the player into the passenger seat (BenchCushion right side).
      */
     public static void mountPassenger(Store<EntityStore> store, Ref<EntityStore> carRef,
-                                       CalhambequeComponent car, Ref<EntityStore> playerRef, PlayerRef playerRefComp) {
+                                      CalhambequeComponent car, PlayerRef playerRefComp) {
         NetworkId carNetId = store.getComponent(carRef, NetworkId.getComponentType());
         if (carNetId == null) return;
 
@@ -152,9 +148,7 @@ public class CalhambequeManager {
                 car.passengerSeatOffset.z,
                 netId
         );
-        if (playerRefComp.getPacketHandler() != null) {
-            playerRefComp.getPacketHandler().write(mountPacket);
-        }
+        playerRefComp.getPacketHandler().write(mountPacket);
 
         playerRefComp.sendMessage(Message.raw("§6[Calhambeque 1930s] §aVocê sentou no banco do passageiro!"));
     }
@@ -173,7 +167,7 @@ public class CalhambequeManager {
         car.driverUuid = null;
         car.speed = 0f;
 
-        if (playerRefComp != null && playerRefComp.getPacketHandler() != null) {
+        if (playerRefComp != null) {
             playerRefComp.getPacketHandler().write(new DismountNPC(carNetId));
         }
 

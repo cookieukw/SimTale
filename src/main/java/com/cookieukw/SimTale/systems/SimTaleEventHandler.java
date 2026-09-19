@@ -16,9 +16,6 @@ import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
-import com.cookieukw.SimTale.logic.NPCPregnancyPage;
-import com.cookieukw.SimTale.logic.PlayerPregnancyPage;
-import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.component.ComponentAccessor;
 import com.hypixel.hytale.component.Ref;
@@ -39,7 +36,6 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
-import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.server.core.universe.Universe;
@@ -129,7 +125,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
         LOGGER.atInfo().log("SimTale Debug: PlayerMouseButtonEvent fired!");
         ItemStack heldItemTest = InventoryComponent.getItemInHand(playerRef.getStore(), playerRef);
-        if (heldItemTest != null && heldItemTest.getItemId() != null) {
+        if (heldItemTest != null) {
             LOGGER.atInfo().log("SimTale Debug: Held item is: " + heldItemTest.getItemId());
         } else {
             LOGGER.atInfo().log("SimTale Debug: Held item is null or has no ID");
@@ -243,7 +239,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         // Check if player clicked a Calhambeque car
         CalhambequeComponent carComp = store.getComponent(targetRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE);
         if (carComp == null) {
-            NPCEntity npcComp = store.getComponent(targetRef, NPCEntity.getComponentType());
+            NPCEntity npcComp = store.getComponent(targetRef, Objects.requireNonNull(NPCEntity.getComponentType()));
             if (npcComp != null && npcComp.getRoleName() != null && npcComp.getRoleName().contains("Calhambeque")) {
                 carComp = new CalhambequeComponent();
                 store.putComponent(targetRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE, carComp);
