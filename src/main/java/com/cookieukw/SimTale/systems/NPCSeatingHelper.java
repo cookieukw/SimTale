@@ -12,9 +12,11 @@ import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
@@ -76,10 +78,16 @@ public final class NPCSeatingHelper {
             int cz = (int) Math.floor(pos.z);
             for (int dx = -16; dx <= 16; dx += 2) {
                 for (int dz = -16; dz <= 16; dz += 2) {
+                    int bx = cx + dx;
+                    int bz = cz + dz;
+                    long chunkIndex = ChunkUtil.indexChunkFromBlock(bx, bz);
+                    WorldChunk chunk = world.getChunkIfLoaded(chunkIndex);
+                    if (chunk == null) continue;
                     for (int dy = -2; dy <= 4; dy++) {
-                        BlockType bt = world.getBlockType(cx + dx, cy + dy, cz + dz);
+                        int by = cy + dy;
+                        BlockType bt = chunk.getBlockType(bx, by, bz);
                         if (bt != null && ChairRegistry.isChair(bt.getId())) {
-                            ChairRegistry.add(cx + dx, cy + dy, cz + dz);
+                            ChairRegistry.add(bx, by, bz);
                         }
                     }
                 }
