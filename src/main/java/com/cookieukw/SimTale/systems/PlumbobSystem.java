@@ -109,9 +109,14 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         PersistentModel pm = chunk.getComponent(index, PersistentModel.getComponentType());
         if (pm != null && pm.getModelReference().getModelAssetId() != null && pm.getModelReference().getModelAssetId().startsWith("Plumbob")) {
             Ref<EntityStore> thisRef = chunk.getReferenceTo(index);
-            if (!trackedPlumbobRefs.contains(thisRef) || pendingDespawns.remove(thisRef)) {
-                commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
-                LOGGER.atFine().log("[SimTale] Limpando Plumbob orfao do mundo: " + uuidComp.getUuid());
+            if (pendingDespawns.remove(thisRef)) {
+                return;
+            }
+            if (!trackedPlumbobRefs.contains(thisRef)) {
+                if (thisRef.isValid() && pendingDespawns.add(thisRef)) {
+                    commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
+                    LOGGER.atFine().log("[SimTale] Limpando Plumbob orfao do mundo: " + uuidComp.getUuid());
+                }
             }
             return;
         }
@@ -231,8 +236,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         Ref<EntityStore> existing = playerPlumbobs.remove(entityUuid);
         if (existing == null) return;
         trackedPlumbobRefs.remove(existing);
-        if (existing.isValid()) {
-            pendingDespawns.add(existing);
+        if (existing.isValid() && pendingDespawns.add(existing)) {
             commandBuffer.removeEntity(existing, RemoveReason.REMOVE);
         }
     }
@@ -241,7 +245,6 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         Ref<EntityStore> removed = playerPlumbobs.remove(entityUuid);
         if (removed != null) {
             trackedPlumbobRefs.remove(removed);
-            pendingDespawns.add(removed);
         }
         LOGGER.atFine().log("[SimTale] Plumbob untracked para a entidade: " + entityUuid);
     }
