@@ -37,11 +37,14 @@ $Game = "Common.ui";
 @ButtonGap   = 10;
 
 // ---------------------------------------------------------------- modern surfaces
-// Grounded slate panels and dark recesses with authentic beveled frames.
-@PanelSurface = (TexturePath: "textures/SimTale_GlassPanel.png", Border: 16);
-@CardSurface  = (TexturePath: "textures/SimTale_CardInset.png", Border: 8);
-@InsetSurface = (TexturePath: "textures/SimTale_CardInset.png", Border: 8);
-@WellSurface  = (TexturePath: "textures/SimTale_CardInset.png", Border: 8);
+// Grounded medieval wood panels and warm timber recesses with authentic beveled frames.
+@PanelSurface     = (TexturePath: "textures/SimTale_WoodPanel.png", Border: 16);
+@WoodPanelSurface = (TexturePath: "textures/SimTale_WoodPanel.png", Border: 16);
+@CardSurface      = (TexturePath: "textures/SimTale_WoodInset.png", Border: 8);
+@InsetSurface     = (TexturePath: "textures/SimTale_WoodInset.png", Border: 8);
+@WellSurface      = (TexturePath: "textures/SimTale_WoodInset.png", Border: 8);
+@WoodInsetSurface = (TexturePath: "textures/SimTale_WoodInset.png", Border: 8);
+@WoodCardSurface  = (TexturePath: "textures/SimTale_WoodInset.png", Border: 8);
 
 // Sober RPG progress bars (Need tracks & fills)
 @BarTrack     = (TexturePath: "textures/SimTale_BarTrack.png", Border: 4);
