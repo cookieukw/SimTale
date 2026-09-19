@@ -45,7 +45,9 @@ $T = "../SimTaleTheme.ui";
 
 Group {
   LayoutMode: MiddleCenter;
-  Background: #05070C(0.70);
+  Background: #060911(0.85);
+
+  SceneBlur {}
 
   Group #MainPanel {
     Anchor: (Width: 640, Height: 700);
@@ -56,7 +58,7 @@ Group {
     Label #Title {
       Text: %ui.graveyard.title;
       Anchor: (Height: 34, Bottom: 4);
-      Style: (...$T.@TitleStyle, FontSize: 22, TextColor: $T.@AccentRomance);
+      Style: (...$T.@TitleStyle, FontSize: 24, TextColor: $T.@TextBlue);
     }
 
     $T.@Separator { @Anchor = (Bottom: 12); }

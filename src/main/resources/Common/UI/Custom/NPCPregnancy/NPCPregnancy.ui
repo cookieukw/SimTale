@@ -8,7 +8,9 @@ $T = "../SimTaleTheme.ui";
 
 Group {
   LayoutMode: MiddleCenter;
-  Background: #05070C(0.72);
+  Background: #060911(0.85);
+
+  SceneBlur {}
 
   Group #MainPanel {
     Anchor: (Width: 560, Height: 640);
@@ -100,7 +102,7 @@ Group {
       Group #ProgressBarContainer {
         Anchor: (Height: 28, Bottom: 14);
         LayoutMode: Left;
-        Background: $T.@WellSurface;
+        Background: $T.@BarTrack;
         Padding: (Full: 4);
 
         Group #ProgressBarFill {

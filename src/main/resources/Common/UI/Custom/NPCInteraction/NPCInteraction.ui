@@ -8,40 +8,33 @@
 $T = "../SimTaleTheme.ui";
 
 // One showcase slot: the item on top, a short caption under it.
-//
-// The element is ItemIcon because that is the one item renderer proven to work from server code —
-// ItemRepairElement writes "#Icon.ItemId" the exact same way. No ItemPreviewComponent appears in
-// any of the 135 shipped .ui files, so it is not used here; if it turns out to exist, swapping is
-// a one-line change inside this template and nothing else moves.
 @ShowcaseSlot = Group {
-  Anchor: (Width: 100);
+  Anchor: (Width: 96, Height: 50);
   LayoutMode: Top;
-  Padding: (Horizontal: 4);
 
   Group {
-    Anchor: (Height: 40, Bottom: 3);
+    Anchor: (Height: 32, Bottom: 2);
     LayoutMode: MiddleCenter;
 
     ItemIcon #Icon {
-      Anchor: (Width: 36, Height: 36);
+      Anchor: (Width: 28, Height: 28);
     }
   }
 
   Label #Caption {
     Text: "—";
-    Anchor: (Height: 18);
-    Style: (...$T.@BodyStyle, FontSize: 11, HorizontalAlignment: Center);
+    Anchor: (Height: 16);
+    Style: (...$T.@BodyStyle, FontSize: 11, HorizontalAlignment: Center, ShrinkTextToFit: true, MinShrinkTextToFitFontSize: 9);
   }
 };
 
-
 // Bare icon for the taste rows: no caption, since the row label already says what it means.
 @TasteIcon = Group {
-  Anchor: (Width: 34, Height: 34, Right: 4);
+  Anchor: (Width: 26, Height: 26, Right: 4);
   LayoutMode: MiddleCenter;
 
   ItemIcon #Icon {
-    Anchor: (Width: 30, Height: 30);
+    Anchor: (Width: 24, Height: 24);
   }
 };
 
@@ -50,84 +43,186 @@ Group {
   Background: #00000000;
 
   Group #MainPanel {
-    Anchor: (Right: 64, Width: 560, Height: 996);
+    Anchor: (Right: 48, Width: 480, Height: 750);
     LayoutMode: Top;
     Background: $T.@PanelSurface;
-    Padding: (Top: 24, Bottom: 22, Horizontal: $T.@GutterOuter);
+    Padding: (Top: 18, Bottom: 16, Horizontal: 22);
 
     // ---------------------------------------------------------------- header
     Label #NpcName {
       Text: "NPC";
-      Anchor: (Height: 44, Bottom: 2);
-      Style: $T.@TitleStyle;
-    }
-    Label #NpcProfession {
-      Text: "Profissão: Desempregado";
-      Anchor: (Height: 24);
-      Style: $T.@SubtitleStyle;
-    }
-    Label #NpcMood {
-      Text: "Humor: Feliz";
-      Anchor: (Height: 22, Bottom: 4);
-      Style: $T.@CaptionStyle;
+      Anchor: (Height: 32, Bottom: 4);
+      Style: (...$T.@TitleStyle, FontSize: 24, HorizontalAlignment: Center);
     }
 
-    $T.@Separator { @Anchor = (Bottom: $T.@SectionGap); }
+    Group #HeaderBadges {
+      Anchor: (Height: 26, Bottom: 10);
+      LayoutMode: CenterMiddle;
+
+      Group #ProfessionBadge {
+        Anchor: (Width: 213, Height: 26, Right: 10);
+        Background: $T.@CardSurface;
+        Padding: (Horizontal: 8, Vertical: 3);
+        LayoutMode: MiddleCenter;
+
+        Label #NpcProfession {
+          Text: "Profissão: Desempregado";
+          Anchor: (Height: 20);
+          Style: (...$T.@SubtitleStyle, FontSize: 12, TextColor: $T.@TextGold, HorizontalAlignment: Center);
+        }
+      }
+
+      Group #MoodBadge {
+        Anchor: (Width: 213, Height: 26);
+        Background: $T.@CardSurface;
+        Padding: (Horizontal: 8, Vertical: 3);
+        LayoutMode: MiddleCenter;
+
+        Label #NpcMood {
+          Text: "Humor: Feliz";
+          Anchor: (Height: 20);
+          Style: (...$T.@CaptionStyle, FontSize: 12, TextColor: $T.@TextPrimary, HorizontalAlignment: Center);
+        }
+      }
+    }
+
+    $T.@Separator { @Anchor = (Bottom: 8); }
+
+    // ---------------------------------------------------------------- vitals
+    Group #VitalsContainer {
+      Anchor: (Height: 74, Bottom: 8);
+      LayoutMode: Top;
+
+      Group #HungerSection {
+        Anchor: (Height: 33, Bottom: 8);
+        LayoutMode: Top;
+
+        Group {
+          Anchor: (Height: 18, Bottom: 2);
+          LayoutMode: Left;
+
+          Label #NpcHunger {
+            Text: "Fome: —";
+            Anchor: (Full: 0);
+            Style: (...$T.@BodyStrong, FontSize: 12);
+          }
+        }
+
+        Group #HungerBarTrack {
+          Anchor: (Height: 10);
+          Background: $T.@BarTrack;
+          Padding: (Horizontal: 3, Vertical: 1);
+
+          Group #HungerBarFill {
+            Anchor: (Width: 100, Height: 8);
+            Background: $T.@BarFillAmber;
+          }
+        }
+      }
+
+      Group #EnergySection {
+        Anchor: (Height: 33);
+        LayoutMode: Top;
+
+        Group {
+          Anchor: (Height: 18, Bottom: 2);
+          LayoutMode: Left;
+
+          Label #NpcEnergy {
+            Text: "Energia: —";
+            Anchor: (Full: 0);
+            Style: (...$T.@BodyStrong, FontSize: 12);
+          }
+        }
+
+        Group #EnergyBarTrack {
+          Anchor: (Height: 10);
+          Background: $T.@BarTrack;
+          Padding: (Horizontal: 3, Vertical: 1);
+
+          Group #EnergyBarFill {
+            Anchor: (Width: 100, Height: 8);
+            Background: $T.@BarFillGreen;
+          }
+        }
+      }
+    }
 
     // ---------------------------------------------------------------- info well
     Group #InfoPanel {
-      // Height is the sum of the rows, not a guess — getting it wrong does not clip, it lets the
-      // relationship well spill over the button grid below.
-      //   padding 24 + header 22+8 + (hunger 26 + energy 26 + traits 26 + showcase 64 + likes 38
-      //   + hates 38 + season 26 + parents 26) each with @RowGap 6 + children 26+10 + well 34 = 442
-      Anchor: (Height: 442, Bottom: $T.@SectionGap);
+      Anchor: (Height: 240, Bottom: 8);
       LayoutMode: Top;
       Background: $T.@InsetSurface;
-      Padding: (Top: 12, Bottom: 12, Horizontal: $T.@GutterInner);
+      Padding: (Top: 8, Bottom: 8, Horizontal: 12);
 
       Label #InfoHeader {
         Text: "INFORMAÇÕES";
-        Anchor: (Height: 22, Bottom: 8);
-        Style: $T.@SectionHeaderStyle;
+        Anchor: (Height: 16, Bottom: 4);
+        Style: (...$T.@SectionHeaderStyle, FontSize: 11);
       }
-      // Needs sit above the personality lines because they change minute to minute, while traits
-      // and likes never do. The colour is set from Java so a starving NPC reads at a glance.
-      Label #NpcHunger {
-        Text: "Fome: —";
-        Anchor: (Height: 26, Bottom: $T.@RowGap);
-        Style: $T.@BodyStrong;
-      }
-      Label #NpcEnergy {
-        Text: "Energia: —";
-        Anchor: (Height: 26, Bottom: $T.@RowGap);
-        Style: $T.@BodyStrong;
-      }
-      Label #NpcTraits {
-        Text: "Traços: —";
-        Anchor: (Height: 26, Bottom: $T.@RowGap);
-        Style: $T.@BodyStyle;
-      }
-      // Four lines of "Gosta de: X / Odeia: Y / Hobby: Z / Profissão: W" became four pictures.
-      // The captions stay, otherwise the row reads as a random inventory instead of a profile.
-      Group #Showcase {
-        Anchor: (Height: 64, Bottom: $T.@RowGap);
+
+      // Dense 2-column info grid
+      Group #InfoGrid {
+        Anchor: (Height: 44, Bottom: 6);
         LayoutMode: Left;
 
-        @ShowcaseSlot #SlotProfession {}
-        @ShowcaseSlot #SlotHobby {}
+        Group #InfoColLeft {
+          Anchor: (Width: 200, Right: 12);
+          LayoutMode: Top;
+
+          Label #NpcTraits {
+            Text: "Traços: —";
+            Anchor: (Height: 20, Bottom: 2);
+            Style: (...$T.@BodyStyle, FontSize: 12);
+          }
+
+          Label #NpcSeason {
+            Text: "Estação Fav.: —";
+            Anchor: (Height: 20);
+            Style: (...$T.@BodyStyle, FontSize: 12);
+          }
+        }
+
+        Group #InfoColRight {
+          Anchor: (Width: 200);
+          LayoutMode: Top;
+
+          Label #NpcFamilyParents {
+            Text: "Pais: —";
+            Anchor: (Height: 20, Bottom: 2);
+            Style: (...$T.@BodyStyle, FontSize: 12);
+          }
+
+          Label #NpcFamilyChildren {
+            Text: "Filhos: —";
+            Anchor: (Height: 20);
+            Style: (...$T.@BodyStyle, FontSize: 12);
+          }
+        }
       }
 
-      // Tastes get a row each, with room for the whole list. Showing only the first one made an
-      // NPC look like it did not hate something it actually hated — an NPC rolls two to three
-      // hated foods plus two to three hated items, so one icon was hiding up to five.
+      // Showcase items (Profession & Hobby)
+      Group #Showcase {
+        Anchor: (Height: 48, Bottom: 4);
+        LayoutMode: CenterMiddle;
+
+        @ShowcaseSlot #SlotProfession {
+          Anchor: (Width: 96, Height: 48, Right: 12);
+        }
+        @ShowcaseSlot #SlotHobby {
+          Anchor: (Width: 96, Height: 48);
+        }
+      }
+
+      // Taste rows (Likes & Hates)
       Group #LikesRow {
-        Anchor: (Height: 38, Bottom: $T.@RowGap);
+        Anchor: (Height: 28, Bottom: 3);
         LayoutMode: Left;
 
         Label #LikesCaption {
           Text: "Gosta:";
-          Anchor: (Width: 78, Height: 30, Top: 4);
-          Style: (...$T.@BodyStyle, FontSize: 13, TextColor: $T.@AccentLike);
+          Anchor: (Width: 56, Height: 24, Top: 2);
+          Style: (...$T.@BodyStyle, FontSize: 12, TextColor: $T.@AccentLike, RenderBold: true);
         }
         @TasteIcon #Like0 {}
         @TasteIcon #Like1 {}
@@ -138,13 +233,13 @@ Group {
       }
 
       Group #HatesRow {
-        Anchor: (Height: 38, Bottom: $T.@RowGap);
+        Anchor: (Height: 28);
         LayoutMode: Left;
 
         Label #HatesCaption {
           Text: "Odeia:";
-          Anchor: (Width: 78, Height: 30, Top: 4);
-          Style: (...$T.@BodyStyle, FontSize: 13, TextColor: $T.@AccentHate);
+          Anchor: (Width: 56, Height: 24, Top: 2);
+          Style: (...$T.@BodyStyle, FontSize: 12, TextColor: $T.@AccentHate, RenderBold: true);
         }
         @TasteIcon #Hate0 {}
         @TasteIcon #Hate1 {}
@@ -153,48 +248,45 @@ Group {
         @TasteIcon #Hate4 {}
         @TasteIcon #Hate5 {}
       }
-      Label #NpcSeason {
-        Text: "Estação Fav.: —";
-        Anchor: (Height: 26, Bottom: $T.@RowGap);
-        Style: $T.@BodyStyle;
-      }
-      Label #NpcFamilyParents {
-        Text: "Pais: —";
-        Anchor: (Height: 26, Bottom: $T.@RowGap);
-        Style: $T.@BodyStyle;
-      }
-      Label #NpcFamilyChildren {
-        Text: "Filhos: —";
-        Anchor: (Height: 26, Bottom: 10);
-        Style: $T.@BodyStyle;
+    }
+
+    // ---------------------------------------------------------------- relationship status
+    Group #RelationshipCard {
+      Anchor: (Height: 44, Bottom: 8);
+      Background: $T.@WellSurface;
+      Padding: (Horizontal: 12, Vertical: 4);
+      LayoutMode: Top;
+
+      Label #NpcRelationship {
+        Text: "Relacionamento: Desconhecido";
+        Anchor: (Height: 18, Bottom: 2);
+        Style: (...$T.@BodyStrong, FontSize: 12, TextColor: $T.@TextGold);
       }
 
-      // The relationship line is the one number players actually track, so it sits in its own
-      // well at the bottom of the panel instead of blending into the list above it.
-      Group {
-        Anchor: (Height: 34);
-        Background: $T.@WellSurface;
-        Padding: (Horizontal: 10);
-        LayoutMode: Middle;
+      Group #RelationshipBarTrack {
+        Anchor: (Height: 10);
+        Background: $T.@BarTrack;
+        Padding: (Horizontal: 3, Vertical: 1);
 
-        Label #NpcRelationship {
-          Text: "Relacionamento: Desconhecido";
-          Anchor: (Height: 24);
-          Style: (...$T.@BodyStrong, TextColor: $T.@TextBlue);
+        Group #RelationshipBarFill {
+          Anchor: (Width: 80, Height: 8);
+          Background: $T.@BarFillPink;
         }
       }
     }
+
+    $T.@Separator { @Anchor = (Bottom: 8); }
 
     // ---------------------------------------------------------------- actions
     Group #ButtonGrid {
       LayoutMode: Top;
 
       Group #ButtonRow1 {
-        Anchor: (Height: $T.@ButtonH, Bottom: $T.@ButtonGap);
+        Anchor: (Height: 38, Bottom: 6);
         LayoutMode: CenterMiddle;
 
         Button #ChatButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
+          Anchor: (Width: 213, Height: 38, Right: 10);
           Style: $T.@BtnNeutral;
           Label #ChatButtonText {
             Text: "Bater Papo";
@@ -203,7 +295,7 @@ Group {
           }
         }
         Button #JokeButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH);
+          Anchor: (Width: 213, Height: 38);
           Style: $T.@BtnNeutral;
           Label #JokeButtonText {
             Text: "Contar Piada";
@@ -214,83 +306,29 @@ Group {
       }
 
       Group #ButtonRow2 {
-        Anchor: (Height: $T.@ButtonH, Bottom: $T.@ButtonGap);
+        Anchor: (Height: 38, Bottom: 6);
         LayoutMode: CenterMiddle;
 
-        Button #FlirtButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
-          Style: $T.@BtnSecondary;
-          Label #FlirtButtonText {
-            Text: "Paquerar";
-            Anchor: (Full: 0);
-            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentRomance);
-          }
-        }
         Button #GiftButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH);
+          Anchor: (Width: 213, Height: 38, Right: 10);
           Style: $T.@BtnSecondary;
           Label #GiftButtonText {
             Text: "Presentear";
             Anchor: (Full: 0);
-            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentLike);
-          }
-        }
-      }
-
-      Group #ButtonRow3 {
-        Anchor: (Height: $T.@ButtonH, Bottom: $T.@ButtonGap);
-        LayoutMode: CenterMiddle;
-
-        Button #InsultButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
-          Style: $T.@BtnDestructive;
-          Label #InsultButtonText {
-            Text: "Insultar";
-            Anchor: (Full: 0);
             Style: $T.@ButtonLabelStyle;
           }
         }
-        Button #AssignProfessionButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH);
-          Style: $T.@BtnTertiary;
-          Label #AssignProfessionButtonText {
-            Text: "Dar Emprego";
-            Anchor: (Full: 0);
-            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentWork);
-          }
-        }
-      }
-
-      // Both of these start hidden and are revealed from Java via #X.Visible.
-      Group #ButtonRow4 {
-        Anchor: (Height: $T.@ButtonH, Bottom: $T.@ButtonGap);
-        LayoutMode: CenterMiddle;
-
-        Button #PregnancyButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH, Right: $T.@ButtonGap);
+        Button #FlirtButton {
+          Anchor: (Width: 213, Height: 38);
           Style: $T.@BtnSecondary;
-          Visible: false;
-          Label #PregnancyButtonText {
-            Text: %ui.button.pregnancy;
-            Anchor: (Full: 0);
-            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentRomance);
-          }
-        }
-        Button #InventoryButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH);
-          Style: $T.@BtnTertiary;
-          Visible: false;
-          Label #InventoryButtonText {
-            Text: %ui.button.inventory;
+          Label #FlirtButtonText {
+            Text: "Paquerar";
             Anchor: (Full: 0);
             Style: $T.@ButtonLabelStyle;
           }
         }
-        // Only ever shown for a small child of the player's — see ChildCarryHelper. Shares the row
-        // with the two above because all three are conditional, and no NPC ever qualifies for more
-        // than two of them at once.
         Button #CarryButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH);
+          Anchor: (Width: 213, Height: 38);
           Style: $T.@BtnSecondary;
           Visible: false;
           Label #CarryButtonText {
@@ -301,22 +339,69 @@ Group {
         }
       }
 
-      // A deeper gesture than Flirt above -- hidden until the relationship is already a real
-      // couple (PARTNER/ENGAGED/MARRIED). Its own row since it can be visible alongside any of
-      // ButtonRow4's three conditional buttons at once (e.g. a married couple gets Kiss AND
-      // Inventory together), unlike those three which never all show up simultaneously.
-      Group #ButtonRow5 {
-        Anchor: (Height: $T.@ButtonH);
+      Group #ButtonRow3 {
+        Anchor: (Height: 38, Bottom: 6);
         LayoutMode: CenterMiddle;
 
+        Button #AssignProfessionButton {
+          Anchor: (Width: 213, Height: 38, Right: 10);
+          Style: $T.@BtnTertiary;
+          Label #AssignProfessionButtonText {
+            Text: "Dar Emprego";
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
         Button #KissButton {
-          Anchor: (Width: 250, Height: $T.@ButtonH);
+          Anchor: (Width: 213, Height: 38);
           Style: $T.@BtnSecondary;
           Visible: false;
           Label #KissButtonText {
             Text: %ui.button.kiss;
             Anchor: (Full: 0);
-            Style: (...$T.@ButtonLabelStyle, TextColor: $T.@AccentRomance);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+      }
+
+      Group #ButtonRow4 {
+        Anchor: (Height: 38, Bottom: 6);
+        LayoutMode: CenterMiddle;
+        Visible: false;
+
+        Button #InventoryButton {
+          Anchor: (Width: 213, Height: 38, Right: 10);
+          Style: $T.@BtnTertiary;
+          Visible: false;
+          Label #InventoryButtonText {
+            Text: %ui.button.inventory;
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+        Button #PregnancyButton {
+          Anchor: (Width: 213, Height: 38);
+          Style: $T.@BtnSecondary;
+          Visible: false;
+          Label #PregnancyButtonText {
+            Text: %ui.button.pregnancy;
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+      }
+
+      Group #ButtonRow5 {
+        Anchor: (Height: 36);
+        LayoutMode: CenterMiddle;
+
+        Button #InsultButton {
+          Anchor: (Width: 436, Height: 36);
+          Style: $T.@BtnDestructive;
+          Label #InsultButtonText {
+            Text: "Insultar";
+            Anchor: (Full: 0);
+            Style: (...$T.@ButtonLabelStyle, FontSize: 14);
           }
         }
       }

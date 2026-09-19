@@ -8,27 +8,27 @@ $T = "../SimTaleTheme.ui";
 
 Group {
   LayoutMode: MiddleCenter;
-  // Heavier scrim here than on the other screens: this one blocks progress until answered,
-  // so the world behind it should read as clearly out of reach.
-  Background: #05070C(0.82);
+  Background: #060911(0.85);
+
+  SceneBlur {}
 
   Group #GenderPanel {
-    Anchor: (Width: 620, Height: 430);
+    Anchor: (Width: 640, Height: 440);
     LayoutMode: Top;
     Background: $T.@PanelSurface;
-    Padding: (Top: 34, Bottom: 34, Horizontal: 36);
+    Padding: (Top: 30, Bottom: 30, Horizontal: 36);
 
     Label #Title {
       Text: %ui.gender.title;
-      Anchor: (Height: 42, Bottom: 6);
+      Anchor: (Height: 38, Bottom: 6);
       Style: (...$T.@TitleStyle, TextColor: $T.@TextGold);
     }
 
-    $T.@Separator { @Anchor = (Bottom: 12); }
+    $T.@Separator { @Anchor = (Bottom: 10); }
 
     Label #Subtitle {
       Text: %ui.gender.subtitle;
-      Anchor: (Height: 64, Bottom: 26);
+      Anchor: (Height: 50, Bottom: 20);
       Style: (...$T.@CaptionStyle, FontSize: 15, Wrap: true);
     }
 
@@ -37,29 +37,43 @@ Group {
       LayoutMode: CenterMiddle;
 
       Button #MaleButton {
-        Anchor: (Width: 258, Height: 132, Right: 20);
+        Anchor: (Width: 265, Height: 180, Right: 20);
         Style: $T.@BtnNeutral;
 
         Group #MaleContent {
           LayoutMode: MiddleCenter;
           Anchor: (Full: 0);
+
+          Group #MaleIcon {
+            Anchor: (Width: 64, Height: 64, Bottom: 10);
+            Background: $T.@IconGenderMale;
+          }
+
           Label #MaleText {
             Text: %ui.gender.male;
-            Style: (...$T.@ButtonLabelStyle, FontSize: 22, TextColor: #BBD6F5);
+            Anchor: (Height: 28);
+            Style: (...$T.@ButtonLabelStyle, FontSize: 18, TextColor: $T.@TextPrimary);
           }
         }
       }
 
       Button #FemaleButton {
-        Anchor: (Width: 258, Height: 132);
-        Style: $T.@BtnSecondary;
+        Anchor: (Width: 265, Height: 180);
+        Style: $T.@BtnNeutral;
 
         Group #FemaleContent {
           LayoutMode: MiddleCenter;
           Anchor: (Full: 0);
+
+          Group #FemaleIcon {
+            Anchor: (Width: 64, Height: 64, Bottom: 10);
+            Background: $T.@IconGenderFemale;
+          }
+
           Label #FemaleText {
             Text: %ui.gender.female;
-            Style: (...$T.@ButtonLabelStyle, FontSize: 22, TextColor: $T.@AccentRomance);
+            Anchor: (Height: 28);
+            Style: (...$T.@ButtonLabelStyle, FontSize: 18, TextColor: $T.@TextPrimary);
           }
         }
       }

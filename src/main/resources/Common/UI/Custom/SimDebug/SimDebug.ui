@@ -12,7 +12,9 @@ $T = "../SimTaleTheme.ui";
 
 Group {
   LayoutMode: MiddleCenter;
-  Background: #05070C(0.70);
+  Background: #060911(0.85);
+
+  SceneBlur {}
 
   Group #MainPanel {
     Anchor: (Width: 590, Height: 700);

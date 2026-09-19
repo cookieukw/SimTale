@@ -15,18 +15,18 @@
 $Game = "Common.ui";
 
 // ---------------------------------------------------------------- palette
-// Anchored on the game's named colours so the mod follows any future retheme, plus a few
-// SimTale accents for the social systems.
-@TextPrimary   = #E6EDF3;
-@TextSecondary = $Game.@ColorDefaultLabel;   // #96a9be
-@TextMuted     = $Game.@ColorGrayCaption;    // #878e9c
-@TextGold      = $Game.@ColorGoldHighlight;  // #E8A93B
-@TextBlue      = $Game.@ColorBlueAccent;     // #7a9cc6
+// Grounded Medieval Fantasy palette matching Hytale's art direction.
+@TextPrimary   = #E8ECEF;
+@TextSecondary = #96A3B2;
+@TextMuted     = #6B7685;
+@TextGold      = #D5A75C;
+@TextBlue      = #6A96C2;
+@TextGreen     = #5B9E68;
 
-@AccentLike    = #7FCF8A;
-@AccentHate    = #D9736B;
-@AccentRomance = #D98BC4;
-@AccentWork    = #C7A76B;
+@AccentLike    = #5B9E68;
+@AccentHate    = #C25B54;
+@AccentRomance = #B36885;
+@AccentWork    = #C29654;
 
 // ---------------------------------------------------------------- metrics
 @GutterOuter = 20;
@@ -36,90 +36,46 @@ $Game = "Common.ui";
 @ButtonH     = 46;
 @ButtonGap   = 10;
 
-// ---------------------------------------------------------------- surfaces
-// ContainerFullPatch is the frame the game uses for its own dialogs; ContainerPanelPatch is
-// the inset well it uses for grouped content inside one.
-//
-// THE BORDER NUMBERS ARE NOT FREE. A 9-slice needs the two opposite borders to fit inside the
-// texture with something left over for the middle; past that the corner slices overlap and the
-// surface renders as smears and stray bands instead of a panel. These were guessed originally and
-// two of the three were impossible:
-//
-//   ContainerPanelPatch.png          is 24x24 — Border was 16, so 16+16=32 overflowed it
-//   ContainerBackgroundSecondary.png is 48x48 — Border was 12, which left the fill nothing to
-//                                               stretch and produced the marks in the progress bar
-//
-// The values below are the game's own, read out of Common.ui rather than estimated: it draws
-// @SimpleContainer with ContainerPanelPatch at Border 4, and its pages use
-// ContainerBackgroundSecondary at Border 5. ContainerFullPatch at 20 was already right — that
-// texture is 132x132, which is why the outer frame always looked fine while the insets did not.
-// ---------------------------------------------------------------- wood tint
-// SimTale's panels are the game's own frames tinted warm, rather than the blue-grey every other
-// mod leaves them. Tinting instead of shipping new textures keeps the bevels, the runes and the
-// corner ornaments the artists drew — a flat brown rectangle would look worse than the blue.
-//
-// Multiplicative: the tint darkens and warms what is already there, so these sit bright. Anything
-// below ~#8 goes muddy on the darker slices.
-@WoodPanel = #C89A63;
-@WoodInset = #B08553;
-@WoodWell  = #9C7648;
+// ---------------------------------------------------------------- modern surfaces
+// Grounded slate panels and dark recesses with authentic beveled frames.
+@PanelSurface = (TexturePath: "textures/SimTale_GlassPanel.png", Border: 16);
+@CardSurface  = (TexturePath: "textures/SimTale_CardInset.png", Border: 8);
+@InsetSurface = (TexturePath: "textures/SimTale_CardInset.png", Border: 8);
+@WellSurface  = (TexturePath: "textures/SimTale_CardInset.png", Border: 8);
 
-@PanelSurface = (TexturePath: "Common/ContainerFullPatch.png", Border: 20, Color: @WoodPanel);
-@InsetSurface = (TexturePath: "Common/ContainerPanelPatch.png", Border: 4, Color: @WoodInset);
-@WellSurface  = (TexturePath: "Common/ContainerBackgroundSecondary.png", Border: 5, Color: @WoodWell);
+// Sober RPG progress bars (Need tracks & fills)
+@BarTrack     = (TexturePath: "textures/SimTale_BarTrack.png", Border: 4);
+@BarFillGreen = (TexturePath: "textures/SimTale_BarFill_Green.png", Border: 3);
+@BarFillAmber = (TexturePath: "textures/SimTale_BarFill_Amber.png", Border: 3);
+@BarFillPink  = (TexturePath: "textures/SimTale_BarFill_Pink.png", Border: 3);
+@BarFillRed   = (TexturePath: "textures/SimTale_BarFill_Red.png", Border: 3);
+@BarFillCyan  = (TexturePath: "textures/SimTale_BarFill_Cyan.png", Border: 3);
+@BarFillGold  = (TexturePath: "textures/SimTale_BarFill_Gold.png", Border: 3);
+@ProgressFill = (TexturePath: "textures/SimTale_BarFill_Gold.png", Border: 3);
 
-// 284x8, so the vertical borders have 8px to share. Border 6 meant 6+6=12 and the two end caps
-// overlapped — those were the stray white marks in the pregnancy bar, which no amount of resizing
-// the track was ever going to fix.
-@ProgressFill = (TexturePath: "Common/ProgressBarFill.png", Border: 3);
+// Gender Crests (Heraldic Antique Gold)
+@IconGenderMale   = "textures/SimTale_Gender_Male.png";
+@IconGenderFemale = "textures/SimTale_Gender_Female.png";
 
-// Hairline plus centre ornament — the same separator the game puts between panel sections.
+// Fine engraved divider line
 @Separator = Group {
   @Anchor = ();
-  LayoutMode: Left;
-  Anchor: (...@Anchor, Height: 8, Bottom: @RowGap);
+  LayoutMode: MiddleCenter;
+  Anchor: (...@Anchor, Height: 12, Bottom: @RowGap);
 
   Group {
-    FlexWeight: 1;
-    Background: "Common/ContainerPanelSeparatorFancyLine.png";
-  }
-  Group {
-    Anchor: (Width: 11);
-    Background: "Common/ContainerPanelSeparatorFancyDecoration.png";
-  }
-  Group {
-    FlexWeight: 1;
-    Background: "Common/ContainerPanelSeparatorFancyLine.png";
+    Anchor: (Full: 0);
+    Background: "textures/SimTale_RunicDivider.png";
   }
 };
 
-// ---------------------------------------------------------------- button tint
-// Amber, not yellow and not red, and the reasoning is worth keeping:
-//
-//   * Red is already spoken for. @BtnDestructive is the game's red button, and it is the single
-//     most important signal in these screens — "this one unclaims a bed / deletes a registry
-//     entry". Tinting the ordinary buttons red would erase that distinction, which is a real cost
-//     for a purely decorative gain.
-//   * Yellow sits too close to the panel. The surfaces are already warm light brown; a yellow
-//     button on top of them has almost no contrast and the button stops reading as a raised
-//     control.
-//
-// Amber leaning terracotta lands between the two: clearly warmer and more saturated than the wood
-// behind it, clearly not the red that means danger. Secondary goes a shade deeper so the two
-// button weights stay distinguishable now that they share a hue.
-@BtnTintPrimary   = #E0913C;
-@BtnTintSecondary = #C4713A;
-@BtnTintTertiary  = #B8875A;
-
-// Destructive is pushed deeper and cooler than the amber above rather than left alone: with warm
-// buttons everywhere, the shipped red was close enough to the primary tint to lose its urgency.
-@BtnTintDestructive = #B03A2E;
+// ---------------------------------------------------------------- button tints
+@BtnTintPrimary     = #C29654; // Warm Antique Gold
+@BtnTintSecondary   = #4A5D73; // Muted Steel / Slate
+@BtnTintTertiary    = #26303D; // Dark Iron / Slate
+@BtnTintDestructive = #9E372E; // Muted Crimson / Danger
 
 // ---------------------------------------------------------------- button styles
-// ButtonStyle, not TextButtonStyle: every SimTale button keeps a child Label with its own id,
-// because the Java writes text through "#ChatButtonText.TextSpans" while binding the click to
-// "#ChatButton". Switching to TextButton would move the text into the button itself and break
-// every one of those bindings.
 @BtnNeutral = ButtonStyle(
   Default:  (Background: (TexturePath: "Common/Buttons/Primary_Square.png", Border: 12, Color: @BtnTintPrimary)),
   Hovered:  (Background: (TexturePath: "Common/Buttons/Primary_Square_Hovered.png", Border: 12, Color: @BtnTintPrimary)),
@@ -144,14 +100,6 @@ $Game = "Common.ui";
   Sounds: $Game.@ButtonSounds,
 );
 
-// Insults and other destructive actions get the game's red button so the weight reads at once.
-//
-// Sounds deliberately use @ButtonSounds rather than the game's own @ButtonDestructiveSounds.
-// That expression is defined in Common.ui as `$Sounds.@ButtonsDestructive`, and no such
-// expression exists in Sounds.ui — the shipped file is simply wrong. Nothing in vanilla
-// references it, and the parser resolves expressions lazily, so the broken line never runs
-// for the game itself; the moment this theme referenced it, world join died with
-// "Could not find an expression named ButtonsDestructive in document Sounds.ui".
 @BtnDestructive = ButtonStyle(
   Default:  (Background: (TexturePath: "Common/Buttons/Destructive.png", Border: 12, Color: @BtnTintDestructive)),
   Hovered:  (Background: (TexturePath: "Common/Buttons/Destructive_Hovered.png", Border: 12, Color: @BtnTintDestructive)),
