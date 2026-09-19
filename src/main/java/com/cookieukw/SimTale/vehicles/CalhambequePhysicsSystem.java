@@ -288,8 +288,23 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
                 double cos = Math.cos(carYaw);
                 double sin = Math.sin(carYaw);
                 double wx = curX + (car.driverSeatOffset.x * cos - car.driverSeatOffset.z * sin);
-                double wz = curZ + (car.driverSeatOffset.x * sin + car.driverSeatOffset.z * cos);
+                double wz = curZ - (car.driverSeatOffset.x * sin + car.driverSeatOffset.z * cos);
                 driverTrans.setPosition(new Vector3d(wx, curY + car.driverSeatOffset.y, wz));
+            }
+        }
+
+        // Keep Passenger Transform synced
+        if (car.passengerUuid != null && world != null) {
+            Ref<EntityStore> passRef = world.getEntityRef(car.passengerUuid);
+            if (passRef != null && passRef.isValid()) {
+                TransformComponent passTrans = store.getComponent(passRef, TransformComponent.getComponentType());
+                if (passTrans != null) {
+                    double cos = Math.cos(carYaw);
+                    double sin = Math.sin(carYaw);
+                    double px = curX + (car.passengerSeatOffset.x * cos - car.passengerSeatOffset.z * sin);
+                    double pz = curZ - (car.passengerSeatOffset.x * sin + car.passengerSeatOffset.z * cos);
+                    passTrans.setPosition(new Vector3d(px, curY + car.passengerSeatOffset.y, pz));
+                }
             }
         }
 

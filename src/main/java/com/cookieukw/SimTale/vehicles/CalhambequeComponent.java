@@ -40,10 +40,10 @@ public class CalhambequeComponent implements Component<EntityStore> {
     public String currentAnim = null;
 
     /** Seat position for the driver (left-hand steering) relative to vehicle origin. */
-    public final Vector3f driverSeatOffset = new Vector3f(-0.50f, 1.15f, -0.68f);
+    public final Vector3f driverSeatOffset = new Vector3f(-0.75f, 1.08f, -1.55f);
 
     /** Seat position for a passenger (right-hand front bench). */
-    public final Vector3f passengerSeatOffset = new Vector3f(0.50f, 1.15f, -0.68f);
+    public final Vector3f passengerSeatOffset = new Vector3f(0.75f, 1.08f, -1.55f);
 
     public CalhambequeComponent() {
     }

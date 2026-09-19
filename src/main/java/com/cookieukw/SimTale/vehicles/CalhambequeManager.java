@@ -63,7 +63,7 @@ public class CalhambequeManager {
             store.putComponent(carRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE, carComp);
 
             // Apply Calhambeque 3D Model scaled to realistic 1930s car dimensions
-            SimNPCFactory.applyModel(store, carRef, "SimTale_Calhambeque", 2.2f, null);
+            SimNPCFactory.applyModel(store, carRef, "SimTale_Calhambeque", 3.5f, null);
 
             // Ensure Interactable so right-click is detected
             store.ensureComponent(carRef, Interactable.getComponentType());
@@ -183,8 +183,8 @@ public class CalhambequeManager {
         if (carTransform != null && playerTransform != null) {
             Vector3d carPos = carTransform.getPosition();
             float yaw = carTransform.getRotation().yaw();
-            double sideX = -Math.cos(yaw) * 2.0;
-            double sideZ = Math.sin(yaw) * 2.0;
+            double sideX = -Math.cos(yaw) * 2.4;
+            double sideZ = Math.sin(yaw) * 2.4;
             playerTransform.setPosition(new Vector3d(carPos.x + sideX, carPos.y + 0.1, carPos.z + sideZ));
         }
 
