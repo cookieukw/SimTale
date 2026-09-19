@@ -55,6 +55,9 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
     /** Minimum cooldown between spontaneous idle thoughts: 3 minutes (3600 ticks). */
     public static final long SPONTANEOUS_COOLDOWN_TICKS = 3600;
 
+    public static final float ADULT_BUBBLE_SCALE = 0.065f;
+    public static final float CHILD_BUBBLE_SCALE = 0.15f;
+
     public record ActiveThought(Ref<EntityStore> bubbleRef, long expireTick, ThoughtType thoughtType) {}
     public record DelayedThought(ThoughtType thought, long targetTick) {}
 
@@ -165,7 +168,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
         if (requestedThought != null) {
             lastThoughtTicks.put(entityUuid, currentTick);
             boolean isChild = InteractionManager.isNpcAChild(npc);
-            float scale = isChild ? 0.095f : 0.065f;
+            float scale = isChild ? CHILD_BUBBLE_SCALE : ADULT_BUBBLE_SCALE;
 
             if (currentThought != null) {
                 // Update existing bubble model and refresh timer
@@ -202,7 +205,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
 
             boolean isChild = InteractionManager.isNpcAChild(npc);
             double headHeight = 1.55;
-            double xOffset = isChild ? 0.48 : 0.60;
+            double xOffset = isChild ? 0.54 : 0.60;
             BoundingBox box = chunk.getComponent(index, BoundingBox.getComponentType());
             if (box != null) {
                 headHeight = isChild ? (box.getBoundingBox().height() * 0.85) : (box.getBoundingBox().height() * 0.80);
@@ -229,7 +232,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
                               SimNPCComponent npc) {
         String modelName = thought.getModelName();
         boolean isChild = InteractionManager.isNpcAChild(npc);
-        float scale = isChild ? 0.095f : 0.065f;
+        float scale = isChild ? CHILD_BUBBLE_SCALE : ADULT_BUBBLE_SCALE;
 
         Model model = getOrCreateScaledBubble(modelName, scale);
         if (model == null) {
@@ -238,7 +241,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
         }
 
         double headHeight = 1.55;
-        double xOffset = isChild ? 0.48 : 0.60;
+        double xOffset = isChild ? 0.54 : 0.60;
         BoundingBox box = chunk.getComponent(index, BoundingBox.getComponentType());
         if (box != null) {
             headHeight = isChild ? (box.getBoundingBox().height() * 0.85) : (box.getBoundingBox().height() * 0.80);
