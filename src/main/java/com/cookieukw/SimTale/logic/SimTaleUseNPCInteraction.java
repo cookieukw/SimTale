@@ -31,7 +31,6 @@ import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.server.npc.role.support.StateSupport;
 
 import java.util.Objects;
-import java.util.UUID;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
 
@@ -70,7 +69,7 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
         } else {
             // Check if target is a Calhambeque Car
             CalhambequeComponent car = commandBuffer.getComponent(targetRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE);
-            if (car == null && targetRef.getStore() != null) {
+            if (car == null) {
                 car = targetRef.getStore().getComponent(targetRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE);
             }
             if (car == null && npcComponent.getRoleName() != null && npcComponent.getRoleName().contains("Calhambeque")) {
@@ -176,22 +175,12 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
                 ref.getStore().getExternalData().getWorld().execute(() -> finalPlayer.getPageManager().openCustomPage(ref, ref.getStore(), new NPCInteractionPage(finalPlayerRefComp, finalPlayer, finalNpc)));
             }
 
-            if (npcComponent == null) {
-                LOGGER.atInfo().log("SimTale [DEBUG]: npcComponent is null!");
-                context.getState().state = InteractionState.Failed;
-                return;
-            }
             if (npcComponent.getRole() == null) {
                 LOGGER.atInfo().log("SimTale [DEBUG]: npcComponent.getRole() is null!");
                 context.getState().state = InteractionState.Failed;
                 return;
             }
             StateSupport stateSupport = StateSupport.get(targetRef, targetRef.getStore());
-            if (stateSupport == null) {
-                LOGGER.atInfo().log("SimTale [DEBUG]: stateSupport is null!");
-                context.getState().state = InteractionState.Failed;
-                return;
-            }
             if (!stateSupport.willInteractWith(ref)) {
                 LOGGER.atInfo().log("SimTale [DEBUG]: stateSupport.willInteractWith(ref) is false, but we will bypass and proceed.");
             }
@@ -201,7 +190,6 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             if (interactionView.getReservationStatus(targetRef, ref, commandBuffer) == ReservationStatus.RESERVED_OTHER) {
                 playerRefComponent.sendMessage(Message.translation("general.npc.busy").param("roleName", npcComponent.getRoleName()));
                 context.getState().state = InteractionState.Failed;
-                return;
             }
         }
     }

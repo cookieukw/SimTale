@@ -120,7 +120,6 @@ public final class FurnitureAnchorHelper {
      */
     private static int readFiller(World world, int x, int y, int z) {
         ChunkStore chunkStore = world.getChunkStore();
-        if (chunkStore == null) return 0;
 
         Ref<ChunkStore> secaoRef = chunkStore.getChunkSectionReferenceAtBlock(x, y, z);
         if (secaoRef == null || !secaoRef.isValid()) return 0;

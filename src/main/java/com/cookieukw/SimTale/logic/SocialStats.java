@@ -19,7 +19,4 @@ public class SocialStats {
         }
     }
 
-    public int getNextLevelXP() {
-        return level * 100;
-    }
 }

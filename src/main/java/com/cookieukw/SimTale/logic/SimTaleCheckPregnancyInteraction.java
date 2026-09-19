@@ -36,7 +36,6 @@ public class SimTaleCheckPregnancyInteraction extends SimpleInstantInteraction {
             ).build();
 
     public SimTaleCheckPregnancyInteraction() { super(); }
-    public SimTaleCheckPregnancyInteraction(String id) { super(id); }
 
     @Override
     protected void firstRun(@Nonnull InteractionType type, @Nonnull InteractionContext context, @Nonnull CooldownHandler cooldownHandler) {
@@ -115,9 +114,7 @@ public class SimTaleCheckPregnancyInteraction extends SimpleInstantInteraction {
 
             // Execute on main thread
             final SimNPCComponent finalNPC = targetNPC;
-            store.getExternalData().getWorld().execute(() -> {
-                player.getPageManager().openCustomPage(playerRef, store, new NPCPregnancyPage(playerRefComponent, player, finalNPC));
-            });
+            store.getExternalData().getWorld().execute(() -> player.getPageManager().openCustomPage(playerRef, store, new NPCPregnancyPage(playerRefComponent, player, finalNPC)));
 
         } else {
             boolean playerIsPregnant = playerComp.pregnancy != null && playerComp.pregnancy.pregnant;
@@ -137,9 +134,7 @@ public class SimTaleCheckPregnancyInteraction extends SimpleInstantInteraction {
 
             // Execute on main thread
             final SimPlayerComponent finalPlayerComp = playerComp;
-            store.getExternalData().getWorld().execute(() -> {
-                player.getPageManager().openCustomPage(playerRef, store, new PlayerPregnancyPage(playerRefComponent, player, finalPlayerComp));
-            });
+            store.getExternalData().getWorld().execute(() -> player.getPageManager().openCustomPage(playerRef, store, new PlayerPregnancyPage(playerRefComponent, player, finalPlayerComp)));
         }
 
         // Consume item

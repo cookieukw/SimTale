@@ -83,7 +83,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
 
     private static Model getOrCreateScaledBubble(String modelName, float scale) {
         String key = modelName + "_" + scale;
-        return SCALED_BUBBLE_MODELS.computeIfAbsent(key, k -> {
+        return SCALED_BUBBLE_MODELS.computeIfAbsent(key, _ -> {
             ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(modelName);
             if (modelAsset != null) {
                 return Model.createScaledModel(modelAsset, scale);
@@ -141,7 +141,6 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
         if (npc == null) return;
 
         World world = store.getExternalData().getWorld();
-        if (world == null) return;
         long currentTick = world.getTick();
         UUID entityUuid = uuidComp.getUuid();
 
@@ -300,14 +299,13 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
     /**
      * Triggers a spontaneous thought if the NPC's spontaneous cooldown has elapsed.
      */
-    public static boolean triggerSpontaneousThought(UUID npcUuid, ThoughtType thought, long currentTick) {
-        if (npcUuid == null || thought == null) return false;
+    public static void triggerSpontaneousThought(UUID npcUuid, ThoughtType thought, long currentTick) {
+        if (npcUuid == null || thought == null) return;
         Long lastTick = lastThoughtTicks.get(npcUuid);
         if (lastTick != null && (currentTick - lastTick) < SPONTANEOUS_COOLDOWN_TICKS) {
-            return false;
+            return;
         }
         triggerThought(npcUuid, thought);
-        return true;
     }
 
     /**

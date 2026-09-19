@@ -115,7 +115,7 @@ public class HouseManager {
             is worse than a stale name. The bed claim path will adopt it again.
             */
             unindexHouse(house);
-            house.owners.removeAll(orphans);
+            orphans.forEach(house.owners::remove);
             indexHouse(house);
             saveHouse(house);
 
