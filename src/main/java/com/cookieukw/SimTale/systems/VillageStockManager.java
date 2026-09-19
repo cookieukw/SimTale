@@ -18,8 +18,6 @@ import java.util.*;
  */
 public final class VillageStockManager {
 
-    private static final SimLog LOGGER = SimLog.forClass(VillageStockManager.class);
-
     private VillageStockManager() {}
 
     /**
@@ -30,10 +28,7 @@ public final class VillageStockManager {
         if (npc.bedLocation != null && village.contains(npc.bedLocation.x, npc.bedLocation.z)) {
             return true;
         }
-        if (npc.family != null && npc.family.hasSharedHome && village.contains(npc.family.homeX, npc.family.homeZ)) {
-            return true;
-        }
-        return false;
+        return npc.family != null && npc.family.hasSharedHome && village.contains(npc.family.homeX, npc.family.homeZ);
     }
 
     /**
@@ -103,7 +98,7 @@ public final class VillageStockManager {
                 }
             }
             if (!shared.isEmpty()) {
-                return shared.get(0);
+                return shared.getFirst();
             }
         }
 
@@ -119,7 +114,6 @@ public final class VillageStockManager {
             ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, pos.x, pos.y, pos.z);
             if (cb == null) return false;
             ItemContainer container = cb.getItemContainer();
-            if (container == null) return false;
             for (short s = 0; s < container.getCapacity(); s++) {
                 ItemStack is = container.getItemStack(s);
                 if (is == null || is.isEmpty()) {
@@ -145,10 +139,9 @@ public final class VillageStockManager {
                 ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, pos.x, pos.y, pos.z);
                 if (cb == null) continue;
                 ItemContainer container = cb.getItemContainer();
-                if (container == null) continue;
                 for (short s = 0; s < container.getCapacity(); s++) {
                     ItemStack is = container.getItemStack(s);
-                    if (is != null && !is.isEmpty() && is.getItemId() != null) {
+                    if (is != null && !is.isEmpty()) {
                         counts.merge(is.getItemId(), is.getQuantity(), Integer::sum);
                     }
                 }

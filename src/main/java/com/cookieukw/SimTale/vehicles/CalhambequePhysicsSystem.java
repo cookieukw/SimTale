@@ -79,11 +79,10 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         if (car == null || transform == null) return;
 
         Ref<EntityStore> carRef = chunk.getReferenceTo(index);
-        World world = store.getExternalData() != null ? store.getExternalData().getWorld() : null;
-        if (world == null) return;
+        World world = store.getExternalData().getWorld();
 
         // Bounded delta time to avoid large physics steps on lag spikes
-        float clampedDt = Math.max(0.001f, Math.min(dt, 0.1f));
+        float clampedDt = Math.clamp(dt, 0.001f, 0.1f);
 
         Vector3d pos = transform.getPosition();
         Rotation3f rot = transform.getRotation();
@@ -106,7 +105,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
                     car.passengerUuid = null;
 
                     PlayerRef passPlayerRef = store.getComponent(passRef, Universe.get().getPlayerRefComponentType());
-                    if (passPlayerRef != null && passPlayerRef.getPacketHandler() != null) {
+                    if (passPlayerRef != null) {
                         passPlayerRef.getPacketHandler().write(new DismountNPC(carNetId));
                         passPlayerRef.sendMessage(Message.raw("§6[Calhambeque 1930s] §7Você desceu do banco do passageiro."));
                     }
@@ -172,7 +171,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
                     if (Math.abs(car.speed) > 0.05f) {
                         float diff = normalizeAngle(driverYaw - carYaw);
                         float maxTurn = STEER_SPEED * clampedDt;
-                        float turn = Math.max(-maxTurn, Math.min(maxTurn, diff));
+                        float turn = Math.clamp(maxTurn, -maxTurn, diff);
                         if (car.speed < 0) {
                             turn = -turn;
                         }
@@ -186,7 +185,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
 
                     // Check player inputs for throttle
                     PlayerInput playerInput = store.getComponent(driverRef, PlayerInput.getComponentType());
-                    if (playerInput != null && playerInput.getMovementUpdateQueue() != null) {
+                    if (playerInput != null) {
                         List<PlayerInput.InputUpdate> queue = playerInput.getMovementUpdateQueue();
                         for (PlayerInput.InputUpdate update : queue) {
                             if (update instanceof PlayerInput.RelativeMovement rm) {
@@ -340,7 +339,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         transform.setRotation(rot);
 
         // Keep Driver Transform synced
-        if (hasActiveDriver && driverRef != null) {
+        if (hasActiveDriver) {
             TransformComponent driverTrans = store.getComponent(driverRef, TransformComponent.getComponentType());
             if (driverTrans != null) {
                 double cos = Math.cos(carYaw);
@@ -352,7 +351,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         }
 
         // Keep Passenger Transform synced
-        if (car.passengerUuid != null && world != null) {
+        if (car.passengerUuid != null) {
             Ref<EntityStore> passRef = world.getEntityRef(car.passengerUuid);
             if (passRef != null && passRef.isValid()) {
                 TransformComponent passTrans = store.getComponent(passRef, TransformComponent.getComponentType());
@@ -425,14 +424,12 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         if (id != null) {
             if (BedRegistry.isBedId(id) || ChairRegistry.isChair(id)) return false;
             String lower = id.toLowerCase();
-            if (lower.contains("bed") || lower.contains("chair") || lower.contains("chest")
-                    || lower.contains("table") || lower.contains("bench") || lower.contains("sofa")
-                    || lower.contains("couch") || lower.contains("door") || lower.contains("fence")
-                    || lower.contains("gate") || lower.contains("wall") || lower.contains("tub")
-                    || lower.contains("desk") || lower.contains("counter") || lower.contains("shelf")
-                    || lower.contains("cabinet") || lower.contains("cupboard") || lower.contains("wardrobe")) {
-                return false;
-            }
+            return !lower.contains("bed") && !lower.contains("chair") && !lower.contains("chest")
+                    && !lower.contains("table") && !lower.contains("bench") && !lower.contains("sofa")
+                    && !lower.contains("couch") && !lower.contains("door") && !lower.contains("fence")
+                    && !lower.contains("gate") && !lower.contains("wall") && !lower.contains("tub")
+                    && !lower.contains("desk") && !lower.contains("counter") && !lower.contains("shelf")
+                    && !lower.contains("cabinet") && !lower.contains("cupboard") && !lower.contains("wardrobe");
         }
         return true;
     }

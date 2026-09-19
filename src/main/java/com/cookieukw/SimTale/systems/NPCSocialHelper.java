@@ -73,13 +73,13 @@ public class NPCSocialHelper {
      */
     public static boolean isReservedAndActive(RoutineAIComponent ai, long tick) {
         if (ai.reservedForSocialUuid == null) {
-            return false;
+            return true;
         }
         if (ai.taskStartTime <= 0 || tick < ai.taskStartTime || tick - ai.taskStartTime > RESERVATION_STALE_TICKS) {
             ai.reservedForSocialUuid = null;
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
     /** Social need restored to both participants by a successful chat. */
     private static final float SOCIAL_RESTORE = 35f;

@@ -92,7 +92,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         removes seasonal costumes automatically -- see SeasonalCostumeHelper and
         docs/experimentos.md for the full reasoning (13/09).
         */
-        SeasonalCostumeHelper.tick(world, store, absoluteTick);
+        SeasonalCostumeHelper.tick(store, absoluteTick);
 
         // Process mounted/sleeping NPCs whose routine AI ticks are suspended by the engine
         processMountedSleepingNPCs(world, commandBuffer);
@@ -183,8 +183,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         */
         if (!npc.isReaper) {
             PersistentModel selfModel = store.getComponent(selfRef, PersistentModel.getComponentType());
-            if (selfModel != null && selfModel.getModelReference() != null
-                    && SimNPCFactory.REAPER_MODEL_ASSET_ID.equals(selfModel.getModelReference().getModelAssetId())) {
+            if (selfModel != null && SimNPCFactory.REAPER_MODEL_ASSET_ID.equals(selfModel.getModelReference().getModelAssetId())) {
                 LOGGER.info("[SimTale] Reaper orfa encontrada apos reload (isReaper perdido no restart) — removendo em vez de deixa-la como NPC comum");
                 SimTale.untrackNpc(npc);
                 PlumbobSystem.removePlumbob(npc.entityId);
@@ -411,7 +410,6 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
 
             Ref<EntityStore> ref = npc.entityRef;
             Store<EntityStore> npcStore = ref.getStore();
-            if (npcStore == null) continue;
 
             RoutineAIComponent ai = npcStore.getComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE);
             if (ai == null) continue;

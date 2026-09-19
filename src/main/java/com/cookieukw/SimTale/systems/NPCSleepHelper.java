@@ -37,7 +37,7 @@ public final class NPCSleepHelper {
         try {
             WorldTimeResource time = world.getEntityStore().getStore()
                     .getResource(WorldTimeResource.getResourceType());
-            return time == null ? null : time.getDayProgress();
+            return time.getDayProgress();
         } catch (RuntimeException e) {
             return null;
         }
@@ -76,6 +76,6 @@ public final class NPCSleepHelper {
         Float hour = currentHour(world);
         if (hour == null) return false;
         boolean night = hour < DAY_START_HOUR || hour >= NIGHT_START_HOUR;
-        return isNightWatch(npc) ? !night : night;
+        return isNightWatch(npc) != night;
     }
 }

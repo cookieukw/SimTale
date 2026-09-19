@@ -103,10 +103,10 @@ public class SimTaleWorldMapGenerator implements IWorldMap {
             MapImage image = entry.getValue();
             if (image == null || image.palette == null || image.packedIndices == null) continue;
 
-            boolean westBorder = !VillageManager.isSameVillageChunk(village, chunkX - 1, chunkZ);
-            boolean eastBorder = !VillageManager.isSameVillageChunk(village, chunkX + 1, chunkZ);
-            boolean northBorder = !VillageManager.isSameVillageChunk(village, chunkX, chunkZ - 1);
-            boolean southBorder = !VillageManager.isSameVillageChunk(village, chunkX, chunkZ + 1);
+            boolean westBorder = VillageManager.isSameVillageChunk(village, chunkX - 1, chunkZ);
+            boolean eastBorder = VillageManager.isSameVillageChunk(village, chunkX + 1, chunkZ);
+            boolean northBorder = VillageManager.isSameVillageChunk(village, chunkX, chunkZ - 1);
+            boolean southBorder = VillageManager.isSameVillageChunk(village, chunkX, chunkZ + 1);
 
             tintAndBorderChunk(image, westBorder, eastBorder, northBorder, southBorder);
         }
