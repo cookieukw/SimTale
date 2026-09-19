@@ -5,6 +5,8 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.vehicles.CalhambequeComponent;
+import com.cookieukw.SimTale.vehicles.CalhambequeManager;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.RemoveReason;
@@ -66,6 +68,22 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             HytaleLogger.getLogger().at(Level.INFO).log("UseNPCInteraction requires a target NPCEntity but was used for: %s", targetRef);
             context.getState().state = InteractionState.Failed;
         } else {
+            // Check if target is a Calhambeque Car
+            CalhambequeComponent car = commandBuffer.getComponent(targetRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE);
+            if (car == null && targetRef.getStore() != null) {
+                car = targetRef.getStore().getComponent(targetRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE);
+            }
+            if (car == null && npcComponent.getRoleName() != null && npcComponent.getRoleName().contains("Calhambeque")) {
+                car = new CalhambequeComponent();
+                commandBuffer.putComponent(targetRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE, car);
+            }
+            if (car != null) {
+                LOGGER.atInfo().log("SimTale: Interacao com Calhambeque via tecla F detectada! Montando...");
+                CalhambequeManager.handleInteract(targetRef.getStore(), targetRef, car, ref, playerRefComponent);
+                context.getState().state = InteractionState.Finished;
+                return;
+            }
+
             // Log interaction!
             LOGGER.atInfo().log("SimTale [DEBUG]: Interacao com NPC via UseNPCInteraction (tecla F). Player: " + playerRefComponent.getReference() + ", NPC: " + targetRef);
 

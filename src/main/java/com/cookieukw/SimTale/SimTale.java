@@ -17,6 +17,8 @@ import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.cookieukw.SimTale.core.WeaponCategoryRegistry;
+import com.cookieukw.SimTale.vehicles.CalhambequeComponent;
+import com.cookieukw.SimTale.vehicles.CalhambequePhysicsSystem;
 import com.cookieukw.SimTale.logic.SimTaleCheckPregnancyInteraction;
 import com.cookieukw.SimTale.logic.SimTaleUseNPCInteraction;
 import com.cookieukw.SimTale.logic.SimTaleItemRegistry;
@@ -76,6 +78,7 @@ public class SimTale extends JavaPlugin {
     public static ComponentType<EntityStore, RoutineAIComponent> ROUTINE_AI_COMPONENT_TYPE;
     public static ComponentType<EntityStore, ConstructionSiteComponent> CONSTRUCTION_COMPONENT_TYPE;
     public static ComponentType<EntityStore, SimPlayerComponent> SIM_PLAYER_COMPONENT_TYPE;
+    public static ComponentType<EntityStore, CalhambequeComponent> CALHAMBEQUE_COMPONENT_TYPE;
     /**
      * Iteration view of the tracked NPCs. Mutate it only through {@link #trackNpc},
      * {@link #untrackNpc}, {@link #untrackNpcById} and {@link #clearActiveNpcs} — direct
@@ -216,9 +219,12 @@ public class SimTale extends JavaPlugin {
                 "simtale:construction_site", ConstructionSiteComponent.CODEC);
         SIM_PLAYER_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(SimPlayerComponent.class,
                 SimPlayerComponent::new);
+        CALHAMBEQUE_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(CalhambequeComponent.class,
+                "simtale:calhambeque", CalhambequeComponent.CODEC);
 
         // Register tick systems
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
+        this.getEntityStoreRegistry().registerSystem(new CalhambequePhysicsSystem());
         this.getEntityStoreRegistry().registerSystem(new RoutineAISystem());
         this.getEntityStoreRegistry().registerSystem(new BedEntityRegistrySystem());
         this.getEntityStoreRegistry().registerSystem(new BedBlockEventSystem());

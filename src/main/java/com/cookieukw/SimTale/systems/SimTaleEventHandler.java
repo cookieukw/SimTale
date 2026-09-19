@@ -3,7 +3,10 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.animals.WhiteCatManager;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
+import com.cookieukw.SimTale.vehicles.CalhambequeComponent;
+import com.cookieukw.SimTale.vehicles.CalhambequeManager;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
@@ -42,6 +45,7 @@ import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 
@@ -144,6 +148,33 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
                 Store<EntityStore> store = world.getEntityStore().getStore();
                 if (placeBabyFromHeldItem(store, playerRef, playerRefComp, heldItem, spawnPos)) {
                     event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+
+        // Place Calhambeque Car on Block Click
+        if (heldItem != null && heldItem.getItemId().equals("SimTale_Calhambeque")) {
+            Vector3i targetBlock = event.getTargetBlock();
+            if (targetBlock != null) {
+                Vector3d spawnPos = new Vector3d(targetBlock.x + 0.5, targetBlock.y + 1, targetBlock.z + 0.5);
+                Store<EntityStore> store = world.getEntityStore().getStore();
+                if (CalhambequeManager.spawnFromHeldItem(store, playerRef, playerRefComp, heldItem, spawnPos)) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+
+        // Place White Cat on Block Click
+        if (heldItem != null && heldItem.getItemId().equals("SimTale_WhiteCat")) {
+            Vector3i targetBlock = event.getTargetBlock();
+            if (targetBlock != null) {
+                Vector3d spawnPos = new Vector3d(targetBlock.x + 0.5, targetBlock.y + 1, targetBlock.z + 0.5);
+                Store<EntityStore> store = world.getEntityStore().getStore();
+                if (WhiteCatManager.spawnFromHeldItem(store, playerRef, playerRefComp, heldItem, spawnPos)) {
+                    event.setCancelled(true);
+                    return;
                 }
             }
         }
@@ -208,6 +239,23 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         Store<EntityStore>
         */
         Store<EntityStore> store = world.getEntityStore().getStore();
+
+        // Check if player clicked a Calhambeque car
+        CalhambequeComponent carComp = store.getComponent(targetRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE);
+        if (carComp == null) {
+            NPCEntity npcComp = store.getComponent(targetRef, NPCEntity.getComponentType());
+            if (npcComp != null && npcComp.getRoleName() != null && npcComp.getRoleName().contains("Calhambeque")) {
+                carComp = new CalhambequeComponent();
+                store.putComponent(targetRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE, carComp);
+            }
+        }
+        if (carComp != null) {
+            LOGGER.atInfo().log("SimTale: Clique direito no Calhambeque detectado! Montando...");
+            CalhambequeManager.handleInteract(store, targetRef, carComp, playerRef, playerRefComp);
+            event.setCancelled(true);
+            return;
+        }
+
         SimNPCComponent npc = store.getComponent(targetRef,
                 SimTale.SIM_NPC_COMPONENT_TYPE);
 

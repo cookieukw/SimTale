@@ -1,8 +1,10 @@
 package com.cookieukw.SimTale;
 
+import com.cookieukw.SimTale.animals.WhiteCatManager;
 import com.cookieukw.SimTale.config.SimTaleConfig;
 import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.vehicles.CalhambequeManager;
 import com.cookieukw.SimTale.logic.PlayerGenderPage;
 import com.cookieukw.SimTale.systems.FarmPostRegistry;
 import com.cookieukw.SimTale.systems.FarmlandRegistry;
@@ -166,6 +168,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new SocialTestCommands.TestKissSubCommand());
         this.addSubCommand(new SocialTestCommands.TestProposeSubCommand());
         this.addSubCommand(new CostumeSubCommand());
+        this.addSubCommand(new CarSubCommand());
+        this.addSubCommand(new CatSubCommand());
     }
 
     @Override
@@ -176,7 +180,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|forceplay|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|despawnnearest|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown|costume>"));
+        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|forceplay|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|despawnnearest|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown|costume|car|cat>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -280,6 +284,48 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             ctx.sendMessage(Message.raw(ok
                     ? "[SimTale] " + nearestNPC.name + " dressed for event '" + evento + "'. Use '/simtale costume off' to undo."
                     : "[SimTale] Failed -- asset not found for this NPC/event. Run scripts/generate_costume_assets.py."));
+        }
+    }
+
+    private static class CarSubCommand extends AbstractPlayerCommand {
+        public CarSubCommand() {
+            super("car", "Spawns a drivable 1930s Calhambeque car at your position");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+            if (transform == null) return;
+            Vector3d pos = new Vector3d(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z);
+            float yaw = transform.getRotation().yaw();
+            Ref<EntityStore> car = CalhambequeManager.spawnCalhambeque(store, pos, yaw);
+            if (car != null) {
+                ctx.sendMessage(Message.raw("§6[SimTale] §aCalhambeque Vintage dos Anos 1930 invocado com sucesso!"));
+            } else {
+                ctx.sendMessage(Message.raw("§c[SimTale] Falha ao invocar o Calhambeque."));
+            }
+        }
+    }
+
+    private static class CatSubCommand extends AbstractPlayerCommand {
+        public CatSubCommand() {
+            super("cat", "Spawns a friendly White Cat at your position");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+            if (transform == null) return;
+            Vector3d pos = new Vector3d(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z);
+            float yaw = transform.getRotation().yaw();
+            Ref<EntityStore> cat = WhiteCatManager.spawnWhiteCat(store, pos, yaw);
+            if (cat != null) {
+                ctx.sendMessage(Message.raw("§6[SimTale] §aGatinho Branco invocado com sucesso!"));
+            } else {
+                ctx.sendMessage(Message.raw("§c[SimTale] Falha ao invocar o gatinho branco."));
+            }
         }
     }
 
