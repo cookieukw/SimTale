@@ -6,6 +6,7 @@ import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.logic.InteractionManager;
 import com.hypixel.hytale.builtin.mounts.BlockMountAPI;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -131,9 +132,11 @@ public final class NPCSeatingHelper {
         }
 
         Vector3d pos = transform.getPosition();
+        boolean isChild = InteractionManager.isNpcAChild(npc);
+        double seatYOffset = isChild ? 0.35 : 0.0;
         Vector3d chairCenter = new Vector3d(
                 ai.targetChairPos.x + 0.5,
-                ai.targetChairPos.y + 0.35,
+                ai.targetChairPos.y + seatYOffset,
                 ai.targetChairPos.z + 0.5
         );
 
