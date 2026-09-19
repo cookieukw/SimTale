@@ -112,7 +112,6 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                 */
                 LOGGER.info("[SimTale] Bed page pruned {} stale bed(s), {} left", pruned, BedRegistry.BEDS.size());
             }
-            List<BedPos> list = new ArrayList<>();
             /* No display filtering: the registry now only stores the anchor of each furniture item.
 
             Previously, each of the six blocks of a bed became a registry entry, and this screen
@@ -121,7 +120,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             necessary — and would hide legitimate beds, since the anchor does not always satisfy
             that neighborhood heuristic.
             */
-            list.addAll(BedRegistry.BEDS);
+            List<BedPos> list = new ArrayList<>(BedRegistry.BEDS);
             list.sort((b1, b2) -> {
                 if (b1.x != b2.x) return Integer.compare(b1.x, b2.x);
                 if (b1.y != b2.y) return Integer.compare(b1.y, b2.y);
@@ -237,14 +236,14 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
 
         if (eventData.contains("prev_page")) {
             selectedIndex = Math.max(0, selectedIndex - 1);
-            refreshUI(storeRef, store);
+            refreshUI();
             return;
         }
         if (eventData.contains("next_page")) {
             int totalPages = (int) Math.ceil(beds.size() / 5.0);
             if (totalPages == 0) totalPages = 1;
             selectedIndex = Math.min(totalPages - 1, selectedIndex + 1);
-            refreshUI(storeRef, store);
+            refreshUI();
             return;
         }
         if (eventData.contains("back")) {
@@ -315,11 +314,11 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
             } catch (Exception e) {
                 HytaleLogger.forEnclosingClass().atWarning().withCause(e).log("Failed to process unclaim event: " + eventData);
             }
-            refreshUI(storeRef, store);
+            refreshUI();
         }
     }
 
-    private void refreshUI(Ref<EntityStore> storeRef, Store<EntityStore> store) {
+    private void refreshUI() {
         player.getPageManager().clearCustomPageAcknowledgements();
         rebuild();
     }

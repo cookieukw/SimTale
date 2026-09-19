@@ -16,7 +16,6 @@ import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
-import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
@@ -140,12 +139,12 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
         // Navigation
         if (eventData.contains("prev_npc")) {
             selectedIndex = Math.max(0, selectedIndex - 1);
-            refreshUI(storeRef, store);
+            refreshUI();
             return;
         }
         if (eventData.contains("next_npc")) {
             selectedIndex = Math.min(SimTale.ACTIVE_NPCS.size() - 1, selectedIndex + 1);
-            refreshUI(storeRef, store);
+            refreshUI();
             return;
         }
         /* Neither view rescans any more.
@@ -209,7 +208,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             playerRefComp.sendMessage(Message.translation("ui.simdebug.msgResetNeeds").param("name", npc.name));
         }
 
-        refreshUI(storeRef, store);
+        refreshUI();
     }
 
     private void forceTask(SimNPCComponent npc, TaskType task, Store<EntityStore> store) {
@@ -220,7 +219,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             ai.targetBlockPosition = null;
             ai.forcedByDebug = true;
 
-            World world = null;
+            World world;
             world = WorldUtil.first();
             if (world != null) {
                 ai.taskStartTime = world.getTick();
@@ -230,7 +229,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
         }
     }
 
-    private void refreshUI(Ref<EntityStore> storeRef, Store<EntityStore> store) {
+    private void refreshUI() {
         player.getPageManager().clearCustomPageAcknowledgements();
         rebuild();
     }

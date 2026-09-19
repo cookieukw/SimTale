@@ -10,7 +10,6 @@ import com.cookieukw.SimTale.core.Child;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Mood;
-import com.cookieukw.SimTale.core.NPCPreferences;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -50,7 +49,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.joml.Vector3d;
 import com.hypixel.hytale.server.core.entity.entities.player.windows.ContainerWindow;
-import com.hypixel.hytale.server.core.entity.entities.player.windows.Window;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
@@ -60,10 +58,7 @@ import com.hypixel.hytale.protocol.ApplyLookType;
 import com.hypixel.hytale.protocol.CanMoveType;
 import com.hypixel.hytale.protocol.ClientCameraView;
 import com.hypixel.hytale.protocol.Direction;
-import com.hypixel.hytale.protocol.MouseInputTargetType;
-import com.hypixel.hytale.protocol.MouseInputType;
 import com.hypixel.hytale.protocol.Position;
-import com.hypixel.hytale.protocol.PositionDistanceOffsetType;
 import com.hypixel.hytale.protocol.RotationType;
 import com.hypixel.hytale.protocol.ServerCameraSettings;
 import com.hypixel.hytale.protocol.ApplyMovementType;
@@ -145,7 +140,6 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
 
         // Perpendicular vector (pointing to the right of the NPC-to-player vector)
         double rx = -uz;
-        double rz = ux;
 
         /* Head height read from the actual bounding box instead of a hardcoded 1.45. The mod
         spawns babies, toddlers and children at reduced scale, and on those the fixed value
@@ -153,7 +147,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         */
         double headHeight = 1.45;
         BoundingBox npcBox = store.getComponent(npc.entityRef, BoundingBox.getComponentType());
-        if (npcBox != null && npcBox.getBoundingBox() != null) {
+        if (npcBox != null) {
             headHeight = npcBox.getBoundingBox().height() * 0.8;
         }
 
@@ -161,7 +155,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         This shifts the NPC to the left side of the player's screen
         */
         double camX = nPos.x + ux * 2.0 + rx * 0.55;
-        double camZ = nPos.z + uz * 2.0 + rz * 0.55;
+        double camZ = nPos.z + uz * 2.0 + ux * 0.55;
         double camY = nPos.y + headHeight;
 
         // Target (where the camera is looking): NPC's head
@@ -173,7 +167,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         double dirX = targetX - camX;
         double dirY = targetY - camY;
         double dirZ = targetZ - camZ;
-        double distH = Math.sqrt(dirX * dirX + dirZ * dirZ);
+        double sqrt = Math.sqrt(dirX * dirX + dirZ * dirZ);
 
         /* Yaw and Pitch in RADIANS.
 
@@ -194,7 +188,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         reproduces the input vector either way. Only the engine's axis convention decides.
         */
         double yaw = Math.atan2(-dirX, -dirZ);
-        double pitch = Math.atan2(dirY, distH);
+        double pitch = Math.atan2(dirY, sqrt);
 
         ServerCameraSettings settings = new ServerCameraSettings();
         settings.isFirstPerson = false;
@@ -236,16 +230,15 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             debug("PLR  pos=(" + fmt(pPos.x) + ", " + fmt(pPos.y) + ", " + fmt(pPos.z) + ")  dist=" + fmt(length));
             debug("CAM  pos=(" + fmt(camX) + ", " + fmt(camY) + ", " + fmt(camZ) + ")");
             debug("ALVO pos=(" + fmt(targetX) + ", " + fmt(targetY) + ", " + fmt(targetZ) + ")");
-            debug("DIR  (" + fmt(dirX) + ", " + fmt(dirY) + ", " + fmt(dirZ) + ")  distH=" + fmt(distH));
+            debug("DIR  (" + fmt(dirX) + ", " + fmt(dirY) + ", " + fmt(dirZ) + ")  distH=" + fmt(sqrt));
             debug("YAW  " + fmt(yaw) + " rad  =  " + fmt(Math.toDegrees(yaw)) + " graus");
             debug("PIT  " + fmt(pitch) + " rad  =  " + fmt(Math.toDegrees(pitch)) + " graus");
             /* Both axis conventions are printed because a self-consistency check cannot tell
             them apart — inverting atan2 reproduces the input vector for either one. Look at
             the game: whichever line matches what you actually see is the engine's.
             */
-            double nlen = Math.sqrt(dirX * dirX + dirZ * dirZ);
             double fxA = Math.sin(yaw), fzA = Math.cos(yaw);
-            double dotA = nlen < 1e-6 ? 0 : (fxA * dirX + fzA * dirZ) / nlen;
+            double dotA = sqrt < 1e-6 ? 0 : (fxA * dirX + fzA * dirZ) / sqrt;
             debug("CONV +Z: forward=(" + fmt(fxA) + ", " + fmt(fzA) + ")  dot=" + fmt(dotA));
             debug("CONV -Z: forward=(" + fmt(-fxA) + ", " + fmt(-fzA) + ")  dot=" + fmt(-dotA)
                     + "   <- convencao em uso agora");
@@ -482,7 +475,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         buildNeedsLine(commandBuilder, npc);
 
         GrowthComponent npcGrowth = (npc.entityId != null)
-                ? Caskara.load("child_" + npc.entityId.toString(), GrowthComponent.class)
+                ? Caskara.load("child_" + npc.entityId, GrowthComponent.class)
                 : null;
         boolean isOwnChild = ownChild
                 || (npcGrowth != null && (playerRefComp.getUuid().equals(npcGrowth.motherId) || playerRefComp.getUuid().equals(npcGrowth.fatherId)));
@@ -516,7 +509,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         commandBuilder.set("#NpcRelationship.TextSpans", 
             Message.translation("ui.relationship").insert(Message.raw(" ")).insert(relValues));
 
-        int relAffinity = Math.max(0, Math.min(100, rel.affinity));
+        int relAffinity = Math.clamp(rel.affinity, 0, 100);
         int relBarWidth = Math.max(8, (int) (430.0 * (relAffinity / 100.0)));
         Anchor relAnchor = new Anchor();
         relAnchor.setWidth(Value.of(relBarWidth));
@@ -531,13 +524,8 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             String parentsStr;
             if (motherName != null && fatherName != null) {
                 parentsStr = motherName + " & " + fatherName;
-            } else if (motherName != null) {
-                parentsStr = motherName;
-            } else if (fatherName != null) {
-                parentsStr = fatherName;
-            } else {
-                parentsStr = "—";
-            }
+            } else
+                parentsStr = Objects.requireNonNullElseGet(motherName, () -> Objects.requireNonNullElse(fatherName, "—"));
             parentsMsg = Message.translation("ui.parents").insert(Message.raw(" " + parentsStr));
         } else {
             parentsMsg = Message.translation("ui.parents").insert(Message.raw(" —"));
@@ -615,7 +603,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                     || rel.status == RelationshipStatus.MARRIED);
         commandBuilder.set("#KissButton.Visible", canKiss);
         boolean isPregnant = !isChild && npc.pregnancy != null && npc.pregnancy.pregnant;
-        commandBuilder.set("#ButtonRow3.Visible", !isChild || canKiss);
+        commandBuilder.set("#ButtonRow3.Visible", !isChild);
         commandBuilder.set("#ButtonRow4.Visible", isMarried || isPregnant);
 
         // --- Button Event Bindings ---
@@ -641,7 +629,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             if (reaperAi != null && reaperAi.currentTask == TaskType.REAPING && reaperAi.dyingEntityId != null) {
                 if (Math.random() < 0.5) {
                     playerRefComp.sendMessage(Message.raw("Grim Reaper nodded. The life was spared... this time."));
-                    World w = null;
+                    World w;
                     w = WorldUtil.first();
                     if (w != null) {
                         Ref<EntityStore> dyingRef = w.getEntityStore().getRefFromUUID(reaperAi.dyingEntityId);
@@ -740,7 +728,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         BabyCareManager.registerInventoryListener(npc.entityId, container, playerRefComp.getUuid());
 
         ContainerWindow window = new ContainerWindow(container);
-        player.getPageManager().setPageWithWindows(playerRef, store, Page.Bench, true, new Window[]{window});
+        player.getPageManager().setPageWithWindows(playerRef, store, Page.Bench, true, window);
     }
 
     @Override
@@ -914,13 +902,13 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         commandBuilder.set("#NpcEnergy.Style.TextColor", energyColor);
 
         // Visual progress bars
-        int hungerBarWidth = Math.max(8, (int) (430.0 * (Math.max(0, Math.min(100, hunger)) / 100.0)));
+        int hungerBarWidth = Math.max(8, (int) (430.0 * (Math.clamp(hunger, 0, 100) / 100.0)));
         Anchor hungerAnchor = new Anchor();
         hungerAnchor.setWidth(Value.of(hungerBarWidth));
         hungerAnchor.setHeight(Value.of(8));
         commandBuilder.setObject("#HungerBarFill.Anchor", hungerAnchor);
 
-        int energyBarWidth = Math.max(8, (int) (430.0 * (Math.max(0, Math.min(100, energy)) / 100.0)));
+        int energyBarWidth = Math.max(8, (int) (430.0 * (Math.clamp(energy, 0, 100) / 100.0)));
         Anchor energyAnchor = new Anchor();
         energyAnchor.setWidth(Value.of(energyBarWidth));
         energyAnchor.setHeight(Value.of(8));

@@ -338,14 +338,14 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
 
         if (eventData.contains("prev_page")) {
             selectedIndex = Math.max(0, selectedIndex - 1);
-            refreshUI(storeRef, store);
+            refreshUI();
             return;
         }
         if (eventData.contains("next_page")) {
             int totalPages = (int) Math.ceil(chests.size() / (double) ROWS_PER_PAGE);
             if (totalPages == 0) totalPages = 1;
             selectedIndex = Math.min(totalPages - 1, selectedIndex + 1);
-            refreshUI(storeRef, store);
+            refreshUI();
             return;
         }
         if (eventData.contains("back")) {
@@ -400,7 +400,7 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
                 HytaleLogger.forEnclosingClass().atWarning().withCause(e)
                         .log("Failed to process forget event: " + eventData);
             }
-            refreshUI(storeRef, store);
+            refreshUI();
         }
     }
 
@@ -415,7 +415,7 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
         return end == -1 ? rawEventData : rawEventData.substring(start, end);
     }
 
-    private void refreshUI(Ref<EntityStore> storeRef, Store<EntityStore> store) {
+    private void refreshUI() {
         player.getPageManager().clearCustomPageAcknowledgements();
         rebuild();
     }

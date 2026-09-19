@@ -125,14 +125,14 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
 
         if (eventData.contains("prev_page")) {
             pageIndex = Math.max(0, pageIndex - 1);
-            refreshUI(storeRef, store);
+            refreshUI();
             return;
         }
         if (eventData.contains("next_page")) {
             int total = (int) Math.ceil(SimNPCRevival.listBuried().size() / (double) ROWS_PER_PAGE);
             if (total == 0) total = 1;
             pageIndex = Math.min(total - 1, pageIndex + 1);
-            refreshUI(storeRef, store);
+            refreshUI();
             return;
         }
         if (eventData.contains("back")) {
@@ -159,7 +159,7 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
 
         World world = store.getExternalData().getWorld();
         TransformComponent transform = store.getComponent(storeRef, TransformComponent.getComponentType());
-        if (world == null || transform == null) {
+        if (transform == null) {
             playerRefComp.sendMessage(Message.translation("ui.graveyard.msgFailed"));
             return;
         }
@@ -186,7 +186,7 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
             straight away rebuilds the list from a graveyard that still holds the record and
             the row the player just clicked stays on screen as if nothing happened.
             */
-            refreshUI(storeRef, store);
+            refreshUI();
         });
     }
 
@@ -200,7 +200,7 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
         return end == -1 ? raw : raw.substring(start, end);
     }
 
-    private void refreshUI(Ref<EntityStore> storeRef, Store<EntityStore> store) {
+    private void refreshUI() {
         player.getPageManager().clearCustomPageAcknowledgements();
         rebuild();
     }
