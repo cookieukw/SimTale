@@ -1,0 +1,69 @@
+{
+  "Type": "Generic",
+  "Appearance": "SimTale_Calhambeque",
+  "DropList": "Empty",
+  "BreathesInWater": true,
+  "MaxHealth": 500,
+  "DefaultPlayerAttitude": "Revered",
+  "NameTranslationKey": "simtale.npc.calhambeque.name",
+  "MotionControllerList": [
+    {
+      "Type": "Walk",
+      "MaxRotationSpeed": 360
+    }
+  ],
+  "Instructions": [
+    {
+      "Instructions": [
+        {
+          "Sensor": {
+            "Type": "Any"
+          },
+          "Actions": [
+            {
+              "Type": "Nothing"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "InteractionInstruction": {
+    "Enabled": true,
+    "Instructions": [
+      {
+        "Sensor": {
+          "Type": "Not",
+          "Sensor": {
+            "Type": "CanInteract",
+            "ViewSector": 360,
+            "Attitudes": [
+              "Revered",
+              "Friendly",
+              "Neutral"
+            ]
+          }
+        },
+        "Actions": [
+          {
+            "Type": "SetInteractable",
+            "Interactable": false
+          }
+        ]
+      },
+      {
+        "Continue": true,
+        "Sensor": {
+          "Type": "Any"
+        },
+        "Actions": [
+          {
+            "Type": "SetInteractable",
+            "Interactable": true,
+            "Hint": "server.interactionHints.mount"
+          }
+        ]
+      }
+    ]
+  }
+}

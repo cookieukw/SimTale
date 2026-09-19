@@ -1,0 +1,77 @@
+{
+  "Model": "NPC/Vehicles/Calhambeque/Calhambeque.blockymodel",
+  "Texture": "NPC/Vehicles/Calhambeque/Calhambeque_Texture.png",
+  "MinScale": 2.2,
+  "MaxScale": 2.2,
+  "EyeHeight": 1.6,
+  "HitBox": {
+    "Max": {
+      "X": 1.4,
+      "Y": 2.2,
+      "Z": 2.4
+    },
+    "Min": {
+      "X": -1.4,
+      "Y": 0.0,
+      "Z": -2.4
+    }
+  },
+  "AnimationSets": {
+    "Idle": {
+      "Animations": [
+        {
+          "Animation": "NPC/Vehicles/Calhambeque/Animations/Calhambeque_Drive.blockyanim"
+        }
+      ]
+    },
+    "Drive": {
+      "Animations": [
+        {
+          "Animation": "NPC/Vehicles/Calhambeque/Animations/Calhambeque_Drive.blockyanim"
+        }
+      ]
+    },
+    "drive": {
+      "Animations": [
+        {
+          "Animation": "NPC/Vehicles/Calhambeque/Animations/Calhambeque_Drive.blockyanim"
+        }
+      ]
+    },
+    "Walk": {
+      "Animations": [
+        {
+          "Animation": "NPC/Vehicles/Calhambeque/Animations/Calhambeque_Drive.blockyanim"
+        }
+      ]
+    },
+    "Run": {
+      "Animations": [
+        {
+          "Animation": "NPC/Vehicles/Calhambeque/Animations/Calhambeque_Drive.blockyanim"
+        }
+      ]
+    },
+    "Reverse": {
+      "Animations": [
+        {
+          "Animation": "NPC/Vehicles/Calhambeque/Animations/Calhambeque_Reverse.blockyanim"
+        }
+      ]
+    },
+    "reverse": {
+      "Animations": [
+        {
+          "Animation": "NPC/Vehicles/Calhambeque/Animations/Calhambeque_Reverse.blockyanim"
+        }
+      ]
+    },
+    "WalkBackward": {
+      "Animations": [
+        {
+          "Animation": "NPC/Vehicles/Calhambeque/Animations/Calhambeque_Reverse.blockyanim"
+        }
+      ]
+    }
+  }
+}
