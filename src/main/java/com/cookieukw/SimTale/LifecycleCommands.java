@@ -1,23 +1,12 @@
 package com.cookieukw.SimTale;
 
 
-import com.cookieukw.SimTale.core.Profession;
-import com.cookieukw.SimTale.logic.PlayerGenderPage;
-import com.cookieukw.SimTale.systems.FarmPostRegistry;
-import com.cookieukw.SimTale.systems.FarmlandRegistry;
-import com.cookieukw.SimTale.systems.NPCSleepHelper;
-import java.util.Set;
 import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.cookieukw.SimTale.core.Mood;
-import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
-import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.cookieukw.SimTale.logic.PlayerPregnancyPage;
-import com.cookieukw.SimTale.logic.SimBedDebugPage;
-import com.cookieukw.SimTale.logic.SimChestDebugPage;
-import com.cookieukw.SimTale.systems.BedWorldBootstrap;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.joml.Vector3d;
 
 import com.hypixel.hytale.server.core.Message;
@@ -31,42 +20,21 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.cookie.caskara.Caskara;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.codec.Codec;
-import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
-import org.joml.Vector3i;
+
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import com.cookieukw.SimTale.systems.PlumbobSystem;
-import com.cookieukw.SimTale.db.SimBedData;
-import com.cookieukw.SimTale.db.SimNPCData;
-import com.cookieukw.SimTale.ai.AiConfig;
-import com.cookieukw.SimTale.ai.AiConfigManager;
-import com.cookieukw.SimTale.ai.RoutineAIComponent;
+
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
-import com.cookieukw.SimTale.core.FamilySystem;
-import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import java.util.UUID;
-import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
 
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
-import com.cookieukw.SimTale.core.HouseBlockPos;
-import com.cookieukw.SimTale.core.HouseData;
-import com.cookieukw.SimTale.systems.HouseManager;
-import com.cookieukw.SimTale.systems.BedRegistry;
-import com.cookieukw.SimTale.systems.ChestRegistry;
-import com.cookieukw.SimTale.systems.ChairRegistry;
-import com.cookieukw.SimTale.systems.FurnitureAnchorHelper;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
@@ -74,30 +42,8 @@ import com.cookieukw.SimTale.core.lifecycle.BabyCareData;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareManager;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleState;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
-import com.hypixel.hytale.server.core.entity.Frozen;
-import com.cookieukw.SimTale.core.SimLog;
-import com.cookieukw.SimTale.systems.NPCMovementHelper;
-import com.cookieukw.SimTale.systems.NPCWorkHelper;
-import com.cookieukw.SimTale.systems.ConstructionPreviewManager;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
-import com.cookieukw.SimTale.core.ConstructionSiteComponent;
-import com.cookieukw.SimTale.core.Rotation4;
-import com.hypixel.hytale.builtin.mounts.MountedComponent;
-import com.hypixel.hytale.server.npc.role.support.StateSupport;
-import com.hypixel.hytale.server.npc.entities.NPCEntity;
-import com.hypixel.hytale.server.core.modules.entity.component.ActiveAnimationComponent;
-import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
-import com.cookieukw.SimTale.systems.NPCSocialHelper;
-import com.cookieukw.SimTale.systems.SimTaleJuiceHelper;
 import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.math.vector.Rotation3f;
-import com.hypixel.hytale.protocol.AnimationSlot;
-import com.hypixel.hytale.protocol.MovementStates;
-import com.hypixel.hytale.server.core.entity.AnimationUtils;
-import java.util.Objects;
-
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import java.util.LinkedHashMap;
 
 /**
  * Debug/GM subcommands for the pregnancy -> birth -> growth -> marriage pipeline: forcing a
@@ -342,16 +288,7 @@ final class LifecycleCommands {
                 at all, records whose entities are not in the world, and a player with no
                 transform. Saying which one it is turns a guess into a lookup.
                 */
-                int total = LifecycleManager.ACTIVE_CHILDREN.size();
-                String miss;
-                if (total == 0) {
-                    miss = "[SimTale] setstage: no growth records in this world. "
-                            + "Children who have become ADULT are intentionally removed from the list.";
-                } else {
-                    miss = "[SimTale] setstage: " + total + " child record(s), but "
-                            + unresolved + " without a loaded entity in the world. "
-                            + "Get closer to the child or check if they still exist.";
-                }
+                String miss = getString(unresolved);
                 HytaleLogger.forEnclosingClass().atInfo().log(miss);
                 ctx.sendMessage(Message.raw(miss));
                 return;
@@ -388,12 +325,27 @@ final class LifecycleCommands {
             HytaleLogger.forEnclosingClass().atInfo().log(report);
             ctx.sendMessage(Message.raw(report));
         }
+
+        @NonNullDecl
+        private static String getString(int unresolved) {
+            int total = LifecycleManager.ACTIVE_CHILDREN.size();
+            String miss;
+            if (total == 0) {
+                miss = "[SimTale] setstage: no growth records in this world. "
+                        + "Children who have become ADULT are intentionally removed from the list.";
+            } else {
+                miss = "[SimTale] setstage: " + total + " child record(s), but "
+                        + unresolved + " without a loaded entity in the world. "
+                        + "Get closer to the child or check if they still exist.";
+            }
+            return miss;
+        }
     }
 
     /**
      * Debug-only: {@code setstage} only finds a child already spawned as a live entity
      * ({@code LifecycleManager.ACTIVE_CHILDREN} entries resolve through
-     * {@link #resolveChildRef}, which walks loaded worlds). While a baby is still in the player's
+     * , which walks loaded worlds). While a baby is still in the player's
      * inventory as the {@code Baby} item, no such entity exists yet, so {@code setstage} reports
      * "sem entidade carregada" and does nothing.
      *
@@ -579,7 +531,7 @@ final class LifecycleCommands {
                 }
 
                 if (nearestCarrier != null) {
-                    childId = BabyCareManager.getCarriedBabies(nearestCarrier.entityId).get(0);
+                    childId = BabyCareManager.getCarriedBabies(nearestCarrier.entityId).getFirst();
                     source = nearestCarrier.name + "'s inventory";
                 }
             }
