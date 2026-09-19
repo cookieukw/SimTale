@@ -110,37 +110,40 @@ private static final Map<String, String> ITEM_DISPLAY_NAMES = Map.ofEntries(
         Map.entry("Fluid_Poison", "Veneno")
 );
 
-private final Set<String> favoriteFoods;
-private final Set<String> hatedFoods;
-private final Set<String> favoriteItems;
-private final Set<String> hatedItems;
-private final Season favoriteSeason;
-private final Weather favoriteWeather;
-private final Hobby hobby;
-private final Set<Profession> likedProfessions;
-private final Set<Profession> dislikedProfessions;
+    private Set<String> favoriteFoods = Set.of();
+    private Set<String> hatedFoods = Set.of();
+    private Set<String> favoriteItems = Set.of();
+    private Set<String> hatedItems = Set.of();
+    private Season favoriteSeason = Season.SUMMER;
+    private Weather favoriteWeather = Weather.CLEAR;
+    private Hobby hobby = Hobby.READING;
+    private Set<Profession> likedProfessions = Set.of();
+    private Set<Profession> dislikedProfessions = Set.of();
 
-public NPCPreferences(
-        Set<String> favoriteFoods,
-        Set<String> hatedFoods,
-        Set<String> favoriteItems,
-        Set<String> hatedItems,
-        Season favoriteSeason,
-        Weather favoriteWeather,
-        Hobby hobby,
-        Set<Profession> likedProfessions,
-        Set<Profession> dislikedProfessions
-) {
-    this.favoriteFoods = Set.copyOf(favoriteFoods);
-    this.hatedFoods = Set.copyOf(hatedFoods);
-    this.favoriteItems = Set.copyOf(favoriteItems);
-    this.hatedItems = Set.copyOf(hatedItems);
-    this.favoriteSeason = favoriteSeason;
-    this.favoriteWeather = favoriteWeather;
-    this.hobby = hobby;
-    this.likedProfessions = Set.copyOf(likedProfessions);
-    this.dislikedProfessions = Set.copyOf(dislikedProfessions);
-}
+    public NPCPreferences() {
+    }
+
+    public NPCPreferences(
+            Set<String> favoriteFoods,
+            Set<String> hatedFoods,
+            Set<String> favoriteItems,
+            Set<String> hatedItems,
+            Season favoriteSeason,
+            Weather favoriteWeather,
+            Hobby hobby,
+            Set<Profession> likedProfessions,
+            Set<Profession> dislikedProfessions
+    ) {
+        this.favoriteFoods = favoriteFoods != null ? Set.copyOf(favoriteFoods) : Set.of();
+        this.hatedFoods = hatedFoods != null ? Set.copyOf(hatedFoods) : Set.of();
+        this.favoriteItems = favoriteItems != null ? Set.copyOf(favoriteItems) : Set.of();
+        this.hatedItems = hatedItems != null ? Set.copyOf(hatedItems) : Set.of();
+        this.favoriteSeason = favoriteSeason != null ? favoriteSeason : Season.SUMMER;
+        this.favoriteWeather = favoriteWeather != null ? favoriteWeather : Weather.CLEAR;
+        this.hobby = hobby != null ? hobby : Hobby.READING;
+        this.likedProfessions = likedProfessions != null ? Set.copyOf(likedProfessions) : Set.of();
+        this.dislikedProfessions = dislikedProfessions != null ? Set.copyOf(dislikedProfessions) : Set.of();
+    }
 
 public static NPCPreferences createRandom() {
     Random random = ThreadLocalRandom.current();
@@ -190,47 +193,47 @@ public static NPCPreferences createRandom() {
 }
 
 public Set<String> getFavoriteFoods() {
-    return favoriteFoods;
+    return favoriteFoods != null ? favoriteFoods : Set.of();
 }
 
 public Set<String> getHatedFoods() {
-    return hatedFoods;
+    return hatedFoods != null ? hatedFoods : Set.of();
 }
 
 public Set<String> getFavoriteItems() {
-    return favoriteItems;
+    return favoriteItems != null ? favoriteItems : Set.of();
 }
 
 public Set<String> getHatedItems() {
-    return hatedItems;
+    return hatedItems != null ? hatedItems : Set.of();
 }
 
 public Season getFavoriteSeason() {
-    return favoriteSeason;
+    return favoriteSeason != null ? favoriteSeason : Season.SUMMER;
 }
 
 public Weather getFavoriteWeather() {
-    return favoriteWeather;
+    return favoriteWeather != null ? favoriteWeather : Weather.CLEAR;
 }
 
 public Hobby getHobby() {
-    return hobby;
+    return hobby != null ? hobby : Hobby.READING;
 }
 
 public Set<Profession> getLikedProfessions() {
-    return likedProfessions;
+    return likedProfessions != null ? likedProfessions : Set.of();
 }
 
 public Set<Profession> getDislikedProfessions() {
-    return dislikedProfessions;
+    return dislikedProfessions != null ? dislikedProfessions : Set.of();
 }
 
 public String getSeasonDisplayName() {
-    return favoriteSeason.displayName();
+    return getFavoriteSeason().displayName();
 }
 
 public String getWeatherDisplayName() {
-    return favoriteWeather.displayName();
+    return getFavoriteWeather().displayName();
 }
 
 public static String getItemDisplayName(String itemId) {
