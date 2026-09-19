@@ -121,9 +121,14 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
         if (pm != null && pm.getModelReference().getModelAssetId() != null
                 && pm.getModelReference().getModelAssetId().startsWith("Thought_")) {
             Ref<EntityStore> thisRef = chunk.getReferenceTo(index);
-            if (!trackedBubbleRefs.contains(thisRef) || pendingDespawns.remove(thisRef)) {
-                commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
-                LOGGER.atFine().log("[SimTale] Limpando balao de pensamento orfao: " + uuidComp.getUuid());
+            if (pendingDespawns.remove(thisRef)) {
+                return;
+            }
+            if (!trackedBubbleRefs.contains(thisRef)) {
+                if (thisRef.isValid() && pendingDespawns.add(thisRef)) {
+                    commandBuffer.removeEntity(thisRef, RemoveReason.REMOVE);
+                    LOGGER.atFine().log("[SimTale] Limpando balao de pensamento orfao: " + uuidComp.getUuid());
+                }
             }
             return;
         }
@@ -258,9 +263,11 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
     private void despawnThought(UUID entityUuid, CommandBuffer<EntityStore> commandBuffer) {
         ActiveThought thought = activeThoughts.remove(entityUuid);
         if (thought != null && thought.bubbleRef() != null && thought.bubbleRef().isValid()) {
-            pendingDespawns.add(thought.bubbleRef());
-            trackedBubbleRefs.remove(thought.bubbleRef());
-            commandBuffer.removeEntity(thought.bubbleRef(), RemoveReason.REMOVE);
+            Ref<EntityStore> bubbleRef = thought.bubbleRef();
+            trackedBubbleRefs.remove(bubbleRef);
+            if (pendingDespawns.add(bubbleRef)) {
+                commandBuffer.removeEntity(bubbleRef, RemoveReason.REMOVE);
+            }
         }
     }
 
@@ -310,7 +317,6 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
         ActiveThought at = activeThoughts.remove(npcUuid);
         if (at != null && at.bubbleRef() != null) {
             trackedBubbleRefs.remove(at.bubbleRef());
-            pendingDespawns.add(at.bubbleRef());
         }
     }
 }
