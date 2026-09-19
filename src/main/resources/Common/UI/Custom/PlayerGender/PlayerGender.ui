@@ -38,7 +38,7 @@ Group {
 
       Button #MaleButton {
         Anchor: (Width: 265, Height: 180, Right: 20);
-        Style: $T.@BtnNeutral;
+        Style: $T.@BtnGenderMale;
 
         Group #MaleContent {
           LayoutMode: MiddleCenter;
@@ -59,7 +59,7 @@ Group {
 
       Button #FemaleButton {
         Anchor: (Width: 265, Height: 180);
-        Style: $T.@BtnNeutral;
+        Style: $T.@BtnGenderFemale;
 
         Group #FemaleContent {
           LayoutMode: MiddleCenter;
