@@ -29,7 +29,7 @@ Durante a instanciação, cada NPC recebe propriedades aleatórias de personalid
 - **Vive em uma casa.** Reivindica uma cama e trata aquele lugar como seu. 
 - **Pertence a uma vila.** Casas construídas perto umas das outras formam uma vila, calculada a partir das próprias construções. NPCs sem casa ficam perto do centro da vila em vez de vagar sem rumo.
 - **Trabalha.** Fazendeiros colhem plantações (Cenoura, Trigo, Tomate, Milho), replantam sementes e guardam a colheita. Caçadores e Mineradores saem em expedições e voltam com espólios.
-- **Conversa.** Procura outros NPCs em um raio de 20 blocos após ficar muito tempo sozinho, e o humor é contagiante.
+- **Conversa e Passeia.** Dá passeios amplos pelas ruas da vila (até 48 blocos) e procura outros NPCs em um raio de 20 blocos com intervalos naturais pós-conversa, respeitando espaço pessoal sem formar aglomerados. Moradores em caminhada não são interrompidos por chamados distantes.
 - **Tem um hobby.** Alguém que gosta de pescar caminha até a água; um leitor vai para casa.
 - **Envelhece.** Casa-se, engravida, tem filhos, e essas crianças crescem de bebê a adulto.
 - **Passa fome.** Se a fome cair abaixo de 5, ele chora, para de trabalhar totalmente e abandona todas as tarefas até que alguém o alimente. Ele não morre de fome — a morte é reservada para envelhecimento e doenças.
@@ -348,7 +348,7 @@ As cores na barra de fome seguem os limites que a rotina realmente usa: verde ac
   - `/simtale proximity limit <seg>`: ajusta o intervalo anti-spam por jogador.
   - `/simtale proximity radius <blocos>`: ajusta o raio de detecção.
 - **Balões de Pensamento e Reações (Thought Bubbles)**: Balões 3D animados com mais de 36 emojis kawaii aparecem acima dos NPCs para expressar sentimentos, rotinas diárias (sono, fome, brincadeiras), reações a presentes e conversas.
-- **Conversas entre NPCs**: NPCs conversam entre si com temas dinâmicos (trabalho, cansaço, comida, fofocas) quando se encontram na vila.
+- **Conversas entre NPCs**: NPCs conversam entre si com temas dinâmicos (trabalho, cansaço, comida, fofocas) quando se encontram na vila. Conta com tempo de recarga pós-conversa (40 a 60s) para evitar que fiquem aglomerados, permite passeios pelas ruas da vila (até 48 blocos) e preserva 1,15m de espaço pessoal entre eles.
 
 <p align="center">
   <img src="https://simtale.kukkie.org/img/player_interacting_children.png" width="49%" alt="Jogador interagindo com crianças" />

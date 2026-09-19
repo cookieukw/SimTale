@@ -29,7 +29,7 @@ During instantiation, each NPC is assigned randomized properties for personality
 - **Lives in a house.** Claims a bed and treats that place as its own. 
 - **Belongs to a village.** Houses built near each other form one, worked out from the buildings themselves. NPCs without a house stay near the village center instead of wandering off.
 - **Works.** Farmers harvest crops (Carrot, Wheat, Tomato, Corn), replant seeds, and deposit the harvest. Hunters and Miners go on expeditions and return with loot.
-- **Talks.** Seeks out other NPCs within 20 blocks after too long alone, and mood is contagious.
+- **Talks & Strolls.** Takes walks around village streets (up to 48 blocks) and seeks out other NPCs within 20 blocks with natural conversational cooldowns, respecting personal space without clumping. Walking NPCs won't be interrupted by distant calls.
 - **Has a hobby.** Someone who likes fishing walks to the water; a reader goes home.
 - **Ages.** Marries, gets pregnant, has children, and those children grow from baby to adult.
 - **Starves.** If hunger drops below 5, it cries, stops working entirely, and drops all tasks until someone feeds it. It does not die of hunger — death is reserved for aging and disease.
@@ -351,7 +351,7 @@ yellow below 50, orange below 25, red below 5. At 5, the NPC cries and abandons 
   - `/simtale proximity limit <sec>`: sets player anti-spam window.
   - `/simtale proximity radius <blocks>`: sets player detection radius.
 - **Emote & Thought Bubbles**: Animated 3D bubbles featuring 36 kawaii emoji icons appear above NPCs to express emotions, daily routine states (sleepy, hungry, playing), reactions to gifts, and conversations.
-- **NPC-to-NPC Conversations**: NPCs greet and chat with each other with contextual topics (farming, sleep, food, gossip) when their paths cross.
+- **NPC-to-NPC Conversations**: NPCs greet and chat with each other with contextual topics (farming, sleep, food, gossip) when their paths cross. Features post-conversation cooldowns (40–60s) so villagers don't stay glued together, and allows them to take leisurely strolls across village streets (up to 48 blocks) while keeping 1.15m of personal space.
 
 <p align="center">
   <img src="https://simtale.kukkie.org/img/player_interacting_children.png" width="49%" alt="Player interacting with children" />
