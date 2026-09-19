@@ -1,33 +1,19 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
-import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
-import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
-import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
-import com.cookieukw.SimTale.core.lifecycle.LifecycleUtils;
-import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.logic.InteractionManager;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.math.vector.Rotation3f;
-import com.hypixel.hytale.server.core.entity.Frozen;
-import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import com.hypixel.hytale.builtin.mounts.BlockMountAPI;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
-import com.hypixel.hytale.component.query.Query;
-import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
-import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.Universe;
-import com.cookieukw.SimTale.core.Relationship;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 
@@ -38,34 +24,16 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
-import com.cookieukw.SimTale.core.Trait;
-import com.cookieukw.SimTale.core.WorldUtil;
-import com.cookieukw.SimTale.core.SimNPCFactory;
-import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
-import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
-import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
-import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
-import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
-import com.cookie.runecore.api.EffectHelper;
 import com.cookieukw.SimTale.core.Profession;
-import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
-import com.hypixel.hytale.component.RemoveReason;
-import com.hypixel.hytale.server.core.Message;
 
-import java.util.concurrent.ThreadLocalRandom;
-import com.hypixel.hytale.server.core.command.system.CommandManager;
-
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
-import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 
 import com.hypixel.hytale.server.npc.role.support.StateSupport;
-import javax.annotation.Nonnull;
 
 /**
  * Split out of {@link RoutineAISystem}#tick(), which had grown to 1478 lines handling every
@@ -100,7 +68,7 @@ import javax.annotation.Nonnull;
 final class RoutineSleepHelpers {
     private RoutineSleepHelpers() {}
 
-    static boolean handleIdle(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {
+    static boolean handleIdle(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, World world, TransformComponent transform) {
         /* Reserved (waiting for a conversation partner to arrive) must mean actually standing
         still: reservedForSocialUuid previously only stopped OTHER NPCs' searches from picking
         this one (NPCSocialHelper.isAvailableToTalk) -- nothing stopped THIS ladder from handing
@@ -109,7 +77,7 @@ final class RoutineSleepHelpers {
         from under whatever she'd started, which is what showed up in-game as an NPC snapping
         out of one task mid-stride ("giro e volta").
         */
-        if (ai.currentTask == TaskType.IDLE && !NPCSocialHelper.isReservedAndActive(ai, world.getTick())) {
+        if (ai.currentTask == TaskType.IDLE && NPCSocialHelper.isReservedAndActive(ai, world.getTick())) {
             if (npc.bedLocation == null && world.getTick() % 60 == 0) {
                 BedPos bestBed = RoutineAISystem.getBedPos(transform);
                 if (bestBed != null) {
@@ -262,7 +230,7 @@ final class RoutineSleepHelpers {
                 if (village != null) {
                     centerX = village.centerX();
                     centerZ = village.centerZ();
-                    wanderRadius = Math.min(48.0, Math.max(18.0, village.radius()));
+                    wanderRadius = Math.clamp(village.radius(), 18.0, 48.0);
                 } else if (npc.bedLocation != null) {
                     centerX = npc.bedLocation.x;
                     centerZ = npc.bedLocation.z;
@@ -285,7 +253,7 @@ final class RoutineSleepHelpers {
         return false;
     }
 
-    static boolean handleFindingBed(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {
+    static boolean handleFindingBed(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, World world, TransformComponent transform) {
         if (ai.currentTask == TaskType.FINDING_BED) {
             if (npc.bedLocation == null && InteractionManager.isNpcAChild(npc)) {
                 BedPos parentBed = FamilyBonds.findParentBed(npc);
@@ -344,7 +312,7 @@ final class RoutineSleepHelpers {
         return false;
     }
 
-    static boolean handleMovingToBed(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {
+    static boolean handleMovingToBed(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, World world, TransformComponent transform) {
         if (ai.currentTask == TaskType.MOVING_TO_BED) {
             if (npc.bedLocation == null) {
                 ai.currentTask = TaskType.FINDING_BED;
@@ -456,7 +424,7 @@ final class RoutineSleepHelpers {
                  Confirmed in the bytecode of BlockMountAPI.mountOnBlock, which executes in this order:
                  BlockType.getBeds() -> RotatedMountPointsArray.getRotated(rotationIndex)
                  BlockMountComponent.findAvailableSeat(...)   // chooses the mount point
-                 BlockMountPoint.computeWorldSpacePosition(blockPos)
+                 BlockMountPoint.computeWorldSpacePosition(blockPose)
                  BlockMountPoint.computeRotationEuler(rotationIndex)
                  TransformComponent.setPosition(...)          // applies it directly, synchronously
                  TransformComponent.setRotation(...)
@@ -537,7 +505,7 @@ final class RoutineSleepHelpers {
         return false;
     }
 
-    static boolean handleSleeping(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {
+    static boolean handleSleeping(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world) {
         if (ai.currentTask == TaskType.SLEEPING) {
             if (npc.bedLocation == null) {
                 // Bed was released elsewhere (e.g. destroyed by another system) — wake up cleanly
@@ -586,12 +554,12 @@ final class RoutineSleepHelpers {
             if ((world.getTick() - ai.taskStartTime) % 20 == 0) {
                 Float currentHour = NPCSleepHelper.currentHour(world);
                 RoutineAISystem.LOGGER.info("[SimTale-SleepDebug] NPC '{}' tick in SLEEPING | world='{}' | hour={} | sleepPeriodClosed={} | sleepingOnSchedule={} | doneSleeping={}",
-                        npc.name, world != null ? world.getName() : "null", currentHour, sleepPeriodClosed, ai.sleepingOnSchedule, doneSleeping);
+                        npc.name, world.getName(), currentHour, sleepPeriodClosed, ai.sleepingOnSchedule, doneSleeping);
             }
 
             if (doneSleeping) {
                 RoutineAISystem.LOGGER.info("[SimTale-SleepDebug] NPC '{}' finished sleeping! Transitioning to WAKING | world='{}' | hour={}",
-                        npc.name, world != null ? world.getName() : "null", NPCSleepHelper.currentHour(world));
+                        npc.name, world.getName(), NPCSleepHelper.currentHour(world));
                 NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID)));
                 ai.sleepingOnSchedule = false;
                 ai.currentTask = TaskType.WAKING;
@@ -614,9 +582,7 @@ final class RoutineSleepHelpers {
                 NPCEntity npcEntityComponent = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
                 if (npcEntityComponent != null) {
                     StateSupport stateSupport = StateSupport.get(ref, store);
-                    if (stateSupport != null) {
-                        stateSupport.setState(ref, "Idle", null, store);
-                    }
+                    stateSupport.setState(ref, "Idle", null, store);
                 }
                 
                 AnimationUtils.stopAnimation(ref, AnimationSlot.Status, true, store);

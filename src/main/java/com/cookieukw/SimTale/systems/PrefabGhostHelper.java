@@ -145,7 +145,7 @@ public final class PrefabGhostHelper {
         List<PrefabBlock> source = prefab.getBlocks();
         if (source == null || source.isEmpty()) return new BlockChange[0];
 
-        ConstructionHelper.OffsetMapper mapper = ConstructionHelper.mapperFor(prefab, facing);
+        ConstructionHelper.OffsetMapper mapper = ConstructionHelper.mapperFor(facing);
 
         List<BlockChange> out = new ArrayList<>(source.size());
         for (PrefabBlock block : source) {
@@ -180,13 +180,6 @@ public final class PrefabGhostHelper {
     ---------------------------------------------------------------------
     */
 
-    /**
-     * Assembles the hologram entity.
-     *
-     * <p>The component set is not a guess: it mirrors, one for one, what
-     * {@code PersistentPrefabPreview.spawn} assembles internally — a network id so the entity can
-     * be streamed, a transform so it has somewhere to be, the preview payload, and a UUID.
-     */
     /**
      * Spawns a hologram of arbitrary blocks, not tied to a construction site.
      * <p>

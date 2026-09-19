@@ -157,7 +157,10 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
                 final Vector3d spawnPos = new Vector3d(tc.getPosition());
                 final World world = player.getWorld();
                 WorldUtil.executeLater(
-                    () -> StartingTroop.spawnIfFreshWorld(world.getEntityStore().getStore(), world, spawnPos),
+                    () -> {
+                        assert world != null;
+                        StartingTroop.spawnIfFreshWorld(world.getEntityStore().getStore(), world, spawnPos);
+                    },
                     3000L);
             }
         } catch (Exception e) {

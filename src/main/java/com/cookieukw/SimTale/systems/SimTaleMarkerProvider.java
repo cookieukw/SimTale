@@ -6,8 +6,6 @@ import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.cookieukw.SimTale.systems.HouseManager;
-import com.cookieukw.SimTale.systems.VillageManager;
 import com.cookieukw.SimTale.systems.VillageManager.Village;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.Ref;
@@ -19,11 +17,9 @@ import com.hypixel.hytale.protocol.Color;
 import com.hypixel.hytale.protocol.packets.worldmap.PlayerMarkerComponent;
 import com.hypixel.hytale.protocol.packets.worldmap.TintComponent;
 import com.hypixel.hytale.server.core.Message;
-import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.worldmap.IWorldMap;
 import com.hypixel.hytale.server.core.universe.world.worldmap.WorldMapManager;
@@ -101,14 +97,9 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         if (world == null) return;
 
         String worldName = world.getName();
-        if (worldName == null || !REGISTERED_WORLDS.add(worldName)) return;
+        if (!REGISTERED_WORLDS.add(worldName)) return;
 
         WorldMapManager manager = world.getWorldMapManager();
-        if (manager == null) {
-            // Nothing to attach to yet; let a later join try again.
-            REGISTERED_WORLDS.remove(worldName);
-            return;
-        }
 
         manager.addMarkerProvider(PROVIDER_ID, new SimTaleMarkerProvider());
         LOGGER.info("[SimTale] Map markers registered in world '{}'", worldName);

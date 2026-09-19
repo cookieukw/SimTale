@@ -7,7 +7,6 @@ import com.cookieukw.SimTale.core.lifecycle.WorkEligibility;
 import com.cookieukw.SimTale.core.AssetIds;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.Profession;
-import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -225,7 +224,7 @@ public class NPCWorkHelper {
         second, independent path into a new task from IDLE, and needs the same guard so a
         reserved NPC does not get pulled into a work errand before her suitor arrives.
         */
-        if (ai.currentTask == TaskType.IDLE && !NPCSocialHelper.isReservedAndActive(ai, world.getTick()) && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK || npc.profession == Profession.MINER)) {
+        if (ai.currentTask == TaskType.IDLE && NPCSocialHelper.isReservedAndActive(ai, world.getTick()) && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK || npc.profession == Profession.MINER)) {
             ItemContainer inventory = getInventory(store, ref);
             boolean hasItemsToDeposit = hasAnyDepositableItem(inventory);
 
@@ -619,7 +618,7 @@ public class NPCWorkHelper {
                 if (cb != null) {
                     ItemContainer chestInv = cb.getItemContainer();
                     ItemContainer npcInv = getInventory(store, ref);
-                    if (chestInv != null && npcInv != null) {
+                    if (npcInv != null) {
                         int moved = 0;
                         for (short slot = 0; slot < npcInv.getCapacity(); slot++) {
                             ItemStack item = npcInv.getItemStack(slot);
@@ -665,7 +664,7 @@ public class NPCWorkHelper {
                 if (cb != null) {
                     ItemContainer chestInv = cb.getItemContainer();
                     ItemContainer npcInv = getInventory(store, ref);
-                    if (chestInv != null && npcInv != null) {
+                    if (npcInv != null) {
                         /* Re-check on arrival: another farmer may have emptied the chest during
                         the walk over.
                         */
@@ -674,6 +673,7 @@ public class NPCWorkHelper {
                             short slot = findSeedSlot(chestInv, seedId);
                             if (slot != -1) {
                                 ItemStack chestStack = chestInv.getItemStack(slot);
+                                assert chestStack != null;
                                 int take = Math.min(chestStack.getQuantity(), 10);
                                 ItemStack toTake = new ItemStack(seedId, take);
                                 if (npcInv.canAddItemStack(toTake)) {
@@ -892,7 +892,7 @@ public class NPCWorkHelper {
                 ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, cp.x, cp.y, cp.z);
                 if (cb == null) continue;
                 ItemContainer chestInv = cb.getItemContainer();
-                if (chestInv != null && findSeedInInventory(chestInv) != null) {
+                if (findSeedInInventory(chestInv) != null) {
                     return cp;
                 }
             }

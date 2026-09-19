@@ -1,12 +1,9 @@
 package com.cookieukw.SimTale.systems;
 
-import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleUtils;
-import com.cookieukw.SimTale.db.SimNPCData;
-import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookieukw.SimTale.logic.ChildDialogue;
 import com.cookieukw.SimTale.core.lifecycle.ParentChildBond;
 import com.cookieukw.SimTale.core.ThoughtType;
@@ -18,23 +15,18 @@ import com.hypixel.hytale.server.core.entity.Frozen;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
-import com.hypixel.hytale.builtin.mounts.BlockMountAPI;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
-import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.cookieukw.SimTale.core.Relationship;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 
 import java.util.*;
 
@@ -47,15 +39,12 @@ import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
-import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.cookie.runecore.api.EffectHelper;
-import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
-import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.server.core.Message;
@@ -63,15 +52,12 @@ import com.hypixel.hytale.server.core.Message;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Locale;
-import com.hypixel.hytale.server.core.command.system.CommandManager;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 import com.cookieukw.SimTale.core.SimLog;
-import com.cookieukw.SimTale.db.SimNPCPersistence;
 
-import com.hypixel.hytale.server.npc.role.support.StateSupport;
 import javax.annotation.Nonnull;
 
 public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
@@ -553,19 +539,19 @@ once per NPC per tick for nothing.
 
         handleNpcSeparation(ref, npc, transform, ai, store);
 
-        if (RoutineSleepHelpers.handleIdle(ref, npc, ai, store, commandBuffer, world, transform)) return;
+        if (RoutineSleepHelpers.handleIdle(ref, npc, ai, store, world, transform)) return;
 
         /* FINDING_BED */
-        if (RoutineSleepHelpers.handleFindingBed(ref, npc, ai, store, commandBuffer, world, transform)) return;
+        if (RoutineSleepHelpers.handleFindingBed(ref, npc, ai, store, world, transform)) return;
 
         /* MOVING_TO_BED: navigate to approach position adjacent to bed */
-        if (RoutineSleepHelpers.handleMovingToBed(ref, npc, ai, store, commandBuffer, world, transform)) return;
+        if (RoutineSleepHelpers.handleMovingToBed(ref, npc, ai, world, transform)) return;
 
         /* ENTERING_BED: teleport onto the bed block */
         if (RoutineSleepHelpers.handleEnteringBed(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
         //SLEEPING: maintain sleep state and recover energy 
-        if (RoutineSleepHelpers.handleSleeping(ref, npc, ai, store, commandBuffer, world, transform)) return;
+        if (RoutineSleepHelpers.handleSleeping(ref, npc, ai, store, commandBuffer, world)) return;
 
         if (RoutineSleepHelpers.handleWaking(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
@@ -626,19 +612,19 @@ once per NPC per tick for nothing.
 
         /* Finding Bath (Optimization)
         */
-        if (RoutineTaskHelpers.handleFindingBath(ref, npc, ai, store, commandBuffer, world, transform)) return;
+        if (RoutineTaskHelpers.handleFindingBath(ref, npc, ai, store, world, transform)) return;
 
-        if (RoutineTaskHelpers.handleMovingToBath(ref, npc, ai, store, commandBuffer, world, transform)) return;
+        if (RoutineTaskHelpers.handleMovingToBath(ref, npc, ai, store, world, transform)) return;
 
-        if (RoutineTaskHelpers.handleBathing(ref, npc, ai, store, commandBuffer, world, transform)) return;
+        if (RoutineTaskHelpers.handleBathing(ref, npc, ai, store, world)) return;
 
         /* REAPING 
         */
         if (RoutineTaskHelpers.handleReaping(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
-        if (RoutineTaskHelpers.handleMovingToConstruction(ref, npc, ai, store, commandBuffer, world, transform)) return;
+        if (RoutineTaskHelpers.handleMovingToConstruction(ref, npc, ai, store, world, transform)) return;
 
-        if (RoutineTaskHelpers.handleBuilding(ref, npc, ai, store, commandBuffer, world, transform)) return;
+        if (RoutineTaskHelpers.handleBuilding(ref, npc, ai, store, world)) return;
 
         /* No replaceComponent here on purpose.
 

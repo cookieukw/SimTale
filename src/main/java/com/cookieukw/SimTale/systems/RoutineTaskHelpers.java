@@ -1,71 +1,32 @@
 package com.cookieukw.SimTale.systems;
 
-import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
-import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
-import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
-import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
-import com.cookieukw.SimTale.core.lifecycle.LifecycleUtils;
-import com.cookieukw.SimTale.db.SimNPCData;
-import com.cookieukw.SimTale.logic.InteractionManager;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.math.vector.Rotation3f;
-import com.hypixel.hytale.server.core.entity.Frozen;
-import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
-import com.hypixel.hytale.builtin.mounts.BlockMountAPI;
-import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
-import com.hypixel.hytale.component.query.Query;
-import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
-import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.server.core.entity.AnimationUtils;
-import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
-import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
-import com.cookieukw.SimTale.core.Relationship;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 
 import java.util.*;
 
-import com.cookieukw.SimTale.db.SimBedData.BedPos;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
-import com.cookieukw.SimTale.core.Trait;
-import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
-import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
-import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
-import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
-import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
-import com.cookie.runecore.api.EffectHelper;
-import com.cookieukw.SimTale.core.Profession;
-import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
-import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.server.core.Message;
 
-import java.util.concurrent.ThreadLocalRandom;
 import com.hypixel.hytale.server.core.command.system.CommandManager;
 
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
-import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
-
-import com.hypixel.hytale.server.npc.role.support.StateSupport;
-import javax.annotation.Nonnull;
 
 /**
  * Split out of {@link RoutineAISystem}#tick(), which had grown to 1478 lines handling every
@@ -100,11 +61,12 @@ import javax.annotation.Nonnull;
 final class RoutineTaskHelpers {
     private RoutineTaskHelpers() {}
 
-    static boolean handleFindingBath(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {
+    static boolean handleFindingBath(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, World world, TransformComponent transform) {
         if (ai.currentTask == TaskType.FINDING_BATH && world.getTick() - ai.taskStartTime >= RoutineAISystem.BATH_SEARCH_COOLDOWN_TICKS) {
             ai.taskStartTime = world.getTick();
             Vector3d pos = transform.getPosition();
-            int sx = (int) pos.x; int sy = (int) pos.y; int sz = (int) pos.z;
+            int sx = (int) pos.x;
+            int sz = (int) pos.z;
             boolean found = false;
 
             Vector3i nearestBath = BathRegistry.nearestTo(pos.x, pos.y, pos.z, npc.entityId);
@@ -131,7 +93,7 @@ final class RoutineTaskHelpers {
         return false;
     }
 
-    static boolean handleMovingToBath(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {
+    static boolean handleMovingToBath(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, World world, TransformComponent transform) {
         if (ai.currentTask == TaskType.MOVING_TO_BATH) {
             if (ai.targetBlockPosition == null) {
                 ai.currentTask = TaskType.IDLE; 
@@ -163,7 +125,7 @@ final class RoutineTaskHelpers {
         return false;
     }
 
-    static boolean handleBathing(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {
+    static boolean handleBathing(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, World world) {
         if (ai.currentTask == TaskType.BATHING) {
             NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) + 1.0f));
             /* The hygiene check alone was the only exit; if anything else clamped hygiene the
@@ -267,7 +229,7 @@ final class RoutineTaskHelpers {
         return false;
     }
 
-    static boolean handleMovingToConstruction(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {
+    static boolean handleMovingToConstruction(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, World world, TransformComponent transform) {
         if (ai.currentTask == TaskType.MOVING_TO_CONSTRUCTION) {
             if (ai.targetBlockPosition == null) {
                 ai.currentTask = TaskType.IDLE;
@@ -295,7 +257,7 @@ final class RoutineTaskHelpers {
         return false;
     }
 
-    static boolean handleBuilding(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {
+    static boolean handleBuilding(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, World world) {
         if (ai.currentTask == TaskType.BUILDING) {
             ConstructionSiteComponent activeSite = null;
             for (ConstructionSiteComponent site : SimTale.ACTIVE_SITES) {

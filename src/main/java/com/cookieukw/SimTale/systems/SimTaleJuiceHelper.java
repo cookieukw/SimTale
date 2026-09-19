@@ -210,12 +210,10 @@ public final class SimTaleJuiceHelper {
         WorldUtil.execute(() -> {
             if (!victimRef.isValid()) return;
             KnockbackComponent kb = store.ensureAndGetComponent(victimRef, KnockbackComponent.getComponentType());
-            if (kb != null) {
-                kb.setVelocity(impulse);
-                kb.setVelocityType(ChangeVelocityType.Set);
-                kb.setDuration(0f);
-                kb.setTimer(0f);
-            }
+            kb.setVelocity(impulse);
+            kb.setVelocityType(ChangeVelocityType.Set);
+            kb.setDuration(0f);
+            kb.setTimer(0f);
 
             Velocity vel = store.getComponent(victimRef, Velocity.getComponentType());
             if (vel != null) {
@@ -395,7 +393,7 @@ public final class SimTaleJuiceHelper {
         }
     }
 
-    public static void playProfessionReaction(Ref<EntityStore> npcRef, SimNPCComponent npc, boolean accepted, boolean liked, Store<EntityStore> store, long tick) {
+    public static void playProfessionReaction(Ref<EntityStore> npcRef, SimNPCComponent npc, boolean accepted, boolean liked, Store<EntityStore> store) {
         if (npcRef == null || store == null) return;
         TransformComponent trans = store.getComponent(npcRef, TransformComponent.getComponentType());
         if (accepted) {

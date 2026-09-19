@@ -29,8 +29,8 @@ public final class SimNpcPlayerListHelper {
      * Sends the complete list of active NPCs to a player on join.
      */
     public static void sendAllToPlayer(PlayerRef playerRef, World world) {
-        if (playerRef == null || playerRef.getPacketHandler() == null) return;
-        UUID worldUuid = (world != null && world.getWorldConfig() != null) ? world.getWorldConfig().getUuid() : null;
+        if (playerRef == null) return;
+        UUID worldUuid = world != null ? world.getWorldConfig().getUuid() : null;
 
         List<ServerPlayerListPlayer> list = new ArrayList<>();
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
@@ -59,7 +59,7 @@ public final class SimNpcPlayerListHelper {
     public static void broadcastAdd(SimNPCComponent npc) {
         if (npc == null || npc.entityId == null || npc.name == null) return;
         World world = WorldUtil.first();
-        UUID worldUuid = (world != null && world.getWorldConfig() != null) ? world.getWorldConfig().getUuid() : null;
+        UUID worldUuid = world != null ? world.getWorldConfig().getUuid() : null;
 
         ServerPlayerListPlayer p = new ServerPlayerListPlayer();
         p.uuid = npc.entityId;
@@ -69,7 +69,7 @@ public final class SimNpcPlayerListHelper {
 
         AddToServerPlayerList packet = new AddToServerPlayerList(new ServerPlayerListPlayer[]{ p });
         for (PlayerRef playerRef : Universe.get().getPlayers()) {
-            if (playerRef != null && playerRef.getPacketHandler() != null) {
+            if (playerRef != null) {
                 try {
                     playerRef.getPacketHandler().writeNoCache(packet);
                 } catch (Exception ignored) {}
@@ -84,7 +84,7 @@ public final class SimNpcPlayerListHelper {
         if (entityId == null) return;
         RemoveFromServerPlayerList packet = new RemoveFromServerPlayerList(new UUID[]{ entityId });
         for (PlayerRef playerRef : Universe.get().getPlayers()) {
-            if (playerRef != null && playerRef.getPacketHandler() != null) {
+            if (playerRef != null) {
                 try {
                     playerRef.getPacketHandler().writeNoCache(packet);
                 } catch (Exception ignored) {}
