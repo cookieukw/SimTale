@@ -108,6 +108,22 @@ $Game = "Common.ui";
   Sounds: $Game.@ButtonSounds,
 );
 
+@BtnGenderMale = ButtonStyle(
+  Default:  (Background: (TexturePath: "textures/SimTale_Btn_Male.png", Border: 8)),
+  Hovered:  (Background: (TexturePath: "textures/SimTale_Btn_Male_Hovered.png", Border: 8)),
+  Pressed:  (Background: (TexturePath: "textures/SimTale_Btn_Male_Pressed.png", Border: 8)),
+  Disabled: (Background: (TexturePath: "textures/SimTale_Btn_Male.png", Border: 8)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnGenderFemale = ButtonStyle(
+  Default:  (Background: (TexturePath: "textures/SimTale_Btn_Female.png", Border: 8)),
+  Hovered:  (Background: (TexturePath: "textures/SimTale_Btn_Female_Hovered.png", Border: 8)),
+  Pressed:  (Background: (TexturePath: "textures/SimTale_Btn_Female_Pressed.png", Border: 8)),
+  Disabled: (Background: (TexturePath: "textures/SimTale_Btn_Female.png", Border: 8)),
+  Sounds: $Game.@ButtonSounds,
+);
+
 // ---------------------------------------------------------------- label styles
 @TitleStyle = (
   FontSize: 30, TextColor: @TextPrimary, RenderBold: true, RenderUppercase: true,
