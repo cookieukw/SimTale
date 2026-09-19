@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
@@ -94,6 +95,12 @@ public final class SeasonalCostumeHelper {
      * long comparison and, in the vast majority of ticks, immediate return.
      */
     public static void tick(@Nonnull World world, @Nonnull Store<EntityStore> store, long absoluteTick) {
+        if (!SimTaleConfigManager.getConfig().seasonalCostumesEnabled) {
+            if (!ACTIVE_COSTUME_EVENT.isEmpty()) {
+                reconcileAll(store, null);
+            }
+            return;
+        }
         if (absoluteTick % CHECK_INTERVAL_TICKS != 0 || absoluteTick == lastCheckedTick) return;
         lastCheckedTick = absoluteTick;
 
