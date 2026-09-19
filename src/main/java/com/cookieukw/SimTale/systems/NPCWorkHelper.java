@@ -372,7 +372,7 @@ public class NPCWorkHelper {
                     growing (e.g. re-checked after someone else got there first) got harvested
                     immediately regardless of stage.
                     */
-                    BlockType blockType = world.getBlockType(ai.targetBlockPosition.x, ai.targetBlockPosition.y, ai.targetBlockPosition.z);
+                    BlockType blockType = NPCMovementHelper.getBlockTypeSafe(world, ai.targetBlockPosition.x, ai.targetBlockPosition.y, ai.targetBlockPosition.z);
                     String blockId = blockType != null ? blockType.getId() : null;
                     boolean isEmpty = blockId == null || blockId.equalsIgnoreCase(EMPTY_BLOCK);
                     if (CropRegistry.isReadyToHarvest(blockId)) {
@@ -422,7 +422,7 @@ public class NPCWorkHelper {
 
             if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
                 Vector3i cropPos = ai.targetBlockPosition;
-                BlockType blockType = world.getBlockType(cropPos.x, cropPos.y, cropPos.z);
+                BlockType blockType = NPCMovementHelper.getBlockTypeSafe(world, cropPos.x, cropPos.y, cropPos.z);
                 if (blockType != null && CropRegistry.isReadyToHarvest(blockType.getId())) {
                     String cropId = blockType.getId();
                     // Replace with empty
@@ -539,7 +539,7 @@ public class NPCWorkHelper {
 
             if (world.getTick() - ai.taskStartTime >= GATHER_WORK_DURATION_TICKS) {
                 Vector3i treePos = ai.targetBlockPosition;
-                BlockType blockType = world.getBlockType(treePos.x, treePos.y, treePos.z);
+                BlockType blockType = NPCMovementHelper.getBlockTypeSafe(world, treePos.x, treePos.y, treePos.z);
                 if (LumberPostRegistry.isTreeTrunk(blockType)) {
                     /* The trunk block id doubles as the item id — no CROP_TO_FOOD-style lookup
                     table exists per species, and none is needed.
@@ -913,7 +913,7 @@ public class NPCWorkHelper {
         double minDistSq = radius * radius;
         synchronized (CropRegistry.CROPS) {
             for (HouseBlockPos cp : CropRegistry.CROPS) {
-                BlockType type = world.getBlockType(cp.x, cp.y, cp.z);
+                BlockType type = NPCMovementHelper.getBlockTypeSafe(world, cp.x, cp.y, cp.z);
                 if (type == null || !CropRegistry.isReadyToHarvest(type.getId())) continue;
                 Vector3i candidate = new Vector3i(cp.x, cp.y, cp.z);
                 if (isTileClaimedByAnotherNpc(candidate, selfId)) continue;
@@ -957,7 +957,7 @@ public class NPCWorkHelper {
         synchronized (FarmlandRegistry.FARMLAND) {
             for (HouseBlockPos fp : FarmlandRegistry.FARMLAND) {
                 // Check if block above is empty (so we can plant something)
-                BlockType above = world.getBlockType(fp.x, fp.y + 1, fp.z);
+                BlockType above = NPCMovementHelper.getBlockTypeSafe(world, fp.x, fp.y + 1, fp.z);
                 if (above == null || above.getId() == null || above.getId().equalsIgnoreCase(EMPTY_BLOCK)) {
                     Vector3i candidate = new Vector3i(fp.x, fp.y + 1, fp.z);
                     if (selfId != null && isTileClaimedByAnotherNpc(candidate, selfId)) continue;
