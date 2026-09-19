@@ -319,7 +319,7 @@ public class NPCSocialHelper {
         rewards are not applied twice.
         */
         if (!ai.socializeHost) {
-            endSocial(ref, ai, store);
+            endSocial(ref, ai, store, world);
             return;
         }
 
@@ -340,12 +340,12 @@ public class NPCSocialHelper {
             if (targetRef != null && targetRef.isValid()) {
                 RoutineAIComponent targetAi = store.getComponent(targetRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
                 if (targetAi != null && targetAi.currentTask == TaskType.SOCIALIZING) {
-                    endSocial(targetRef, targetAi, store);
+                    endSocial(targetRef, targetAi, store, world);
                 }
             }
         }
 
-        endSocial(ref, ai, store);
+        endSocial(ref, ai, store, world);
     }
 
     /**
@@ -817,8 +817,14 @@ public class NPCSocialHelper {
     */
 
     /** An NPC can only be pulled into a chat while it is not doing something important. */
+    public static boolean isAvailableToTalk(RoutineAIComponent ai, long currentTick) {
+        return ai.currentTask == TaskType.IDLE
+                && ai.reservedForSocialUuid == null
+                && currentTick >= ai.nextSocialSearchTick;
+    }
+
     public static boolean isAvailableToTalk(RoutineAIComponent ai) {
-        return (ai.currentTask == TaskType.IDLE || ai.currentTask == TaskType.WANDERING)
+        return ai.currentTask == TaskType.IDLE
                 && ai.reservedForSocialUuid == null;
     }
 
@@ -840,14 +846,14 @@ public class NPCSocialHelper {
             if (targetRef != null && targetRef.isValid()) {
                 RoutineAIComponent targetAi = store.getComponent(targetRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
                 if (targetAi != null && (targetAi.currentTask == TaskType.SOCIALIZING || targetAi.reservedForSocialUuid != null)) {
-                    endSocial(targetRef, targetAi, store);
+                    endSocial(targetRef, targetAi, store, world);
                 }
             }
         }
-        endSocial(ref, ai, store);
+        endSocial(ref, ai, store, world);
     }
 
-    private static void endSocial(Ref<EntityStore> ref, RoutineAIComponent ai, Store<EntityStore> store) {
+    private static void endSocial(Ref<EntityStore> ref, RoutineAIComponent ai, Store<EntityStore> store, World world) {
         NPCMovementHelper.clearMoveTarget(ref, ai);
         ai.targetBlockPosition = null;
         ai.socializeTargetId = null;
@@ -855,9 +861,20 @@ public class NPCSocialHelper {
         ai.socializeHost = false;
         ai.socialTalkTimer = 0;
         ai.currentTask = TaskType.IDLE;
-        ai.taskStartTime = 0;
+        if (world != null) {
+            long tick = world.getTick();
+            ai.taskStartTime = tick;
+            // 40-60 second cooldown before searching for or joining another conversation
+            ai.nextSocialSearchTick = tick + 800 + (long) (Math.random() * 400);
+        } else {
+            ai.taskStartTime = 0;
+        }
         NPCMovementHelper.playAnim(ref, ANIM_IDLE, "Idle", store);
         NPCMovementHelper.playAnim(ref, AnimationSlot.Face, SimTaleJuiceHelper.faceSmile(), "Smile", store);
+    }
+
+    private static void endSocial(Ref<EntityStore> ref, RoutineAIComponent ai, Store<EntityStore> store) {
+        endSocial(ref, ai, store, null);
     }
 
     private static void stopWandering(Ref<EntityStore> ref, RoutineAIComponent ai, Store<EntityStore> store) {
