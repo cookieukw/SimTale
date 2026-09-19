@@ -168,6 +168,8 @@ debugbeds.btnNext = Próximo >
 debugbeds.btnBack = < Voltar
 debugbeds.msgTpSuccess = Teletransportado para a cama #{index}
 debugbeds.msgUnclaimSuccess = {count} morador(es) desvinculado(s) da cama #{index}.
+debugbeds.emptyTitle = Nenhuma Cama Registrada
+debugbeds.emptySubtitle = Nenhuma cama cadastrada. Coloque camas para os moradores dormirem.
 debugbaths.title = BANHEIRAS DA VILA
 debugbaths.bathEntry = Banheira {index} — X: {x}, Y: {y}, Z: {z}
 debugbaths.statusFree = Status: LIVRE
@@ -180,6 +182,8 @@ debugbaths.btnNext = Próximo >
 debugbaths.btnBack = < Voltar
 debugbaths.msgTpSuccess = Teletransportado para a banheira #{index}
 debugbaths.msgForgetSuccess = Banheira #{index} removida do registro.
+debugbaths.emptyTitle = Nenhuma Banheira Registrada
+debugbaths.emptySubtitle = Nenhuma banheira cadastrada. Coloque banheiras para a higiene da vila.
 
 debugchests.title = DESPENSA DA VILA
 debugchests.chestEntry = Baú {index} — X: {x}, Y: {y}, Z: {z}
@@ -202,6 +206,8 @@ debugchests.btnNext = Próximo >
 debugchests.btnBack = < Voltar
 debugchests.msgTpSuccess = Teletransportado para o baú #{index}
 debugchests.msgForgetSuccess = Baú #{index} removido do registro. O bloco continua no mundo e volta na próxima varredura.
+debugchests.emptyTitle = Nenhum Baú Registrado
+debugchests.emptySubtitle = Nenhum baú ou despensa foi encontrado na vila.
 
 simdebug.title = SIMDEBUG - Painel de Controle
 simdebug.npcNone = Selecione um NPC
@@ -236,6 +242,8 @@ simdebug.msgResetNeeds = [SimDebug] Needs de {name} resetados para 100!
 
 graveyard.title = CEMITÉRIO
 graveyard.empty = Ninguem enterrado ainda. NPCs coletados pelo Grim Reaper aparecem aqui.
+graveyard.emptyTitle = Cemitério Vazio
+graveyard.emptySubtitle = Ninguém está enterrado aqui. Todos os moradores estão vivos e seguros.
 graveyard.entry = {index}. {name}
 graveyard.detail = {children} filho(s)
 graveyard.btnRevive = Ressuscitar

@@ -168,6 +168,9 @@ debugbeds.btnNext = Next >
 debugbeds.btnBack = < Back
 debugbeds.msgTpSuccess = Teleported to bed #{index}
 debugbeds.msgUnclaimSuccess = {count} resident(s) unlinked from bed #{index}.
+debugbeds.emptyTitle = No Beds Registered
+debugbeds.emptySubtitle = No beds found. Place beds so villagers can claim them and sleep.
+
 debugbaths.title = BATHS OF THE VILLAGE
 debugbaths.bathEntry = Bath {index} — X: {x}, Y: {y}, Z: {z}
 debugbaths.statusFree = Status: FREE
@@ -180,6 +183,8 @@ debugbaths.btnNext = Next >
 debugbaths.btnBack = < Back
 debugbaths.msgTpSuccess = Teleported to bath #{index}
 debugbaths.msgForgetSuccess = Bath #{index} removed from the registry.
+debugbaths.emptyTitle = No Baths Registered
+debugbaths.emptySubtitle = No bathtubs found. Place bathtubs for villagers to clean themselves.
 
 debugchests.title = STORES OF THE VILLAGE
 debugchests.chestEntry = Chest {index} — X: {x}, Y: {y}, Z: {z}
@@ -202,6 +207,8 @@ debugchests.btnNext = Next >
 debugchests.btnBack = < Back
 debugchests.msgTpSuccess = Teleported to chest #{index}
 debugchests.msgForgetSuccess = Chest #{index} removed from the registry. The block stays in the world and returns on the next scan.
+debugchests.emptyTitle = No Stores Registered
+debugchests.emptySubtitle = No storage chests or food stores found in the village.
 
 simdebug.title = SIMDEBUG - Control Panel
 simdebug.npcNone = Select an NPC
@@ -236,6 +243,8 @@ simdebug.msgResetNeeds = [SimDebug] {name}'s needs reset to 100!
 
 graveyard.title = GRAVEYARD
 graveyard.empty = Nobody is buried yet. NPCs collected by the Grim Reaper show up here.
+graveyard.emptyTitle = Graveyard is Empty
+graveyard.emptySubtitle = Nobody is buried yet. All villagers are alive and safe.
 graveyard.entry = {index}. {name}
 graveyard.detail = {children} child(ren)
 graveyard.btnRevive = Revive
