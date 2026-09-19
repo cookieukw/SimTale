@@ -12,7 +12,7 @@ $T = "../SimTaleTheme.ui";
 
 Group {
   LayoutMode: MiddleCenter;
-  Background: #060911(0.85);
+  Background: #0C0806(0.85);
 
   SceneBlur {}
 
@@ -25,7 +25,7 @@ Group {
     Label #Title {
       Text: %ui.simdebug.title;
       Anchor: (Height: 34, Bottom: 4);
-      Style: (...$T.@TitleStyle, FontSize: 22, TextColor: #6FD3E8);
+      Style: (...$T.@TitleStyle, FontSize: 22, TextColor: $T.@TextGold);
     }
 
     $T.@Separator { @Anchor = (Bottom: 12); }

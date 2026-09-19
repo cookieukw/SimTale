@@ -45,7 +45,7 @@ $T = "../SimTaleTheme.ui";
 
 Group {
   LayoutMode: MiddleCenter;
-  Background: #060911(0.85);
+  Background: #0C0806(0.85);
 
   SceneBlur {}
 
@@ -58,7 +58,7 @@ Group {
     Label #Title {
       Text: %ui.graveyard.title;
       Anchor: (Height: 34, Bottom: 4);
-      Style: (...$T.@TitleStyle, FontSize: 24, TextColor: $T.@TextBlue);
+      Style: (...$T.@TitleStyle, FontSize: 24, TextColor: $T.@TextGold);
     }
 
     $T.@Separator { @Anchor = (Bottom: 12); }
@@ -80,7 +80,7 @@ Group {
         Label #EmptyTitle {
           Text: %ui.graveyard.emptyTitle;
           Anchor: (Height: 28, Bottom: 6);
-          Style: (...$T.@TitleStyle, FontSize: 20, TextColor: $T.@TextBlue, HorizontalAlignment: Center);
+          Style: (...$T.@TitleStyle, FontSize: 20, TextColor: $T.@TextGold, HorizontalAlignment: Center);
         }
 
         Label #EmptyNotice {
