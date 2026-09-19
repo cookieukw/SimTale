@@ -22,6 +22,8 @@ import org.joml.Vector3i;
 import com.cookieukw.SimTale.core.SimLog;
 
 import com.hypixel.hytale.server.npc.role.support.StateSupport;
+import com.hypixel.hytale.math.util.ChunkUtil;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import java.util.Objects;
 
 public class NPCMovementHelper {
@@ -337,12 +339,24 @@ public class NPCMovementHelper {
 
             if (bx == target.x && by == target.y && bz == target.z) continue;
 
-            BlockType block = world.getBlockType(bx, by, bz);
+            BlockType block = getBlockTypeSafe(world, bx, by, bz);
             if (isPassable(block)) continue;
 
             return false;
         }
         return true;
+    }
+
+    public static BlockType getBlockTypeSafe(World world, int x, int y, int z) {
+        if (world == null) return null;
+        long chunkIndex = ChunkUtil.indexChunkFromBlock(x, z);
+        WorldChunk chunk = world.getChunkIfLoaded(chunkIndex);
+        return chunk != null ? chunk.getBlockType(x, y, z) : null;
+    }
+
+    public static BlockType getBlockTypeSafe(World world, Vector3i pos) {
+        if (pos == null) return null;
+        return getBlockTypeSafe(world, pos.x, pos.y, pos.z);
     }
 
     public static boolean isPassable(BlockType type) {
@@ -371,17 +385,17 @@ public class NPCMovementHelper {
     }
 
     public static boolean isStandable(Vector3i pos, World world) {
-        BlockType atPos = world.getBlockType(pos.x, pos.y, pos.z);
+        BlockType atPos = getBlockTypeSafe(world, pos.x, pos.y, pos.z);
         if (!isAir(atPos) && !isPassableFloorDecor(atPos)) {
             return false;
         }
 
-        BlockType above = world.getBlockType(pos.x, pos.y + 1, pos.z);
+        BlockType above = getBlockTypeSafe(world, pos.x, pos.y + 1, pos.z);
         if (!isAir(above)) {
             return false;
         }
 
-        BlockType below = world.getBlockType(pos.x, pos.y - 1, pos.z);
+        BlockType below = getBlockTypeSafe(world, pos.x, pos.y - 1, pos.z);
         return !isAir(below);
     }
 }
