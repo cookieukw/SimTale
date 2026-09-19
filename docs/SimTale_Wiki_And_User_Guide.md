@@ -158,8 +158,13 @@ NPCs hold a memory buffer. If you insult an NPC, they will remember it for **300
 Active NPCs possess a ticking **Needs System** that drives their daily routine:
 *   **Hunger (0 to 100):** Decays over time. Below 30, the NPC enters the `FINDING_FOOD` state, pathfinding to food chests or crops. If Hunger hits 0, they will collapse and begin dying.
 *   **Energy (0 to 100):** Decays during the day. Below 20, the NPC enters `FINDING_BED`. They will locate their registered bed and sleep, restoring energy.
-*   **Social (0 to 100):** Restored by interacting with players or other NPCs. If low, they seek conversations.
+*   **Social (0 to 100):** Restored by interacting with players or other NPCs (+35 per talk). Triggered autonomously when social falls below 45 (or rarely with a 4% spontaneous chance). Includes a 40–60 second mandatory cooldown between talks for both participants, preventing endless chatting loops. NPCs maintain a 1.15-block personal space separation radius to prevent overlapping or clumping.
 *   **Hygiene (0 to 100):** Decays over time. If low, they seek bath tubs or water sources (`FINDING_BATH`).
+
+### Village Strolls & Wandering
+*   **Village-Wide Walks:** When idle, NPCs take autonomous walks through the settlement. If an NPC belongs to a village, strolls span a radius of up to **48 blocks** from the village center, animating streets and community squares.
+*   **Home Strolls:** For isolated or solitary NPCs with a bed, strolls cover a comfortable **20-block radius** around their home.
+*   **Uninterrupted Walks:** NPCs actively walking (`TaskType.WANDERING`) are protected from being pulled into distant conversations, ensuring natural strolls.
 
 ### The Sleep & Bed Registry System
 SimTale features a robust physical bed detection engine:
@@ -374,6 +379,14 @@ Accessed via `/simdebug`, this panel gives administrators full control over NPC 
     *   **Force Social:** Forces wandering/social interaction.
     *   **Set Hunger 0:** Sets hunger to 0 to test starvation warnings and Grim Reaper spawning.
     *   **Reset Needs:** Restores all needs to 100%.
+
+---
+
+### UI Design System & Management Screens
+*   **Medieval Wood Aesthetic:** The UI system utilizes authentic 9-slice dark wood textures (`SimTale_WoodPanel.png`, `SimTale_WoodInset.png`) paired with warm dark smoke overlays (`#0C0806`), providing an immersive fantasy RPG feel that blends seamlessly with Hytale's art style.
+*   **Multi-Page Pagination:** All list and management interfaces (`/simtale debugbeds`, `/simtale debugchests`, `/simtale debugbaths`, `/simtale graveyard`) feature robust multi-page navigation. Clicking Next or Previous instantly refreshes records in place without UI desynchronization.
+*   **Empty State Indicators:** When no entries are found (e.g., zero deceased NPCs in the graveyard, or zero registered bathtubs), the UI displays a clean empty state featuring a dedicated graphic icon and an informative status message.
+*   **Gender Selection (`PlayerGender.ui`):** Features distinct, high-contrast Blue (Male) and Red (Female) card buttons with themed gender crests.
 
 ---
 
