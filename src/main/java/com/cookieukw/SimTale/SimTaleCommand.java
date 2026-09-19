@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale;
 
+import com.cookieukw.SimTale.config.SimTaleConfig;
+import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.logic.PlayerGenderPage;
 import com.cookieukw.SimTale.systems.FarmPostRegistry;
@@ -202,14 +204,23 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         private final RequiredArg<String> eventArg;
 
         public CostumeSubCommand() {
-            super("costume", "Tests a seasonal event costume (christmas|halloween|off) on the nearest NPC");
-            this.eventArg = this.withRequiredArg("event", "christmas|halloween|off", ArgTypes.STRING);
+            super("costume", "Tests a seasonal event costume (christmas|halloween|off|auto) on the nearest NPC");
+            this.eventArg = this.withRequiredArg("event", "christmas|halloween|off|auto", ArgTypes.STRING);
         }
 
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             String evento = ctx.get(this.eventArg).toLowerCase();
+
+            if (evento.equals("auto")) {
+                SimTaleConfig cfg = SimTaleConfigManager.getConfig();
+                cfg.seasonalCostumesEnabled = !cfg.seasonalCostumesEnabled;
+                SimTaleConfigManager.save();
+                ctx.sendMessage(Message.raw("[SimTale] Fantasias sazonais automaticas: "
+                        + (cfg.seasonalCostumesEnabled ? "ATIVADAS" : "DESATIVADAS")));
+                return;
+            }
 
             TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
             SimNPCComponent nearestNPC = null;

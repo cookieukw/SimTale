@@ -13,6 +13,12 @@ public class SimTaleConfig {
     public volatile boolean debugMode = false;
 
     /**
+     * Master switch for experimental seasonal event costumes (Christmas, Halloween).
+     * Disabled by default.
+     */
+    public boolean seasonalCostumesEnabled = false;
+
+    /**
      * Master switch for proximity greetings. If false, NPCs will not react
      * when a player approaches.
      */
