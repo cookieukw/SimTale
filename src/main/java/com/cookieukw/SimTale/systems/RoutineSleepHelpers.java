@@ -160,7 +160,9 @@ final class RoutineSleepHelpers {
                     && world.getTick() >= ai.nextChairSearchTick) {
                 ai.currentTask = TaskType.FINDING_CHAIR;
                 ai.taskStartTime = world.getTick();
-            } else if (ai.currentTask == TaskType.IDLE && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) < 85 || Math.random() < 0.25)) {
+            } else if (ai.currentTask == TaskType.IDLE
+                    && world.getTick() >= ai.nextSocialSearchTick
+                    && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.SOCIAL_ID) < 45 || Math.random() < 0.04)) {
                 SimNPCComponent bestTarget = null;
                 double bestDist = RoutineAISystem.SOCIALIZE_SEARCH_RANGE_SQ;
                 for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
@@ -168,7 +170,7 @@ final class RoutineSleepHelpers {
 
                     // Do not drag someone out of bed or off the job for a chat.
                     RoutineAIComponent otherAi = store.getComponent(other.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
-                    if (otherAi == null || !NPCSocialHelper.isAvailableToTalk(otherAi)) continue;
+                    if (otherAi == null || !NPCSocialHelper.isAvailableToTalk(otherAi, world.getTick())) continue;
 
                     TransformComponent ot = store.getComponent(other.entityRef, TransformComponent.getComponentType());
                     if (ot == null) continue;
@@ -197,6 +199,9 @@ final class RoutineSleepHelpers {
                     }
 
                     NPCMovementHelper.playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
+                } else {
+                    // Stagger search retry so an NPC doesn't search every tick when no one is available
+                    ai.nextSocialSearchTick = world.getTick() + 300;
                 }
             }
 
@@ -245,37 +250,27 @@ final class RoutineSleepHelpers {
             the NPC could not satisfy took its wandering away too. Guarding on "still IDLE"
             instead means the fallback is reached whenever nothing above it actually committed,
             and any branch added later inherits that safety net for free.*/
-            if (ai.currentTask == TaskType.IDLE && (Math.random() < 0.05 || (ai.taskStartTime > 0 && world.getTick() - ai.taskStartTime > 40))) {
-                /* Anchor the stroll, in order of preference: own bed, then the nearest village,
-                then the current position.
-                
-                That last case is what made homeless NPCs walk off the map and need fetching.
-                Anchoring on "where I am" is not a leash at all: each stroll moves the NPC, the
-                next one anchors on the new spot, and the result is a random walk with no
-                restoring force — unbounded drift, given enough time. A village centre gives
-                them somewhere to belong until they claim a bed of their own.*/
+            if (ai.currentTask == TaskType.IDLE && (Math.random() < 0.08 || (ai.taskStartTime > 0 && world.getTick() - ai.taskStartTime > 30))) {
+                /* Anchor the stroll: village territory if one exists, then own bed, then current pos.
+                Expands the stroll so NPCs actually walk around town instead of clustering in an 8-block box.
+                */
                 double centerX = transform.getPosition().x;
                 double centerZ = transform.getPosition().z;
-                double wanderRadius = RoutineAISystem.WANDER_RADIUS;
+                double wanderRadius = 18.0;
 
-                if (npc.bedLocation != null) {
+                VillageManager.Village village = VillageManager.nearest(centerX, centerZ);
+                if (village != null) {
+                    centerX = village.centerX();
+                    centerZ = village.centerZ();
+                    wanderRadius = Math.min(48.0, Math.max(18.0, village.radius()));
+                } else if (npc.bedLocation != null) {
                     centerX = npc.bedLocation.x;
                     centerZ = npc.bedLocation.z;
-                } else {
-                    VillageManager.Village village =
-                            VillageManager.nearest(centerX, centerZ);
-                    if (village != null) {
-                        centerX = village.centerX();
-                        centerZ = village.centerZ();
-                        /* Roam the whole village rather than a private patch of it, so the homeless
-                        spread out instead of piling onto the centre tile.
-                        */
-                        wanderRadius = village.radius();
-                    }
+                    wanderRadius = 20.0;
                 }
 
                 double angle = Math.random() * Math.PI * 2.0;
-                double radius = 2.0 + Math.random() * (wanderRadius - 2.0);
+                double radius = 3.0 + Math.random() * (wanderRadius - 3.0);
 
                 ai.currentTask = TaskType.WANDERING;
                 ai.wanderTimer = 0; // handler stamps the deadline on first tick
