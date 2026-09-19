@@ -37,6 +37,8 @@ import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCu
 import com.hypixel.hytale.server.core.modules.entity.component.ActiveAnimationComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.BoundingBox;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.ui.Anchor;
+import com.hypixel.hytale.server.core.ui.Value;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
@@ -514,6 +516,13 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         commandBuilder.set("#NpcRelationship.TextSpans", 
             Message.translation("ui.relationship").insert(Message.raw(" ")).insert(relValues));
 
+        int relAffinity = Math.max(0, Math.min(100, rel.affinity));
+        int relBarWidth = Math.max(8, (int) (430.0 * (relAffinity / 100.0)));
+        Anchor relAnchor = new Anchor();
+        relAnchor.setWidth(Value.of(relBarWidth));
+        relAnchor.setHeight(Value.of(6));
+        commandBuilder.setObject("#RelationshipBarFill.Anchor", relAnchor);
+
         // --- Family Info Panel Population ---
         Message parentsMsg;
         if (npcGrowth != null) {
@@ -900,5 +909,18 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                 .param("state", energyState);
         commandBuilder.set("#NpcEnergy.TextSpans", energyText);
         commandBuilder.set("#NpcEnergy.Style.TextColor", energyColor);
+
+        // Visual progress bars
+        int hungerBarWidth = Math.max(8, (int) (430.0 * (Math.max(0, Math.min(100, hunger)) / 100.0)));
+        Anchor hungerAnchor = new Anchor();
+        hungerAnchor.setWidth(Value.of(hungerBarWidth));
+        hungerAnchor.setHeight(Value.of(8));
+        commandBuilder.setObject("#HungerBarFill.Anchor", hungerAnchor);
+
+        int energyBarWidth = Math.max(8, (int) (430.0 * (Math.max(0, Math.min(100, energy)) / 100.0)));
+        Anchor energyAnchor = new Anchor();
+        energyAnchor.setWidth(Value.of(energyBarWidth));
+        energyAnchor.setHeight(Value.of(8));
+        commandBuilder.setObject("#EnergyBarFill.Anchor", energyAnchor);
     }
 }
