@@ -328,11 +328,11 @@ final class DebugCommands {
             a keyword like the old broken Hunter "contains creature" filter did.
             */
             sb.append("\nNearby modelled entities (any type):");
-            store.forEachChunk(PersistentModel.getComponentType(), (chunk, cb) -> {
+            store.forEachChunk(PersistentModel.getComponentType(), (chunk, _) -> {
                 for (int i = 0; i < chunk.size(); i++) {
                     TransformComponent entTc = chunk.getComponent(i, TransformComponent.getComponentType());
                     PersistentModel entPm = chunk.getComponent(i, PersistentModel.getComponentType());
-                    if (entTc == null || entPm == null || entPm.getModelReference() == null) continue;
+                    if (entTc == null || entPm == null) continue;
                     double dist = pos.distance(entTc.getPosition());
                     if (dist > 15.0) continue;
                     sb.append("\n  Entity model='").append(entPm.getModelReference().getModelAssetId())

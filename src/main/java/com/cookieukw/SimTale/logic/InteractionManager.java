@@ -43,7 +43,6 @@ import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
@@ -163,7 +162,7 @@ public class InteractionManager {
             } else if (type == InteractionType.FUNNY) {
                 SimTaleJuiceHelper.playJokeFail(npc.entityRef, npc, store, tick);
             } else if (type == InteractionType.ASSIGN_PROFESSION) {
-                SimTaleJuiceHelper.playProfessionReaction(npc.entityRef, npc, false, false, store, tick);
+                SimTaleJuiceHelper.playProfessionReaction(npc.entityRef, npc, false, false, store);
             }
             return outcome.response();
         }
@@ -174,42 +173,44 @@ public class InteractionManager {
         if (type == InteractionType.ROMANTIC && outcome.affinity() > 0) {
             SimTaleJuiceHelper.playFlirtSuccess(npc.entityRef, npc, playerRef, store, tick);
             EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.LOVE);
-        } else if ((type == InteractionType.MEAN || (type == InteractionType.SCOLD && outcome.friendship() < 0)) && !isChild) {
-            if (playerRef != null && playerRef.getReference() != null && npc.entityRef != null && store != null) {
-                SimTaleJuiceHelper.playShove(npc.entityRef, npc, playerRef.getReference(), playerRef,
-                        store, 2.0f, tick);
+        } else {
+            if ((type == InteractionType.MEAN || (type == InteractionType.SCOLD && outcome.friendship() < 0)) && !isChild) {
+                if (playerRef != null && playerRef.getReference() != null && npc.entityRef != null && store != null) {
+                    SimTaleJuiceHelper.playShove(npc.entityRef, npc, playerRef.getReference(), playerRef,
+                            store, 2.0f, tick);
+                }
+                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.ANGRY);
+            } else if (type == InteractionType.MEAN || (type == InteractionType.SCOLD && outcome.friendship() < 0)) {
+                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.SAD);
+            } else if (type == InteractionType.FUNNY) {
+                if (outcome.affinity() > 0 || outcome.friendship() > 0) {
+                    SimTaleJuiceHelper.playJokeSuccess(npc.entityRef, npc, store, tick);
+                    EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.JOY);
+                } else {
+                    SimTaleJuiceHelper.playJokeFail(npc.entityRef, npc, store, tick);
+                    EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.NERVOUS);
+                }
+            } else if (type == InteractionType.FRIENDLY) {
+                if (npc.entityRef != null && store != null) {
+                    SimTaleJuiceHelper.playGreeting(npc.entityRef, store);
+                }
+                EmoteBubbleSystem.triggerThought(npc.entityId, isChild ? ThoughtType.CHEERFUL : ThoughtType.HAPPY);
+            } else if (type == InteractionType.GIFT) {
+                SimTaleJuiceHelper.playGiftReaction(npc.entityRef, npc, outcome.affinity(), store, tick);
+                if (outcome.affinity() >= 20) {
+                    EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.STAR);
+                } else if (outcome.affinity() < 0) {
+                    EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.SICK);
+                } else {
+                    EmoteBubbleSystem.triggerThought(npc.entityId, isChild ? ThoughtType.CAT_UWU : ThoughtType.HAPPY);
+                }
+            } else if (type == InteractionType.KISS) {
+                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.KISS);
+            } else if (type == InteractionType.ASSIGN_PROFESSION) {
+                boolean liked = npc.preferences != null && npc.preferences.getLikedProfessions().contains(npc.profession);
+                SimTaleJuiceHelper.playProfessionReaction(npc.entityRef, npc, true, liked, store);
+                EmoteBubbleSystem.triggerThought(npc.entityId, liked ? ThoughtType.CHEERFUL : ThoughtType.NERD);
             }
-            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.ANGRY);
-        } else if (type == InteractionType.MEAN || (type == InteractionType.SCOLD && outcome.friendship() < 0)) {
-            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.SAD);
-        } else if (type == InteractionType.FUNNY) {
-            if (outcome.affinity() > 0 || outcome.friendship() > 0) {
-                SimTaleJuiceHelper.playJokeSuccess(npc.entityRef, npc, store, tick);
-                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.JOY);
-            } else {
-                SimTaleJuiceHelper.playJokeFail(npc.entityRef, npc, store, tick);
-                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.NERVOUS);
-            }
-        } else if (type == InteractionType.FRIENDLY) {
-            if (npc.entityRef != null && store != null) {
-                SimTaleJuiceHelper.playGreeting(npc.entityRef, store);
-            }
-            EmoteBubbleSystem.triggerThought(npc.entityId, isChild ? ThoughtType.CHEERFUL : ThoughtType.HAPPY);
-        } else if (type == InteractionType.GIFT) {
-            SimTaleJuiceHelper.playGiftReaction(npc.entityRef, npc, outcome.affinity(), store, tick);
-            if (outcome.affinity() >= 20) {
-                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.STAR);
-            } else if (outcome.affinity() < 0) {
-                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.SICK);
-            } else {
-                EmoteBubbleSystem.triggerThought(npc.entityId, isChild ? ThoughtType.CAT_UWU : ThoughtType.HAPPY);
-            }
-        } else if (type == InteractionType.KISS) {
-            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.KISS);
-        } else if (type == InteractionType.ASSIGN_PROFESSION) {
-            boolean liked = npc.preferences != null && npc.preferences.getLikedProfessions().contains(npc.profession);
-            SimTaleJuiceHelper.playProfessionReaction(npc.entityRef, npc, true, liked, store, tick);
-            EmoteBubbleSystem.triggerThought(npc.entityId, liked ? ThoughtType.CHEERFUL : ThoughtType.NERD);
         }
 
         if (outcome.consumeItem()) {
@@ -513,15 +514,6 @@ public class InteractionManager {
     }
 
     /**
-     * Feeds the NPC directly when it is hungry and the gift is edible.
-     *
-     * <p>Returns null when this is not a meal, so the normal affinity rules take over — a cake
-     * handed to someone who just ate is still a nice present, just not dinner.
-     *
-     * <p>Uses the same {@link NPCFoodHelper} the chest routine uses, so a player cannot feed an NPC
-     * something it would refuse to eat on its own, and the restored amounts match tier for tier.
-     */
-    /**
      * Equips a piece of armour onto the NPC when the held item is one, and opts it into
      * RuneCore's dynamic combat stats so the armour actually mitigates damage -- see
      * {@link NPCArmorHelper}. Returns null when the item is not armour, so the normal gift/food
@@ -652,19 +644,19 @@ public class InteractionManager {
     private record GiftRule(Predicate<GiftContext> condition, Function<GiftContext, InteractionOutcome> outcome) {}
 
     private static final List<GiftRule> GIFT_RULES = List.of(
-        new GiftRule(ctx -> isLoved(ctx), ctx -> giftOutcome(20, 12, 30, "loves", ctx)),
-        new GiftRule(ctx -> isHated(ctx), ctx -> giftOutcome(-20, -15, -25, "hates", ctx)),
+        new GiftRule(InteractionManager::isLoved, ctx -> giftOutcome(20, 12, 30, "loves", ctx)),
+        new GiftRule(InteractionManager::isHated, ctx -> giftOutcome(-20, -15, -25, "hates", ctx)),
         /* Ranked below the explicit favorite/hated lists (those are personal and beat a generic
         interest) but above trash/basic, so a gardener reads seeds as a thoughtful gift
         instead of as filler.
         */
-        new GiftRule(ctx -> isHobbyRelated(ctx), ctx -> giftOutcome(14, 8, 22, "hobby", ctx)),
-        new GiftRule(ctx -> isTrash(ctx), ctx -> giftOutcomeFlat(-15, -10, -20, "trash", ctx)),
+        new GiftRule(InteractionManager::isHobbyRelated, ctx -> giftOutcome(14, 8, 22, "hobby", ctx)),
+        new GiftRule(InteractionManager::isTrash, ctx -> giftOutcomeFlat(-15, -10, -20, "trash", ctx)),
         new GiftRule(ctx -> ctx.npc().personality.traits.contains(Trait.GREEDY),
                      ctx -> giftOutcome(15, 5, 25, "greedy", ctx)),
         new GiftRule(ctx -> ctx.npc().personality.traits.contains(Trait.PARANOID),
                      ctx -> giftOutcomeFlat(-5, -12, -10, "paranoid", ctx)),
-        new GiftRule(ctx -> isBasic(ctx), ctx -> giftOutcome(2, 1, 3, "basic", ctx))
+        new GiftRule(InteractionManager::isBasic, ctx -> giftOutcome(2, 1, 3, "basic", ctx))
     );
 
     private static boolean isLoved(GiftContext ctx) {
@@ -743,8 +735,8 @@ public class InteractionManager {
     }
 
     private static boolean isCloseBond(ProfessionContext ctx) {
-        return ctx.rel().friendship >= 70 || ctx.rel().status == RelationshipStatus.MARRIED
-                || ctx.rel().status == RelationshipStatus.BEST_FRIEND || ctx.rel().status == RelationshipStatus.PARTNER;
+        return ctx.rel().friendship < 70 && ctx.rel().status != RelationshipStatus.MARRIED
+                && ctx.rel().status != RelationshipStatus.BEST_FRIEND && ctx.rel().status != RelationshipStatus.PARTNER;
     }
 
     private static boolean isDangerousWork(Profession prof) {
@@ -758,25 +750,25 @@ public class InteractionManager {
                            ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.dislike", 9, ctx.npc().name).param("profName", ctx.profName()).param("itemName", ctx.itemName()), MemoryEvent.CHATTED)),
         new ProfessionRule(ctx -> ctx.npc().getMood() == Mood.ANGRY && ctx.roll() < 0.6,
                            ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.angry", 9, ctx.npc().name), MemoryEvent.CHATTED)),
-        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.LAZY) && isHeavyWork(ctx.targetProf()) && ctx.roll() < 0.8 && !isCloseBond(ctx),
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.LAZY) && isHeavyWork(ctx.targetProf()) && ctx.roll() < 0.8 && isCloseBond(ctx),
                            ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.lazy", 9, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
-        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.AGGRESSIVE) && isPeacefulWork(ctx.targetProf()) && ctx.roll() < 0.8 && !isCloseBond(ctx),
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.AGGRESSIVE) && isPeacefulWork(ctx.targetProf()) && ctx.roll() < 0.8 && isCloseBond(ctx),
                            ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.aggressive", 9, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
         // Picky / depends on taste: GREEDY refuses non-lucrative work unless liked or close bond
-        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.GREEDY) && !isProfLiked(ctx) && !isCloseBond(ctx) && ctx.targetProf() != Profession.GUARD && ctx.targetProf() != Profession.MINER,
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.GREEDY) && !isProfLiked(ctx) && isCloseBond(ctx) && ctx.targetProf() != Profession.GUARD && ctx.targetProf() != Profession.MINER,
                            ctx -> InteractionOutcome.of(-2, 0, -2, -5, pickRandomTranslation("npc-dialogues.prof.assign.greedy", 3, ctx.npc().name).param("profName", ctx.profName()).param("itemName", ctx.itemName()), MemoryEvent.CHATTED)),
         // Picky / depends on taste: PARANOID refuses dangerous work unless liked or close bond
-        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.PARANOID) && isDangerousWork(ctx.targetProf()) && !isProfLiked(ctx) && !isCloseBond(ctx),
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.PARANOID) && isDangerousWork(ctx.targetProf()) && !isProfLiked(ctx) && isCloseBond(ctx),
                            ctx -> InteractionOutcome.of(-2, 0, -2, -5, pickRandomTranslation("npc-dialogues.prof.assign.paranoid", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
         // Picky / depends on taste: SHY refuses if low trust unless liked or close bond
-        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.SHY) && !isProfLiked(ctx) && ctx.rel().trust < 35 && !isCloseBond(ctx),
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.SHY) && !isProfLiked(ctx) && ctx.rel().trust < 35 && isCloseBond(ctx),
                            ctx -> InteractionOutcome.of(-2, 0, -1, -3, pickRandomTranslation("npc-dialogues.prof.assign.shy", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
         // Picky / depends on taste: general picky traits reject non-liked jobs without a close bond
         new ProfessionRule(ctx -> (ctx.npc().personality.traits.contains(Trait.PARANOID) || ctx.npc().personality.traits.contains(Trait.GREEDY) || ctx.npc().personality.traits.contains(Trait.SHY))
-                                  && !isProfLiked(ctx) && !isCloseBond(ctx) && ctx.roll() < 0.75,
+                                  && !isProfLiked(ctx) && isCloseBond(ctx) && ctx.roll() < 0.75,
                            ctx -> InteractionOutcome.of(-2, 0, 0, -4, pickRandomTranslation("npc-dialogues.prof.assign.picky", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
         // Indifferent: without familiarity/friendship, refuses random assignments
-        new ProfessionRule(ctx -> !isProfLiked(ctx) && !isCloseBond(ctx) && ctx.rel().friendship < 15 && ctx.roll() < 0.6
+        new ProfessionRule(ctx -> !isProfLiked(ctx) && isCloseBond(ctx) && ctx.rel().friendship < 15 && ctx.roll() < 0.6
                                   && !ctx.npc().personality.traits.contains(Trait.LOYAL) && !ctx.npc().personality.traits.contains(Trait.FUNNY),
                            ctx -> InteractionOutcome.of(-1, 0, 0, -2, pickRandomTranslation("npc-dialogues.prof.assign.indifferent_refuse", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED))
     );
@@ -788,7 +780,7 @@ public class InteractionManager {
             .map(r -> r.outcome().apply(ctx));
     }
 
-    public static InteractionOutcome buildProfessionAcceptance(SimNPCComponent npc, Relationship rel, Profession targetProf, Message profName, String itemName, Message prefix, ProfessionContext ctx) {
+    public static InteractionOutcome buildProfessionAcceptance(SimNPCComponent npc, Message profName, String itemName, Message prefix, ProfessionContext ctx) {
         if (isProfLiked(ctx)) {
             Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.liked", 9, npc.name).param("profName", profName).param("itemName", itemName);
             npc.setEmotion(Mood.EXCITED, 0.9f, "dream_job", System.currentTimeMillis());
@@ -876,7 +868,7 @@ public class InteractionManager {
             }
         }
 
-        return buildProfessionAcceptance(npc, rel, targetProf, profName, itemName, prefix, ctx);
+        return buildProfessionAcceptance(npc, profName, itemName, prefix, ctx);
     }
 
     // --- Logic Helpers ---

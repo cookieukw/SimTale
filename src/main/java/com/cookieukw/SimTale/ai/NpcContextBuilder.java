@@ -36,7 +36,7 @@ import java.util.UUID;
 public class NpcContextBuilder {
 
     private static final Pattern LEADING_NAME_TAG =
-            Pattern.compile("^\\s*\\[[^\\]]{0,40}\\]:?\\s*");
+            Pattern.compile("^\\s*\\[[^]]{0,40}]:?\\s*");
 
     /** "Nearby" for AI world-awareness purposes -- same range RoutineAISystem already uses
      *  to look for an available chat partner (SOCIALIZE_SEARCH_RANGE_SQ), so what the NPC
@@ -81,7 +81,7 @@ public class NpcContextBuilder {
         PlayerRef player = Universe.get().getPlayer(playerUuid);
         if (player != null) {
             String playerLanguage = player.getLanguage();
-            if (playerLanguage != null && !playerLanguage.isBlank()) {
+            if (!playerLanguage.isBlank()) {
                 language = playerLanguage;
             }
         }
@@ -272,14 +272,14 @@ public class NpcContextBuilder {
             */
             List<String> nearbyPlayers = new ArrayList<>();
             for (PlayerRef pr : Universe.get().getPlayers()) {
-                if (pr.getUuid() != null && pr.getUuid().equals(playerUuid)) continue; // the one already talking
+                if (pr.getUuid().equals(playerUuid)) continue; // the one already talking
                 Ref<EntityStore> pRef = pr.getReference();
                 if (pRef == null || !pRef.isValid()) continue;
                 TransformComponent pt = pRef.getStore().getComponent(pRef, TransformComponent.getComponentType());
                 if (pt == null) continue;
                 if (pt.getPosition().distanceSquared(npcPos) <= NEARBY_PLAYER_RANGE_SQ) {
                     String otherName = pr.getUsername();
-                    if (otherName != null) nearbyPlayers.add(otherName);
+                    nearbyPlayers.add(otherName);
                 }
             }
             if (!nearbyPlayers.isEmpty()) {

@@ -21,16 +21,13 @@ public class NpcAiManager {
      * Selects the default provider by id. If the id is unknown (e.g. it is set in
      * simtale-ai.json but no API key was supplied, so the provider was never registered),
      * the previously registered default is kept instead of being wiped out.
-     *
-     * @return true if the provider existed and became the default
      */
-    public boolean setDefaultProvider(String id) {
+    public void setDefaultProvider(String id) {
         NpcAiProvider provider = providers.get(id);
         if (provider == null) {
-            return false;
+            return;
         }
         this.defaultProvider = provider;
-        return true;
     }
 
     public AiResponse generate(String providerId, AiRequest request) {
@@ -46,10 +43,6 @@ public class NpcAiManager {
             return AiResponse.fail("No provider registered", null);
         }
         return defaultProvider.generate(request);
-    }
-
-    public CompletableFuture<AiResponse> generateAsync(String providerId, AiRequest request) {
-        return CompletableFuture.supplyAsync(() -> generate(providerId, request));
     }
 
     public CompletableFuture<AiResponse> generateAsync(AiRequest request) {
