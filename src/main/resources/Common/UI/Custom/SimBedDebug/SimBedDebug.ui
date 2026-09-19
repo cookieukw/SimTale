@@ -50,7 +50,7 @@ $T = "../SimTaleTheme.ui";
 
 Group {
   LayoutMode: MiddleCenter;
-  Background: #060911(0.85);
+  Background: #0C0806(0.85);
 
   SceneBlur {}
 
