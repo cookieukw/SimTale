@@ -614,6 +614,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                     || rel.status == RelationshipStatus.ENGAGED
                     || rel.status == RelationshipStatus.MARRIED);
         commandBuilder.set("#KissButton.Visible", canKiss);
+        boolean isPregnant = !isChild && npc.pregnancy != null && npc.pregnancy.pregnant;
+        commandBuilder.set("#ButtonRow3.Visible", !isChild || canKiss);
+        commandBuilder.set("#ButtonRow4.Visible", isMarried || isPregnant);
 
         // --- Button Event Bindings ---
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ChatButton", new EventData().append("button", "ChatButton"), false);
