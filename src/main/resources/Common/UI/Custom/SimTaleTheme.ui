@@ -57,6 +57,12 @@ $Game = "Common.ui";
 @IconGenderMale   = "textures/SimTale_Gender_Male.png";
 @IconGenderFemale = "textures/SimTale_Gender_Female.png";
 
+// Empty state icons
+@IconEmptyChest     = "textures/SimTale_Empty_Chest.png";
+@IconEmptyBed       = "textures/SimTale_Empty_Bed.png";
+@IconEmptyBath      = "textures/SimTale_Empty_Bath.png";
+@IconEmptyGraveyard = "textures/SimTale_Empty_Graveyard.png";
+
 // Fine engraved divider line
 @Separator = Group {
   @Anchor = ();
