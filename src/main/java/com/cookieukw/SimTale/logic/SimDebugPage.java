@@ -231,8 +231,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     private void refreshUI(Ref<EntityStore> storeRef, Store<EntityStore> store) {
-        // Reopen the page to refresh it with updated data
-        player.getPageManager().setPage(storeRef, store, Page.None);
-        player.getPageManager().openCustomPage(storeRef, store, new SimDebugPage(playerRefComp, player, selectedIndex));
+        player.getPageManager().clearCustomPageAcknowledgements();
+        rebuild();
     }
 }
