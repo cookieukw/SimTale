@@ -189,7 +189,7 @@ public final class ChildCarryHelper {
         if (alreadyCarried == 0) {
             ridingHeight = SHOULDER_HEIGHT;
         } else {
-            SimNPCComponent below = existingStack.get(existingStack.size() - 1);
+            SimNPCComponent below = existingStack.getLast();
             float belowTop = offsetHeight(store, below);
             Box belowBox = below.entityId != null ? PARKED_BOXES.get(below.entityId) : null;
             float belowHeight = belowBox != null ? (float) belowBox.height() : STACK_STEP;
@@ -582,7 +582,6 @@ public final class ChildCarryHelper {
 
     /**
      * The child this player is carrying, or null.
-     *
      * <p>Scans the tracked NPCs instead of reading a {@code MountedByComponent} off the carrier,
      * because a player can only be carrying one of ours and the roster is small — and this way
      * there is no second piece of state to keep in sync with the mount.

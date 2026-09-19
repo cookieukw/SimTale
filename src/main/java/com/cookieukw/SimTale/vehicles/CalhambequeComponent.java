@@ -36,11 +36,10 @@ public class CalhambequeComponent implements Component<EntityStore> {
     public float velocityY = 0f;
     public boolean engineRunning = false;
     public long lastHonkTick = 0L;
-    public long lastSoundTick = 0L;
     public String currentAnim = null;
 
     /** Seat position for the driver (left-hand steering) relative to vehicle origin. */
-    public final Vector3f driverSeatOffset = new Vector3f(-0.75f, 1.08f, -1.55f);
+    public final Vector3f driverSeatOffset = new Vector3f(0.1f, 1.08f, -1.0f);
 
     /** Seat position for a passenger (right-hand front bench). */
     public final Vector3f passengerSeatOffset = new Vector3f(0.75f, 1.08f, -1.55f);

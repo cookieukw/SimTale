@@ -102,7 +102,7 @@ public class ChildPlayHelper {
         switch (ai.currentTask) {
             case TAG_CHASING -> handleTagChasing(ref, npc, ai, transform, world, store);
             case TAG_FLEEING -> handleTagFleeing(ref, npc, ai, transform, world, store);
-            case MOVING_TO_HIDE -> handleMovingToHide(ref, npc, ai, transform, world, store);
+            case MOVING_TO_HIDE -> handleMovingToHide(ref, npc, ai, transform, world);
             case HIDING -> handleHiding(ref, ai, world);
             case SEEKING -> handleSeeking(ref, npc, ai, transform, world, store);
             default -> {
@@ -139,7 +139,7 @@ public class ChildPlayHelper {
             partnerAi.currentTask = TaskType.TAG_FLEEING;
             partnerAi.playRoundsLeft = TAG_ROUNDS;
             NPCMovementHelper.playAnim(ref, NPCSocialHelper.walkAnimation(), "Walk", store);
-            announcePlayEvent(npc, transform, world, store, "npc-dialogues.playing.tag_start", 3);
+            announcePlayEvent(npc, transform, store, "npc-dialogues.playing.tag_start", 3);
         } else {
             ai.currentTask = TaskType.SEEKING;
             ai.playRoundsLeft = HIDESEEK_ROUNDS;
@@ -152,7 +152,7 @@ public class ChildPlayHelper {
                 NPCMovementHelper.moveTo(partnerRef, partnerAi, world, target);
                 NPCMovementHelper.playAnim(partnerRef, NPCSocialHelper.walkAnimation(), "Walk", store);
             }
-            announcePlayEvent(npc, transform, world, store, "npc-dialogues.playing.hideseek_start", 2);
+            announcePlayEvent(npc, transform, store, "npc-dialogues.playing.hideseek_start", 2);
         }
 
         ai.taskStartTime = tick;
@@ -199,7 +199,7 @@ public class ChildPlayHelper {
                 EmoteBubbleSystem.triggerThought(partnerNpc.entityId, ThoughtType.SURPRISED);
             }
             if (roundsLeft <= 0) {
-                announcePlayEvent(npc, transform, world, store, "npc-dialogues.playing.tag_end", 2);
+                announcePlayEvent(npc, transform, store, "npc-dialogues.playing.tag_end", 2);
                 endGame(ref, npc, ai, world, true);
                 endGame(partnerRef, partnerNpc, partnerAi, world, true);
             } else {
@@ -210,7 +210,7 @@ public class ChildPlayHelper {
                 ai.taskStartTime = world.getTick();
                 partnerAi.taskStartTime = world.getTick();
                 NPCMovementHelper.playAnim(partnerRef, NPCSocialHelper.walkAnimation(), "Walk", store);
-                announcePlayEvent(npc, transform, world, store, "npc-dialogues.playing.tag_tagged", 2);
+                announcePlayEvent(npc, transform, store, "npc-dialogues.playing.tag_tagged", 2);
             }
             return;
         }
@@ -263,7 +263,7 @@ public class ChildPlayHelper {
     */
 
     private static void handleMovingToHide(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
-            TransformComponent transform, World world, Store<EntityStore> store) {
+            TransformComponent transform, World world) {
         if (ai.playPartnerId == null) {
             endGame(ref, npc, ai, world, false);
             return;
@@ -340,11 +340,11 @@ public class ChildPlayHelper {
 
             int roundsLeft = ai.playRoundsLeft - 1;
             if (roundsLeft <= 0) {
-                announcePlayEvent(npc, transform, world, store, "npc-dialogues.playing.hideseek_end", 2);
+                announcePlayEvent(npc, transform, store, "npc-dialogues.playing.hideseek_end", 2);
                 endGame(ref, npc, ai, world, true);
                 endGame(hiderRef, hiderNpc, hiderAi, world, true);
             } else {
-                announcePlayEvent(npc, transform, world, store, "npc-dialogues.playing.hideseek_found", 2);
+                announcePlayEvent(npc, transform, store, "npc-dialogues.playing.hideseek_found", 2);
                 // Roles rotate: whoever was just found now seeks, whoever found them hides.
                 ai.currentTask = TaskType.MOVING_TO_HIDE;
                 ai.targetBlockPosition = pickHideSpot(transform, hiderT.getPosition());
@@ -413,7 +413,7 @@ public class ChildPlayHelper {
             EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.HAPPY);
         }
 
-        if (partnerId != null && world != null) {
+        if (partnerId != null) {
             Ref<EntityStore> partnerRef = world.getEntityStore().getRefFromUUID(partnerId);
             if (partnerRef != null && partnerRef.isValid()) {
                 Store<EntityStore> store = world.getEntityStore().getStore();
@@ -457,7 +457,7 @@ public class ChildPlayHelper {
      * {@code NPCGuardHelper.announceVictory} already use, just at their own radius.
      */
     private static void announcePlayEvent(SimNPCComponent speaker, TransformComponent speakerTransform,
-            World world, Store<EntityStore> store, String key, int variants) {
+                                          Store<EntityStore> store, String key, int variants) {
         if (speaker == null || speakerTransform == null) return;
         Vector3d pos = speakerTransform.getPosition();
         Message line = Message.raw(speaker.name + ": ").insert(pickRandomTranslation(key, variants));

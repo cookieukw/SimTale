@@ -76,7 +76,7 @@ public final class ConstructionHelper {
 
         clearPreview(world, site);
 
-        site.isClear = !hasObstruction(world, site, prefab);
+        site.isClear = hasObstruction(world, site, prefab);
 
         PrefabGhostHelper.show(world, site, prefab, site.isClear);
     }
@@ -101,7 +101,7 @@ public final class ConstructionHelper {
             return;
         }
 
-        boolean nowClear = !hasObstruction(world, site, prefab);
+        boolean nowClear = hasObstruction(world, site, prefab);
         if (nowClear == site.isClear) return;
 
         site.isClear = nowClear;
@@ -140,7 +140,7 @@ public final class ConstructionHelper {
      * predict where the walls would end up before committing. Anchoring the local origin instead
      * means the same corner of the house is always the block you placed.
      */
-    public static OffsetMapper mapperFor(Prefab prefab, Rotation4 facing) {
+    public static OffsetMapper mapperFor(Rotation4 facing) {
         return new OffsetMapper(facing);
     }
 
@@ -185,7 +185,7 @@ public final class ConstructionHelper {
 
     private static boolean hasObstruction(World world, ConstructionSiteComponent site, Prefab prefab) {
         BoxSize size = computeBoxSize(prefab);
-        OffsetMapper mapper = mapperFor(prefab, site.facing);
+        OffsetMapper mapper = mapperFor(site.facing);
 
         for (int lx = 0; lx < size.sizeX(); lx++) {
             for (int ly = 0; ly < size.sizeY(); ly++) {
@@ -201,12 +201,12 @@ public final class ConstructionHelper {
                     */
                     if (wx == site.anchor.x && wy == site.anchor.y && wz == site.anchor.z) continue;
                     if (isOccupied(world, wx, wy, wz)) {
-                        return true;
+                        return false;
                     }
                 }
             }
         }
-        return false;
+        return true;
     }
 
     private static boolean isOccupied(World world, int x, int y, int z) {

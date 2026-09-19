@@ -10,9 +10,6 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
-import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.server.core.universe.Universe;
-import com.hypixel.hytale.server.core.universe.world.PlaceBlockSettings;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
@@ -20,7 +17,6 @@ import org.joml.Vector3d;
 import org.joml.Vector3i;
 import javax.annotation.Nonnull;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.WorldUtil;
@@ -119,7 +115,7 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
             }
 
             ConstructionHelper.OffsetMapper mapper =
-                    ConstructionHelper.mapperFor(prefab, site.facing);
+                    ConstructionHelper.mapperFor(site.facing);
 
             // Build multiple blocks per tick if we want to speed it up, or just 1
             int blocksToBuild = site.forceBuild ? (10 * GLOBAL_SPEED) : (GLOBAL_SPEED);

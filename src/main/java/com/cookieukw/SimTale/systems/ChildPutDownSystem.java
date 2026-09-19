@@ -64,7 +64,7 @@ public class ChildPutDownSystem extends EntityEventSystem<EntityStore, UseBlockE
         if (player == null) return;
 
         Ref<EntityStore> playerRef = chunk.getReferenceTo(index);
-        if (playerRef == null || !playerRef.isValid()) return;
+        if (!playerRef.isValid()) return;
 
         /* Crouch first: it is the cheap half, and it is rare enough that gating the log on it costs
         nothing while still telling us which half failed if this ever goes quiet again.
