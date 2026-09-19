@@ -24,6 +24,7 @@ public final class ProximityConfigTests {
         Assert.equal(cfg.proximityPlayerCooldownSeconds, 15, "proximityPlayerCooldownSeconds default should be 15");
         Assert.floatEqual((float) cfg.proximityRadius, 4.5f, "proximityRadius default should be 4.5");
         Assert.isFalse(cfg.debugMode, "debugMode default should be false");
+        Assert.isFalse(cfg.seasonalCostumesEnabled, "seasonalCostumesEnabled default should be false");
     }
 
     private static void testConfigPersistence() {
@@ -32,6 +33,7 @@ public final class ProximityConfigTests {
         try {
             SimTaleConfig custom = new SimTaleConfig();
             custom.debugMode = true;
+            custom.seasonalCostumesEnabled = true;
             custom.proximityEnabled = false;
             custom.proximityChatEnabled = false;
             custom.proximityNpcCooldownSeconds = 120;
@@ -41,6 +43,7 @@ public final class ProximityConfigTests {
             SimTaleConfigManager.setConfig(custom);
             Assert.equal(SimTaleConfigManager.getConfig(), custom, "setConfig should update active config");
             Assert.isTrue(SimTaleConfigManager.getConfig().debugMode, "debugMode should be true");
+            Assert.isTrue(SimTaleConfigManager.getConfig().seasonalCostumesEnabled, "seasonalCostumesEnabled should be true");
             Assert.isTrue(com.cookieukw.SimTale.core.SimLog.isDebug(), "SimLog.isDebug should be true");
             Assert.isFalse(SimTaleConfigManager.getConfig().proximityEnabled, "proximityEnabled should be false");
             Assert.isFalse(SimTaleConfigManager.getConfig().proximityChatEnabled, "proximityChatEnabled should be false");
@@ -53,6 +56,7 @@ public final class ProximityConfigTests {
 
             SimTaleConfig loaded = SimTaleConfigManager.getConfig();
             Assert.isTrue(loaded.debugMode, "loaded debugMode should match saved");
+            Assert.isTrue(loaded.seasonalCostumesEnabled, "loaded seasonalCostumesEnabled should match saved");
             Assert.isFalse(loaded.proximityEnabled, "loaded proximityEnabled should match saved");
             Assert.isFalse(loaded.proximityChatEnabled, "loaded proximityChatEnabled should match saved");
             Assert.equal(loaded.proximityNpcCooldownSeconds, 120, "loaded proximityNpcCooldownSeconds should match saved");
