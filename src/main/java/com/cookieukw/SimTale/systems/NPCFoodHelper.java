@@ -38,7 +38,6 @@ public final class NPCFoodHelper {
         if (stack == null || stack.isEmpty()) return NOT_FOOD;
 
         Item item = stack.getItem();
-        if (item == null) return NOT_FOOD;
 
         String consume = consumeInteraction(item);
         if (consume == null) {

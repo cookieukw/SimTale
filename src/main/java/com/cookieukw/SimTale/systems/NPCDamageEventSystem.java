@@ -63,7 +63,7 @@ public class NPCDamageEventSystem extends DamageEventSystem {
         }
 
         Ref<EntityStore> attackerRef = entitySource.getRef();
-        if (attackerRef == null || !attackerRef.isValid()) {
+        if (!attackerRef.isValid()) {
             return;
         }
 
@@ -79,7 +79,7 @@ public class NPCDamageEventSystem extends DamageEventSystem {
         }
 
         World world = store.getExternalData().getWorld();
-        long currentTick = world != null ? world.getTick() : System.currentTimeMillis();
+        long currentTick = world.getTick();
 
         // Victim records memory of being attacked
         victimNpc.memory.addMemory(MemoryEvent.ATTACKED, playerUuid, false, null);

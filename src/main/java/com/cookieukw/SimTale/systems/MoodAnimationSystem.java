@@ -38,25 +38,18 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
 
     private static String selectExpression(Mood mood, float intensity, int seed) {
         if (mood == null) return null;
-        switch (mood) {
-            case HAPPY:
-                return HAPPY_EXPRESSIONS[Math.abs(seed) % HAPPY_EXPRESSIONS.length];
-            case EXCITED:
-                return EXCITED_EXPRESSIONS[Math.abs(seed) % EXCITED_EXPRESSIONS.length];
-            case ANGRY:
-                if (intensity >= 0.7f) return "Rage";
-                return ANGRY_EXPRESSIONS[Math.abs(seed) % ANGRY_EXPRESSIONS.length];
-            case SAD:
-            case SLEEPY:
-                return "Frown";
-            case SCARED:
-                return "Surprised";
-            case BORED:
-                return BORED_EXPRESSIONS[Math.abs(seed) % BORED_EXPRESSIONS.length];
-            case NEUTRAL:
-            default:
-                return null;
-        }
+        return switch (mood) {
+            case HAPPY -> HAPPY_EXPRESSIONS[Math.abs(seed) % HAPPY_EXPRESSIONS.length];
+            case EXCITED -> EXCITED_EXPRESSIONS[Math.abs(seed) % EXCITED_EXPRESSIONS.length];
+            case ANGRY -> {
+                if (intensity >= 0.7f) yield "Rage";
+                yield ANGRY_EXPRESSIONS[Math.abs(seed) % ANGRY_EXPRESSIONS.length];
+            }
+            case SAD, SLEEPY -> "Frown";
+            case SCARED -> "Surprised";
+            case BORED -> BORED_EXPRESSIONS[Math.abs(seed) % BORED_EXPRESSIONS.length];
+            default -> null;
+        };
     }
 
     @Override

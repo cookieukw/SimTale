@@ -2,12 +2,10 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
-import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.logic.InteractionManager;
-import com.hypixel.hytale.builtin.mounts.BlockMountAPI;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -57,7 +55,7 @@ public final class NPCSeatingHelper {
         } else if (ai.currentTask == TaskType.MOVING_TO_CHAIR) {
             handleMovingToChair(ref, npc, ai, transform, world, store, commandBuffer);
         } else if (ai.currentTask == TaskType.SITTING) {
-            handleSitting(ref, npc, ai, transform, world, store, commandBuffer);
+            handleSitting(ref, npc, ai, world, store, commandBuffer);
         }
     }
 
@@ -96,10 +94,11 @@ public final class NPCSeatingHelper {
 
         Vector3i chair = ChairRegistry.findNearestUnoccupied(pos.x, pos.y, pos.z, CHAIR_SEARCH_RADIUS);
 
-        if (chair != null && ChairRegistry.claimChair(chair, npc.entityId)) {
+        if (ChairRegistry.claimChair(chair, npc.entityId)) {
             ai.targetChairPos = new Vector3i(chair);
             ai.targetBlockPosition = new Vector3i(chair);
             ai.currentTask = TaskType.MOVING_TO_CHAIR;
+            assert world != null;
             ai.taskStartTime = world.getTick();
 
             Vector3i standPos = NPCMovementHelper.findStandableBeside(chair, transform, world);
@@ -112,6 +111,7 @@ public final class NPCSeatingHelper {
             LOGGER.debug("[SimTale] NPC '{}' claimed chair at ({},{},{}) and is moving to it",
                     npc.name, chair.x, chair.y, chair.z);
         } else {
+            assert world != null;
             ai.nextChairSearchTick = world.getTick() + CHAIR_SEARCH_COOLDOWN_TICKS;
             ai.currentTask = TaskType.IDLE;
         }
@@ -174,7 +174,6 @@ public final class NPCSeatingHelper {
             Ref<EntityStore> ref,
             SimNPCComponent npc,
             RoutineAIComponent ai,
-            TransformComponent transform,
             World world,
             Store<EntityStore> store,
             CommandBuffer<EntityStore> commandBuffer

@@ -132,7 +132,7 @@ public class NPCGuardHelper {
             everyone else's. It also gives the village a visible garrison, which is most of the
             point of having guards at all.
             */
-            patrolPerimeter(ref, npc, ai, transform, world, store);
+            patrolPerimeter(ref, ai, transform, store);
             return;
         }
 
@@ -207,7 +207,7 @@ public class NPCGuardHelper {
             if (world.getTick() - ai.taskStartTime >= ATTACK_DURATION_TICKS) {
                 LOGGER.debug("[SimTale] Guard {} derrotou um hostil ({})", npc.name, ai.workTargetEntityId);
                 commandBuffer.removeEntity(hostileRef, RemoveReason.REMOVE);
-                announceVictory(npc, transform, world, store);
+                announceVictory(npc, transform, store);
                 ai.workTargetEntityId = null;
                 ai.currentTask = TaskType.IDLE;
                 ai.taskStartTime = world.getTick();
@@ -235,7 +235,7 @@ public class NPCGuardHelper {
      * registry, nothing persisted, nothing shared with {@link #hostiles} (that cache is scoped to
      * a different keyword set and this is a one-off lookup, not a per-tick sweep).
      */
-    private static void announceVictory(SimNPCComponent npc, TransformComponent transform, World world, Store<EntityStore> store) {
+    private static void announceVictory(SimNPCComponent npc, TransformComponent transform, Store<EntityStore> store) {
         Vector3d pos = transform.getPosition();
 
         SimNPCComponent witness = null;
@@ -257,8 +257,8 @@ public class NPCGuardHelper {
         }
 
         Message line = witness != null
-                ? Message.raw(witness.name + ": ").insert(pickRandomTranslation("npc-dialogues.world_event.guard_victory_witness", 3))
-                : Message.raw(npc.name + ": ").insert(pickRandomTranslation("npc-dialogues.world_event.guard_victory", 3));
+                ? Message.raw(witness.name + ": ").insert(pickRandomTranslation("npc-dialogues.world_event.guard_victory_witness"))
+                : Message.raw(npc.name + ": ").insert(pickRandomTranslation("npc-dialogues.world_event.guard_victory"));
 
         for (PlayerRef pr : Universe.get().getPlayers()) {
             Ref<EntityStore> pRef = pr.getReference();
@@ -277,8 +277,8 @@ public class NPCGuardHelper {
     /** Local copy of the same pick-a-numbered-variant idiom {@code InteractionManager} and
      *  {@code RoutineAISystem} each already keep privately, rather than a third class depending
      *  on either one's private method. */
-    private static Message pickRandomTranslation(String baseKey, int optionsCount) {
-        int index = ThreadLocalRandom.current().nextInt(1, optionsCount + 1);
+    private static Message pickRandomTranslation(String baseKey) {
+        int index = ThreadLocalRandom.current().nextInt(1, 3 + 1);
         return Message.translation(baseKey + "." + index);
     }
 
@@ -363,8 +363,8 @@ public class NPCGuardHelper {
      * <p>A guard with no village stays put. Wandering off to guard nothing is what the old
      * behaviour effectively did.
      */
-    private static void patrolPerimeter(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
-            TransformComponent transform, World world, Store<EntityStore> store) {
+    private static void patrolPerimeter(Ref<EntityStore> ref, RoutineAIComponent ai,
+                                        TransformComponent transform, Store<EntityStore> store) {
 
         Vector3d pos = transform.getPosition();
         VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
@@ -429,11 +429,10 @@ public class NPCGuardHelper {
         }
 
         List<Hostile> found = new ArrayList<>();
-        store.forEachChunk(PersistentModel.getComponentType(), (chunk, cb) -> {
+        store.forEachChunk(PersistentModel.getComponentType(), (chunk, _) -> {
             for (int i = 0; i < chunk.size(); i++) {
                 PersistentModel pm = chunk.getComponent(i, PersistentModel.getComponentType());
-                if (pm == null || pm.getModelReference() == null
-                        || !isHostileModelId(pm.getModelReference().getModelAssetId())) {
+                if (pm == null || !isHostileModelId(pm.getModelReference().getModelAssetId())) {
                     continue;
                 }
                 TransformComponent t = chunk.getComponent(i, TransformComponent.getComponentType());

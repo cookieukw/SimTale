@@ -36,22 +36,20 @@ public final class InspectorJournalHelper {
      * nothing else, so there is no target entity to read. Same constraint the House Blueprint ran
      * into, and the same mitigation — a tight radius, so in practice "nearest" is whoever you are
      * standing in front of.
-     *
-     * @return true when the click was consumed
      */
-    public static boolean inspect(World world, PlayerRef playerRef, Vector3d playerPos) {
-        if (world == null || playerRef == null || playerPos == null) return false;
+    public static void inspect(World world, PlayerRef playerRef, Vector3d playerPos) {
+        if (world == null || playerRef == null || playerPos == null) return;
 
         SimNPCComponent npc = nearestNpc(playerPos);
         if (npc == null) {
             playerRef.sendMessage(Message.translation("general.journal.no_target"));
-            return true;
+            return;
         }
 
         Ref<EntityStore> target = npc.entityRef;
         if (target == null || !target.isValid()) {
             playerRef.sendMessage(Message.translation("general.journal.no_target"));
-            return true;
+            return;
         }
         Store<EntityStore> store = target.getStore();
 
@@ -90,7 +88,6 @@ public final class InspectorJournalHelper {
             playerRef.sendMessage(Message.translation("general.journal.homeless"));
         }
 
-        return true;
     }
 
     /**

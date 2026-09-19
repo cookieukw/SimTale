@@ -211,12 +211,14 @@ public class NPCHungerHelper {
                 if (chosen != null) {
                     ItemContainerBlock cb = BlockModule.getComponent(
                             ItemContainerBlock.getComponentType(), world, chestPos.x, chestPos.y, chestPos.z);
+                    assert cb != null;
                     ItemStack item = cb.getItemContainer().getItemStack(chosen.slot());
 
                     ai.eatingTier = NPCFoodHelper.tierOf(item);
                     ai.eatingWasHated = NPCFoodHelper.isHated(item, npc.preferences);
                     ai.eatingWasFavorite = NPCFoodHelper.isFavorite(item, npc.preferences);
 
+                    assert item != null;
                     LOGGER.debug("[COMIDA] {} pegou {} (tier {}, score {}) no bau {}",
                             npc.name, item.getItemId(), ai.eatingTier, chosen.score(), chestPos);
 

@@ -209,16 +209,12 @@ public final class NPCDoorHelper {
                     : DoorState.OPENED_IN;
 
             String interactionState = DoorBlockUtils.getInteractionState(current, target);
-            if (interactionState == null) {
-                OPENED_DOORS.remove(doorKey, AUTO_CLOSE_TICKS);
-                return;
-            }
 
             // If primary direction is obstructed (e.g. wall/furniture), try opposite
             if (!DoorBlockUtils.canOpenDoor(world.getChunkStore(), anchorPos, interactionState)) {
                 target = DoorBlockUtils.getOppositeDoorState(target);
                 interactionState = DoorBlockUtils.getInteractionState(current, target);
-                if (interactionState == null || !DoorBlockUtils.canOpenDoor(world.getChunkStore(), anchorPos, interactionState)) {
+                if (!DoorBlockUtils.canOpenDoor(world.getChunkStore(), anchorPos, interactionState)) {
                     /* Blocked on both sides: release the claim, or the door would stay "reserved"
                     for two full seconds without ever actually opening, locking every other NPC
                     out of even trying.
@@ -329,10 +325,8 @@ public final class NPCDoorHelper {
             if (current == DoorState.CLOSED) return;
 
             String interactionState = DoorBlockUtils.getInteractionState(current, DoorState.CLOSED);
-            if (interactionState != null) {
-                world.setBlockInteractionState(door.getBlockPosition(), door.getBlockType(), interactionState);
-                LOGGER.debug("[PORTA] fechou porta em ({},{},{})", pos.x, pos.y, pos.z);
-            }
+            world.setBlockInteractionState(door.getBlockPosition(), door.getBlockType(), interactionState);
+            LOGGER.debug("[PORTA] fechou porta em ({},{},{})", pos.x, pos.y, pos.z);
         } catch (Exception e) {
             LOGGER.debug("[PORTA] falha ao fechar porta em ({},{},{}): {}", pos.x, pos.y, pos.z, e.toString());
         }

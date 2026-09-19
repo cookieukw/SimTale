@@ -39,7 +39,7 @@ public class NPCArmorHelper {
     public static int armorSlotFor(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return -1;
         Item item = stack.getItem();
-        ItemArmor armor = item != null ? item.getArmor() : null;
+        ItemArmor armor = item.getArmor();
         return armor != null ? armor.getArmorSlot().getValue() : -1;
     }
 

@@ -89,9 +89,7 @@ public class NPCMovementHelper {
             if (npcEntity != null) {
                 npcEntity.setLeashPoint(new Vector3d(effectiveTarget.x, effectiveTarget.y, effectiveTarget.z));
                 StateSupport stateSupport = StateSupport.get(ref, ref.getStore());
-                if (stateSupport != null) {
-                    stateSupport.setState(ref, STATE_MOVING, null, ref.getStore());
-                }
+                stateSupport.setState(ref, STATE_MOVING, null, ref.getStore());
             }
         }
     }
@@ -136,9 +134,7 @@ public class NPCMovementHelper {
                 npcEntity.setLeashPoint(new Vector3d(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z));
             }
             StateSupport stateSupport = StateSupport.get(npcRef, npcRef.getStore());
-            if (stateSupport != null) {
-                stateSupport.setState(npcRef, "Idle", null, npcRef.getStore());
-            }
+            stateSupport.setState(npcRef, "Idle", null, npcRef.getStore());
         }
     }
 
@@ -372,9 +368,9 @@ public class NPCMovementHelper {
     }
 
     private static boolean isAir(BlockType type) {
-        if (type == null || type.getId() == null) return true;
+        if (type == null || type.getId() == null) return false;
         String id = type.getId();
-        return id.equalsIgnoreCase("Empty") || id.equalsIgnoreCase("Air");
+        return !id.equalsIgnoreCase("Empty") && !id.equalsIgnoreCase("Air");
     }
 
     private static boolean isPassableFloorDecor(BlockType type) {
@@ -386,16 +382,16 @@ public class NPCMovementHelper {
 
     public static boolean isStandable(Vector3i pos, World world) {
         BlockType atPos = getBlockTypeSafe(world, pos.x, pos.y, pos.z);
-        if (!isAir(atPos) && !isPassableFloorDecor(atPos)) {
+        if (isAir(atPos) && !isPassableFloorDecor(atPos)) {
             return false;
         }
 
         BlockType above = getBlockTypeSafe(world, pos.x, pos.y + 1, pos.z);
-        if (!isAir(above)) {
+        if (isAir(above)) {
             return false;
         }
 
         BlockType below = getBlockTypeSafe(world, pos.x, pos.y - 1, pos.z);
-        return !isAir(below);
+        return isAir(below);
     }
 }
