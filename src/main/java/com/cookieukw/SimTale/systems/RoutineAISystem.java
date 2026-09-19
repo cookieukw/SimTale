@@ -1230,7 +1230,7 @@ once per NPC per tick for nothing.
             double dx = myPos.x - otherPos.x;
             double dz = myPos.z - otherPos.z;
             double distSq = dx * dx + dz * dz;
-            if (distSq < 0.7 * 0.7) {
+            if (distSq < 1.15 * 1.15) {
                 double dist = Math.sqrt(distSq);
                 if (dist < 0.001) {
                     int hash = npc.entityId.hashCode();
@@ -1238,7 +1238,7 @@ once per NPC per tick for nothing.
                     pushX += Math.cos(angle) * 0.25;
                     pushZ += Math.sin(angle) * 0.25;
                 } else {
-                    double strength = (0.7 - dist) * 0.2;
+                    double strength = (1.15 - dist) * 0.15;
                     pushX += (dx / dist) * strength;
                     pushZ += (dz / dist) * strength;
                 }
