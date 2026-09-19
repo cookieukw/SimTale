@@ -136,7 +136,7 @@ public final class FishingPostRegistry {
             for (int dz = -WATER_SEARCH_XZ; dz <= WATER_SEARCH_XZ; dz++) {
                 for (int dy = -WATER_SEARCH_Y; dy <= WATER_SEARCH_Y; dy++) {
                     int x = cx + dx, y = cy + dy, z = cz + dz;
-                    if (isWater(world.getBlockType(x, y, z))) {
+                    if (isWater(NPCMovementHelper.getBlockTypeSafe(world, x, y, z))) {
                         int distSq = dx * dx + dy * dy + dz * dz;
                         if (distSq < closestDistSq) {
                             closestDistSq = distSq;

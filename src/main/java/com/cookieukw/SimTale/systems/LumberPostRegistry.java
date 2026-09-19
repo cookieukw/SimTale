@@ -133,7 +133,7 @@ public final class LumberPostRegistry {
             for (int dz = -TREE_SEARCH_XZ; dz <= TREE_SEARCH_XZ; dz++) {
                 for (int dy = -TREE_SEARCH_Y; dy <= TREE_SEARCH_Y; dy++) {
                     int x = cx + dx, y = cy + dy, z = cz + dz;
-                    if (isTreeTrunk(world.getBlockType(x, y, z))) {
+                    if (isTreeTrunk(NPCMovementHelper.getBlockTypeSafe(world, x, y, z))) {
                         int distSq = dx * dx + dy * dy + dz * dz;
                         if (distSq < closestDistSq) {
                             closestDistSq = distSq;

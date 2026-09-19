@@ -210,7 +210,7 @@ public final class ConstructionHelper {
     }
 
     private static boolean isOccupied(World world, int x, int y, int z) {
-        return isOccupied(world.getBlockType(x, y, z));
+        return isOccupied(NPCMovementHelper.getBlockTypeSafe(world, x, y, z));
     }
 
     /**

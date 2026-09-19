@@ -95,10 +95,10 @@ public final class FurnitureAnchorHelper {
     private static boolean looksLikeAnchor(World world, Vector3i pos, int origemX, int origemY, int origemZ) {
         if (pos.x == origemX && pos.y == origemY && pos.z == origemZ) return false;
 
-        BlockType tipo = world.getBlockType(pos.x, pos.y, pos.z);
+        BlockType tipo = NPCMovementHelper.getBlockTypeSafe(world, pos.x, pos.y, pos.z);
         if (tipo == null || tipo.getId() == null) return false;
 
-        BlockType origem = world.getBlockType(origemX, origemY, origemZ);
+        BlockType origem = NPCMovementHelper.getBlockTypeSafe(world, origemX, origemY, origemZ);
         if (origem == null || origem.getId() == null) return false;
 
         /* Same id: blocks of a furniture piece share the same type. This avoids accepting an

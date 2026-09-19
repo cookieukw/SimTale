@@ -318,7 +318,7 @@ public class HouseManager {
             for (HouseBlockPos neighbor : get6Neighbors(current)) {
                 if (visited.contains(neighbor)) continue;
 
-                BlockType type = world.getBlockType(neighbor.x, neighbor.y, neighbor.z);
+                BlockType type = NPCMovementHelper.getBlockTypeSafe(world, neighbor.x, neighbor.y, neighbor.z);
 
                 /* A null type means "not loaded", not "air". isSolid() reported false for it,
                 so the fill poured out through unloaded chunks until it hit the 512-block cap
@@ -332,7 +332,7 @@ public class HouseManager {
 
                 if (isDoor(type)) {
                     // Only register the bottom block of the door as the door coordinate to avoid double counting
-                    BlockType below = world.getBlockType(neighbor.x, neighbor.y - 1, neighbor.z);
+                    BlockType below = NPCMovementHelper.getBlockTypeSafe(world, neighbor.x, neighbor.y - 1, neighbor.z);
                     if (!isDoor(below)) {
                         doors.add(neighbor);
                     }
@@ -608,7 +608,7 @@ public class HouseManager {
         Map<FurnitureRequirement, Integer> counts = new EnumMap<>(FurnitureRequirement.class);
 
         for (HouseBlockPos pos : interiorBlocks) {
-            BlockType type = world.getBlockType(pos.x, pos.y, pos.z);
+            BlockType type = NPCMovementHelper.getBlockTypeSafe(world, pos.x, pos.y, pos.z);
             if (type == null || type.getId() == null) continue;
 
             FurnitureRequirement.classify(type.getId().toLowerCase())
