@@ -186,8 +186,8 @@ public final class NPCSeatingHelper {
         }
 
         // Verify chair still exists in the world
-        BlockType currentBlock = world.getBlockType(ai.targetChairPos.x, ai.targetChairPos.y, ai.targetChairPos.z);
-        if (currentBlock == null || !ChairRegistry.isChair(currentBlock.getId())) {
+        BlockType currentBlock = NPCMovementHelper.getBlockTypeSafe(world, ai.targetChairPos);
+        if (currentBlock != null && !ChairRegistry.isChair(currentBlock.getId())) {
             exitSitting(ref, store, commandBuffer, npc, ai);
             ai.currentTask = TaskType.IDLE;
             return;
