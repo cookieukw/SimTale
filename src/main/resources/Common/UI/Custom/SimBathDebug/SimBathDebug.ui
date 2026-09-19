@@ -68,6 +68,34 @@ Group {
 
     $T.@Separator { @Anchor = (Bottom: 12); }
 
+    Group #EmptyContainer {
+      FlexWeight: 1;
+      LayoutMode: MiddleCenter;
+      Visible: false;
+
+      Group {
+        LayoutMode: MiddleCenter;
+        Anchor: (Width: 440);
+
+        Group #EmptyIcon {
+          Anchor: (Width: 64, Height: 64, Bottom: 16);
+          Background: $T.@IconEmptyBath;
+        }
+
+        Label #EmptyTitle {
+          Text: %ui.debugbaths.emptyTitle;
+          Anchor: (Height: 28, Bottom: 6);
+          Style: (...$T.@TitleStyle, FontSize: 20, TextColor: $T.@TextBlue, HorizontalAlignment: Center);
+        }
+
+        Label #EmptySubtitle {
+          Text: %ui.debugbaths.emptySubtitle;
+          Anchor: (Height: 24);
+          Style: (...$T.@CaptionStyle, FontSize: 14, TextColor: $T.@TextMuted, HorizontalAlignment: Center, Wrap: true);
+        }
+      }
+    }
+
     Group #ListContainer {
       FlexWeight: 1;
       LayoutMode: Top;

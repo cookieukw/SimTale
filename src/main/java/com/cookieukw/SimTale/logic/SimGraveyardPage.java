@@ -65,6 +65,8 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
         if (pageIndex >= totalPages) pageIndex = totalPages - 1;
 
         cmd.set("#EmptyNotice.Visible", buried.isEmpty());
+        cmd.set("#EmptyContainer.Visible", buried.isEmpty());
+        cmd.set("#ListContainer.Visible", !buried.isEmpty());
 
         for (int i = 0; i < ROWS_PER_PAGE; i++) {
             int recordIndex = pageIndex * ROWS_PER_PAGE + i;

@@ -148,6 +148,8 @@ public class SimBathDebugPage extends InteractiveCustomUIPage<String> {
         if (selectedIndex >= totalPages) selectedIndex = totalPages - 1;
 
         cmd.set("#Title.TextSpans", Message.translation("ui.debugbaths.title"));
+        cmd.set("#EmptyContainer.Visible", baths.isEmpty());
+        cmd.set("#ListContainer.Visible", !baths.isEmpty());
 
         for (int i = 0; i < ROWS_PER_PAGE; i++) {
             int bathIndex = selectedIndex * ROWS_PER_PAGE + i;

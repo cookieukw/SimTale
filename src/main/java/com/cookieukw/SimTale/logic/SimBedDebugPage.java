@@ -144,6 +144,8 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
         if (selectedIndex >= totalPages) selectedIndex = totalPages - 1;
 
         cmd.set("#Title.TextSpans", Message.translation("ui.debugbeds.title"));
+        cmd.set("#EmptyContainer.Visible", beds.isEmpty());
+        cmd.set("#ListContainer.Visible", !beds.isEmpty());
 
         // Render 5 items for the current page
         for (int i = 0; i < 5; i++) {

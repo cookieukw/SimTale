@@ -63,13 +63,32 @@ Group {
 
     $T.@Separator { @Anchor = (Bottom: 12); }
 
-    // Shown on its own when there is nobody buried; the page hides the rows in that case, and a
-    // panel with five blank cards would otherwise read as a loading failure.
-    Label #EmptyNotice {
-      Text: %ui.graveyard.empty;
-      Anchor: (Height: 28, Bottom: 8);
-      Style: (...$T.@BodyStyle, FontSize: 14, TextColor: $T.@TextMuted, HorizontalAlignment: Center);
+    Group #EmptyContainer {
+      FlexWeight: 1;
+      LayoutMode: MiddleCenter;
       Visible: false;
+
+      Group {
+        LayoutMode: MiddleCenter;
+        Anchor: (Width: 440);
+
+        Group #EmptyIcon {
+          Anchor: (Width: 64, Height: 64, Bottom: 16);
+          Background: $T.@IconEmptyGraveyard;
+        }
+
+        Label #EmptyTitle {
+          Text: %ui.graveyard.emptyTitle;
+          Anchor: (Height: 28, Bottom: 6);
+          Style: (...$T.@TitleStyle, FontSize: 20, TextColor: $T.@TextBlue, HorizontalAlignment: Center);
+        }
+
+        Label #EmptyNotice {
+          Text: %ui.graveyard.emptySubtitle;
+          Anchor: (Height: 24);
+          Style: (...$T.@CaptionStyle, FontSize: 14, TextColor: $T.@TextMuted, HorizontalAlignment: Center, Wrap: true);
+        }
+      }
     }
 
     Group #ListContainer {

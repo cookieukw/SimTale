@@ -268,6 +268,8 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
         if (selectedIndex >= totalPages) selectedIndex = totalPages - 1;
 
         cmd.set("#Title.TextSpans", Message.translation("ui.debugchests.title"));
+        cmd.set("#EmptyContainer.Visible", chests.isEmpty());
+        cmd.set("#ListContainer.Visible", !chests.isEmpty());
 
         for (int i = 0; i < ROWS_PER_PAGE; i++) {
             int chestIndex = selectedIndex * ROWS_PER_PAGE + i;
