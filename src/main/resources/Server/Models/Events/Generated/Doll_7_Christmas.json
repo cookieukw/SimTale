@@ -1,0 +1,11 @@
+{
+  "Parent": "Doll_7",
+  "DefaultAttachments": [
+    {
+      "Model": "Cosmetics/Head/SantaHat.blockymodel",
+      "Texture": "Cosmetics/Head/SantaHat_Texture/SantaHat_Greyscale_Texture.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Red"
+    }
+  ]
+}

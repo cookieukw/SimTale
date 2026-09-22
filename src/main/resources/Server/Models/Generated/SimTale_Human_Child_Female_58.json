@@ -1,0 +1,61 @@
+{
+  "Parent": "SimTale_Human_Child",
+  "Model": "NPC/Player_Child/Player_With_Face_Child.blockymodel",
+  "EyeHeight": 1.1,
+  "GradientSet": "Skin",
+  "GradientId": "04",
+  "DefaultAttachments": [
+    {
+      "Model": "NPC/Player_Child/Cosmetics/Haircuts/AfroPuffs_Child.blockymodel",
+      "Texture": "Characters/Haircuts/AfroPuffs_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "Brown"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Faces/Player_Face_Detached.blockymodel",
+      "Texture": "Characters/Body_Attachments/Faces/Faces_Detached_Textures/MakeUp_Face.png",
+      "GradientSet": "Skin",
+      "GradientId": "04"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Eyes/Eyes.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png",
+      "GradientSet": "Eyes_Gradient",
+      "GradientId": "Pink"
+    },
+    {
+      "Model": "NPC/Player_Child/Cosmetics/Pants/Shorty_Slim_Child.blockymodel",
+      "Texture": "Cosmetics/Pants/Shorty_Slim_Textures/Zombie_Brown.png"
+    },
+    {
+      "Model": "NPC/Player_Child/Cosmetics/Undertops/LongSleeveShirt_Child.blockymodel",
+      "Texture": "Cosmetics/Undertops/LongSleeveShirt_Textures/Peasant_Long_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Red"
+    },
+    {
+      "Model": "NPC/Player_Child/Cosmetics/Shoes/Trainers_Child.blockymodel",
+      "Texture": "Cosmetics/Shoes/Trainers_Textures/Trainers_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Charcoal"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Mouths/Mouth1.blockymodel",
+      "Texture": "Characters/Body_Attachments/Mouths/Mouth1_Textures/Makeup_Greyscale.png",
+      "GradientSet": "Skin",
+      "GradientId": "04"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Ears/Ears1.blockymodel",
+      "Texture": "Characters/Body_Attachments/Ears/Ears.png",
+      "GradientSet": "Skin",
+      "GradientId": "04"
+    },
+    {
+      "Model": "Characters/Body_Attachments/Eyebrows/Eyebrows_Medium.blockymodel",
+      "Texture": "Characters/Body_Attachments/Eyebrows/Thin_Greyscale.png",
+      "GradientSet": "Hair",
+      "GradientId": "Brown"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.dev.category.Systems": {
+    "message": "Systems",
+    "description": "The label for category 'Systems' in sidebar 'dev'"
+  },
+  "sidebar.dev.category.Recipes": {
+    "message": "Recipes",
+    "description": "The label for category 'Recipes' in sidebar 'dev'"
+  }
+}

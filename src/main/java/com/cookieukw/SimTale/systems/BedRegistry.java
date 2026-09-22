@@ -1,0 +1,79 @@
+package com.cookieukw.SimTale.systems;
+
+import com.cookieukw.SimTale.db.SimBedData.BedPos;
+import com.cookieukw.SimTale.core.SimLog;
+
+import java.util.Collections;
+import java.util.HashSet;
+import com.cookieukw.SimTale.core.AssetIds;
+import java.util.Set;
+
+public final class BedRegistry {
+    private BedRegistry() {}
+
+    private static final SimLog LOGGER = SimLog.forClass(BedRegistry.class);
+
+    /** A double bed occupies adjacent blocks; only the first part is registered. */
+    private static final int DEDUPE_RADIUS_XZ = 2;
+    private static final int DEDUPE_RADIUS_Y = 1;
+
+    public static final Set<BedPos> BEDS = Collections.synchronizedSet(new HashSet<>());
+
+    public static boolean isBedId(String id) {
+        return AssetIds.containsNone(id, "bedrock") && AssetIds.containsAny(id, "bed");
+    }
+
+    public static void addOrReplace(int x, int y, int z, float yaw) {
+        synchronized (BEDS) {
+            /* Exact position: genuinely replace, so a re-registration refreshes the yaw.
+            The old code returned early from the proximity loop below before ever reaching
+            the removeIf/add pair, so "addOrReplace" never actually replaced anything and
+            a bed's yaw could never be corrected.
+            */
+            BedPos existing = null;
+            for (BedPos b : BEDS) {
+                if (b.x == x && b.y == y && b.z == z) {
+                    existing = b;
+                    break;
+                }
+            }
+            if (existing != null) {
+                if (existing.yaw != yaw) {
+                    BEDS.remove(existing);
+                    BEDS.add(new BedPos(x, y, z, yaw));
+                    LOGGER.debug("[SimTale] Bed at ({},{},{}) re-registered with yaw={}", x, y, z, yaw);
+                }
+                return;
+            }
+
+            BEDS.add(new BedPos(x, y, z, yaw));
+            LOGGER.debug("[SimTale] Bed registered at ({},{},{}) yaw={}. Total: {}", x, y, z, yaw, BEDS.size());
+        }
+    }
+
+    public static void removeAt(int x, int y, int z) {
+        synchronized (BEDS) {
+            BEDS.removeIf(b -> b.x == x && b.y == y && b.z == z);
+        }
+    }
+
+    /** Whether a bed is still registered at this exact position. */
+    public static boolean exists(int x, int y, int z) {
+        synchronized (BEDS) {
+            for (BedPos b : BEDS) {
+                if (b.x == x && b.y == y && b.z == z) return true;
+            }
+        }
+        return false;
+    }
+
+    public static int size() {
+        return BEDS.size();
+    }
+
+    public static void clear() {
+        synchronized (BEDS) {
+            BEDS.clear();
+        }
+    }
+}

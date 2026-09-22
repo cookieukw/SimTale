@@ -1,0 +1,82 @@
+// First-login gender pick.
+//
+// #MaleButton and #FemaleButton carry the click bindings from PlayerGenderPage; the inner
+// #MaleContent / #FemaleContent groups and their labels are kept so nothing that walks the
+// tree by id breaks.
+
+$T = "../SimTaleTheme.ui";
+
+Group {
+  LayoutMode: MiddleCenter;
+  Background: #0C0806(0.85);
+
+  SceneBlur {}
+
+  Group #GenderPanel {
+    Anchor: (Width: 640, Height: 440);
+    LayoutMode: Top;
+    Background: $T.@PanelSurface;
+    Padding: (Top: 30, Bottom: 30, Horizontal: 36);
+
+    Label #Title {
+      Text: %ui.gender.title;
+      Anchor: (Height: 38, Bottom: 6);
+      Style: (...$T.@TitleStyle, TextColor: $T.@TextGold);
+    }
+
+    $T.@Separator { @Anchor = (Bottom: 10); }
+
+    Label #Subtitle {
+      Text: %ui.gender.subtitle;
+      Anchor: (Height: 50, Bottom: 20);
+      Style: (...$T.@CaptionStyle, FontSize: 15, Wrap: true);
+    }
+
+    Group #ButtonsRow {
+      FlexWeight: 1;
+      LayoutMode: CenterMiddle;
+
+      Button #MaleButton {
+        Anchor: (Width: 265, Height: 180, Right: 20);
+        Style: $T.@BtnGenderMale;
+
+        Group #MaleContent {
+          LayoutMode: MiddleCenter;
+          Anchor: (Full: 0);
+
+          Group #MaleIcon {
+            Anchor: (Width: 64, Height: 64, Bottom: 10);
+            Background: $T.@IconGenderMale;
+          }
+
+          Label #MaleText {
+            Text: %ui.gender.male;
+            Anchor: (Height: 28);
+            Style: (...$T.@ButtonLabelStyle, FontSize: 18, TextColor: $T.@TextPrimary);
+          }
+        }
+      }
+
+      Button #FemaleButton {
+        Anchor: (Width: 265, Height: 180);
+        Style: $T.@BtnGenderFemale;
+
+        Group #FemaleContent {
+          LayoutMode: MiddleCenter;
+          Anchor: (Full: 0);
+
+          Group #FemaleIcon {
+            Anchor: (Width: 64, Height: 64, Bottom: 10);
+            Background: $T.@IconGenderFemale;
+          }
+
+          Label #FemaleText {
+            Text: %ui.gender.female;
+            Anchor: (Height: 28);
+            Style: (...$T.@ButtonLabelStyle, FontSize: 18, TextColor: $T.@TextPrimary);
+          }
+        }
+      }
+    }
+  }
+}

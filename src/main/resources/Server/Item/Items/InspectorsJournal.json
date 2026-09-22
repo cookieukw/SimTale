@@ -1,0 +1,15 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.inspectors_journal.name",
+    "Description": "general.item.inspectors_journal.description"
+  },
+  "Icon": "Icons/Items/InspectorsJournal.png",
+  "Model": "Resources/InspectorsJournal/InspectorsJournal.blockymodel",
+  "Texture": "Resources/InspectorsJournal/InspectorsJournal_texture.png",
+  "PlayerAnimationsId": "Item",
+  "Scale": 1.0,
+  "MaxStack": 1,
+  "Interactions": {
+    "Secondary": "RuneCore_GenericItemUse"
+  }
+}

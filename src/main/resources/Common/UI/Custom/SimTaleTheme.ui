@@ -1,0 +1,173 @@
+// SimTale — shared UI theme.
+//
+// Built on the game's own Common.ui so the mod's screens read as part of Hytale instead of
+// looking bolted on. Two things do most of the work:
+//
+//   * Surfaces are 9-slice PatchStyle textures rather than flat colour fills. That is what
+//     gives panels and buttons their rounded, bevelled edges — the previous screens painted
+//     flat hex rectangles, which is exactly why they felt square and unfinished.
+//   * Buttons gain Hovered/Pressed states and click sounds, which they had none of.
+//
+// Common.ui itself lives at Common/UI/Custom/Common.ui, the same folder as this file, so the
+// bare filename resolves directly — no "../" needed. (Confirmed against the client's own error
+// message: "Common.ui" resolves, "../Common.ui" does not, from this file's location.)
+
+$Game = "Common.ui";
+
+// ---------------------------------------------------------------- palette
+// Grounded Medieval Fantasy palette matching Hytale's art direction.
+@TextPrimary   = #E8ECEF;
+@TextSecondary = #96A3B2;
+@TextMuted     = #6B7685;
+@TextGold      = #D5A75C;
+@TextBlue      = #6A96C2;
+@TextGreen     = #5B9E68;
+
+@AccentLike    = #5B9E68;
+@AccentHate    = #C25B54;
+@AccentRomance = #B36885;
+@AccentWork    = #C29654;
+
+// ---------------------------------------------------------------- metrics
+@GutterOuter = 20;
+@GutterInner = 14;
+@RowGap      = 6;
+@SectionGap  = 14;
+@ButtonH     = 46;
+@ButtonGap   = 10;
+
+// ---------------------------------------------------------------- modern surfaces
+// Grounded medieval wood panels and warm timber recesses with authentic beveled frames.
+@PanelSurface     = (TexturePath: "textures/SimTale_WoodPanel.png", Border: 16);
+@WoodPanelSurface = (TexturePath: "textures/SimTale_WoodPanel.png", Border: 16);
+@CardSurface      = (TexturePath: "textures/SimTale_WoodInset.png", Border: 8);
+@InsetSurface     = (TexturePath: "textures/SimTale_WoodInset.png", Border: 8);
+@WellSurface      = (TexturePath: "textures/SimTale_WoodInset.png", Border: 8);
+@WoodInsetSurface = (TexturePath: "textures/SimTale_WoodInset.png", Border: 8);
+@WoodCardSurface  = (TexturePath: "textures/SimTale_WoodInset.png", Border: 8);
+
+// Sober RPG progress bars (Need tracks & fills)
+@BarTrack     = (TexturePath: "textures/SimTale_BarTrack.png", Border: 4);
+@BarFillGreen = (TexturePath: "textures/SimTale_BarFill_Green.png", Border: 3);
+@BarFillAmber = (TexturePath: "textures/SimTale_BarFill_Amber.png", Border: 3);
+@BarFillPink  = (TexturePath: "textures/SimTale_BarFill_Pink.png", Border: 3);
+@BarFillRed   = (TexturePath: "textures/SimTale_BarFill_Red.png", Border: 3);
+@BarFillCyan  = (TexturePath: "textures/SimTale_BarFill_Cyan.png", Border: 3);
+@BarFillGold  = (TexturePath: "textures/SimTale_BarFill_Gold.png", Border: 3);
+@ProgressFill = (TexturePath: "textures/SimTale_BarFill_Gold.png", Border: 3);
+
+// Gender Crests (Heraldic Antique Gold)
+@IconGenderMale   = "textures/SimTale_Gender_Male.png";
+@IconGenderFemale = "textures/SimTale_Gender_Female.png";
+
+// Empty state icons
+@IconEmptyChest     = "textures/SimTale_Empty_Chest.png";
+@IconEmptyBed       = "textures/SimTale_Empty_Bed.png";
+@IconEmptyBath      = "textures/SimTale_Empty_Bath.png";
+@IconEmptyGraveyard = "textures/SimTale_Empty_Graveyard.png";
+
+// Fine engraved divider line
+@Separator = Group {
+  @Anchor = ();
+  LayoutMode: MiddleCenter;
+  Anchor: (...@Anchor, Height: 12, Bottom: @RowGap);
+
+  Group {
+    Anchor: (Full: 0);
+    Background: "textures/SimTale_RunicDivider.png";
+  }
+};
+
+// ---------------------------------------------------------------- button tints
+@BtnTintPrimary     = #C29654; // Warm Antique Gold
+@BtnTintSecondary   = #4A5D73; // Muted Steel / Slate
+@BtnTintTertiary    = #26303D; // Dark Iron / Slate
+@BtnTintDestructive = #9E372E; // Muted Crimson / Danger
+
+// ---------------------------------------------------------------- button styles
+@BtnNeutral = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Primary_Square.png", Border: 12, Color: @BtnTintPrimary)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Primary_Square_Hovered.png", Border: 12, Color: @BtnTintPrimary)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Primary_Square_Pressed.png", Border: 12, Color: @BtnTintPrimary)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnSecondary = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12, Color: @BtnTintSecondary)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12, Color: @BtnTintSecondary)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12, Color: @BtnTintSecondary)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnTertiary = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Tertiary.png", Border: 12, Color: @BtnTintTertiary)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Tertiary_Hovered.png", Border: 12, Color: @BtnTintTertiary)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Tertiary_Pressed.png", Border: 12, Color: @BtnTintTertiary)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnDestructive = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Destructive.png", Border: 12, Color: @BtnTintDestructive)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Destructive_Hovered.png", Border: 12, Color: @BtnTintDestructive)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Destructive_Pressed.png", Border: 12, Color: @BtnTintDestructive)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnGenderMale = ButtonStyle(
+  Default:  (Background: (TexturePath: "textures/SimTale_Btn_Male.png", Border: 8)),
+  Hovered:  (Background: (TexturePath: "textures/SimTale_Btn_Male_Hovered.png", Border: 8)),
+  Pressed:  (Background: (TexturePath: "textures/SimTale_Btn_Male_Pressed.png", Border: 8)),
+  Disabled: (Background: (TexturePath: "textures/SimTale_Btn_Male.png", Border: 8)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnGenderFemale = ButtonStyle(
+  Default:  (Background: (TexturePath: "textures/SimTale_Btn_Female.png", Border: 8)),
+  Hovered:  (Background: (TexturePath: "textures/SimTale_Btn_Female_Hovered.png", Border: 8)),
+  Pressed:  (Background: (TexturePath: "textures/SimTale_Btn_Female_Pressed.png", Border: 8)),
+  Disabled: (Background: (TexturePath: "textures/SimTale_Btn_Female.png", Border: 8)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+// ---------------------------------------------------------------- label styles
+@TitleStyle = (
+  FontSize: 30, TextColor: @TextPrimary, RenderBold: true, RenderUppercase: true,
+  HorizontalAlignment: Center, VerticalAlignment: Center,
+  ShrinkTextToFit: true, MinShrinkTextToFitFontSize: 18
+);
+
+@SubtitleStyle = (
+  FontSize: 17, TextColor: @TextGold, RenderBold: true,
+  HorizontalAlignment: Center, VerticalAlignment: Center
+);
+
+@CaptionStyle = (
+  FontSize: 15, TextColor: @TextMuted,
+  HorizontalAlignment: Center, VerticalAlignment: Center
+);
+
+@SectionHeaderStyle = (
+  FontSize: 13, TextColor: @TextMuted, RenderBold: true, RenderUppercase: true,
+  HorizontalAlignment: Start, VerticalAlignment: Center
+);
+
+@BodyStyle = (
+  FontSize: 15, TextColor: @TextSecondary,
+  HorizontalAlignment: Start, VerticalAlignment: Center,
+  ShrinkTextToFit: true, MinShrinkTextToFitFontSize: 12
+);
+
+@BodyStrong = (
+  ...@BodyStyle,
+  TextColor: @TextPrimary, RenderBold: true
+);
+
+@ButtonLabelStyle = (
+  FontSize: 16, TextColor: #D6E2EA, RenderBold: true, RenderUppercase: true,
+  HorizontalAlignment: Center, VerticalAlignment: Center,
+  ShrinkTextToFit: true, MinShrinkTextToFitFontSize: 11
+);

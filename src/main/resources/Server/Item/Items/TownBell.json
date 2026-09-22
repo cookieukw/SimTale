@@ -1,0 +1,15 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.town_bell.name",
+    "Description": "general.item.town_bell.description"
+  },
+  "Icon": "Icons/Items/TownBell.png",
+  "Model": "Resources/TownBell/TownBell.blockymodel",
+  "Texture": "Resources/TownBell/TownBell_texture.png",
+  "PlayerAnimationsId": "Item",
+  "Scale": 1.0,
+  "MaxStack": 1,
+  "Interactions": {
+    "Secondary": "RuneCore_GenericItemUse"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.innkeepers_ledger.name",
+    "Description": "general.item.innkeepers_ledger.description"
+  },
+  "Icon": "Icons/Items/InnkeepersLedger.png",
+  "Model": "Resources/InnkeepersLedger/InnkeepersLedger.blockymodel",
+  "Texture": "Resources/InnkeepersLedger/InnkeepersLedger_texture.png",
+  "PlayerAnimationsId": "Item",
+  "Scale": 1.0,
+  "MaxStack": 1,
+  "Interactions": {
+    "Secondary": "RuneCore_GenericItemUse"
+  }
+}

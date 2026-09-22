@@ -7,6 +7,7 @@ build/
 node_modules
 ### Hytale ###
 run/
+.agents/
 libs/
 src/main/assets
 ### IntelliJ IDEA ###
@@ -19,7 +20,7 @@ agents/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-
+decompile_out
 ### Eclipse ###
 .apt_generated
 .classpath
@@ -57,3 +58,14 @@ scratch4.class
 scratch5.java
 scratch*.java
 scratch*.class
+simtale_documentation.md
+docs/ROADMAP.md
+.planning/features/social_system_roadmap.md
+.gradle_home
+testing_checklist.md
+wiki/.docusaurus/
+scratch/test_db/global/simtale.db-shm
+scratch/test_db/global/simtale.db-wal
+_to_delete
+_stage_tmp4/
+.claude_tmp/

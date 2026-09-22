@@ -7,7 +7,8 @@ public enum Mood {
     SAD("Triste"),
     SCARED("Assustado"),
     SLEEPY("Sonolento"),
-    EXCITED("Eufórico");
+    EXCITED("Eufórico"),
+    BORED("Entediado");
 
     public final String ptName;
 
@@ -15,3 +16,4 @@ public enum Mood {
         this.ptName = ptName;
     }
 }
+

@@ -1,0 +1,22 @@
+{
+  "title": {
+    "message": "SimTale",
+    "description": "The title in the navbar"
+  },
+  "item.label.Player": {
+    "message": "Player",
+    "description": "Navbar item with label Player"
+  },
+  "item.label.Server": {
+    "message": "Server",
+    "description": "Navbar item with label Server"
+  },
+  "item.label.Developer": {
+    "message": "Developer",
+    "description": "Navbar item with label Developer"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "Layers": [
+    {
+      "Files": [
+        "Sounds/SimTale/social_reject_1.ogg",
+        "Sounds/SimTale/social_reject_2.ogg",
+        "Sounds/SimTale/social_reject_3.ogg",
+        "Sounds/SimTale/social_reject_4.ogg"
+      ],
+      "RoundRobinHistorySize": 2,
+      "RandomSettings": {
+        "MinPitch": -0.5,
+        "MaxPitch": 0.5
+      },
+      "Volume": 0.85
+    }
+  ]
+}

@@ -12,21 +12,12 @@ public class JobLootTable {
 
     private static final Random random = new Random();
 
-    public static class LootEntry {
-        public final String itemId;
-        public final int minQty;
-        public final int maxQty;
-
-        public LootEntry(String itemId, int minQty, int maxQty) {
-            this.itemId = itemId;
-            this.minQty = minQty;
-            this.maxQty = maxQty;
-        }
+    public record LootEntry(String itemId, int minQty, int maxQty) {
 
         public int rollQty() {
-            return random.nextInt((maxQty - minQty) + 1) + minQty;
+                return random.nextInt((maxQty - minQty) + 1) + minQty;
+            }
         }
-    }
 
     public static List<LootEntry> getLootForJob(JobType job) {
         List<LootEntry> returnLoot = new ArrayList<>();

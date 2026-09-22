@@ -1,0 +1,29 @@
+{
+  "Input": [
+    {
+      "ItemId": "Deco_Book_Pile_Small",
+      "Quantity": 1
+    },
+    {
+      "ItemId": "Wood_Softwood_Planks",
+      "Quantity": 1
+    },
+    {
+      "ItemId": "Ingredient_Leather_Light",
+      "Quantity": 1
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "InnkeepersLedger",
+    "Quantity": 1
+  },
+  "BenchRequirement": [
+    {
+      "Id": "Fieldcraft",
+      "Type": "Crafting",
+      "Categories": [
+        "Tools"
+      ]
+    }
+  ]
+}

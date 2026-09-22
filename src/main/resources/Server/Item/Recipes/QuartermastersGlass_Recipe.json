@@ -1,0 +1,25 @@
+{
+  "Input": [
+    {
+      "ItemId": "Ingredient_Crystal_White",
+      "Quantity": 1
+    },
+    {
+      "ItemId": "Ingredient_Bar_Copper",
+      "Quantity": 1
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "QuartermastersGlass",
+    "Quantity": 1
+  },
+  "BenchRequirement": [
+    {
+      "Id": "Workbench",
+      "Type": "Crafting",
+      "Categories": [
+        "Workbench_Tools"
+      ]
+    }
+  ]
+}

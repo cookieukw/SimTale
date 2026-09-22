@@ -1,0 +1,19 @@
+{
+  "Layers": [
+    {
+      "Files": [
+        "Sounds/SimTale/birthday_cheer_1.ogg",
+        "Sounds/SimTale/birthday_cheer_2.ogg",
+        "Sounds/SimTale/birthday_cheer_3.ogg",
+        "Sounds/SimTale/birthday_cheer_4.ogg",
+        "Sounds/SimTale/birthday_cheer_5.ogg"
+      ],
+      "RoundRobinHistorySize": 2,
+      "RandomSettings": {
+        "MinPitch": -0.5,
+        "MaxPitch": 0.5
+      },
+      "Volume": 0.85
+    }
+  ]
+}

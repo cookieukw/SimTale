@@ -1,0 +1,9 @@
+{
+  "Parent": "SimTale_Human_Child_Male_29",
+  "DefaultAttachments": [
+    {
+      "Model": "NPC/Player_Child/Cosmetics/Head/StrawHat_Child.blockymodel",
+      "Texture": "Cosmetics/Head/StrawHat_Textures/WitchHat_Colored_Greyscale_Texture.png"
+    }
+  ]
+}

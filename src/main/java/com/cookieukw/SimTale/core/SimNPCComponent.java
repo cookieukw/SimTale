@@ -1,14 +1,21 @@
 package com.cookieukw.SimTale.core;
 
+import com.cookieukw.SimTale.db.SimBedData.BedPos;
+import com.cookieukw.SimTale.engine.MagicEngine;
+import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
+import com.cookieukw.SimTale.logic.JobType;
 import com.cookieukw.SimTale.logic.SocialStats;
+import com.hypixel.hytale.codec.Codec;
+import com.hypixel.hytale.codec.KeyedCodec;
+import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
-import com.cookieukw.SimTale.logic.JobType;
-import com.cookieukw.SimTale.engine.MagicEngine;
 
 /**
  * Persists SimTale data for an entity.
@@ -17,15 +24,41 @@ public class SimNPCComponent implements Component<EntityStore> {
     public UUID entityId;
     public String name;
     public Personality personality;
-    public Needs needs;
     public SocialStats stats;
     public MemoryManager memory = new MemoryManager();
     public Map<UUID, Relationship> relationships = new HashMap<>();
     public Profession profession;
+    /** Melee vs. ranged, resolved from whatever item last made this NPC a Guard. Only meaningful
+     *  when {@code profession == Profession.GUARD}; defaults to MELEE so an existing save (from
+     *  before this field existed, always sword-only) keeps its current combat behavior. */
+    public WeaponCategory guardWeaponCategory = WeaponCategory.MELEE;
+    /** The exact item id the player handed over to make this NPC a Guard (e.g. an Iron
+     *  longsword, not just "some melee weapon"), so the NPC can actually be seen holding
+     *  that item instead of a generic copper stand-in. Null on saves from before this field
+     *  existed, or in the practically-impossible case the promoting item's id was lost --
+     *  {@link com.cookieukw.SimTale.systems.NPCGuardHelper} falls back to a fixed item for
+     *  {@link #guardWeaponCategory} when this is null or empty. */
+    public String guardWeaponItemId;
+    /** One entry per armour slot (Head=0, Chest=1, Hands=2, Legs=3 --
+     *  {@link com.hypixel.hytale.protocol.ItemArmorSlot}), the item id worn there, or null if
+     *  that slot is empty. Reconciled onto the NPC's real armour container every tick by
+     *  {@link com.cookieukw.SimTale.systems.NPCArmorHelper#ensureArmorEquipped}, same defensive
+     *  pattern as {@link #guardWeaponItemId}. Null (not just all-null entries) on saves from
+     *  before this field existed -- no NPC had armour then, so there is nothing to migrate. */
+    public String[] armorItemIds;
+    public NPCPreferences preferences;
 
-    // Runtime properties
+    public FamilySystem family = new FamilySystem();
+    public Gender gender;
+    public PregnancyComponent pregnancy;
+    public BedPos bedLocation;
     public transient Ref<EntityStore> entityRef;
-    public transient com.hypixel.hytale.server.core.modules.entity.component.ModelComponent originalModel;
+
+    // Emotion system fields
+    public Mood activeEmotion = Mood.NEUTRAL;
+    public float emotionIntensity = 0.0f;
+    public String emotionSource = "routine";
+    public long lastEmotionChangeTick = 0;
     
     // MobsAndMates job and conversation state
     public UUID currentConversationPartner;
@@ -35,15 +68,85 @@ public class SimNPCComponent implements Component<EntityStore> {
     public long jobCompletionTick;
     public UUID jobEmployer;
     public boolean isAway = false;
+    /**
+     * Total work cycles finished in this NPC's profession -- one harvest, one planting, one
+     * catch, one chop, or one hunter/miner expedition, each counted once, at the single point
+     * ({@code NPCWorkHelper.applyWorkSatisfaction}) every one of those paths already funnels
+     * through. Persisted (see {@code SimNPCPersistence}) so it means something across restarts,
+     * not just this session. Purely informational -- surfaced in {@code NpcContextBuilder} as
+     * flavor ("village's best fisherman"), never read by any behavior. Zero on a save from
+     * before this field existed, same as a genuinely fresh NPC.
+     */
+    public int jobsCompleted = 0;
+    /**
+     * Marks the Grim Reaper NPC. This used to be inferred with {@code name.contains("Reaper")},
+     * which never matched because the factory names it "Dona Morte" — meaning no reaper was
+     * ever dispatched to collect a dying NPC.
+     */
+    public boolean isReaper = false;
     public transient MagicEngine activeMagicGame;
+    /**
+     * False until this component has been filled in from Caskara (or freshly created by the
+     * factory).
+     * <p>
+     * Matters because the codec restores only the id and name: everything else comes back from
+     * the default constructor, which rolls a *random* profession and preferences. Saving in
+     * that state would overwrite the NPC's real data in the database with the placeholder, so
+     * {@code SimNPCPersistence.saveNPC} refuses to write while this is false.
+     */
+    public transient boolean dataLoaded = false;
+
+    public transient boolean isInteractingViaUI = false;
+    /**
+     * Player whose interaction page is currently open, so the AI can keep the NPC turned
+     * toward them. Separate from {@link #currentConversationPartner}, which the page clears on
+     * open to stop the chat timeout from firing during the dialogue.
+     */
+    public transient UUID uiInteractionPlayer;
+    public transient boolean forceSleep = false;
+    public transient Mood lastPlayedEmotion = null;
+
+    /**
+     * Ticks since the face animation was last played.
+     *
+     * <p>Facial expressions are one-shot clips, so a mood that never changes shows its face exactly
+     * once and then sits neutral forever. This drives a periodic replay.
+     */
+    public transient int expressionAge = 0;
+
+    /**
+     * Persists only the identity of the NPC — its id and name.
+     * <p>
+     * Everything else (personality, needs, relationships, family, pregnancy) still lives in
+     * Caskara and is restored by {@code SimNPCPersistence.loadNPC} on the first tick. The point
+     * of this codec is not to store the data twice; it is to make sure the component itself is
+     * always present on the entity.
+     * <p>
+     * Without it the component was runtime-only, so every reload left the entity with no
+     * SimNPCComponent at all and the mod had to guess its way back: SimTaleTickSystem would
+     * notice the gap, look the id up in Caskara and re-attach. That only runs while the entity
+     * is being ticked, so an NPC could sit there orphaned until the player walked close enough
+     * — visibly idle, with no plumbob, and invisible to /simtale clearall (which iterates
+     * ACTIVE_NPCS), while the interaction key still worked because it has its own Caskara
+     * fallback. Anchoring the id here removes that whole failure mode.
+     */
+    public static final BuilderCodec<SimNPCComponent> CODEC = BuilderCodec
+        .builder(SimNPCComponent.class, SimNPCComponent::new)
+        .append(new KeyedCodec<>("EntityId", Codec.STRING),
+                (c, v) -> c.entityId = (v != null && !v.isEmpty()) ? UUID.fromString(v) : null,
+                c -> c.entityId != null ? c.entityId.toString() : "").add()
+        .append(new KeyedCodec<>("Name", Codec.STRING),
+                (c, v) -> { if (v != null && !v.isEmpty()) c.name = v; },
+                c -> c.name != null ? c.name : "").add()
+        .build();
 
     /**
      * Default constructor for registry and codecs.
      */
     public SimNPCComponent() {
         this.personality = Personality.createDefault();
-        this.needs = new Needs();
         this.stats = new SocialStats();
+        this.preferences = NPCPreferences.createRandom();
         assignRandomProfession();
     }
 
@@ -63,18 +166,65 @@ public class SimNPCComponent implements Component<EntityStore> {
         SimNPCComponent clone = new SimNPCComponent(entityId, name);
         clone.personality = new Personality(personality.kindness, personality.humor, personality.aggression,
                 personality.charisma);
-        clone.needs = new Needs();
-        clone.needs.hunger = needs.hunger;
-        clone.needs.energy = needs.energy;
-        clone.needs.social = needs.social;
-        clone.needs.fun = needs.fun;
+        /* Traits are the whole point of Personality — without this the clone silently lost
+        GREEDY/SHY/LAZY/... and behaved like a blank NPC.
+        */
+        if (personality.traits != null) {
+            clone.personality.traits = new HashSet<>(personality.traits);
+        }
         clone.stats = new SocialStats();
         clone.stats.level = stats.level;
         clone.stats.xp = stats.xp;
         clone.memory = new MemoryManager();
         clone.memory.recentMemories.addAll(memory.recentMemories);
-        clone.relationships = new HashMap<>(relationships);
-        
+        /* Deep copy: a shallow HashMap copy shares the Relationship objects, so mutating the
+        clone's affinity/romance also mutated the original's.
+        */
+        clone.relationships = new HashMap<>();
+        for (Map.Entry<UUID, Relationship> entry : relationships.entrySet()) {
+            Relationship source = entry.getValue();
+            if (source == null) continue;
+            Relationship copy = new Relationship(entry.getKey());
+            copy.affinity = source.affinity;
+            copy.friendship = source.friendship;
+            copy.romance = source.romance;
+            copy.trust = source.trust;
+            copy.interactionsToday = source.interactionsToday;
+            copy.lastInteractionDayIndex = source.lastInteractionDayIndex;
+            copy.status = source.status;
+            clone.relationships.put(entry.getKey(), copy);
+        }
+        clone.preferences = new NPCPreferences(
+            preferences.getFavoriteFoods(),
+            preferences.getHatedFoods(),
+            preferences.getFavoriteItems(),
+            preferences.getHatedItems(),
+            preferences.getFavoriteSeason(),
+            preferences.getFavoriteWeather(),
+            preferences.getHobby(),
+            preferences.getLikedProfessions(),
+            preferences.getDislikedProfessions()
+        );
+
+        if (bedLocation != null) {
+            clone.bedLocation = new BedPos(bedLocation.x, bedLocation.y, bedLocation.z, bedLocation.yaw);
+        }
+
+        /* Carried over so a clone of a loaded component is still allowed to save; otherwise the
+        ECS swapping in a clone would silently block persistence for that NPC.
+        */
+        clone.dataLoaded = dataLoaded;
+
+        /* Identity/family state — must be copied explicitly, otherwise the
+        default constructor's random profession would leak into the clone.
+        */
+        clone.profession = profession;
+        clone.guardWeaponCategory = guardWeaponCategory;
+        clone.guardWeaponItemId = guardWeaponItemId;
+        clone.armorItemIds = armorItemIds != null ? armorItemIds.clone() : null;
+        clone.gender = gender;
+        clone.family = family;
+
         // Clone new states
         clone.currentConversationPartner = currentConversationPartner;
         clone.conversationTimeoutTick = conversationTimeoutTick;
@@ -83,6 +233,24 @@ public class SimNPCComponent implements Component<EntityStore> {
         clone.jobCompletionTick = jobCompletionTick;
         clone.jobEmployer = jobEmployer;
         clone.isAway = isAway;
+        clone.isReaper = isReaper;
+        clone.jobsCompleted = jobsCompleted;
+        
+        // Clone emotion state
+        clone.activeEmotion = activeEmotion;
+        clone.emotionIntensity = emotionIntensity;
+        clone.emotionSource = emotionSource;
+        clone.lastEmotionChangeTick = lastEmotionChangeTick;
+        
+        // Clone pregnancy
+        if (pregnancy != null) {
+            clone.pregnancy = new PregnancyComponent();
+            clone.pregnancy.pregnant = pregnancy.pregnant;
+            clone.pregnancy.fatherId = pregnancy.fatherId;
+            clone.pregnancy.startTick = pregnancy.startTick;
+            clone.pregnancy.durationTicks = pregnancy.durationTicks;
+            clone.pregnancy.trimester = pregnancy.trimester;
+        }
         return clone;
     }
 
@@ -91,15 +259,85 @@ public class SimNPCComponent implements Component<EntityStore> {
     }
 
     public Mood getMood() {
-        if (memory.remembers(MemoryEvent.ATTACKED, null, 300000)) return Mood.SCARED;
-        if (memory.remembers(MemoryEvent.INSULTED, null, 120000)) return Mood.ANGRY;
-        
-        if (needs != null) {
-            if (needs.energy < 20) return Mood.SLEEPY;
-            if (needs.isMiserable()) return Mood.SAD;
-            if (needs.fun > 80 && needs.social > 80) return Mood.EXCITED;
-            if (needs.social > 50 && needs.fun > 50) return Mood.HAPPY;
+        return activeEmotion != null ? activeEmotion : Mood.NEUTRAL;
+    }
+
+    /** How long a mood is protected from being replaced by a weaker one: 30 s. */
+    public static final long EMOTION_HOLD_TICKS = 600;
+
+    /** Below this, a mood counts as faded and stops defending its slot. */
+    private static final float FADED_EMOTION = 0.25f;
+
+    /**
+     * Sets the current mood, unless something stronger is still in effect.
+     *
+     * <p>The old rule was "after 100 ticks, anything overwrites anything". Five seconds is nothing,
+     * so ambient triggers — the idleness roll, the wellness check — steamrolled real emotions: an
+     * NPC made happy on purpose turned BORED seconds later. Worse, the ambient HAPPY at intensity
+     * 0.3 would overwrite a HAPPY at 1.0, quietly weakening it.
+     *
+     * <p>Now priority decides. Something stronger always lands. Something equal only lands if it is
+     * at least as intense, or if the hold window has passed. Something weaker has to wait for the
+     * current mood to both hold its time and fade.
+     */
+    public void setEmotion(Mood emotion, float intensity, String source, long currentTick) {
+        long elapsed = currentTick - lastEmotionChangeTick;
+        int newPriority = getEmotionPriority(emotion);
+        int currentPriority = getEmotionPriority(activeEmotion);
+
+        boolean change;
+        if (activeEmotion == null || activeEmotion == Mood.NEUTRAL) {
+            change = true;
+        } else if (newPriority > currentPriority) {
+            change = true;
+        } else if (emotion == activeEmotion) {
+            // Same feeling: a stronger dose refreshes it, a weaker one waits its turn.
+            change = intensity >= emotionIntensity || elapsed >= EMOTION_HOLD_TICKS;
+        } else if (newPriority == currentPriority) {
+            // Different feeling of equal priority (e.g. HAPPY vs EXCITED):
+            // Only replaces if strictly stronger, or if the hold window has passed.
+            change = intensity > emotionIntensity || elapsed >= EMOTION_HOLD_TICKS;
+        } else {
+            change = elapsed >= EMOTION_HOLD_TICKS && (emotionIntensity <= FADED_EMOTION || intensity >= 0.6f);
         }
-        return Mood.NEUTRAL;
+
+        if (change) {
+            this.activeEmotion = emotion;
+            this.emotionIntensity = Math.clamp(intensity, 0.0f, 1.0f);
+            this.emotionSource = source;
+            this.lastEmotionChangeTick = currentTick;
+        }
+    }
+
+    /**
+     * Sets mood unconditionally, bypassing the priority/hold guard {@link #setEmotion} enforces.
+     * <p>
+     * {@code /simtale setmood} calls this instead of {@link #setEmotion}. That guard exists to
+     * stop ambient triggers (the idleness roll, the wellness check) from stealing a real emotion's
+     * spotlight — exactly right for organic mood changes, but wrong for an operator command: a
+     * tester who scolded an NPC seconds ago and then runs {@code setmood HAPPY} wants HAPPY, not
+     * "denied, ANGRY is still within its 30s hold". Going through {@link #setEmotion} made the
+     * command silently no-op whenever a stronger mood was still protected, while still printing
+     * "Mood definido para HAPPY" — reported success and did nothing, with nothing in the message
+     * or the log to tell the two apart.
+     */
+    public void forceEmotion(Mood emotion, float intensity, String source, long currentTick) {
+        this.activeEmotion = emotion;
+        this.emotionIntensity = Math.clamp(intensity, 0.0f, 1.0f);
+        this.emotionSource = source;
+        this.lastEmotionChangeTick = currentTick;
+    }
+
+    private int getEmotionPriority(Mood m) {
+        if (m == null) return 0;
+        return switch (m) {
+            case SCARED -> 6;
+            case ANGRY -> 5;
+            case SAD -> 4;
+            case SLEEPY -> 3;
+            case EXCITED, HAPPY -> 2;
+            case BORED -> 1;
+            case NEUTRAL -> 0;
+        };
     }
 }

@@ -2,14 +2,18 @@ package com.cookieukw.SimTale.engine;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.hypixel.hytale.logger.HytaleLogger;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 public class MagicDataLoader {
-    
+
+    private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+
     private static List<Animal> animalsCache;
     private static List<Question> questionsCache;
 
@@ -29,24 +33,29 @@ public class MagicDataLoader {
 
     private static List<Animal> loadAnimals() {
         try (Reader reader = new InputStreamReader(
-                MagicDataLoader.class.getResourceAsStream("/Common/UI/Custom/MagicGame/animals.json"), 
+                Objects.requireNonNull(MagicDataLoader.class.getResourceAsStream("/Common/UI/Custom/MagicGame/animals.json")),
                 StandardCharsets.UTF_8)) {
             Gson gson = new Gson();
-            return gson.fromJson(reader, new TypeToken<List<Animal>>(){}.getType());
+            List<Animal> animals = gson.fromJson(reader, new TypeToken<List<Animal>>(){}.getType());
+            /* Gson returns null for an empty/`null` document; caching null re-parsed the file
+            on every single call.
+            */
+            return animals != null ? animals : List.of();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.atWarning().log("SimTale: falha ao carregar animals.json do minigame: " + e);
             return List.of();
         }
     }
 
     private static List<Question> loadQuestions() {
         try (Reader reader = new InputStreamReader(
-                MagicDataLoader.class.getResourceAsStream("/Common/UI/Custom/MagicGame/questions.json"), 
+                Objects.requireNonNull(MagicDataLoader.class.getResourceAsStream("/Common/UI/Custom/MagicGame/questions.json")),
                 StandardCharsets.UTF_8)) {
             Gson gson = new Gson();
-            return gson.fromJson(reader, new TypeToken<List<Question>>(){}.getType());
+            List<Question> questions = gson.fromJson(reader, new TypeToken<List<Question>>(){}.getType());
+            return questions != null ? questions : List.of();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.atWarning().log("SimTale: falha ao carregar questions.json do minigame: " + e);
             return List.of();
         }
     }

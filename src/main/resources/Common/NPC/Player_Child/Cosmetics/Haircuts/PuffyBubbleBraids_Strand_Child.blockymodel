@@ -1,0 +1,3929 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Head",
+      "position": {
+        "x": 0,
+        "y": 82,
+        "z": 0
+      },
+      "orientation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+      },
+      "shape": {
+        "type": "none",
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "stretch": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "Hair",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.2
+          },
+          "orientation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+          },
+          "shape": {
+            "type": "box",
+            "offset": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": -1.2
+            },
+            "stretch": {
+              "x": 1.224,
+              "y": 1.26,
+              "z": 1.26
+            },
+            "settings": {
+              "isPiece": false,
+              "size": {
+                "x": 30,
+                "y": 28,
+                "z": 28
+              }
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {
+                  "x": 31,
+                  "y": 53
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              },
+              "right": {
+                "offset": {
+                  "x": 90,
+                  "y": 0
+                },
+                "mirror": {
+                  "x": true,
+                  "y": false
+                },
+                "angle": 0
+              },
+              "front": {
+                "offset": {
+                  "x": 61,
+                  "y": 28
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              },
+              "left": {
+                "offset": {
+                  "x": 62,
+                  "y": 0
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              },
+              "top": {
+                "offset": {
+                  "x": 91,
+                  "y": 84
+                },
+                "mirror": {
+                  "x": true,
+                  "y": true
+                },
+                "angle": 0
+              },
+              "bottom": {
+                "offset": {
+                  "x": 31,
+                  "y": 53
+                },
+                "mirror": {
+                  "x": true,
+                  "y": false
+                },
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "3",
+              "name": "Head--C1",
+              "position": {
+                "x": 1.68,
+                "y": 10.92,
+                "z": -3.5999999999999996
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0,
+                "z": -0.06976,
+                "w": 0.99756
+              },
+              "shape": {
+                "type": "box",
+                "offset": {
+                  "x": 15.899999999999999,
+                  "y": -0.8999999999999999,
+                  "z": -4.2
+                },
+                "stretch": {
+                  "x": 1.224,
+                  "y": 1.26,
+                  "z": 1.26
+                },
+                "settings": {
+                  "isPiece": false,
+                  "size": {
+                    "x": 3,
+                    "y": 15,
+                    "z": 15
+                  },
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {
+                      "x": 23,
+                      "y": 37
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {
+                      "x": 8,
+                      "y": 37
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {
+                      "x": 57,
+                      "y": 37
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {
+                      "x": 26,
+                      "y": 37
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {
+                      "x": 4,
+                      "y": 52
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": true
+                    },
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {
+                      "x": 7,
+                      "y": 37
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "4",
+              "name": "Head--C2",
+              "position": {
+                "x": -1.68,
+                "y": 10.92,
+                "z": -3.5999999999999996
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0,
+                "z": 0.06976,
+                "w": 0.99756
+              },
+              "shape": {
+                "type": "box",
+                "offset": {
+                  "x": -15.899999999999999,
+                  "y": -0.8999999999999999,
+                  "z": -4.2
+                },
+                "stretch": {
+                  "x": 1.224,
+                  "y": 1.26,
+                  "z": 1.26
+                },
+                "settings": {
+                  "isPiece": false,
+                  "size": {
+                    "x": 3,
+                    "y": 15,
+                    "z": 15
+                  },
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {
+                      "x": 26,
+                      "y": 37
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {
+                      "x": 41,
+                      "y": 37
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {
+                      "x": 60,
+                      "y": 37
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {
+                      "x": 23,
+                      "y": 37
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {
+                      "x": 1,
+                      "y": 52
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": true
+                    },
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {
+                      "x": 4,
+                      "y": 37
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "5",
+              "name": "Head--C3",
+              "position": {
+                "x": 0.0,
+                "y": 17.4,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0.00045,
+                "y": 0.00136,
+                "z": 0.02177,
+                "w": 0.99976
+              },
+              "shape": {
+                "type": "box",
+                "offset": {
+                  "x": -10.2,
+                  "y": 1.2,
+                  "z": 11.4
+                },
+                "stretch": {
+                  "x": 1.2,
+                  "y": 1.2,
+                  "z": 1.2
+                },
+                "settings": {
+                  "isPiece": false,
+                  "size": {
+                    "x": 13,
+                    "y": 2,
+                    "z": 9
+                  },
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {
+                      "x": 41,
+                      "y": 0
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {
+                      "x": 29,
+                      "y": 8
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {
+                      "x": 42,
+                      "y": 3
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {
+                      "x": 9,
+                      "y": 0
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {
+                      "x": 91,
+                      "y": 65
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": true
+                    },
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {
+                      "x": 42,
+                      "y": 0
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "6",
+              "name": "Head--C4",
+              "position": {
+                "x": 0.0,
+                "y": 17.4,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0.00045,
+                "y": -0.00136,
+                "z": -0.02177,
+                "w": 0.99976
+              },
+              "shape": {
+                "type": "box",
+                "offset": {
+                  "x": 10.2,
+                  "y": 1.2,
+                  "z": 11.4
+                },
+                "stretch": {
+                  "x": 1.2,
+                  "y": 1.2,
+                  "z": 1.2
+                },
+                "settings": {
+                  "isPiece": false,
+                  "size": {
+                    "x": 13,
+                    "y": 2,
+                    "z": 9
+                  },
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {
+                      "x": 28,
+                      "y": 0
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {
+                      "x": 0,
+                      "y": 0
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {
+                      "x": 29,
+                      "y": 3
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {
+                      "x": 20,
+                      "y": 8
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {
+                      "x": 78,
+                      "y": 65
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": true
+                    },
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {
+                      "x": 55,
+                      "y": 0
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "7",
+              "name": "Head--C5",
+              "position": {
+                "x": 0.0,
+                "y": 17.4,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0.00045,
+                "y": -0.00136,
+                "z": -0.02177,
+                "w": 0.99976
+              },
+              "shape": {
+                "type": "box",
+                "offset": {
+                  "x": 10.2,
+                  "y": 1.2,
+                  "z": -7.199999999999999
+                },
+                "stretch": {
+                  "x": 1.2,
+                  "y": 1.2,
+                  "z": 1.2
+                },
+                "settings": {
+                  "isPiece": false,
+                  "size": {
+                    "x": 13,
+                    "y": 2,
+                    "z": 16
+                  },
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {
+                      "x": 15,
+                      "y": 3
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {
+                      "x": 12,
+                      "y": 0
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {
+                      "x": 15,
+                      "y": 6
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {
+                      "x": 1,
+                      "y": 19
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {
+                      "x": 78,
+                      "y": 84
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": true
+                    },
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {
+                      "x": 14,
+                      "y": 3
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "8",
+              "name": "Head--C6",
+              "position": {
+                "x": 0.0,
+                "y": 17.4,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0.00045,
+                "y": 0.00136,
+                "z": 0.02177,
+                "w": 0.99976
+              },
+              "shape": {
+                "type": "box",
+                "offset": {
+                  "x": -10.2,
+                  "y": 1.2,
+                  "z": -7.199999999999999
+                },
+                "stretch": {
+                  "x": 1.2,
+                  "y": 1.2,
+                  "z": 1.2
+                },
+                "settings": {
+                  "isPiece": false,
+                  "size": {
+                    "x": 13,
+                    "y": 2,
+                    "z": 16
+                  },
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {
+                      "x": 28,
+                      "y": 3
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {
+                      "x": 17,
+                      "y": 19
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {
+                      "x": 28,
+                      "y": 6
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {
+                      "x": 28,
+                      "y": 0
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {
+                      "x": 91,
+                      "y": 84
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": true
+                    },
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {
+                      "x": 1,
+                      "y": 3
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "9",
+              "name": "Hair-B",
+              "position": {
+                "x": -19.200383999999996,
+                "y": 2.273136,
+                "z": -18.2511
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0,
+                "z": 0.04362,
+                "w": 0.99905
+              },
+              "shape": {
+                "type": "none",
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "stretch": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "10",
+                  "name": "Hair-B2",
+                  "position": {
+                    "x": -8.072544,
+                    "y": -9.29994,
+                    "z": -1.2
+                  },
+                  "orientation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "w": 1
+                  },
+                  "shape": {
+                    "type": "none",
+                    "offset": {
+                      "x": 0,
+                      "y": 0,
+                      "z": 0
+                    },
+                    "stretch": {
+                      "x": 0,
+                      "y": 0,
+                      "z": 0
+                    },
+                    "settings": {
+                      "isPiece": false
+                    },
+                    "textureLayout": {},
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "11",
+                      "name": "Head--C1",
+                      "position": {
+                        "x": 3.5999999999999996,
+                        "y": 13.5,
+                        "z": 1.2
+                      },
+                      "orientation": {
+                        "x": 0.01111,
+                        "y": -0.28116,
+                        "z": -0.13265,
+                        "w": 0.95038
+                      },
+                      "shape": {
+                        "type": "box",
+                        "offset": {
+                          "x": -0.224508,
+                          "y": -21.621215999999997,
+                          "z": 0.007716
+                        },
+                        "stretch": {
+                          "x": 1.335,
+                          "y": 1.335,
+                          "z": 1.335
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14,
+                            "z": 14
+                          },
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {
+                              "x": 43,
+                              "y": 22
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {
+                              "x": 43,
+                              "y": 22
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {
+                              "x": 57,
+                              "y": 22
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {
+                              "x": 15,
+                              "y": 22
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {
+                              "x": 15,
+                              "y": 36
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": true
+                            },
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {
+                              "x": 47,
+                              "y": 81
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "12",
+                      "name": "Head--C2",
+                      "position": {
+                        "x": -1.901592,
+                        "y": -7.296575999999999,
+                        "z": -0.982308
+                      },
+                      "orientation": {
+                        "x": 0.08594,
+                        "y": 0.87083,
+                        "z": 0.10166,
+                        "w": -0.47321
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.335,
+                          "y": 1.335,
+                          "z": 1.335
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 18,
+                            "y": 18
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 35,
+                              "y": 109
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "13",
+                      "name": "Head--C3",
+                      "position": {
+                        "x": -9.436368,
+                        "y": -34.07766,
+                        "z": -3.451764
+                      },
+                      "orientation": {
+                        "x": 0.02337,
+                        "y": -0.28041,
+                        "z": -0.09107,
+                        "w": 0.95527
+                      },
+                      "shape": {
+                        "type": "box",
+                        "offset": {
+                          "x": 1.717656,
+                          "y": 7.317708,
+                          "z": -1.302732
+                        },
+                        "stretch": {
+                          "x": 1.2899999999999998,
+                          "y": 1.2899999999999998,
+                          "z": 1.2899999999999998
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 12,
+                            "y": 12,
+                            "z": 12
+                          },
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {
+                              "x": 24,
+                              "y": 96
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {
+                              "x": 24,
+                              "y": 96
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {
+                              "x": 36,
+                              "y": 96
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {
+                              "x": 37,
+                              "y": 96
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {
+                              "x": 50,
+                              "y": 108
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": true
+                            },
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {
+                              "x": 0,
+                              "y": 96
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "14",
+                      "name": "Head--C4",
+                      "position": {
+                        "x": -6.136572,
+                        "y": -27.219047999999997,
+                        "z": -2.9349
+                      },
+                      "orientation": {
+                        "x": 0.04787,
+                        "y": 0.87375,
+                        "z": 0.08092,
+                        "w": -0.4772
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2899999999999998,
+                          "y": 1.2899999999999998,
+                          "z": 1.2899999999999998
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 16,
+                            "y": 16
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 52,
+                              "y": 110
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "15",
+                      "name": "Head--C5",
+                      "position": {
+                        "x": -6.136572,
+                        "y": -27.219047999999997,
+                        "z": -2.9349
+                      },
+                      "orientation": {
+                        "x": 0.07519,
+                        "y": 0.98986,
+                        "z": 0.05644,
+                        "w": -0.1065
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.74,
+                          "y": 1.2899999999999998,
+                          "z": 1.2899999999999998
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 16,
+                            "y": 16
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 52,
+                              "y": 110
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "16",
+                      "name": "Head--C6",
+                      "position": {
+                        "x": -6.136572,
+                        "y": -27.219047999999997,
+                        "z": -2.9349
+                      },
+                      "orientation": {
+                        "x": 0.09308,
+                        "y": 0.77524,
+                        "z": -0.01326,
+                        "w": 0.62463
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.74,
+                          "y": 1.2899999999999998,
+                          "z": 1.2899999999999998
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 16,
+                            "y": 16
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 52,
+                              "y": 110
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "17",
+                      "name": "Head--C7",
+                      "position": {
+                        "x": -1.901592,
+                        "y": -7.296575999999999,
+                        "z": -0.982308
+                      },
+                      "orientation": {
+                        "x": 0.01111,
+                        "y": -0.28116,
+                        "z": -0.13265,
+                        "w": 0.95038
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.335,
+                          "y": 1.335,
+                          "z": 1.335
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 18,
+                            "y": 18
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 35,
+                              "y": 109
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "18",
+                      "name": "Head--C8",
+                      "position": {
+                        "x": -1.901592,
+                        "y": -7.296575999999999,
+                        "z": -0.982308
+                      },
+                      "orientation": {
+                        "x": 0.06103,
+                        "y": 0.10394,
+                        "z": -0.1183,
+                        "w": 0.98564
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.785,
+                          "y": 1.335,
+                          "z": 1.335
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 18,
+                            "y": 18
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 35,
+                              "y": 109
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "19",
+                      "name": "Head--C9",
+                      "position": {
+                        "x": -1.901592,
+                        "y": -7.296575999999999,
+                        "z": -0.982308
+                      },
+                      "orientation": {
+                        "x": -0.04049,
+                        "y": -0.62345,
+                        "z": -0.1268,
+                        "w": 0.77044
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.785,
+                          "y": 1.335,
+                          "z": 1.335
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 18,
+                            "y": 18
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 35,
+                              "y": 109
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "20",
+                      "name": "Head--C10",
+                      "position": {
+                        "x": -6.136572,
+                        "y": -27.219047999999997,
+                        "z": -2.9349
+                      },
+                      "orientation": {
+                        "x": 0.02337,
+                        "y": -0.28041,
+                        "z": -0.09107,
+                        "w": 0.95527
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2899999999999998,
+                          "y": 1.2899999999999998,
+                          "z": 1.2899999999999998
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 16,
+                            "y": 16
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 52,
+                              "y": 110
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "21",
+                      "name": "Head--C11",
+                      "position": {
+                        "x": -9.436368,
+                        "y": -34.07766,
+                        "z": -3.451764
+                      },
+                      "orientation": {
+                        "x": 0.02337,
+                        "y": -0.28041,
+                        "z": -0.09107,
+                        "w": 0.95527
+                      },
+                      "shape": {
+                        "type": "box",
+                        "offset": {
+                          "x": 1.717656,
+                          "y": -3.4822919999999997,
+                          "z": -1.302732
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 10,
+                            "y": 6,
+                            "z": 0
+                          },
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {
+                              "x": 6,
+                              "y": 65
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {
+                              "x": 21,
+                              "y": 72
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {
+                              "x": 47,
+                              "y": 82
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {
+                              "x": 22,
+                              "y": 72
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {
+                              "x": 14,
+                              "y": 58
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {
+                              "x": 11,
+                              "y": 61
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "22",
+                      "name": "Head--C12",
+                      "position": {
+                        "x": -9.436368,
+                        "y": -34.07766,
+                        "z": -3.451764
+                      },
+                      "orientation": {
+                        "x": 0.04787,
+                        "y": 0.87375,
+                        "z": 0.08092,
+                        "w": -0.4772
+                      },
+                      "shape": {
+                        "type": "box",
+                        "offset": {
+                          "x": -1.2179520000000001,
+                          "y": -3.278676,
+                          "z": -1.34604
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 10,
+                            "y": 6,
+                            "z": 0
+                          },
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {
+                              "x": 6,
+                              "y": 65
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {
+                              "x": 21,
+                              "y": 72
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {
+                              "x": 47,
+                              "y": 82
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {
+                              "x": 22,
+                              "y": 72
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {
+                              "x": 14,
+                              "y": 58
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {
+                              "x": 11,
+                              "y": 61
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "23",
+                      "name": "Head--C13",
+                      "position": {
+                        "x": 3.5999999999999996,
+                        "y": 13.5,
+                        "z": 1.2
+                      },
+                      "orientation": {
+                        "x": 0.01111,
+                        "y": -0.28116,
+                        "z": -0.13265,
+                        "w": 0.95038
+                      },
+                      "shape": {
+                        "type": "box",
+                        "offset": {
+                          "x": -0.224508,
+                          "y": -31.821215999999996,
+                          "z": 0.007716
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 6,
+                            "y": 5,
+                            "z": 6
+                          },
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {
+                              "x": 53,
+                              "y": 16
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {
+                              "x": 53,
+                              "y": 16
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {
+                              "x": 53,
+                              "y": 16
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {
+                              "x": 53,
+                              "y": 16
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {
+                              "x": 42,
+                              "y": 16
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": true
+                            },
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {
+                              "x": 48,
+                              "y": 10
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "24",
+                  "name": "Head--C1",
+                  "position": {
+                    "x": -3.2725440000000003,
+                    "y": 5.10006,
+                    "z": 0.0
+                  },
+                  "orientation": {
+                    "x": -0.00116,
+                    "y": -0.28138,
+                    "z": -0.17398,
+                    "w": 0.94369
+                  },
+                  "shape": {
+                    "type": "box",
+                    "offset": {
+                      "x": 0.0,
+                      "y": -11.4,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.2,
+                      "y": 1.2,
+                      "z": 1.2
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 8,
+                        "y": 5,
+                        "z": 8
+                      },
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {
+                          "x": 54,
+                          "y": 16
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {
+                          "x": 54,
+                          "y": 16
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {
+                          "x": 54,
+                          "y": 16
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {
+                          "x": 54,
+                          "y": 16
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {
+                          "x": 83,
+                          "y": 92
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": true
+                        },
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {
+                          "x": 75,
+                          "y": 84
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "25",
+                  "name": "Head--C2",
+                  "position": {
+                    "x": -3.2725440000000003,
+                    "y": 5.10006,
+                    "z": 0.0
+                  },
+                  "orientation": {
+                    "x": -0.00116,
+                    "y": -0.28138,
+                    "z": -0.17398,
+                    "w": 0.94369
+                  },
+                  "shape": {
+                    "type": "box",
+                    "offset": {
+                      "x": 0.0,
+                      "y": -1.2,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.395,
+                      "y": 1.395,
+                      "z": 1.395
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 12,
+                        "y": 12,
+                        "z": 12
+                      },
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {
+                          "x": 24,
+                          "y": 82
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {
+                          "x": 24,
+                          "y": 82
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {
+                          "x": 36,
+                          "y": 82
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {
+                          "x": 73,
+                          "y": 84
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {
+                          "x": 41,
+                          "y": 49
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": true
+                        },
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {
+                          "x": 0,
+                          "y": 82
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "26",
+                  "name": "Head--C3",
+                  "position": {
+                    "x": -3.6673679999999997,
+                    "y": 3.972708,
+                    "z": -0.114864
+                  },
+                  "orientation": {
+                    "x": 0.12384,
+                    "y": 0.86626,
+                    "z": 0.1222,
+                    "w": -0.46833
+                  },
+                  "shape": {
+                    "type": "quad",
+                    "offset": {
+                      "x": 0.0,
+                      "y": 0.0,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.395,
+                      "y": 1.395,
+                      "z": 1.395
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 16,
+                        "y": 16
+                      },
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {
+                          "x": 16,
+                          "y": 110
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "27",
+                  "name": "Head--C4",
+                  "position": {
+                    "x": -3.6673679999999997,
+                    "y": 3.972708,
+                    "z": -0.114864
+                  },
+                  "orientation": {
+                    "x": -0.00116,
+                    "y": -0.28138,
+                    "z": -0.17398,
+                    "w": 0.94369
+                  },
+                  "shape": {
+                    "type": "quad",
+                    "offset": {
+                      "x": 0.0,
+                      "y": 0.0,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.395,
+                      "y": 1.395,
+                      "z": 1.395
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 16,
+                        "y": 16
+                      },
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {
+                          "x": 16,
+                          "y": 110
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "28",
+                  "name": "Head--C5",
+                  "position": {
+                    "x": -3.6673679999999997,
+                    "y": 3.972708,
+                    "z": -0.114864
+                  },
+                  "orientation": {
+                    "x": 0.06551,
+                    "y": 0.10118,
+                    "z": -0.16118,
+                    "w": 0.97954
+                  },
+                  "shape": {
+                    "type": "quad",
+                    "offset": {
+                      "x": 0.0,
+                      "y": 0.0,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.9049999999999998,
+                      "y": 1.395,
+                      "z": 1.395
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 16,
+                        "y": 16
+                      },
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {
+                          "x": 16,
+                          "y": 110
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "29",
+                  "name": "Head--C6",
+                  "position": {
+                    "x": -3.6673679999999997,
+                    "y": 3.972708,
+                    "z": -0.114864
+                  },
+                  "orientation": {
+                    "x": -0.06765,
+                    "y": -0.62109,
+                    "z": -0.16029,
+                    "w": 0.76418
+                  },
+                  "shape": {
+                    "type": "quad",
+                    "offset": {
+                      "x": 0.0,
+                      "y": 0.0,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.9049999999999998,
+                      "y": 1.395,
+                      "z": 1.395
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 16,
+                        "y": 16
+                      },
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {
+                          "x": 16,
+                          "y": 110
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "30",
+              "name": "Hair-B",
+              "position": {
+                "x": 19.200383999999996,
+                "y": 2.273136,
+                "z": -18.2511
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0,
+                "z": -0.04362,
+                "w": 0.99905
+              },
+              "shape": {
+                "type": "none",
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "stretch": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "31",
+                  "name": "Hair-B2",
+                  "position": {
+                    "x": 8.072544,
+                    "y": -9.29994,
+                    "z": -1.2
+                  },
+                  "orientation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "w": 1
+                  },
+                  "shape": {
+                    "type": "none",
+                    "offset": {
+                      "x": 0,
+                      "y": 0,
+                      "z": 0
+                    },
+                    "stretch": {
+                      "x": 0,
+                      "y": 0,
+                      "z": 0
+                    },
+                    "settings": {
+                      "isPiece": false
+                    },
+                    "textureLayout": {},
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "32",
+                      "name": "Head--C1",
+                      "position": {
+                        "x": -3.5999999999999996,
+                        "y": 13.2,
+                        "z": 1.2
+                      },
+                      "orientation": {
+                        "x": 0.01111,
+                        "y": 0.28116,
+                        "z": 0.13265,
+                        "w": 0.95038
+                      },
+                      "shape": {
+                        "type": "box",
+                        "offset": {
+                          "x": 0.224508,
+                          "y": -21.621215999999997,
+                          "z": 0.007716
+                        },
+                        "stretch": {
+                          "x": 1.335,
+                          "y": 1.335,
+                          "z": 1.335
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 14,
+                            "y": 14,
+                            "z": 14
+                          },
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {
+                              "x": 57,
+                              "y": 22
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {
+                              "x": 1,
+                              "y": 22
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {
+                              "x": 43,
+                              "y": 22
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {
+                              "x": 29,
+                              "y": 22
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {
+                              "x": 29,
+                              "y": 36
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": true
+                            },
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {
+                              "x": 61,
+                              "y": 81
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "33",
+                      "name": "Head--C2",
+                      "position": {
+                        "x": 9.436368,
+                        "y": -34.37766,
+                        "z": -3.451764
+                      },
+                      "orientation": {
+                        "x": 0.02337,
+                        "y": 0.28041,
+                        "z": 0.09107,
+                        "w": 0.95527
+                      },
+                      "shape": {
+                        "type": "box",
+                        "offset": {
+                          "x": -1.717656,
+                          "y": 7.317708,
+                          "z": -1.302732
+                        },
+                        "stretch": {
+                          "x": 1.2899999999999998,
+                          "y": 1.2899999999999998,
+                          "z": 1.2899999999999998
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 12,
+                            "y": 12,
+                            "z": 12
+                          },
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {
+                              "x": 36,
+                              "y": 96
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {
+                              "x": 37,
+                              "y": 96
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {
+                              "x": 24,
+                              "y": 96
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {
+                              "x": 12,
+                              "y": 96
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {
+                              "x": 62,
+                              "y": 108
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": true
+                            },
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {
+                              "x": 12,
+                              "y": 96
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "34",
+                      "name": "Head--C3",
+                      "position": {
+                        "x": 9.436368,
+                        "y": -34.37766,
+                        "z": -3.451764
+                      },
+                      "orientation": {
+                        "x": 0.02337,
+                        "y": 0.28041,
+                        "z": 0.09107,
+                        "w": 0.95527
+                      },
+                      "shape": {
+                        "type": "box",
+                        "offset": {
+                          "x": -1.717656,
+                          "y": -3.4822919999999997,
+                          "z": -1.302732
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 10,
+                            "y": 6,
+                            "z": 0
+                          },
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {
+                              "x": 16,
+                              "y": 65
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {
+                              "x": 22,
+                              "y": 72
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {
+                              "x": 37,
+                              "y": 82
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {
+                              "x": 21,
+                              "y": 72
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {
+                              "x": 24,
+                              "y": 58
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {
+                              "x": 21,
+                              "y": 61
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "35",
+                      "name": "v--C4",
+                      "position": {
+                        "x": 9.436368,
+                        "y": -34.37766,
+                        "z": -3.451764
+                      },
+                      "orientation": {
+                        "x": 0.04787,
+                        "y": -0.87375,
+                        "z": -0.08092,
+                        "w": -0.4772
+                      },
+                      "shape": {
+                        "type": "box",
+                        "offset": {
+                          "x": 1.2179520000000001,
+                          "y": -3.278676,
+                          "z": -1.34604
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 10,
+                            "y": 6,
+                            "z": 0
+                          },
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {
+                              "x": 16,
+                              "y": 65
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {
+                              "x": 22,
+                              "y": 72
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {
+                              "x": 37,
+                              "y": 82
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {
+                              "x": 21,
+                              "y": 72
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {
+                              "x": 24,
+                              "y": 58
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {
+                              "x": 21,
+                              "y": 61
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "36",
+                      "name": "Head--C5",
+                      "position": {
+                        "x": -3.5999999999999996,
+                        "y": 13.2,
+                        "z": 1.2
+                      },
+                      "orientation": {
+                        "x": 0.01111,
+                        "y": 0.28116,
+                        "z": 0.13265,
+                        "w": 0.95038
+                      },
+                      "shape": {
+                        "type": "box",
+                        "offset": {
+                          "x": 0.224508,
+                          "y": -31.821215999999996,
+                          "z": 0.007716
+                        },
+                        "stretch": {
+                          "x": 1.2,
+                          "y": 1.2,
+                          "z": 1.2
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 6,
+                            "y": 5,
+                            "z": 6
+                          },
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {
+                              "x": 53,
+                              "y": 16
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {
+                              "x": 53,
+                              "y": 16
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {
+                              "x": 53,
+                              "y": 16
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {
+                              "x": 53,
+                              "y": 16
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {
+                              "x": 48,
+                              "y": 16
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": true
+                            },
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {
+                              "x": 54,
+                              "y": 10
+                            },
+                            "mirror": {
+                              "x": true,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "37",
+                      "name": "Head--C6",
+                      "position": {
+                        "x": 1.901592,
+                        "y": -7.296575999999999,
+                        "z": -0.982308
+                      },
+                      "orientation": {
+                        "x": 0.01111,
+                        "y": 0.28116,
+                        "z": 0.13265,
+                        "w": 0.95038
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.335,
+                          "y": 1.335,
+                          "z": 1.335
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 18,
+                            "y": 18
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 17,
+                              "y": 109
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "38",
+                      "name": "Head--C7",
+                      "position": {
+                        "x": 1.901592,
+                        "y": -7.296575999999999,
+                        "z": -0.982308
+                      },
+                      "orientation": {
+                        "x": 0.08594,
+                        "y": -0.87083,
+                        "z": -0.10166,
+                        "w": -0.47321
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.335,
+                          "y": 1.335,
+                          "z": 1.335
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 18,
+                            "y": 18
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 17,
+                              "y": 109
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "39",
+                      "name": "Head--C8",
+                      "position": {
+                        "x": 6.136572,
+                        "y": -27.219047999999997,
+                        "z": -2.9349
+                      },
+                      "orientation": {
+                        "x": 0.02337,
+                        "y": 0.28041,
+                        "z": 0.09107,
+                        "w": 0.95527
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2899999999999998,
+                          "y": 1.2899999999999998,
+                          "z": 1.2899999999999998
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 16,
+                            "y": 16
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 36,
+                              "y": 110
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "40",
+                      "name": "Head--C9",
+                      "position": {
+                        "x": 6.136572,
+                        "y": -27.219047999999997,
+                        "z": -2.9349
+                      },
+                      "orientation": {
+                        "x": 0.04787,
+                        "y": -0.87375,
+                        "z": -0.08092,
+                        "w": -0.4772
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.2899999999999998,
+                          "y": 1.2899999999999998,
+                          "z": 1.2899999999999998
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 16,
+                            "y": 16
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 36,
+                              "y": 110
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "41",
+                      "name": "Head--C10",
+                      "position": {
+                        "x": 1.901592,
+                        "y": -7.296575999999999,
+                        "z": -0.982308
+                      },
+                      "orientation": {
+                        "x": 0.06103,
+                        "y": -0.10394,
+                        "z": 0.1183,
+                        "w": 0.98564
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.785,
+                          "y": 1.335,
+                          "z": 1.335
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 18,
+                            "y": 18
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 17,
+                              "y": 109
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "42",
+                      "name": "Head--C11",
+                      "position": {
+                        "x": 1.901592,
+                        "y": -7.296575999999999,
+                        "z": -0.982308
+                      },
+                      "orientation": {
+                        "x": -0.04049,
+                        "y": 0.62345,
+                        "z": 0.1268,
+                        "w": 0.77044
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.785,
+                          "y": 1.335,
+                          "z": 1.335
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 18,
+                            "y": 18
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 17,
+                              "y": 109
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "43",
+                      "name": "Head--C12",
+                      "position": {
+                        "x": 6.136572,
+                        "y": -27.219047999999997,
+                        "z": -2.9349
+                      },
+                      "orientation": {
+                        "x": 0.07519,
+                        "y": -0.98986,
+                        "z": -0.05644,
+                        "w": -0.1065
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.74,
+                          "y": 1.2899999999999998,
+                          "z": 1.2899999999999998
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 16,
+                            "y": 16
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 36,
+                              "y": 110
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "44",
+                      "name": "Head--C13",
+                      "position": {
+                        "x": 6.136572,
+                        "y": -27.219047999999997,
+                        "z": -2.9349
+                      },
+                      "orientation": {
+                        "x": 0.09308,
+                        "y": -0.77524,
+                        "z": 0.01326,
+                        "w": 0.62463
+                      },
+                      "shape": {
+                        "type": "quad",
+                        "offset": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        },
+                        "stretch": {
+                          "x": 1.74,
+                          "y": 1.2899999999999998,
+                          "z": 1.2899999999999998
+                        },
+                        "settings": {
+                          "isPiece": false,
+                          "size": {
+                            "x": 16,
+                            "y": 16
+                          },
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {
+                              "x": 36,
+                              "y": 110
+                            },
+                            "mirror": {
+                              "x": false,
+                              "y": false
+                            },
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "45",
+                  "name": "Head--C1",
+                  "position": {
+                    "x": 3.2725440000000003,
+                    "y": 5.10006,
+                    "z": 0.0
+                  },
+                  "orientation": {
+                    "x": -0.00116,
+                    "y": 0.28138,
+                    "z": 0.17398,
+                    "w": 0.94369
+                  },
+                  "shape": {
+                    "type": "box",
+                    "offset": {
+                      "x": 0.0,
+                      "y": -11.4,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.2,
+                      "y": 1.2,
+                      "z": 1.2
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 8,
+                        "y": 5,
+                        "z": 8
+                      },
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {
+                          "x": 54,
+                          "y": 16
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {
+                          "x": 54,
+                          "y": 16
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {
+                          "x": 54,
+                          "y": 16
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {
+                          "x": 54,
+                          "y": 16
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {
+                          "x": 91,
+                          "y": 92
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": true
+                        },
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {
+                          "x": 83,
+                          "y": 84
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "46",
+                  "name": "Head--C2",
+                  "position": {
+                    "x": 3.2725440000000003,
+                    "y": 5.10006,
+                    "z": 0.0
+                  },
+                  "orientation": {
+                    "x": -0.00116,
+                    "y": 0.28138,
+                    "z": 0.17398,
+                    "w": 0.94369
+                  },
+                  "shape": {
+                    "type": "box",
+                    "offset": {
+                      "x": 0.0,
+                      "y": -1.2,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.395,
+                      "y": 1.395,
+                      "z": 1.395
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 12,
+                        "y": 12,
+                        "z": 12
+                      },
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {
+                          "x": 36,
+                          "y": 82
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {
+                          "x": 61,
+                          "y": 84
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {
+                          "x": 24,
+                          "y": 82
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {
+                          "x": 12,
+                          "y": 82
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {
+                          "x": 53,
+                          "y": 49
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": true
+                        },
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {
+                          "x": 12,
+                          "y": 82
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "47",
+                  "name": "Head--C3",
+                  "position": {
+                    "x": 3.6673679999999997,
+                    "y": 3.972708,
+                    "z": -0.114864
+                  },
+                  "orientation": {
+                    "x": -0.00116,
+                    "y": 0.28138,
+                    "z": 0.17398,
+                    "w": 0.94369
+                  },
+                  "shape": {
+                    "type": "quad",
+                    "offset": {
+                      "x": 0.0,
+                      "y": 0.0,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.395,
+                      "y": 1.395,
+                      "z": 1.395
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 16,
+                        "y": 16
+                      },
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {
+                          "x": 0,
+                          "y": 110
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "48",
+                  "name": "Head--C4",
+                  "position": {
+                    "x": 3.6673679999999997,
+                    "y": 3.972708,
+                    "z": -0.114864
+                  },
+                  "orientation": {
+                    "x": 0.12384,
+                    "y": -0.86626,
+                    "z": -0.1222,
+                    "w": -0.46833
+                  },
+                  "shape": {
+                    "type": "quad",
+                    "offset": {
+                      "x": 0.0,
+                      "y": 0.0,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.395,
+                      "y": 1.395,
+                      "z": 1.395
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 16,
+                        "y": 16
+                      },
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {
+                          "x": 0,
+                          "y": 110
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "49",
+                  "name": "Head--C5",
+                  "position": {
+                    "x": 3.6673679999999997,
+                    "y": 3.972708,
+                    "z": -0.114864
+                  },
+                  "orientation": {
+                    "x": -0.06765,
+                    "y": 0.62109,
+                    "z": 0.16029,
+                    "w": 0.76418
+                  },
+                  "shape": {
+                    "type": "quad",
+                    "offset": {
+                      "x": 0.0,
+                      "y": 0.0,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.9049999999999998,
+                      "y": 1.395,
+                      "z": 1.395
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 16,
+                        "y": 16
+                      },
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {
+                          "x": 0,
+                          "y": 110
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "50",
+                  "name": "Head--C6",
+                  "position": {
+                    "x": 3.6673679999999997,
+                    "y": 3.972708,
+                    "z": -0.114864
+                  },
+                  "orientation": {
+                    "x": 0.06551,
+                    "y": -0.10118,
+                    "z": 0.16118,
+                    "w": 0.97954
+                  },
+                  "shape": {
+                    "type": "quad",
+                    "offset": {
+                      "x": 0.0,
+                      "y": 0.0,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.9049999999999998,
+                      "y": 1.395,
+                      "z": 1.395
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 16,
+                        "y": 16
+                      },
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {
+                          "x": 0,
+                          "y": 110
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "51",
+              "name": "Hair-F",
+              "position": {
+                "x": 7.3826160000000005,
+                "y": 15.492515999999998,
+                "z": 18.001848
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0,
+                "z": 0,
+                "w": 1
+              },
+              "shape": {
+                "type": "none",
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "stretch": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "52",
+                  "name": "Head--C1",
+                  "position": {
+                    "x": 1.32,
+                    "y": -10.799999999999999,
+                    "z": 1.2
+                  },
+                  "orientation": {
+                    "x": -0.03806,
+                    "y": -0.06455,
+                    "z": -0.08426,
+                    "w": 0.99362
+                  },
+                  "shape": {
+                    "type": "box",
+                    "offset": {
+                      "x": -4.2,
+                      "y": 0.0,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 1.2,
+                      "y": 1.2,
+                      "z": 1.2
+                    },
+                    "settings": {
+                      "isPiece": false,
+                      "size": {
+                        "x": 5,
+                        "y": 20,
+                        "z": 0
+                      },
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {
+                          "x": 91,
+                          "y": 54
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {
+                          "x": 91,
+                          "y": 76
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {
+                          "x": 10,
+                          "y": 0
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {
+                          "x": 10,
+                          "y": 0
+                        },
+                        "mirror": {
+                          "x": true,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

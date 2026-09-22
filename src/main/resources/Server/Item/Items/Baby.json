@@ -1,0 +1,37 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.baby.name",
+    "Description": "general.item.baby.description"
+  },
+  "Icon": "Icons/Items/Baby.png",
+  "Quality": "Epic",
+  "Categories": [
+    "Items.Ingredients"
+  ],
+  "Model": "Resources/Baby/Baby.blockymodel",
+  "Texture": "Resources/Baby/Baby_Texture.png",
+  "PlayerAnimationsId": "Item",
+  "IconProperties": {
+    "Scale": 0.6,
+    "Rotation": [
+      0,
+      0,
+      0
+    ],
+    "Translation": [
+      0,
+      0
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Ingredient"
+    ]
+  },
+  "Scale": 1,
+  "MaxStack": 1,
+  "DropOnDeath": false,
+  "Interactions": {
+    "Secondary": "RuneCore_GenericItemUse"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.immigration_contract.name",
+    "Description": "general.item.immigration_contract.description"
+  },
+  "Icon": "Icons/Items/ImmigrationContract.png",
+  "Model": "Resources/ImmigrationContract/ImmigrationContract.blockymodel",
+  "Texture": "Resources/ImmigrationContract/ImmigrationContract_texture.png",
+  "PlayerAnimationsId": "Item",
+  "Scale": 1.0,
+  "MaxStack": 10,
+  "Consumable": true,
+  "Interactions": {
+    "Secondary": "RuneCore_GenericItemUse"
+  }
+}

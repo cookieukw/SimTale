@@ -1,0 +1,25 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.wedding_ring.name",
+    "Description": "general.item.wedding_ring.description"
+  },
+  "Icon": "Icons/Items/WeddingRing.png",
+  "Quality": "Legendary",
+  "Categories": [
+    "Items.Ingredients"
+  ],
+  "Model": "Resources/WeddingRing/WeddingRing.blockymodel",
+  "Texture": "Resources/WeddingRing/WeddingRing_texture.png",
+  "PlayerAnimationsId": "Item",
+  "Tags": {
+    "Type": [
+      "Ingredient"
+    ]
+  },
+  "Scale": 0.5,
+  "MaxStack": 1,
+  "DropOnDeath": false,
+  "Interactions": {
+    "Secondary": "RuneCore_GenericItemUse"
+  }
+}

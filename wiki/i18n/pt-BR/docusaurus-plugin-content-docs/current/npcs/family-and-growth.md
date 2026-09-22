@@ -1,0 +1,94 @@
+---
+sidebar_position: 5
+title: Família e crescimento
+---
+
+# Família e crescimento
+
+## Gravidez
+
+Um NPC casado pode engravidar. A gravidez se divide em três trimestres, e a velocidade de movimento cai
+gradualmente conforme avança.
+
+| Trimestre | Sintomas |
+|---|---|
+| 1º | Ligeiro aumento na perda de fome e energia |
+| 2º | Aumento moderado na perda, lentidão moderada |
+| 3º | Perda intensa, lentidão severa |
+
+Abra o painel de **Ver gravidez** (View Pregnancy) na tela de interação para acompanhar o progresso: dia atual,
+porcentagem, e tempo estimado restante em minutos reais.
+
+A gravidez para o jogador também existe e segue um caminho próprio.
+
+Os NPCs também podem se casar entre si agora, por conta própria — veja
+[Relacionamentos](./relationships) para saber como um cortejo vira casamento sem nenhum jogador
+envolvido. Depois de casado, o casal de NPCs passa pelo mesmo caminho de gravidez, nascimento e
+crescimento descrito aqui.
+
+:::note Nem todo NPC quer uma família grande
+Cada NPC decide, discretamente, na primeira vez que isso importa, quantos filhos quer ter no total —
+de zero a quatro — e esse número não muda depois. Quando dois NPCs são casados entre si, uma
+gravidez natural só acontece enquanto os dois ainda quiserem mais um filho; se um já está satisfeito
+e o outro não, aquele casal simplesmente para por ali. O casamento do jogador não é afetado por isso
+de forma alguma — continua funcionando exatamente como sempre funcionou.
+:::
+
+## Nascimento
+
+No fim da gestação, o bebê nasce como um **item** que vai para o inventário. Você carrega o
+bebê por aí, e pode entregá-lo para o outro pai/mãe.
+
+![Item Bebê](/img/Baby.png)
+
+## Fases de crescimento
+
+| Fase | Notas |
+|---|---|
+| `BEBÊ` (`BABY`) | Carregado como item no inventário ou colocado em berço/cuidados |
+| `CRIANÇA PEQUENA` (`TODDLER`) | Anda pela casa, brinca, herda a cama dos pais para dividir o sono |
+| `CRIANÇA` (`CHILD`) | Modelo com escala reduzida, explora, dorme na mesma cama dos pais ou em cama própria, pratica hobbies |
+| `ADOLESCENTE` (`TEEN`) | Modelo levemente reduzido, já pode assumir empregos formais |
+| `ADULTO` (`ADULT`) | Rotina adulta completa: carreiras, reivindicação de casa própria e relacionamentos independentes |
+
+As crianças crescem com o tempo por conta própria, e o tamanho do modelo aumenta suavemente a cada fase.
+
+## Vínculos Familiares e Co-Sleeping (Dividir Cama)
+
+Através do sistema `FamilyBonds`, os NPCs mantêm laços hereditários com seus pais biológicos:
+
+- **Divisão de Cama / Co-Sleeping**: Crianças pequenas (`TODDLER`) e Crianças (`CHILD`) não precisam de uma casa ou cama separada para descansar. Ao chegar o horário de dormir (`FINDING_BED`), elas buscam a cama registrada de seus pais (`FamilyBonds.findParentBed`). Se o pai ou a mãe já estiver deitado, a criança deita junto na mesma cama sem expulsar o progenitor.
+- **Proteção Durante o Sono**: Crianças em fase de crescimento dentro de uma cama permanecem protegidas durante os ciclos de vida, sem travar nem serem expulsas da animação de descanso.
+- **Reconhecimento Parental**: Interagir com o próprio filho abre uma interface adaptada para laços filiais, exibindo a fase da vida e o título de parentesco ("Filho", "Filha").
+- **Como ela te chama**: Um filho chama a mãe de "mãe" (ou o carinhoso "mamãe") e o pai de "pai" (ou "papai"), escolhido na hora com base em como o vínculo entre vocês está indo agora — não é decidido uma vez e travado. Se o vínculo azedar o suficiente, o título some também: o filho passa a te chamar pelo seu nome. (Por enquanto isso aparece em algumas falas de diálogo de crianças pequenas.)
+
+## Regras de Trabalho e Hobbies
+
+O SimTale inclui proteção para menores:
+- **Imunidade a Trabalho Formal**: NPCs nas fases `BABY`, `TODDLER` e `CHILD` não podem receber profissões de adultos. Tentar atribuir um emprego com uma ferramenta gerará uma recusa amigável ("Eu sou só uma criança!").
+- **Hobbies e Ajuda Familiar**: Crianças ainda podem se divertir com atividades como pescar ou jardinagem quando a diversão baixar, podendo interagir perto de hortas ou rios da família sem assumir compromisso formal de trabalho.
+
+## Cuidados
+
+Bebês precisam de cuidados. Passar o bebê de um pai para o outro divide o fardo, e existe uma
+simulação offline para que o tempo que você passa fora do servidor ainda conte. Você pode pegar e carregar crianças no colo ou nas costas quando necessário. E não há limite de carregar só uma: dá para empilhar até dez crianças ao mesmo tempo nos ombros.
+
+![Várias crianças carregadas ao mesmo tempo](/img/child_carry_stack.png)
+
+## Morte
+
+Quando um NPC morre, o fluxo de morte do SimTale assume o controle: o corpo permanece no local e começa a sangrar visualmente. A Ceifadora (Grim Reaper) aparece
+sozinha, caminha até o corpo, realiza o ritual de coleta de alma, deixa uma lápide e remove os registros
+completamente. Interagir com a Ceifadora no meio do ritual segurando um Coração do Vazio (<img src="/img/Ingredient_Voidheart.png" width="20" style={{verticalAlign: "middle"}} /> `Ingredient_Voidheart`) cancela a
+coleta e revive o NPC.
+
+![NPC sangrando após a morte](/img/npc_bleeding.png)
+
+![A Ceifadora (Grim Reaper)](/img/grim_reaper.png)
+
+![Grim Reaper Ceremony](/img/reaper_ceremony.png)
+
+:::note Nada mata um NPC ainda
+A fome, de propósito, não mata. NPCs famintos apenas choram e param de trabalhar. Envelhecimento e doenças ainda não foram implementados.
+Atualmente, o fluxo de morte só pode ser ativado por comandos administrativos de teste, que existem para que a Ceifadora possa ser testada sem precisar esperar por uma causa de morte que ainda não existe no jogo.
+:::

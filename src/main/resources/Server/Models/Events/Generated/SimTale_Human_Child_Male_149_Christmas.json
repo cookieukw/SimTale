@@ -1,0 +1,11 @@
+{
+  "Parent": "SimTale_Human_Child_Male_149",
+  "DefaultAttachments": [
+    {
+      "Model": "NPC/Player_Child/Cosmetics/Head/SantaHat_Child.blockymodel",
+      "Texture": "Cosmetics/Head/SantaHat_Texture/SantaHat_Greyscale_Texture.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "Red"
+    }
+  ]
+}

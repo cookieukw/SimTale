@@ -1,16 +1,15 @@
 package com.cookieukw.SimTale.engine;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MagicEngine {
     private static final double LOG2 = Math.log(2);
 
-    private Map<String, Map<String, Double>> invertedIndex;
-    private Map<String, Double> scores;
-    private Set<String> askedQuestions;
-    private List<Animal> animals;
-    private List<Question> questions;
+    private final Map<String, Map<String, Double>> invertedIndex;
+    private final Map<String, Double> scores;
+    private final Set<String> askedQuestions;
+    private final List<Animal> animals;
+    private final List<Question> questions;
 
     private static final String[][] CORRELATED_GROUPS = {
         {"q1", "q2", "q3", "q4"},
@@ -30,7 +29,7 @@ public class MagicEngine {
             for (Map.Entry<String, Double> entry : animal.getAnswers().entrySet()) {
                 String qId = entry.getKey();
                 Double weight = entry.getValue();
-                this.invertedIndex.computeIfAbsent(qId, k -> new HashMap<>()).put(animal.getId(), weight);
+                this.invertedIndex.computeIfAbsent(qId, _ -> new HashMap<>()).put(animal.getId(), weight);
             }
         }
     }
@@ -62,16 +61,16 @@ public class MagicEngine {
         List<Animal> candidates = sortedAnimals.stream()
             .filter(a -> this.scores.getOrDefault(a.getId(), 0.0) >= medianVal)
             .limit(10)
-            .collect(Collectors.toList());
+            .toList();
             
         if (candidates.isEmpty()) return null;
 
         Set<String> deprioritized = getDeprioritizedQuestions();
 
         class ScoredQuestion {
-            String id;
+            final String id;
             double entropy;
-            boolean isDeprioritized;
+            final boolean isDeprioritized;
 
             ScoredQuestion(String id, double entropy, boolean isDeprioritized) {
                 this.id = id;
@@ -125,13 +124,13 @@ public class MagicEngine {
 
         scoredQuestions.sort((a, b) -> Double.compare(b.entropy, a.entropy));
 
-        double bestEntropy = scoredQuestions.get(0).entropy;
+        double bestEntropy = scoredQuestions.getFirst().entropy;
         double threshold = bestEntropy * 0.85;
         
         List<ScoredQuestion> topTier = scoredQuestions.stream()
             .filter(sq -> sq.entropy >= threshold)
             .limit(3)
-            .collect(Collectors.toList());
+            .toList();
             
         int randomIndex = (int) (Math.random() * topTier.size());
         return topTier.get(randomIndex).id;
@@ -148,7 +147,7 @@ public class MagicEngine {
 
         if ((top1Score - top2Score >= 6 && this.askedQuestions.size() >= 3) ||
             this.askedQuestions.size() >= 15) {
-            return sorted.get(0);
+            return sorted.getFirst();
         }
 
         return null;

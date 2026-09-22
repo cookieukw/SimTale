@@ -1,0 +1,29 @@
+{
+  "Input": [
+    {
+      "ItemId": "Deco_Scroll",
+      "Quantity": 1
+    },
+    {
+      "ItemId": "Deco_Inkwell",
+      "Quantity": 1
+    },
+    {
+      "ItemId": "Ingredient_Leather_Light",
+      "Quantity": 1
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "ImmigrationContract",
+    "Quantity": 1
+  },
+  "BenchRequirement": [
+    {
+      "Id": "Fieldcraft",
+      "Type": "Crafting",
+      "Categories": [
+        "Tools"
+      ]
+    }
+  ]
+}

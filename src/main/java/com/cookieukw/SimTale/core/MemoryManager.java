@@ -7,22 +7,30 @@ public class MemoryManager {
     public LinkedList<Memory> recentMemories = new LinkedList<>();
 
     public void addMemory(MemoryEvent event, UUID player) {
-        // Limita a memória aos últimos 10 acontecimentos (Short-term memory)
+        addMemory(event, player, false, null);
+    }
+
+    public void addMemory(MemoryEvent event, UUID player, boolean isGossip, String gossipTargetName) {
+        // Limit memory to the last 10 events (short-term memory)
         if (recentMemories.size() >= 10) {
             recentMemories.removeFirst();
         }
-        recentMemories.add(new Memory(event, System.currentTimeMillis(), player));
+        recentMemories.add(new Memory(event, System.currentTimeMillis(), player, isGossip, gossipTargetName));
     }
 
     public boolean remembers(MemoryEvent event, UUID player, long maxAgeMillis) {
+        return getMemory(event, player, maxAgeMillis) != null;
+    }
+
+    public Memory getMemory(MemoryEvent event, UUID player, long maxAgeMillis) {
         String pId = player != null ? player.toString() : null;
         for (Memory m : recentMemories) {
             if (m.event == event && (pId == null || pId.equals(m.playerSource))) {
                 if (System.currentTimeMillis() - m.timestamp < maxAgeMillis) {
-                    return true;
+                    return m;
                 }
             }
         }
-        return false;
+        return null;
     }
 }

@@ -1,0 +1,11 @@
+{
+  "Groups": {
+    "Hostile": [
+      "Birds",
+      "SimTaleVillager"
+    ],
+    "Revered": [
+      "Outlander_Marauder"
+    ]
+  }
+}

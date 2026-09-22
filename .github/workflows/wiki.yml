@@ -1,0 +1,73 @@
+name: Wiki
+
+# Builds the Docusaurus wiki and publishes it to GitHub Pages.
+#
+# Fires on changes under wiki/, and also on README.md/CURSEFORGE.md (EN and PT-BR) — those mirror
+# large chunks of the wiki by hand (jobs-and-hobbies' trigger-item table is one example), and they
+# have drifted out of sync with the real code before. Re-publishing the site on a README-only
+# change doesn't change the built output, but keeps the deploy timestamp/history a signal that the
+# docs were actually touched. The manual trigger is there for the first run and for re-publishing
+# after changing repository settings, which does not touch any file.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'wiki/**'
+      - '.github/workflows/wiki.yml'
+      - 'README.md'
+      - 'README-pt-BR.md'
+      - 'CURSEFORGE.md'
+      - 'CURSEFORGE-pt-BR.md'
+  workflow_dispatch:
+
+# Pages needs these; the default GITHUB_TOKEN has neither.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# A second push while the first is still deploying should win, not queue behind it.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wiki
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: wiki/pnpm-lock.yaml
+
+      # Frozen lockfile on purpose: a wiki that builds in CI but not locally, or the reverse, is a
+      # slow problem to notice.
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: wiki/build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

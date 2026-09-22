@@ -1,0 +1,1190 @@
+{
+  "lod": "auto",
+  "nodes": [
+    {
+      "id": "155",
+      "name": "Pelvis",
+      "children": [
+        {
+          "id": "192",
+          "name": "PelvisHider",
+          "children": [],
+          "position": {
+            "x": 0.0,
+            "y": 1.36,
+            "z": 0.0
+          },
+          "orientation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 1
+          },
+          "shape": {
+            "offset": {
+              "x": 0.0,
+              "y": 0.68,
+              "z": 0.0
+            },
+            "stretch": {
+              "x": 0.735,
+              "y": 0.7140000000000001,
+              "z": 0.735
+            },
+            "textureLayout": {
+              "top": {
+                "offset": {
+                  "x": 0,
+                  "y": 0
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              },
+              "front": {
+                "offset": {
+                  "x": 0,
+                  "y": 24
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              },
+              "back": {
+                "offset": {
+                  "x": 26,
+                  "y": 23
+                },
+                "mirror": {
+                  "x": true,
+                  "y": false
+                },
+                "angle": 0
+              },
+              "left": {
+                "offset": {
+                  "x": 26,
+                  "y": 23
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              },
+              "right": {
+                "offset": {
+                  "x": 26,
+                  "y": 23
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              }
+            },
+            "type": "box",
+            "settings": {
+              "size": {
+                "x": 26,
+                "y": 8,
+                "z": 18
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          }
+        },
+        {
+          "id": "162",
+          "name": "Front_Cloth_1",
+          "children": [
+            {
+              "id": "173",
+              "name": "Front_Cloth_R",
+              "children": [],
+              "position": {
+                "x": 9.1,
+                "y": 6.12,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0.866025,
+                "z": 0,
+                "w": -0.5
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": -4.199999999999999,
+                  "y": -6.12,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": -0.7,
+                  "y": 0.68,
+                  "z": -0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 12,
+                    "y": 13
+                  },
+                  "normal": "+Z"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 42,
+                      "y": 26
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            },
+            {
+              "id": "174",
+              "name": "Front_Cloth_L",
+              "children": [],
+              "position": {
+                "x": -9.1,
+                "y": 6.12,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0.866025,
+                "z": 0,
+                "w": 0.5
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": 4.199999999999999,
+                  "y": -6.12,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": 0.7,
+                  "y": 0.68,
+                  "z": -0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 12,
+                    "y": 13
+                  },
+                  "normal": "+Z"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 44,
+                      "y": 25
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            },
+            {
+              "id": "196",
+              "name": "Front_Cloth_Tip",
+              "children": [],
+              "position": {
+                "x": 0.0,
+                "y": -4.42,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0.130526,
+                "y": 0,
+                "z": 0,
+                "w": 0.991445
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": 0.0,
+                  "y": -2.7200170000000004,
+                  "z": -4.9e-06
+                },
+                "stretch": {
+                  "x": 0.7,
+                  "y": 0.68,
+                  "z": 0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 26,
+                    "y": 8
+                  },
+                  "normal": "+Z"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 0,
+                      "y": 39
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            },
+            {
+              "id": "197",
+              "name": "Front_Cloth_R",
+              "children": [],
+              "position": {
+                "x": 9.1,
+                "y": -2.72,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0.866025,
+                "z": 0,
+                "w": -0.5
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": -4.199999999999999,
+                  "y": -4.08,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": -0.7,
+                  "y": 0.68,
+                  "z": -0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 12,
+                    "y": 7
+                  },
+                  "normal": "+Z"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 44,
+                      "y": 39
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            },
+            {
+              "id": "198",
+              "name": "Front_Cloth_L",
+              "children": [],
+              "position": {
+                "x": -9.1,
+                "y": 6.12,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0.866025,
+                "z": 0,
+                "w": 0.5
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": 4.199999999999999,
+                  "y": -12.920000000000002,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": 0.7,
+                  "y": 0.68,
+                  "z": -0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 12,
+                    "y": 7
+                  },
+                  "normal": "+Z"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 44,
+                      "y": 39
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            }
+          ],
+          "position": {
+            "x": 0.0,
+            "y": 3.06,
+            "z": 6.3
+          },
+          "orientation": {
+            "x": -0.300706,
+            "y": 0,
+            "z": 0,
+            "w": 0.953717
+          },
+          "shape": {
+            "type": "quad",
+            "offset": {
+              "x": 0.0,
+              "y": -4.42,
+              "z": 0.0
+            },
+            "stretch": {
+              "x": 0.7,
+              "y": 0.68,
+              "z": 0.7
+            },
+            "settings": {
+              "size": {
+                "x": 26,
+                "y": 13
+              },
+              "normal": "+Z"
+            },
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat",
+            "unwrapMode": "custom",
+            "textureLayout": {
+              "front": {
+                "offset": {
+                  "x": 0,
+                  "y": 26
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "185",
+          "name": "Back_Cloth_1",
+          "children": [
+            {
+              "id": "186",
+              "name": "Back_Cloth_R",
+              "children": [],
+              "position": {
+                "x": 9.1,
+                "y": 6.12,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0,
+                "y": -0.866025,
+                "z": 0,
+                "w": -0.5
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": -4.199999999999999,
+                  "y": -6.12,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": -0.7,
+                  "y": 0.68,
+                  "z": -0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 12,
+                    "y": 20
+                  },
+                  "normal": "-Z"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 57,
+                      "y": 26
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            },
+            {
+              "id": "187",
+              "name": "Back_Cloth_L",
+              "children": [],
+              "position": {
+                "x": -9.1,
+                "y": 6.12,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0.866025,
+                "z": 0,
+                "w": -0.5
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": 4.199999999999999,
+                  "y": -6.12,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": 0.7,
+                  "y": 0.68,
+                  "z": -0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 12,
+                    "y": 20
+                  },
+                  "normal": "-Z"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 56,
+                      "y": 26
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            }
+          ],
+          "position": {
+            "x": 0.0,
+            "y": 2.8111030000000006,
+            "z": -6.6700039
+          },
+          "orientation": {
+            "x": 0.258819,
+            "y": 0,
+            "z": 0,
+            "w": 0.965926
+          },
+          "shape": {
+            "type": "quad",
+            "offset": {
+              "x": 0.0,
+              "y": -6.800017000000001,
+              "z": 4.9e-06
+            },
+            "stretch": {
+              "x": 0.7,
+              "y": 0.68,
+              "z": 0.7
+            },
+            "settings": {
+              "size": {
+                "x": 26,
+                "y": 20
+              },
+              "normal": "-Z"
+            },
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat",
+            "unwrapMode": "custom",
+            "textureLayout": {
+              "front": {
+                "offset": {
+                  "x": 26,
+                  "y": 26
+                },
+                "mirror": {
+                  "x": true,
+                  "y": false
+                },
+                "angle": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "188",
+          "name": "R_Side_Cloth_1",
+          "children": [
+            {
+              "id": "189",
+              "name": "R_Side_Cloth_Side_L",
+              "children": [],
+              "position": {
+                "x": 0.0,
+                "y": 5.44,
+                "z": -6.3
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0.087156,
+                "z": 0,
+                "w": 0.996195
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": 4.199999999999999,
+                  "y": -6.12,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": 0.7,
+                  "y": 0.68,
+                  "z": 0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 12,
+                    "y": 20
+                  },
+                  "normal": "+Z"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 42,
+                      "y": 23
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            },
+            {
+              "id": "190",
+              "name": "R_Side_Cloth_Side_R",
+              "children": [],
+              "position": {
+                "x": 0.0,
+                "y": 5.44,
+                "z": 6.3
+              },
+              "orientation": {
+                "x": 0,
+                "y": -0.087156,
+                "z": 0,
+                "w": 0.996195
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": 4.199999999999999,
+                  "y": -4.454000000000001,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": 0.7,
+                  "y": 0.68,
+                  "z": -0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 12,
+                    "y": 16
+                  },
+                  "normal": "+Z"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 44,
+                      "y": 23
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            },
+            {
+              "id": "201",
+              "name": "R_Side_Cloth_2",
+              "children": [
+                {
+                  "id": "202",
+                  "name": "R_Side_Cloth_Side_R",
+                  "children": [],
+                  "position": {
+                    "x": 0.0120673,
+                    "y": 2.7109804800000004,
+                    "z": 6.2923
+                  },
+                  "orientation": {
+                    "x": -0.000708,
+                    "y": -0.086992,
+                    "z": -0.01391,
+                    "w": 0.996112
+                  },
+                  "shape": {
+                    "type": "quad",
+                    "offset": {
+                      "x": 2.4499999999999997,
+                      "y": -3.0940000000000003,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": 0.7,
+                      "y": 0.68,
+                      "z": -0.7
+                    },
+                    "settings": {
+                      "size": {
+                        "x": 7,
+                        "y": 9
+                      },
+                      "normal": "+Z"
+                    },
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat",
+                    "unwrapMode": "custom",
+                    "textureLayout": {
+                      "front": {
+                        "offset": {
+                          "x": 49,
+                          "y": 39
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    }
+                  }
+                }
+              ],
+              "position": {
+                "x": 0.0,
+                "y": -4.42,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0,
+                "z": 0.087156,
+                "w": 0.996195
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": 0.0,
+                  "y": -2.72,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": -0.7,
+                  "y": 0.68,
+                  "z": -0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 18,
+                    "y": 8
+                  },
+                  "normal": "-X"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 44,
+                      "y": 39
+                    },
+                    "mirror": {
+                      "x": true,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            }
+          ],
+          "position": {
+            "x": -9.454899999999999,
+            "y": 2.3800000000000003,
+            "z": 0.0
+          },
+          "orientation": {
+            "x": 0,
+            "y": 0,
+            "z": -0.258819,
+            "w": 0.965926
+          },
+          "shape": {
+            "type": "quad",
+            "offset": {
+              "x": -0.2046156,
+              "y": -4.080077520000001,
+              "z": 0.0
+            },
+            "stretch": {
+              "x": -0.7,
+              "y": 0.68,
+              "z": -0.7
+            },
+            "settings": {
+              "size": {
+                "x": 18,
+                "y": 13
+              },
+              "normal": "-X"
+            },
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat",
+            "unwrapMode": "custom",
+            "textureLayout": {
+              "front": {
+                "offset": {
+                  "x": 44,
+                  "y": 26
+                },
+                "mirror": {
+                  "x": true,
+                  "y": false
+                },
+                "angle": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "204",
+          "name": "L_Side_Cloth_1",
+          "children": [
+            {
+              "id": "205",
+              "name": "L_Side_Cloth_Side_R",
+              "children": [],
+              "position": {
+                "x": 0.0,
+                "y": 5.44,
+                "z": -6.3
+              },
+              "orientation": {
+                "x": 0,
+                "y": -0.087156,
+                "z": 0,
+                "w": 0.996195
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": -4.199999999999999,
+                  "y": -6.12,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": -0.7,
+                  "y": 0.68,
+                  "z": 0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 12,
+                    "y": 20
+                  },
+                  "normal": "+Z"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 42,
+                      "y": 23
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            },
+            {
+              "id": "206",
+              "name": "L_Side_Cloth_Side_L",
+              "children": [],
+              "position": {
+                "x": 0.0,
+                "y": 5.44,
+                "z": 6.3
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0.087156,
+                "z": 0,
+                "w": 0.996195
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": -4.199999999999999,
+                  "y": -4.454000000000001,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": -0.7,
+                  "y": 0.68,
+                  "z": -0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 12,
+                    "y": 16
+                  },
+                  "normal": "+Z"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 42,
+                      "y": 23
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            },
+            {
+              "id": "207",
+              "name": "L_Side_Cloth_2",
+              "children": [
+                {
+                  "id": "208",
+                  "name": "L_Side_Cloth_Side_L",
+                  "children": [],
+                  "position": {
+                    "x": -0.0120673,
+                    "y": 2.7109804800000004,
+                    "z": 6.2923
+                  },
+                  "orientation": {
+                    "x": -0.000708,
+                    "y": 0.086992,
+                    "z": 0.01391,
+                    "w": 0.996112
+                  },
+                  "shape": {
+                    "type": "quad",
+                    "offset": {
+                      "x": -2.4499999999999997,
+                      "y": -3.0940000000000003,
+                      "z": 0.0
+                    },
+                    "stretch": {
+                      "x": -0.7,
+                      "y": 0.68,
+                      "z": -0.7
+                    },
+                    "settings": {
+                      "size": {
+                        "x": 7,
+                        "y": 9
+                      },
+                      "normal": "+Z"
+                    },
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat",
+                    "unwrapMode": "custom",
+                    "textureLayout": {
+                      "front": {
+                        "offset": {
+                          "x": 49,
+                          "y": 39
+                        },
+                        "mirror": {
+                          "x": false,
+                          "y": false
+                        },
+                        "angle": 0
+                      }
+                    }
+                  }
+                }
+              ],
+              "position": {
+                "x": 0.0,
+                "y": -4.42,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0,
+                "y": 0,
+                "z": -0.087156,
+                "w": 0.996195
+              },
+              "shape": {
+                "type": "quad",
+                "offset": {
+                  "x": 0.0,
+                  "y": -2.72,
+                  "z": 0.0
+                },
+                "stretch": {
+                  "x": -0.7,
+                  "y": 0.68,
+                  "z": -0.7
+                },
+                "settings": {
+                  "size": {
+                    "x": 18,
+                    "y": 8
+                  },
+                  "normal": "+X"
+                },
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat",
+                "unwrapMode": "custom",
+                "textureLayout": {
+                  "front": {
+                    "offset": {
+                      "x": 26,
+                      "y": 39
+                    },
+                    "mirror": {
+                      "x": false,
+                      "y": false
+                    },
+                    "angle": 0
+                  }
+                }
+              }
+            }
+          ],
+          "position": {
+            "x": 9.5053875,
+            "y": 2.4495164000000003,
+            "z": 0.0
+          },
+          "orientation": {
+            "x": 0,
+            "y": 0,
+            "z": 0.258819,
+            "w": 0.965926
+          },
+          "shape": {
+            "type": "quad",
+            "offset": {
+              "x": 0.2046156,
+              "y": -4.080077520000001,
+              "z": 0.0
+            },
+            "stretch": {
+              "x": -0.7,
+              "y": 0.68,
+              "z": -0.7
+            },
+            "settings": {
+              "size": {
+                "x": 18,
+                "y": 13
+              },
+              "normal": "+X"
+            },
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat",
+            "unwrapMode": "custom",
+            "textureLayout": {
+              "front": {
+                "offset": {
+                  "x": 26,
+                  "y": 26
+                },
+                "mirror": {
+                  "x": false,
+                  "y": false
+                },
+                "angle": 0
+              }
+            }
+          }
+        }
+      ],
+      "position": {
+        "x": 0,
+        "y": 50.818001,
+        "z": 0
+      },
+      "orientation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+      },
+      "shape": {
+        "type": "none",
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "stretch": {
+          "x": 0.956663,
+          "y": 1,
+          "z": 0.991153
+        },
+        "settings": {
+          "isPiece": true
+        },
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat",
+        "unwrapMode": "custom",
+        "textureLayout": {}
+      }
+    },
+    {
+      "id": "191",
+      "name": "Belly",
+      "children": [],
+      "position": {
+        "x": 0,
+        "y": 63.818001,
+        "z": 0
+      },
+      "orientation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+      },
+      "shape": {
+        "type": "none",
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "stretch": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "settings": {
+          "isPiece": true
+        },
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat",
+        "unwrapMode": "custom",
+        "textureLayout": {}
+      }
+    }
+  ]
+}

@@ -1,73 +1,409 @@
-Group {
+// NPC interaction panel.
+//
+// Every #id here is part of the contract with NPCInteractionPage.java: the click bindings
+// target the Button ids (#ChatButton) and the text is written into the child Label ids
+// (#ChatButtonText.TextSpans). Removing or renaming one throws KeyNotFoundException and the
+// screen fails to load, so the structure is preserved exactly — only the presentation changed.
+
+$T = "../SimTaleTheme.ui";
+
+// One showcase slot: the item on top, a short caption under it.
+@ShowcaseSlot = Group {
+  Anchor: (Width: 96, Height: 50);
+  LayoutMode: Top;
+
+  Group {
+    Anchor: (Height: 32, Bottom: 2);
+    LayoutMode: MiddleCenter;
+
+    ItemIcon #Icon {
+      Anchor: (Width: 28, Height: 28);
+    }
+  }
+
+  Label #Caption {
+    Text: "—";
+    Anchor: (Height: 16);
+    Style: (...$T.@BodyStyle, FontSize: 11, HorizontalAlignment: Center, ShrinkTextToFit: true, MinShrinkTextToFitFontSize: 9);
+  }
+};
+
+// Bare icon for the taste rows: no caption, since the row label already says what it means.
+@TasteIcon = Group {
+  Anchor: (Width: 26, Height: 26, Right: 4);
   LayoutMode: MiddleCenter;
-  Background: #00000099;
+
+  ItemIcon #Icon {
+    Anchor: (Width: 24, Height: 24);
+  }
+};
+
+Group {
+  LayoutMode: Right;
+  Background: #00000000;
+
   Group #MainPanel {
-    Anchor: (Width: 560, Height: 720);
-    LayoutMode: Full;
-    Background: #222222FF;
+    Anchor: (Right: 48, Width: 480, Height: 750);
+    LayoutMode: Top;
+    Background: $T.@PanelSurface;
+    Padding: (Top: 18, Bottom: 16, Horizontal: 22);
+
+    // ---------------------------------------------------------------- header
     Label #NpcName {
-      Text: "cookie";
-      Anchor: (Width: 240, Height: 50, Top: 42);
-      Style: (FontSize: 34, TextColor: #FFFFFFFF, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+      Text: "NPC";
+      Anchor: (Height: 32, Bottom: 4);
+      Style: (...$T.@TitleStyle, FontSize: 24, HorizontalAlignment: Center);
     }
-    Label #NpcMood {
-      Text: "Humor: Feliz";
-      Anchor: (Width: 220, Height: 28, Top: 92);
-      Style: (FontSize: 18, TextColor: #AAAAAAFF, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center);
-    }
-    Group #NpcPortrait {
-      Anchor: (Width: 180, Height: 180, Top: 140);
-      Background: #6f0101;
-    }
-    Label #NpcDialogue {
-      Text: "Eae, Cookie.";
-      Anchor: (Width: 420, Height: 70, Top: 340);
-      Background: #1f1fd6;
-      Style: (FontSize: 22, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
-    }
-    Button #ChatButton {
-      Anchor: (Width: 360, Height: 54, Top: 440);
-      Background: #444444FF;
-      Label {
-        Text: "Bater Papo";
-        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-        Style: (FontSize: 22, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+
+    Group #HeaderBadges {
+      Anchor: (Height: 26, Bottom: 10);
+      LayoutMode: CenterMiddle;
+
+      Group #ProfessionBadge {
+        Anchor: (Width: 213, Height: 26, Right: 10);
+        Background: $T.@CardSurface;
+        Padding: (Horizontal: 8, Vertical: 3);
+        LayoutMode: MiddleCenter;
+
+        Label #NpcProfession {
+          Text: "Profissão: Desempregado";
+          Anchor: (Height: 20);
+          Style: (...$T.@SubtitleStyle, FontSize: 12, TextColor: $T.@TextGold, HorizontalAlignment: Center);
+        }
+      }
+
+      Group #MoodBadge {
+        Anchor: (Width: 213, Height: 26);
+        Background: $T.@CardSurface;
+        Padding: (Horizontal: 8, Vertical: 3);
+        LayoutMode: MiddleCenter;
+
+        Label #NpcMood {
+          Text: "Humor: Feliz";
+          Anchor: (Height: 20);
+          Style: (...$T.@CaptionStyle, FontSize: 12, TextColor: $T.@TextPrimary, HorizontalAlignment: Center);
+        }
       }
     }
-    Button #JokeButton {
-      Anchor: (Width: 360, Height: 54, Top: 504);
-      Background: #444444FF;
-      Label {
-        Text: "Contar Piada";
-        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-        Style: (FontSize: 22, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+
+    $T.@Separator { @Anchor = (Bottom: 8); }
+
+    // ---------------------------------------------------------------- vitals
+    Group #VitalsContainer {
+      Anchor: (Height: 74, Bottom: 8);
+      LayoutMode: Top;
+
+      Group #HungerSection {
+        Anchor: (Height: 33, Bottom: 8);
+        LayoutMode: Top;
+
+        Group {
+          Anchor: (Height: 18, Bottom: 2);
+          LayoutMode: Left;
+
+          Label #NpcHunger {
+            Text: "Fome: —";
+            Anchor: (Full: 0);
+            Style: (...$T.@BodyStrong, FontSize: 12);
+          }
+        }
+
+        Group #HungerBarTrack {
+          Anchor: (Height: 10);
+          Background: $T.@BarTrack;
+          Padding: (Horizontal: 3, Vertical: 1);
+
+          Group #HungerBarFill {
+            Anchor: (Width: 100, Height: 8);
+            Background: $T.@BarFillAmber;
+          }
+        }
+      }
+
+      Group #EnergySection {
+        Anchor: (Height: 33);
+        LayoutMode: Top;
+
+        Group {
+          Anchor: (Height: 18, Bottom: 2);
+          LayoutMode: Left;
+
+          Label #NpcEnergy {
+            Text: "Energia: —";
+            Anchor: (Full: 0);
+            Style: (...$T.@BodyStrong, FontSize: 12);
+          }
+        }
+
+        Group #EnergyBarTrack {
+          Anchor: (Height: 10);
+          Background: $T.@BarTrack;
+          Padding: (Horizontal: 3, Vertical: 1);
+
+          Group #EnergyBarFill {
+            Anchor: (Width: 100, Height: 8);
+            Background: $T.@BarFillGreen;
+          }
+        }
       }
     }
-    Button #FlirtButton {
-      Anchor: (Width: 360, Height: 54, Top: 568);
-      Background: #444444FF;
-      Label {
-        Text: "Paquerar";
-        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-        Style: (FontSize: 22, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+
+    // ---------------------------------------------------------------- info well
+    Group #InfoPanel {
+      Anchor: (Height: 240, Bottom: 8);
+      LayoutMode: Top;
+      Background: $T.@InsetSurface;
+      Padding: (Top: 8, Bottom: 8, Horizontal: 12);
+
+      Label #InfoHeader {
+        Text: "INFORMAÇÕES";
+        Anchor: (Height: 16, Bottom: 4);
+        Style: (...$T.@SectionHeaderStyle, FontSize: 11);
+      }
+
+      // Dense 2-column info grid
+      Group #InfoGrid {
+        Anchor: (Height: 44, Bottom: 6);
+        LayoutMode: Left;
+
+        Group #InfoColLeft {
+          Anchor: (Width: 200, Right: 12);
+          LayoutMode: Top;
+
+          Label #NpcTraits {
+            Text: "Traços: —";
+            Anchor: (Height: 20, Bottom: 2);
+            Style: (...$T.@BodyStyle, FontSize: 12);
+          }
+
+          Label #NpcSeason {
+            Text: "Estação Fav.: —";
+            Anchor: (Height: 20);
+            Style: (...$T.@BodyStyle, FontSize: 12);
+          }
+        }
+
+        Group #InfoColRight {
+          Anchor: (Width: 200);
+          LayoutMode: Top;
+
+          Label #NpcFamilyParents {
+            Text: "Pais: —";
+            Anchor: (Height: 20, Bottom: 2);
+            Style: (...$T.@BodyStyle, FontSize: 12);
+          }
+
+          Label #NpcFamilyChildren {
+            Text: "Filhos: —";
+            Anchor: (Height: 20);
+            Style: (...$T.@BodyStyle, FontSize: 12);
+          }
+        }
+      }
+
+      // Showcase items (Profession & Hobby)
+      Group #Showcase {
+        Anchor: (Height: 48, Bottom: 4);
+        LayoutMode: CenterMiddle;
+
+        @ShowcaseSlot #SlotProfession {
+          Anchor: (Width: 96, Height: 48, Right: 12);
+        }
+        @ShowcaseSlot #SlotHobby {
+          Anchor: (Width: 96, Height: 48);
+        }
+      }
+
+      // Taste rows (Likes & Hates)
+      Group #LikesRow {
+        Anchor: (Height: 28, Bottom: 3);
+        LayoutMode: Left;
+
+        Label #LikesCaption {
+          Text: "Gosta:";
+          Anchor: (Width: 56, Height: 24, Top: 2);
+          Style: (...$T.@BodyStyle, FontSize: 12, TextColor: $T.@AccentLike, RenderBold: true);
+        }
+        @TasteIcon #Like0 {}
+        @TasteIcon #Like1 {}
+        @TasteIcon #Like2 {}
+        @TasteIcon #Like3 {}
+        @TasteIcon #Like4 {}
+        @TasteIcon #Like5 {}
+      }
+
+      Group #HatesRow {
+        Anchor: (Height: 28);
+        LayoutMode: Left;
+
+        Label #HatesCaption {
+          Text: "Odeia:";
+          Anchor: (Width: 56, Height: 24, Top: 2);
+          Style: (...$T.@BodyStyle, FontSize: 12, TextColor: $T.@AccentHate, RenderBold: true);
+        }
+        @TasteIcon #Hate0 {}
+        @TasteIcon #Hate1 {}
+        @TasteIcon #Hate2 {}
+        @TasteIcon #Hate3 {}
+        @TasteIcon #Hate4 {}
+        @TasteIcon #Hate5 {}
       }
     }
-    Button #InsultButton {
-      Anchor: (Width: 170, Height: 50, Top: 632, Left: 100);
-      Background: #662222FF;
-      Label {
-        Text: "Insultar";
-        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-        Style: (FontSize: 18, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+
+    // ---------------------------------------------------------------- relationship status
+    Group #RelationshipCard {
+      Anchor: (Height: 44, Bottom: 8);
+      Background: $T.@WellSurface;
+      Padding: (Horizontal: 12, Vertical: 4);
+      LayoutMode: Top;
+
+      Label #NpcRelationship {
+        Text: "Relacionamento: Desconhecido";
+        Anchor: (Height: 18, Bottom: 2);
+        Style: (...$T.@BodyStrong, FontSize: 12, TextColor: $T.@TextGold);
+      }
+
+      Group #RelationshipBarTrack {
+        Anchor: (Height: 10);
+        Background: $T.@BarTrack;
+        Padding: (Horizontal: 3, Vertical: 1);
+
+        Group #RelationshipBarFill {
+          Anchor: (Width: 80, Height: 8);
+          Background: $T.@BarFillPink;
+        }
       }
     }
-    Button #GiftButton {
-      Anchor: (Width: 170, Height: 50, Top: 632, Right: 100);
-      Background: #226622FF;
-      Label {
-        Text: "Presentear";
-        Anchor: (Top: 0, Bottom: 0, Left: 0, Right: 0);
-        Style: (FontSize: 18, TextColor: #FFFFFFFF, HorizontalAlignment: Center, VerticalAlignment: Center);
+
+    $T.@Separator { @Anchor = (Bottom: 8); }
+
+    // ---------------------------------------------------------------- actions
+    Group #ButtonGrid {
+      LayoutMode: Top;
+
+      Group #ButtonRow1 {
+        Anchor: (Height: 38, Bottom: 6);
+        LayoutMode: CenterMiddle;
+
+        Button #ChatButton {
+          Anchor: (Width: 213, Height: 38, Right: 10);
+          Style: $T.@BtnNeutral;
+          Label #ChatButtonText {
+            Text: "Bater Papo";
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+        Button #JokeButton {
+          Anchor: (Width: 213, Height: 38);
+          Style: $T.@BtnNeutral;
+          Label #JokeButtonText {
+            Text: "Contar Piada";
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+      }
+
+      Group #ButtonRow2 {
+        Anchor: (Height: 38, Bottom: 6);
+        LayoutMode: CenterMiddle;
+
+        Button #GiftButton {
+          Anchor: (Width: 213, Height: 38, Right: 10);
+          Style: $T.@BtnSecondary;
+          Label #GiftButtonText {
+            Text: "Presentear";
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+        Button #FlirtButton {
+          Anchor: (Width: 213, Height: 38);
+          Style: $T.@BtnSecondary;
+          Label #FlirtButtonText {
+            Text: "Paquerar";
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+        Button #CarryButton {
+          Anchor: (Width: 213, Height: 38);
+          Style: $T.@BtnSecondary;
+          Visible: false;
+          Label #CarryButtonText {
+            Text: %ui.button.carry;
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+      }
+
+      Group #ButtonRow3 {
+        Anchor: (Height: 38, Bottom: 6);
+        LayoutMode: CenterMiddle;
+
+        Button #AssignProfessionButton {
+          Anchor: (Width: 213, Height: 38, Right: 10);
+          Style: $T.@BtnTertiary;
+          Label #AssignProfessionButtonText {
+            Text: "Dar Emprego";
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+        Button #KissButton {
+          Anchor: (Width: 213, Height: 38);
+          Style: $T.@BtnSecondary;
+          Visible: false;
+          Label #KissButtonText {
+            Text: %ui.button.kiss;
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+      }
+
+      Group #ButtonRow4 {
+        Anchor: (Height: 38, Bottom: 6);
+        LayoutMode: CenterMiddle;
+        Visible: false;
+
+        Button #InventoryButton {
+          Anchor: (Width: 213, Height: 38, Right: 10);
+          Style: $T.@BtnTertiary;
+          Visible: false;
+          Label #InventoryButtonText {
+            Text: %ui.button.inventory;
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+        Button #PregnancyButton {
+          Anchor: (Width: 213, Height: 38);
+          Style: $T.@BtnSecondary;
+          Visible: false;
+          Label #PregnancyButtonText {
+            Text: %ui.button.pregnancy;
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
+      }
+
+      Group #ButtonRow5 {
+        Anchor: (Height: 36);
+        LayoutMode: CenterMiddle;
+
+        Button #InsultButton {
+          Anchor: (Width: 436, Height: 36);
+          Style: $T.@BtnDestructive;
+          Label #InsultButtonText {
+            Text: "Insultar";
+            Anchor: (Full: 0);
+            Style: (...$T.@ButtonLabelStyle, FontSize: 14);
+          }
+        }
       }
     }
   }

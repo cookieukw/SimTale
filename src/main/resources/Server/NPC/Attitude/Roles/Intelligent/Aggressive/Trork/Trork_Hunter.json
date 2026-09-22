@@ -1,0 +1,13 @@
+{
+  "Groups": {
+    "Hostile": [
+      "Kweebec",
+      "Birds",
+      "Deer",
+      "SimTaleVillager"
+    ],
+    "Ignore": [
+      "Kweebec_Prisoner"
+    ]
+  }
+}

@@ -47,5 +47,70 @@
       "GradientSet": "Skin",
       "GradientId": "02"
     }
-  ]
+  ],
+  "AnimationSets": {
+    "Smile": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Expressions/Smile.blockyanim"
+        }
+      ]
+    },
+    "Angry": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Expressions/Angry.blockyanim"
+        }
+      ]
+    },
+    "Frown": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Expressions/Frown.blockyanim"
+        }
+      ]
+    },
+    "Surprised": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Expressions/Suprised.blockyanim"
+        }
+      ]
+    },
+    "Cheerful": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Expressions/Cheerful.blockyanim"
+        }
+      ]
+    },
+    "Grin": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Expressions/Grin.blockyanim"
+        }
+      ]
+    },
+    "Rage": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Expressions/Rage.blockyanim"
+        }
+      ]
+    },
+    "Smirk": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Expressions/Smirk.blockyanim"
+        }
+      ]
+    },
+    "Talk": {
+      "Animations": [
+        {
+          "Animation": "Characters/Animations/Expressions/Talk/Talk.blockyanim"
+        }
+      ]
+    }
+  }
 }

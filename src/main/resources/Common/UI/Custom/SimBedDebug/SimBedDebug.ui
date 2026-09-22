@@ -1,0 +1,138 @@
+// Registered beds browser.
+//
+// SimBedDebugPage addresses the rows by composing ids — "#Row0.Coords", "#Row2.BtnTp" and so
+// on — so the @BedRow template, the five #Row0..#Row4 instances and the inner #Coords,
+// #Status, #BtnTp and #BtnUnclaim ids all have to keep their names.
+
+$T = "../SimTaleTheme.ui";
+
+@RowH   = 76;
+@RowBtnW = 118;
+@RowBtnH = 38;
+
+// One bed entry. Given its own inset surface so the list reads as separate cards rather than
+// one long striped block, which is what the flat fill used to look like.
+@BedRow = Group {
+  Anchor: (Height: @RowH, Bottom: 8);
+  LayoutMode: Left;
+  Background: $T.@InsetSurface;
+  Padding: (Horizontal: 14, Vertical: 9);
+
+  Group {
+    FlexWeight: 1;
+    LayoutMode: Top;
+
+    Label #Coords {
+      Text: "Posição: X: 0, Y: 0, Z: 0";
+      Anchor: (Height: 28, Bottom: 2);
+      Style: (...$T.@BodyStrong, FontSize: 15);
+    }
+    Label #Status {
+      Text: "Status: LIVRE";
+      Anchor: (Height: 24);
+      Style: (...$T.@BodyStyle, FontSize: 13, TextColor: $T.@AccentLike);
+    }
+  }
+
+  Button #BtnTp {
+    Anchor: (Width: @RowBtnW, Height: @RowBtnH, Top: 10, Right: 8);
+    Style: $T.@BtnNeutral;
+    Label { Text: %ui.debugbeds.btnTp; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
+  }
+
+  // Breaks the NPC's link to the bed, so it gets the destructive treatment.
+  Button #BtnUnclaim {
+    Anchor: (Width: @RowBtnW, Height: @RowBtnH, Top: 10);
+    Style: $T.@BtnDestructive;
+    Label { Text: %ui.debugbeds.btnUnclaim; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
+  }
+};
+
+Group {
+  LayoutMode: MiddleCenter;
+  Background: #0C0806(0.85);
+
+  SceneBlur {}
+
+  Group #MainPanel {
+    Anchor: (Width: 640, Height: 700);
+    LayoutMode: Top;
+    Background: $T.@PanelSurface;
+    Padding: (Horizontal: $T.@GutterOuter, Vertical: 20);
+
+    Label #Title {
+      Text: %ui.debugbeds.title;
+      Anchor: (Height: 34, Bottom: 4);
+      Style: (...$T.@TitleStyle, FontSize: 24, TextColor: $T.@TextGold);
+    }
+
+    $T.@Separator { @Anchor = (Bottom: 12); }
+
+    Group #EmptyContainer {
+      FlexWeight: 1;
+      LayoutMode: MiddleCenter;
+      Visible: false;
+
+      Group {
+        LayoutMode: MiddleCenter;
+        Anchor: (Width: 440);
+
+        Group #EmptyIcon {
+          Anchor: (Width: 64, Height: 64, Bottom: 16);
+          Background: $T.@IconEmptyBed;
+        }
+
+        Label #EmptyTitle {
+          Text: %ui.debugbeds.emptyTitle;
+          Anchor: (Height: 28, Bottom: 6);
+          Style: (...$T.@TitleStyle, FontSize: 20, TextColor: $T.@TextGold, HorizontalAlignment: Center);
+        }
+
+        Label #EmptySubtitle {
+          Text: %ui.debugbeds.emptySubtitle;
+          Anchor: (Height: 24);
+          Style: (...$T.@CaptionStyle, FontSize: 14, TextColor: $T.@TextMuted, HorizontalAlignment: Center, Wrap: true);
+        }
+      }
+    }
+
+    Group #ListContainer {
+      FlexWeight: 1;
+      LayoutMode: Top;
+
+      @BedRow #Row0 {}
+      @BedRow #Row1 {}
+      @BedRow #Row2 {}
+      @BedRow #Row3 {}
+      @BedRow #Row4 {}
+    }
+
+    Group {
+      Anchor: (Height: 42, Top: 12, Bottom: 8);
+      LayoutMode: Left;
+
+      Button #BtnPrevPage {
+        Anchor: (Width: 148, Height: 42, Right: 10);
+        Style: $T.@BtnTertiary;
+        Label { Text: %ui.debugbeds.btnPrev; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
+      }
+      Label #PageIndex {
+        Text: "Página 1 / 1";
+        Anchor: (Width: 284, Height: 42, Right: 10);
+        Style: (...$T.@BodyStrong, HorizontalAlignment: Center);
+      }
+      Button #BtnNextPage {
+        Anchor: (Width: 148, Height: 42);
+        Style: $T.@BtnTertiary;
+        Label { Text: %ui.debugbeds.btnNext; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
+      }
+    }
+
+    Button #BtnBack {
+      Anchor: (Height: 42);
+      Style: $T.@BtnNeutral;
+      Label { Text: %ui.debugbeds.btnBack; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 14); }
+    }
+  }
+}
+

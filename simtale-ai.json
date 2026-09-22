@@ -1,0 +1,8 @@
+{
+  "provider": "gemini",
+  "geminiKey": "",
+  "openaiKey": "",
+  "openrouterKey": "",
+  "customUrl": "",
+  "customModel": ""
+}

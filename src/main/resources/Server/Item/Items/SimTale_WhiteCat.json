@@ -1,0 +1,15 @@
+{
+  "TranslationProperties": {
+    "Name": "simtale.item.white_cat.name",
+    "Description": "simtale.item.white_cat.description"
+  },
+  "Icon": "Icons/Items/SimTale_WhiteCat.png",
+  "Model": "NPC/Animals/Cat/WhiteCat.blockymodel",
+  "Texture": "NPC/Animals/Cat/WhiteCat.png",
+  "PlayerAnimationsId": "Item",
+  "Scale": 0.5,
+  "MaxStack": 16,
+  "Interactions": {
+    "Secondary": "RuneCore_GenericItemUse"
+  }
+}

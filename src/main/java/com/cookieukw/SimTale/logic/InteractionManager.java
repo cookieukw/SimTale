@@ -1,160 +1,1123 @@
 package com.cookieukw.SimTale.logic;
 
+import com.cookieukw.SimTale.core.AssetIds;
+
+import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
+import com.cookie.runecore.api.StatHelper;
+import com.cookieukw.SimTale.ai.AiConfigManager;
+import com.cookieukw.SimTale.systems.NPCFoodHelper;
+import com.cookieukw.SimTale.ai.AiMessage;
+import com.cookieukw.SimTale.ai.AiRequest;
+import com.cookieukw.SimTale.ai.NpcContextBuilder;
+import com.cookieukw.SimTale.core.NeedsHelper;
+import com.cookieukw.SimTale.core.Memory;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
+import com.cookieukw.SimTale.core.lifecycle.ParentChildBond;
+import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.core.Relationship;
+import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.ThoughtType;
 import com.cookieukw.SimTale.core.Trait;
+import com.cookieukw.SimTale.core.WorldUtil;
+import com.cookieukw.SimTale.core.WeaponCategory;
+import com.cookieukw.SimTale.core.WeaponCategoryRegistry;
+import com.cookieukw.SimTale.systems.EmoteBubbleSystem;
+import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
+import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
-
-import java.util.UUID;
-import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.Universe;
-import com.hypixel.hytale.server.core.universe.world.World;
+import com.cookieukw.SimTale.systems.NPCArmorHelper;
+import com.cookieukw.SimTale.systems.NPCLeisureHelper;
+import com.cookieukw.SimTale.systems.SimTaleJuiceHelper;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
-import com.cookie.runecore.api.PlayerStats;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
+
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.function.Function;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class InteractionManager {
 
-    public static String performInteraction(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, InteractionType type) {
-        Mood mood = npc.getMood();
-        int baseChange = 0;
-        int trustChange = 0;
-        String response = "";
-        MemoryEvent memEvent = MemoryEvent.CHATTED;
+    private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
-        switch (type) {
-            case FRIENDLY -> {
-                baseChange = 5;
-                trustChange = 1;
-                memEvent = MemoryEvent.CHATTED;
-                response = getContextualGreeting(npc, playerUuid, playerRef);
+    /**
+      * @param rejected the interaction did not happen (no item held, wrong tool, already
+      *                 married, ...). Only the message is delivered; nothing is applied.
+      */
+    public record InteractionOutcome(
+        int friendship,
+        int romance,
+        int trust,
+        int affinity,
+        Message response,
+        MemoryEvent memoryEvent,
+        boolean consumeItem,
+        boolean rejected
+    ) {
+        public static InteractionOutcome of(int f, int r, int t, int a, Message msg, MemoryEvent event) {
+            return new InteractionOutcome(f, r, t, a, msg, event, false, false);
+        }
+        
+        public static InteractionOutcome ofItem(int f, int r, int t, int a, Message msg, MemoryEvent event, boolean consume) {
+            return new InteractionOutcome(f, r, t, a, msg, event, consume, false);
+        }
+
+        public static InteractionOutcome error(Message msg) {
+            return new InteractionOutcome(0, 0, 0, 0, msg, null, false, true);
+        }
+    }
+
+    private record DailyState(boolean cooldownActive, boolean missedLongTime) {}
+
+    private static final Set<String> FOOD_KEYWORDS = Set.of(
+        "food", "apple", "bread", "meat", "fish", "carrot", 
+        "potato", "soup", "fruit", "berry", "cookie", "pie"
+    );
+
+    private enum GiftCategory {
+        TRASH(
+            Set.of("dirt", "soil_sand", "rock_stone", "spiderweb", "gravel", "deco_trash",
+                   "trash", "bone", "poison", "weed", "scrap", "sludge"),
+            Set.of("terra", "pedra", "teia", "cascalho", "areia", "lixo",
+                   "osso", "veneno", "ervas", "sucata")
+        ),
+        BASIC(
+            Set.of("stone", "wood", "cobble", "gravel", "sand", "plank", "seed", "sapling",
+                   "food_beef_raw", "food_chicken_raw", "food_pork_raw", "food_egg", "food_wildmeat_raw"),
+            Set.of()
+        );
+
+        private final Set<String> idKeywords;
+        private final Set<String> nameKeywords;
+
+        GiftCategory(Set<String> idKeywords, Set<String> nameKeywords) {
+            this.idKeywords = idKeywords;
+            this.nameKeywords = nameKeywords;
+        }
+
+        boolean matches(String itemIdLower, String itemNameLower) {
+            return idKeywords.stream().anyMatch(itemIdLower::contains)
+                || nameKeywords.stream().anyMatch(itemNameLower::contains);
+        }
+
+        static Optional<GiftCategory> classify(String itemIdLower, String itemNameLower) {
+            return Arrays.stream(values())
+                .filter(c -> c.matches(itemIdLower, itemNameLower))
+                .findFirst();
+        }
+    }
+
+    public static Message performInteraction(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, InteractionType type) {
+        boolean isChild = isNpcAChild(npc);
+
+        if (isChild && (type == InteractionType.ROMANTIC || type == InteractionType.KISS)) {
+            return Message.translation("npc-dialogues.flirt.child");
+        }
+
+        Relationship rel = npc.getRelationship(playerUuid);
+        DailyState daily = refreshDailyState(rel);
+
+        if (daily.cooldownActive()) {
+            return getCooldownMessage(type, npc.name);
+        }
+
+        InteractionOutcome outcome = switch (type) {
+            case FRIENDLY -> handleFriendly(npc, playerUuid, playerRef, rel, daily.missedLongTime());
+            case FUNNY -> handleFunny(npc, playerUuid, playerRef, rel);
+            case ROMANTIC -> handleRomantic(npc, rel);
+            case KISS -> handleKiss(npc, rel, playerRef);
+            case MEAN -> handleMean(npc, rel);
+            case SCOLD -> handleScold(npc, playerUuid, rel);
+            case RANDOM -> handleRandom(rel);
+            case GIFT -> handleGift(npc, playerUuid, playerRef, rel, isChild);
+            case ASSIGN_PROFESSION -> handleProfession(npc, playerRef, rel);
+        };
+
+        /* Explicit flag instead of inferring rejection from the data shape. The old check was
+        `memoryEvent == null && friendship == 0 && affinity == 0`, which silently threw away
+        any legitimate outcome that happened to have no friendship/affinity delta.
+        */
+        Store<EntityStore> store = npc.entityRef != null ? npc.entityRef.getStore() : null;
+        long tick = System.currentTimeMillis() / 50;
+
+        if (outcome.rejected() || (type == InteractionType.ROMANTIC && outcome.affinity() < 0)) {
+            if (type == InteractionType.ROMANTIC) {
+                SimTaleJuiceHelper.playFlirtReject(npc.entityRef, npc, playerRef, store, tick);
+            } else if (type == InteractionType.FUNNY) {
+                SimTaleJuiceHelper.playJokeFail(npc.entityRef, npc, store, tick);
+            } else if (type == InteractionType.ASSIGN_PROFESSION) {
+                SimTaleJuiceHelper.playProfessionReaction(npc.entityRef, npc, false, false, store);
             }
-            case FUNNY -> {
-                memEvent = MemoryEvent.JOKED;
-                if (mood == Mood.ANGRY || mood == Mood.SAD) {
-                    baseChange = -5;
-                    response = npc.name + ": ...isso era pra ser engraçado?";
-                } else if (npc.personality.traits.contains(Trait.FUNNY)) {
-                    baseChange = 10;
-                    trustChange = 2;
-                    response = npc.name + ": HAHAHA! Boa! Você leva jeito pra comédia.";
-                } else {
-                    baseChange = 5;
-                    trustChange = 1;
-                    response = "Você contou uma piada! " + npc.name + " riu bastante.";
+            return outcome.response();
+        }
+
+        rel.interactionsToday++;
+        applyOutcome(npc, playerUuid, rel, outcome, isChild);
+
+        if (type == InteractionType.ROMANTIC && outcome.affinity() > 0) {
+            SimTaleJuiceHelper.playFlirtSuccess(npc.entityRef, npc, playerRef, store, tick);
+            EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.LOVE);
+        } else {
+            if ((type == InteractionType.MEAN || (type == InteractionType.SCOLD && outcome.friendship() < 0)) && !isChild) {
+                if (playerRef != null && playerRef.getReference() != null && npc.entityRef != null && store != null) {
+                    SimTaleJuiceHelper.playShove(npc.entityRef, npc, playerRef.getReference(), playerRef,
+                            store, 2.0f, tick);
                 }
-            }
-            case ROMANTIC -> {
-                memEvent = MemoryEvent.FLIRTED;
-                int affinity = npc.getRelationship(playerUuid).friendship;
-                if (affinity < 20 || mood == Mood.ANGRY) {
-                    baseChange = -10;
-                    trustChange = -2;
-                    response = npc.name + ": Cara... que? Sai pra lá.";
-                } else if (npc.personality.traits.contains(Trait.SHY)) {
-                    baseChange = 5;
-                    trustChange = 2;
-                    response = npc.name + " cora e desvia o olhar: O-obrigado...";
+                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.ANGRY);
+            } else if (type == InteractionType.MEAN || (type == InteractionType.SCOLD && outcome.friendship() < 0)) {
+                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.SAD);
+            } else if (type == InteractionType.FUNNY) {
+                if (outcome.affinity() > 0 || outcome.friendship() > 0) {
+                    SimTaleJuiceHelper.playJokeSuccess(npc.entityRef, npc, store, tick);
+                    EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.JOY);
                 } else {
-                    baseChange = 10;
-                    trustChange = 1;
-                    response = npc.name + ": Heh... continua falando.";
+                    SimTaleJuiceHelper.playJokeFail(npc.entityRef, npc, store, tick);
+                    EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.NERVOUS);
                 }
-            }
-            case MEAN -> {
-                memEvent = MemoryEvent.INSULTED;
-                trustChange = -15;
-                if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
-                    baseChange = -20;
-                    response = npc.name + " saca a arma: Você quer resolver isso agora?!";
-                } else if (npc.personality.traits.contains(Trait.NEEDY)) {
-                    baseChange = -10;
-                    response = npc.name + " quase chora: Por que você é tão mau comigo?";
+            } else if (type == InteractionType.FRIENDLY) {
+                if (npc.entityRef != null && store != null) {
+                    SimTaleJuiceHelper.playGreeting(npc.entityRef, store);
+                }
+                EmoteBubbleSystem.triggerThought(npc.entityId, isChild ? ThoughtType.CHEERFUL : ThoughtType.HAPPY);
+            } else if (type == InteractionType.GIFT) {
+                SimTaleJuiceHelper.playGiftReaction(npc.entityRef, npc, outcome.affinity(), store, tick);
+                if (outcome.affinity() >= 20) {
+                    EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.STAR);
+                } else if (outcome.affinity() < 0) {
+                    EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.SICK);
                 } else {
-                    baseChange = -15;
-                    response = "Você insultou o " + npc.name + "!";
+                    EmoteBubbleSystem.triggerThought(npc.entityId, isChild ? ThoughtType.CAT_UWU : ThoughtType.HAPPY);
                 }
-            }
-            case RANDOM -> {
-                baseChange = 1;
-                response = "Interação Autônoma";
-            }
-            case GIFT -> {
-                memEvent = MemoryEvent.GIFTED;
-                if (npc.personality.traits.contains(Trait.GREEDY)) {
-                    baseChange = 15;
-                    trustChange = 5;
-                    response = npc.name + " arregala os olhos: Pra mim?! Haha, FINALMENTE alguém que me valoriza!";
-                } else if (npc.personality.traits.contains(Trait.PARANOID)) {
-                    baseChange = -5;
-                    trustChange = -10;
-                    response = npc.name + " olha o presente com suspeita: Isso não tem veneno, tem?";
-                } else {
-                    baseChange = 10;
-                    trustChange = 3;
-                    response = npc.name + " sorri: Uau! Muito obrigado pelo presente.";
-                }
+            } else if (type == InteractionType.KISS) {
+                EmoteBubbleSystem.triggerThought(npc.entityId, ThoughtType.KISS);
+            } else if (type == InteractionType.ASSIGN_PROFESSION) {
+                boolean liked = npc.preferences != null && npc.preferences.getLikedProfessions().contains(npc.profession);
+                SimTaleJuiceHelper.playProfessionReaction(npc.entityRef, npc, true, liked, store);
+                EmoteBubbleSystem.triggerThought(npc.entityId, liked ? ThoughtType.CHEERFUL : ThoughtType.NERD);
             }
         }
 
-        npc.memory.addMemory(memEvent, playerUuid);
-        npc.getRelationship(playerUuid).addFriendship(baseChange);
-        npc.getRelationship(playerUuid).addTrust(trustChange);
-
-        npc.stats.addXP(Math.abs(baseChange) * 10);
-
-        npc.needs.social = Math.min(100, npc.needs.social + 10);
+        if (outcome.consumeItem()) {
+            consumeHeldItemFromPlayer(playerRef);
+        }
 
         SimNPCPersistence.saveNPC(npc);
-        
-        return response;
+        return outcome.response();
     }
 
-    private static String getContextualGreeting(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef) {
+    private static InteractionOutcome handleFriendly(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, Relationship rel, boolean missedLongTime) {
+        Message response = getContextualGreeting(npc, playerUuid, playerRef, rel);
+        if (missedLongTime) {
+            response = Message.translation("npc-dialogues.context.missed").param("name", npc.name).insert(Message.raw(" ")).insert(response);
+        }
+        
+        int fGain = rel.status == RelationshipStatus.STRANGER ? 8 : (rel.status == RelationshipStatus.ENEMIES ? 1 : 5);
+        int aGain = rel.status == RelationshipStatus.STRANGER ? 10 : 5;
+        
+        // Trigger Generative AI async call to reply in the background
+        if (SimTale.aiManager != null && AiConfigManager.getConfig().enabled) {
+            AiRequest aiRequest = NpcContextBuilder.build(
+                    npc,
+                    playerUuid,
+                    playerRef != null ? playerRef.getUsername() : "Player",
+                    List.of(new AiMessage("user", "The player is starting a friendly conversation with you. Say hello or reply to them."))
+            );
+            SimTale.aiManager.generateAsync(aiRequest)
+                .thenAccept(aiRes -> {
+                    if (!aiRes.success()) {
+                        LOGGER.atWarning().log("SimTale: provedor de IA falhou: " + aiRes.errorMessage());
+                        return;
+                    }
+                    if (playerRef == null) return;
+
+                    /* The callback runs on a CompletableFuture worker. sendMessage touches
+                    engine state, so it has to be handed back to the world thread.
+                    */
+                    WorldUtil.execute(() ->
+                            playerRef.sendMessage(Message.raw(npc.name + ": " + NpcContextBuilder.stripLeadingNameTag(aiRes.text()))));
+                })
+                /* Without this, any exception inside the callback (or the HTTP call) vanished
+                into the CompletableFuture with no trace at all.
+                */
+                .exceptionally(ex -> {
+                    LOGGER.atWarning().log("SimTale: erro na resposta assincrona da IA: " + ex);
+                    return null;
+                });
+        }
+        
+        return InteractionOutcome.of(fGain, 0, 1, aGain, response, MemoryEvent.CHATTED);
+    }
+
+    private record FunnyContext(SimNPCComponent npc, Relationship rel, Mood mood) {}
+    private record FunnyRule(Predicate<FunnyContext> condition, Function<FunnyContext, InteractionOutcome> outcome) {}
+
+    private static final List<FunnyRule> FUNNY_RULES = List.of(
+        new FunnyRule(ctx -> ctx.rel().status == RelationshipStatus.ENEMIES,
+                      ctx -> InteractionOutcome.of(-2, 0, 0, -5, pickRandomTranslation("npc-dialogues.funny.enemy", 3, ctx.npc().name), MemoryEvent.JOKED)),
+        new FunnyRule(ctx -> (ctx.mood() == Mood.ANGRY || ctx.mood() == Mood.SAD) && (ctx.rel().status == RelationshipStatus.BEST_FRIEND || ctx.rel().status == RelationshipStatus.PARTNER),
+                      ctx -> InteractionOutcome.of(2, 0, 1, 5, pickRandomTranslation("npc-dialogues.funny.cheerup", 3, ctx.npc().name), MemoryEvent.JOKED)),
+        new FunnyRule(ctx -> ctx.mood() == Mood.ANGRY || ctx.mood() == Mood.SAD,
+                      ctx -> InteractionOutcome.of(-2, 0, 0, -5, pickRandomTranslation("npc-dialogues.funny.angry", 5, ctx.npc().name), MemoryEvent.JOKED)),
+        new FunnyRule(ctx -> ctx.npc().personality.traits.contains(Trait.FUNNY),
+                      ctx -> InteractionOutcome.of(5, 0, 2, 15, pickRandomTranslation("npc-dialogues.funny.trait", 5, ctx.npc().name), MemoryEvent.JOKED))
+    );
+
+    private static InteractionOutcome handleFunny(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, Relationship rel) {
+        /* The young voices come before the rule table on purpose. Those rules branch on mood and
+        relationship status, which are the right axes for an adult — but a nine-year-old finding
+        a bad joke hilarious is funnier and truer than the same "ENEMIES so they scoff" line
+        everyone else gets.
+        */
+        String youngKey = ChildDialogue.keyFor(npc, playerUuid, "joke");
+        if (youngKey != null) {
+            Message line = pickRandomTranslation(youngKey, YOUNG_LINE_VARIANTS, npc.name)
+                    .param("parent", parentAddressTerm(npc, playerUuid, playerRef));
+            return InteractionOutcome.of(4, 0, 2, 7, line, MemoryEvent.JOKED);
+        }
+
+        FunnyContext ctx = new FunnyContext(npc, rel, npc.getMood());
+        return FUNNY_RULES.stream()
+            .filter(r -> r.condition().test(ctx))
+            .findFirst()
+            .map(r -> r.outcome().apply(ctx))
+            .orElseGet(() -> InteractionOutcome.of(3, 0, 1, 5, pickRandomTranslation("npc-dialogues.funny.normal", 5, npc.name), MemoryEvent.JOKED));
+    }
+
+    /** How many variants each young-voice line set ships with. */
+    /* Bumped 5 -> 7 (15/09): more variety across every young voice (village child, own
+    child/teen/adult) x both intents (chat, joke) it drives -- see the .lang files for the
+    two new lines each.
+    */
+    private static final int YOUNG_LINE_VARIANTS = 12;
+
+    private record RomanticContext(SimNPCComponent npc, Relationship rel, Mood mood) {}
+    private record RomanticRule(Predicate<RomanticContext> condition, Function<RomanticContext, InteractionOutcome> outcome) {}
+
+    private static final List<RomanticRule> ROMANTIC_RULES = List.of(
+        new RomanticRule(ctx -> ctx.rel().status == RelationshipStatus.ENEMIES,
+                         ctx -> InteractionOutcome.of(-5, -15, -5, -20, pickRandomTranslation("npc-dialogues.romantic.enemy", 3, ctx.npc().name), MemoryEvent.FLIRTED)),
+        new RomanticRule(ctx -> ctx.rel().status == RelationshipStatus.STRANGER || ctx.rel().status == RelationshipStatus.ACQUAINTANCE,
+                         ctx -> InteractionOutcome.of(-3, -5, -2, -10, pickRandomTranslation("npc-dialogues.romantic.stranger", 3, ctx.npc().name), MemoryEvent.FLIRTED)),
+        new RomanticRule(ctx -> ctx.mood() == Mood.ANGRY,
+                         ctx -> InteractionOutcome.of(0, -10, -2, -15, pickRandomTranslation("npc-dialogues.romantic.reject", 5, ctx.npc().name), MemoryEvent.FLIRTED)),
+        new RomanticRule(ctx -> ctx.rel().status == RelationshipStatus.MARRIED || ctx.rel().status == RelationshipStatus.PARTNER,
+                         ctx -> InteractionOutcome.of(2, 10, 2, 10, pickRandomTranslation("npc-dialogues.romantic.partner", 5, ctx.npc().name), MemoryEvent.FLIRTED)),
+        new RomanticRule(ctx -> ctx.npc().personality.traits.contains(Trait.SHY),
+                         ctx -> InteractionOutcome.of(0, 15, 2, 10, pickRandomTranslation("npc-dialogues.romantic.shy", 5, ctx.npc().name), MemoryEvent.FLIRTED))
+    );
+
+    private static InteractionOutcome handleRomantic(SimNPCComponent npc, Relationship rel) {
+        RomanticContext ctx = new RomanticContext(npc, rel, npc.getMood());
+        return ROMANTIC_RULES.stream()
+            .filter(r -> r.condition().test(ctx))
+            .findFirst()
+            .map(r -> r.outcome().apply(ctx))
+            .orElseGet(() -> InteractionOutcome.of(0, 10, 1, 5, pickRandomTranslation("npc-dialogues.romantic.normal", 5, npc.name), MemoryEvent.FLIRTED));
+    }
+
+    /**
+     * A deeper romantic gesture than {@link #handleRomantic} -- only available once the
+     * relationship is already {@code PARTNER}, {@code ENGAGED} or {@code MARRIED}. Plays the
+     * Kiss_1/Kiss_2 two-character animation duo (player + NPC face each other and kiss) via
+     * {@link SimTaleJuiceHelper#playKiss} instead of the from-a-distance blow-kiss emote.
+     */
+    private static InteractionOutcome handleKiss(SimNPCComponent npc, Relationship rel, PlayerRef playerRef) {
+        boolean eligible = rel.status == RelationshipStatus.PARTNER
+                || rel.status == RelationshipStatus.ENGAGED
+                || rel.status == RelationshipStatus.MARRIED;
+        if (!eligible) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.kiss.reject").param("name", npc.name));
+        }
+
+        if (npc.entityRef != null && npc.entityRef.isValid() && playerRef != null && playerRef.getReference() != null) {
+            SimTaleJuiceHelper.playKiss(playerRef.getReference(), npc.entityRef, npc.entityRef.getStore());
+        }
+
+        return InteractionOutcome.of(2, 18, 5, 12,
+                pickRandomTranslation("npc-dialogues.kiss.success", 3, npc.name), MemoryEvent.FLIRTED);
+    }
+
+    private record MeanContext(SimNPCComponent npc, Relationship rel) {}
+    private record MeanRule(Predicate<MeanContext> condition, Function<MeanContext, InteractionOutcome> outcome) {}
+
+    private static final List<MeanRule> MEAN_RULES = List.of(
+        new MeanRule(ctx -> ctx.rel().status == RelationshipStatus.MARRIED || ctx.rel().status == RelationshipStatus.PARTNER,
+                     ctx -> InteractionOutcome.of(-15, -20, -30, -25, pickRandomTranslation("npc-dialogues.mean.partner", 3, ctx.npc().name), MemoryEvent.INSULTED)),
+        new MeanRule(ctx -> ctx.npc().personality.traits.contains(Trait.AGGRESSIVE),
+                     ctx -> InteractionOutcome.of(-10, 0, -15, -20, pickRandomTranslation("npc-dialogues.mean.aggressive", 5, ctx.npc().name), MemoryEvent.INSULTED)),
+        new MeanRule(ctx -> ctx.npc().personality.traits.contains(Trait.NEEDY),
+                     ctx -> InteractionOutcome.of(-5, 0, -15, -15, pickRandomTranslation("npc-dialogues.mean.needy", 5, ctx.npc().name), MemoryEvent.INSULTED))
+    );
+
+    private static InteractionOutcome handleMean(SimNPCComponent npc, Relationship rel) {
+        MeanContext ctx = new MeanContext(npc, rel);
+        return MEAN_RULES.stream()
+            .filter(r -> r.condition().test(ctx))
+            .findFirst()
+            .map(r -> r.outcome().apply(ctx))
+            .orElseGet(() -> InteractionOutcome.of(-5, 0, -15, -15, pickRandomTranslation("npc-dialogues.mean.normal", 5, npc.name), MemoryEvent.INSULTED));
+    }
+
+    /**
+     * How many scoldings in one day stop being a bad moment and start being a pattern.
+     * <p>
+     * Below it only the mood takes the hit and the relationship is untouched: a parent raising
+     * their voice once should not cost affinity, or every player who ever clicks the button is
+     * quietly punished for roleplaying.
+     */
+    private static final int SCOLDING_PATIENCE = 3;
+
+    /** How many variants each scold line set ships with. */
+    private static final int SCOLD_LINE_VARIANTS = 3;
+
+    /**
+     * Telling off your own child.
+     *
+     * <p>The reaction is chosen by life stage, because that is the whole point of separating this
+     * from an insult:
+     * <ul>
+     *   <li><b>Child</b> — goes sad. No answering back, and the mood hit is the largest.</li>
+     *   <li><b>Teen</b> — goes angry. Same telling-off, opposite reaction.</li>
+     *   <li><b>Adult</b> — barely moves. They are grown and you are still their parent, so it
+     *       lands as an awkward moment rather than a wound.</li>
+     * </ul>
+     *
+     * <p>Nothing here is permanent. Repeated scoldings in the same day start costing trust and
+     * affinity, and both recover with time and ordinary kindness — this is a consequence, not a
+     * trap the player can fall into without a way back.
+     */
+    private static InteractionOutcome handleScold(SimNPCComponent npc, UUID playerUuid, Relationship rel) {
+        GrowthStage stage = ParentChildBond.stageOf(npc, playerUuid);
+        if (stage == null) {
+            /* Not this player's child after all — the page should not have offered the button, so
+            fall back rather than inventing a parental reaction between strangers.
+            */
+            return handleMean(npc, rel);
+        }
+
+        rel.scoldingsToday++;
+        boolean excessive = rel.scoldingsToday > SCOLDING_PATIENCE;
+        long tick = WorldUtil.tick();
+
+        Mood reaction;
+        float intensity;
+        int trustHit;
+        int affinityHit;
+        String key;
+
+        switch (stage) {
+            case TEEN -> {
+                reaction = Mood.ANGRY;
+                intensity = excessive ? 0.9f : 0.6f;
+                trustHit = excessive ? -8 : 0;
+                affinityHit = excessive ? -10 : -2;
+                key = excessive ? "npc-dialogues.scold.teen_excessive" : "npc-dialogues.scold.teen";
+            }
+            case ADULT -> {
+                reaction = Mood.BORED;
+                intensity = 0.3f;
+                trustHit = excessive ? -3 : 0;
+                affinityHit = excessive ? -4 : 0;
+                key = excessive ? "npc-dialogues.scold.adult_excessive" : "npc-dialogues.scold.adult";
+            }
+            // BABY and TODDLER are cared for, not argued with; they read as CHILD here.
+            default -> {
+                reaction = Mood.SAD;
+                intensity = excessive ? 1.0f : 0.7f;
+                trustHit = excessive ? -10 : 0;
+                affinityHit = excessive ? -12 : -3;
+                key = excessive ? "npc-dialogues.scold.child_excessive" : "npc-dialogues.scold.child";
+            }
+        }
+
+        npc.setEmotion(reaction, intensity, "scold", tick);
+
+        return InteractionOutcome.of(0, 0, trustHit, affinityHit,
+                pickRandomTranslation(key, SCOLD_LINE_VARIANTS, npc.name),
+                excessive ? MemoryEvent.INSULTED : null);
+    }
+
+    private static InteractionOutcome handleRandom(Relationship rel) {
+        String key = rel.status == RelationshipStatus.STRANGER ? "npc-dialogues.random.stranger" : "npc-dialogues.random.known";
+        return InteractionOutcome.of(0, 0, 0, 1, Message.translation(key), MemoryEvent.CHATTED);
+    }
+
+    private static InteractionOutcome handleGift(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, Relationship rel, boolean isChild) {
+        Optional<ItemStack> optItem = getHeldItemFromPlayer(playerRef);
+        if (optItem.isEmpty()) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.gift.noitem"));
+        }
+
+        ItemStack heldItem = optItem.get();
+        String itemName = heldItem.getDisplayName().getAnsiMessage();
+        String itemId = heldItem.getItemId().toLowerCase(Locale.ROOT);
+
+        /* The real id has been guessed wrong three times over (with and without a "simtale:"
+        prefix, CamelCase and snake_case), so log it once and stop guessing.
+        */
+        LOGGER.atInfo().log("SimTale: presente recebido, itemId bruto = '%s'", heldItem.getItemId());
+
+        /* "Baby" must never fall into the generic gift path: it would silently delete the item
+        (consumeHeldItemFromPlayer) and score a normal gift affinity without BabyCareManager
+        ever seeing it, orphaning the child's custody record. Custody transfer only happens
+        through the spouse's inventory (BabyCareManager.registerInventoryListener) or the
+        automatic proximity swap (BabyCareTickSystem) — both points-neutral by design.
+        */
+        if (heldItem.getItemId().equals("Baby")) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.gift.baby_reject"));
+        }
+
+        if (isChild) {
+            return handleChildGift(npc, itemId, itemName);
+        }
+
+        if (isWeddingRing(heldItem.getItemId())) {
+            return handleMarriageProposal(npc, rel, playerRef, playerUuid);
+        }
+
+        InteractionOutcome armor = tryEquipArmor(npc, heldItem, itemName);
+        if (armor != null) return armor;
+
+        InteractionOutcome meal = tryFeed(npc, heldItem, itemName);
+        if (meal != null) return meal;
+
+        return calculateGiftAffinity(npc, itemId, itemName, rel);
+    }
+
+    /**
+     * Whether this item is the wedding ring, whatever form its id happens to take.
+     *
+     * <p>Matching used to be a single {@code equals} against a hardcoded string, and it was wrong
+     * every time: the asset id could be {@code WeddingRing}, {@code wedding_ring}, with or without
+     * a {@code simtale:} prefix, and the caller had already lowercased the id — so a CamelCase
+     * literal could never match anything. Stripping everything that is not a letter or digit and
+     * comparing the tail covers all four shapes at once.
+     */
+    private static boolean isWeddingRing(String rawItemId) {
+        return AssetIds.matchesAsset(rawItemId, "WeddingRing");
+    }
+
+    /**
+     * Equips a piece of armour onto the NPC when the held item is one, and opts it into
+     * RuneCore's dynamic combat stats so the armour actually mitigates damage -- see
+     * {@link NPCArmorHelper}. Returns null when the item is not armour, so the normal gift/food
+     * rules take over, same contract as {@link #tryFeed}.
+     */
+    private static InteractionOutcome tryEquipArmor(SimNPCComponent npc, ItemStack heldItem, String itemName) {
+        int slot = NPCArmorHelper.armorSlotFor(heldItem);
+        if (slot < 0) return null;
+
+        if (isNpcAChild(npc)) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.armor.child").param("name", npc.name));
+        }
+
+        Ref<EntityStore> npcRef = npc.entityRef;
+        if (npcRef == null || !npcRef.isValid()) {
+            World world = WorldUtil.first();
+            npcRef = (world != null && npc.entityId != null)
+                    ? world.getEntityStore().getRefFromUUID(npc.entityId) : null;
+        }
+        if (npcRef == null || !npcRef.isValid()) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.armor.unavailable").param("name", npc.name));
+        }
+
+        NPCArmorHelper.giveArmor(npcRef, npc, npcRef.getStore(), slot, heldItem.getItemId());
+
+        return InteractionOutcome.ofItem(10, 0, 8, 20,
+                Message.translation("npc-dialogues.armor.equip").param("name", npc.name).param("itemName", itemName),
+                MemoryEvent.GIFTED, true);
+    }
+
+    private static InteractionOutcome tryFeed(SimNPCComponent npc, ItemStack heldItem, String itemName) {
+        if (NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID) > NeedsHelper.HUNGER_SEEK_FOOD_THRESHOLD) return null;
+
+        int tier = NPCFoodHelper.tierOf(heldItem);
+        if (tier == NPCFoodHelper.NOT_FOOD) return null;
+
+        boolean hated = NPCFoodHelper.isHated(heldItem, npc.preferences);
+        boolean favorite = NPCFoodHelper.isFavorite(heldItem, npc.preferences);
+
+        NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID) + NPCFoodHelper.hungerRestored(tier));
+        // Starvation damage has been removed, so we no longer reset it here.
+
+        float healed = NPCFoodHelper.healthRestored(tier);
+        if (healed > 0f) {
+            healNpc(npc, healed);
+        }
+
+        if (favorite) {
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) + 10f);
+        } else if (hated) {
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID) - 10f);
+        }
+
+        /* Feeding someone who is starving lands harder than handing over a trinket, and a hated
+        food still helps the body while souring the mood — hence the reduced, not negative, gain.
+        */
+        int friendship = hated ? 6 : (favorite ? 25 : 15);
+        int trust = hated ? 4 : (favorite ? 15 : 10);
+        int affinity = hated ? 5 : (favorite ? 30 : 18);
+
+        String key = hated ? "fed_hated" : (favorite ? "fed_favorite" : "fed");
+        return InteractionOutcome.ofItem(friendship, 0, trust, affinity,
+                Message.translation("npc-dialogues.gift." + key)
+                        .param("name", npc.name).param("itemName", itemName),
+                MemoryEvent.GIFTED, true);
+    }
+
+    /** Best-effort heal: the NPC entity may not be resolvable, and a missed heal is not fatal. */
+    private static void healNpc(SimNPCComponent npc, float amount) {
+        try {
+            World world = WorldUtil.first();
+            if (world == null || npc.entityId == null) return;
+            Ref<EntityStore> npcRef = world.getEntityStore().getRefFromUUID(npc.entityId);
+            if (npcRef != null && npcRef.isValid()) {
+                StatHelper.addHealth(npcRef, amount);
+            }
+        } catch (RuntimeException ignored) {
+            // Stat handling is best-effort; the hunger restore above already happened.
+        }
+    }
+
+    private static InteractionOutcome handleChildGift(SimNPCComponent npc, String itemId, String itemName) {
+        boolean isFood = FOOD_KEYWORDS.stream().anyMatch(itemId::contains);
+        if (isFood) {
+            GrowthComponent childComp = Caskara.load("child_" + npc.entityId.toString(), GrowthComponent.class);
+            World world = WorldUtil.first();
+            if (childComp != null && world != null) {
+                childComp.birthTick -= 24000;
+                Caskara.save("child_" + npc.entityId.toString(), childComp);
+                LifecycleManager.tickGrowth(childComp, world.getTick());
+            }
+            return InteractionOutcome.ofItem(0, 0, 0, 0, 
+                pickRandomTranslation("npc-dialogues.gift.accelerated", 3, npc.name).param("item", itemName), 
+                MemoryEvent.GIFTED, true);
+        }
+        /* The "try giving food instead" suggestion now lives inside every child_reject variant
+        itself (pt-BR and en-US both), instead of a raw English string appended here -- that
+        used to show literal, untranslated English text after the translated line even for
+        pt-BR players (worse: duplicated, since the pt-BR line already said the same thing in
+        Portuguese).
+        */
+        return InteractionOutcome.error(pickRandomTranslation("npc-dialogues.gift.child_reject", 3, npc.name));
+    }
+
+    private static InteractionOutcome handleMarriageProposal(SimNPCComponent npc, Relationship rel, PlayerRef playerRef, UUID playerUuid) {
+        if (npc.family.isMarried) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.marriage.already_married").param("name", npc.name));
+        }
+
+        if (rel.romance >= 80 && rel.friendship >= 70) {
+            rel.status = RelationshipStatus.MARRIED;
+            npc.family.marry(playerUuid, null);
+
+            if (npc.entityRef != null && npc.entityRef.isValid() && playerRef != null && playerRef.getReference() != null) {
+                SimTaleJuiceHelper.playMarriageProposal(playerRef.getReference(), npc.entityRef, npc.entityRef.getStore());
+            }
+
+            return InteractionOutcome.ofItem(0, 0, 0, 0, 
+                Message.translation("npc-dialogues.marriage.accept." + ThreadLocalRandom.current().nextInt(1, 3)).param("name", npc.name), 
+                MemoryEvent.GIFTED, true);
+        }
+        
+        return InteractionOutcome.error(Message.translation("npc-dialogues.marriage.reject." + ThreadLocalRandom.current().nextInt(1, 3)).param("name", npc.name));
+    }
+
+    private record GiftContext(SimNPCComponent npc, Relationship rel, String itemId, String itemName, double multiplier) {}
+
+    private record GiftRule(Predicate<GiftContext> condition, Function<GiftContext, InteractionOutcome> outcome) {}
+
+    private static final List<GiftRule> GIFT_RULES = List.of(
+        new GiftRule(InteractionManager::isLoved, ctx -> giftOutcome(20, 12, 30, "loves", ctx)),
+        new GiftRule(InteractionManager::isHated, ctx -> giftOutcome(-20, -15, -25, "hates", ctx)),
+        /* Ranked below the explicit favorite/hated lists (those are personal and beat a generic
+        interest) but above trash/basic, so a gardener reads seeds as a thoughtful gift
+        instead of as filler.
+        */
+        new GiftRule(InteractionManager::isHobbyRelated, ctx -> giftOutcome(14, 8, 22, "hobby", ctx)),
+        new GiftRule(InteractionManager::isTrash, ctx -> giftOutcomeFlat(-15, -10, -20, "trash", ctx)),
+        new GiftRule(ctx -> ctx.npc().personality.traits.contains(Trait.GREEDY),
+                     ctx -> giftOutcome(15, 5, 25, "greedy", ctx)),
+        new GiftRule(ctx -> ctx.npc().personality.traits.contains(Trait.PARANOID),
+                     ctx -> giftOutcomeFlat(-5, -12, -10, "paranoid", ctx)),
+        new GiftRule(InteractionManager::isBasic, ctx -> giftOutcome(2, 1, 3, "basic", ctx))
+    );
+
+    private static boolean isLoved(GiftContext ctx) {
+        return ctx.npc().preferences != null && (
+            (ctx.npc().preferences.getFavoriteFoods() != null && ctx.npc().preferences.getFavoriteFoods().stream().anyMatch(f -> f.equalsIgnoreCase(ctx.itemName()) || f.equalsIgnoreCase(ctx.itemId()))) ||
+            (ctx.npc().preferences.getFavoriteItems() != null && ctx.npc().preferences.getFavoriteItems().stream().anyMatch(i -> i.equalsIgnoreCase(ctx.itemName()) || i.equalsIgnoreCase(ctx.itemId())))
+        );
+    }
+
+    /** Gift that lines up with whatever the NPC does for fun. */
+    private static boolean isHobbyRelated(GiftContext ctx) {
+        if (ctx.npc().preferences == null) {
+            return false;
+        }
+        String idLower = ctx.itemId().toLowerCase(Locale.ROOT);
+        String nameLower = ctx.itemName().toLowerCase(Locale.ROOT);
+        var hobby = NPCLeisureHelper.hobbyOf(ctx.npc());
+        return NPCLeisureHelper.isHobbyItem(hobby, idLower)
+                || NPCLeisureHelper.isHobbyItem(hobby, nameLower);
+    }
+
+    private static boolean isHated(GiftContext ctx) {
+        return ctx.npc().preferences != null && (
+            (ctx.npc().preferences.getHatedFoods() != null && ctx.npc().preferences.getHatedFoods().stream().anyMatch(f -> f.equalsIgnoreCase(ctx.itemName()) || f.equalsIgnoreCase(ctx.itemId()))) ||
+            (ctx.npc().preferences.getHatedItems() != null && ctx.npc().preferences.getHatedItems().stream().anyMatch(i -> i.equalsIgnoreCase(ctx.itemName()) || i.equalsIgnoreCase(ctx.itemId())))
+        );
+    }
+
+    private static boolean isTrash(GiftContext ctx) {
+        String itemIdLower = ctx.itemId().toLowerCase(Locale.ROOT);
+        String itemNameLower = ctx.itemName().toLowerCase(Locale.ROOT);
+        return GiftCategory.classify(itemIdLower, itemNameLower).map(c -> c == GiftCategory.TRASH).orElse(false);
+    }
+
+    private static boolean isBasic(GiftContext ctx) {
+        String itemIdLower = ctx.itemId().toLowerCase(Locale.ROOT);
+        String itemNameLower = ctx.itemName().toLowerCase(Locale.ROOT);
+        return GiftCategory.classify(itemIdLower, itemNameLower).map(c -> c == GiftCategory.BASIC).orElse(false);
+    }
+
+    private static InteractionOutcome giftOutcome(int f, int t, int a, String key, GiftContext ctx) {
+        return InteractionOutcome.ofItem(
+            (int) (f * ctx.multiplier()), 0, (int) (t * ctx.multiplier()), (int) (a * ctx.multiplier()),
+            Message.translation("npc-dialogues.gift." + key).param("name", ctx.npc().name).param("itemName", ctx.itemName()),
+            MemoryEvent.GIFTED, true
+        );
+    }
+
+    private static InteractionOutcome giftOutcomeFlat(int f, int t, int a, String key, GiftContext ctx) {
+        return InteractionOutcome.ofItem(
+            f, 0, t, a,
+            Message.translation("npc-dialogues.gift." + key).param("name", ctx.npc().name).param("itemName", ctx.itemName()),
+            MemoryEvent.GIFTED, true
+        );
+    }
+
+    private static InteractionOutcome calculateGiftAffinity(SimNPCComponent npc, String itemId, String itemName, Relationship rel) {
+        double multiplier = rel.status == RelationshipStatus.ENEMIES ? 0.5 : (rel.status == RelationshipStatus.MARRIED ? 1.5 : 1.0);
+        GiftContext ctx = new GiftContext(npc, rel, itemId, itemName, multiplier);
+
+        return GIFT_RULES.stream()
+            .filter(r -> r.condition().test(ctx))
+            .findFirst()
+            .map(r -> r.outcome().apply(ctx))
+            .orElseGet(() -> giftOutcome(8, 4, 15, "normal", ctx));
+    }
+
+    /* profName is a Message, not a String: it is a localized profession name and must render in
+    the player's language rather than carry the enum's Portuguese label into the sentence.
+    */
+    public record ProfessionContext(SimNPCComponent npc, Relationship rel, Profession targetProf, Message profName, String itemName, double roll) {}
+    private record ProfessionRule(Predicate<ProfessionContext> condition, Function<ProfessionContext, InteractionOutcome> outcome) {}
+
+    private static boolean isProfLiked(ProfessionContext ctx) {
+        return ctx.npc().preferences != null && ctx.npc().preferences.getLikedProfessions().contains(ctx.targetProf());
+    }
+
+    private static boolean isCloseBond(ProfessionContext ctx) {
+        return ctx.rel().friendship < 70 && ctx.rel().status != RelationshipStatus.MARRIED
+                && ctx.rel().status != RelationshipStatus.BEST_FRIEND && ctx.rel().status != RelationshipStatus.PARTNER;
+    }
+
+    private static boolean isDangerousWork(Profession prof) {
+        return prof == Profession.GUARD || prof == Profession.EXPLORER || prof == Profession.MINER || prof == Profession.HUNTER;
+    }
+
+    private static final List<ProfessionRule> PROFESSION_RULES = List.of(
+        new ProfessionRule(ctx -> ctx.rel().status == RelationshipStatus.ENEMIES || ctx.rel().status == RelationshipStatus.STRANGER,
+                           ctx -> InteractionOutcome.of(-5, 0, -5, -10, pickRandomTranslation("npc-dialogues.prof.assign.refuse_status", 9, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+        new ProfessionRule(ctx -> ctx.npc().preferences != null && ctx.npc().preferences.getDislikedProfessions().contains(ctx.targetProf()),
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.dislike", 9, ctx.npc().name).param("profName", ctx.profName()).param("itemName", ctx.itemName()), MemoryEvent.CHATTED)),
+        new ProfessionRule(ctx -> ctx.npc().getMood() == Mood.ANGRY && ctx.roll() < 0.6,
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.angry", 9, ctx.npc().name), MemoryEvent.CHATTED)),
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.LAZY) && isHeavyWork(ctx.targetProf()) && ctx.roll() < 0.8 && isCloseBond(ctx),
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.lazy", 9, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.AGGRESSIVE) && isPeacefulWork(ctx.targetProf()) && ctx.roll() < 0.8 && isCloseBond(ctx),
+                           ctx -> InteractionOutcome.of(-3, 0, 0, -5, pickRandomTranslation("npc-dialogues.prof.assign.aggressive", 9, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+        // Picky / depends on taste: GREEDY refuses non-lucrative work unless liked or close bond
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.GREEDY) && !isProfLiked(ctx) && isCloseBond(ctx) && ctx.targetProf() != Profession.GUARD && ctx.targetProf() != Profession.MINER,
+                           ctx -> InteractionOutcome.of(-2, 0, -2, -5, pickRandomTranslation("npc-dialogues.prof.assign.greedy", 3, ctx.npc().name).param("profName", ctx.profName()).param("itemName", ctx.itemName()), MemoryEvent.CHATTED)),
+        // Picky / depends on taste: PARANOID refuses dangerous work unless liked or close bond
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.PARANOID) && isDangerousWork(ctx.targetProf()) && !isProfLiked(ctx) && isCloseBond(ctx),
+                           ctx -> InteractionOutcome.of(-2, 0, -2, -5, pickRandomTranslation("npc-dialogues.prof.assign.paranoid", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+        // Picky / depends on taste: SHY refuses if low trust unless liked or close bond
+        new ProfessionRule(ctx -> ctx.npc().personality.traits.contains(Trait.SHY) && !isProfLiked(ctx) && ctx.rel().trust < 35 && isCloseBond(ctx),
+                           ctx -> InteractionOutcome.of(-2, 0, -1, -3, pickRandomTranslation("npc-dialogues.prof.assign.shy", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+        // Picky / depends on taste: general picky traits reject non-liked jobs without a close bond
+        new ProfessionRule(ctx -> (ctx.npc().personality.traits.contains(Trait.PARANOID) || ctx.npc().personality.traits.contains(Trait.GREEDY) || ctx.npc().personality.traits.contains(Trait.SHY))
+                                  && !isProfLiked(ctx) && isCloseBond(ctx) && ctx.roll() < 0.75,
+                           ctx -> InteractionOutcome.of(-2, 0, 0, -4, pickRandomTranslation("npc-dialogues.prof.assign.picky", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED)),
+        // Indifferent: without familiarity/friendship, refuses random assignments
+        new ProfessionRule(ctx -> !isProfLiked(ctx) && isCloseBond(ctx) && ctx.rel().friendship < 15 && ctx.roll() < 0.6
+                                  && !ctx.npc().personality.traits.contains(Trait.LOYAL) && !ctx.npc().personality.traits.contains(Trait.FUNNY),
+                           ctx -> InteractionOutcome.of(-1, 0, 0, -2, pickRandomTranslation("npc-dialogues.prof.assign.indifferent_refuse", 3, ctx.npc().name).param("profName", ctx.profName()), MemoryEvent.CHATTED))
+    );
+
+    public static Optional<InteractionOutcome> evaluateProfessionRules(ProfessionContext ctx) {
+        return PROFESSION_RULES.stream()
+            .filter(r -> r.condition().test(ctx))
+            .findFirst()
+            .map(r -> r.outcome().apply(ctx));
+    }
+
+    public static InteractionOutcome buildProfessionAcceptance(SimNPCComponent npc, Message profName, String itemName, Message prefix, ProfessionContext ctx) {
+        if (isProfLiked(ctx)) {
+            Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.liked", 9, npc.name).param("profName", profName).param("itemName", itemName);
+            npc.setEmotion(Mood.EXCITED, 0.9f, "dream_job", System.currentTimeMillis());
+            return InteractionOutcome.ofItem(15, 0, 10, 25, prefix.insert(reaction), MemoryEvent.CHATTED, true);
+        }
+
+        if (npc.personality.traits.contains(Trait.LOYAL) || npc.personality.traits.contains(Trait.FUNNY)) {
+            Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.easy", 3, npc.name).param("profName", profName).param("itemName", itemName);
+            npc.setEmotion(Mood.HAPPY, 0.7f, "accepted_job", System.currentTimeMillis());
+            return InteractionOutcome.ofItem(10, 0, 8, 18, prefix.insert(reaction), MemoryEvent.CHATTED, true);
+        }
+
+        if (!npc.personality.traits.contains(Trait.GREEDY) && !npc.personality.traits.contains(Trait.PARANOID) && !npc.personality.traits.contains(Trait.SHY)) {
+            Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.indifferent", 3, npc.name).param("profName", profName).param("itemName", itemName);
+            return InteractionOutcome.ofItem(6, 0, 4, 12, prefix.insert(reaction), MemoryEvent.CHATTED, true);
+        }
+
+        Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.accept", 5, npc.name).param("profName", profName).param("itemName", itemName);
+        return InteractionOutcome.ofItem(8, 0, 5, 15, prefix.insert(reaction), MemoryEvent.CHATTED, true);
+    }
+
+    private static boolean isHeavyWork(Profession prof) {
+        return prof == Profession.MINER || prof == Profession.LUMBERJACK;
+    }
+
+    private static boolean isPeacefulWork(Profession prof) {
+        return prof == Profession.FARMER || prof == Profession.FISHERMAN;
+    }
+
+    private static InteractionOutcome handleProfession(SimNPCComponent npc, PlayerRef playerRef, Relationship rel) {
+        if (isNpcAChild(npc)) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.prof.assign.child").param("name", npc.name));
+        }
+
+        Optional<ItemStack> optItem = getHeldItemFromPlayer(playerRef);
+        if (optItem.isEmpty()) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.prof.assign.noitem").param("name", npc.name));
+        }
+
+        ItemStack heldItem = optItem.get();
+        String itemId = heldItem.getItemId();
+        String itemName = heldItem.getDisplayName().getAnsiMessage();
+        Profession targetProf = Profession.fromItemId(itemId);
+
+        if (targetProf == null) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.prof.assign.unknown").param("name", npc.name).param("itemName", itemName));
+        }
+
+        Message profName = Message.translation(targetProf.translationKey());
+
+        if (npc.profession == targetProf) {
+            return InteractionOutcome.error(Message.translation("npc-dialogues.prof.assign.already").param("name", npc.name).param("profName", profName));
+        }
+
+        double roll = ThreadLocalRandom.current().nextDouble();
+        ProfessionContext ctx = new ProfessionContext(npc, rel, targetProf, profName, itemName, roll);
+
+        Optional<InteractionOutcome> refusal = evaluateProfessionRules(ctx);
+        if (refusal.isPresent()) {
+            return refusal.get();
+        }
+
+        // Success path: perform the assignment
+        Message prefix = Message.raw("");
+        if (npc.profession != null && npc.profession != Profession.UNEMPLOYED && !npc.profession.triggerItemKeyword.isEmpty()) {
+            prefix = Message.translation("npc-dialogues.prof.assign.return").param("name", npc.name).param("profName", Message.translation(npc.profession.translationKey())).insert(Message.raw(" "));
+        }
+
+        npc.profession = targetProf;
+
+        /* Remember which kind of weapon actually earned the Guard title, so NPCGuardHelper can
+        fight at the right range instead of always closing to melee distance. Falls back to
+        MELEE (the field's own default) on the practically-impossible case where the item that
+        just satisfied GUARD.matches() somehow no longer resolves to a category.
+        */
+        if (targetProf == Profession.GUARD) {
+            WeaponCategory category = WeaponCategoryRegistry.of(itemId);
+            if (category != null) {
+                npc.guardWeaponCategory = category;
+                /* The literal item, not just its category -- so the Guard is seen holding
+                whatever was actually handed over (an Iron sword stays an Iron sword)
+                instead of always a generic copper stand-in.
+                */
+                npc.guardWeaponItemId = itemId;
+            }
+        }
+
+        return buildProfessionAcceptance(npc, profName, itemName, prefix, ctx);
+    }
+
+    // --- Logic Helpers ---
+
+    private static void applyOutcome(SimNPCComponent npc, UUID playerUuid, Relationship rel, InteractionOutcome outcome, boolean isChild) {
+        if (outcome.memoryEvent() != null) {
+            npc.memory.addMemory(outcome.memoryEvent(), playerUuid);
+        }
+
+        rel.addAffinity(outcome.affinity());
+        rel.addFriendship(outcome.friendship());
+        rel.addTrust(outcome.trust());
+        
+        if (!isChild) {
+            rel.addRomance(outcome.romance());
+        } else {
+            rel.romance = 0;
+        }
+
+        npc.stats.addXP(Math.abs(outcome.affinity()) * 10);
+        NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.SOCIAL_ID, NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.SOCIAL_ID) + 10f);
+
+        // Dynamic emotion trigger based on interaction outcome
+        long tick = 0;
+        World world = WorldUtil.first();
+        if (world != null) {
+            tick = world.getTick();
+        }
+        
+        if (outcome.memoryEvent() == MemoryEvent.GIFTED) {
+            if (outcome.affinity() >= 20) {
+                npc.setEmotion(Mood.HAPPY, 1.0f, "gift_loves", tick);
+            } else if (outcome.affinity() < 0) {
+                if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
+                    npc.setEmotion(Mood.ANGRY, 1.0f, "gift_hates", tick);
+                } else {
+                    npc.setEmotion(Mood.SAD, 1.0f, "gift_hates", tick);
+                }
+            } else if (outcome.affinity() > 0 && outcome.affinity() <= 4) {
+                // Basic item: do not alter mood
+                if (isChild) {
+                    npc.forceEmotion(Mood.EXCITED, 0.8f, "child_gift", tick);
+                } else if (ThreadLocalRandom.current().nextDouble() < 0.5) {
+                    npc.setEmotion(Mood.HAPPY, 0.6f, "gift_normal", tick);
+                }
+            }
+        } else {
+            if (outcome.affinity() > 0) {
+                if (isChild) {
+                    Mood mood = outcome.affinity() >= 5 ? Mood.EXCITED : Mood.HAPPY;
+                    npc.forceEmotion(mood, 0.8f, "child_interaction", tick);
+                } else {
+                    npc.setEmotion(Mood.HAPPY, 0.6f, "interaction", tick);
+                }
+            } else if (outcome.affinity() < 0) {
+                if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
+                    npc.setEmotion(Mood.ANGRY, 0.8f, "interaction", tick);
+                } else {
+                    npc.setEmotion(Mood.SAD, 0.6f, "interaction", tick);
+                }
+            }
+        }
+    }
+
+    /**
+     * Length of an interaction "day". Despite the name this is 20 real minutes, not a game
+     * day — the interaction budget and the "haven't seen you in ages" greeting both key off it.
+     */
+    private static final long INTERACTION_DAY_MILLIS = 20L * 60L * 1000L;
+    /** Interactions allowed per player per interaction-day before the NPC starts declining. */
+    private static final int INTERACTIONS_PER_DAY = 3;
+    /** Days apart before the NPC greets the player with "long time no see". */
+    private static final int MISSED_DAYS_THRESHOLD = 3;
+
+    private static DailyState refreshDailyState(Relationship rel) {
+        long currentDayIndex = System.currentTimeMillis() / INTERACTION_DAY_MILLIS;
+        boolean missedLongTime = false;
+
+        if (rel.lastInteractionDayIndex > 0 && rel.lastInteractionDayIndex < currentDayIndex) {
+            missedLongTime = (currentDayIndex - rel.lastInteractionDayIndex) >= MISSED_DAYS_THRESHOLD;
+            rel.interactionsToday = 0;
+            rel.scoldingsToday = 0;
+        } else if (rel.lastInteractionDayIndex == 0) {
+            rel.interactionsToday = 0;
+            rel.scoldingsToday = 0;
+        }
+        rel.lastInteractionDayIndex = currentDayIndex;
+
+        return new DailyState(rel.interactionsToday >= INTERACTIONS_PER_DAY, missedLongTime);
+    }
+
+    /**
+     * Whether this NPC is a minor.
+     *
+     * <p>Public because the pregnancy test needs the same answer, and a second copy of this check
+     * is how two callers end up disagreeing about who is a child.
+     */
+    public static boolean isNpcAChild(SimNPCComponent npc) {
+        if (npc.entityRef != null) {
+            NPCEntity npcEntity = npc.entityRef.getStore().getComponent(npc.entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
+            if (npcEntity != null && npcEntity.getRoleName() != null && 
+                npcEntity.getRoleName().toLowerCase(Locale.ROOT).contains("child")) {
+                return true;
+            }
+        }
+        for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {
+            if (npc.entityId != null && npc.entityId.equals(child.childId) && !child.isAdult()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // --- Inventory Helpers  ---
+
+    private static Optional<ItemStack> getHeldItemFromPlayer(PlayerRef playerRef) {
+        if (playerRef == null || playerRef.getReference() == null || !playerRef.getReference().isValid()) return Optional.empty();
+        Ref<EntityStore> pRef = playerRef.getReference();
+        InventoryComponent.Hotbar hotbar = pRef.getStore().getComponent(pRef, InventoryComponent.Hotbar.getComponentType());
+        if (hotbar == null) return Optional.empty();
+        
+        ItemStack heldItem = hotbar.getActiveItem();
+        if (heldItem == null || heldItem.isEmpty()) return Optional.empty();
+        
+        return Optional.of(heldItem);
+    }
+
+    private static void consumeHeldItemFromPlayer(PlayerRef playerRef) {
+        if (playerRef == null || playerRef.getReference() == null || !playerRef.getReference().isValid()) return;
+        Ref<EntityStore> pRef = playerRef.getReference();
+        InventoryComponent.Hotbar hotbar = pRef.getStore().getComponent(pRef, InventoryComponent.Hotbar.getComponentType());
+        if (hotbar != null) {
+            hotbar.getInventory().removeItemStackFromSlot(hotbar.getActiveSlot(), 1);
+        }
+    }
+
+    // --- Helpers de UI e Mensagens ---
+
+    private static Message getContextualGreeting(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef, Relationship rel) {
+        /* Ahead of every contextual rule below, which are all written for adults: they check the
+        player's health, recent insults, what happened to a friend. A small child does not open
+        with any of that — she opens with whatever she is looking at.
+        */
+        String youngKey = ChildDialogue.keyFor(npc, playerUuid, "chat");
+        if (youngKey != null) {
+            return pickRandomTranslation(youngKey, YOUNG_LINE_VARIANTS, npc.name)
+                    .param("parent", parentAddressTerm(npc, playerUuid, playerRef));
+        }
+
         if (playerRef != null) {
             try {
-                PlayerStats stats = new PlayerStats(playerRef);
-                float health = stats.getHealth().getNow(-1f);
-                if (health > 0 && health <= 20f) {
-                    return npc.name + " arregala os olhos: Meu deus, você está sangrando! Precisa de ajuda?!";
-                }
-            } catch (Exception ignored) {}
-
-            World world = null;
-            for (World w : Universe.get().getWorlds().values()) {
-                world = w;
-                break;
-            }
-            if (world != null && world.getEntityStore() != null) {
-                WorldTimeResource timeResource = world.getEntityStore().getStore().getResource(WorldTimeResource.getResourceType());
-                if (timeResource != null) {
-                    float dayProgress = timeResource.getDayProgress();
-                    if (dayProgress < 0.25f || dayProgress > 0.75f) {
-                        return npc.name + " sussurra: É perigoso andar por aqui à noite... Tome cuidado.";
+                Ref<EntityStore> pRef = playerRef.getReference();
+                if (pRef != null && pRef.isValid()) {
+                    EntityStatMap statMap = pRef.getStore().getComponent(pRef, EntityStatMap.getComponentType());
+                    if (statMap != null) {
+                        EntityStatValue healthVal = statMap.get(DefaultEntityStatTypes.getHealth());
+                        if (healthVal != null && healthVal.get() > 0 && healthVal.get() <= 20f) {
+                            return Message.translation("npc-dialogues.context.bleeding").param("name", npc.name);
+                        }
                     }
                 }
+            } catch (RuntimeException ignored) {
+                /* Stat lookup is best-effort; catching Throwable here also swallowed
+                OutOfMemoryError/StackOverflowError and any Error thrown by the engine.
+                */
+            }
+
+            World world = WorldUtil.first();
+            if (world != null) {
+                WorldTimeResource timeResource = world.getEntityStore().getStore().getResource(WorldTimeResource.getResourceType());
+                float dayProgress = timeResource.getDayProgress();
+                if (dayProgress < 0.25f || dayProgress > 0.75f) {
+                    return Message.translation("npc-dialogues.context.night").param("name", npc.name);
+                }
             }
         }
 
-        if (npc.memory.remembers(MemoryEvent.INSULTED, playerUuid, 300000)) {
-            return npc.name + " cruza os braços: O que você quer? Já não me insultou o bastante hoje?";
-        }
-
-        for (SimNPCComponent otherNpc : SimTale.ACTIVE_NPCS) {
-            if (otherNpc != npc && otherNpc.memory.remembers(MemoryEvent.INSULTED, playerUuid, 600000)) {
-                return npc.name + " te olha torto: Eu soube o que você fez com " + otherNpc.name + ". É bom andar na linha.";
+        Memory attackedMem = npc.memory.getMemory(MemoryEvent.ATTACKED, playerUuid, 300000);
+        if (attackedMem != null) {
+            if (attackedMem.isGossip) {
+                return Message.translation("npc-dialogues.context.attacked.other")
+                        .param("name", npc.name)
+                        .param("otherName", attackedMem.gossipTargetName != null ? attackedMem.gossipTargetName : "alguém");
+            } else {
+                return Message.translation("npc-dialogues.context.attacked.recent").param("name", npc.name);
             }
         }
 
-        if (npc.personality.traits.contains(Trait.GREEDY)) {
-            return npc.name + " esfrega as mãos: Tem algum minério ou item sobrando pra mim hoje?";
-        } else if (npc.personality.traits.contains(Trait.PARANOID)) {
-            return npc.name + " olha pros lados suando frio: Shh! Você escutou isso?...";
-        } else if (npc.personality.traits.contains(Trait.LAZY)) {
-            return npc.name + " boceja: Ah, oi... Me acorda quando a janta estiver pronta.";
+        Memory insultedMem = npc.memory.getMemory(MemoryEvent.INSULTED, playerUuid, 300000);
+        if (insultedMem != null) {
+            if (insultedMem.isGossip) {
+                return Message.translation("npc-dialogues.context.insulted.other")
+                        .param("name", npc.name)
+                        .param("otherName", insultedMem.gossipTargetName != null ? insultedMem.gossipTargetName : "alguém");
+            } else {
+                return Message.translation("npc-dialogues.context.insulted.recent").param("name", npc.name);
+            }
         }
 
-        return npc.name + " sorri: Olá! Que bom te ver.";
+        // Modifications guided by RelationshipStatus
+        return switch (rel.status) {
+            case MARRIED, PARTNER, ENGAGED -> pickRandomTranslation("npc-dialogues.greeting.romantic", 5, npc.name);
+            case ENEMIES -> pickRandomTranslation("npc-dialogues.greeting.enemy", 3, npc.name);
+            case BEST_FRIEND -> pickRandomTranslation("npc-dialogues.greeting.close_friend", 5, npc.name);
+            case STRANGER, UNKNOWN -> pickRandomTranslation("npc-dialogues.greeting.stranger", 5, npc.name);
+            default -> getDefaultTraitGreeting(npc);
+        };
     }
+    
+    private record TraitGreeting(Trait trait, String key, int options) {}
+
+    private static final List<TraitGreeting> TRAIT_GREETINGS = List.of(
+        new TraitGreeting(Trait.GREEDY, "npc-dialogues.greedy.greeting", 3),
+        new TraitGreeting(Trait.PARANOID, "npc-dialogues.paranoid.greeting", 3),
+        new TraitGreeting(Trait.LAZY, "npc-dialogues.lazy.greeting", 3)
+    );
+
+    private static Message getDefaultTraitGreeting(SimNPCComponent npc) {
+        return TRAIT_GREETINGS.stream()
+            .filter(tg -> npc.personality.traits.contains(tg.trait()))
+            .findFirst()
+            .map(tg -> pickRandomTranslation(tg.key(), tg.options(), npc.name))
+            .orElseGet(() -> pickRandomTranslation("npc-dialogues.friendly.greeting", 5, npc.name));
+    }
+
+    private static Message getCooldownMessage(InteractionType type, String npcName) {
+        if (type == InteractionType.FRIENDLY) return Message.translation("npc-dialogues.cooldown.friendly").param("name", npcName);
+        if (type == InteractionType.GIFT) return Message.translation("npc-dialogues.cooldown.gift").param("name", npcName);
+        return Message.translation("npc-dialogues.cooldown.general").param("name", npcName);
+    }
+
+    private static Message pickRandomTranslation(String baseKey, int optionsCount, String npcName) {
+        int index = ThreadLocalRandom.current().nextInt(1, optionsCount + 1);
+        return Message.translation(baseKey + "." + index).param("name", npcName);
+    }
+
+    /**
+     * What a child currently calls {@code playerUuid} as their parent, for a {@code {parent}}
+     * placeholder in a young-voice line: "mommy"/"daddy", degrading to the plain "mom"/"dad" and
+     * then to the player's own name as {@link ParentChildBond#parentTermKey} sours. Wrapped as a
+     * nested {@link Message} (not a raw string) so the term itself stays translated per client —
+     * only the name fallback is untranslated, being a proper noun already.
+     */
+    private static Message parentAddressTerm(SimNPCComponent npc, UUID playerUuid, PlayerRef playerRef) {
+        String termKey = ParentChildBond.parentTermKey(npc, playerUuid);
+        if (termKey != null) {
+            return Message.translation(termKey);
+        }
+        return Message.raw(playerRef != null ? playerRef.getUsername() : "?");
+    }
+  
 }

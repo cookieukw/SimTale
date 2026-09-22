@@ -1,0 +1,17 @@
+{
+  "Input": [
+    { "ItemId": "Deco_Book_Pile_Small", "Quantity": 1 },
+    { "ItemId": "Deco_Inkwell", "Quantity": 1 }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "InspectorsJournal",
+    "Quantity": 1
+  },
+  "BenchRequirement": [
+    {
+      "Id": "Fieldcraft",
+      "Type": "Crafting",
+      "Categories": [ "Tools" ]
+    }
+  ]
+}

@@ -15,14 +15,41 @@ import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Mood;
 
+import com.cookieukw.SimTale.ai.RoutineAIComponent;
+import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
+
 import javax.annotation.Nonnull;
 
 public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
 
+    /**
+     * Expression variation pools per mood.
+     */
+    private static final String[] HAPPY_EXPRESSIONS = {"Smile", "Cheerful", "Smirk"};
+    private static final String[] EXCITED_EXPRESSIONS = {"Grin", "Cheerful", "Smile"};
+    private static final String[] ANGRY_EXPRESSIONS = {"Angry", "Frown"};
+    private static final String[] BORED_EXPRESSIONS = {"Smirk", null};
+
     @Override
     @Nonnull
     public Query<EntityStore> getQuery() {
-        return (Query<EntityStore>) (Object) SimTale.SIM_NPC_COMPONENT_TYPE;
+        return SimTale.SIM_NPC_COMPONENT_TYPE;
+    }
+
+    private static String selectExpression(Mood mood, float intensity, int seed) {
+        if (mood == null) return null;
+        return switch (mood) {
+            case HAPPY -> HAPPY_EXPRESSIONS[Math.abs(seed) % HAPPY_EXPRESSIONS.length];
+            case EXCITED -> EXCITED_EXPRESSIONS[Math.abs(seed) % EXCITED_EXPRESSIONS.length];
+            case ANGRY -> {
+                if (intensity >= 0.7f) yield "Rage";
+                yield ANGRY_EXPRESSIONS[Math.abs(seed) % ANGRY_EXPRESSIONS.length];
+            }
+            case SAD, SLEEPY -> "Frown";
+            case SCARED -> "Surprised";
+            case BORED -> BORED_EXPRESSIONS[Math.abs(seed) % BORED_EXPRESSIONS.length];
+            default -> null;
+        };
     }
 
     @Override
@@ -31,72 +58,62 @@ public class MoodAnimationSystem extends EntityTickingSystem<EntityStore> {
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
         
         SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
-        if (npc == null || npc.getMood() == null) return;
+        if (npc == null) return;
+
+        RoutineAIComponent ai = chunk.getComponent(index, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+        if (ai != null) {
+            if (ai.currentTask == TaskType.SLEEPING || ai.currentTask == TaskType.ENTERING_BED
+                    || ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.DEAD
+                    || ai.currentTask == TaskType.SOCIALIZING) {
+                return;
+            }
+        }
         
+        Mood currentMood = npc.getMood();
         Ref<EntityStore> ref = chunk.getReferenceTo(index);
-        if (ref == null) return;
         
         ActiveAnimationComponent animComp = chunk.getComponent(index, ActiveAnimationComponent.getComponentType());
         if (animComp == null) return;
+
+        int npcHash = (npc.entityId != null) ? npc.entityId.hashCode() : index;
+        int seed = npcHash + (npc.expressionAge / 100);
+        String animName = selectExpression(currentMood, npc.emotionIntensity, seed);
         
-        String animPath = null;
-        String animName = null;
-        
-        switch (npc.getMood()) {
-            case HAPPY:
-                animPath = "Characters/Animations/Expressions/Smile.blockyanim";
-                animName = "Smile";
-                break;
-            case ANGRY:
-                animPath = "Characters/Animations/Expressions/Angry.blockyanim";
-                animName = "Angry";
-                break;
-            case SAD:
-            case SLEEPY:
-                animPath = "Characters/Animations/Expressions/Frown.blockyanim";
-                animName = "Frown";
-                break;
-            case SCARED:
-                animPath = "Characters/Animations/Expressions/Surprised.blockyanim"; // Typo in CharacterCreator: Suprised.blockyanim
-                animPath = "Characters/Animations/Expressions/Suprised.blockyanim";
-                animName = "Surprised";
-                break;
-            case EXCITED:
-                animPath = "Characters/Animations/Expressions/Cheerful.blockyanim";
-                animName = "Cheerful";
-                break;
-            case NEUTRAL:
-            default:
-                break;
-        }
-        
-        // Let's use AnimationSlot.valueOf("Expression") or fallback to Action
-        AnimationSlot slotToUse = AnimationSlot.Action;
-        try {
-            slotToUse = AnimationSlot.valueOf("Expression");
-        } catch (IllegalArgumentException e) {
-            try {
-                slotToUse = AnimationSlot.valueOf("Face");
-            } catch (IllegalArgumentException e2) {
-                // Ignore
+        AnimationSlot slotToUse = AnimationSlot.Face;
+
+        // Determine if the visual face expression needs to be sent to the client
+        boolean expressionChanged = (npc.lastPlayedEmotion != currentMood);
+
+        // Special transition handling for ANGRY intensity changes (Angry <=> Rage)
+        if (currentMood == Mood.ANGRY) {
+            String currentPlaying = animComp.getActiveAnimations()[slotToUse.ordinal()];
+            if (currentPlaying == null || !currentPlaying.equals(animName)) {
+                expressionChanged = true;
             }
         }
-        
-        String currentAnim = animComp.getActiveAnimations()[slotToUse.ordinal()];
-        
-        if (animName != null) {
-            if (currentAnim == null || !currentAnim.equals(animName)) {
+
+        /* Replay interval between 18s and 28s (360-560 ticks), organically staggered per NPC.
+        Avoids rapid 8s mouth open-and-close spam so facial reactions feel natural and varied.
+        */
+        int replayInterval = 360 + (Math.abs(npcHash) % 200);
+        npc.expressionAge++;
+        if (animName != null && npc.expressionAge >= replayInterval) {
+            expressionChanged = true;
+        }
+
+        if (expressionChanged) {
+            npc.lastPlayedEmotion = currentMood;
+            npc.expressionAge = 0;
+
+            if (animName != null) {
                 animComp.getActiveAnimations()[slotToUse.ordinal()] = animName;
                 animComp.setPlayingAnimation(slotToUse, animName);
-                AnimationUtils.playAnimation(ref, slotToUse, animPath, animName, store);
+                AnimationUtils.playAnimation(ref, slotToUse, animName, store);
                 commandBuffer.replaceComponent(ref, ActiveAnimationComponent.getComponentType(), animComp);
-            }
-        } else {
-            // Stop animation if it's playing a mood animation
-            if (currentAnim != null && (currentAnim.equals("Smile") || currentAnim.equals("Angry") || currentAnim.equals("Frown") || currentAnim.equals("Surprised") || currentAnim.equals("Cheerful"))) {
+            } else {
+                // Clear the Face slot animation
                 animComp.getActiveAnimations()[slotToUse.ordinal()] = null;
-                // We'd stop the animation here, but Hytale API for stopAnimation is not immediately clear.
-                // Just clear it from the slot
+                AnimationUtils.playAnimation(ref, slotToUse, null, store);
                 commandBuffer.replaceComponent(ref, ActiveAnimationComponent.getComponentType(), animComp);
             }
         }

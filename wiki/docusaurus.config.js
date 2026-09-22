@@ -1,0 +1,147 @@
+// @ts-check
+// SimTale wiki configuration.
+//
+// Three independent tracks (player, admin, dev) instead of one tree: the audiences do not mix, and
+// a player looking up "why won't my NPC sleep" should never trip over ECS.
+
+/** @type {import('@docusaurus/types').Config} */
+const config = {
+  title: 'SimTale',
+  tagline: 'Social simulation for Hytale',
+  favicon: 'img/favicon.ico',
+
+  // Adjust when publishing: url is the domain, baseUrl is the path within it.
+  url: 'https://simtale.kukkie.org',
+  baseUrl: '/',
+
+  organizationName: 'cookieukw',
+  projectName: 'SimTale',
+
+  // A broken link fails the build on purpose. A wiki with dead links is worse than an incomplete one.
+  onBrokenLinks: 'throw',
+
+  // onBrokenMarkdownLinks moved under markdown.hooks in Docusaurus 3.9 and is removed in v4.
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+      onBrokenMarkdownImages: 'warn',
+    },
+  },
+
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'pt-BR'],
+    localeConfigs: {
+      'pt-BR': {
+        label: 'Português (Brasil)',
+        direction: 'ltr',
+      },
+    },
+  },
+
+  presets: [
+    [
+      'classic',
+      /** @type {import('@docusaurus/preset-classic').Options} */
+      ({
+        docs: {
+          // Player track, at the site root.
+          sidebarPath: require.resolve('./sidebars.js'),
+          routeBasePath: '/',
+          editUrl: 'https://github.com/cookieukw/SimTale/tree/main/wiki/',
+        },
+        blog: false,
+        theme: {
+          customCss: require.resolve('./src/css/custom.css'),
+        },
+      }),
+    ],
+  ],
+
+  plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'admin',
+        path: 'admin',
+        routeBasePath: 'admin',
+        // Its own file: a docs plugin validates every sidebar in the file it is given against its
+        // own folder, so sharing one file made each track fail on the other two tracks' pages.
+        sidebarPath: require.resolve('./sidebarsAdmin.js'),
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'dev',
+        path: 'dev',
+        routeBasePath: 'dev',
+        sidebarPath: require.resolve('./sidebarsDev.js'),
+      },
+    ],
+  ],
+
+  themeConfig:
+    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+    ({
+      colorMode: {
+        // The mod is played at night. Dark is the sensible default.
+        defaultMode: 'dark',
+        respectPrefersColorScheme: true,
+      },
+      navbar: {
+        title: 'SimTale',
+        logo: {
+          alt: 'SimTale Logo',
+          src: 'img/logo.png',
+        },
+        items: [
+          { type: 'docSidebar', sidebarId: 'player', position: 'left', label: 'Player' },
+          { to: '/admin/intro', position: 'left', label: 'Server' },
+          { to: '/dev/intro', position: 'left', label: 'Developer' },
+          {
+            type: 'dropdown',
+            label: 'Donate',
+            position: 'right',
+            items: [
+              {
+                label: 'Ko-fi',
+                href: 'https://ko-fi.com/cookieukw',
+              },
+              {
+                label: 'Patreon',
+                href: 'https://www.patreon.com/cookieukw',
+              },
+            ],
+          },
+          { type: 'localeDropdown', position: 'right' },
+         /* {
+            href: 'https://github.com/cookieukw/SimTale',
+            label: 'GitHub',
+            position: 'right',
+          },*/
+        ],
+      },
+      footer: {
+        style: 'dark',
+        links: [
+          {
+            title: 'Support the Project',
+            items: [
+              {
+                label: 'Ko-fi',
+                href: 'https://ko-fi.com/cookieukw',
+              },
+              {
+                label: 'Patreon',
+                href: 'https://www.patreon.com/cookieukw',
+              },
+            ],
+          },
+        ],
+        copyright: `A social simulation mod for Hytale, currently in development.`,
+      },
+    }),
+};
+
+module.exports = config;

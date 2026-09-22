@@ -1,0 +1,73 @@
+---
+sidebar_position: 4
+title: Relacionamentos
+---
+
+# Relacionamentos
+
+Cada NPC mantém um relacionamento separado com cada jogador e com outros NPCs.
+
+## Os números
+
+| Valor | Significado |
+|---|---|
+| **Amizade** (Friendship) | Proximidade geral |
+| **Romance** | Interesse romântico |
+| **Confiança** (Trust) | Disposição para aceitar pedidos |
+| **Afinidade** (Affinity) | Reação de curto prazo às suas últimas ações |
+
+## Escada de status
+
+`DESCONHECIDO` (`UNKNOWN`) → `ESTRANHO` (`STRANGER`) → `CONHECIDO` (`ACQUAINTANCE`) → `AMIGO` (`FRIEND`) → `BOM AMIGO` (`GOOD_FRIEND`) → `MELHOR AMIGO` (`BEST_FRIEND`)
+
+Ramo romântico: `NAMORANDO` (`DATING`) → `NOIVOS` (`ENGAGED`) → `CASADOS` (`MARRIED`).
+Ramo negativo: `RIVAL` e `INIMIGO` (`ENEMY`).
+Ramo filial (Filhos): `FILHO` / `FILHA` (gerenciado por `FamilyBonds`, com títulos próprios de afeição parental em vez de progressão de amizade comum ou romance).
+
+O status muda o que ela diz a você. A mesma saudação tem palavras diferentes para um estranho e para
+um cônjuge.
+
+## Como aumentar
+
+| Ação | Efeito |
+|---|---|
+| Conversar | Ganho pequeno, mas confiável |
+| Contar uma piada | Depende do senso de humor dela |
+| Flertar | Romance, se ela for receptiva |
+| Dar um presente favorito | Grande ganho |
+| Alimentá-la quando estiver com fome | Grande ganho — maior que o de um presente comum |
+| Insultar | Perda, e ela se lembra disso |
+
+## Ela se lembra
+
+Os NPCs guardam a memória dos eventos. Insultar alguém tem um efeito que dura além do momento: por um tempo
+depois disso, ela te cumprimentará de forma diferente.
+
+## NPC para NPC
+
+Os NPCs conversam entre si por conta própria quando a necessidade social deles cai. Uma conversa aumenta a necessidade social de
+ambos os lados e constrói amizade entre eles, e essa amizade sobrevive a uma reinicialização do servidor.
+
+O humor se espalha através dessas conversas. Um NPC `AGRESSIVO` (`AGGRESSIVE`), ou dois que já são inimigos, transformam
+a conversa em uma discussão: ambos saem de mau humor e gostando menos um do outro.
+
+Uma conversa agradável entre dois NPCs adultos também gera um pouco de romance entre eles, além da
+amizade que ela já constrói. Quando o romance e a amizade de ambos os lados alcançam o mesmo
+patamar exigido no pedido de casamento com aliança de um jogador (**80 de Romance**, **70 de
+Amizade**, dos dois lados), os dois NPCs se casam por conta própria — sem aliança, sem jogador
+envolvido. Uma frase curta é anunciada para os jogadores por perto quando isso acontece.
+
+Isso nunca acontece entre menores de idade, entre parentes próximos (pais e filhos, ou irmãos), ou
+com alguém já casado com outra pessoa — o SimTale não modela casos extraconjugais.
+
+:::note Ninguém é arrastado para fora da cama
+Um NPC que está dormindo ou trabalhando nunca é escolhido como parceiro de conversa. E se a energia acabar no
+meio da conversa, ela abandona o bate-papo e vai para a cama — o parceiro que ficou para trás não congela.
+:::
+
+## Casamento
+
+Dê uma aliança de casamento (`WeddingRing`) para um NPC com alto nível de romance e amizade e ela
+aceitará. NPCs casados dividem a mesma casa.
+
+Se os números não forem altos o suficiente, ela te rejeitará.

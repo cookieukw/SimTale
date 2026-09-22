@@ -1,0 +1,17 @@
+{
+  "Groups": {
+    "Friendly": [
+      "Trork"
+    ],
+    "Hostile": [
+      "Kweebec",
+      "SimTaleVillager"
+    ],
+    "Ignore": [
+      "Kweebec_Prisoner"
+    ],
+    "Revered": [
+      "Trork_Chieftain"
+    ]
+  }
+}

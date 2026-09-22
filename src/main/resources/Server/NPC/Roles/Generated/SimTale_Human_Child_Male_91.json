@@ -1,0 +1,84 @@
+{
+  "Type": "Generic",
+  "Appearance": "SimTale_Human_Child_Male_91",
+  "AttitudeGroup": "SimTaleVillager",
+  "MaxHealth": 100,
+  "MotionControllerList": [
+    {
+      "Type": "Walk",
+      "MaxWalkSpeed": 2.5,
+      "Gravity": 10,
+      "MaxFallSpeed": 8,
+      "Acceleration": 10
+    }
+  ],
+  "StartState": "Idle",
+  "Instructions": [
+    {
+      "Sensor": {
+        "Type": "Any"
+      },
+      "Instructions": [
+        {
+          "Sensor": {
+            "Type": "State",
+            "State": "Idle"
+          },
+          "Instructions": [
+            {
+              "$Comment": "Injected by add_returnhome_state.py - leave Idle when SimTale moves our leash point away. Also the link that makes ReturnHome reachable, without which the role fails to validate.",
+              "Sensor": {
+                "Type": "Leash",
+                "Range": 2
+              },
+              "Actions": [
+                {
+                  "Type": "State",
+                  "State": "ReturnHome"
+                }
+              ]
+            },
+            {
+              "$Comment": "Original Idle motion, nested by add_returnhome_state.py.",
+              "BodyMotion": {
+                "Type": "Nothing"
+              }
+            }
+          ]
+        },
+        {
+          "$Comment": "Injected by add_returnhome_state.py - walk to the leash point set by SimTale.",
+          "Sensor": {
+            "Type": "State",
+            "State": "ReturnHome"
+          },
+          "Instructions": [
+            {
+              "Sensor": {
+                "Type": "Leash",
+                "Range": 1
+              },
+              "BodyMotion": {
+                "Type": "Seek",
+                "SlowDownDistance": 2,
+                "StopDistance": 0.5,
+                "RelativeSpeed": 0.6,
+                "UsePathfinder": true
+              }
+            },
+            {
+              "$Comment": "Arrived (the Leash sensor stopped firing) - hand control back to Idle.",
+              "Actions": [
+                {
+                  "Type": "State",
+                  "State": "Idle"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "NameTranslationKey": "npc.simtale.name"
+}

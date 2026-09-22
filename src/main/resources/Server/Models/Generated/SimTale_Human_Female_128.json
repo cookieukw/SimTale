@@ -1,5 +1,5 @@
 {
-  "Parent": "Player",
+  "Parent": "SimTale_Human_Female",
   "Model": "Characters/Player.blockymodel",
   "GradientSet": "Skin",
   "GradientId": "50",
@@ -18,13 +18,21 @@
     },
     {
       "Model": "Characters/Body_Attachments/Eyes/Eyes.blockymodel",
-      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png"
+      "Texture": "Characters/Body_Attachments/Eyes/Eyes_Textures/Greyscale.png",
+      "GradientSet": "Eyes_Gradient",
+      "GradientId": "Black"
     },
     {
       "Model": "Cosmetics/Overpants/Skirt.blockymodel",
       "Texture": "Cosmetics/Overpants/Skirt_Textures/Crinkled_Greyscale.png",
       "GradientSet": "Fantasy_Cotton_Dark",
       "GradientId": "Orange"
+    },
+    {
+      "Model": "Cosmetics/Undertops/LongSleeveShirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/LongSleeveShirt_Textures/Flowy_Shirt_Greyscale.png",
+      "GradientSet": "Pastel_Cotton",
+      "GradientId": "Red"
     },
     {
       "Model": "Cosmetics/Overtops/Straps_Wasteland_Marauder.blockymodel",

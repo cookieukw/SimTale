@@ -1,0 +1,325 @@
+package com.cookieukw.SimTale.logic;
+
+
+import com.cookieukw.SimTale.core.SimLog;
+import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.DebugAccess;
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.db.SimBedData.BedPos;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.systems.BedRegistry;
+import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.math.util.ChunkUtil;
+import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
+import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
+import com.hypixel.hytale.protocol.packets.interface_.Page;
+import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
+import com.hypixel.hytale.server.core.ui.builder.EventData;
+import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
+import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.universe.world.World;
+import org.joml.Vector3d;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nonnull;
+
+@SuppressWarnings("null")
+public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
+
+    private static final SimLog LOGGER =
+            SimLog.forClass(SimBedDebugPage.class);
+
+    private final Player player;
+    private final PlayerRef playerRefComp;
+    private int selectedIndex; // Represents current Page Index
+
+    /**
+     * Read-only mode: hides Teleport and Unclaim.
+     * <p>
+     * Set when the screen is opened by the Innkeeper's Ledger item rather than by
+     * {@code /simtale debugbeds}. The information is the same; the actions are not.
+     * <p>
+     * Teleport is the clear-cut one, and not merely for tidiness: the registry holds every bed in
+     * the world, so a craftable item that teleports to any entry is a free long-distance warp. It
+     * would stop being a village tool and become the fastest travel in the game.
+     * <p>
+     * Unclaim is the closer call, since breaking the bed already achieves it in survival. It is
+     * hidden anyway so the item stays a lens and not a lever — a thing you read, never a thing that
+     * changes the village while you are reading it.
+     */
+    private final boolean readOnly;
+
+    /** Whether the control panel opened this screen, which is the only case where Back leads back. */
+    private final boolean fromHub;
+
+    public SimBedDebugPage(@Nonnull PlayerRef playerRefComp, Player player) {
+        this(playerRefComp, player, 0, false, false);
+    }
+
+    public SimBedDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex) {
+        this(playerRefComp, player, initialIndex, false, false);
+    }
+
+    public SimBedDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex, boolean readOnly) {
+        this(playerRefComp, player, initialIndex, readOnly, false);
+    }
+
+    public SimBedDebugPage(@Nonnull PlayerRef playerRefComp, Player player, int initialIndex,
+                           boolean readOnly, boolean fromHub) {
+        super(playerRefComp, CustomPageLifetime.CanDismiss, BuilderCodec.builder(String.class, String::new).build());
+        this.player = player;
+        this.playerRefComp = playerRefComp;
+        this.selectedIndex = initialIndex;
+        this.readOnly = readOnly;
+        this.fromHub = fromHub;
+    }
+
+    /** Teleport and Unclaim need both an editing entry point and creative mode. */
+    private boolean canEdit() {
+        return !readOnly && DebugAccess.canEdit(player);
+    }
+
+    private List<BedPos> getBeds(World world) {
+        synchronized (BedRegistry.BEDS) {
+            int before = BedRegistry.BEDS.size();
+            if (world != null) {
+                // Self-healing: prune bed ONLY if chunk is loaded AND block is no longer a bed block
+                BedRegistry.BEDS.removeIf(bp -> {
+                    WorldChunk chunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunkFromBlock(bp.x, bp.z), WorldChunk.getComponentType());
+                    if (chunk != null) {
+                        BlockType type = world.getBlockType(bp.x, bp.y, bp.z);
+                        return type == null || type.getId() == null || !BedRegistry.isBedId(type.getId());
+                    }
+                    return false; // Keep bed if chunk is unloaded
+                });
+            }
+            int pruned = before - BedRegistry.BEDS.size();
+            if (pruned > 0) {
+                /* If this ever prunes everything the screen looks broken, when in fact the anchor
+                stored in the registry no longer reads as a bed block. Worth seeing.
+                */
+                LOGGER.info("[SimTale] Bed page pruned {} stale bed(s), {} left", pruned, BedRegistry.BEDS.size());
+            }
+            /* No display filtering: the registry now only stores the anchor of each furniture item.
+
+            Previously, each of the six blocks of a bed became a registry entry, and this screen
+            tried to hide the surplus with the isPrimaryBedBlock heuristic. With the root cause
+            fixed (the registry goes through FurnitureAnchorHelper), the filter is no longer
+            necessary — and would hide legitimate beds, since the anchor does not always satisfy
+            that neighborhood heuristic.
+            */
+            List<BedPos> list = new ArrayList<>(BedRegistry.BEDS);
+            list.sort((b1, b2) -> {
+                if (b1.x != b2.x) return Integer.compare(b1.x, b2.x);
+                if (b1.y != b2.y) return Integer.compare(b1.y, b2.y);
+                return Integer.compare(b1.z, b2.z);
+            });
+            return list;
+        }
+    }
+
+    @Override
+    public void build(@Nonnull Ref<EntityStore> playerRef, UICommandBuilder cmd, @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
+        cmd.append("SimBedDebug/SimBedDebug.ui");
+
+        World world = store.getExternalData().getWorld();
+        List<BedPos> beds = getBeds(world);
+        int totalPages = (int) Math.ceil(beds.size() / 5.0);
+        if (totalPages == 0) totalPages = 1;
+
+        if (selectedIndex < 0) selectedIndex = 0;
+        if (selectedIndex >= totalPages) selectedIndex = totalPages - 1;
+
+        cmd.set("#Title.TextSpans", Message.translation("ui.debugbeds.title"));
+        cmd.set("#EmptyContainer.Visible", beds.isEmpty());
+        cmd.set("#ListContainer.Visible", !beds.isEmpty());
+
+        // Render 5 items for the current page
+        for (int i = 0; i < 5; i++) {
+            int bedIndex = selectedIndex * 5 + i;
+            String rowSelector = "#Row" + i;
+
+            if (bedIndex < beds.size()) {
+                BedPos bp = beds.get(bedIndex);
+                cmd.set(rowSelector + ".Visible", true);
+                cmd.set(rowSelector + " #Coords.TextSpans", Message.translation("ui.debugbeds.bedEntry")
+                        .param("index", bedIndex + 1)
+                        .param("x", bp.x)
+                        .param("y", bp.y)
+                        .param("z", bp.z));
+
+                // Find owners (accept distance <= 1 block to handle offsets/deduplications)
+                List<String> owners = new ArrayList<>();
+                for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                    if (npc.bedLocation != null && 
+                        Math.abs(npc.bedLocation.x - bp.x) <= 1 && 
+                        Math.abs(npc.bedLocation.y - bp.y) <= 1 && 
+                        Math.abs(npc.bedLocation.z - bp.z) <= 1) {
+                        owners.add(npc.name);
+                    }
+                }
+
+                if (owners.isEmpty()) {
+                    cmd.set(rowSelector + " #Status.TextSpans", Message.translation("ui.debugbeds.statusFree"));
+                    cmd.set(rowSelector + " #Status.Style.TextColor", "#44ff88");
+                } else {
+                    cmd.set(rowSelector + " #Status.TextSpans", Message.translation("ui.debugbeds.statusOwners")
+                            .param("owners", String.join(", ", owners)));
+                    cmd.set(rowSelector + " #Status.Style.TextColor", "#ffaa55");
+                }
+
+
+                /* Hidden as well as unbound in read-only mode: leaving the buttons on screen with
+                nothing behind them reads as broken, which is worse than not offering them.
+                */
+                boolean canEdit = canEdit();
+                cmd.set(rowSelector + " #BtnTp.Visible", canEdit);
+                cmd.set(rowSelector + " #BtnUnclaim.Visible", canEdit);
+
+                if (canEdit) {
+                    // Bind buttons uniquely for this row's bed index
+                    eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnTp", new EventData().append("action", "tp_" + bedIndex), false);
+                    eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, rowSelector + " #BtnUnclaim", new EventData().append("action", "unclaim_" + bedIndex), false);
+                }
+            } else {
+                // Hide unused rows
+                cmd.set(rowSelector + ".Visible", false);
+            }
+        }
+
+
+        // Show the count and set button labels
+        cmd.set("#PageIndex.TextSpans", Message.translation("ui.debugbeds.pageIndex")
+                .param("current", selectedIndex + 1)
+                .param("total", totalPages)
+                .param("count", beds.size()));
+        LOGGER.info("[SimTale] Bed debug page opened with {} registered beds", beds.size());
+
+        // Register navigation buttons
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnPrevPage", new EventData().append("action", "prev_page"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnNextPage", new EventData().append("action", "next_page"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#BtnBack", new EventData().append("action", "back"), false);
+    }
+
+
+    @Override
+    public void handleDataEvent(@Nonnull Ref<EntityStore> storeRef, @Nonnull Store<EntityStore> store, @Nonnull String rawEventData) {
+        HytaleLogger.forEnclosingClass().atInfo().log("SimBedDebug [EVENT]: " + rawEventData);
+
+        // Safely extract action string if Hytale client wrapped the event inside a JSON string
+        String eventData = rawEventData;
+        if (rawEventData.startsWith("{")) {
+            int idx = rawEventData.indexOf("\"action\":\"");
+            if (idx != -1) {
+                int start = idx + 10;
+                int end = rawEventData.indexOf("\"", start);
+                if (end != -1) {
+                    eventData = rawEventData.substring(start, end);
+                }
+            }
+        }
+
+        World world = store.getExternalData().getWorld();
+        List<BedPos> beds = getBeds(world);
+
+        if (eventData.contains("prev_page")) {
+            selectedIndex = Math.max(0, selectedIndex - 1);
+            refreshUI();
+            return;
+        }
+        if (eventData.contains("next_page")) {
+            int totalPages = (int) Math.ceil(beds.size() / 5.0);
+            if (totalPages == 0) totalPages = 1;
+            selectedIndex = Math.min(totalPages - 1, selectedIndex + 1);
+            refreshUI();
+            return;
+        }
+        if (eventData.contains("back")) {
+            /* Only a screen the hub opened has anywhere to go back to. An item or a direct command
+            did not come from the developer panel, and dropping the player into it is how the
+            force-sleep controls kept surfacing in a survival session.
+            */
+            if (fromHub) {
+                player.getPageManager().openCustomPage(storeRef, store, new SimDebugPage(playerRefComp, player));
+            } else {
+                player.getPageManager().setPage(storeRef, store, Page.None);
+            }
+            return;
+        }
+
+        /* The bindings are already withheld, but the client sends the action string, so the guard
+        belongs here too rather than only on the button that produced it.
+        */
+        if ((eventData.contains("tp_") || eventData.contains("unclaim_")) && !canEdit()) {
+            return;
+        }
+
+        // Handle Row-specific actions
+        if (eventData.contains("tp_")) {
+            try {
+                int bedIndex = Integer.parseInt(eventData.substring(eventData.indexOf("tp_") + 3));
+                if (bedIndex >= 0 && bedIndex < beds.size()) {
+                    BedPos bp = beds.get(bedIndex);
+                    TransformComponent transform = store.getComponent(storeRef, TransformComponent.getComponentType());
+                    if (transform != null) {
+
+                        world.execute(() -> {
+                            Teleport tp = Teleport.createForPlayer(
+                                world,
+                                new Vector3d(bp.x + 0.5, bp.y + 1.2, bp.z + 0.5),
+                                transform.getRotation()
+                            );
+                            store.putComponent(storeRef, Teleport.getComponentType(), tp);
+                            playerRefComp.sendMessage(Message.translation("ui.debugbeds.msgTpSuccess").param("index", bedIndex + 1));
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                HytaleLogger.forEnclosingClass().atWarning().withCause(e).log("Failed to process teleport event: " + eventData);
+            }
+            player.getPageManager().setPage(storeRef, store, Page.None);
+        } else if (eventData.contains("unclaim_")) {
+            try {
+                int bedIndex = Integer.parseInt(eventData.substring(eventData.indexOf("unclaim_") + 8));
+                if (bedIndex >= 0 && bedIndex < beds.size()) {
+                    BedPos bp = beds.get(bedIndex);
+                    int count = 0;
+                    for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                        if (npc.bedLocation != null && 
+                            npc.bedLocation.x == bp.x && 
+                            npc.bedLocation.y == bp.y && 
+                            npc.bedLocation.z == bp.z) {
+                            
+                            npc.bedLocation = null;
+                            npc.family.hasSharedHome = false;
+                            SimNPCPersistence.saveNPC(npc);
+                            count++;
+                        }
+                    }
+                    playerRefComp.sendMessage(Message.translation("ui.debugbeds.msgUnclaimSuccess").param("count", count).param("index", bedIndex + 1));
+                }
+
+            } catch (Exception e) {
+                HytaleLogger.forEnclosingClass().atWarning().withCause(e).log("Failed to process unclaim event: " + eventData);
+            }
+            refreshUI();
+        }
+    }
+
+    private void refreshUI() {
+        player.getPageManager().clearCustomPageAcknowledgements();
+        rebuild();
+    }
+}

@@ -1,0 +1,15 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.pregnancy_test.name",
+    "Description": "general.item.pregnancy_test.description"
+  },
+  "Icon": "Icons/Items/PregnancyTest.png",
+  "Model": "Resources/PregnancyTest/PregnancyTest.blockymodel",
+  "Texture": "Resources/PregnancyTest/PregnancyTest_texture.png",
+  "PlayerAnimationsId": "Item",
+  "Scale": 1.0,
+  "MaxStack": 10,
+  "Interactions": {
+    "Secondary": "SimTale_CheckPregnancy"
+  }
+}

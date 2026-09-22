@@ -1,0 +1,185 @@
+// Pregnancy details.
+//
+// Ids are the contract with PregnancyDisplayUtil / NPCPregnancyPage / PlayerPregnancyPage: labels
+// are written via "#X.TextSpans", the two footer buttons are toggled via "#BackButton.Visible" /
+// "#CloseButton.Visible", and the bar is driven by resizing #ProgressBarFill. All preserved.
+
+$T = "../SimTaleTheme.ui";
+
+Group {
+  LayoutMode: MiddleCenter;
+  Background: #0C0806(0.85);
+
+  SceneBlur {}
+
+  Group #MainPanel {
+    Anchor: (Width: 560, Height: 640);
+    LayoutMode: Top;
+    Background: $T.@PanelSurface;
+    Padding: (Top: 24, Bottom: 22, Horizontal: $T.@GutterOuter);
+
+    Label #SubjectName {
+      Text: "—";
+      Anchor: (Height: 42, Bottom: 2);
+      Style: $T.@TitleStyle;
+    }
+    Label #SubTitle {
+      Text: %ui.pregnancy.subtitle;
+      Anchor: (Height: 24, Bottom: 4);
+      Style: (...$T.@SubtitleStyle, TextColor: $T.@AccentRomance);
+    }
+
+    $T.@Separator { @Anchor = (Bottom: $T.@SectionGap); }
+
+    Group #InfoPanel {
+      LayoutMode: Top;
+      FlexWeight: 1;
+      Background: $T.@InsetSurface;
+      // 16 each side leaves exactly 488 inside, which is what makes the progress track below
+      // land on the 480 the Java fill width is calculated against.
+      Padding: (Top: 16, Bottom: 16, Horizontal: 16);
+
+      Label #GestationHeader {
+        Text: %ui.pregnancy.sectionGestation;
+        Anchor: (Height: 20, Bottom: 8);
+        Style: $T.@SectionHeaderStyle;
+      }
+
+      // The state is the answer the player opened this panel for, so it gets the heading
+      // treatment instead of being the second of seven identical rows.
+      Label #GestationStage {
+        Text: "—";
+        Anchor: (Height: 30, Bottom: 10);
+        Style: (...$T.@BodyStrong, FontSize: 19, TextColor: $T.@AccentRomance);
+      }
+
+      Group {
+        Anchor: (Height: 26, Bottom: $T.@RowGap);
+        LayoutMode: Left;
+        Label {
+          Text: %ui.pregnancy.captionFather;
+          Anchor: (Width: 150, Height: 26);
+          Style: (...$T.@BodyStyle, FontSize: 14, TextColor: $T.@TextMuted);
+        }
+        Label #FatherName {
+          Text: "—";
+          FlexWeight: 1;
+          Anchor: (Height: 26);
+          Style: $T.@BodyStrong;
+        }
+      }
+
+      Group {
+        Anchor: (Height: 26, Bottom: 12);
+        LayoutMode: Left;
+        Label {
+          Text: %ui.pregnancy.captionDays;
+          Anchor: (Width: 150, Height: 26);
+          Style: (...$T.@BodyStyle, FontSize: 14, TextColor: $T.@TextMuted);
+        }
+        Label #ElapsedDays {
+          Text: "—";
+          FlexWeight: 1;
+          Anchor: (Height: 26);
+          Style: $T.@BodyStrong;
+        }
+      }
+
+      Label #ProgressText {
+        Text: "—";
+        Anchor: (Height: 22, Bottom: 6);
+        Style: (...$T.@BodyStyle, FontSize: 14);
+      }
+
+      // The track keeps a fixed height and the fill is resized from Java, so this cannot become
+      // a ProgressBar node without changing that contract.
+      //
+      // Geometry matters here and was wrong: the track was 18 tall with 3px padding, leaving 12
+      // for a fill that Java sets to height 20 — and @WellSurface is a 9-slice with Border 12, so
+      // an 18px box has no room for its own corners. That is what rendered as two stray white
+      // marks instead of a bar. 28 tall with 4px padding gives the fill its 20 and the slice its
+      // borders, and 488 - 8 leaves exactly the 480 the fill width is computed against.
+      Group #ProgressBarContainer {
+        Anchor: (Height: 28, Bottom: 14);
+        LayoutMode: Left;
+        Background: $T.@BarTrack;
+        Padding: (Full: 4);
+
+        Group #ProgressBarFill {
+          Anchor: (Width: 0, Height: 20);
+          // Via the theme so this file stays free of ../ paths — those resolve relative to the
+          // file that declares them, and SimTaleTheme.ui sits one level up.
+          Background: $T.@ProgressFill;
+        }
+      }
+
+      Group {
+        Anchor: (Height: 26, Bottom: 12);
+        LayoutMode: Left;
+        Label {
+          Text: %ui.pregnancy.captionRemaining;
+          Anchor: (Width: 150, Height: 26);
+          Style: (...$T.@BodyStyle, FontSize: 14, TextColor: $T.@TextMuted);
+        }
+        Label #TimeRemaining {
+          Text: "—";
+          FlexWeight: 1;
+          Anchor: (Height: 26);
+          Style: $T.@BodyStrong;
+        }
+      }
+
+      $T.@Separator { @Anchor = (Bottom: 10); }
+
+      Label #FamilyHeader {
+        Text: %ui.pregnancy.sectionFamily;
+        Anchor: (Height: 20, Bottom: 8);
+        Style: $T.@SectionHeaderStyle;
+      }
+
+      Label #Symptoms {
+        Text: "—";
+        Anchor: (Height: 44, Bottom: 8);
+        Style: (...$T.@BodyStyle, FontSize: 14, VerticalAlignment: Start);
+      }
+
+      Group {
+        Anchor: (Height: 26);
+        LayoutMode: Left;
+        Label {
+          Text: %ui.pregnancy.captionChildren;
+          Anchor: (Width: 150, Height: 26);
+          Style: (...$T.@BodyStyle, FontSize: 14, TextColor: $T.@TextMuted);
+        }
+        Label #TotalChildren {
+          Text: "—";
+          FlexWeight: 1;
+          Anchor: (Height: 26);
+          Style: $T.@BodyStrong;
+        }
+      }
+    }
+
+    // Only one of these is visible at a time; Java flips them.
+    Button #BackButton {
+      Anchor: (Height: $T.@ButtonH, Top: $T.@SectionGap);
+      Style: $T.@BtnNeutral;
+      Visible: true;
+      Label #BackButtonText {
+        Text: %ui.pregnancy.back;
+        Anchor: (Full: 0);
+        Style: $T.@ButtonLabelStyle;
+      }
+    }
+    Button #CloseButton {
+      Anchor: (Height: $T.@ButtonH, Top: $T.@SectionGap);
+      Style: $T.@BtnNeutral;
+      Visible: false;
+      Label #CloseButtonText {
+        Text: %ui.pregnancy.close;
+        Anchor: (Full: 0);
+        Style: $T.@ButtonLabelStyle;
+      }
+    }
+  }
+}

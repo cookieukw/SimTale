@@ -1,0 +1,9 @@
+{
+  "Parent": "Doll_4",
+  "DefaultAttachments": [
+    {
+      "Model": "Cosmetics/Head/StrawHat.blockymodel",
+      "Texture": "Cosmetics/Head/StrawHat_Textures/WitchHat_Colored_Greyscale_Texture.png"
+    }
+  ]
+}
