@@ -8,7 +8,7 @@
    version="1.1"
    id="svg5"
    xml:space="preserve"
-   sodipodi:docname="simtale2.svg"
+   sodipodi:docname="simtale_logo.svg"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
    inkscape:export-filename="simtale2.png"
    inkscape:export-xdpi="96"
@@ -27,15 +27,15 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.1244967"
-     inkscape:cx="2887.6268"
-     inkscape:cy="1160.6733"
+     inkscape:zoom="0.4979868"
+     inkscape:cx="2999.0755"
+     inkscape:cy="882.55351"
      inkscape:window-width="1360"
      inkscape:window-height="696"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer10" /><defs
+     inkscape:current-layer="layer3" /><defs
      id="defs2"><rect
        x="737.72784"
        y="475.70289"
@@ -135,7 +135,7 @@
        transform="matrix(19.168534,0,0,19.168534,-1385.8286,-7077.2309)"><tspan
          x="125.69432"
          y="387.65448"
-         id="tspan303">ale</tspan></text><text
+         id="tspan447">ale</tspan></text><text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:Righteous;-inkscape-font-specification:'Righteous, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#333333;stroke-width:18.848;stroke-linejoin:round"
        x="583.11835"
@@ -156,7 +156,7 @@
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:53.3333px;font-family:'Seagram tfb';-inkscape-font-specification:'Seagram tfb, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect239);display:inline;fill:#ffffff;stroke-width:71.2365;stroke-linejoin:round"><tspan
          x="737.72852"
          y="523.84482"
-         id="tspan305">s</tspan></text></g><g
+         id="tspan449">s</tspan></text></g><g
      id="layer3"
      inkscape:label="s_cracks"
      style="display:inline"
@@ -175,10 +175,7 @@
        id="path368" /><path
        style="opacity:1;fill:#005448;fill-opacity:0.87451;stroke-width:24.65;stroke-linejoin:round"
        d="m 259.46668,167.52892 1.70253,-36.48004 -12.15265,-15.15991 -10.31812,-7.91037 5.68967,22.82737 7.53962,4.37746 z"
-       id="path370" /><path
-       style="opacity:0.23;fill:#e3dbdb;fill-opacity:1;stroke-width:24.7353;stroke-linejoin:round"
-       d="m 722.12475,205.52679 4.83168,-20.19008 -12.59707,-31.60417 14.98861,30.5685 -3.93205,21.78041 -5.85509,21.23731 z"
-       id="path10853" /></g><g
+       id="path370" /></g><g
      inkscape:groupmode="layer"
      id="layer5"
      inkscape:label="t_base"
@@ -213,7 +210,7 @@
      style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:53.3333px;font-family:'Seagram tfb';-inkscape-font-specification:'Seagram tfb, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect1186);display:inline;fill:#ffffff;stroke-width:71.2365;stroke-linejoin:round"><tspan
        x="737.72852"
        y="523.84482"
-       id="tspan307">T</tspan></text><g
+       id="tspan451">T</tspan></text><g
      inkscape:groupmode="layer"
      id="layer9"
      inkscape:label="t_cracks"
@@ -246,7 +243,7 @@
        transform="matrix(19.168534,0,0,19.168534,-1938.5096,-7071.0127)"><tspan
          x="125.69432"
          y="387.65448"
-         id="tspan309">im</tspan></text><text
+         id="tspan453">im</tspan></text><text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:Righteous;-inkscape-font-specification:'Righteous, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#333333;stroke-width:18.848;stroke-linejoin:round"
        x="583.11835"
