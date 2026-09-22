@@ -1,7 +1,6 @@
-# SimTale
 
 <p align="center">
-  <img src="wiki/static/img/simtale_logo.png" width="480" alt="SimTale" />
+  <img src="wiki/static/img/simtale_logo_white_text.svg" width="600" alt="SimTale" />
 </p>
 
 _Read this in [Portuguese](README-pt-BR.md)_
@@ -17,6 +16,12 @@ The mod includes **800 distinct visual variants** of NPCs:
 
 During instantiation, each NPC is assigned randomized properties for personality, traits, hobbies, and item preferences.
 
+
+> ⚠️ **Required Dependencies**
+> SimTale requires two additional mods to function. Make sure to download and install:
+> - 🔮 [RuneCore](https://www.curseforge.com/hytale/mods/runecore)
+> - 🛡️ [Caskara](https://www.curseforge.com/hytale/mods/caskara)
+ 
 <p align="center">
   <img src="wiki/static/img/variant_1.png" width="49%" />
   <img src="wiki/static/img/variant_2.png" width="49%" />

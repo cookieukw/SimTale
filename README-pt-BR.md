@@ -1,7 +1,7 @@
 # SimTale
 
 <p align="center">
-  <img src="wiki/static/img/simtale_logo.png" width="480" alt="SimTale" />
+  <img src="wiki/static/img/simtale_logo_white_text.svg" width="480" alt="SimTale" />
 </p>
 
 _Leia em [Inglês](README.md)_
