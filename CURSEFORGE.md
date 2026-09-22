@@ -1,4 +1,4 @@
-# SimTale
+ <img src="https://simtale.netlify.app/img/simtale_logo_white_text.svg"  align="center"/>
 
 *Read the full documentation at [simtale.kukkie.org](https://simtale.kukkie.org/)*
 
@@ -14,6 +14,11 @@ The mod includes **800 distinct visual variants** of NPCs:
 
 During instantiation, each NPC is assigned randomized properties for personality, traits, hobbies, and item preferences.
 
+> ⚠️ **Required Dependencies**
+> SimTale requires two additional mods to function. Make sure to download and install:
+> - 🔮 [RuneCore](https://www.curseforge.com/hytale/mods/runecore)
+> - 🛡️ [Caskara](https://www.curseforge.com/hytale/mods/caskara)
+</br>
 <p align="center">
   <img src="https://simtale.kukkie.org/img/variant_1.png" width="49%" />
   <img src="https://simtale.kukkie.org/img/variant_2.png" width="49%" />
@@ -63,10 +68,10 @@ The generated NPC receives one of **800 distinct visual models** and is instanti
 
 An NPC without a house wanders aimlessly and never sleeps properly. The minimum that counts as a house:
 
-- 🧱 walls and a roof enclosing the space
+- **walls** and a roof enclosing the space
 - a **door** <img src="https://simtale.kukkie.org/img/furniture/doors/Furniture_Crude_Door.png" width="22" align="absmiddle"/>
-- a **light source** <img src="https://simtale.kukkie.org/img/furniture/lights/Build_Lightsource_Torch.png" width="22" align="absmiddle"/>
-- a **seat** <img src="https://simtale.kukkie.org/img/furniture/seats/Furniture_Crude_Chair.png" width="22" align="absmiddle"/>
+- a **light source** <img src="https://simtale.kukkie.org/img/furniture/lights/Wood_Torch_Wall.png" width="22" align="absmiddle"/>
+- a **seat** <img src="https://simtale.kukkie.org/img/furniture/seats/Furniture_Village_Chair.png" width="22" align="absmiddle"/>
 - a **table** <img src="https://simtale.kukkie.org/img/furniture/tables/Furniture_Crude_Table.png" width="22" align="absmiddle"/>
 - a **bed** <img src="https://simtale.kukkie.org/img/furniture/beds/Furniture_Crude_Bed.png" width="22" align="absmiddle"/>
 
