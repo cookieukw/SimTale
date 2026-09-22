@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.WorldUtil;
+import com.cookieukw.SimTale.vehicles.CalhambequePhysicsSystem;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.component.ArchetypeChunk;
@@ -78,10 +79,11 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
     @Nonnull
     public Set<Dependency<EntityStore>> getDependencies() {
         return Set.of(
-            new SystemDependency<>(Order.AFTER, PlayerProcessMovementSystem.class),
-            new SystemDependency<>(Order.AFTER, SteeringSystem.class),
-            new SystemDependency<>(Order.AFTER, RoutineAISystem.class),
-            new SystemDependency<>(Order.BEFORE, TransformSystems.EntityTrackerUpdate.class)
+                new SystemDependency<>(Order.AFTER, PlayerProcessMovementSystem.class),
+                new SystemDependency<>(Order.AFTER, SteeringSystem.class),
+                new SystemDependency<>(Order.AFTER, RoutineAISystem.class),
+                new SystemDependency<>(Order.BEFORE, TransformSystems.EntityTrackerUpdate.class),
+                new SystemDependency<>(Order.AFTER, CalhambequePhysicsSystem.class)
         );
     }
 
