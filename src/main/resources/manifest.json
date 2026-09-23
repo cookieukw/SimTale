@@ -10,7 +10,8 @@
   ],
 
   "Dependencies": {
-    "Cookieukw:Caskara": ">=3.0.0"
+    "Cookieukw:Caskara": ">=3.0.0",
+    "Cookieukw:Runecore": ">=1.0.12"
   },
   "ServerVersion": "0.6.8",
   "OptionalDependencies": {},
