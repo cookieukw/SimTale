@@ -12,7 +12,7 @@
   "Dependencies": {
     "Cookieukw:Caskara": ">=3.0.0"
   },
-  "ServerVersion": ">=0.5.8",
+  "ServerVersion": "0.6.8",
   "OptionalDependencies": {},
   "DisabledByDefault": false,
   "Main": "com.cookieukw.SimTale.SimTale",
