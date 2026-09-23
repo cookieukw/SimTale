@@ -1,21 +1,28 @@
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+
 plugins {
     id 'java'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.3'
 }
 
 ext {
-    // Tenta ler do local.properties, se não existir usa o padrão Linux
     def localProps = new Properties()
     def localPropsFile = project.rootProject.file('local.properties')
+
     if (localPropsFile.exists()) {
         localProps.load(localPropsFile.newDataInputStream())
     }
-    
-    hytaleHome = localProps.getProperty('hytale.dir') ?: 
-                 (System.getProperty("os.name").toLowerCase().contains("win") 
-                    ? "${System.getProperty("user.home")}/AppData/Roaming/Hytale"
-                    : "${System.getProperty("user.home")}/.local/share/hytale")
+
+    hytaleHome = localProps.getProperty('hytale.dir') ?:
+        (System.getProperty("os.name").toLowerCase().contains("win")
+            ? "${System.getProperty("user.home")}/AppData/Roaming/Hytale"
+            : "${System.getProperty("user.home")}/.local/share/hytale")
 }
+
+def manifestFile = file("$projectDir/src/main/resources/manifest.json")
+def manifestData = new groovy.json.JsonSlurper().parse(manifestFile)
+def modVersion = manifestData.Version.toString()
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(java_version)
@@ -50,14 +57,6 @@ test {
     failOnNoDiscoveredTests = false
 }
 
-// Validacao dos arquivos .ui
-//
-// O cliente recusa TODO o custom UI quando um unico arquivo esta malformado, e reporta um erro por
-// tentativa de conexao. Descobrir os problemas assim custa um restart de servidor por typo. Este
-// check roda antes do jar e falha o build, entao o erro aparece no terminal em vez de no jogo.
-//
-// A pasta de assets do Hytale entra por HYTALE_ASSETS ou por hytale.assets no local.properties.
-// Sem ela o script ainda roda, mas nao consegue distinguir textura do jogo de caminho errado.
 tasks.register('checkUi', Exec) {
     group = 'verification'
     description = 'Valida caminhos, chaves de traducao e sintaxe dos arquivos .ui'
@@ -68,14 +67,17 @@ tasks.register('checkUi', Exec) {
     commandLine 'python3', script.absolutePath
 
     def assetsDir = System.getenv('HYTALE_ASSETS')
+
     if (assetsDir == null) {
         def props = new Properties()
         def f = project.rootProject.file('local.properties')
+
         if (f.exists()) {
             props.load(f.newDataInputStream())
             assetsDir = props.getProperty('hytale.assets')
         }
     }
+
     if (assetsDir != null) {
         environment 'HYTALE_ASSETS', assetsDir
     }
@@ -85,23 +87,6 @@ tasks.named('processResources') {
     dependsOn 'checkUi'
 }
 
-// Tarefa de deploy
-//
-// Copia ATOMICA, e isso importa. A versao anterior era um `Copy` do Gradle, que escreve o jar
-// direto por cima de Mods/SimTale-x.y.z.jar. Como o Hytale observa essa pasta e recarrega o mod
-// sozinho quando o arquivo muda, ele disparava a recarga assim que a escrita comecava e lia um
-// jar pela metade. O sintoma era:
-//
-//   FAIL: /Server/NPC/Roles/SimTale_Human_Male.json: Failed to load builder:
-//   java.util.zip.ZipException: invalid LOC header (bad signature)
-//
-// seguido de "Reloading nonexistent role ..." para cada role gerado, porque os roles base nunca
-// chegaram a entrar no registro. O jar em disco estava intacto o tempo todo — o problema era
-// puramente o instante da leitura. Com 11 MB de mod, a janela de corrupcao e larga.
-//
-// Escrever num arquivo temporario na MESMA pasta e depois renomear resolve: no mesmo sistema de
-// arquivos, o rename e atomico. O jogo ou ve o jar antigo inteiro, ou o novo inteiro. Nunca um
-// meio-termo.
 tasks.register('deploy') {
     dependsOn 'jar'
 
@@ -109,9 +94,6 @@ tasks.register('deploy') {
     def targetDir = file("${hytaleHome}/Mods")
 
     inputs.file(jarFile)
-    // Sem outputs declarados o Gradle nao consegue avaliar atualidade, e `inputs` sozinho nao
-    // significa nada. Copiar sempre e o comportamento correto aqui: o alvo esta fora do projeto e
-    // pode ter sido substituido por fora.
     outputs.upToDateWhen { false }
 
     doLast {
@@ -120,25 +102,30 @@ tasks.register('deploy') {
             println "Configure 'hytale.dir=/caminho/certo' no seu local.properties"
             return
         }
+
         targetDir.mkdirs()
 
         def source = jarFile.get().asFile
         def target = new File(targetDir, source.name)
-        // O temporario precisa ficar na mesma pasta do destino, senao o rename cruza sistemas
-        // de arquivos e deixa de ser atomico (ATOMIC_MOVE lanca excecao nesse caso).
-        //
-        // O nome NAO pode conter ".jar": o observador da pasta Mods pode casar por substring, e
-        // ai ele tentaria carregar o temporario enquanto ele ainda esta sendo escrito — que e
-        // exatamente o problema que a copia atomica existe para evitar. O ponto inicial tambem o
-        // deixa oculto no Linux.
-        def temp = new File(targetDir, "." + source.name.replace(".jar", "") + ".deploy.tmp")
+        def temp = new File(
+            targetDir,
+            "." + source.name.replace(".jar", "") + ".deploy.tmp"
+        )
 
         try {
-            java.nio.file.Files.copy(source.toPath(), temp.toPath(),
-                    java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-            java.nio.file.Files.move(temp.toPath(), target.toPath(),
-                    java.nio.file.StandardCopyOption.REPLACE_EXISTING,
-                    java.nio.file.StandardCopyOption.ATOMIC_MOVE)
+            Files.copy(
+                source.toPath(),
+                temp.toPath(),
+                StandardCopyOption.REPLACE_EXISTING
+            )
+
+            Files.move(
+                temp.toPath(),
+                target.toPath(),
+                StandardCopyOption.REPLACE_EXISTING,
+                StandardCopyOption.ATOMIC_MOVE
+            )
+
             println "Deploy: ${target}"
         } catch (Exception e) {
             temp.delete()
@@ -147,16 +134,8 @@ tasks.register('deploy') {
     }
 }
 
-// NAO usar tasks.jar.finalizedBy('deploy').
-//
-// Com finalizedBy, QUALQUER tarefa que produza o jar dispara um deploy: `build`, `assemble`, a
-// sincronizacao do IDE, o sources jar. O Hytale observa a pasta Mods e recarrega o mod sozinho
-// quando o arquivo muda, entao o jogo era recarregado em momentos que nao correspondiam a nenhuma
-// acao consciente — e testar logo depois pegava o mod em estado inconsistente.
-//
-// Como `deploy` ja declara dependsOn 'jar', `./gradlew deploy` continua compilando e copiando.
-// A diferenca e que agora `./gradlew build` NAO mexe na instalacao do jogo.
-
 tasks.named("jar") {
+    archiveBaseName.set("SimTale")
+    archiveVersion.set(modVersion)
     destinationDirectory.set(file("$projectDir/build/libs"))
 }
