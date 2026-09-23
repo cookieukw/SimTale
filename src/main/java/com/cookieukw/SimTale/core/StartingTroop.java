@@ -27,7 +27,7 @@ public final class StartingTroop {
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
     /** How many NPCs the world starts with. */
-    private static final int TROOP_SIZE = 5;
+    private static final int TROOP_SIZE = 0;
 
     /** Ring around the player to place them on. Far enough not to crowd the spawn point. */
     private static final double MIN_RADIUS = 7.0;
