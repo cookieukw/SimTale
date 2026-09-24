@@ -42,7 +42,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.hypixel.hytale.server.core.modules.entity.component.Intangible;
-import com.hypixel.hytale.math.shape.Box;
 
 /**
  * Ticking ECS system that manages Terraria-style floating thought bubbles (Emote Bubbles)
@@ -89,7 +88,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
         return SCALED_BUBBLE_MODELS.computeIfAbsent(key, _ -> {
             ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(modelName);
             if (modelAsset != null) {
-                return Model.createScaledModel(modelAsset, scale,  null, Box.ZERO);
+                return Model.createScaledModel(modelAsset, scale);
             }
             return null;
         });

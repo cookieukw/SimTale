@@ -96,7 +96,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
                 modelAsset = ModelAsset.getAssetMap().getAsset("Plumbob");
             }
             if (modelAsset != null) {
-                return Model.createScaledModel(modelAsset, 0.9f, null, Box.ZERO);
+                return Model.createScaledModel(modelAsset, 0.9f);
             }
             return null;
         });
@@ -177,7 +177,9 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
             if (plumbobTransform == null) {
                 needsNewPlumbob = true;
             } else {
-                store.ensureComponent(plumbobRef, Intangible.getComponentType());
+                if (store.getComponent(plumbobRef, Intangible.getComponentType()) == null) {
+                    commandBuffer.putComponent(plumbobRef, Intangible.getComponentType(), Intangible.INSTANCE);
+                }
                 // Update position in-place without vector allocation
                 Vector3d entityPos = entityTransform.getPosition();
                 plumbobTransform.getPosition().set(entityPos.x, entityPos.y + height, entityPos.z);

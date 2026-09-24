@@ -52,14 +52,14 @@ for mood, color in MOOD_COLORS.items():
       "Texture": f"NPC/Plumbob/{tex_filename}",
       "HitBox": {
         "Min": {
-            "X": -0.001,
-            "Y": -0.001,
-            "Z": -0.001
+            "X": -0.5,
+            "Y": -0.5,
+            "Z": -0.5
         },
         "Max": {
-            "X": 0.001,
-            "Y": 0.001,
-            "Z": 0.001
+            "X": 0.5,
+            "Y": 0.5,
+            "Z": 0.5
         }
       }
     }
