@@ -18,12 +18,14 @@ import com.hypixel.hytale.component.dependency.SystemDependency;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.math.shape.Box;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model;
 import com.hypixel.hytale.server.core.asset.type.model.config.ModelAsset;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.BoundingBox;
+import com.hypixel.hytale.server.core.modules.entity.component.Intangible;
 import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
@@ -94,7 +96,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
                 modelAsset = ModelAsset.getAssetMap().getAsset("Plumbob");
             }
             if (modelAsset != null) {
-                return Model.createScaledModel(modelAsset, 0.9f);
+                return Model.createScaledModel(modelAsset, 0.9f, null, Box.ZERO);
             }
             return null;
         });
@@ -175,6 +177,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
             if (plumbobTransform == null) {
                 needsNewPlumbob = true;
             } else {
+                store.ensureComponent(plumbobRef, Intangible.getComponentType());
                 // Update position in-place without vector allocation
                 Vector3d entityPos = entityTransform.getPosition();
                 plumbobTransform.getPosition().set(entityPos.x, entityPos.y + height, entityPos.z);
@@ -204,10 +207,9 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
                 holder.addComponent(TransformComponent.getComponentType(), new TransformComponent(new Vector3d(entityPos.x, entityPos.y + height, entityPos.z), new Rotation3f()));
                 holder.addComponent(PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
                 holder.addComponent(ModelComponent.getComponentType(), new ModelComponent(model));
-                /* Deliberately no BoundingBox: this is a purely cosmetic floating icon, and
-                giving it a real collision box (copied from the model's own bounds) made it
-                block interaction/break raycasts aimed through it — e.g. looking up at an
-                NPC's Plumbob and trying to hit a block behind it just failed.
+                holder.addComponent(Intangible.getComponentType(), Intangible.INSTANCE);
+                /* Deliberately no BoundingBox and Intangible attached: this is a purely cosmetic
+                floating icon, so raycasts (mining, interacting, attacking) must pass straight through it.
                 */
                 holder.addComponent(NetworkId.getComponentType(), new NetworkId(store.getExternalData().takeNextNetworkId()));
                 holder.ensureComponent(UUIDComponent.getComponentType());
