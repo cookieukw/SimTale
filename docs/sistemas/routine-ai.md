@@ -51,7 +51,7 @@ A socialização ocorre de forma equilibrada para evitar aglomerações e conver
     *   **Seleção de Tópico**: O sistema pontua o assunto mais relevante no momento: inimizade/hostilidade, romance (se casados/namorados), necessidades críticas (fome $< 40$, cansaço $< 40$), humor ativo, profissão (fazenda, corte de lenha, patrulha de guarda, pesca), escuridão da noite ou amenidades sobre a vila e clima.
     *   **Turno 1 (~0.7s)**: O anfitrião fala sua linha de abertura (`.a`), executa a animação facial de fala (`Talk.blockyanim`) e o parceiro ouve atentamente.
     *   **Turno 2 (~3.5s)**: O convidado responde com a réplica compatível (`.b`), executa a fala (`Talk.blockyanim`) e o anfitrião escuta.
-    *   **Filtro de Audição (4 blocos)**: Jogadores a até 4 blocos escutam o bate-papo no chat `[Vila]`. Se nenhum jogador estiver perto, as mensagens de texto são suprimidas para manter o chat limpo e economizar CPU.
+    *   **Filtro de Audição (4 blocos)**: Jogadores a até 4 blocos escutam o bate-papo no chat. Se nenhum jogador estiver perto, as mensagens de texto são suprimidas para manter o chat limpo e economizar CPU.
 6.  **Resultado, Física e Espaço Pessoal**:
     *   Restaura +35 de `social` para ambos, melhora relação e propaga contágio de humor.
     *   Se a conversa for hostil (`ENEMIES` ou traço `AGGRESSIVE`), o NPC agressor desfere um empurrão físico real (`SimTaleJuiceHelper.playShove`) com animação de soco, expressão de fúria e repulsão por *knockback*!
