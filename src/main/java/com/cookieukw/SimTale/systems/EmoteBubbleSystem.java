@@ -41,6 +41,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.hypixel.hytale.server.core.modules.entity.component.Intangible;
+import com.hypixel.hytale.math.shape.Box;
+
 /**
  * Ticking ECS system that manages Terraria-style floating thought bubbles (Emote Bubbles)
  * above NPC heads. Displays contextual thoughts for 15 seconds and despawns them cleanly.
@@ -86,7 +89,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
         return SCALED_BUBBLE_MODELS.computeIfAbsent(key, _ -> {
             ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(modelName);
             if (modelAsset != null) {
-                return Model.createScaledModel(modelAsset, scale);
+                return Model.createScaledModel(modelAsset, scale,  null, Box.ZERO);
             }
             return null;
         });
@@ -255,6 +258,7 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
         holder.addComponent(PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
         holder.addComponent(ModelComponent.getComponentType(), new ModelComponent(model));
         holder.addComponent(NetworkId.getComponentType(), new NetworkId(store.getExternalData().takeNextNetworkId()));
+        holder.addComponent(Intangible.getComponentType(), Intangible.INSTANCE);
         holder.ensureComponent(UUIDComponent.getComponentType());
 
         Ref<EntityStore> newBubble = commandBuffer.addEntity(holder, AddReason.SPAWN);
