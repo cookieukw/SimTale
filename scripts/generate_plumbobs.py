@@ -51,8 +51,16 @@ for mood, color in MOOD_COLORS.items():
       "Model": "NPC/Plumbob/plumbob.blockymodel",
       "Texture": f"NPC/Plumbob/{tex_filename}",
       "HitBox": {
-        "Max": { "X": 0.0, "Y": 0.0, "Z": 0.0 },
-        "Min": { "X": 0.0, "Y": 0.0, "Z": 0.0 }
+        "Min": {
+            "X": -0.001,
+            "Y": -0.001,
+            "Z": -0.001
+        },
+        "Max": {
+            "X": 0.001,
+            "Y": 0.001,
+            "Z": 0.001
+        }
       }
     }
     
