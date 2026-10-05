@@ -13,22 +13,45 @@ import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.modules.entity.component.Interactable;
+import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
 import com.hypixel.hytale.server.core.modules.entity.tracker.NetworkId;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
 import it.unimi.dsi.fastutil.Pair;
 import org.joml.Vector3d;
+import org.joml.Vector3f;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Handles spawning, player mounting, and passenger logic for the 1930s Calhambeque vintage car.
+ *
+ * <p><b>How riding works.</b> The car is an ordinary NPC moved by {@link CalhambequePhysicsSystem}.
+ * Getting in sends the client a {@code MountNPC} with the seat as anchor, which is what attaches
+ * the player to the car on screen. The engine's own NPC-mount bookkeeping
+ * ({@code NPCMountComponent}, {@code Player.mountEntityId}) is deliberately not used: it swaps the
+ * NPC to {@code Empty_Role} and lets the client move it, which would fight the car physics.
+ *
+ * <p><b>Getting out.</b> When the player jumps or presses the dismount key while mounted, the
+ * client sends {@code DismountNPC}. The engine's handler ({@code MountGamePacketHandler}) ignores
+ * it, because {@code Player.mountEntityId} is 0 for our cars, so nothing on the server ever knew
+ * the player had left: the physics kept pulling them back into the seat. {@link SimTale} now
+ * watches that packet and calls {@link #onClientDismount}. Crouching (Shift), right-click/F on the
+ * car again and {@code /simtale carexit} still work too.
  */
 public class CalhambequeManager {
 
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+
+    /** Who is sitting in which car (driver or passenger), for the dismount packet. */
+    private static final Map<UUID, Ref<EntityStore>> RIDING = new ConcurrentHashMap<>();
 
     /**
      * Spawns a new Calhambeque vintage car in the world.
@@ -58,10 +81,12 @@ public class CalhambequeManager {
 
             // Attach Calhambeque component
             CalhambequeComponent carComp = new CalhambequeComponent();
+            carComp.requestedScale = CalhambequeGeometry.scale();
+            carComp.appliedTuneVersion = CalhambequeGeometry.version();
             store.putComponent(carRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE, carComp);
 
-            // Apply Calhambeque 3D Model scaled to realistic 1930s car dimensions
-            SimNPCFactory.applyModel(store, carRef, "SimTale_Calhambeque", 3.5f, null);
+            // Apply the 3D model at the current car scale (hitbox and eye height scale with it)
+            SimNPCFactory.applyModel(store, carRef, CalhambequeGeometry.MODEL_ID, CalhambequeGeometry.scale(), null);
 
             // Ensure Interactable so right-click is detected
             store.ensureComponent(carRef, Interactable.getComponentType());
@@ -77,18 +102,40 @@ public class CalhambequeManager {
         }
     }
 
+    /** The car's current model scale (what the player sees), or the tuned default. */
+    public static float carScale(Store<EntityStore> store, Ref<EntityStore> carRef) {
+        if (store != null && carRef != null && carRef.isValid()) {
+            ModelComponent model = store.getComponent(carRef, ModelComponent.getComponentType());
+            if (model != null && model.getModel() != null && model.getModel().getScale() > 0f) {
+                return model.getModel().getScale();
+            }
+        }
+        return CalhambequeGeometry.scale();
+    }
+
     /**
      * Handles right-click interaction on the car: mounts the player as driver or passenger.
      */
     public static void handleInteract(Store<EntityStore> store, Ref<EntityStore> carRef,
-                                       CalhambequeComponent car, Ref<EntityStore> playerRef, PlayerRef playerRefComp) {
+                                      CalhambequeComponent car, Ref<EntityStore> playerRef, PlayerRef playerRefComp) {
         if (store == null || carRef == null || car == null || playerRef == null || playerRefComp == null) return;
 
         UUID playerUuid = playerRefComp.getUuid();
 
-        // If player is already the driver, dismount
+        // Already inside: the same click gets you out
         if (playerUuid.equals(car.driverUuid)) {
             dismountDriver(store, carRef, car, playerRef, playerRefComp);
+            return;
+        }
+        if (playerUuid.equals(car.passengerUuid)) {
+            dismountPassenger(store, carRef, car, playerRef, playerRefComp);
+            return;
+        }
+
+        // Sitting in another car: get out of that one first
+        Ref<EntityStore> other = RIDING.get(playerUuid);
+        if (other != null && other.isValid() && !other.equals(carRef)) {
+            playerRefComp.sendMessage(Message.raw("§e[Calhambeque] §cDesça do outro carro primeiro."));
             return;
         }
 
@@ -108,83 +155,202 @@ public class CalhambequeManager {
     }
 
     /**
-     * Mounts the player into the driver seat (BenchCushion left side).
+     * Mounts the player into the driver seat (left side, behind the steering wheel).
      */
     public static void mountDriver(Store<EntityStore> store, Ref<EntityStore> carRef,
                                    CalhambequeComponent car, PlayerRef playerRefComp) {
-        NetworkId carNetId = store.getComponent(carRef, NetworkId.getComponentType());
-        if (carNetId == null) return;
+        int netId = networkId(store, carRef);
+        if (netId == 0) return;
 
-        int netId = carNetId.getId();
         car.driverUuid = playerRefComp.getUuid();
         car.engineRunning = true;
+        RIDING.put(car.driverUuid, carRef);
 
-        // Send MountNPC packet to client to attach player camera & model
-        MountNPC mountPacket = new MountNPC(
-                car.driverSeatOffset.x,
-                car.driverSeatOffset.y,
-                car.driverSeatOffset.z,
-                netId
-        );
-        playerRefComp.getPacketHandler().write(mountPacket);
+        sendMount(playerRefComp, CalhambequeGeometry.driverSeat(carScale(store, carRef)), netId);
 
-        playerRefComp.sendMessage(Message.raw("§6[Calhambeque 1930s] §aMotor ligado! Use §fW/S §apara acelerar e dar ré, e §fShift §apara descer."));
+        playerRefComp.sendMessage(Message.raw("§6[Calhambeque 1930s] §aMotor ligado! Use §fW/S §apara acelerar e dar ré."
+                + " Para descer: §fpule§a, §fShift §aou §f/simtale carexit§a."));
     }
 
     /**
-     * Mounts the player into the passenger seat (BenchCushion right side).
+     * Mounts the player into the passenger seat (right side of the bench).
      */
     public static void mountPassenger(Store<EntityStore> store, Ref<EntityStore> carRef,
                                       CalhambequeComponent car, PlayerRef playerRefComp) {
-        NetworkId carNetId = store.getComponent(carRef, NetworkId.getComponentType());
-        if (carNetId == null) return;
+        int netId = networkId(store, carRef);
+        if (netId == 0) return;
 
-        int netId = carNetId.getId();
         car.passengerUuid = playerRefComp.getUuid();
+        RIDING.put(car.passengerUuid, carRef);
 
-        MountNPC mountPacket = new MountNPC(
-                car.passengerSeatOffset.x,
-                car.passengerSeatOffset.y,
-                car.passengerSeatOffset.z,
-                netId
-        );
-        playerRefComp.getPacketHandler().write(mountPacket);
+        sendMount(playerRefComp, CalhambequeGeometry.passengerSeat(carScale(store, carRef)), netId);
 
-        playerRefComp.sendMessage(Message.raw("§6[Calhambeque 1930s] §aVocê sentou no banco do passageiro!"));
+        playerRefComp.sendMessage(Message.raw("§6[Calhambeque 1930s] §aVocê sentou no banco do passageiro!"
+                + " Para descer: §fpule§a, §fShift §aou §f/simtale carexit§a."));
     }
 
     /**
-     * Dismounts the driver safely to the left of the car.
+     * Re-sends the seat anchors to whoever is in the car (after /simtale carscale or carseat).
+     * Takes the scale explicitly: right after a resize the model component still holds the old one.
+     */
+    public static void refreshRiders(Store<EntityStore> store, Ref<EntityStore> carRef, CalhambequeComponent car,
+                                     float scale) {
+        if (car.driverUuid == null && car.passengerUuid == null) return;
+        int netId = networkId(store, carRef);
+        if (netId == 0) return;
+        PlayerRef driver = playerRefOf(store, car.driverUuid);
+        if (driver != null) sendMount(driver, CalhambequeGeometry.driverSeat(scale), netId);
+        PlayerRef passenger = playerRefOf(store, car.passengerUuid);
+        if (passenger != null) sendMount(passenger, CalhambequeGeometry.passengerSeat(scale), netId);
+    }
+
+    /**
+     * Takes the driver out to the left (driver's) side of the car.
+     * Safe to call from inside a system: the teleport is queued on the world thread.
      */
     public static void dismountDriver(Store<EntityStore> store, Ref<EntityStore> carRef,
-                                       CalhambequeComponent car, Ref<EntityStore> playerRef, PlayerRef playerRefComp) {
+                                      CalhambequeComponent car, Ref<EntityStore> playerRef, PlayerRef playerRefComp) {
         if (car.driverUuid == null) return;
-
-        int carNetId = 0;
-        NetworkId netId = store.getComponent(carRef, NetworkId.getComponentType());
-        if (netId != null) carNetId = netId.getId();
-
+        UUID uuid = car.driverUuid;
         car.driverUuid = null;
         car.speed = 0f;
+        leave(store, carRef, uuid, playerRef, playerRefComp, -1, "§6[Calhambeque 1930s] §7Você desceu do veículo.");
+    }
 
+    /** Takes the passenger out to the right-hand side. Safe to call from inside a system. */
+    public static void dismountPassenger(Store<EntityStore> store, Ref<EntityStore> carRef,
+                                         CalhambequeComponent car, Ref<EntityStore> playerRef, PlayerRef playerRefComp) {
+        if (car.passengerUuid == null) return;
+        UUID uuid = car.passengerUuid;
+        car.passengerUuid = null;
+        leave(store, carRef, uuid, playerRef, playerRefComp, +1, "§6[Calhambeque 1930s] §7Você desceu do banco do passageiro.");
+    }
+
+    /**
+     * The client sent {@code DismountNPC} (jump / dismount key). Runs on a network thread, so the
+     * work is handed to the player's world thread, the same way the engine's own handler does it.
+     */
+    public static void onClientDismount(PlayerRef playerRefComp) {
+        if (playerRefComp == null) return;
+        UUID uuid = playerRefComp.getUuid();
+        if (uuid == null || !RIDING.containsKey(uuid)) return;
+        Ref<EntityStore> playerRef = playerRefComp.getReference();
+        if (playerRef == null || !playerRef.isValid()) {
+            RIDING.remove(uuid);
+            return;
+        }
+        Store<EntityStore> store = playerRef.getStore();
+        World world = store.getExternalData().getWorld();
+        world.execute(() -> exitCar(store, playerRef, playerRefComp));
+    }
+
+    /**
+     * Gets the player out of whatever car they are in. Must run on the world thread outside a
+     * system (commands, world.execute). Returns false when they were not in a car.
+     */
+    public static boolean exitCar(Store<EntityStore> store, Ref<EntityStore> playerRef, PlayerRef playerRefComp) {
+        if (playerRefComp == null) return false;
+        UUID uuid = playerRefComp.getUuid();
+        Ref<EntityStore> carRef = RIDING.get(uuid);
+        if (carRef == null || !carRef.isValid() || !playerRef.isValid()) {
+            RIDING.remove(uuid);
+            return false;
+        }
+        CalhambequeComponent car = store.getComponent(carRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE);
+        if (car == null) {
+            RIDING.remove(uuid);
+            return false;
+        }
+        if (uuid.equals(car.driverUuid)) {
+            dismountDriver(store, carRef, car, playerRef, playerRefComp);
+            return true;
+        }
+        if (uuid.equals(car.passengerUuid)) {
+            dismountPassenger(store, carRef, car, playerRef, playerRefComp);
+            return true;
+        }
+        RIDING.remove(uuid);
+        return false;
+    }
+
+    /** Forget a rider whose entity went away (logout, world change). */
+    public static void forgetRider(UUID uuid) {
+        if (uuid != null) RIDING.remove(uuid);
+    }
+
+    /**
+     * Shared exit: tell the client, then move the player next to the car on the chosen side
+     * (-1 left/driver, +1 right/passenger), falling back to the other side, behind the car and
+     * finally the roof when blocks are in the way.
+     */
+    private static void leave(Store<EntityStore> store, Ref<EntityStore> carRef, UUID uuid,
+                              Ref<EntityStore> playerRef, PlayerRef playerRefComp, int side, String message) {
+        RIDING.remove(uuid);
+        int carNetId = networkId(store, carRef);
         if (playerRefComp != null) {
             playerRefComp.getPacketHandler().write(new DismountNPC(carNetId));
         }
 
-        // Place player safely to the left side
         TransformComponent carTransform = store.getComponent(carRef, TransformComponent.getComponentType());
-        TransformComponent playerTransform = store.getComponent(playerRef, TransformComponent.getComponentType());
-        if (carTransform != null && playerTransform != null) {
-            Vector3d carPos = carTransform.getPosition();
-            float yaw = carTransform.getRotation().yaw();
-            double sideX = -Math.cos(yaw) * 2.4;
-            double sideZ = Math.sin(yaw) * 2.4;
-            playerTransform.setPosition(new Vector3d(carPos.x + sideX, carPos.y + 0.1, carPos.z + sideZ));
+        if (carTransform != null && playerRef != null && playerRef.isValid()) {
+            World world = store.getExternalData().getWorld();
+            Vector3d exit = exitSpot(world, carTransform.getPosition(), carTransform.getRotation().yaw(),
+                    carScale(store, carRef), side);
+            TransformComponent playerTransform = store.getComponent(playerRef, TransformComponent.getComponentType());
+            Rotation3f look = playerTransform != null ? new Rotation3f(playerTransform.getRotation()) : new Rotation3f();
+            /* A Teleport, not TransformComponent.setPosition: player movement is client-side, so a
+            bare server-side position change is overwritten by the next movement packet and the
+            player stays on the seat. Queued because this can run inside a system (crouch check in
+            the physics tick, F-key interaction) where adding a component is not allowed. */
+            world.execute(() -> {
+                if (playerRef.isValid()) {
+                    store.putComponent(playerRef, Teleport.getComponentType(), Teleport.createForPlayer(exit, look));
+                }
+            });
         }
 
         if (playerRefComp != null) {
-            playerRefComp.sendMessage(Message.raw("§6[Calhambeque 1930s] §7Você desceu do veículo."));
+            playerRefComp.sendMessage(Message.raw(message));
         }
+    }
+
+    /** A free spot next to the car: two blocks of air above a floor-level position. */
+    static Vector3d exitSpot(World world, Vector3d carPos, float yaw, float scale, int side) {
+        double out = CalhambequeGeometry.halfWidth(scale) + 0.8;
+        double back = CalhambequeGeometry.blocks(-CalhambequeGeometry.seatBack(), scale);
+        double behind = -(CalhambequeGeometry.halfLength(scale) + 0.8);
+        double[][] candidates = {
+                {side * out, back},
+                {-side * out, back},
+                {0, behind},
+        };
+        for (double[] c : candidates) {
+            double x = CalhambequeGeometry.toWorldX(carPos.x, yaw, c[0], c[1]);
+            double z = CalhambequeGeometry.toWorldZ(carPos.z, yaw, c[0], c[1]);
+            int bx = (int) Math.floor(x), by = (int) Math.floor(carPos.y + 0.1), bz = (int) Math.floor(z);
+            if (!CalhambequePhysicsSystem.isObstacle(world, bx, by, bz)
+                    && !CalhambequePhysicsSystem.isObstacle(world, bx, by + 1, bz)) {
+                return new Vector3d(x, carPos.y + 0.1, z);
+            }
+        }
+        // Boxed in: stand on the car
+        return new Vector3d(carPos.x, carPos.y + CalhambequeGeometry.height(scale) + 0.1, carPos.z);
+    }
+
+    private static void sendMount(PlayerRef playerRefComp, Vector3f seat, int carNetId) {
+        playerRefComp.getPacketHandler().write(new MountNPC(seat.x, seat.y, seat.z, carNetId));
+    }
+
+    private static int networkId(Store<EntityStore> store, Ref<EntityStore> carRef) {
+        NetworkId netId = store.getComponent(carRef, NetworkId.getComponentType());
+        return netId != null ? netId.getId() : 0;
+    }
+
+    private static PlayerRef playerRefOf(Store<EntityStore> store, UUID uuid) {
+        if (uuid == null) return null;
+        Ref<EntityStore> ref = store.getExternalData().getRefFromUUID(uuid);
+        if (ref == null || !ref.isValid()) return null;
+        return store.getComponent(ref, Universe.get().getPlayerRefComponentType());
     }
 
     /**

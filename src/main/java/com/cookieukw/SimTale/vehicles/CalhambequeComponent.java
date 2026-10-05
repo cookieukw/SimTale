@@ -5,7 +5,6 @@ import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import org.joml.Vector3f;
 
 import java.util.UUID;
 
@@ -15,9 +14,13 @@ import java.util.UUID;
 public class CalhambequeComponent implements Component<EntityStore> {
 
     public static final BuilderCodec<CalhambequeComponent> CODEC = BuilderCodec.builder(CalhambequeComponent.class, CalhambequeComponent::new)
+            /* Read and dropped, never written. A driver saved with the world came back after a
+            reload with nobody actually mounted on the client, and the physics system kept pulling
+            that player into the seat every tick with no way out. Riding does not survive a save;
+            the player just gets in again. The key stays so older saves still decode. */
             .append(new KeyedCodec<>("DriverUuid", Codec.STRING),
-                    (c, s) -> c.driverUuid = (s != null && !s.isEmpty()) ? UUID.fromString(s) : null,
-                    c -> c.driverUuid != null ? c.driverUuid.toString() : null)
+                    (c, s) -> c.driverUuid = null,
+                    c -> null)
             .add()
             .append(new KeyedCodec<>("Speed", Codec.FLOAT),
                     (c, s) -> c.speed = s != null ? s : 0f,
@@ -38,11 +41,14 @@ public class CalhambequeComponent implements Component<EntityStore> {
     public long lastHonkTick = 0L;
     public String currentAnim = null;
 
-    /** Seat position for the driver (left-hand steering) relative to vehicle origin. */
-    public final Vector3f driverSeatOffset = new Vector3f(0.1f, 1.08f, -1.0f);
-
-    /** Seat position for a passenger (right-hand front bench). */
-    public final Vector3f passengerSeatOffset = new Vector3f(0.75f, 1.08f, -1.55f);
+    /*
+    Not saved: tuning bookkeeping for the physics system. The seats are no longer stored here;
+    they come from CalhambequeGeometry for the car's current scale.
+    */
+    /** CalhambequeGeometry.version() last applied to this car (scale and rider anchors). */
+    public int appliedTuneVersion = -1;
+    /** Scale last requested through SimNPCFactory.applyModel, so it is not re-sent every tick. */
+    public float requestedScale = 0f;
 
     public CalhambequeComponent() {
     }

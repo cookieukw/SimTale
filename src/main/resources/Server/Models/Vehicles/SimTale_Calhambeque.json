@@ -1,19 +1,19 @@
 {
   "Model": "NPC/Vehicles/Calhambeque/Calhambeque.blockymodel",
   "Texture": "NPC/Vehicles/Calhambeque/Calhambeque_Texture.png",
-  "MinScale": 3.5,
-  "MaxScale": 3.5,
-  "EyeHeight": 2.2,
+  "MinScale": 4.5,
+  "MaxScale": 4.5,
+  "EyeHeight": 0.5,
   "HitBox": {
     "Max": {
-      "X": 1.5,
-      "Y": 2.4,
-      "Z": 2.6
+      "X": 0.58,
+      "Y": 0.72,
+      "Z": 0.77
     },
     "Min": {
-      "X": -1.5,
+      "X": -0.58,
       "Y": 0.0,
-      "Z": -2.6
+      "Z": -0.73
     }
   },
   "AnimationSets": {

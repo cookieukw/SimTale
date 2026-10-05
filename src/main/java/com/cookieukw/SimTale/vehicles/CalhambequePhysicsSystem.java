@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.vehicles;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.systems.BedRegistry;
 import com.cookieukw.SimTale.systems.ChairRegistry;
 import com.hypixel.hytale.component.ArchetypeChunk;
@@ -17,7 +18,6 @@ import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.protocol.BlockMaterial;
 import com.hypixel.hytale.protocol.MovementStates;
-import com.hypixel.hytale.protocol.packets.interaction.DismountNPC;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
@@ -26,13 +26,13 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.modules.entity.player.PlayerInput;
 import com.hypixel.hytale.server.core.modules.entity.player.PlayerProcessMovementSystem;
 import com.hypixel.hytale.server.core.modules.entity.player.PlayerSystems;
-import com.hypixel.hytale.server.core.modules.entity.tracker.NetworkId;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -88,44 +88,35 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         Rotation3f rot = transform.getRotation();
         float carYaw = rot.yaw();
 
+        float scale = CalhambequeManager.carScale(store, carRef);
+
+        // 0. Tuning: /simtale carscale and /simtale carseat (also brings old 3.5x cars to the
+        //    current size the first time they tick after a load)
+        int tune = CalhambequeGeometry.version();
+        if (car.appliedTuneVersion != tune) {
+            car.appliedTuneVersion = tune;
+            float target = CalhambequeGeometry.scale();
+            if (Math.abs(target - scale) > 0.01f && Math.abs(car.requestedScale - target) > 0.01f) {
+                car.requestedScale = target;
+                // deferred by applyModel itself while the world is ticking
+                SimNPCFactory.applyModel(store, carRef, CalhambequeGeometry.MODEL_ID, target, null);
+            }
+            CalhambequeManager.refreshRiders(store, carRef, car, target);
+            scale = target;
+        }
+
         // 1. Process Passenger
         if (car.passengerUuid != null) {
             Ref<EntityStore> passRef = store.getExternalData().getRefFromUUID(car.passengerUuid);
             if (passRef == null || !passRef.isValid()) {
+                CalhambequeManager.forgetRider(car.passengerUuid);
                 car.passengerUuid = null;
             } else {
                 MovementStatesComponent passMsc = store.getComponent(passRef, MovementStatesComponent.getComponentType());
                 MovementStates passMs = passMsc != null ? passMsc.getMovementStates() : null;
                 if (passMs != null && (passMs.crouching || passMs.forcedCrouching)) {
-                    // Passenger dismounts
-                    int carNetId = 0;
-                    NetworkId netId = store.getComponent(carRef, NetworkId.getComponentType());
-                    if (netId != null) carNetId = netId.getId();
-
-                    car.passengerUuid = null;
-
                     PlayerRef passPlayerRef = store.getComponent(passRef, Universe.get().getPlayerRefComponentType());
-                    if (passPlayerRef != null) {
-                        passPlayerRef.getPacketHandler().write(new DismountNPC(carNetId));
-                        passPlayerRef.sendMessage(Message.raw("§6[Calhambeque 1930s] §7Você desceu do banco do passageiro."));
-                    }
-
-                    TransformComponent passTransform = store.getComponent(passRef, TransformComponent.getComponentType());
-                    if (passTransform != null) {
-                        double sideX = Math.cos(carYaw) * 2.0;
-                        double sideZ = -Math.sin(carYaw) * 2.0;
-                        passTransform.setPosition(new Vector3d(pos.x + sideX, pos.y + 0.1, pos.z + sideZ));
-                    }
-                } else {
-                    // Sync passenger transform
-                    TransformComponent passTransform = store.getComponent(passRef, TransformComponent.getComponentType());
-                    if (passTransform != null) {
-                        double cos = Math.cos(carYaw);
-                        double sin = Math.sin(carYaw);
-                        double wx = pos.x + (car.passengerSeatOffset.x * cos - car.passengerSeatOffset.z * sin);
-                        double wz = pos.z + (car.passengerSeatOffset.x * sin + car.passengerSeatOffset.z * cos);
-                        passTransform.setPosition(new Vector3d(wx, pos.y + car.passengerSeatOffset.y, wz));
-                    }
+                    CalhambequeManager.dismountPassenger(store, carRef, car, passRef, passPlayerRef);
                 }
             }
         }
@@ -138,6 +129,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         if (car.driverUuid != null) {
             driverRef = store.getExternalData().getRefFromUUID(car.driverUuid);
             if (driverRef == null || !driverRef.isValid()) {
+                CalhambequeManager.forgetRider(car.driverUuid);
                 car.driverUuid = null;
                 car.speed = 0f;
                 car.engineRunning = false;
@@ -171,7 +163,10 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
                     if (Math.abs(car.speed) > 0.05f) {
                         float diff = normalizeAngle(driverYaw - carYaw);
                         float maxTurn = STEER_SPEED * clampedDt;
-                        float turn = Math.clamp(maxTurn, -maxTurn, diff);
+                        /* clamp(value, min, max). It was clamp(maxTurn, -maxTurn, diff), which throws
+                        IllegalArgumentException whenever diff < -maxTurn (min > max) — turning one way
+                        at speed crashed the whole world. */
+                        float turn = Math.clamp(diff, -maxTurn, maxTurn);
                         if (car.speed < 0) {
                             turn = -turn;
                         }
@@ -250,15 +245,17 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
             double nextZ = curZ + dirZ * moveDist;
 
             // Check collision at leading bumper (front bumper if moving forward, rear bumper if reversing)
-            double bumperDist = car.speed > 0 ? 1.8 : -1.8;
+            double halfLength = CalhambequeGeometry.halfLength(scale);
+            double halfWidth = CalhambequeGeometry.halfWidth(scale) * 0.8;
+            double bumperDist = car.speed > 0 ? halfLength : -halfLength;
             double checkCenterX = nextX + dirX * bumperDist;
             double checkCenterZ = nextZ + dirZ * bumperDist;
 
             // 3 sample points along the bumper: center, left corner, right corner
             double[][] checkPoints = {
                     {checkCenterX, checkCenterZ},
-                    {checkCenterX + rightX * 0.8, checkCenterZ + rightZ * 0.8},
-                    {checkCenterX - rightX * 0.8, checkCenterZ - rightZ * 0.8}
+                    {checkCenterX + rightX * halfWidth, checkCenterZ + rightZ * halfWidth},
+                    {checkCenterX - rightX * halfWidth, checkCenterZ - rightZ * halfWidth}
             };
 
             int footBlockY = (int) Math.floor(curY + 0.1);
@@ -280,12 +277,13 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
 
             if (hitObstacle) {
                 if (canStepClimb) {
-                    // Check overhead clearance above the step for vehicle height (needs at least 3 blocks clear)
+                    // Check overhead clearance above the step for the vehicle's height
                     boolean headroomClear = true;
+                    int headroom = Math.max(2, (int) Math.ceil(CalhambequeGeometry.height(scale)));
                     for (double[] pt : checkPoints) {
                         int bx = (int) Math.floor(pt[0]);
                         int bz = (int) Math.floor(pt[1]);
-                        for (int dy = 1; dy <= 3; dy++) {
+                        for (int dy = 1; dy <= headroom; dy++) {
                             if (isObstacle(world, bx, footBlockY + dy, bz)) {
                                 headroomClear = false;
                                 break;
@@ -338,30 +336,15 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         transform.setPosition(new Vector3d(curX, curY, curZ));
         transform.setRotation(rot);
 
-        // Keep Driver Transform synced
+        // Keep the riders' server-side position on their seats (the client shows them attached
+        // through MountNPC; this keeps chunk loading, interaction range etc. in step)
         if (hasActiveDriver) {
-            TransformComponent driverTrans = store.getComponent(driverRef, TransformComponent.getComponentType());
-            if (driverTrans != null) {
-                double cos = Math.cos(carYaw);
-                double sin = Math.sin(carYaw);
-                double wx = curX + (car.driverSeatOffset.x * cos - car.driverSeatOffset.z * sin);
-                double wz = curZ - (car.driverSeatOffset.x * sin + car.driverSeatOffset.z * cos);
-                driverTrans.setPosition(new Vector3d(wx, curY + car.driverSeatOffset.y, wz));
-            }
+            syncRider(store, driverRef, curX, curY, curZ, carYaw, CalhambequeGeometry.driverSeat(scale));
         }
-
-        // Keep Passenger Transform synced
         if (car.passengerUuid != null) {
-            Ref<EntityStore> passRef = world.getEntityRef(car.passengerUuid);
+            Ref<EntityStore> passRef = store.getExternalData().getRefFromUUID(car.passengerUuid);
             if (passRef != null && passRef.isValid()) {
-                TransformComponent passTrans = store.getComponent(passRef, TransformComponent.getComponentType());
-                if (passTrans != null) {
-                    double cos = Math.cos(carYaw);
-                    double sin = Math.sin(carYaw);
-                    double px = curX + (car.passengerSeatOffset.x * cos - car.passengerSeatOffset.z * sin);
-                    double pz = curZ - (car.passengerSeatOffset.x * sin + car.passengerSeatOffset.z * cos);
-                    passTrans.setPosition(new Vector3d(px, curY + car.passengerSeatOffset.y, pz));
-                }
+                syncRider(store, passRef, curX, curY, curZ, carYaw, CalhambequeGeometry.passengerSeat(scale));
             }
         }
 
@@ -386,7 +369,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         }
     }
 
-    private static boolean isObstacle(World world, int x, int y, int z) {
+    static boolean isObstacle(World world, int x, int y, int z) {
         if (world == null) return false;
         long chunkIndex = ChunkUtil.indexChunkFromBlock(x, z);
         WorldChunk chunk = world.getChunkIfLoaded(chunkIndex);
@@ -432,6 +415,15 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
                     && !lower.contains("cabinet") && !lower.contains("cupboard") && !lower.contains("wardrobe");
         }
         return true;
+    }
+
+    private static void syncRider(Store<EntityStore> store, Ref<EntityStore> riderRef, double carX, double carY,
+                                  double carZ, float carYaw, Vector3f seat) {
+        TransformComponent t = store.getComponent(riderRef, TransformComponent.getComponentType());
+        if (t == null) return;
+        double wx = CalhambequeGeometry.toWorldX(carX, carYaw, seat.x, seat.z);
+        double wz = CalhambequeGeometry.toWorldZ(carZ, carYaw, seat.x, seat.z);
+        t.setPosition(new Vector3d(wx, carY + seat.y, wz));
     }
 
     private static float normalizeAngle(float angle) {
