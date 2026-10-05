@@ -67,6 +67,7 @@ public class SimTaleTests {
             System.out.println("Geometry");
             GeometryTests.run();
             CalhambequeTests.run();
+            CostumeTests.run();
 
             System.out.println("Mood");
             MoodTests.run();

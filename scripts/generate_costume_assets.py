@@ -1,27 +1,31 @@
-import os
 import json
+import os
+import sys
 
-# Gera os assets de fantasia por-NPC: em vez de "Parent" apontar para a base generica
-# (SimTale_Human_Male/Female/Child, que tem seu proprio cabelo/rosto padrao), cada arquivo
-# gerado aqui aponta "Parent" para o id ESPECIFICO daquela NPC em Generated/<id>.json --
-# assim a NPC mantem a propria cara (cabelo, rosto, olhos, roupa) e so ganha o item extra
-# do evento por cima, em vez de virar visualmente identica a qualquer outra NPC fantasiada.
+# Gera os assets de fantasia por-NPC em Server/Models/Events/Generated/<id>_<evento>.json e
+# os 6 genericos em Server/Models/Events/SimTale_Human_<Male|Female|Child>_<evento>.json.
 #
-# Ver docs/experimentos.md / wiki/dev/experiments.md, secao "a limitacao de 'trocar o
-# modelo inteiro'" (13/09), para o raciocinio completo de por que isso e necessario e por
-# que uma alternativa em runtime (montar um ModelAsset na mao) foi descartada.
+# Cada fantasia = TODOS os attachments da NPC (cabelo, rosto, olhos, boca, orelhas, sobrancelhas,
+# roupa) + o chapeu do evento.
 #
-# Idempotente: pode ser rodado de novo a qualquer momento (ex: quando novas variantes forem
-# adicionadas em Generated/) sem duplicar nem sobrescrever o que ja existe.
+# Por que a lista inteira (bug de 05/10, "olhos vazios, sem boca"): no ModelAsset o campo
+# DefaultAttachments NAO soma com o do Parent, ele SUBSTITUI. A heranca do codec so copia o array
+# do pai quando o filho nao declara o campo (lambda do ModelAsset: filho.defaultAttachments =
+# pai.defaultAttachments). Os arquivos antigos eram {"Parent": "<id>", "DefaultAttachments":
+# [chapeu]}, entao a NPC fantasiada ficava so com o chapeu: sem olhos, boca, cabelo e roupa. O
+# Parent continua apontando pra NPC especifica, so pra herdar o resto (Model, GradientSet da pele,
+# AnimationSets, EyeHeight...).
+#
+# Roda de qualquer lugar (os caminhos sao relativos a este script) e sempre reescreve tudo, pra
+# que uma correcao aqui chegue nos 1.646 arquivos. Uso: python3 scripts/generate_costume_assets.py
 
-MODELS_DIR = "/home/cookie/Documents/hy mods/SimTale/src/main/resources/Server/Models"
+HERE = os.path.dirname(os.path.abspath(__file__))
+MODELS_DIR = os.path.join(HERE, "..", "src", "main", "resources", "Server", "Models")
 GENERATED_DIR = os.path.join(MODELS_DIR, "Generated")
-OUTPUT_DIR = os.path.join(MODELS_DIR, "Events", "Generated")
+EVENTS_DIR = os.path.join(MODELS_DIR, "Events")
+OUTPUT_DIR = os.path.join(EVENTS_DIR, "Generated")
+BASES = ["SimTale_Human_Male", "SimTale_Human_Female", "SimTale_Human_Child"]
 
-# Mesmos attachments usados pelos assets de fantasia genericos existentes
-# (Server/Models/Events/SimTale_Human_Male_Christmas.json / _Halloween.json), copiados aqui
-# como dado simples para este script nao depender daqueles arquivos existirem/terem esse
-# formato exato.
 EVENTS = {
     "Christmas": [
         {
@@ -39,19 +43,10 @@ EVENTS = {
     ],
 }
 
-# Mesmos attachments acima, mas com "Model" apontando para a versao _Child (escalada em
-# 1.2x, gerada por scripts/generate_child_event_hats.py) em vez do modelo adulto sem escala.
-# A "Texture" continua igual a adulta de proposito -- e assim que todo outro cosmetico de
-# crianca do projeto funciona (ver Generated/SimTale_Human_Child_*.json): so o "Model" muda,
-# a textura/gradiente sao os mesmos, o textureLayout dentro do .blockymodel escalado ja mapeia
-# pros mesmos pixels.
-#
-# Bug que isso existe pra evitar (13/09): antes, as variantes de CRIANCA usavam o mesmo
-# EVENTS acima (chapeu em tamanho adulto), o unico cosmetico de cabeca do projeto que nao
-# passava pelo pipeline de escala pra crianca -- resultado: chapeu malencaixado na cabeca
-# menor, com faces sem UV (nunca precisaram de UV no tamanho adulto, ficavam sempre escondidas
-# dentro do proximo box) aparecendo ("cabeca bugada": lateral transparente, parte de tras
-# fora do lugar). Ver docs/experimentos.md para o relato completo.
+# Mesmos chapeus, mas com "Model" apontando para a versao _Child (escalada em 1.2x, gerada por
+# scripts/generate_child_event_hats.py). A "Texture" continua igual a adulta de proposito: o
+# textureLayout dentro do .blockymodel escalado ja mapeia pros mesmos pixels. Sem isso o chapeu
+# adulto fica malencaixado na cabeca menor de crianca (faces sem UV aparecendo).
 EVENTS_CHILD = {
     "Christmas": [
         {
@@ -69,30 +64,62 @@ EVENTS_CHILD = {
     ],
 }
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-generated_ids = sorted(f[:-5] for f in os.listdir(GENERATED_DIR) if f.endswith(".json"))
+def model_path(model_id):
+    for folder in (GENERATED_DIR, MODELS_DIR):
+        path = os.path.join(folder, model_id + ".json")
+        if os.path.exists(path):
+            return path
+    return None
 
-written = 0
-skipped = 0
-for npc_id in generated_ids:
-    events_for_npc = EVENTS_CHILD if npc_id.startswith("SimTale_Human_Child") else EVENTS
-    for event_name, attachments in events_for_npc.items():
-        out_name = f"{npc_id}_{event_name}.json"
-        out_path = os.path.join(OUTPUT_DIR, out_name)
-        if os.path.exists(out_path):
-            skipped += 1
-            continue
 
-        data = {
-            "Parent": npc_id,
-            "DefaultAttachments": attachments,
-        }
-        with open(out_path, "w") as f:
-            json.dump(data, f, indent=2)
-        written += 1
+def resolved_attachments(model_id, depth=0):
+    """DefaultAttachments as the engine resolves them: the first asset up the Parent chain that
+    declares the field wins (vanilla parents such as 'Player' are not in this repo: empty)."""
+    path = model_path(model_id)
+    if path is None or depth > 10:
+        return []
+    with open(path) as f:
+        data = json.load(f)
+    if "DefaultAttachments" in data:
+        return data["DefaultAttachments"]
+    parent = data.get("Parent")
+    return resolved_attachments(parent, depth + 1) if parent else []
 
-print(f"{len(generated_ids)} variantes de NPC encontradas em Generated/.")
-print(f"Escritos {written} arquivos de fantasia em {OUTPUT_DIR}.")
-if skipped:
-    print(f"Pulados {skipped} que ja existiam (rodar de novo e seguro).")
+
+def is_head_cosmetic(attachment):
+    return "/Head/" in attachment.get("Model", "")
+
+
+def costume(model_id, hats):
+    own = [a for a in resolved_attachments(model_id) if not is_head_cosmetic(a)]
+    if not own:
+        sys.exit("sem attachments para %s: nao gero uma fantasia que apagaria o rosto" % model_id)
+    return {"Parent": model_id, "DefaultAttachments": own + hats}
+
+
+def write(path, data):
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+
+def main():
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    generated_ids = sorted(f[:-5] for f in os.listdir(GENERATED_DIR) if f.endswith(".json"))
+    written = 0
+    for npc_id in generated_ids:
+        events = EVENTS_CHILD if npc_id.startswith("SimTale_Human_Child") else EVENTS
+        for event_name, hats in events.items():
+            write(os.path.join(OUTPUT_DIR, "%s_%s.json" % (npc_id, event_name)), costume(npc_id, hats))
+            written += 1
+    for base in BASES:
+        events = EVENTS_CHILD if base == "SimTale_Human_Child" else EVENTS
+        for event_name, hats in events.items():
+            write(os.path.join(EVENTS_DIR, "%s_%s.json" % (base, event_name)), costume(base, hats))
+            written += 1
+    print("%d variantes de NPC em Generated/; %d arquivos de fantasia escritos." % (len(generated_ids), written))
+
+
+if __name__ == "__main__":
+    main()
