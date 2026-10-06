@@ -154,7 +154,7 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
                 final Vector3d scanCenter = new Vector3d(joinTc.getPosition());
                 final World scanWorld = player.getWorld();
                 WorldUtil.executeLater(
-                    () -> BedWorldBootstrap.bootstrapLoadedRadius(scanWorld, scanCenter, 32),
+                    () -> BedWorldBootstrap.bootstrapLoadedRadiusSpread(scanWorld, scanCenter, 32),
                     2000L);
             }
         } catch (Exception e) {
