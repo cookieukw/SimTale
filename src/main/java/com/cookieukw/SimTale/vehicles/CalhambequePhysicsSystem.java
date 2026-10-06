@@ -252,7 +252,21 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
             double moveDist = car.speed * clampedDt;
             double nextX = curX - Math.sin(carYaw) * moveDist;
             double nextZ = curZ - Math.cos(carYaw) * moveDist;
-            int fit = footprintFit(world, nextX, nextZ, carYaw, footY, scale);
+            boolean loaded = footprintLoaded(world, nextX, nextZ, carYaw, scale);
+            int fit = loaded ? footprintFit(world, nextX, nextZ, carYaw, footY, scale) : FIT_BLOCKED;
+            // Blocked at full speed: close in on the obstacle in smaller steps before stopping, so the
+            // car ends next to it instead of up to a block short.
+            for (int i = 0; loaded && i < 3 && fit == FIT_BLOCKED; i++) {
+                moveDist *= 0.5;
+                double tx = curX - Math.sin(carYaw) * moveDist;
+                double tz = curZ - Math.cos(carYaw) * moveDist;
+                int f = footprintFit(world, tx, tz, carYaw, footY, scale);
+                if (f == FIT_CLEAR) {
+                    curX = tx;
+                    curZ = tz;
+                }
+                if (f != FIT_BLOCKED) break;
+            }
             if (fit == FIT_BLOCKED) {
                 // Stop; keep the new heading only if turning on the spot is free.
                 if (carYaw != startYaw && footprintFit(world, curX, curZ, carYaw, footY, scale) == FIT_BLOCKED) {
@@ -274,8 +288,13 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         }
 
         // 5. Gravity & ground: supported while any footprint point has ground right below.
+        /* Unloaded ground counts as support. When the player left the world while driving, the
+        chunks unloaded before the car stopped ticking, the ground "vanished" (an unloaded chunk
+        reads as air) and the car fell out of the world: it was gone after rejoining. */
         int groundY = (int) Math.floor(curY - 0.2);
-        if (anyObstacleUnder(world, curX, curZ, carYaw, groundY, scale)) {
+        if (!footprintLoaded(world, curX, curZ, carYaw, scale)) {
+            car.velocityY = 0f;
+        } else if (anyObstacleUnder(world, curX, curZ, carYaw, groundY, scale)) {
             car.velocityY = 0f;
             double groundTopY = groundY + 1.0;
             if (curY < groundTopY || curY - groundTopY < 0.25) {
@@ -291,6 +310,11 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
             }
         }
         updateMovementStates(store, carRef, car, commandBuffer);
+
+        if (curY < 0) { // never below the bottom of the world
+            curY = 0;
+            car.velocityY = 0f;
+        }
 
         // Apply updated Transform to Car
         transform.setPosition(new Vector3d(curX, curY, curZ));
@@ -333,25 +357,37 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
     /** Max spacing, in blocks, between the footprint points collision tests. */
     private static final double FOOTPRINT_SPACING = 0.9;
 
-    /** Car-local points (x right, z forward) around the outline, plus the centre. */
+    /** Car-local points (x right, z forward) around the hitbox outline plus margin, and the centre. */
     private static double[][] footprint(float scale) {
-        double hw = CalhambequeGeometry.fenderHalfWidth(scale);
-        double hl = CalhambequeGeometry.halfLength(scale);
+        double m = CalhambequeGeometry.COLLISION_MARGIN;
+        double hw = CalhambequeGeometry.HITBOX_HALF_WIDTH * scale + m;
+        double front = CalhambequeGeometry.HITBOX_FRONT * scale + m;
+        double back = CalhambequeGeometry.HITBOX_BACK * scale + m;
         int nx = Math.max(1, (int) Math.ceil(2 * hw / FOOTPRINT_SPACING));
-        int nz = Math.max(1, (int) Math.ceil(2 * hl / FOOTPRINT_SPACING));
+        int nz = Math.max(1, (int) Math.ceil((front + back) / FOOTPRINT_SPACING));
         java.util.List<double[]> pts = new java.util.ArrayList<>();
         pts.add(new double[]{0, 0});
         for (int i = 0; i <= nx; i++) {
             double lx = -hw + 2 * hw * i / nx;
-            pts.add(new double[]{lx, -hl});
-            pts.add(new double[]{lx, hl});
+            pts.add(new double[]{lx, -back});
+            pts.add(new double[]{lx, front});
         }
         for (int j = 1; j < nz; j++) {
-            double lz = -hl + 2 * hl * j / nz;
+            double lz = -back + (front + back) * j / nz;
             pts.add(new double[]{-hw, lz});
             pts.add(new double[]{hw, lz});
         }
         return pts.toArray(new double[0][]);
+    }
+
+    /** Whether every chunk under the footprint is loaded (unknown ground is neither solid nor air). */
+    private static boolean footprintLoaded(World world, double x, double z, float yaw, float scale) {
+        for (double[] p : footprint(scale)) {
+            int bx = (int) Math.floor(CalhambequeGeometry.toWorldX(x, yaw, p[0], p[1]));
+            int bz = (int) Math.floor(CalhambequeGeometry.toWorldZ(z, yaw, p[0], p[1]));
+            if (world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(bx, bz)) == null) return false;
+        }
+        return true;
     }
 
     /**

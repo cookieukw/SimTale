@@ -26,16 +26,25 @@ public final class CalhambequeGeometry {
     public static final float UNITS_PER_BLOCK = 64f;
     public static final String MODEL_ID = "SimTale_Calhambeque";
 
-    /** Default size (was 3.5x; asked to be a bit bigger). Tunable with /simtale carscale. */
-    public static final float DEFAULT_SCALE = 4.5f;
+    /** Default size (3.5x first, then 4.5x, which turned out a bit too big). Tunable with /simtale carscale. */
+    public static final float DEFAULT_SCALE = 4.0f;
     public static final float MIN_SCALE = 1.0f;
     public static final float MAX_SCALE = 10.0f;
 
     /** Body, from the box shapes: z -46.4..49.5, x within +-37.5 at the fenders, top at 46.3. */
     public static final float HALF_LENGTH_UNITS = 48f;
     public static final float HALF_WIDTH_UNITS = 30f;
-    /** Half width at the fenders, the hitbox's X (0.58 x 64): what collision tests. */
+    /** Half width at the fenders, the hitbox's X (0.58 x 64). */
     public static final float FENDER_HALF_WIDTH_UNITS = 37f;
+
+    /* The hitbox in the model JSON, at scale 1, in blocks: x +-0.58, z -0.73 (back) .. 0.77 (front).
+    Collision tests this box plus a margin, so the car stops before its hitbox touches a block:
+    when the hitbox ended up inside a wall the engine pushed the car out, which looked like the car
+    teleporting backwards after a crash. */
+    public static final float HITBOX_HALF_WIDTH = 0.58f;
+    public static final float HITBOX_FRONT = 0.77f;
+    public static final float HITBOX_BACK = 0.73f;
+    public static final double COLLISION_MARGIN = 0.15;
     public static final float HEIGHT_UNITS = 46f;
 
     /**

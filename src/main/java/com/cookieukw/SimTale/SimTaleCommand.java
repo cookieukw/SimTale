@@ -306,8 +306,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         private final RequiredArg<String> percentArg;
 
         public CarScaleSubCommand() {
-            super("carscale", "Resizes every Calhambeque, in percent (450 = 4.5x)");
-            this.percentArg = this.withRequiredArg("percent", "100 a 1000 (padrão 450)", ArgTypes.STRING);
+            super("carscale", "Resizes every Calhambeque, in percent (400 = 4x)");
+            this.percentArg = this.withRequiredArg("percent", "100 a 1000 (padrão 400)", ArgTypes.STRING);
         }
 
         @Override
@@ -317,7 +317,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             try {
                 percent = Integer.parseInt(ctx.get(this.percentArg).trim());
             } catch (NumberFormatException e) {
-                ctx.sendMessage(Message.raw("§cUse um número inteiro, ex.: /simtale carscale 450"));
+                ctx.sendMessage(Message.raw("§cUse um número inteiro, ex.: /simtale carscale 400"));
                 return;
             }
             CalhambequeGeometry.setScale(percent / 100f);
