@@ -103,7 +103,9 @@ public final class LumberPostRegistry {
         synchronized (POSTS) {
             for (LumberPost p : POSTS) {
                 UUID holder = CLAIMED_BY.get(key(p.postX(), p.postY(), p.postZ()));
-                if (holder != null && !holder.equals(npcId)) continue;
+                /* A holder that no longer exists (died, forgotten, respawned under a new UUID)
+                never calls release(), so its claim would lock the post forever. */
+                if (holder != null && !holder.equals(npcId) && !ChairRegistry.isStale(holder)) continue;
 
                 double dx = p.postX() + 0.5 - x;
                 double dy = p.postY() - y;

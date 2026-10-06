@@ -205,6 +205,7 @@ final class RoutineTaskHelpers {
                     });
                     if (dyingNpc != null && dyingNpc.entityId != null) {
                         PlumbobSystem.removePlumbob(dyingNpc.entityId);
+                        EmoteBubbleSystem.removeThought(dyingNpc.entityId);
                         /* Record survives now instead of being deleted outright — foundation for
                         a future revive/cemetery feature (SimNPCPersistence.archiveToGraveyard).
                         */

@@ -657,6 +657,7 @@ once per NPC per tick for nothing.
         SimTale.untrackNpc(npc);
         if (npc.entityId != null) {
             PlumbobSystem.removePlumbob(npc.entityId);
+            EmoteBubbleSystem.removeThought(npc.entityId);
         }
         commandBuffer.removeEntity(ref, RemoveReason.REMOVE);
     }

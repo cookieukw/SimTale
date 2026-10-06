@@ -187,6 +187,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                 LOGGER.info("[SimTale] Reaper orfa encontrada apos reload (isReaper perdido no restart) — removendo em vez de deixa-la como NPC comum");
                 SimTale.untrackNpc(npc);
                 PlumbobSystem.removePlumbob(npc.entityId);
+                EmoteBubbleSystem.removeThought(npc.entityId);
                 commandBuffer.removeEntity(selfRef, RemoveReason.REMOVE);
                 return;
             }

@@ -72,7 +72,7 @@ public final class ChairRegistry {
     public static boolean staleCheckEnabled = true;
 
     /** Whether {@code holder} no longer names a live, tracked NPC -- a claim nobody can release. */
-    private static boolean isStale(UUID holder) {
+    static boolean isStale(UUID holder) {
         if (!staleCheckEnabled) return false;
         SimNPCComponent npc = SimTale.findNpc(holder);
         return npc == null || npc.entityRef == null || !npc.entityRef.isValid();

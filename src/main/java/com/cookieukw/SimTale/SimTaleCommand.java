@@ -499,6 +499,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     count++;
                 }
                 PlumbobSystem.removePlumbob(npc.entityId);
+                com.cookieukw.SimTale.systems.EmoteBubbleSystem.removeThought(npc.entityId);
                 /* Buried, not deleted. Everything the Reaper collects ends up in the graveyard and
                 can be brought back; clearing the village by command used to be the one way to
                 destroy an NPC outright, which made it a trap — one command and a whole village

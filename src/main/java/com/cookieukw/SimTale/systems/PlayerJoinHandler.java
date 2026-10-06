@@ -29,6 +29,14 @@ import com.cookieukw.SimTale.db.SimNPCPersistence;
 public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
     private static final SimLog LOGGER = SimLog.forClass(PlayerJoinHandler.class);
 
+    /* Houses, growing children and chests are read from disk once, on the first join, not on
+    every join: each reload cleared the live maps and replaced ACTIVE_CHILDREN with fresh copies
+    from disk, so a second player joining threw away whatever had not been saved yet (and any
+    reference another system still held). Reset on failure so the next join retries. */
+    private static final java.util.concurrent.atomic.AtomicBoolean HOUSES_LOADED = new java.util.concurrent.atomic.AtomicBoolean();
+    private static final java.util.concurrent.atomic.AtomicBoolean CHILDREN_LOADED = new java.util.concurrent.atomic.AtomicBoolean();
+    private static final java.util.Set<String> CHESTS_LOADED_WORLDS = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
     @Override
     public void accept(PlayerReadyEvent event) {
         Player player = event.getPlayer();
@@ -75,20 +83,26 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
         }
 
         // Load all houses from database
-        try {
-            HouseManager.loadAllHouses();
-        } catch (Exception e) {
-            LOGGER.debug("[SimTale] Error loading houses: " + e.getMessage());
+        if (HOUSES_LOADED.compareAndSet(false, true)) {
+            try {
+                HouseManager.loadAllHouses();
+            } catch (Exception e) {
+                HOUSES_LOADED.set(false);
+                LOGGER.debug("[SimTale] Error loading houses: " + e.getMessage());
+            }
         }
 
         /* Same gap the houses had, on the growth records: they were written to disk but nothing
         ever read them back into the in-memory list every age check consults. A restart left it
         empty, which froze every child's growth and hid the parent-only interactions.
         */
-        try {
-            BabyCareManager.loadActiveChildren();
-        } catch (Exception e) {
-            LOGGER.warn("[SimTale] Error loading growing children: " + e.getMessage());
+        if (CHILDREN_LOADED.compareAndSet(false, true)) {
+            try {
+                BabyCareManager.loadActiveChildren();
+            } catch (Exception e) {
+                CHILDREN_LOADED.set(false);
+                LOGGER.warn("[SimTale] Error loading growing children: " + e.getMessage());
+            }
         }
 
         /* And the same gap again on the chest registry, which was memory only.
@@ -98,10 +112,14 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
         as the only sources, and the sweep only sees chunks that happen to be loaded — so chests
         away from spawn were simply invisible to the mod until placed again.
         */
-        try {
-            ChestRegistry.loadAll(player.getWorld());
-        } catch (Exception e) {
-            LOGGER.warn("[SimTale] Error loading chest registry: " + e.getMessage());
+        String chestWorld = player.getWorld() != null ? player.getWorld().getName() : null;
+        if (chestWorld != null && CHESTS_LOADED_WORLDS.add(chestWorld)) {
+            try {
+                ChestRegistry.loadAll(player.getWorld());
+            } catch (Exception e) {
+                CHESTS_LOADED_WORLDS.remove(chestWorld);
+                LOGGER.warn("[SimTale] Error loading chest registry: " + e.getMessage());
+            }
         }
 
         // Reassemble active NPCs from persistence so ACTIVE_NPCS is populated on join

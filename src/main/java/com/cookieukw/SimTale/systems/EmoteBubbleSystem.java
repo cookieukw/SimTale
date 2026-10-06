@@ -312,12 +312,15 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
     }
 
     /**
-     * Cleans up any thought bubble for an NPC when they despawn or die.
+     * Cleans up any thought bubble for an NPC when they despawn or die. Called next to every
+     * {@code PlumbobSystem.removePlumbob}: untracking the ref lets the orphan sweep in tick()
+     * remove the bubble entity, same as the plumbob.
      */
     public static void removeThought(UUID npcUuid) {
         if (npcUuid == null) return;
         pendingRequests.remove(npcUuid);
         delayedRequests.remove(npcUuid);
+        lastThoughtTicks.remove(npcUuid);
         ActiveThought at = activeThoughts.remove(npcUuid);
         if (at != null && at.bubbleRef() != null) {
             trackedBubbleRefs.remove(at.bubbleRef());
