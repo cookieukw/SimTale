@@ -142,10 +142,16 @@ public final class ChildCarryHelper {
         return stage.ordinal() <= OLDEST_CARRIABLE.ordinal();
     }
 
-    /** Whether {@code npc} is currently riding on someone. */
+    /**
+     * Whether {@code npc} is currently riding on someone. Lying in a bed or sitting on a chair also
+     * adds a MountedComponent (mounted to a block), so only an entity mount counts as carried;
+     * otherwise every sleeping NPC took the carried path (mood forced, energy refilled, hidden
+     * from the map).
+     */
     public static boolean isBeingCarried(Store<EntityStore> store, SimNPCComponent npc) {
         if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) return false;
-        return store.getComponent(npc.entityRef, MountedComponent.getComponentType()) != null;
+        MountedComponent mounted = store.getComponent(npc.entityRef, MountedComponent.getComponentType());
+        return mounted != null && mounted.getMountedToEntity() != null;
     }
 
     /**

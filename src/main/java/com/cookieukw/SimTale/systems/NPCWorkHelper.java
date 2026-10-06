@@ -245,7 +245,10 @@ public class NPCWorkHelper {
             command just forced this NPC — reset centrally in RoutineAISystem right after this
             call returns, not here, so every caller of the flag gets cleared, not just this one.
             */
-            if (world.getTick() % 100 == 0 || ai.forcedByDebug) {
+            /* Offset by the NPC's id so every worker keeps the same 100-tick cadence but they no
+            longer all scan on the same tick (the farmland registry is world-wide). */
+            int stagger = npc.entityId != null ? npc.entityId.hashCode() : 0;
+            if (Math.floorMod(world.getTick() + stagger, 100) == 0 || ai.forcedByDebug) {
                 if (npc.profession == Profession.FARMER) {
                     /* A registered Deco_Scarecrow is what makes a patch of ground "the farm", the
                     same way a bed is what makes a room a house. No scarecrow, no farming.
@@ -913,18 +916,19 @@ public class NPCWorkHelper {
         double minDistSq = radius * radius;
         synchronized (CropRegistry.CROPS) {
             for (HouseBlockPos cp : CropRegistry.CROPS) {
-                BlockType type = NPCMovementHelper.getBlockTypeSafe(world, cp.x, cp.y, cp.z);
-                if (type == null || !CropRegistry.isReadyToHarvest(type.getId())) continue;
-                Vector3i candidate = new Vector3i(cp.x, cp.y, cp.z);
-                if (isTileClaimedByAnotherNpc(candidate, selfId)) continue;
+                /* Distance first: the registry is world-wide, and the block lookup and the claim
+                check (a loop over every NPC) are the expensive part. */
                 double dx = cp.x - center.x;
                 double dy = cp.y - center.y;
                 double dz = cp.z - center.z;
                 double distSq = dx*dx + dy*dy + dz*dz;
-                if (distSq < minDistSq) {
-                    minDistSq = distSq;
-                    closest = candidate;
-                }
+                if (distSq >= minDistSq) continue;
+                BlockType type = NPCMovementHelper.getBlockTypeSafe(world, cp.x, cp.y, cp.z);
+                if (type == null || !CropRegistry.isReadyToHarvest(type.getId())) continue;
+                Vector3i candidate = new Vector3i(cp.x, cp.y, cp.z);
+                if (isTileClaimedByAnotherNpc(candidate, selfId)) continue;
+                minDistSq = distSq;
+                closest = candidate;
             }
         }
         return closest;
@@ -956,19 +960,21 @@ public class NPCWorkHelper {
 
         synchronized (FarmlandRegistry.FARMLAND) {
             for (HouseBlockPos fp : FarmlandRegistry.FARMLAND) {
+                /* Distance first, as in scanForCrops: the join sweep registers every grass/dirt
+                block nearby (vanilla planting accepts them), so this set holds thousands of tiles
+                and only the few inside the radius deserve a block lookup and a claim check. */
+                double dx = fp.x + 0.5 - center.x;
+                double dy = fp.y + 1.5 - center.y;
+                double dz = fp.z + 0.5 - center.z;
+                double distSq = dx*dx + dy*dy + dz*dz;
+                if (distSq >= minDistSq) continue;
                 // Check if block above is empty (so we can plant something)
                 BlockType above = NPCMovementHelper.getBlockTypeSafe(world, fp.x, fp.y + 1, fp.z);
                 if (above == null || above.getId() == null || above.getId().equalsIgnoreCase(EMPTY_BLOCK)) {
                     Vector3i candidate = new Vector3i(fp.x, fp.y + 1, fp.z);
                     if (selfId != null && isTileClaimedByAnotherNpc(candidate, selfId)) continue;
-                    double dx = fp.x + 0.5 - center.x;
-                    double dy = fp.y + 1.5 - center.y;
-                    double dz = fp.z + 0.5 - center.z;
-                    double distSq = dx*dx + dy*dy + dz*dz;
-                    if (distSq < minDistSq) {
-                        minDistSq = distSq;
-                        closest = candidate;
-                    }
+                    minDistSq = distSq;
+                    closest = candidate;
                 }
             }
         }

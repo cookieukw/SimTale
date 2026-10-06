@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookie.runecore.api.RuneAttributes;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
@@ -65,6 +66,15 @@ public class NPCArmorHelper {
      * re-equipping the held weapon every pass instead of trusting it to stick once.
      */
     public static void ensureArmorEquipped(Ref<EntityStore> ref, SimNPCComponent npc, Store<EntityStore> store) {
+        ensureArmorEquipped(ref, npc, store, null);
+    }
+
+    /**
+     * Same, for callers inside a system tick: a missing Armor component is added through
+     * {@code buffer}, because {@code store.putComponent} while the store is processing throws.
+     */
+    public static void ensureArmorEquipped(Ref<EntityStore> ref, SimNPCComponent npc, Store<EntityStore> store,
+                                           CommandBuffer<EntityStore> buffer) {
         if (npc.armorItemIds == null) return;
 
         boolean anySet = false;
@@ -76,7 +86,11 @@ public class NPCArmorHelper {
         InventoryComponent.Armor armor = store.getComponent(ref, InventoryComponent.Armor.getComponentType());
         if (armor == null) {
             armor = new InventoryComponent.Armor(InventoryComponent.DEFAULT_ARMOR_CAPACITY);
-            store.putComponent(ref, InventoryComponent.Armor.getComponentType(), armor);
+            if (buffer != null) {
+                buffer.putComponent(ref, InventoryComponent.Armor.getComponentType(), armor);
+            } else {
+                store.putComponent(ref, InventoryComponent.Armor.getComponentType(), armor);
+            }
         }
 
         ItemContainer inventory = armor.getInventory();

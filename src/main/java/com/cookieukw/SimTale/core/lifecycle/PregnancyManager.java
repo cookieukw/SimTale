@@ -9,26 +9,21 @@ import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.SimNPCNameGenerator;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.entity.ItemUtils;
-import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
-import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
-import org.joml.Vector3d;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
@@ -121,23 +116,14 @@ public class PregnancyManager {
             childSurname
         );
 
-        SimNPCFactory.NPCType childType = childGender == Gender.MALE
-            ? SimNPCFactory.NPCType.CHILD_MALE
-            : SimNPCFactory.NPCType.CHILD_FEMALE;
-
         try {
-            Vector3d spawnPos = LifecycleUtils.getEntityPosition(mother, store);
-            if (spawnPos == null) {
-                spawnPos = new Vector3d(0, 64, 0); // fallback
-            }
-
-            Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
-            UUIDComponent uuidComp = store.getComponent(childRef, UUIDComponent.getComponentType());
-            if (uuidComp != null) {
-                child.childId = uuidComp.getUuid();
-            }
-
-            store.removeEntity(childRef, RemoveReason.REMOVE);
+            /* A newborn is carried as an item, not an entity: the real body is spawned (with its own
+            UUID) when the baby is put down. The old code spawned a child NPC here only to read its
+            UUID and removed it straight away -- from inside PregnancyTickSystem, where the store is
+            processing, so the spawn threw, the catch below returned before pregnancy.reset(), and
+            the birth failed again on every tick. A random UUID is all that is needed.
+            */
+            child.childId = UUID.randomUUID();
 
             Child familyChild = new Child(child.childId, child.getFullName());
             mother.family.children.add(familyChild);
@@ -312,23 +298,8 @@ public class PregnancyManager {
         );
 
         try {
-            Vector3d spawnPos = new Vector3d(0, 64, 0);
-            TransformComponent transform = store.getComponent(playerRef, TransformComponent.getComponentType());
-            if (transform != null) {
-                spawnPos = transform.getPosition();
-            }
-
-            SimNPCFactory.NPCType childType = childGender == Gender.MALE
-                ? SimNPCFactory.NPCType.CHILD_MALE
-                : SimNPCFactory.NPCType.CHILD_FEMALE;
-
-            Ref<EntityStore> childRef = SimNPCFactory.spawnNPC(store, spawnPos, childType);
-            UUIDComponent uuidComp = store.getComponent(childRef, UUIDComponent.getComponentType());
-            if (uuidComp != null) {
-                child.childId = uuidComp.getUuid();
-            }
-
-            store.removeEntity(childRef, RemoveReason.REMOVE);
+            // Carried as an item until put down (see birthBaby): no throwaway entity mid-tick.
+            child.childId = UUID.randomUUID();
 
             if (fatherId != null) {
                 for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {

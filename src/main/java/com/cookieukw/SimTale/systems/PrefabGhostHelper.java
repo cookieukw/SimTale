@@ -195,14 +195,21 @@ public final class PrefabGhostHelper {
         return spawnGhost(world, anchor, blocks, tint, Integer.MAX_VALUE);
     }
 
-    /** Removes a hologram created by {@link #showRaw}. Safe to call with null or a stale ref. */
+    /**
+     * Removes a hologram created by {@link #showRaw}. Safe to call with null or a stale ref.
+     * Deferred to the world thread like {@link #hide}: the blueprint expiry calls this from inside
+     * the mod's tick, where a direct removeEntity throws and the outline was never removed.
+     */
     public static void hideRaw(World world, Ref<EntityStore> ref) {
         if (world == null || ref == null || !ref.isValid()) return;
-        try {
-            world.getEntityStore().getStore().removeEntity(ref, RemoveReason.REMOVE);
-        } catch (Exception e) {
-            LOGGER.atWarning().log("SimTale: falha ao remover o holograma: " + e);
-        }
+        runOnWorldThread(world, () -> {
+            if (!ref.isValid()) return;
+            try {
+                world.getEntityStore().getStore().removeEntity(ref, RemoveReason.REMOVE);
+            } catch (Exception e) {
+                LOGGER.atWarning().log("SimTale: falha ao remover o holograma: " + e);
+            }
+        });
     }
 
     private static Ref<EntityStore> spawnGhost(World world, Vector3i anchor, BlockChange[] blocks,

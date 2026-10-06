@@ -204,7 +204,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         (no armour ever given, or already equipped correctly).
         */
         if (npc.entityId != null && Math.floorMod(absoluteTick + npc.entityId.hashCode() + 1, 200) == 0) {
-            NPCArmorHelper.ensureArmorEquipped(npc.entityRef, npc, store);
+            NPCArmorHelper.ensureArmorEquipped(npc.entityRef, npc, store, commandBuffer);
         }
 
         // Daily natural pregnancy check for married female NPCs
