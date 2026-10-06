@@ -26,8 +26,8 @@ public final class CalhambequeGeometry {
     public static final float UNITS_PER_BLOCK = 64f;
     public static final String MODEL_ID = "SimTale_Calhambeque";
 
-    /** Default size (3.5x first, then 4.5x, which turned out a bit too big). Tunable with /simtale carscale. */
-    public static final float DEFAULT_SCALE = 4.0f;
+    /** Default size: 3.5x, picked in game with /simtale carscale 350 (4.5x was too big). */
+    public static final float DEFAULT_SCALE = 3.5f;
     public static final float MIN_SCALE = 1.0f;
     public static final float MAX_SCALE = 10.0f;
 
