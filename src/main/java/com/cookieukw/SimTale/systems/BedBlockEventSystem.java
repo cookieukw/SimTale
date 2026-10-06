@@ -69,9 +69,9 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         ChairRegistry.removeAt(anchor.x, anchor.y, anchor.z);
         /* The post itself may still stand while its registered tree gets chopped (by a player or
         the lumberjack NPC it sent) — that leaves the post pointing at an empty spot forever
-        unless the tree's own removal deregisters it too.
+        unless the tree's own removal retargets it too.
         */
-        LumberPostRegistry.removeByTree(pos.x, pos.y, pos.z);
+        LumberPostRegistry.retargetFromTree(world, pos.x, pos.y, pos.z);
         /* Registered by anchor (the scarecrow is 3 blocks tall) — remove by anchor too, or
         breaking a non-anchor block of it leaves the registration behind.
         */

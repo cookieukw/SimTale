@@ -549,9 +549,9 @@ public class NPCWorkHelper {
                     String logId = blockType.getId();
                     world.setBlock(treePos.x, treePos.y, treePos.z, EMPTY_BLOCK);
                     /* The post this NPC used pointed at exactly this trunk; it's gone now, so the
-                    post has to go looking again next time (a re-placed or new lumbermill).
+                    post moves on to the nearest trunk left in range (removed only if none is).
                     */
-                    LumberPostRegistry.removeByTree(treePos.x, treePos.y, treePos.z);
+                    LumberPostRegistry.retargetFromTree(world, treePos.x, treePos.y, treePos.z);
 
                     ItemContainer inv = getInventory(store, ref);
                     if (inv != null) {

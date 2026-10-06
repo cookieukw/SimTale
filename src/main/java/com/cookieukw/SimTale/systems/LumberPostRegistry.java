@@ -7,6 +7,8 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
 import org.joml.Vector3i;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -76,16 +78,37 @@ public final class LumberPostRegistry {
         CLAIMED_BY.remove(key(x, y, z));
     }
 
-    /** Removes whichever post pointed at this exact tree — called when the trunk itself is
-     *  chopped down, so the post doesn't keep sending lumberjacks at an empty spot. Re-placing
-     *  the bench (or a future retarget command) is how the post finds a new tree. */
-    public static void removeByTree(int treeX, int treeY, int treeZ) {
+    /**
+     * Called when a trunk block is chopped (by the lumberjack NPC or a player). Every post that
+     * pointed at it looks for the nearest trunk again, starting from the post, and is removed only
+     * when none is left in range. It used to be removed outright, so each lumbermill gave exactly
+     * one log until the player placed it again. The chopped block is excluded explicitly: the
+     * break event can run before the block is actually gone.
+     */
+    public static void retargetFromTree(World world, int treeX, int treeY, int treeZ) {
+        List<LumberPost> affected = new ArrayList<>();
         synchronized (POSTS) {
-            POSTS.removeIf(p -> {
-                boolean match = p.treeX() == treeX && p.treeY() == treeY && p.treeZ() == treeZ;
-                if (match) CLAIMED_BY.remove(key(p.postX(), p.postY(), p.postZ()));
-                return match;
-            });
+            for (LumberPost p : POSTS) {
+                if (p.treeX() == treeX && p.treeY() == treeY && p.treeZ() == treeZ) affected.add(p);
+            }
+        }
+        if (affected.isEmpty()) return;
+
+        for (LumberPost p : affected) {
+            Vector3i tree = world != null
+                    ? findNearestTree(world, p.postX(), p.postY(), p.postZ(), treeX, treeY, treeZ)
+                    : null;
+            synchronized (POSTS) {
+                if (!POSTS.remove(p)) continue; // removed meanwhile (bench broken)
+                if (tree != null) {
+                    POSTS.add(new LumberPost(p.postX(), p.postY(), p.postZ(), tree.x, tree.y, tree.z));
+                }
+            }
+            if (tree == null) {
+                CLAIMED_BY.remove(key(p.postX(), p.postY(), p.postZ()));
+                LOGGER.info("[SimTale] Lumber post at ({},{},{}) has no trees left in range; removed.",
+                        p.postX(), p.postY(), p.postZ());
+            }
         }
     }
 
@@ -129,12 +152,18 @@ public final class LumberPostRegistry {
     }
 
     private static Vector3i findNearestTree(World world, int cx, int cy, int cz) {
+        return findNearestTree(world, cx, cy, cz, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+    }
+
+    /** Same search, skipping the block at (ex, ey, ez). */
+    private static Vector3i findNearestTree(World world, int cx, int cy, int cz, int ex, int ey, int ez) {
         Vector3i closest = null;
         int closestDistSq = Integer.MAX_VALUE;
         for (int dx = -TREE_SEARCH_XZ; dx <= TREE_SEARCH_XZ; dx++) {
             for (int dz = -TREE_SEARCH_XZ; dz <= TREE_SEARCH_XZ; dz++) {
                 for (int dy = -TREE_SEARCH_Y; dy <= TREE_SEARCH_Y; dy++) {
                     int x = cx + dx, y = cy + dy, z = cz + dz;
+                    if (x == ex && y == ey && z == ez) continue;
                     if (isTreeTrunk(NPCMovementHelper.getBlockTypeSafe(world, x, y, z))) {
                         int distSq = dx * dx + dy * dy + dz * dz;
                         if (distSq < closestDistSq) {
