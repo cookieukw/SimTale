@@ -57,6 +57,11 @@ public final class CalhambequeGeometry {
     public static final int DEFAULT_SEAT_BACK = 15;    // units behind the centre (-Z)
 
     private static volatile float scale = DEFAULT_SCALE;
+    /** Top speed and acceleration, in percent of the physics defaults. /simtale carspeed. */
+    public static final int DEFAULT_SPEED_PERCENT = 100;
+    public static final int MIN_SPEED_PERCENT = 25;
+    public static final int MAX_SPEED_PERCENT = 400;
+    private static volatile int speedPercent = DEFAULT_SPEED_PERCENT;
     private static volatile int seatSide = DEFAULT_SEAT_SIDE;
     private static volatile int seatHeight = DEFAULT_SEAT_HEIGHT;
     private static volatile int seatBack = DEFAULT_SEAT_BACK;
@@ -98,8 +103,22 @@ public final class CalhambequeGeometry {
         version++;
     }
 
+    public static int speedPercent() {
+        return speedPercent;
+    }
+
+    /** Multiplier for top speed and acceleration (1.0 = defaults). */
+    public static float speedFactor() {
+        return speedPercent / 100f;
+    }
+
+    public static void setSpeedPercent(int percent) {
+        speedPercent = Math.max(MIN_SPEED_PERCENT, Math.min(MAX_SPEED_PERCENT, percent));
+    }
+
     public static void reset() {
         scale = DEFAULT_SCALE;
+        speedPercent = DEFAULT_SPEED_PERCENT;
         seatSide = DEFAULT_SEAT_SIDE;
         seatHeight = DEFAULT_SEAT_HEIGHT;
         seatBack = DEFAULT_SEAT_BACK;

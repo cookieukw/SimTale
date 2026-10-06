@@ -219,11 +219,12 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // 3. Acceleration & Speed Update
+        // 3. Acceleration & Speed Update (top speed and acceleration scale with /simtale carspeed)
+        float speedFactor = CalhambequeGeometry.speedFactor();
         if (throttle > 0) {
-            car.speed = Math.min(MAX_FORWARD_SPEED, car.speed + ACCELERATION * clampedDt);
+            car.speed = Math.min(MAX_FORWARD_SPEED * speedFactor, car.speed + ACCELERATION * speedFactor * clampedDt);
         } else if (throttle < 0) {
-            car.speed = Math.max(MAX_REVERSE_SPEED, car.speed - ACCELERATION * clampedDt);
+            car.speed = Math.max(MAX_REVERSE_SPEED * speedFactor, car.speed - ACCELERATION * speedFactor * clampedDt);
         } else {
             if (car.speed > 0) {
                 car.speed = Math.max(0f, car.speed - DECELERATION * clampedDt);

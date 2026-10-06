@@ -124,6 +124,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new CarExitSubCommand());
         this.addSubCommand(new CarRemoveSubCommand());
         this.addSubCommand(new CarScaleSubCommand());
+        this.addSubCommand(new CarSpeedSubCommand());
         this.addSubCommand(new CarSeatSubCommand());
         this.addSubCommand(new CatSubCommand());
     }
@@ -323,6 +324,30 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             CalhambequeGeometry.setScale(percent / 100f);
             ctx.sendMessage(Message.raw("§6[Calhambeque] §aTamanho: " + Math.round(CalhambequeGeometry.scale() * 100)
                     + "% (padrão " + Math.round(CalhambequeGeometry.DEFAULT_SCALE * 100) + "%)."));
+        }
+    }
+
+    private static class CarSpeedSubCommand extends AbstractPlayerCommand {
+        private final RequiredArg<String> percentArg;
+
+        public CarSpeedSubCommand() {
+            super("carspeed", "Changes every Calhambeque's top speed and acceleration, in percent (100 = default)");
+            this.percentArg = this.withRequiredArg("percent", "25 a 400 (padrão 100)", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            int percent;
+            try {
+                percent = Integer.parseInt(ctx.get(this.percentArg).trim());
+            } catch (NumberFormatException e) {
+                ctx.sendMessage(Message.raw("§cUse um número inteiro, ex.: /simtale carspeed 150"));
+                return;
+            }
+            CalhambequeGeometry.setSpeedPercent(percent);
+            ctx.sendMessage(Message.raw("§6[Calhambeque] §aVelocidade: " + CalhambequeGeometry.speedPercent()
+                    + "% (padrão " + CalhambequeGeometry.DEFAULT_SPEED_PERCENT + "%)."));
         }
     }
 
