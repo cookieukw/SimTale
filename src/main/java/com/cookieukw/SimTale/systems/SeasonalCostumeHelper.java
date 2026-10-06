@@ -114,17 +114,23 @@ public final class SeasonalCostumeHelper {
 
     /**
      * Called on each NPC tick by SimTaleTickSystem. Cheap when there's nothing to do: a single
-     * long comparison and, in the vast majority of ticks, immediate return.
+     * long comparison and, in the vast majority of ticks, immediate return; the real work runs
+     * once every {@link #CHECK_INTERVAL_TICKS}, whether costumes are enabled or not.
      */
     public static void tick(@Nonnull Store<EntityStore> store, long absoluteTick) {
-        if (!SimTaleConfigManager.getConfig().seasonalCostumesEnabled) {
-            if (!ACTIVE_COSTUME_EVENT.isEmpty()) {
-                reconcileAll(store, null);
-            }
-            return;
-        }
+        /* The interval gate comes first for both branches. With costumes disabled, the cleanup
+        used to run on every NPC tick for as long as the map was non-empty -- and a manual
+        costume (skipped by reconcileAll) kept it non-empty forever, so that was a full pass per
+        NPC per tick. Running it once per interval also takes off costumes that were saved with
+        the world and came back after a restart with the map empty, which the old check missed.
+        */
         if (absoluteTick % CHECK_INTERVAL_TICKS != 0 || absoluteTick == lastCheckedTick) return;
         lastCheckedTick = absoluteTick;
+
+        if (!SimTaleConfigManager.getConfig().seasonalCostumesEnabled) {
+            reconcileAll(store, null);
+            return;
+        }
 
         WorldTimeResource time = store.getResource(WorldTimeResource.getResourceType());
 
