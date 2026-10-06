@@ -34,6 +34,8 @@ public final class CalhambequeGeometry {
     /** Body, from the box shapes: z -46.4..49.5, x within +-37.5 at the fenders, top at 46.3. */
     public static final float HALF_LENGTH_UNITS = 48f;
     public static final float HALF_WIDTH_UNITS = 30f;
+    /** Half width at the fenders, the hitbox's X (0.58 x 64): what collision tests. */
+    public static final float FENDER_HALF_WIDTH_UNITS = 37f;
     public static final float HEIGHT_UNITS = 46f;
 
     /**
@@ -99,14 +101,30 @@ public final class CalhambequeGeometry {
         return units * carScale / UNITS_PER_BLOCK;
     }
 
-    /** Driver seat in blocks, model axes (the anchor sent with MountNPC). */
+    /**
+     * Driver seat in blocks, in the car's local frame used by the physics (x to the right of the
+     * driving direction, z forward; see {@link #toWorldX}).
+     *
+     * <p>In game the model shows up turned half a circle from its own axes: its front (+Z) faces
+     * the driving direction and the steering wheel (model x = -7) ends up on the right. So the
+     * driver sits at local x = +side, and z = -back is behind the centre, on the bench. The first
+     * version used the model axes directly and put the rider on the hood, on the passenger side.
+     */
     public static Vector3f driverSeat(float carScale) {
+        return new Vector3f(blocks(seatSide, carScale), blocks(seatHeight, carScale), blocks(-seatBack, carScale));
+    }
+
+    /** Passenger seat: the driver's, mirrored to the other side. */
+    public static Vector3f passengerSeat(float carScale) {
         return new Vector3f(blocks(-seatSide, carScale), blocks(seatHeight, carScale), blocks(-seatBack, carScale));
     }
 
-    /** Passenger seat: the driver's, mirrored to the right-hand side. */
-    public static Vector3f passengerSeat(float carScale) {
-        return new Vector3f(blocks(seatSide, carScale), blocks(seatHeight, carScale), blocks(-seatBack, carScale));
+    /**
+     * The MountNPC anchor for a seat. The client reads the anchor in the entity's frame, where
+     * forward is -Z (Hytale's facing at yaw 0), so z is negated; x already matches.
+     */
+    public static Vector3f mountAnchor(Vector3f seat) {
+        return new Vector3f(seat.x, seat.y, -seat.z);
     }
 
     public static double halfLength(float carScale) {
@@ -115,6 +133,10 @@ public final class CalhambequeGeometry {
 
     public static double halfWidth(float carScale) {
         return blocks(HALF_WIDTH_UNITS, carScale);
+    }
+
+    public static double fenderHalfWidth(float carScale) {
+        return blocks(FENDER_HALF_WIDTH_UNITS, carScale);
     }
 
     public static double height(float carScale) {

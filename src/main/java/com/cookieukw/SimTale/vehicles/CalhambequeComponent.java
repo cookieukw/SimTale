@@ -49,6 +49,8 @@ public class CalhambequeComponent implements Component<EntityStore> {
     public int appliedTuneVersion = -1;
     /** Scale last requested through SimNPCFactory.applyModel, so it is not re-sent every tick. */
     public float requestedScale = 0f;
+    /** Last movement state sent to the client: 0 parked, 1 forward, 2 reverse (not saved). */
+    public int movementState = -1;
 
     public CalhambequeComponent() {
     }

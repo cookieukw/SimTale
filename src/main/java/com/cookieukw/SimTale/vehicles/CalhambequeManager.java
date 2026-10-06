@@ -3,6 +3,10 @@ package com.cookieukw.SimTale.vehicles;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
+import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
+import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
+import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.vector.Rotation3f;
@@ -53,6 +57,14 @@ public class CalhambequeManager {
     /** Who is sitting in which car (driver or passenger), for the dismount packet. */
     private static final Map<UUID, Ref<EntityStore>> RIDING = new ConcurrentHashMap<>();
 
+    /** The item a car is placed from (and given back by {@link #pickUp}). */
+    public static final String ITEM_ID = "SimTale_Calhambeque";
+
+    private static boolean isCrouching(Store<EntityStore> store, Ref<EntityStore> playerRef) {
+        MovementStatesComponent msc = store.getComponent(playerRef, MovementStatesComponent.getComponentType());
+        return msc != null && msc.getMovementStates() != null && msc.getMovementStates().crouching;
+    }
+
     /**
      * Spawns a new Calhambeque vintage car in the world.
      */
@@ -91,8 +103,8 @@ public class CalhambequeManager {
             // Ensure Interactable so right-click is detected
             store.ensureComponent(carRef, Interactable.getComponentType());
 
-            // Clear person nameplate
-            SimNPCFactory.refreshNameplate(store, carRef, "Calhambeque 1930s");
+            // No name tag over the car (the role gives NPCs one)
+            hideNameplate(store, carRef);
 
             LOGGER.atInfo().log("SimTale: Calhambeque Vintage dos Anos 1930 instanciado em " + position);
             return carRef;
@@ -121,6 +133,13 @@ public class CalhambequeManager {
         if (store == null || carRef == null || car == null || playerRef == null || playerRefComp == null) return;
 
         UUID playerUuid = playerRefComp.getUuid();
+
+        // Crouch + interact on a car you are not in: put it back in the inventory
+        if (!playerUuid.equals(car.driverUuid) && !playerUuid.equals(car.passengerUuid)
+                && !RIDING.containsKey(playerUuid) && isCrouching(store, playerRef)) {
+            pickUp(store, carRef, car, playerRef, playerRefComp);
+            return;
+        }
 
         // Already inside: the same click gets you out
         if (playerUuid.equals(car.driverUuid)) {
@@ -214,7 +233,7 @@ public class CalhambequeManager {
         UUID uuid = car.driverUuid;
         car.driverUuid = null;
         car.speed = 0f;
-        leave(store, carRef, uuid, playerRef, playerRefComp, -1, "§6[Calhambeque 1930s] §7Você desceu do veículo.");
+        leave(store, carRef, uuid, playerRef, playerRefComp, +1, "§6[Calhambeque 1930s] §7Você desceu do veículo.");
     }
 
     /** Takes the passenger out to the right-hand side. Safe to call from inside a system. */
@@ -223,7 +242,7 @@ public class CalhambequeManager {
         if (car.passengerUuid == null) return;
         UUID uuid = car.passengerUuid;
         car.passengerUuid = null;
-        leave(store, carRef, uuid, playerRef, playerRefComp, +1, "§6[Calhambeque 1930s] §7Você desceu do banco do passageiro.");
+        leave(store, carRef, uuid, playerRef, playerRefComp, -1, "§6[Calhambeque 1930s] §7Você desceu do banco do passageiro.");
     }
 
     /**
@@ -338,7 +357,85 @@ public class CalhambequeManager {
     }
 
     private static void sendMount(PlayerRef playerRefComp, Vector3f seat, int carNetId) {
-        playerRefComp.getPacketHandler().write(new MountNPC(seat.x, seat.y, seat.z, carNetId));
+        Vector3f anchor = CalhambequeGeometry.mountAnchor(seat);
+        playerRefComp.getPacketHandler().write(new MountNPC(anchor.x, anchor.y, anchor.z, carNetId));
+    }
+
+    /** Whether this player is sitting in a car (the plumbob is hidden meanwhile). */
+    public static boolean isRiding(UUID playerUuid) {
+        return playerUuid != null && RIDING.containsKey(playerUuid);
+    }
+
+    /**
+     * Removes the car's name tag. NPCs get one from their role (NameTranslationKey) and the spawn
+     * used to set "Calhambeque 1930s" on top. Deferred: this also runs from the physics tick.
+     */
+    public static void hideNameplate(Store<EntityStore> store, Ref<EntityStore> carRef) {
+        if (store == null || carRef == null || !carRef.isValid()) return;
+        if (store.getComponent(carRef, Nameplate.getComponentType()) == null
+                && store.getComponent(carRef, PersistentDisplayName.getComponentType()) == null) return;
+        World world = store.getExternalData().getWorld();
+        Runnable task = () -> {
+            if (!carRef.isValid()) return;
+            store.removeComponentIfExists(carRef, Nameplate.getComponentType());
+            store.removeComponentIfExists(carRef, PersistentDisplayName.getComponentType());
+        };
+        if (world != null) world.execute(task); else task.run();
+    }
+
+    /**
+     * Puts an empty car back in the player's inventory as the item it was placed from.
+     * Crouch + interact, or /simtale carremove.
+     *
+     * @return false (with a message) when someone is inside or the inventory is full
+     */
+    public static boolean pickUp(Store<EntityStore> store, Ref<EntityStore> carRef, CalhambequeComponent car,
+                                 Ref<EntityStore> playerRef, PlayerRef playerRefComp) {
+        if (store == null || carRef == null || !carRef.isValid() || car == null || playerRef == null) return false;
+        if (car.driverUuid != null || car.passengerUuid != null) {
+            if (playerRefComp != null) {
+                playerRefComp.sendMessage(Message.raw("§e[Calhambeque] §cTem alguém dentro do carro."));
+            }
+            return false;
+        }
+        ItemStack item = new ItemStack(ITEM_ID, 1);
+        CombinedItemContainer inventory = InventoryComponent.getCombined(store, playerRef, InventoryComponent.HOTBAR_FIRST);
+        if (inventory == null || !inventory.canAddItemStack(item)) {
+            if (playerRefComp != null) {
+                playerRefComp.sendMessage(Message.raw("§e[Calhambeque] §cInventário cheio."));
+            }
+            return false;
+        }
+        inventory.addItemStack(item);
+        World world = store.getExternalData().getWorld();
+        Runnable remove = () -> {
+            if (carRef.isValid()) store.removeEntity(carRef, RemoveReason.REMOVE);
+        };
+        if (world != null) world.execute(remove); else remove.run();
+        if (playerRefComp != null) {
+            playerRefComp.sendMessage(Message.raw("§6[Calhambeque] §7Carro guardado no inventário."));
+        }
+        return true;
+    }
+
+    /**
+     * The nearest car within {@code radius} blocks of a point, or null.
+     */
+    public static Ref<EntityStore> nearestCar(Store<EntityStore> store, Vector3d at, double radius) {
+        final Ref<EntityStore>[] best = new Ref[1];
+        final double[] bestSq = {radius * radius};
+        store.forEachChunk(SimTale.CALHAMBEQUE_COMPONENT_TYPE, (chunk, _) -> {
+            for (int i = 0; i < chunk.size(); i++) {
+                TransformComponent t = chunk.getComponent(i, TransformComponent.getComponentType());
+                if (t == null) continue;
+                double d = t.getPosition().distanceSquared(at);
+                if (d < bestSq[0]) {
+                    bestSq[0] = d;
+                    best[0] = chunk.getReferenceTo(i);
+                }
+            }
+        });
+        return best[0];
     }
 
     private static int networkId(Store<EntityStore> store, Ref<EntityStore> carRef) {

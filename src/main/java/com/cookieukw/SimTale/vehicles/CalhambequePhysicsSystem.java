@@ -87,6 +87,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         Vector3d pos = transform.getPosition();
         Rotation3f rot = transform.getRotation();
         float carYaw = rot.yaw();
+        final float startYaw = carYaw;
 
         float scale = CalhambequeManager.carScale(store, carRef);
 
@@ -103,6 +104,8 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
             }
             CalhambequeManager.refreshRiders(store, carRef, car, target);
             scale = target;
+            // cars placed before 1.2.0 carry a name tag; once per load is enough
+            CalhambequeManager.hideNameplate(store, carRef);
         }
 
         // 1. Process Passenger
@@ -229,108 +232,65 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
-        // 4. Translation, Step Climbing & Solid / Furniture Obstacle Collision
+        // 4. Translation with footprint collision.
+        /* The whole footprint is tested (points every block or less around the hitbox-sized
+        outline, turned with the car), from the step level up to the roof. The old check sampled
+        three points of the bumper at foot level only: the sides and corners went through walls,
+        a 1-block step lifted the car a full block from its bumper alone, the centre (still over
+        the lower ground) fell back the next tick and the bumper hit the step again, so the car
+        bounced against kerbs and house foundations, and the engine pushed the half-buried hitbox
+        out of the blocks (the "teleport" next to houses). Now the car only climbs when nothing
+        but the step is in the way, and it rests on the highest ground under any footprint point.
+        */
         double curX = pos.x;
         double curY = pos.y;
         double curZ = pos.z;
+        int footY = (int) Math.floor(curY + 0.1);
+        boolean moving = Math.abs(car.speed) > 0.01f;
 
-        if (Math.abs(car.speed) > 0.01f) {
-            double dirX = -Math.sin(carYaw);
-            double dirZ = -Math.cos(carYaw);
-            double rightX = Math.cos(carYaw);
-            double rightZ = -Math.sin(carYaw);
+        if (moving) {
             double moveDist = car.speed * clampedDt;
-
-            double nextX = curX + dirX * moveDist;
-            double nextZ = curZ + dirZ * moveDist;
-
-            // Check collision at leading bumper (front bumper if moving forward, rear bumper if reversing)
-            double halfLength = CalhambequeGeometry.halfLength(scale);
-            double halfWidth = CalhambequeGeometry.halfWidth(scale) * 0.8;
-            double bumperDist = car.speed > 0 ? halfLength : -halfLength;
-            double checkCenterX = nextX + dirX * bumperDist;
-            double checkCenterZ = nextZ + dirZ * bumperDist;
-
-            // 3 sample points along the bumper: center, left corner, right corner
-            double[][] checkPoints = {
-                    {checkCenterX, checkCenterZ},
-                    {checkCenterX + rightX * halfWidth, checkCenterZ + rightZ * halfWidth},
-                    {checkCenterX - rightX * halfWidth, checkCenterZ - rightZ * halfWidth}
-            };
-
-            int footBlockY = (int) Math.floor(curY + 0.1);
-            boolean hitObstacle = false;
-            boolean canStepClimb = (car.speed > 0);
-
-            for (double[] pt : checkPoints) {
-                int bx = (int) Math.floor(pt[0]);
-                int bz = (int) Math.floor(pt[1]);
-
-                if (isObstacle(world, bx, footBlockY, bz)) {
-                    hitObstacle = true;
-                    // Step climbing is only allowed if the obstacle is NOT furniture and has clear headroom
-                    if (!canStepUp(world, bx, footBlockY, bz)) {
-                        canStepClimb = false;
-                    }
+            double nextX = curX - Math.sin(carYaw) * moveDist;
+            double nextZ = curZ - Math.cos(carYaw) * moveDist;
+            int fit = footprintFit(world, nextX, nextZ, carYaw, footY, scale);
+            if (fit == FIT_BLOCKED) {
+                // Stop; keep the new heading only if turning on the spot is free.
+                if (carYaw != startYaw && footprintFit(world, curX, curZ, carYaw, footY, scale) == FIT_BLOCKED) {
+                    carYaw = startYaw;
+                    rot.setYaw(carYaw);
                 }
-            }
-
-            if (hitObstacle) {
-                if (canStepClimb) {
-                    // Check overhead clearance above the step for the vehicle's height
-                    boolean headroomClear = true;
-                    int headroom = Math.max(2, (int) Math.ceil(CalhambequeGeometry.height(scale)));
-                    for (double[] pt : checkPoints) {
-                        int bx = (int) Math.floor(pt[0]);
-                        int bz = (int) Math.floor(pt[1]);
-                        for (int dy = 1; dy <= headroom; dy++) {
-                            if (isObstacle(world, bx, footBlockY + dy, bz)) {
-                                headroomClear = false;
-                                break;
-                            }
-                        }
-                        if (!headroomClear) break;
-                    }
-
-                    if (headroomClear) {
-                        curY += STEP_HEIGHT;
-                        curX = nextX;
-                        curZ = nextZ;
-                    } else {
-                        car.speed = 0f;
-                    }
-                } else {
-                    // Wall / furniture / bed / no clearance -> cleanly stop without jumping or bouncing
-                    car.speed = 0f;
-                }
+                car.speed = 0f;
             } else {
                 curX = nextX;
                 curZ = nextZ;
+                if (fit == FIT_STEP) {
+                    curY = footY + STEP_HEIGHT;
+                    car.velocityY = 0f;
+                }
             }
+        } else if (carYaw != startYaw && footprintFit(world, curX, curZ, carYaw, footY, scale) == FIT_BLOCKED) {
+            carYaw = startYaw;
+            rot.setYaw(carYaw);
         }
 
-        // 5. Gravity & Ground Alignment
-        int groundBlockX = (int) Math.floor(curX);
-        int groundBlockY = (int) Math.floor(curY - 0.2);
-        int groundBlockZ = (int) Math.floor(curZ);
-
-        if (isObstacle(world, groundBlockX, groundBlockY, groundBlockZ)) {
+        // 5. Gravity & ground: supported while any footprint point has ground right below.
+        int groundY = (int) Math.floor(curY - 0.2);
+        if (anyObstacleUnder(world, curX, curZ, carYaw, groundY, scale)) {
             car.velocityY = 0f;
-            double groundTopY = groundBlockY + 1.0;
+            double groundTopY = groundY + 1.0;
             if (curY < groundTopY || curY - groundTopY < 0.25) {
                 curY = groundTopY;
             }
         } else {
             car.velocityY -= GRAVITY * clampedDt;
             curY += car.velocityY * clampedDt;
-
-            // Check floor penetration
-            int fallBlockY = (int) Math.floor(curY);
-            if (isObstacle(world, groundBlockX, fallBlockY, groundBlockZ)) {
-                curY = fallBlockY + 1.0;
+            int fallY = (int) Math.floor(curY);
+            if (anyObstacleUnder(world, curX, curZ, carYaw, fallY, scale)) {
+                curY = fallY + 1.0;
                 car.velocityY = 0f;
             }
         }
+        updateMovementStates(store, carRef, car, commandBuffer);
 
         // Apply updated Transform to Car
         transform.setPosition(new Vector3d(curX, curY, curZ));
@@ -367,6 +327,96 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
             AnimationUtils.playAnimation(carRef, AnimationSlot.Movement, targetAnim, store);
             car.currentAnim = targetAnim;
         }
+    }
+
+    private static final int FIT_CLEAR = 0, FIT_STEP = 1, FIT_BLOCKED = 2;
+    /** Max spacing, in blocks, between the footprint points collision tests. */
+    private static final double FOOTPRINT_SPACING = 0.9;
+
+    /** Car-local points (x right, z forward) around the outline, plus the centre. */
+    private static double[][] footprint(float scale) {
+        double hw = CalhambequeGeometry.fenderHalfWidth(scale);
+        double hl = CalhambequeGeometry.halfLength(scale);
+        int nx = Math.max(1, (int) Math.ceil(2 * hw / FOOTPRINT_SPACING));
+        int nz = Math.max(1, (int) Math.ceil(2 * hl / FOOTPRINT_SPACING));
+        java.util.List<double[]> pts = new java.util.ArrayList<>();
+        pts.add(new double[]{0, 0});
+        for (int i = 0; i <= nx; i++) {
+            double lx = -hw + 2 * hw * i / nx;
+            pts.add(new double[]{lx, -hl});
+            pts.add(new double[]{lx, hl});
+        }
+        for (int j = 1; j < nz; j++) {
+            double lz = -hl + 2 * hl * j / nz;
+            pts.add(new double[]{-hw, lz});
+            pts.add(new double[]{hw, lz});
+        }
+        return pts.toArray(new double[0][]);
+    }
+
+    /**
+     * Whether the car fits at (x, z) with this heading and its floor at footY: CLEAR, STEP (a
+     * climbable block at floor level and room for the car one block higher) or BLOCKED.
+     */
+    private static int footprintFit(World world, double x, double z, float yaw, int footY, float scale) {
+        int bodyBlocks = Math.max(2, (int) Math.ceil(CalhambequeGeometry.height(scale)));
+        double[][] pts = footprint(scale);
+        boolean step = false;
+        for (double[] p : pts) {
+            int bx = (int) Math.floor(CalhambequeGeometry.toWorldX(x, yaw, p[0], p[1]));
+            int bz = (int) Math.floor(CalhambequeGeometry.toWorldZ(z, yaw, p[0], p[1]));
+            for (int dy = 1; dy <= bodyBlocks; dy++) {
+                if (isObstacle(world, bx, footY + dy, bz)) return FIT_BLOCKED;
+            }
+            if (isObstacle(world, bx, footY, bz)) {
+                if (!canStepUp(world, bx, footY, bz)) return FIT_BLOCKED;
+                step = true;
+            }
+        }
+        if (!step) return FIT_CLEAR;
+        // one block higher, the roof needs one more block of air
+        for (double[] p : pts) {
+            int bx = (int) Math.floor(CalhambequeGeometry.toWorldX(x, yaw, p[0], p[1]));
+            int bz = (int) Math.floor(CalhambequeGeometry.toWorldZ(z, yaw, p[0], p[1]));
+            if (isObstacle(world, bx, footY + bodyBlocks + 1, bz)) return FIT_BLOCKED;
+        }
+        return FIT_STEP;
+    }
+
+    private static boolean anyObstacleUnder(World world, double x, double z, float yaw, int y, float scale) {
+        for (double[] p : footprint(scale)) {
+            int bx = (int) Math.floor(CalhambequeGeometry.toWorldX(x, yaw, p[0], p[1]));
+            int bz = (int) Math.floor(CalhambequeGeometry.toWorldZ(z, yaw, p[0], p[1]));
+            if (isObstacle(world, bx, y, bz)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Tells the client whether the car is driving or standing. NPC movement animations (the
+     * model's Walk/Idle sets) are picked on the client from these flags; the car's were never
+     * updated, so the wheels spun while parked and stood still while driving.
+     */
+    private static void updateMovementStates(Store<EntityStore> store, Ref<EntityStore> carRef,
+                                             CalhambequeComponent car, CommandBuffer<EntityStore> commandBuffer) {
+        int state = car.speed > 0.2f ? 1 : car.speed < -0.2f ? 2 : 0;
+        if (state == car.movementState) return;
+        MovementStatesComponent msc = store.getComponent(carRef, MovementStatesComponent.getComponentType());
+        if (msc == null || msc.getMovementStates() == null) return;
+        car.movementState = state;
+        MovementStates ms = msc.getMovementStates();
+        boolean driving = state != 0;
+        ms.idle = !driving;
+        ms.horizontalIdle = !driving;
+        ms.walking = driving;
+        ms.running = false;
+        ms.sprinting = false;
+        ms.jumping = false;
+        ms.falling = false;
+        ms.fallingFar = false;
+        ms.flying = false;
+        ms.onGround = true;
+        commandBuffer.replaceComponent(carRef, MovementStatesComponent.getComponentType(), msc);
     }
 
     static boolean isObstacle(World world, int x, int y, int z) {

@@ -41,8 +41,11 @@ public final class CalhambequeTests {
         Vector3f d35 = CalhambequeGeometry.driverSeat(3.5f);
         // the cushion height the old code used (1.08 blocks at 3.5x) is kept
         Assert.isTrue(Math.abs(d35.y - 1.08f) < 0.03f, "seat height at 3.5x");
-        Assert.isTrue(d35.x < 0, "driver sits on the steering-wheel side (-X)");
+        // car-local frame: the model is drawn turned half a circle, the wheel ends up on the right
+        Assert.isTrue(d35.x > 0, "driver sits on the steering-wheel side (+X, right)");
         Assert.isTrue(d35.z < 0, "seat is behind the centre");
+        Vector3f anchor = CalhambequeGeometry.mountAnchor(d35);
+        Assert.isTrue(anchor.z > 0 && anchor.x == d35.x, "MountNPC anchor: z flipped (entity forward is -Z)");
         Vector3f p45 = CalhambequeGeometry.passengerSeat(4.5f);
         Vector3f d45 = CalhambequeGeometry.driverSeat(4.5f);
         Assert.floatEqual(p45.x, -d45.x, "passenger mirrors the driver");

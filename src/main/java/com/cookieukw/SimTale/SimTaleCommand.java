@@ -5,6 +5,7 @@ import com.cookieukw.SimTale.config.SimTaleConfig;
 import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.vehicles.CalhambequeGeometry;
+import com.cookieukw.SimTale.vehicles.CalhambequeComponent;
 import com.cookieukw.SimTale.vehicles.CalhambequeManager;
 import com.cookieukw.SimTale.logic.PlayerGenderPage;
 import com.cookieukw.SimTale.systems.FarmPostRegistry;
@@ -121,6 +122,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new CostumeSubCommand());
         this.addSubCommand(new CarSubCommand());
         this.addSubCommand(new CarExitSubCommand());
+        this.addSubCommand(new CarRemoveSubCommand());
         this.addSubCommand(new CarScaleSubCommand());
         this.addSubCommand(new CarSeatSubCommand());
         this.addSubCommand(new CatSubCommand());
@@ -274,6 +276,25 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             if (!CalhambequeManager.exitCar(store, ref, playerRef)) {
                 ctx.sendMessage(Message.raw("§e[Calhambeque] §7Você não está em nenhum carro."));
             }
+        }
+    }
+
+    private static class CarRemoveSubCommand extends AbstractPlayerCommand {
+        public CarRemoveSubCommand() {
+            super("carremove", "Puts the nearest empty Calhambeque back in your inventory");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent t = store.getComponent(ref, TransformComponent.getComponentType());
+            Ref<EntityStore> carRef = t != null ? CalhambequeManager.nearestCar(store, t.getPosition(), 12.0) : null;
+            CalhambequeComponent car = carRef != null ? store.getComponent(carRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE) : null;
+            if (car == null) {
+                ctx.sendMessage(Message.raw("§e[Calhambeque] §7Nenhum carro a menos de 12 blocos."));
+                return;
+            }
+            CalhambequeManager.pickUp(store, carRef, car, ref, playerRef);
         }
     }
 
