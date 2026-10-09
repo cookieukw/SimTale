@@ -97,6 +97,7 @@ public class SimNPCComponent implements Component<EntityStore> {
     public transient boolean dataLoaded = false;
 
     public transient boolean isInteractingViaUI = false;
+    public transient String lastDamageCause = "desconhecida";
     /**
      * Player whose interaction page is currently open, so the AI can keep the NPC turned
      * toward them. Separate from {@link #currentConversationPartner}, which the page clears on

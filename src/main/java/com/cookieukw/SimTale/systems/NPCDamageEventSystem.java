@@ -58,6 +58,22 @@ public class NPCDamageEventSystem extends DamageEventSystem {
         }
 
         Damage.Source source = event.getSource();
+        if (source instanceof Damage.EntitySource entitySource) {
+            Ref<EntityStore> attackerRef = entitySource.getRef();
+            if (attackerRef.isValid()) {
+                Player p = store.getComponent(attackerRef, Player.getComponentType());
+                if (p != null) {
+                    victimNpc.lastDamageCause = "por um jogador";
+                } else {
+                    victimNpc.lastDamageCause = "por uma entidade";
+                }
+            } else {
+                victimNpc.lastDamageCause = "por uma entidade";
+            }
+        } else {
+            victimNpc.lastDamageCause = "por " + source.getClass().getSimpleName();
+        }
+
         if (!(source instanceof Damage.EntitySource entitySource)) {
             return;
         }

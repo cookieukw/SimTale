@@ -329,6 +329,10 @@ once per NPC per tick for nothing.
                     NPCMovementHelper.clearMoveTarget(ref, ai);
                     ai.currentTask = TaskType.DYING;
                     ai.taskStartTime = world.getTick();
+                    String deathCause = npc.lastDamageCause != null ? npc.lastDamageCause : "de causas naturais";
+                    Universe.get().getPlayers().forEach(p -> {
+                        p.sendMessage(com.hypixel.hytale.server.core.Message.raw("§cO(A) aldeão(ã) " + npc.name + " morreu " + deathCause + "."));
+                    });
                     return;
                 }
             }
