@@ -451,7 +451,8 @@ final class RoutineSleepHelpers {
                  settled the question: the mount handles position and rotation, but the one that
                  lays the body down is MovementStates.sleeping plus the animation. Do not remove
                  without repeating that test.
-                NPCMovementHelper.setSleepingState(ref, store, commandBuffer, true);*/
+                 */
+                NPCMovementHelper.setSleepingState(ref, store, commandBuffer, true);
 
                 /* There is deliberately no setState("Sleep") here.
                  A call used to sit at this spot and it never did anything: our roles declare only
@@ -490,6 +491,7 @@ final class RoutineSleepHelpers {
                     // Child sharing parents' bed: if mount point is occupied, sleep alongside/on bed
                     transform.setPosition(new Vector3d(bedPos.x + 0.5, bedPos.y + 0.6, bedPos.z + 0.5));
                     NPCMovementHelper.pinLeashAt(ref, ai, transform.getPosition());
+                    NPCMovementHelper.setSleepingState(ref, store, commandBuffer, true);
                     NPCMovementHelper.playAnim(ref, AnimationSlot.Status, "Characters/Animations/Flavor/Sleep.blockyanim", "Sleep", store);
                     ai.currentTask = TaskType.SLEEPING;
                     RoutineAISystem.LOGGER.info("[SimTale] Child NPC '{}' sharing parents' bed at ({},{},{})",
