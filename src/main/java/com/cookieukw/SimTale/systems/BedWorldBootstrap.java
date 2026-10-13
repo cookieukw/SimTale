@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.systems;
 
 
 import com.cookieukw.SimTale.core.WorldUtil;
+import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -131,7 +132,7 @@ public final class BedWorldBootstrap {
         for (int x = xFrom; x <= xTo; x++) {
             for (int z = pz - radius; z <= pz + radius; z++) {
                 for (int y = Math.max(0, py - 16); y <= Math.min(319, py + 16); y++) {
-                    BlockType type = world.getBlockType(x, y, z);
+                    BlockType type = NPCMovementHelper.getBlockTypeSafe(world, x, y, z);
                     if (type == null || type.getId() == null) continue;
                     int f = flagsOf(type);
                     if (f == 0) continue;
@@ -229,11 +230,11 @@ public final class BedWorldBootstrap {
         Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
 
         float yaw = 0f;
-        if (isBed(world.getBlockType(anchor.x + 1, anchor.y, anchor.z))
-                || isBed(world.getBlockType(anchor.x - 1, anchor.y, anchor.z))) {
+        if (isBed(NPCMovementHelper.getBlockTypeSafe(world, anchor.x + 1, anchor.y, anchor.z))
+                || isBed(NPCMovementHelper.getBlockTypeSafe(world, anchor.x - 1, anchor.y, anchor.z))) {
             yaw = (float) (Math.PI / 2.0); // lying along the X axis
-        } else if (isBed(world.getBlockType(anchor.x, anchor.y, anchor.z + 1))
-                || isBed(world.getBlockType(anchor.x, anchor.y, anchor.z - 1))) {
+        } else if (isBed(NPCMovementHelper.getBlockTypeSafe(world, anchor.x, anchor.y, anchor.z + 1))
+                || isBed(NPCMovementHelper.getBlockTypeSafe(world, anchor.x, anchor.y, anchor.z - 1))) {
             yaw = 0f; // lying along the Z axis
         }
 
@@ -242,15 +243,15 @@ public final class BedWorldBootstrap {
     }
 
     public static boolean isPrimaryBedBlock(World world, int x, int y, int z) {
-        BlockType type = world.getBlockType(x, y, z);
+        BlockType type = NPCMovementHelper.getBlockTypeSafe(world, x, y, z);
         if (!isBed(type)) {
             return false;
         }
 
-        boolean posX = isBed(world.getBlockType(x + 1, y, z));
-        boolean negX = isBed(world.getBlockType(x - 1, y, z));
-        boolean posZ = isBed(world.getBlockType(x, y, z + 1));
-        boolean negZ = isBed(world.getBlockType(x, y, z - 1));
+        boolean posX = isBed(NPCMovementHelper.getBlockTypeSafe(world, x + 1, y, z));
+        boolean negX = isBed(NPCMovementHelper.getBlockTypeSafe(world, x - 1, y, z));
+        boolean posZ = isBed(NPCMovementHelper.getBlockTypeSafe(world, x, y, z + 1));
+        boolean negZ = isBed(NPCMovementHelper.getBlockTypeSafe(world, x, y, z - 1));
 
         int adjacentBeds = 0;
         if (posX) adjacentBeds++;
