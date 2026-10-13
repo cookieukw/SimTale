@@ -428,7 +428,7 @@ public class NPCWorkHelper {
                 if (blockType != null && CropRegistry.isReadyToHarvest(blockType.getId())) {
                     String cropId = blockType.getId();
                     // Replace with empty
-                    world.setBlock(cropPos.x, cropPos.y, cropPos.z, EMPTY_BLOCK);
+                    NPCMovementHelper.setBlockSafe(world, cropPos.x, cropPos.y, cropPos.z, EMPTY_BLOCK);
                     CropRegistry.removeAt(cropPos.x, cropPos.y, cropPos.z);
 
                     // Map to food item & seed item
@@ -480,7 +480,7 @@ public class NPCWorkHelper {
                         if (slot != -1) {
                             inv.removeItemStackFromSlot(slot, 1);
                             String cropBlock = getCropBlockFromSeed(seed);
-                            world.setBlock(plantPos.x, plantPos.y, plantPos.z, cropBlock);
+                            NPCMovementHelper.setBlockSafe(world, plantPos.x, plantPos.y, plantPos.z, cropBlock);
                             /* world.setBlock is a raw storage write with no event dispatch —
                             unlike a hand-placed crop (registered by BedPlaceBlockEventSystem
                             reacting to the engine's PlaceBlockEvent), this block is invisible
@@ -547,7 +547,7 @@ public class NPCWorkHelper {
                     table exists per species, and none is needed.
                     */
                     String logId = blockType.getId();
-                    world.setBlock(treePos.x, treePos.y, treePos.z, EMPTY_BLOCK);
+                    NPCMovementHelper.setBlockSafe(world, treePos.x, treePos.y, treePos.z, EMPTY_BLOCK);
                     /* The post this NPC used pointed at exactly this trunk; it's gone now, so the
                     post moves on to the nearest trunk left in range (removed only if none is).
                     */
