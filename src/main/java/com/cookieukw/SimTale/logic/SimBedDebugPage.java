@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.logic;
 
 
 import com.cookieukw.SimTale.core.SimLog;
+import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.DebugAccess;
 import com.cookieukw.SimTale.core.SimNPCComponent;
@@ -99,7 +100,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
                 BedRegistry.BEDS.removeIf(bp -> {
                     WorldChunk chunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunkFromBlock(bp.x, bp.z), WorldChunk.getComponentType());
                     if (chunk != null) {
-                        BlockType type = world.getBlockType(bp.x, bp.y, bp.z);
+                        BlockType type = NPCMovementHelper.getBlockTypeSafe(world, bp.x, bp.y, bp.z);
                         return type == null || type.getId() == null || !BedRegistry.isBedId(type.getId());
                     }
                     return false; // Keep bed if chunk is unloaded
