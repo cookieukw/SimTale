@@ -1,9 +1,11 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
+import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.cookieukw.SimTale.logic.InteractionManager;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import com.hypixel.hytale.builtin.mounts.BlockMountAPI;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
@@ -323,9 +325,9 @@ final class RoutineSleepHelpers {
             Vector3i bedPos = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
 
             // Validate bed still exists by checking the actual world block, and self-heal BedRegistry if missing
-            WorldChunk bedChunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunk(bedPos.x >> 4, bedPos.z >> 4), WorldChunk.getComponentType());
-            if (bedChunk != null) {
-                BlockType type = bedChunk.getBlockType(bedPos.x, bedPos.y, bedPos.z);
+            Ref<ChunkStore> bedSecRef = world.getChunkStore().getChunkSectionReferenceAtBlock(bedPos.x, bedPos.y, bedPos.z);
+            if (bedSecRef != null && bedSecRef.isValid()) {
+                BlockType type = NPCMovementHelper.getBlockTypeSafe(world, bedPos.x, bedPos.y, bedPos.z);
                 if (type == null || type.getId() == null || !BedRegistry.isBedId(type.getId())) {
                     // Chunk loaded but bed block is gone — destroyed
                     RoutineAISystem.LOGGER.info("[SimTale] NPC '{}' bed at ({},{},{}) was destroyed. Releasing.", npc.name, bedPos.x, bedPos.y, bedPos.z);
