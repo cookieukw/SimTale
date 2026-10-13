@@ -23,7 +23,8 @@ import com.cookieukw.SimTale.core.SimLog;
 
 import com.hypixel.hytale.server.npc.role.support.StateSupport;
 import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import java.util.Objects;
 
 public class NPCMovementHelper {
@@ -345,9 +346,18 @@ public class NPCMovementHelper {
 
     public static BlockType getBlockTypeSafe(World world, int x, int y, int z) {
         if (world == null) return null;
-        long chunkIndex = ChunkUtil.indexChunkFromBlock(x, z);
-        WorldChunk chunk = world.getChunkIfLoaded(chunkIndex);
-        return chunk != null ? chunk.getBlockType(x, y, z) : null;
+        try {
+            ChunkStore chunkStore = world.getChunkStore();
+            Ref<ChunkStore> secRef = chunkStore.getChunkSectionReferenceAtBlock(x, y, z);
+            if (secRef == null || !secRef.isValid()) return null;
+            BlockSection section = secRef.getStore().getComponent(secRef, BlockSection.getComponentType());
+            if (section == null) return null;
+            int blockId = section.get(x, y, z);
+            if (blockId == 0) return null;
+            return BlockType.getAssetMap().getAsset(blockId);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static BlockType getBlockTypeSafe(World world, Vector3i pos) {
