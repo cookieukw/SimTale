@@ -29,8 +29,9 @@ import com.hypixel.hytale.server.core.modules.entity.player.PlayerSystems;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
@@ -386,7 +387,8 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
         for (double[] p : footprint(scale)) {
             int bx = (int) Math.floor(CalhambequeGeometry.toWorldX(x, yaw, p[0], p[1]));
             int bz = (int) Math.floor(CalhambequeGeometry.toWorldZ(z, yaw, p[0], p[1]));
-            if (world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(bx, bz)) == null) return false;
+            Ref<ChunkStore> secRef = world.getChunkStore().getChunkSectionReferenceAtBlock(bx, 64, bz);
+            if (secRef == null || !secRef.isValid()) return false;
         }
         return true;
     }
@@ -458,10 +460,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
 
     static boolean isObstacle(World world, int x, int y, int z) {
         if (world == null) return false;
-        long chunkIndex = ChunkUtil.indexChunkFromBlock(x, z);
-        WorldChunk chunk = world.getChunkIfLoaded(chunkIndex);
-        if (chunk == null) return false;
-        BlockType bt = chunk.getBlockType(x, y, z);
+        BlockType bt = NPCMovementHelper.getBlockTypeSafe(world, x, y, z);
         if (bt == null) return false;
         if (bt.getMaterial() == BlockMaterial.Solid) return true;
         if (bt.getBeds() != null || bt.getSeats() != null || bt.isDoor()) return true;
@@ -483,10 +482,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
 
     private static boolean canStepUp(World world, int x, int footY, int z) {
         if (world == null) return false;
-        long chunkIndex = ChunkUtil.indexChunkFromBlock(x, z);
-        WorldChunk chunk = world.getChunkIfLoaded(chunkIndex);
-        if (chunk == null) return false;
-        BlockType bt = chunk.getBlockType(x, footY, z);
+        BlockType bt = NPCMovementHelper.getBlockTypeSafe(world, x, footY, z);
         if (bt == null) return false;
         // Never step-climb onto beds, chairs, or furniture
         if (bt.getBeds() != null || bt.getSeats() != null || bt.isDoor()) return false;
