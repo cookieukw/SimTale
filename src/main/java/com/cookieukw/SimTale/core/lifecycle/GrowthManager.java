@@ -433,6 +433,7 @@ public class GrowthManager {
         already cleans up every other kind of stale crystal.
         */
         PlumbobSystem.removePlumbob(oldChildId);
+        com.cookieukw.SimTale.systems.EmoteBubbleSystem.removeThought(oldChildId);
         
         SimNPCComponent teenNpc = store.getComponent(teenRef, SimTale.SIM_NPC_COMPONENT_TYPE);
         if (teenNpc != null) {

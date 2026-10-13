@@ -187,6 +187,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
                 LOGGER.info("[SimTale] Reaper orfa encontrada apos reload (isReaper perdido no restart) — removendo em vez de deixa-la como NPC comum");
                 SimTale.untrackNpc(npc);
                 PlumbobSystem.removePlumbob(npc.entityId);
+                EmoteBubbleSystem.removeThought(npc.entityId);
                 commandBuffer.removeEntity(selfRef, RemoveReason.REMOVE);
                 return;
             }
@@ -204,7 +205,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         (no armour ever given, or already equipped correctly).
         */
         if (npc.entityId != null && Math.floorMod(absoluteTick + npc.entityId.hashCode() + 1, 200) == 0) {
-            NPCArmorHelper.ensureArmorEquipped(npc.entityRef, npc, store);
+            NPCArmorHelper.ensureArmorEquipped(npc.entityRef, npc, store, commandBuffer);
         }
 
         // Daily natural pregnancy check for married female NPCs

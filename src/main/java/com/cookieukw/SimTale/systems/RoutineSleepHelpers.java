@@ -1,9 +1,11 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
+import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.cookieukw.SimTale.logic.InteractionManager;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import com.hypixel.hytale.builtin.mounts.BlockMountAPI;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
@@ -323,9 +325,9 @@ final class RoutineSleepHelpers {
             Vector3i bedPos = new Vector3i(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
 
             // Validate bed still exists by checking the actual world block, and self-heal BedRegistry if missing
-            WorldChunk bedChunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunk(bedPos.x >> 4, bedPos.z >> 4), WorldChunk.getComponentType());
-            if (bedChunk != null) {
-                BlockType type = bedChunk.getBlockType(bedPos.x, bedPos.y, bedPos.z);
+            Ref<ChunkStore> bedSecRef = world.getChunkStore().getChunkSectionReferenceAtBlock(bedPos.x, bedPos.y, bedPos.z);
+            if (bedSecRef != null && bedSecRef.isValid()) {
+                BlockType type = NPCMovementHelper.getBlockTypeSafe(world, bedPos.x, bedPos.y, bedPos.z);
                 if (type == null || type.getId() == null || !BedRegistry.isBedId(type.getId())) {
                     // Chunk loaded but bed block is gone — destroyed
                     RoutineAISystem.LOGGER.info("[SimTale] NPC '{}' bed at ({},{},{}) was destroyed. Releasing.", npc.name, bedPos.x, bedPos.y, bedPos.z);
@@ -451,7 +453,8 @@ final class RoutineSleepHelpers {
                  settled the question: the mount handles position and rotation, but the one that
                  lays the body down is MovementStates.sleeping plus the animation. Do not remove
                  without repeating that test.
-                NPCMovementHelper.setSleepingState(ref, store, commandBuffer, true);*/
+                 */
+                NPCMovementHelper.setSleepingState(ref, store, commandBuffer, true);
 
                 /* There is deliberately no setState("Sleep") here.
                  A call used to sit at this spot and it never did anything: our roles declare only
@@ -490,6 +493,7 @@ final class RoutineSleepHelpers {
                     // Child sharing parents' bed: if mount point is occupied, sleep alongside/on bed
                     transform.setPosition(new Vector3d(bedPos.x + 0.5, bedPos.y + 0.6, bedPos.z + 0.5));
                     NPCMovementHelper.pinLeashAt(ref, ai, transform.getPosition());
+                    NPCMovementHelper.setSleepingState(ref, store, commandBuffer, true);
                     NPCMovementHelper.playAnim(ref, AnimationSlot.Status, "Characters/Animations/Flavor/Sleep.blockyanim", "Sleep", store);
                     ai.currentTask = TaskType.SLEEPING;
                     RoutineAISystem.LOGGER.info("[SimTale] Child NPC '{}' sharing parents' bed at ({},{},{})",

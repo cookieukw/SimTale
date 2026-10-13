@@ -1,0 +1,286 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Chest",
+      "position": {"x": 0, "y": 68, "z": -3},
+      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+      "shape": {
+        "type": "none",
+        "offset": {"x": 0, "y": 11, "z": 3},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "Head",
+          "position": {"x": 0, "y": 12, "z": -2},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 15, "z": 3},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": true
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "3",
+              "name": "Scarf",
+              "position": {"x": 0, "y": -26.10199, "z": -4.2167},
+              "orientation": {"x": 0.04362, "y": 0, "z": 0, "w": 0.99905},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": 15, "z": 3},
+                "stretch": {"x": 1.06, "y": 1, "z": 1.173},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 31, "y": 11, "z": 28}
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 0, "y": 58},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 32, "y": 20},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 0, "y": 23},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 60, "y": 20},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "4",
+                  "name": "R_String",
+                  "position": {"x": -12, "y": -5.5, "z": 16},
+                  "orientation": {"x": -0.08716, "y": 0, "z": 0, "w": 0.99619},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 1, "y": -9, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 8, "y": 18},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 32, "y": 68},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "5",
+                      "name": "R_Ring",
+                      "position": {"x": -1, "y": -7, "z": 0},
+                      "orientation": {"x": -0.00092, "y": -0.02616, "z": 0.03489, "w": 0.99905},
+                      "shape": {
+                        "type": "none",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false
+                        },
+                        "textureLayout": {},
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "6",
+                  "name": "L_String",
+                  "position": {"x": 12, "y": -5.5, "z": 16},
+                  "orientation": {"x": -0.08716, "y": 0, "z": 0, "w": 0.99619},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": -1, "y": -9, "z": 0},
+                    "stretch": {"x": -1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 8, "y": 18},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 32, "y": 68},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "7",
+                      "name": "L_Ring",
+                      "position": {"x": 1, "y": -7, "z": 0},
+                      "orientation": {"x": -0.0197, "y": 0.05152, "z": -0.04264, "w": 0.99757},
+                      "shape": {
+                        "type": "none",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false
+                        },
+                        "textureLayout": {},
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "8",
+              "name": "Helmet",
+              "position": {"x": 0, "y": -11, "z": -3},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": 15, "z": 3},
+                "stretch": {"x": 1.06463, "y": 1, "z": 1.16518},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 31, "y": 23, "z": 29}
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 0, "y": 38},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 31, "y": 0},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 0, "y": 0},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 60, "y": 0},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 32, "y": 65},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "9",
+                  "name": "HoodieEnd",
+                  "position": {"x": 0.0924, "y": 3.20587, "z": -9.62786},
+                  "orientation": {"x": -0.54055, "y": -0.23742, "z": -0.32941, "w": 0.73684},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0.45452, "y": -0.45452, "z": 0.76605},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 20, "y": 20, "z": 16}
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 41, "y": 75},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 35, "y": 5},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {"x": 33, "y": 37},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 51, "y": 16},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 90
+                      },
+                      "top": {
+                        "offset": {"x": 40, "y": 16},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 35, "y": 5},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

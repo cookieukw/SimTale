@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.cookieukw.SimTale.animals.WhiteCatManager;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.vehicles.CalhambequeComponent;
@@ -200,7 +201,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         */
         Vector3i confirmTarget = event.getTargetBlock();
         if (confirmTarget != null) {
-            BlockType confirmType = world.getBlockType(confirmTarget.x, confirmTarget.y, confirmTarget.z);
+            BlockType confirmType = NPCMovementHelper.getBlockTypeSafe(world, confirmTarget.x, confirmTarget.y, confirmTarget.z);
             /* Same tolerant match the placement half uses — an exact equals here would confirm
             nothing for exactly the ids that the placement half already failed to recognise.
             */

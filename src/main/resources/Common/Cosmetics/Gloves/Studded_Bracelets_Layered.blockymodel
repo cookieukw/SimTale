@@ -1,0 +1,426 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "R-Forearm",
+      "position": {"x": -19, "y": 4, "z": -2},
+      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+      "shape": {
+        "type": "none",
+        "offset": {"x": 0, "y": 0, "z": 0},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "R-Glove",
+          "position": {"x": 0, "y": 3.635, "z": 0.046},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "box",
+            "offset": {"x": 0, "y": -5.5, "z": 0},
+            "stretch": {"x": 1.1, "y": 1.1, "z": 1.1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 8, "y": 7, "z": 12}
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {"x": 0, "y": 22},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "right": {
+                "offset": {"x": 0, "y": 13},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "front": {
+                "offset": {"x": 0, "y": 22},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "left": {
+                "offset": {"x": 0, "y": 13},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "top": {
+                "offset": {"x": 8, "y": 12},
+                "mirror": {"x": true, "y": true},
+                "angle": 0
+              },
+              "bottom": {
+                "offset": {"x": 8, "y": 12},
+                "mirror": {"x": true, "y": true},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "3",
+              "name": "R-Glove--C1",
+              "position": {"x": 0, "y": 7.5, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": 0.04362, "w": 0.99905},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1.1, "y": 1.1, "z": 1.1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 8, "y": 4, "z": 12},
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 13, "y": 17},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 13, "y": 13},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 13, "y": 17},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 13, "y": 13},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 8, "y": 12},
+                    "mirror": {"x": true, "y": true},
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {"x": 8, "y": 12},
+                    "mirror": {"x": true, "y": true},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "4",
+              "name": "R-Glove--C2",
+              "position": {"x": 0, "y": 7.5, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": 0.04362, "w": 0.99905},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0, "y": -0.4, "z": 3.25},
+                "stretch": {"x": 1.1, "y": 0.775, "z": 1.1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 14, "y": 4},
+                  "normal": "-Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 9, "y": 27},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "5",
+              "name": "R-Glove--C3",
+              "position": {"x": 0, "y": 7.5, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": 0.04362, "w": 0.99905},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0, "y": -0.4, "z": -3.25},
+                "stretch": {"x": 1.1, "y": 0.775, "z": 1.1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 14, "y": 4},
+                  "normal": "-Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 9, "y": 27},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "6",
+              "name": "R-Glove--C4",
+              "position": {"x": 0, "y": 7.5, "z": 0},
+              "orientation": {"x": -0.03084, "y": 0.70643, "z": 0.03084, "w": 0.70643},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0, "y": 0.25, "z": -0.1},
+                "stretch": {"x": 1.1, "y": 0.775, "z": 1.1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 18, "y": 4},
+                  "normal": "-Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 9, "y": 22},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "name": "L-Forearm",
+      "position": {"x": 19, "y": 4, "z": -2},
+      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+      "shape": {
+        "type": "none",
+        "offset": {"x": 0, "y": 0, "z": 0},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "8",
+          "name": "L-Glove",
+          "position": {"x": 0, "y": 3.635, "z": 0.046},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "box",
+            "offset": {"x": 0, "y": -6, "z": 0},
+            "stretch": {"x": 1.1, "y": 1.1, "z": 1.1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 8, "y": 4, "z": 12}
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {"x": 8, "y": 22},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              },
+              "right": {
+                "offset": {"x": 12, "y": 13},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              },
+              "front": {
+                "offset": {"x": 8, "y": 22},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              },
+              "left": {
+                "offset": {"x": 12, "y": 13},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              },
+              "top": {
+                "offset": {"x": 0, "y": 12},
+                "mirror": {"x": false, "y": true},
+                "angle": 0
+              },
+              "bottom": {
+                "offset": {"x": 0, "y": 12},
+                "mirror": {"x": false, "y": true},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "9",
+              "name": "L-Glove--C1",
+              "position": {"x": 0, "y": 6, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": -0.04362, "w": 0.99905},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1.1, "y": 1.1, "z": 1.1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 8, "y": 4, "z": 12},
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 21, "y": 17},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 25, "y": 13},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 21, "y": 17},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 25, "y": 13},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 0, "y": 12},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {"x": 0, "y": 12},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "10",
+              "name": "L-Glove--C2",
+              "position": {"x": 0, "y": 6, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": -0.04362, "w": 0.99905},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0, "y": -0.4, "z": 3.25},
+                "stretch": {"x": 1.1, "y": 0.775, "z": 1.1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 14, "y": 4},
+                  "normal": "-Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 23, "y": 27},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "11",
+              "name": "L-Glove--C3",
+              "position": {"x": 0, "y": 6, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": -0.04362, "w": 0.99905},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0, "y": -0.4, "z": -3.25},
+                "stretch": {"x": 1.1, "y": 0.775, "z": 1.1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 14, "y": 4},
+                  "normal": "-Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 23, "y": 27},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "12",
+              "name": "L-Glove--C4",
+              "position": {"x": 0, "y": 6, "z": 0},
+              "orientation": {"x": -0.03084, "y": -0.70643, "z": -0.03084, "w": 0.70643},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0, "y": 0.25, "z": 0},
+                "stretch": {"x": 1.1, "y": 0.775, "z": 1.1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 18, "y": 4},
+                  "normal": "-Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 27, "y": 22},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

@@ -1,0 +1,97 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Head",
+      "position": {"x": 0.21794, "y": 100.71514, "z": -14},
+      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+      "shape": {
+        "type": "none",
+        "offset": {"x": 0, "y": 0, "z": 0},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "Plaster",
+          "position": {"x": 8.85, "y": -8.50816, "z": 14.26873},
+          "orientation": {"x": 0, "y": 0, "z": 0.04362, "w": 0.99905},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 0, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          }
+        },
+        {
+          "id": "3",
+          "name": "Piercing",
+          "position": {"x": -16.71794, "y": -100.71514, "z": 14},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "box",
+            "offset": {"x": 24.61794, "y": 91.20698, "z": -0.48127},
+            "stretch": {"x": 0.9125, "y": 0.9125, "z": 0.9125},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 2, "y": 2, "z": 2}
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {"x": 6, "y": 1},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "right": {
+                "offset": {"x": 2, "y": 1},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "front": {
+                "offset": {"x": 4, "y": 1},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "left": {
+                "offset": {"x": 4, "y": 3},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              },
+              "top": {
+                "offset": {"x": 4, "y": 3},
+                "mirror": {"x": true, "y": false},
+                "angle": 90
+              },
+              "bottom": {
+                "offset": {"x": 4, "y": 5},
+                "mirror": {"x": true, "y": false},
+                "angle": 180
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "standard"
+          }
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

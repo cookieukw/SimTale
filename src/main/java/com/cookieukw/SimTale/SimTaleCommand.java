@@ -4,6 +4,8 @@ import com.cookieukw.SimTale.animals.WhiteCatManager;
 import com.cookieukw.SimTale.config.SimTaleConfig;
 import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.core.Profession;
+import com.cookieukw.SimTale.vehicles.CalhambequeGeometry;
+import com.cookieukw.SimTale.vehicles.CalhambequeComponent;
 import com.cookieukw.SimTale.vehicles.CalhambequeManager;
 import com.cookieukw.SimTale.logic.PlayerGenderPage;
 import com.cookieukw.SimTale.systems.FarmPostRegistry;
@@ -119,6 +121,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new SocialTestCommands.TestProposeSubCommand());
         this.addSubCommand(new CostumeSubCommand());
         this.addSubCommand(new CarSubCommand());
+        this.addSubCommand(new CarExitSubCommand());
+        this.addSubCommand(new CarRemoveSubCommand());
+        this.addSubCommand(new CarScaleSubCommand());
+        this.addSubCommand(new CarSpeedSubCommand());
+        this.addSubCommand(new CarSeatSubCommand());
         this.addSubCommand(new CatSubCommand());
     }
 
@@ -255,6 +262,123 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             } else {
                 ctx.sendMessage(Message.raw("§c[SimTale] Falha ao invocar o Calhambeque."));
             }
+        }
+    }
+
+    /** Way out of the car that works whatever the client does with jump/crouch. */
+    private static class CarExitSubCommand extends AbstractPlayerCommand {
+        public CarExitSubCommand() {
+            super("carexit", "Gets you out of the Calhambeque");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            if (!CalhambequeManager.exitCar(store, ref, playerRef)) {
+                ctx.sendMessage(Message.raw("§e[Calhambeque] §7Você não está em nenhum carro."));
+            }
+        }
+    }
+
+    private static class CarRemoveSubCommand extends AbstractPlayerCommand {
+        public CarRemoveSubCommand() {
+            super("carremove", "Puts the nearest empty Calhambeque back in your inventory");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent t = store.getComponent(ref, TransformComponent.getComponentType());
+            Ref<EntityStore> carRef = t != null ? CalhambequeManager.nearestCar(store, t.getPosition(), 12.0) : null;
+            CalhambequeComponent car = carRef != null ? store.getComponent(carRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE) : null;
+            if (car == null) {
+                ctx.sendMessage(Message.raw("§e[Calhambeque] §7Nenhum carro a menos de 12 blocos."));
+                return;
+            }
+            CalhambequeManager.pickUp(store, carRef, car, ref, playerRef);
+        }
+    }
+
+    /* Tuning commands for the car's size and seat, applied live to every car and rider.
+    Whole numbers only: the Hytale argument parser rejects a decimal point (see setmood). They are
+    not saved; once the values look right they go into CalhambequeGeometry's defaults. */
+
+    private static class CarScaleSubCommand extends AbstractPlayerCommand {
+        private final RequiredArg<String> percentArg;
+
+        public CarScaleSubCommand() {
+            super("carscale", "Resizes every Calhambeque, in percent (350 = 3.5x)");
+            this.percentArg = this.withRequiredArg("percent", "100 a 1000 (padrão 350)", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            int percent;
+            try {
+                percent = Integer.parseInt(ctx.get(this.percentArg).trim());
+            } catch (NumberFormatException e) {
+                ctx.sendMessage(Message.raw("§cUse um número inteiro, ex.: /simtale carscale 350"));
+                return;
+            }
+            CalhambequeGeometry.setScale(percent / 100f);
+            ctx.sendMessage(Message.raw("§6[Calhambeque] §aTamanho: " + Math.round(CalhambequeGeometry.scale() * 100)
+                    + "% (padrão " + Math.round(CalhambequeGeometry.DEFAULT_SCALE * 100) + "%)."));
+        }
+    }
+
+    private static class CarSpeedSubCommand extends AbstractPlayerCommand {
+        private final RequiredArg<String> percentArg;
+
+        public CarSpeedSubCommand() {
+            super("carspeed", "Changes every Calhambeque's top speed and acceleration, in percent (100 = default)");
+            this.percentArg = this.withRequiredArg("percent", "25 a 400 (padrão 100)", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            int percent;
+            try {
+                percent = Integer.parseInt(ctx.get(this.percentArg).trim());
+            } catch (NumberFormatException e) {
+                ctx.sendMessage(Message.raw("§cUse um número inteiro, ex.: /simtale carspeed 150"));
+                return;
+            }
+            CalhambequeGeometry.setSpeedPercent(percent);
+            ctx.sendMessage(Message.raw("§6[Calhambeque] §aVelocidade: " + CalhambequeGeometry.speedPercent()
+                    + "% (padrão " + CalhambequeGeometry.DEFAULT_SPEED_PERCENT + "%)."));
+        }
+    }
+
+    private static class CarSeatSubCommand extends AbstractPlayerCommand {
+        private final RequiredArg<String> sideArg;
+        private final RequiredArg<String> heightArg;
+        private final RequiredArg<String> backArg;
+
+        public CarSeatSubCommand() {
+            super("carseat", "Moves the Calhambeque seats (model units, 64 = 1 block at 1x)");
+            this.sideArg = this.withRequiredArg("side", "do centro até o lado do volante (padrão 7)", ArgTypes.STRING);
+            this.heightArg = this.withRequiredArg("height", "altura do assento (padrão 20)", ArgTypes.STRING);
+            this.backArg = this.withRequiredArg("back", "para trás do centro (padrão 15)", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            int side, height, back;
+            try {
+                side = Integer.parseInt(ctx.get(this.sideArg).trim());
+                height = Integer.parseInt(ctx.get(this.heightArg).trim());
+                back = Integer.parseInt(ctx.get(this.backArg).trim());
+            } catch (NumberFormatException e) {
+                ctx.sendMessage(Message.raw("§cUse três números inteiros, ex.: /simtale carseat 7 20 15"));
+                return;
+            }
+            CalhambequeGeometry.setSeat(side, height, back);
+            ctx.sendMessage(Message.raw("§6[Calhambeque] §aAssento: lado " + side + ", altura " + height
+                    + ", trás " + back + " (padrão " + CalhambequeGeometry.DEFAULT_SEAT_SIDE + " "
+                    + CalhambequeGeometry.DEFAULT_SEAT_HEIGHT + " " + CalhambequeGeometry.DEFAULT_SEAT_BACK + ")."));
         }
     }
 
@@ -421,6 +545,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     count++;
                 }
                 PlumbobSystem.removePlumbob(npc.entityId);
+                com.cookieukw.SimTale.systems.EmoteBubbleSystem.removeThought(npc.entityId);
                 /* Buried, not deleted. Everything the Reaper collects ends up in the graveyard and
                 can be brought back; clearing the village by command used to be the one way to
                 destroy an NPC outright, which made it a trap — one command and a whole village

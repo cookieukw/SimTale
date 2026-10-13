@@ -23,7 +23,9 @@ import com.cookieukw.SimTale.core.SimLog;
 
 import com.hypixel.hytale.server.npc.role.support.StateSupport;
 import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
+import com.hypixel.hytale.server.core.universe.world.chunk.BlockOperations;
 import java.util.Objects;
 
 public class NPCMovementHelper {
@@ -345,14 +347,62 @@ public class NPCMovementHelper {
 
     public static BlockType getBlockTypeSafe(World world, int x, int y, int z) {
         if (world == null) return null;
-        long chunkIndex = ChunkUtil.indexChunkFromBlock(x, z);
-        WorldChunk chunk = world.getChunkIfLoaded(chunkIndex);
-        return chunk != null ? chunk.getBlockType(x, y, z) : null;
+        try {
+            ChunkStore chunkStore = world.getChunkStore();
+            Ref<ChunkStore> secRef = chunkStore.getChunkSectionReferenceAtBlock(x, y, z);
+            if (secRef == null || !secRef.isValid()) return null;
+            BlockSection section = secRef.getStore().getComponent(secRef, BlockSection.getComponentType());
+            if (section == null) return null;
+            int blockId = section.get(x, y, z);
+            if (blockId == 0) return null;
+            return BlockType.getAssetMap().getAsset(blockId);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static BlockType getBlockTypeSafe(World world, Vector3i pos) {
         if (pos == null) return null;
         return getBlockTypeSafe(world, pos.x, pos.y, pos.z);
+    }
+
+    public static boolean setBlockSafe(World world, int x, int y, int z, String blockName, int rotation) {
+        if (world == null) return false;
+        try {
+            ChunkStore chunkStore = world.getChunkStore();
+            Ref<ChunkStore> secRef = chunkStore.getChunkSectionReferenceAtBlock(x, y, z);
+            if (secRef == null || !secRef.isValid()) return false;
+            if (blockName == null || blockName.isEmpty() || "Empty".equalsIgnoreCase(blockName)) {
+                return BlockOperations.setBlock(chunkStore, secRef, x, y, z, 0, BlockType.EMPTY, 0, 0, 0);
+            }
+            int blockId = BlockType.getAssetMap().getIndex(blockName);
+            if (blockId == 0) {
+                return BlockOperations.setBlock(chunkStore, secRef, x, y, z, 0, BlockType.EMPTY, 0, 0, 0);
+            }
+            BlockType bt = BlockType.getAssetMap().getAsset(blockId);
+            return BlockOperations.setBlock(chunkStore, secRef, x, y, z, blockId, bt, rotation, 0, 0);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean setBlockSafe(World world, int x, int y, int z, String blockName) {
+        return setBlockSafe(world, x, y, z, blockName, 0);
+    }
+
+    public static void setBlockInteractionStateSafe(World world, int x, int y, int z, BlockType blockType, String state) {
+        if (world == null || blockType == null) return;
+        try {
+            ChunkStore chunkStore = world.getChunkStore();
+            Ref<ChunkStore> secRef = chunkStore.getChunkSectionReferenceAtBlock(x, y, z);
+            if (secRef == null || !secRef.isValid()) return;
+            BlockOperations.setBlockInteractionState(chunkStore, secRef, x, y, z, blockType, state, true);
+        } catch (Exception ignored) {}
+    }
+
+    public static void setBlockInteractionStateSafe(World world, Vector3i pos, BlockType blockType, String state) {
+        if (pos == null) return;
+        setBlockInteractionStateSafe(world, pos.x, pos.y, pos.z, blockType, state);
     }
 
     public static boolean isPassable(BlockType type) {

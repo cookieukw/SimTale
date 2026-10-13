@@ -291,7 +291,7 @@ final class DebugCommands {
                 for (int dy = -1; dy <= 2; dy++) {
                     for (int dz = -1; dz <= 1; dz++) {
                         int bx = px + dx, by = py + dy, bz = pz + dz;
-                        BlockType type = world.getBlockType(bx, by, bz);
+                        BlockType type = NPCMovementHelper.getBlockTypeSafe(world, bx, by, bz);
                         if (type == null || type.getId() == null || type.getId().equalsIgnoreCase("Empty")) {
                             continue;
                         }

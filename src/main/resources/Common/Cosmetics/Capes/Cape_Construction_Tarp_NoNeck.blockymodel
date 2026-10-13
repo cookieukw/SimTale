@@ -1,0 +1,389 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Chest",
+      "position": {"x": 0, "y": 23, "z": 3},
+      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+      "shape": {
+        "type": "none",
+        "offset": {"x": 0, "y": 11, "z": 0},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "Collar",
+          "position": {"x": 0, "y": 12.026, "z": 4},
+          "orientation": {"x": 0.05783, "y": 0, "z": 0, "w": 0.99833},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 0, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "3",
+              "name": "FrontFlap",
+              "position": {"x": 0, "y": -5, "z": 15},
+              "orientation": {"x": -0.13053, "y": 0, "z": 0, "w": 0.99144},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": -5, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "4",
+              "name": "Cape1",
+              "position": {"x": 0, "y": -5, "z": -15},
+              "orientation": {"x": 0.10227, "y": 0, "z": 0, "w": 0.99476},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": -7, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "5",
+              "name": "cube--C1",
+              "position": {"x": -15.5, "y": -6.026, "z": -15},
+              "orientation": {"x": 0.08714, "y": -0.0019, "z": 0.02173, "w": 0.99596},
+              "shape": {
+                "type": "box",
+                "offset": {"x": -0.45821, "y": 1.45725, "z": 0.21379},
+                "stretch": {"x": 0.875, "y": 1.025, "z": 1.025},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 3, "y": 7, "z": 7},
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 58, "y": 93},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 66, "y": 84},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 0, "y": 89},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 66, "y": 84},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 61, "y": 110},
+                    "mirror": {"x": true, "y": true},
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {"x": 6, "y": 89},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "6",
+              "name": "cube--C2",
+              "position": {"x": 15.5, "y": -6.026, "z": -15},
+              "orientation": {"x": 0.08714, "y": 0.0019, "z": -0.02173, "w": 0.99596},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0.45821, "y": 1.45725, "z": 0.21379},
+                "stretch": {"x": 0.875, "y": 1.025, "z": 1.025},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 3, "y": 7, "z": 7},
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 61, "y": 93},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 59, "y": 84},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 3, "y": 89},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 59, "y": 84},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 58, "y": 110},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {"x": 3, "y": 89},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            }
+          ]
+        },
+        {
+          "id": "7",
+          "name": "Cape1",
+          "position": {"x": 0, "y": 9.5, "z": -10.6},
+          "orientation": {"x": 0.08716, "y": 0, "z": 0, "w": 0.99619},
+          "shape": {
+            "type": "quad",
+            "offset": {"x": 0, "y": -13.0152, "z": -0.17367},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 44, "y": 28},
+              "normal": "+Z"
+            },
+            "textureLayout": {
+              "front": {
+                "offset": {"x": 128, "y": 0},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "8",
+              "name": "Cape2--C1",
+              "position": {"x": 0, "y": 0, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0, "y": 0.08683, "z": 0.4924},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 44, "y": 28},
+                  "normal": "+Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 173, "y": 0},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "9",
+              "name": "Cape2",
+              "position": {"x": 0, "y": -14.9848, "z": 0.17367},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0, "y": -13.0152, "z": -0.17367},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 44, "y": 28},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 128, "y": 28},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "10",
+                  "name": "Cape3--C1",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0.08683, "z": 0.4924},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 44, "y": 28},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 173, "y": 28},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "11",
+                  "name": "Cape3",
+                  "position": {"x": 0, "y": -14.9848, "z": 0.17367},
+                  "orientation": {"x": 0.08716, "y": 0, "z": 0, "w": 0.99619},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": -14.06032, "z": -0.34205},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 44, "y": 30},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 128, "y": 56},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "12",
+                      "name": "Cape4--C1",
+                      "position": {"x": 0, "y": 0, "z": 0},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 0, "y": 0.17103, "z": 0.46984},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 44, "y": 30},
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 173, "y": 56},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "13",
+                      "name": "Cape4--C2",
+                      "position": {"x": -12.9, "y": 3.88532, "z": 0.84205},
+                      "orientation": {"x": 0.18307, "y": -0.16952, "z": -0.02597, "w": 0.96803},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": -0.21458, "y": 0.75118, "z": -0.62424},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 19, "y": 19},
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 128, "y": 91},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

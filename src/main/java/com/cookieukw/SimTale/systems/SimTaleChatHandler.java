@@ -67,6 +67,9 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
         return baseKey + "." + tier.translationKey + "." + (1 + (int) (Math.random() * variants));
     }
 
+    /** Worlds whose NPC roster reassembly was already queued from chat (see accept). */
+    private static final java.util.Set<String> REASSEMBLED_WORLDS = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
     @Override
     public void accept(PlayerChatEvent event) {
         PlayerRef sender = event.getSender();
@@ -83,9 +86,13 @@ public class SimTaleChatHandler implements Consumer<PlayerChatEvent> {
             return;
         }
 
-        // Fallback: If the list is empty after reloading the server, try to reassemble the NPCs
-        if (SimTale.ACTIVE_NPCS.isEmpty()) {
-            SimNPCPersistence.reassembleActiveNPCs(world);
+        /* Fallback: if the list is empty after reloading the server, try to reassemble the NPCs.
+        Once per world, and on the world thread: chat arrives on the networking thread, and
+        reassembly adds components to the store; it also reloads the whole DB, which used to
+        happen again on every chat line in a world that simply has no NPCs.
+        */
+        if (SimTale.ACTIVE_NPCS.isEmpty() && REASSEMBLED_WORLDS.add(world.getName())) {
+            world.execute(() -> SimNPCPersistence.reassembleActiveNPCs(world));
         }
 
         final SimNPCComponent targetNpc = findTargetNpc(sender, message);

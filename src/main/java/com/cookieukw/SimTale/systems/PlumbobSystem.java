@@ -146,6 +146,14 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
             return;
         }
 
+        /* A player in a Calhambeque has no MountedComponent (NPC mounts work differently), and the
+        crystal trailed behind the car, then glitched after getting out. Hidden while riding; a
+        fresh one spawns over the player once out. */
+        if (isPlayer && com.cookieukw.SimTale.vehicles.CalhambequeManager.isRiding(entityUuid)) {
+            despawnPlumbob(entityUuid, commandBuffer);
+            return;
+        }
+
         TransformComponent entityTransform = chunk.getComponent(index, TransformComponent.getComponentType());
         if (entityTransform == null) return;
         

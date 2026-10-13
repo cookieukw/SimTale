@@ -1,0 +1,297 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "R-Ear-Attachment",
+      "position": {"x": -15, "y": 102, "z": 0},
+      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+      "shape": {
+        "type": "none",
+        "offset": {"x": 0, "y": 0, "z": 0},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "R-Ear-EarAccessory",
+          "position": {"x": -2, "y": -3.589, "z": 0},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 0, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": true
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "3",
+              "name": "HoopInner",
+              "position": {"x": 0, "y": 0, "z": 0},
+              "orientation": {"x": -0.38268, "y": 0, "z": 0, "w": 0.92388},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": -2.00002, "z": -2},
+                "stretch": {"x": -1.25, "y": -1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 1, "y": 5, "z": 5}
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 5, "y": 4},
+                    "mirror": {"x": true, "y": true},
+                    "angle": 270
+                  },
+                  "front": {
+                    "offset": {"x": 5, "y": 0},
+                    "mirror": {"x": true, "y": true},
+                    "angle": 270
+                  },
+                  "top": {
+                    "offset": {"x": 5, "y": 5},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 180
+                  },
+                  "bottom": {
+                    "offset": {"x": 0, "y": 0},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "4",
+                  "name": "Hoops",
+                  "position": {"x": 0, "y": 2.00002, "z": 2},
+                  "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": -2.00002, "z": -2},
+                    "stretch": {"x": -1.25, "y": -1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 1, "y": 7, "z": 7}
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 7, "y": 12},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 270
+                      },
+                      "right": {
+                        "offset": {"x": 7, "y": 6},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 270
+                      },
+                      "front": {
+                        "offset": {"x": 7, "y": 6},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 270
+                      },
+                      "left": {
+                        "offset": {"x": 7, "y": 6},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 270
+                      },
+                      "top": {
+                        "offset": {"x": 7, "y": 13},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 180
+                      },
+                      "bottom": {
+                        "offset": {"x": 0, "y": 6},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "5",
+                      "name": "Bead",
+                      "position": {"x": -1, "y": 0.99999, "z": 0.99999},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": 1, "y": -4.0613, "z": -4.06147},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 2, "y": 2, "z": 2}
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 7, "y": 3},
+                            "mirror": {"x": true, "y": true},
+                            "angle": 270
+                          },
+                          "right": {
+                            "offset": {"x": 7, "y": 5},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 180
+                          },
+                          "front": {
+                            "offset": {"x": 7, "y": 5},
+                            "mirror": {"x": true, "y": true},
+                            "angle": 90
+                          },
+                          "left": {
+                            "offset": {"x": 9, "y": 5},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 180
+                          },
+                          "top": {
+                            "offset": {"x": 7, "y": 3},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {"x": 7, "y": 5},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 180
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "6",
+                      "name": "Bead",
+                      "position": {"x": -1, "y": 0.99998, "z": 0.99999},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": 1, "y": -0.26066, "z": -4.06166},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 2, "y": 2, "z": 2}
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 7, "y": 0},
+                            "mirror": {"x": true, "y": true},
+                            "angle": 270
+                          },
+                          "right": {
+                            "offset": {"x": 7, "y": 2},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 180
+                          },
+                          "front": {
+                            "offset": {"x": 7, "y": 2},
+                            "mirror": {"x": true, "y": true},
+                            "angle": 90
+                          },
+                          "left": {
+                            "offset": {"x": 9, "y": 2},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 180
+                          },
+                          "top": {
+                            "offset": {"x": 7, "y": 0},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {"x": 7, "y": 2},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 180
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "7",
+                      "name": "Bead",
+                      "position": {"x": -1, "y": 0.99998, "z": 0.99999},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": 1, "y": -4.06166, "z": -0.26066},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 2, "y": 2, "z": 2}
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 7, "y": 0},
+                            "mirror": {"x": true, "y": true},
+                            "angle": 270
+                          },
+                          "right": {
+                            "offset": {"x": 7, "y": 2},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 180
+                          },
+                          "front": {
+                            "offset": {"x": 7, "y": 2},
+                            "mirror": {"x": true, "y": true},
+                            "angle": 90
+                          },
+                          "left": {
+                            "offset": {"x": 9, "y": 2},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 180
+                          },
+                          "top": {
+                            "offset": {"x": 7, "y": 0},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {"x": 7, "y": 2},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 180
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

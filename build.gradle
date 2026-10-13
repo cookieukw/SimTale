@@ -83,7 +83,54 @@ tasks.register('checkUi', Exec) {
     }
 }
 
+tasks.register('syncCosmetics') {
+    doLast {
+        def localProps = new Properties()
+        def localPropsFile = project.rootProject.file('local.properties')
+        def assetsDir = null
+
+        if (localPropsFile.exists()) {
+            localProps.load(localPropsFile.newDataInputStream())
+            assetsDir = localProps.getProperty('hytale.assets')
+        }
+
+        if (assetsDir == null) {
+            assetsDir = System.getenv('HYTALE_ASSETS')
+        }
+
+        if (assetsDir != null) {
+            def srcDir = file("${assetsDir}/Common/Cosmetics")
+            def destDir = file("$projectDir/src/main/resources/Common/Cosmetics")
+
+            if (srcDir.exists()) {
+                destDir.mkdirs()
+
+                srcDir.toPath().toFile().eachFileRecurse { file ->
+                    if (file.isFile()) {
+                        def relativePath = srcDir.toPath().relativize(file.toPath())
+                        def targetFile = new File(destDir, relativePath.toString())
+                        targetFile.parentFile.mkdirs()
+                        try {
+                            java.nio.file.Files.copy(
+                                file.toPath(),
+                                targetFile.toPath(),
+                                java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                            )
+                        } catch (Exception e) {
+                            println "Aviso ao copiar ${file.name}: ${e.message}"
+                        }
+                    }
+                }
+                println "Cosméticos sincronizados com sucesso."
+            } else {
+                println "AVISO: Pasta de assets Cosmetics não encontrada em ${srcDir}"
+            }
+        }
+    }
+}
+
 tasks.named('processResources') {
+    dependsOn 'syncCosmetics'
     dependsOn 'checkUi'
 }
 

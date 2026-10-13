@@ -139,10 +139,10 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
                 }
 
                 if (type.equalsIgnoreCase("Empty")) {
-                    world.setBlock(worldX, worldY, worldZ, "Empty");
+                    NPCMovementHelper.setBlockSafe(world, worldX, worldY, worldZ, "Empty");
                 } else {
                     int rotVal = blockInfo.getRotation() != null ? blockInfo.getRotation() : 0;
-                    world.setBlock(worldX, worldY, worldZ, type, rotVal);
+                    NPCMovementHelper.setBlockSafe(world, worldX, worldY, worldZ, type, rotVal);
                 }
                 site.currentIndex++;
             }

@@ -20,7 +20,7 @@ birthdays, ...) without redesigning the whole model/cosmetic system?
 **Answer: yes.** Hytale's own shipped assets already do exactly this for other creatures — see
 `Server/Models/Christmas/Trork_Christmas.json` and the Kweebec Sapling Christmas variants in the
 base game. A `ModelAsset` can declare a `Parent` (inheriting that asset's full attachment list) and
-its own `DefaultAttachments`, which **add to** the parent's list rather than replacing it. That is
+its own `DefaultAttachments`. **Correction (05/10):** they do *not* add to the parent's list, they replace it — see "Fixed: costumed NPCs without eyes, mouth and hair" below. That is
 enough to bolt a hat onto an existing NPC model with no engine changes and no new attachment API —
 just a new JSON file per costumed variant.
 
@@ -172,6 +172,24 @@ in what's missing. `CostumeSubCommand` in `SimTaleCommand.java` was updated to m
 computes `costumeId = currentId + "_" + suffix` directly, and the old gender/child branching (plus
 the `InteractionManager`/`Gender` imports it needed) was deleted since it's no longer used anywhere
 in that file. Not yet confirmed running in a live game — see the checklist above.
+
+### Fixed: costumed NPCs without eyes, mouth and hair (05/10)
+
+Report: changing an NPC's clothes with `/simtale costume` works, but the face breaks: empty eyes, no
+mouth. Cause: in a `ModelAsset`, `DefaultAttachments` **replaces** the parent's. The codec's
+inheritance only copies the parent's array when the child does not declare the field
+(`child.defaultAttachments = parent.defaultAttachments`, checked in the `ModelAsset` bytecode); there
+is no merge. All 1,646 costume files listed only `[<hat>]`, so a costumed NPC lost her hair, face,
+eyes, mouth, ears, eyebrows and clothes and was left as the base body with a hat.
+
+Fix: `scripts/generate_costume_assets.py` now writes each costume as the NPC's full attachment list
+(resolved up the `Parent` chain) followed by the hat, and always rewrites every file (the 1,640
+per-NPC ones and the 6 generic ones). `Parent` is still the NPC's id, to inherit the rest (model,
+skin colour, animations).
+
+`SeasonalCostumeHelper` also reads the original model back from the costume id (`<id>_<event>`):
+after a server restart the backup map was empty, so an NPC saved in costume could never be
+undressed, and switching events looked for `<id>_Christmas_Halloween`.
 
 ### Fixed (unrelated to the reported bug): child NPC costume hat clipping (13/09)
 

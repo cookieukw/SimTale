@@ -20,7 +20,7 @@ sem redesenhar todo o sistema de modelo/cosmético do mod?
 Os próprios assets do Hytale já fazem exatamente isso para outras criaturas — veja
 `Server/Models/Christmas/Trork_Christmas.json` e as variantes de Natal do Kweebec Sapling no jogo
 base. Um `ModelAsset` pode declarar um `Parent` (herdando a lista completa de attachments daquele
-asset) e seus próprios `DefaultAttachments`, que **somam** à lista do pai em vez de substituí-la.
+asset) e seus próprios `DefaultAttachments`. **Correção (05/10):** eles *não* somam com a lista do pai, substituem — ver "Corrigido: NPC fantasiada sem olhos, boca e cabelo" abaixo.
 Isso já é suficiente para colar um chapéu num modelo de NPC existente sem mudar nada no engine e
 sem nenhuma API nova de attachment — só um arquivo JSON novo por variante de fantasia.
 
@@ -128,6 +128,24 @@ adicionadas em `Generated/`, ele so preenche o que falta. O `CostumeSubCommand` 
 sufixo` direto, e a antiga logica de gênero/criança (junto com os imports `InteractionManager`/
 `Gender` que ela precisava) foi apagada por nao ser mais usada em nenhum outro lugar do arquivo.
 Ainda nao confirmado rodando numa partida real — ver o checklist acima.
+
+### Corrigido: NPC fantasiada sem olhos, boca e cabelo (05/10)
+
+Relato: trocar a roupa de uma NPC com `/simtale costume` "até que muda", mas o rosto fica bugado —
+olhos vazios, sem boca. Causa: no `ModelAsset`, `DefaultAttachments` **substitui** o do `Parent`.
+A herança do codec só copia o array do pai quando o filho não declara o campo
+(`filho.defaultAttachments = pai.defaultAttachments`, conferido no bytecode do `ModelAsset`); não
+existe merge. Os 1.646 arquivos de fantasia tinham só `[<chapéu>]`, então a NPC fantasiada perdia
+cabelo, rosto, olhos, boca, orelhas, sobrancelhas e roupa, e ficava só o corpo base com o chapéu.
+
+Conserto: `scripts/generate_costume_assets.py` agora escreve, em cada fantasia, a lista completa
+de attachments da NPC (resolvida subindo a cadeia de `Parent`) seguida do chapéu, e sempre reescreve
+todos os arquivos (os 1.640 por NPC e os 6 genéricos). O `Parent` continua sendo o id da NPC, para
+herdar o resto (modelo, cor da pele, animações).
+
+Junto, o `SeasonalCostumeHelper` passou a ler o modelo original do próprio id da fantasia
+(`<id>_<evento>`): antes, depois de reiniciar o servidor o mapa de backup ficava vazio e uma NPC
+salva fantasiada nunca mais tirava a fantasia, e trocar de evento procurava `<id>_Christmas_Halloween`.
 
 ### Corrigido (sem relação com o bug relatado): chapéu de fantasia malencaixado em NPC criança (13/09)
 

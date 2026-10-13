@@ -284,15 +284,34 @@ public class HouseManager {
         }
     }
 
-    /** Reverses {@link #indexHouse}: removes a house's interior/owners from the lookup maps. */
+    /**
+     * Reverses {@link #indexHouse}: removes a house's interior/owners from the lookup maps. Only
+     * entries that still point at this house: a block or owner that has since been indexed under
+     * another house must keep that link (an NPC that moved out of here used to lose the home it
+     * moved into whenever this old house was re-registered, pruned or deleted).
+     */
     private static void unindexHouse(HouseData house) {
+        UUID houseId = UUID.fromString(house.houseId);
         for (HouseBlockPos pos : house.interior) {
-            BLOCK_TO_HOUSE_ID.remove(pos);
+            BLOCK_TO_HOUSE_ID.remove(pos, houseId);
         }
         for (String ownerStr : house.owners) {
             try {
-                OWNER_TO_HOUSE_ID.remove(UUID.fromString(ownerStr));
+                OWNER_TO_HOUSE_ID.remove(UUID.fromString(ownerStr), houseId);
             } catch (Exception ignored) {}
+        }
+    }
+
+    /** Takes an NPC out of the owners of the house it lived in before, when it moves to another. */
+    private static void leavePreviousHouse(UUID npcId, UUID newHouseId) {
+        if (npcId == null) return;
+        UUID oldId = OWNER_TO_HOUSE_ID.get(npcId);
+        if (oldId == null || oldId.equals(newHouseId)) return;
+        HouseData old = HOUSES_BY_ID.get(oldId);
+        if (old == null || old.owners == null) return;
+        if (old.owners.remove(npcId.toString())) {
+            OWNER_TO_HOUSE_ID.remove(npcId, oldId);
+            saveHouse(old);
         }
     }
 
@@ -724,6 +743,7 @@ public class HouseManager {
                 }
             }
             house.addBed(houseBed);
+            leavePreviousHouse(npc.entityId, UUID.fromString(house.houseId));
             registerHouse(house);
             
             npc.bedLocation = bestBed;
@@ -774,6 +794,7 @@ public class HouseManager {
                 return false;
             }
 
+            leavePreviousHouse(npc.entityId, UUID.fromString(existing.houseId));
             existing.owners.add(npc.entityId.toString());
             existing.addBed(houseBed);
             registerHouse(existing);

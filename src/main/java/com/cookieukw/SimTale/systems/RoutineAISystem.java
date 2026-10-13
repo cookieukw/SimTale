@@ -329,6 +329,10 @@ once per NPC per tick for nothing.
                     NPCMovementHelper.clearMoveTarget(ref, ai);
                     ai.currentTask = TaskType.DYING;
                     ai.taskStartTime = world.getTick();
+                    String deathCause = npc.lastDamageCause != null ? npc.lastDamageCause : "de causas naturais";
+                    Universe.get().getPlayers().forEach(p -> {
+                        p.sendMessage(com.hypixel.hytale.server.core.Message.raw("§cO(A) aldeão(ã) " + npc.name + " morreu " + deathCause + "."));
+                    });
                     return;
                 }
             }
@@ -657,6 +661,7 @@ once per NPC per tick for nothing.
         SimTale.untrackNpc(npc);
         if (npc.entityId != null) {
             PlumbobSystem.removePlumbob(npc.entityId);
+            EmoteBubbleSystem.removeThought(npc.entityId);
         }
         commandBuffer.removeEntity(ref, RemoveReason.REMOVE);
     }
@@ -1191,6 +1196,45 @@ once per NPC per tick for nothing.
      * Gently repels overlapping NPCs if they are standing too close to one another (<0.7m),
      * preventing them from stacking or clipping inside each other.
      */
+    /* Positions of the world's active NPCs, read once per tick and bucketed in 2-block cells (the
+    push radius is 1.15, so a cell and its 8 neighbours cover it). The separation pass used to loop
+    over every NPC, with a store lookup each, for every NPC on every tick: O(N^2) lookups. One
+    snapshot per world thread, so two worlds ticking at once don't share it. */
+    private static final double SEP_CELL = 2.0;
+
+    private record SepEntry(SimNPCComponent npc, double x, double y, double z) {}
+
+    private static final class SepSnapshot {
+        long tick = Long.MIN_VALUE;
+        Store<EntityStore> store;
+        final Map<Long, List<SepEntry>> cells = new HashMap<>();
+    }
+
+    private static final ThreadLocal<SepSnapshot> SEPARATION = ThreadLocal.withInitial(SepSnapshot::new);
+
+    private static long sepCellKey(int cx, int cz) {
+        return ((long) cx << 32) ^ (cz & 0xffffffffL);
+    }
+
+    private static SepSnapshot separationSnapshot(Store<EntityStore> store) {
+        SepSnapshot snap = SEPARATION.get();
+        long tick = store.getExternalData().getWorld().getTick();
+        if (snap.tick == tick && snap.store == store) return snap;
+        snap.tick = tick;
+        snap.store = store;
+        snap.cells.clear();
+        for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
+            if (other.entityRef == null || !other.entityRef.isValid() || other.entityId == null) continue;
+            if (other.entityRef.getStore() != store) continue;
+            TransformComponent ot = store.getComponent(other.entityRef, TransformComponent.getComponentType());
+            if (ot == null) continue;
+            Vector3d p = ot.getPosition();
+            long key = sepCellKey((int) Math.floor(p.x / SEP_CELL), (int) Math.floor(p.z / SEP_CELL));
+            snap.cells.computeIfAbsent(key, k -> new ArrayList<>()).add(new SepEntry(other, p.x, p.y, p.z));
+        }
+        return snap;
+    }
+
     private static void handleNpcSeparation(Ref<EntityStore> ref, SimNPCComponent npc, TransformComponent transform, RoutineAIComponent ai, Store<EntityStore> store) {
         if (ai == null || npc == null || transform == null) return;
         if (ai.currentTask == TaskType.SLEEPING || ai.currentTask == TaskType.ENTERING_BED
@@ -1204,17 +1248,19 @@ once per NPC per tick for nothing.
         double pushZ = 0;
         int overlapCount = 0;
 
-        for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
-            if (other == npc || other.entityRef == null || !other.entityRef.isValid() || other.entityId == null) continue;
-            TransformComponent ot = store.getComponent(other.entityRef, TransformComponent.getComponentType());
-            if (ot == null) continue;
-
-            Vector3d otherPos = ot.getPosition();
-            double dy = Math.abs(myPos.y - otherPos.y);
+        SepSnapshot snap = separationSnapshot(store);
+        int myCx = (int) Math.floor(myPos.x / SEP_CELL);
+        int myCz = (int) Math.floor(myPos.z / SEP_CELL);
+        for (int cx = myCx - 1; cx <= myCx + 1; cx++) for (int cz = myCz - 1; cz <= myCz + 1; cz++) {
+          List<SepEntry> cell = snap.cells.get(sepCellKey(cx, cz));
+          if (cell == null) continue;
+          for (SepEntry other : cell) {
+            if (other.npc() == npc) continue;
+            double dy = Math.abs(myPos.y - other.y());
             if (dy > 1.5) continue;
 
-            double dx = myPos.x - otherPos.x;
-            double dz = myPos.z - otherPos.z;
+            double dx = myPos.x - other.x();
+            double dz = myPos.z - other.z();
             double distSq = dx * dx + dz * dz;
             if (distSq < 1.15 * 1.15) {
                 double dist = Math.sqrt(distSq);
@@ -1230,6 +1276,7 @@ once per NPC per tick for nothing.
                 }
                 overlapCount++;
             }
+          }
         }
 
         if (overlapCount > 0) {

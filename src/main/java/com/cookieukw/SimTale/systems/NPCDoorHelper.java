@@ -14,8 +14,9 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.modules.interaction.DoorBlockUtils;
 import com.hypixel.hytale.server.core.modules.interaction.DoorBlockUtils.DoorState;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.server.DoorInteraction;
+import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 import org.joml.Vector3d;
@@ -103,18 +104,19 @@ public final class NPCDoorHelper {
                                          double forwardX, double forwardZ, Vector3d destination,
                                          Vector3i pos) {
         try {
-            long chunkIndex = ChunkUtil.indexChunkFromBlock(pos.x, pos.z);
-            BlockChunk blockChunk = world.getChunkStore().getChunkComponent(chunkIndex, BlockChunk.getComponentType());
-            if (blockChunk == null) return;
+            Ref<ChunkStore> secRef = world.getChunkStore().getChunkSectionReferenceAtBlock(pos.x, pos.y, pos.z);
+            if (secRef == null || !secRef.isValid()) return;
 
-            int blockId = blockChunk.getBlock(pos.x, pos.y, pos.z);
+            BlockSection section = secRef.getStore().getComponent(secRef, BlockSection.getComponentType());
+            if (section == null) return;
+
+            int blockId = section.get(pos.x, pos.y, pos.z);
             if (blockId == 0) return;
 
             BlockType type = BlockType.getAssetMap().getAsset(blockId);
             if (type == null || !type.isDoor()) return;
 
-            BlockSection section = blockChunk.getSectionAtBlockY(pos.y);
-            int filler = section != null ? section.getFiller(pos.x, pos.y, pos.z) : 0;
+            int filler = section.getFiller(pos.x, pos.y, pos.z);
             Vector3i anchorPos = filler == 0
                     ? pos
                     : new Vector3i(
@@ -122,11 +124,10 @@ public final class NPCDoorHelper {
                             pos.y - FillerBlockUtil.unpackY(filler),
                             pos.z - FillerBlockUtil.unpackZ(filler));
 
-            long anchorChunkIndex = ChunkUtil.indexChunkFromBlock(anchorPos.x, anchorPos.z);
-            BlockChunk anchorBlockChunk = world.getChunkStore().getChunkComponent(anchorChunkIndex, BlockChunk.getComponentType());
-            if (anchorBlockChunk == null) return;
+            Ref<ChunkStore> anchorSecRef = world.getChunkStore().getChunkSectionReferenceAtBlock(anchorPos.x, anchorPos.y, anchorPos.z);
+            if (anchorSecRef == null || !anchorSecRef.isValid()) return;
 
-            BlockSection anchorSection = anchorBlockChunk.getSectionAtBlockY(anchorPos.y);
+            BlockSection anchorSection = anchorSecRef.getStore().getComponent(anchorSecRef, BlockSection.getComponentType());
             Rotation yaw = anchorSection != null ? anchorSection.getRotation(anchorPos.x, anchorPos.y, anchorPos.z).yaw() : RotationTuple.NONE.yaw();
             DoorInteraction.DoorInfo door = DoorInteraction.getDoorAtPosition(world.getChunkStore(), anchorPos.x, anchorPos.y, anchorPos.z, yaw);
             if (door == null) return;
@@ -224,7 +225,7 @@ public final class NPCDoorHelper {
                 }
             }
 
-            world.setBlockInteractionState(anchorPos, door.getBlockType(), interactionState);
+            NPCMovementHelper.setBlockInteractionStateSafe(world, anchorPos, door.getBlockType(), interactionState);
 
             LOGGER.debug("[PORTA] '{}' abriu porta em ({},{},{}) {} -> {}",
                     npc.name, anchorPos.x, anchorPos.y, anchorPos.z, current, target);
@@ -306,18 +307,19 @@ public final class NPCDoorHelper {
 
     private static void closeDoor(World world, HouseBlockPos pos) {
         try {
-            long chunkIndex = ChunkUtil.indexChunkFromBlock(pos.x, pos.z);
-            BlockChunk blockChunk = world.getChunkStore().getChunkComponent(chunkIndex, BlockChunk.getComponentType());
-            if (blockChunk == null) return;
+            Ref<ChunkStore> secRef = world.getChunkStore().getChunkSectionReferenceAtBlock(pos.x, pos.y, pos.z);
+            if (secRef == null || !secRef.isValid()) return;
 
-            int blockId = blockChunk.getBlock(pos.x, pos.y, pos.z);
+            BlockSection section = secRef.getStore().getComponent(secRef, BlockSection.getComponentType());
+            if (section == null) return;
+
+            int blockId = section.get(pos.x, pos.y, pos.z);
             if (blockId == 0) return;
 
             BlockType type = BlockType.getAssetMap().getAsset(blockId);
             if (type == null || !type.isDoor()) return;
 
-            BlockSection section = blockChunk.getSectionAtBlockY(pos.y);
-            Rotation yaw = section != null ? section.getRotation(pos.x, pos.y, pos.z).yaw() : RotationTuple.NONE.yaw();
+            Rotation yaw = section.getRotation(pos.x, pos.y, pos.z).yaw();
             DoorInteraction.DoorInfo door = DoorInteraction.getDoorAtPosition(world.getChunkStore(), pos.x, pos.y, pos.z, yaw);
             if (door == null) return;
 
@@ -325,7 +327,7 @@ public final class NPCDoorHelper {
             if (current == DoorState.CLOSED) return;
 
             String interactionState = DoorBlockUtils.getInteractionState(current, DoorState.CLOSED);
-            world.setBlockInteractionState(door.getBlockPosition(), door.getBlockType(), interactionState);
+            NPCMovementHelper.setBlockInteractionStateSafe(world, door.getBlockPosition(), door.getBlockType(), interactionState);
             LOGGER.debug("[PORTA] fechou porta em ({},{},{})", pos.x, pos.y, pos.z);
         } catch (Exception e) {
             LOGGER.debug("[PORTA] falha ao fechar porta em ({},{},{}): {}", pos.x, pos.y, pos.z, e.toString());

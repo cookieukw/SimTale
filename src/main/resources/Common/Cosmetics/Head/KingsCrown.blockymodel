@@ -1,0 +1,1180 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Head",
+      "position": {"x": 0, "y": 126.85473, "z": -8.2993},
+      "orientation": {"x": 0, "y": -0.99905, "z": 0.04362, "w": 0},
+      "shape": {
+        "type": "none",
+        "offset": {"x": 0, "y": 0, "z": 0},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "Hat_Ontop",
+          "position": {"x": 0, "y": 16.0445, "z": 0.99131},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 0, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": true
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "3",
+              "name": "CrownBase",
+              "position": {"x": 0, "y": 0.34977, "z": -9.58057},
+              "orientation": {"x": 0, "y": -0.99996, "z": 0.00839, "w": 0},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 14, "y": 5, "z": 1}
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 17, "y": 27},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 16, "y": 27},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 2, "y": 27},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 5, "y": 27},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 2, "y": 27},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {"x": 16, "y": 27},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "4",
+                  "name": "CrownBase2",
+                  "position": {"x": 8.02968, "y": -0.04496, "z": -1.3099},
+                  "orientation": {"x": 0, "y": 0.38268, "z": 0, "w": 0.92388},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": -1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 4, "y": 5, "z": 1}
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 15, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {"x": 10, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {"x": 10, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 14, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "5",
+                  "name": "CrownBase3",
+                  "position": {"x": -8.02968, "y": -0.04496, "z": -1.3099},
+                  "orientation": {"x": 0, "y": -0.38268, "z": 0, "w": 0.92388},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 4, "y": 5, "z": 1}
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 24, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {"x": 19, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {"x": 19, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 23, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "6",
+                  "name": "CrownBase4",
+                  "position": {"x": 0, "y": 0, "z": -18.71372},
+                  "orientation": {"x": 0, "y": 1, "z": 0, "w": 0},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 14, "y": 5, "z": 1}
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 17, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 16, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {"x": 2, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 1, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {"x": 2, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 16, "y": 27},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "7",
+                      "name": "CrownBase5",
+                      "position": {"x": -8.02968, "y": -0.04496, "z": -1.3099},
+                      "orientation": {"x": 0, "y": -0.38268, "z": 0, "w": 0.92388},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 4, "y": 5, "z": 1}
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 7, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {"x": 2, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {"x": 2, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {"x": 6, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "8",
+                      "name": "CrownBase6",
+                      "position": {"x": 8.02968, "y": -0.04496, "z": -1.3099},
+                      "orientation": {"x": 0, "y": 0.38268, "z": 0, "w": 0.92388},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": -1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 4, "y": 5, "z": 1}
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 7, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {"x": 2, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {"x": 2, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {"x": 6, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "9",
+                      "name": "CrownBase7",
+                      "position": {"x": 9.28979, "y": 0, "z": -9.31466},
+                      "orientation": {"x": 0, "y": 0.70711, "z": 0, "w": 0.70711},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 14, "y": 5, "z": 1}
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 17, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {"x": 16, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {"x": 2, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {"x": 5, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {"x": 2, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {"x": 16, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "10",
+                          "name": "CrownBase8",
+                          "position": {"x": 0, "y": 0, "z": -18.57958},
+                          "orientation": {"x": 0, "y": 1, "z": 0, "w": 0},
+                          "shape": {
+                            "type": "box",
+                            "offset": {"x": 0, "y": 0, "z": 0},
+                            "stretch": {"x": -1, "y": 1, "z": 1},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 14, "y": 5, "z": 1}
+                            },
+                            "textureLayout": {
+                              "back": {
+                                "offset": {"x": 17, "y": 27},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "right": {
+                                "offset": {"x": 16, "y": 27},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "front": {
+                                "offset": {"x": 2, "y": 27},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "left": {
+                                "offset": {"x": 1, "y": 27},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "top": {
+                                "offset": {"x": 2, "y": 27},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "bottom": {
+                                "offset": {"x": 16, "y": 27},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": false,
+                            "shadingMode": "flat"
+                          }
+                        },
+                        {
+                          "id": "11",
+                          "name": "CrownDetail",
+                          "position": {"x": 0.09842, "y": 2.99999, "z": -9.61222},
+                          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                          "shape": {
+                            "type": "box",
+                            "offset": {"x": 0, "y": 0, "z": 0},
+                            "stretch": {"x": 1, "y": 1, "z": 1},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 15, "y": 12, "z": 15}
+                            },
+                            "textureLayout": {
+                              "back": {
+                                "offset": {"x": 0, "y": 15},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "right": {
+                                "offset": {"x": 0, "y": 15},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "front": {
+                                "offset": {"x": 0, "y": 15},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "left": {
+                                "offset": {"x": 0, "y": 15},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "top": {
+                                "offset": {"x": 0, "y": 0},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": false,
+                            "shadingMode": "flat"
+                          }
+                        },
+                        {
+                          "id": "12",
+                          "name": "RedFabric",
+                          "position": {"x": 0.09842, "y": 5.3959, "z": -9.2365},
+                          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                          "shape": {
+                            "type": "box",
+                            "offset": {"x": 0, "y": 0, "z": 0},
+                            "stretch": {"x": 1, "y": 1.06141, "z": 1},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 16, "y": 4, "z": 16}
+                            },
+                            "textureLayout": {
+                              "back": {
+                                "offset": {"x": 0, "y": 19},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "right": {
+                                "offset": {"x": 0, "y": 19},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "front": {
+                                "offset": {"x": 0, "y": 19},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "left": {
+                                "offset": {"x": 0, "y": 19},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "top": {
+                                "offset": {"x": 0, "y": 0},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": false,
+                            "shadingMode": "flat"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "13",
+                  "name": "CrownDetail",
+                  "position": {"x": 0, "y": 9.07222, "z": -8.78595},
+                  "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 2, "y": 7, "z": 2}
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 30, "y": 4},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 30, "y": 4},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {"x": 30, "y": 4},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 30, "y": 4},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {"x": 30, "y": 4},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "14",
+                  "name": "CrownDetail",
+                  "position": {"x": 0, "y": 16.05341, "z": -8.48368},
+                  "orientation": {"x": 0.04362, "y": 0, "z": 0, "w": 0.99905},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 8, "y": 8},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 16, "y": 0},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "15",
+                  "name": "CrownDetail",
+                  "position": {"x": 0, "y": 16.05341, "z": -8.48368},
+                  "orientation": {"x": 0.03084, "y": -0.70643, "z": -0.03084, "w": 0.70643},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 8, "y": 8},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 16, "y": 0},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "16",
+                  "name": "CrownDetail",
+                  "position": {"x": 6, "y": 4.61889, "z": -9.48962},
+                  "orientation": {"x": 0.04362, "y": 0, "z": 0, "w": 0.99905},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 14, "y": 16},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 16, "y": 8},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "17",
+                      "name": "CrownDetail",
+                      "position": {"x": -12, "y": 0, "z": 0},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": -1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 14, "y": 16},
+                          "normal": "+Z"
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 16, "y": 8},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "18",
+                  "name": "CrownDetail",
+                  "position": {"x": 0, "y": 5.16068, "z": 0.41483},
+                  "orientation": {"x": 0.04362, "y": 0, "z": 0, "w": 0.99905},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 2, "y": 7},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 30, "y": 14},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "19",
+                      "name": "CrownDetail",
+                      "position": {"x": 0, "y": 4.74208, "z": -1.50792},
+                      "orientation": {"x": -0.42262, "y": 0, "z": 0, "w": 0.90631},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 2, "y": 4},
+                          "normal": "+Z"
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 30, "y": 10},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "20",
+                          "name": "CrownDetail",
+                          "position": {"x": 0, "y": 4.32284, "z": -1.84063},
+                          "orientation": {"x": -0.32535, "y": 0, "z": 0, "w": 0.9456},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0, "y": 0, "z": 0},
+                            "stretch": {"x": 1, "y": 1, "z": 1},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 2, "y": 6},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 30, "y": 4},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "21",
+                      "name": "CrownDetail",
+                      "position": {"x": -8.25556, "y": 0, "z": -1.56211},
+                      "orientation": {"x": 0, "y": -0.38268, "z": 0, "w": 0.92388},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 2, "y": 7},
+                          "normal": "+Z"
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 30, "y": 14},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "22",
+                          "name": "CrownDetail",
+                          "position": {"x": 0, "y": 4.74208, "z": -1.50792},
+                          "orientation": {"x": -0.42262, "y": 0, "z": 0, "w": 0.90631},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0, "y": 0, "z": 0},
+                            "stretch": {"x": 1, "y": 1, "z": 1},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 2, "y": 4},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 30, "y": 10},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "23",
+                              "name": "CrownDetail",
+                              "position": {"x": 0, "y": 5.11114, "z": -2.45592},
+                              "orientation": {"x": -0.32535, "y": 0, "z": 0, "w": 0.9456},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0, "y": 0, "z": 0},
+                                "stretch": {"x": 1, "y": 1, "z": 1},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 2, "y": 8},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 30, "y": 4},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "24",
+                      "name": "CrownDetail",
+                      "position": {"x": 8.34575, "y": 0, "z": -1.47192},
+                      "orientation": {"x": 0, "y": 0.38268, "z": 0, "w": 0.92388},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": -1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 2, "y": 7},
+                          "normal": "+Z"
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 30, "y": 14},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "25",
+                          "name": "CrownDetail",
+                          "position": {"x": 0, "y": 4.74208, "z": -1.50792},
+                          "orientation": {"x": -0.42262, "y": 0, "z": 0, "w": 0.90631},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0, "y": 0, "z": 0},
+                            "stretch": {"x": -1, "y": 1, "z": 1},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 2, "y": 4},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 30, "y": 10},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "26",
+                              "name": "CrownDetail",
+                              "position": {"x": 0, "y": 5.11114, "z": -2.45592},
+                              "orientation": {"x": -0.32535, "y": 0, "z": 0, "w": 0.9456},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0, "y": 0, "z": 0},
+                                "stretch": {"x": -1, "y": 1, "z": 1},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 2, "y": 8},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 30, "y": 4},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "27",
+                  "name": "CrownDetail",
+                  "position": {"x": 0, "y": 5.67367, "z": -18.58926},
+                  "orientation": {"x": 0, "y": 1, "z": 0, "w": 0},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 2, "y": 7},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 30, "y": 14},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "28",
+                      "name": "CrownDetail",
+                      "position": {"x": 0, "y": 4.74208, "z": -1.50792},
+                      "orientation": {"x": -0.42262, "y": 0, "z": 0, "w": 0.90631},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 2, "y": 4},
+                          "normal": "+Z"
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 30, "y": 10},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "29",
+                          "name": "CrownDetail",
+                          "position": {"x": 0, "y": 4.32284, "z": -1.84063},
+                          "orientation": {"x": -0.32535, "y": 0, "z": 0, "w": 0.9456},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0, "y": 0, "z": 0},
+                            "stretch": {"x": 1, "y": 1, "z": 1},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 2, "y": 6},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 30, "y": 4},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "30",
+                      "name": "CrownDetail",
+                      "position": {"x": -8.25556, "y": 0, "z": -1.56211},
+                      "orientation": {"x": 0, "y": -0.38268, "z": 0, "w": 0.92388},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 2, "y": 7},
+                          "normal": "+Z"
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 30, "y": 14},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "31",
+                          "name": "CrownDetail",
+                          "position": {"x": 0, "y": 4.74208, "z": -1.50792},
+                          "orientation": {"x": -0.42262, "y": 0, "z": 0, "w": 0.90631},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0, "y": 0, "z": 0},
+                            "stretch": {"x": 1, "y": 1, "z": 1},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 2, "y": 4},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 30, "y": 10},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "32",
+                              "name": "CrownDetail",
+                              "position": {"x": 0, "y": 5.11114, "z": -2.45592},
+                              "orientation": {"x": -0.32535, "y": 0, "z": 0, "w": 0.9456},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0, "y": 0, "z": 0},
+                                "stretch": {"x": 1, "y": 1, "z": 1},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 2, "y": 8},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 30, "y": 4},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33",
+                      "name": "CrownDetail",
+                      "position": {"x": 8.34575, "y": 0, "z": -1.47192},
+                      "orientation": {"x": 0, "y": 0.38268, "z": 0, "w": 0.92388},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": -1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 2, "y": 7},
+                          "normal": "+Z"
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 30, "y": 14},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "34",
+                          "name": "CrownDetail",
+                          "position": {"x": 0, "y": 4.74208, "z": -1.50792},
+                          "orientation": {"x": -0.42262, "y": 0, "z": 0, "w": 0.90631},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0, "y": 0, "z": 0},
+                            "stretch": {"x": -1, "y": 1, "z": 1},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 2, "y": 4},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 30, "y": 10},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "35",
+                              "name": "CrownDetail",
+                              "position": {"x": 0, "y": 5.11114, "z": -2.45592},
+                              "orientation": {"x": -0.32535, "y": 0, "z": 0, "w": 0.9456},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0, "y": 0, "z": 0},
+                                "stretch": {"x": -1, "y": 1, "z": 1},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 2, "y": 8},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 30, "y": 4},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

@@ -18,6 +18,7 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.cookieukw.SimTale.core.WeaponCategoryRegistry;
 import com.cookieukw.SimTale.vehicles.CalhambequeComponent;
+import com.cookieukw.SimTale.vehicles.CalhambequeManager;
 import com.cookieukw.SimTale.vehicles.CalhambequePhysicsSystem;
 import com.cookieukw.SimTale.logic.SimTaleCheckPregnancyInteraction;
 import com.cookieukw.SimTale.logic.SimTaleUseNPCInteraction;
@@ -56,6 +57,10 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.interactions.UseNPCInteraction;
+import com.hypixel.hytale.protocol.packets.interaction.DismountNPC;
+import com.hypixel.hytale.server.core.io.adapter.PacketAdapters;
+import com.hypixel.hytale.server.core.io.adapter.PacketFilter;
+import com.hypixel.hytale.server.core.io.adapter.PlayerPacketWatcher;
 
 import java.util.List;
 import java.util.Locale;
@@ -79,6 +84,7 @@ public class SimTale extends JavaPlugin {
     public static ComponentType<EntityStore, ConstructionSiteComponent> CONSTRUCTION_COMPONENT_TYPE;
     public static ComponentType<EntityStore, SimPlayerComponent> SIM_PLAYER_COMPONENT_TYPE;
     public static ComponentType<EntityStore, CalhambequeComponent> CALHAMBEQUE_COMPONENT_TYPE;
+    private PacketFilter carDismountWatcher;
     /**
      * Iteration view of the tracked NPCs. Mutate it only through {@link #trackNpc},
      * {@link #untrackNpc}, {@link #untrackNpcById} and {@link #clearActiveNpcs} — direct
@@ -301,6 +307,23 @@ public class SimTale extends JavaPlugin {
         );
 
         SimTaleItemRegistry.init();
+
+        /* Getting out of the Calhambeque: the client answers jump / the dismount key with a
+        DismountNPC packet, which the engine's own handler ignores for our cars (see
+        CalhambequeManager). Watching it here is what lets the player leave the car. */
+        carDismountWatcher = PacketAdapters.registerInbound((PlayerPacketWatcher) (playerRef, packet) -> {
+            if (packet instanceof DismountNPC) {
+                CalhambequeManager.onClientDismount(playerRef);
+            }
+        });
+    }
+
+    @Override
+    protected void shutdown() {
+        if (carDismountWatcher != null) {
+            PacketAdapters.deregisterInbound(carDismountWatcher);
+            carDismountWatcher = null;
+        }
     }
 
     /** @return the first non-blank value, or {@code null} when both are blank/absent. */

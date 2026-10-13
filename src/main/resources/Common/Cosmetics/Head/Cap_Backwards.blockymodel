@@ -1,0 +1,450 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Head",
+      "position": {"x": 0, "y": 0, "z": 1},
+      "orientation": {"x": -0.08716, "y": 0, "z": 0, "w": 0.99619},
+      "shape": {
+        "type": "none",
+        "offset": {"x": 0, "y": 0, "z": 0},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "Headband",
+          "position": {"x": 0, "y": 12.202, "z": 0.942},
+          "orientation": {"x": 0.0548, "y": 0, "z": 0, "w": 0.9985},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 0, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "3",
+              "name": "Headband--C1",
+              "position": {"x": 0, "y": 0.80603, "z": -10.08672},
+              "orientation": {"x": -0.10453, "y": 0, "z": 0, "w": 0.99452},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": -1.68317, "z": 8.3385},
+                "stretch": {"x": 1.1, "y": 1, "z": 1.042},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 31, "y": 12, "z": 31},
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 31, "y": 31},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 63, "y": 31},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 64, "y": 43},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 32, "y": 31},
+                    "mirror": {"x": true, "y": true},
+                    "angle": 180
+                  },
+                  "top": {
+                    "offset": {"x": 0, "y": 31},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {"x": 32, "y": 31},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "4",
+              "name": "Headband",
+              "position": {"x": 0, "y": 6.96775, "z": 0.20748},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "5",
+                  "name": "Headband--C1",
+                  "position": {"x": 0, "y": -6.16172, "z": -10.2942},
+                  "orientation": {"x": -0.10453, "y": 0, "z": 0, "w": 0.99452},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 5.28457, "z": 8.54597},
+                    "stretch": {"x": 1.088, "y": 1, "z": 1.04219},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 29, "y": 2, "z": 26},
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 47, "y": 56},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 19, "y": 61},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {"x": 47, "y": 59},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 45, "y": 61},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {"x": 1, "y": 28},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "6",
+              "name": "Headband",
+              "position": {"x": 0, "y": -5.57309, "z": -20.64022},
+              "orientation": {"x": -0.04362, "y": 0, "z": 0, "w": 0.99905},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "7",
+                  "name": "Headband--C1",
+                  "position": {"x": 0, "y": 5.43505, "z": 11.06932},
+                  "orientation": {"x": -0.10453, "y": 0, "z": 0, "w": 0.99452},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": -6.15649, "z": -12.88734},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 15, "y": 2, "z": 13},
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 31, "y": 56},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {"x": 16, "y": 56},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 76, "y": 42},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "8",
+                  "name": "Headband",
+                  "position": {"x": 8.28206, "y": 1, "z": 0},
+                  "orientation": {"x": 0, "y": 0, "z": -0.09137, "w": 0.99582},
+                  "shape": {
+                    "type": "none",
+                    "offset": {"x": 5, "y": -1, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false
+                    },
+                    "textureLayout": {},
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "9",
+                      "name": "Headband--C1",
+                      "position": {"x": -13.95085, "y": 3.85384, "z": 11.06932},
+                      "orientation": {"x": -0.10278, "y": -0.01902, "z": 0, "w": 0.99452},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": 13.09884, "y": -4.74522, "z": -12.88734},
+                        "stretch": {"x": 1, "y": 1, "z": 0.99488},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 10, "y": 2, "z": 13},
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 15, "y": 56},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {"x": 17, "y": 60},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {"x": 15, "y": 56},
+                            "mirror": {"x": true, "y": true},
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {"x": 65, "y": 42},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "10",
+                  "name": "Headband",
+                  "position": {"x": -8.28206, "y": 1, "z": 0},
+                  "orientation": {"x": 0, "y": 0, "z": 0.09137, "w": 0.99582},
+                  "shape": {
+                    "type": "none",
+                    "offset": {"x": -5, "y": -1, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false
+                    },
+                    "textureLayout": {},
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "11",
+                      "name": "Headband--C1",
+                      "position": {"x": 13.95085, "y": 3.85384, "z": 11.06932},
+                      "orientation": {"x": -0.10278, "y": 0.01902, "z": 0, "w": 0.99452},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": -13.09884, "y": -4.74522, "z": -12.88734},
+                        "stretch": {"x": -1, "y": 1, "z": 0.99488},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 10, "y": 2, "z": 13},
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 15, "y": 56},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {"x": 17, "y": 60},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {"x": 15, "y": 56},
+                            "mirror": {"x": true, "y": true},
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {"x": 65, "y": 42},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "12",
+              "name": "TopDetail",
+              "position": {"x": 0.02096, "y": 8.16215, "z": 0.38581},
+              "orientation": {"x": -0.0548, "y": 0, "z": 0, "w": 0.9985},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "13",
+                  "name": "TopDetail--C1",
+                  "position": {"x": -0.02096, "y": -6.16583, "z": -11.21468},
+                  "orientation": {"x": -0.06105, "y": 0, "z": 0, "w": 0.99813},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0.02096, "y": 6.23843, "z": 8.36909},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 4, "y": 3},
+                      "normal": "-Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 45, "y": 57},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "14",
+                  "name": "TopDetail",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": 0, "y": 0.70711, "z": 0, "w": 0.70711},
+                  "shape": {
+                    "type": "none",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false
+                    },
+                    "textureLayout": {},
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "15",
+                      "name": "TopDetail--C1",
+                      "position": {"x": 11.21468, "y": -6.16583, "z": -0.02096},
+                      "orientation": {"x": 0, "y": 0, "z": -0.06105, "w": 0.99813},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": -8.36909, "y": 6.23843, "z": 0.02096},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 4, "y": 3},
+                          "normal": "-Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 45, "y": 57},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

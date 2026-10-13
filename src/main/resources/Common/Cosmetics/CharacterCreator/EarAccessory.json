@@ -1,0 +1,404 @@
+[
+  {
+    "Id": "EarHoops",
+    "Name": "avatarCustomization.earaccessory.EarHoops.name",
+    "Variants": {
+      "Both": {
+        "Model": "Cosmetics/Head/EarHoops.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/MetalEarring_Texture_Greyscale.png",
+        "NameKey": "avatarCustomization.variants.earSide.both"
+      },
+      "Left": {
+        "Model": "Cosmetics/Head/EarHoopsLeft.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/MetalEarring_Texture_Greyscale.png",
+        "NameKey": "avatarCustomization.variants.earSide.left"
+      },
+      "Right": {
+        "Model": "Cosmetics/Head/EarHoopsRight.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/MetalEarring_Texture_Greyscale.png",
+        "NameKey": "avatarCustomization.variants.earSide.right"
+      }
+    },
+    "GreyscaleTexture": "Cosmetics/Head/MetalEarring_Texture_Greyscale.png",
+    "GradientSet": "Ornamented_Metal",
+    "VariantLocalizationKey": "avatarCustomization.variants.earSide"
+  },
+  {
+    "Id": "SimpleEarring",
+    "Name": "avatarCustomization.earaccessory.SimpleEarring.name",
+    "Variants": {
+      "Both": {
+        "Model": "Cosmetics/Head/SimpleEarring.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/MetalEarring_Texture_Greyscale.png",
+        "NameKey": "avatarCustomization.variants.earSide.both"
+      },
+      "Left": {
+        "Model": "Cosmetics/Head/SimpleEarringLeft.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/MetalEarring_Texture_Greyscale.png",
+        "NameKey": "avatarCustomization.variants.earSide.left"
+      },
+      "Right": {
+        "Model": "Cosmetics/Head/SimpleEarringRight.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/MetalEarring_Texture_Greyscale.png",
+        "NameKey": "avatarCustomization.variants.earSide.right"
+      }
+    },
+    "GradientSet": "Ornamented_Metal",
+    "VariantLocalizationKey": "avatarCustomization.variants.earSide"
+  },
+  {
+    "Id": "DoubleEarrings",
+    "Name": "avatarCustomization.earaccessory.DoubleEarrings.name",
+    "Variants": {
+      "Both": {
+        "Model": "Cosmetics/Head/DoubleEarrings.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/MetalEarring_Texture_Greyscale.png",
+        "NameKey": "avatarCustomization.variants.earSide.both"
+      },
+      "Left": {
+        "Model": "Cosmetics/Head/DoubleEarringsLeft.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/MetalEarring_Texture_Greyscale.png",
+        "NameKey": "avatarCustomization.variants.earSide.left"
+      },
+      "Right": {
+        "Model": "Cosmetics/Head/DoubleEarringsRight.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/MetalEarring_Texture_Greyscale.png",
+        "NameKey": "avatarCustomization.variants.earSide.right"
+      }
+    },
+    "GradientSet": "Ornamented_Metal",
+    "VariantLocalizationKey": "avatarCustomization.variants.earSide"
+  },
+  {
+    "Id": "SilverHoopsBead",
+    "Name": "avatarCustomization.earaccessory.SilverHoopsBead.name",
+    "Model": "Cosmetics/Head/SilverHoopsBead.blockymodel",
+    "VariantLocalizationKey": "avatarCustomization.variants.earSide",
+    "GreyscaleTexture": "Cosmetics/Head/SilverHoopsBead_Textures/SilverHoopBeads.png",
+    "GradientSet": "Flashy_Synthetic",
+    "Variants": {
+      "Both": {
+        "NameKey": "avatarCustomization.variants.earSide.both",
+        "Model": "Cosmetics/Head/SilverHoopsBead.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/SilverHoopsBead_Textures/SilverHoopBeads.png"
+      },
+      "Left": {
+        "NameKey": "avatarCustomization.variants.earSide.left",
+        "Model": "Cosmetics/Head/SilverHoopsBead_Left.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/SilverHoopsBead_Textures/SilverHoopBeads.png"
+      },
+      "Right": {
+        "NameKey": "avatarCustomization.variants.earSide.right",
+        "Model": "Cosmetics/Head/SilverHoopsBead_Right.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/SilverHoopsBead_Textures/SilverHoopBeads.png"
+      }
+    }
+  },
+  {
+    "Id": "SpiralEarring",
+    "Name": "avatarCustomization.earaccessory.SpiralEarring.name",
+    "Variants": {
+      "Left": {
+        "Model": "Cosmetics/Head/SpiralEarringLeft.blockymodel",
+        "Textures": {
+          "Brown": {
+            "Texture": "Cosmetics/Head/SpiralEarring_Textures/SpiralEarring_Brown.png",
+            "BaseColor": [
+              "#734c2f"
+            ]
+          },
+          "Black": {
+            "Texture": "Cosmetics/Head/SpiralEarring_Textures/SpiralEarring_Black.png",
+            "BaseColor": [
+              "#1d1b1b"
+            ]
+          },
+          "White": {
+            "Texture": "Cosmetics/Head/SpiralEarring_Textures/SpiralEarring_White.png",
+            "BaseColor": [
+              "#f4e6d3"
+            ]
+          }
+        },
+        "NameKey": "avatarCustomization.variants.earSide.left"
+      },
+      "Right": {
+        "Model": "Cosmetics/Head/SpiralEarringRight.blockymodel",
+        "Textures": {
+          "Brown": {
+            "Texture": "Cosmetics/Head/SpiralEarring_Textures/SpiralEarring_Brown.png",
+            "BaseColor": [
+              "#734c2f"
+            ]
+          },
+          "Black": {
+            "Texture": "Cosmetics/Head/SpiralEarring_Textures/SpiralEarring_Black.png",
+            "BaseColor": [
+              "#1d1b1b"
+            ]
+          },
+          "White": {
+            "Texture": "Cosmetics/Head/SpiralEarring_Textures/SpiralEarring_White.png",
+            "BaseColor": [
+              "#f4e6d3"
+            ]
+          }
+        },
+        "NameKey": "avatarCustomization.variants.earSide.right"
+      },
+      "Both": {
+        "NameKey": "avatarCustomization.variants.earSide.both",
+        "Model": "Cosmetics/Head/SpiralEarringBoth.blockymodel",
+        "Textures": {
+          "Brown": {
+            "Texture": "Cosmetics/Head/SpiralEarring_Textures/SpiralEarring_Brown.png",
+            "BaseColor": [
+              "#6e3a3a"
+            ]
+          },
+          "Black": {
+            "Texture": "Cosmetics/Head/SpiralEarring_Textures/SpiralEarring_Black.png",
+            "BaseColor": [
+              "#000000"
+            ]
+          },
+          "White": {
+            "Texture": "Cosmetics/Head/SpiralEarring_Textures/SpiralEarring_White.png",
+            "BaseColor": [
+              "#fffbfb"
+            ]
+          }
+        }
+      }
+    },
+    "VariantLocalizationKey": "avatarCustomization.variants.earSide"
+  },
+  {
+    "Id": "AcornEarrings",
+    "Name": "avatarCustomization.earaccessory.AcornEarrings.name",
+    "Textures": {
+      "Acorn": {
+        "Texture": "Cosmetics/Head/AcornEarring_Texture.png"
+      }
+    },
+    "Variants": {
+      "Both": {
+        "Model": "Cosmetics/Head/AcornEarring.blockymodel",
+        "Textures": {
+          "Acorn": {
+            "Texture": "Cosmetics/Head/AcornEarring_Textures/AcornEarring_Texture.png",
+            "BaseColor": [
+              "#773712"
+            ]
+          }
+        },
+        "NameKey": "avatarCustomization.variants.earSide.both"
+      },
+      "Left": {
+        "Model": "Cosmetics/Head/AcornEarring_Left.blockymodel",
+        "Textures": {
+          "Acorn": {
+            "Texture": "Cosmetics/Head/AcornEarring_Textures/AcornEarring_Texture.png",
+            "BaseColor": [
+              "#773712"
+            ]
+          }
+        },
+        "NameKey": "avatarCustomization.variants.earSide.left"
+      },
+      "Right": {
+        "Model": "Cosmetics/Head/AcornEarring_Right.blockymodel",
+        "Textures": {
+          "Acorn": {
+            "Texture": "Cosmetics/Head/AcornEarring_Textures/AcornEarring_Texture.png",
+            "BaseColor": [
+              "#773712"
+            ]
+          }
+        },
+        "NameKey": "avatarCustomization.variants.earSide.right"
+      }
+    },
+    "Entitlements": [
+      "game.base",
+      "game.deluxe",
+      "game.founder"
+    ],
+    "VariantLocalizationKey": "avatarCustomization.variants.earSide"
+  },
+  {
+    "Id": "EarHoops_Large",
+    "Name": "avatarCustomization.earaccessory.LargeHoops.name",
+    "Variants": {
+      "Both": {
+        "Model": "Cosmetics/Head/EarHoops_Large.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/EarHoops_Large.png",
+        "NameKey": "avatarCustomization.variants.earSide.both"
+      },
+      "Left": {
+        "Model": "Cosmetics/Head/EarHoops_Large_Left.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/EarHoops_Large.png",
+        "NameKey": "avatarCustomization.variants.earSide.left"
+      },
+      "Right": {
+        "Model": "Cosmetics/Head/EarHoops_Large_Right.blockymodel",
+        "GreyscaleTexture": "Cosmetics/Head/EarHoops_Large.png",
+        "NameKey": "avatarCustomization.variants.earSide.right"
+      }
+    },
+    "GreyscaleTexture": "Cosmetics/Head/EarHoops_Large.png",
+    "GradientSet": "Ornamented_Metal",
+    "VariantLocalizationKey": "avatarCustomization.variants.earSide"
+  },
+  {
+    "Id": "PearlEarrings",
+    "Name": "avatarCustomization.earaccessory.PearlEarrings.name",
+    "Variants": {
+      "Both": {
+        "Model": "Cosmetics/Head/PearlEarrings.blockymodel",
+        "NameKey": "avatarCustomization.variants.earSide.both",
+        "GreyscaleTexture": "Cosmetics/Head/PearlEarrings.png"
+      },
+      "Left": {
+        "Model": "Cosmetics/Head/PearlEarrings_Left.blockymodel",
+        "NameKey": "avatarCustomization.variants.earSide.left",
+        "GreyscaleTexture": "Cosmetics/Head/PearlEarrings.png"
+      },
+      "Right": {
+        "Model": "Cosmetics/Head/PearlEarrings_Right.blockymodel",
+        "NameKey": "avatarCustomization.variants.earSide.right",
+        "GreyscaleTexture": "Cosmetics/Head/PearlEarrings.png"
+      }
+    },
+    "VariantLocalizationKey": "avatarCustomization.variants.earSide",
+    "GradientSet": "Pastel_Cotton",
+    "Model": "Cosmetics/Head/PearlEarrings.blockymodel",
+    "GreyscaleTexture": "Cosmetics/Head/PearlEarrings.png"
+  },
+  {
+    "Id": "PearlEarrings_Dangly",
+    "Name": "avatarCustomization.earaccessory.DanglyPearlEarrings.name",
+    "Variants": {
+      "Both": {
+        "Model": "Cosmetics/Head/PearlEarrings_Dangly.blockymodel",
+        "NameKey": "avatarCustomization.variants.earSide.both",
+        "GreyscaleTexture": "Cosmetics/Head/PearlEarrings.png"
+      },
+      "Left": {
+        "Model": "Cosmetics/Head/PearlEarrings_Dangly_Left.blockymodel",
+        "NameKey": "avatarCustomization.variants.earSide.left",
+        "GreyscaleTexture": "Cosmetics/Head/PearlEarrings.png"
+      },
+      "Right": {
+        "Model": "Cosmetics/Head/PearlEarrings_Dangly_Right.blockymodel",
+        "NameKey": "avatarCustomization.variants.earSide.right",
+        "GreyscaleTexture": "Cosmetics/Head/PearlEarrings.png"
+      }
+    },
+    "VariantLocalizationKey": "avatarCustomization.variants.earSide",
+    "GradientSet": "Pastel_Cotton",
+    "Model": "Cosmetics/Head/PearlEarrings_Dangly.blockymodel",
+    "GreyscaleTexture": "Cosmetics/Head/PearlEarrings.png"
+  },
+  {
+    "Id": "FlowerEarrings",
+    "Name": "avatarCustomization.earaccessory.FlowerEarrings.name",
+    "VariantLocalizationKey": "avatarCustomization.variants.earSide",
+    "GradientSet": "Fantasy_Cotton",
+    "Model": "Cosmetics/Head/FlowerEarrings.blockymodel",
+    "GreyscaleTexture": "Cosmetics/Head/FlowerEarrings.png",
+    "Variants": {
+      "Both": {
+        "Model": "Cosmetics/Head/FlowerEarrings.blockymodel",
+        "NameKey": "avatarCustomization.variants.earSide.both",
+        "GreyscaleTexture": "Cosmetics/Head/FlowerEarrings.png"
+      },
+      "Left": {
+        "Model": "Cosmetics/Head/FlowerEarrings_Left.blockymodel",
+        "NameKey": "avatarCustomization.variants.earSide.left",
+        "GreyscaleTexture": "Cosmetics/Head/FlowerEarrings.png"
+      },
+      "Right": {
+        "Model": "Cosmetics/Head/FlowerEarrings_Right.blockymodel",
+        "NameKey": "avatarCustomization.variants.earSide.right",
+        "GreyscaleTexture": "Cosmetics/Head/FlowerEarrings.png"
+      }
+    }
+  },
+  {
+    "Id": "GoblinScrapEarrings",
+    "Name": "avatarCustomization.earaccessory.ScrapEarrings.name",
+    "VariantLocalizationKey": "avatarCustomization.variants.earSide",
+    "Model": "Cosmetics/Head/EarAccessory/Goblin_Scrap_Earrings.blockymodel",
+    "Textures": {
+      "Iron_Black": {
+        "Texture": "Cosmetics/Head/EarAccessory/GoblinScrapEarrings.png",
+        "BaseColor": [
+          "#91979d"
+        ]
+      },
+      "Copper_Green": {
+        "Texture": "Cosmetics/Head/EarAccessory/GoblinScrapEarrings_Copper.png",
+        "BaseColor": [
+          "#967547"
+        ]
+      }
+    },
+    "Variants": {
+      "Both": {
+        "NameKey": "avatarCustomization.variants.earSide.both",
+        "Model": "Cosmetics/Head/EarAccessory/Goblin_Scrap_Earrings.blockymodel",
+        "Textures": {
+          "Iron_Black": {
+            "Texture": "Cosmetics/Head/EarAccessory/GoblinScrapEarrings.png",
+            "BaseColor": [
+              "#91979d"
+            ]
+          },
+          "Copper_Green": {
+            "Texture": "Cosmetics/Head/EarAccessory/GoblinScrapEarrings_Copper.png",
+            "BaseColor": [
+              "#967547"
+            ]
+          }
+        }
+      },
+      "Left": {
+        "Model": "Cosmetics/Head/EarAccessory/Goblin_Scrap_Earrings_L.blockymodel",
+        "NameKey": "avatarCustomization.variants.earSide.left",
+        "Textures": {
+          "Iron_Black": {
+            "Texture": "Cosmetics/Head/EarAccessory/GoblinScrapEarrings.png",
+            "BaseColor": [
+              "#91979d"
+            ]
+          },
+          "Copper_Green": {
+            "Texture": "Cosmetics/Head/EarAccessory/GoblinScrapEarrings_Copper.png",
+            "BaseColor": [
+              "#967547"
+            ]
+          }
+        }
+      },
+      "Right": {
+        "Model": "Cosmetics/Head/EarAccessory/Goblin_Scrap_Earrings_R.blockymodel",
+        "Textures": {
+          "Iron_Black": {
+            "Texture": "Cosmetics/Head/EarAccessory/GoblinScrapEarrings.png",
+            "BaseColor": [
+              "#91979d"
+            ]
+          },
+          "Copper_Green": {
+            "Texture": "Cosmetics/Head/EarAccessory/GoblinScrapEarrings_Copper.png",
+            "BaseColor": [
+              "#967547"
+            ]
+          }
+        },
+        "NameKey": "avatarCustomization.variants.earSide.right"
+      }
+    }
+  }
+]

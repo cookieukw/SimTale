@@ -1,0 +1,108 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Head",
+      "position": {"x": 0, "y": 86, "z": -1},
+      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+      "shape": {
+        "type": "none",
+        "offset": {"x": 0, "y": 20, "z": 2},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "MouthCover",
+          "position": {"x": -0.00994, "y": -10.75997, "z": 14.24308},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "quad",
+            "offset": {"x": 0, "y": 0, "z": 0.4},
+            "stretch": {"x": 1.0081, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 30, "y": 10},
+              "normal": "+Z"
+            },
+            "textureLayout": {
+              "front": {
+                "offset": {"x": 0, "y": 0},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          }
+        },
+        {
+          "id": "3",
+          "name": "MouthCover",
+          "position": {"x": 14.88805, "y": -7.25399, "z": 14.96504},
+          "orientation": {"x": 0, "y": 0.6946, "z": 0, "w": 0.71939},
+          "shape": {
+            "type": "quad",
+            "offset": {"x": 9.36038, "y": 0, "z": 0.21652},
+            "stretch": {"x": 1.005, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 18, "y": 15},
+              "normal": "+Z"
+            },
+            "textureLayout": {
+              "front": {
+                "offset": {"x": 0, "y": 10},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          }
+        },
+        {
+          "id": "4",
+          "name": "MouthCover",
+          "position": {"x": -14.88804, "y": -7.25399, "z": 14.96504},
+          "orientation": {"x": 0, "y": -0.6946, "z": 0, "w": 0.71939},
+          "shape": {
+            "type": "quad",
+            "offset": {"x": -9.36038, "y": 0, "z": 0.21652},
+            "stretch": {"x": -1.005, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 18, "y": 15},
+              "normal": "+Z"
+            },
+            "textureLayout": {
+              "front": {
+                "offset": {"x": 0, "y": 10},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          }
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

@@ -1,0 +1,285 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "L-Ear-Attachment",
+      "position": {"x": 15, "y": 101, "z": 0},
+      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+      "shape": {
+        "type": "none",
+        "offset": {"x": 0, "y": 0, "z": 0},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "L-Ear-EarAccessory",
+          "position": {"x": 6.83416, "y": -3.77673, "z": 1.37463},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 0, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": true
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "3",
+              "name": "ScrewHead--C1",
+              "position": {"x": -0.94777, "y": 0.37826, "z": 4.22716},
+              "orientation": {"x": -0.01354, "y": -0.0904, "z": -0.88348, "w": 0.45947},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 5, "y": 5, "z": 2},
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 14, "y": 16},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 19, "y": 2},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 14, "y": 7},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 21, "y": 2},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 14, "y": 9},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {"x": 14, "y": 2},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "4",
+              "name": "EarringSpike--C2",
+              "position": {"x": -0.81748, "y": -0.08852, "z": 2.06103},
+              "orientation": {"x": 0.64975, "y": -0.0559, "z": -0.1123, "w": 0.74973},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0.00939, "y": -2.61388, "z": -0.11207},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 2, "y": 10},
+                  "normal": "+Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 22, "y": 0},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "5",
+              "name": "EarringSpike--C3",
+              "position": {"x": -0.81748, "y": -0.08852, "z": 2.06103},
+              "orientation": {"x": 0.54701, "y": 0.47807, "z": 0.36819, "w": 0.58023},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0.11238, "y": -2.61389, "z": 0.00449},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 2, "y": 10},
+                  "normal": "+Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 22, "y": 0},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            }
+          ]
+        },
+        {
+          "id": "6",
+          "name": "L-Ear-EarAccessoryExtra",
+          "position": {"x": -18.16584, "y": -3.77673, "z": 4.37463},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 0, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": true
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "7",
+              "name": "ScrewHead--C1",
+              "position": {"x": 1.05223, "y": 0.37826, "z": 1.22716},
+              "orientation": {"x": -0.14323, "y": -0.06805, "z": -0.86784, "w": 0.47087},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 0.625, "y": 0.625, "z": 0.625},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 5, "y": 5, "z": 2},
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 14, "y": 16},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 19, "y": 2},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 14, "y": 15},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 21, "y": 2},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 14, "y": 9},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {"x": 14, "y": 2},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "8",
+              "name": "EarringSpike--C2",
+              "position": {"x": 0.15752, "y": -0.51352, "z": -1.06397},
+              "orientation": {"x": 0.50754, "y": 0.11311, "z": -0.23084, "w": 0.82239},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0.00939, "y": -1.11388, "z": -0.11207},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 2, "y": 7},
+                  "normal": "+Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 22, "y": 0},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "9",
+              "name": "EarringSpike--C3",
+              "position": {"x": 0.15752, "y": -0.51352, "z": -1.06397},
+              "orientation": {"x": 0.52625, "y": 0.65041, "z": 0.18423, "w": 0.51585},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0.11238, "y": -1.11389, "z": 0.00449},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 2, "y": 7},
+                  "normal": "+Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 22, "y": 0},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

@@ -1,0 +1,706 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "R-Thigh",
+      "position": {"x": -7.5, "y": 50, "z": 1},
+      "orientation": {"x": 0, "y": -0.0192, "z": 0, "w": 0.99982},
+      "shape": {
+        "type": "none",
+        "offset": {"x": -0.00001, "y": -11, "z": 0},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "Thigh2",
+          "position": {"x": 0, "y": 0, "z": 0},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "box",
+            "offset": {"x": -0.25, "y": -8, "z": 0},
+            "stretch": {"x": 1.07375, "y": 1.1875, "z": 1.09375},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 12, "y": 4, "z": 14}
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {"x": 26, "y": 52},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              },
+              "right": {
+                "offset": {"x": 14, "y": 52},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              },
+              "front": {
+                "offset": {"x": 26, "y": 56},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              },
+              "left": {
+                "offset": {"x": 14, "y": 52},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              },
+              "bottom": {
+                "offset": {"x": 48, "y": 41},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "3",
+              "name": "R-Thigh--C1",
+              "position": {"x": 0.25, "y": 8, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "box",
+                "offset": {"x": -0.25, "y": -7, "z": 0},
+                "stretch": {"x": 1.15625, "y": 1.09375, "z": 1.15625},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 12, "y": 4, "z": 14},
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 60, "y": 56},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 48, "y": 56},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 47, "y": 52},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 48, "y": 56},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 19, "y": 41},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            }
+          ]
+        },
+        {
+          "id": "4",
+          "name": "R-Calf",
+          "position": {"x": -0.49999, "y": -22, "z": 0},
+          "orientation": {"x": 0, "y": -0.0192, "z": 0, "w": 0.99982},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 0, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": true
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "5",
+              "name": "R-Foot",
+              "position": {"x": 0, "y": -13, "z": 2},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": true
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "6",
+                  "name": "Calf",
+                  "position": {"x": 0.00062, "y": 5.26007, "z": 2.33029},
+                  "orientation": {"x": 0.34176, "y": -0.00244, "z": -0.00697, "w": 0.93976},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": -1, "y": 1, "z": 1.025},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 10, "y": 8, "z": 13}
+                    },
+                    "textureLayout": {
+                      "right": {
+                        "offset": {"x": 10, "y": 39},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 270
+                      },
+                      "left": {
+                        "offset": {"x": 10, "y": 28},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 90
+                      },
+                      "top": {
+                        "offset": {"x": 1, "y": 26},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "7",
+                  "name": "Heel",
+                  "position": {"x": -0.05671, "y": -0.02885, "z": 0.01009},
+                  "orientation": {"x": 0, "y": 0.00449, "z": 0.00018, "w": 0.99999},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": -1.17204, "y": 1.01793, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 12, "y": 8, "z": 20}
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 35, "y": 43},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 15, "y": 43},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {"x": 0, "y": 43},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 35, "y": 43},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {"x": 1, "y": 2},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 13, "y": 2},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "8",
+                      "name": "Heel--C1",
+                      "position": {"x": 0, "y": 0, "z": 0},
+                      "orientation": {"x": 0.11727, "y": -0.00004, "z": -0.00796, "w": 0.99307},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": 0.03408, "y": 3.01332, "z": 8.98554},
+                        "stretch": {"x": -1.17204, "y": 1.01793, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 10, "y": 6, "z": 3},
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 36, "y": 44},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {"x": 15, "y": 44},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {"x": 1, "y": 44},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {"x": 18, "y": 44},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {"x": 1, "y": 47},
+                            "mirror": {"x": false, "y": true},
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {"x": 14, "y": 2},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "9",
+              "name": "Calf3",
+              "position": {"x": 0.49999, "y": 0, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "box",
+                "offset": {"x": -0.25, "y": 0, "z": 0},
+                "stretch": {"x": 1.0625, "y": 1.09375, "z": 1.0625},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 12, "y": 24, "z": 14}
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 52, "y": 16},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 26, "y": 26},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 64, "y": 16},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 40, "y": 2},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 40, "y": 16},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {"x": 52, "y": 2},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "name": "L-Thigh",
+      "position": {"x": 7.5, "y": 50, "z": 1},
+      "orientation": {"x": 0, "y": 0.0192, "z": 0, "w": 0.99982},
+      "shape": {
+        "type": "none",
+        "offset": {"x": -0.00001, "y": -11, "z": 0},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "11",
+          "name": "Thigh",
+          "position": {"x": 0.00002, "y": -2.5, "z": 0},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "box",
+            "offset": {"x": 0.25, "y": -5.5, "z": 0},
+            "stretch": {"x": 1.07375, "y": 1.1875, "z": 1.09375},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 12, "y": 4, "z": 14}
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {"x": 14, "y": 52},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "right": {
+                "offset": {"x": 0, "y": 52},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "front": {
+                "offset": {"x": 14, "y": 56},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "left": {
+                "offset": {"x": 0, "y": 52},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "bottom": {
+                "offset": {"x": 60, "y": 41},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "12",
+              "name": "L-Thigh--C1",
+              "position": {"x": -0.25, "y": 8, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0.25, "y": -7, "z": 0},
+                "stretch": {"x": 1.15625, "y": 1.09375, "z": 1.15625},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 12, "y": 4, "z": 14},
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 48, "y": 56},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 34, "y": 56},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 35, "y": 52},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 34, "y": 56},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 31, "y": 41},
+                    "mirror": {"x": true, "y": true},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            }
+          ]
+        },
+        {
+          "id": "13",
+          "name": "L-Calf",
+          "position": {"x": 0.50001, "y": -22, "z": 0},
+          "orientation": {"x": 0, "y": 0.0192, "z": 0, "w": 0.99982},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 0, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": true
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "14",
+              "name": "L-Foot",
+              "position": {"x": 0, "y": -13, "z": 2},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": true
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "15",
+                  "name": "Calf5",
+                  "position": {"x": -0.00062, "y": 5.26007, "z": 2.33029},
+                  "orientation": {"x": 0.34176, "y": 0.00244, "z": 0.00697, "w": 0.93976},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": -1, "y": 1, "z": 1.025},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 10, "y": 8, "z": 13}
+                    },
+                    "textureLayout": {
+                      "right": {
+                        "offset": {"x": 10, "y": 41},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 270
+                      },
+                      "left": {
+                        "offset": {"x": 10, "y": 26},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 90
+                      },
+                      "top": {
+                        "offset": {"x": 11, "y": 26},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "16",
+                  "name": "Heel2",
+                  "position": {"x": 0.05671, "y": -0.02885, "z": 0.01009},
+                  "orientation": {"x": 0, "y": -0.00449, "z": -0.00018, "w": 0.99999},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": -1.17204, "y": 1.01793, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 12, "y": 8, "z": 20}
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 47, "y": 43},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 15, "y": 43},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {"x": 12, "y": 43},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 35, "y": 43},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {"x": 13, "y": 2},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 25, "y": 2},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "17",
+                      "name": "Heel--C1",
+                      "position": {"x": 0, "y": 0, "z": 0},
+                      "orientation": {"x": 0.11727, "y": 0.00004, "z": 0.00796, "w": 0.99307},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": -0.03408, "y": 3.01332, "z": 8.98554},
+                        "stretch": {"x": -1.17204, "y": 1.01793, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 10, "y": 6, "z": 3},
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 46, "y": 44},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {"x": 15, "y": 44},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {"x": 11, "y": 44},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {"x": 18, "y": 44},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {"x": 1, "y": 47},
+                            "mirror": {"x": false, "y": true},
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {"x": 24, "y": 2},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "18",
+              "name": "Calf2",
+              "position": {"x": -0.49999, "y": 0, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0.25, "y": 0, "z": 0},
+                "stretch": {"x": 1.0625, "y": 1.09375, "z": 1.0625},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 12, "y": 24, "z": 14}
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 40, "y": 16},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 26, "y": 2},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 52, "y": 16},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 40, "y": 2},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 52, "y": 16},
+                    "mirror": {"x": true, "y": true},
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {"x": 64, "y": 2},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

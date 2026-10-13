@@ -1,0 +1,119 @@
+[
+  {
+    "Id": "Wave",
+    "Animation": "Characters/Animations/Emote/Wave.blockyanim",
+    "Name": "avatarCustomization.emotes.Wave.name",
+    "Icon": "Icons/Emotes/Wave.png",
+    "IsLooping": true
+  },
+  {
+    "Id": "WaveDouble",
+    "Animation": "Characters/Animations/Emote/Double_Wave.blockyanim",
+    "Name": "avatarCustomization.emotes.WaveDouble.name",
+    "Icon": "Icons/Emotes/DoubleWave.png",
+    "IsLooping": true
+  },
+  {
+    "Id": "Laugh",
+    "Animation": "Characters/Animations/Taunt/Laugh.blockyanim",
+    "Name": "avatarCustomization.emotes.Laugh.name",
+    "Icon": "Icons/Emotes/Laugh.png"
+  },
+  {
+    "Id": "Tongue",
+    "Animation": "Characters/Animations/Taunt/Tongue.blockyanim",
+    "Name": "avatarCustomization.emotes.Tongue.name",
+    "Icon": "Icons/Emotes/Tongue.png",
+    "HideItemInHand": true
+  },
+  {
+    "Id": "Chicken",
+    "Animation": "Characters/Animations/Taunt/Chicken.blockyanim",
+    "Name": "avatarCustomization.emotes.Chicken.name",
+    "Icon": "Icons/Emotes/Chicken.png",
+    "HideItemInHand": true
+  },
+  {
+    "Id": "Kill",
+    "Animation": "Characters/Animations/Taunt/Kill.blockyanim",
+    "Name": "avatarCustomization.emotes.Kill.name",
+    "Icon": "Icons/Emotes/Kill.png",
+    "HideItemInHand": false
+  },
+  {
+    "Id": "Punch",
+    "Animation": "Characters/Animations/Taunt/Punch.blockyanim",
+    "Name": "avatarCustomization.emotes.Punch.name",
+    "Icon": "Icons/Emotes/Punch.png",
+    "HideItemInHand": true
+  },
+  {
+    "Id": "DabRight",
+    "Animation": "Characters/Animations/Emote/Dab_Left.blockyanim",
+    "Name": "avatarCustomization.emotes.DabRight.name",
+    "Icon": "Icons/Emotes/Dab_Right.png"
+  },
+  {
+    "Id": "DabLeft",
+    "Animation": "Characters/Animations/Emote/Dab_Right.blockyanim",
+    "Name": "avatarCustomization.emotes.DabLeft.name",
+    "Icon": "Icons/Emotes/Dab_Left.png"
+  },
+  {
+    "Id": "PonderDismissive",
+    "Animation": "Characters/Animations/Emote/Ponder_Dismissive.blockyanim",
+    "Name": "avatarCustomization.emotes.PonderDismissive.name",
+    "Icon": "Icons/Emotes/Ponder.png",
+    "HideItemInHand": true
+  },
+  {
+    "Id": "BlowKiss",
+    "Animation": "Characters/Animations/Emote/Blow_Kiss.blockyanim",
+    "Name": "avatarCustomization.emotes.BlowKiss.name",
+    "Icon": "Icons/Emotes/Blow_Kiss.png",
+    "HideItemInHand": true
+  },
+  {
+    "Id": "Yawn",
+    "Animation": "Characters/Animations/Emote/Yawn.blockyanim",
+    "Name": "avatarCustomization.emotes.Yawn.name",
+    "Icon": "Icons/Emotes/Yawn.png"
+  },
+  {
+    "Id": "Refuse",
+    "Animation": "Characters/Animations/Emote/Shake_Head_No.blockyanim",
+    "Name": "avatarCustomization.emotes.Refuse.name",
+    "Icon": "Icons/Emotes/NegativeNod.png"
+  },
+  {
+    "Id": "Salute",
+    "Animation": "Characters/Animations/Emote/Salute_Chest.blockyanim",
+    "Name": "avatarCustomization.emotes.Salute.name",
+    "Icon": "Icons/Emotes/Salute.png"
+  },
+  {
+    "Id": "HighFive",
+    "Animation": "Characters/Animations/Emote/High_Five.blockyanim",
+    "Name": "avatarCustomization.emotes.HighFive.name",
+    "Icon": "Icons/Emotes/HighFive.png"
+  },
+  {
+    "Id": "Shrug",
+    "Animation": "Characters/Animations/Emote/Shrug.blockyanim",
+    "Name": "avatarCustomization.emotes.Shrug.name",
+    "Icon": "Icons/Emotes/Shrug.png"
+  },
+  {
+    "Id": "DanceBoogie",
+    "Animation": "Characters/Animations/Emote/Dance_Boogie.blockyanim",
+    "Name": "avatarCustomization.emotes.DanceBoogie.name",
+    "Icon": "Icons/Emotes/DanceBoogie.png"
+  },
+  {
+    "Id": "DancePop",
+    "Animation": "Characters/Animations/Emote/Dance_Pop.blockyanim",
+    "Name": "avatarCustomization.emotes.DancePop.name",
+    "Icon": "Icons/Emotes/DancePop.png",
+    "HideItemInHand": true
+  }
+]
