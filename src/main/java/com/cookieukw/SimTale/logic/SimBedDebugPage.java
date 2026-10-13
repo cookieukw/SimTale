@@ -319,7 +319,7 @@ public class SimBedDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     private void refreshUI() {
-        player.getPageManager().clearCustomPageAcknowledgements();
+        player.getPageManager().clearLegacyCustomPageAcknowledgements();
         rebuild();
     }
 }

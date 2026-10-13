@@ -281,7 +281,7 @@ public class SimBathDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     private void refreshUI() {
-        player.getPageManager().clearCustomPageAcknowledgements();
+        player.getPageManager().clearLegacyCustomPageAcknowledgements();
         rebuild();
     }
 }
