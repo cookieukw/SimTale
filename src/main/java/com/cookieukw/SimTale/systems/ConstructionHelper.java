@@ -231,9 +231,9 @@ public final class ConstructionHelper {
     private static void restoreBlock(World world, ConstructionSiteComponent site, int x, int y, int z, long packed) {
         ConstructionSiteComponent.OriginalBlockState original = site.originalBlocks.remove(packed);
         if (original != null && original.type != null && original.type.getId() != null) {
-            world.setBlock(x, y, z, original.type.getId(), original.rotation);
+            NPCMovementHelper.setBlockSafe(world, x, y, z, original.type.getId(), original.rotation);
         } else {
-            world.setBlock(x, y, z, EMPTY_BLOCK_ID);
+            NPCMovementHelper.setBlockSafe(world, x, y, z, EMPTY_BLOCK_ID);
         }
     }
 
