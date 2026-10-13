@@ -1,0 +1,17 @@
+[
+  {
+    "Id": "HairLength.Short",
+    "NameKey": "avatarCustomization.tags.haircut.short",
+    "DisplayOrder": 1
+  },
+  {
+    "Id": "HairLength.Medium",
+    "NameKey": "avatarCustomization.tags.haircut.medium",
+    "DisplayOrder": 2
+  },
+  {
+    "Id": "HairLength.Long",
+    "NameKey": "avatarCustomization.tags.haircut.long",
+    "DisplayOrder": 3
+  }
+]

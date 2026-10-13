@@ -1,0 +1,2736 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Pelvis",
+      "position": {"x": 0, "y": 51, "z": 0},
+      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+      "shape": {
+        "type": "none",
+        "offset": {"x": 0, "y": 0, "z": 0},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "Belly",
+          "position": {"x": 0, "y": 8, "z": 0},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 4, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": true
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "3",
+              "name": "BellyCostume",
+              "position": {"x": 0, "y": -8, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": 8, "z": 0},
+                "stretch": {"x": 1.065, "y": 1.06, "z": 1.06},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 26, "y": 16, "z": 19}
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 69, "y": 42},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 48, "y": 42},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 21, "y": 42},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 20, "y": 42},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 76, "y": 0},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {"x": 49, "y": 0},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "4",
+              "name": "Chest",
+              "position": {"x": 0, "y": 5, "z": -3},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 11, "z": 3},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": true
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "5",
+                  "name": "R-Arm",
+                  "position": {"x": -12, "y": 7, "z": -1},
+                  "orientation": {"x": 0.00266, "y": -0.06099, "z": -0.04354, "w": 0.99719},
+                  "shape": {
+                    "type": "none",
+                    "offset": {"x": -4, "y": -7, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": true
+                    },
+                    "textureLayout": {},
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "6",
+                      "name": "R-ArmCostume",
+                      "position": {"x": 4, "y": 7, "z": 0},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": -4, "y": -7, "z": 0},
+                        "stretch": {"x": 0.99, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 10, "y": 22, "z": 14}
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 286, "y": 0},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {"x": 272, "y": 0},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {"x": 262, "y": 0},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {"x": 248, "y": 0},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {"x": 297, "y": 30},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {"x": 297, "y": 0},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "7",
+                      "name": "R-Forearm",
+                      "position": {"x": 0, "y": -18, "z": 0},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                      "shape": {
+                        "type": "none",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": true
+                        },
+                        "textureLayout": {},
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "8",
+                          "name": "R-ForearmTunic",
+                          "position": {"x": 4, "y": 7.5, "z": 0},
+                          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                          "shape": {
+                            "type": "box",
+                            "offset": {"x": -4, "y": -7, "z": 0},
+                            "stretch": {"x": 1, "y": 1, "z": 1.05},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 10, "y": 16, "z": 14}
+                            },
+                            "textureLayout": {
+                              "back": {
+                                "offset": {"x": 225, "y": 22},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "right": {
+                                "offset": {"x": 211, "y": 22},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "front": {
+                                "offset": {"x": 201, "y": 22},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "left": {
+                                "offset": {"x": 187, "y": 22},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "top": {
+                                "offset": {"x": 236, "y": 0},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "bottom": {
+                                "offset": {"x": 236, "y": 15},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": false,
+                            "shadingMode": "flat"
+                          }
+                        },
+                        {
+                          "id": "9",
+                          "name": "R-ForearmSleeve",
+                          "position": {"x": 5.11, "y": -1.569, "z": 0},
+                          "orientation": {"x": 0, "y": 0, "z": -0.04551, "w": 0.99896},
+                          "shape": {
+                            "type": "box",
+                            "offset": {"x": -4, "y": -7, "z": 0},
+                            "stretch": {"x": 1.02, "y": 1.01, "z": 1.06},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 12, "y": 12, "z": 15}
+                            },
+                            "textureLayout": {
+                              "back": {
+                                "offset": {"x": 202, "y": 39},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "right": {
+                                "offset": {"x": 187, "y": 39},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "front": {
+                                "offset": {"x": 214, "y": 39},
+                                "mirror": {"x": true, "y": false},
+                                "angle": 0
+                              },
+                              "left": {
+                                "offset": {"x": 214, "y": 39},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "top": {
+                                "offset": {"x": 234, "y": 45},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "10",
+                              "name": "R-ForearmSleeve-Tip",
+                              "position": {"x": -6.12, "y": -6, "z": 0},
+                              "orientation": {"x": 0, "y": 0.70711, "z": 0, "w": 0.70711},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0, "y": -4, "z": 0},
+                                "stretch": {"x": 1, "y": 1, "z": 1},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 15, "y": 8},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 229, "y": 51},
+                                    "mirror": {"x": true, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "11",
+                      "name": "ScarfSleeve",
+                      "position": {"x": 4.45458, "y": 6.97729, "z": 0},
+                      "orientation": {"x": 0, "y": 0, "z": -0.02496, "w": 0.99969},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": -4, "y": -3, "z": 0},
+                        "stretch": {"x": 1.2, "y": 1, "z": 1.2},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 10, "y": 14, "z": 14}
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 287, "y": 46},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {"x": 273, "y": 46},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {"x": 263, "y": 46},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {"x": 249, "y": 46},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {"x": 308, "y": 46},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "12",
+                          "name": "Tessel01",
+                          "position": {"x": -3.64746, "y": -6.40822, "z": 8.36634},
+                          "orientation": {"x": 0.01041, "y": -0.16775, "z": 0.06108, "w": 0.98388},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0.07926, "y": -6.37508, "z": -0.02784},
+                            "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 3, "y": 16},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 250, "y": 64},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "13",
+                              "name": "Tessel02",
+                              "position": {"x": 0, "y": 0, "z": 0},
+                              "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0, "y": 0, "z": 0},
+                                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 3, "y": 16},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 255, "y": 64},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "id": "14",
+                          "name": "Tessel01",
+                          "position": {"x": 0.56451, "y": -5.82678, "z": 8.27929},
+                          "orientation": {"x": -0.00936, "y": 0.09582, "z": 0.06225, "w": 0.99341},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0.07926, "y": -3.37508, "z": -0.02784},
+                            "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 3, "y": 8},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 245, "y": 67},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "15",
+                              "name": "Tessel02",
+                              "position": {"x": -0.07926, "y": 3.37508, "z": 0.02784},
+                              "orientation": {"x": 0.00574, "y": -0.46171, "z": -0.00202, "w": 0.88701},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0.07926, "y": -3.37508, "z": -0.02784},
+                                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 3, "y": 8},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 240, "y": 67},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "id": "16",
+                          "name": "Tessel01",
+                          "position": {"x": -6.39624, "y": -6.78767, "z": 4.61077},
+                          "orientation": {"x": 0.00227, "y": -0.3203, "z": 0.05615, "w": 0.94565},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0.07926, "y": -6.37508, "z": -0.02784},
+                            "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 3, "y": 16},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 250, "y": 64},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "17",
+                              "name": "Tessel02",
+                              "position": {"x": 0, "y": 0, "z": 0},
+                              "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0, "y": 0, "z": 0},
+                                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 3, "y": 16},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 255, "y": 64},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "id": "18",
+                          "name": "Tessel01",
+                          "position": {"x": -6.30706, "y": -6.63309, "z": -0.50509},
+                          "orientation": {"x": 0.00883, "y": -0.40323, "z": 0.05223, "w": 0.91356},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0.07926, "y": -6.37508, "z": -0.02784},
+                            "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 3, "y": 16},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 250, "y": 64},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "19",
+                              "name": "Tessel02",
+                              "position": {"x": 0, "y": 0, "z": 0},
+                              "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0, "y": 0, "z": 0},
+                                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 3, "y": 16},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 255, "y": 64},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "id": "20",
+                          "name": "Tessel01",
+                          "position": {"x": -6.76463, "y": -5.87404, "z": -5.08587},
+                          "orientation": {"x": 0.0426, "y": -0.57651, "z": 0.02428, "w": 0.81562},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0.07926, "y": -6.37508, "z": -0.02784},
+                            "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 3, "y": 16},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 250, "y": 64},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "21",
+                              "name": "Tessel02",
+                              "position": {"x": 0, "y": 0, "z": 0},
+                              "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0, "y": 0, "z": 0},
+                                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 3, "y": 16},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 255, "y": 64},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "id": "22",
+                          "name": "Tessel01",
+                          "position": {"x": -3.82591, "y": -5.466, "z": -8.44682},
+                          "orientation": {"x": 0.00738, "y": -0.16795, "z": 0.05095, "w": 0.98445},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0.07926, "y": -6.37508, "z": -0.02784},
+                            "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 3, "y": 16},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 250, "y": 64},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "23",
+                              "name": "Tessel02",
+                              "position": {"x": 0, "y": 0, "z": 0},
+                              "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0, "y": 0, "z": 0},
+                                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 3, "y": 16},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 255, "y": 64},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "id": "24",
+                          "name": "Tessel01",
+                          "position": {"x": -0.71369, "y": -5.80777, "z": -8.28835},
+                          "orientation": {"x": -0.00936, "y": 0.09582, "z": 0.06225, "w": 0.99341},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0.07926, "y": -3.37508, "z": -0.02784},
+                            "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 3, "y": 8},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 245, "y": 67},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "25",
+                              "name": "Tessel02",
+                              "position": {"x": -0.07926, "y": 3.37508, "z": 0.02784},
+                              "orientation": {"x": 0.00574, "y": -0.46171, "z": -0.00202, "w": 0.88701},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0.07926, "y": -3.37508, "z": -0.02784},
+                                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 3, "y": 8},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 240, "y": 67},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "26",
+                  "name": "ChestScarf",
+                  "position": {"x": 0, "y": -11, "z": -3},
+                  "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 11, "z": 3},
+                    "stretch": {"x": 1.05, "y": 1.05, "z": 1.11763},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 28, "y": 22, "z": 20}
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 68, "y": 20},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 48, "y": 20},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {"x": 20, "y": 20},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 0, "y": 20},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {"x": 20, "y": 0},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 103, "y": 20},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "27",
+                      "name": "Brooch",
+                      "position": {"x": -9.70914, "y": 3.19702, "z": 11.46327},
+                      "orientation": {"x": -0.00201, "y": 0.00602, "z": 0.31693, "w": 0.94843},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 7, "y": 9},
+                          "normal": "+Z"
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 268, "y": 67},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "28",
+                          "name": "BroochPart",
+                          "position": {"x": -4.87299, "y": -2.47637, "z": -0.13398},
+                          "orientation": {"x": 0.00567, "y": 0.00105, "z": -0.6087, "w": 0.79338},
+                          "shape": {
+                            "type": "quad",
+                            "offset": {"x": 0, "y": 0, "z": 0},
+                            "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 9, "y": 10},
+                              "normal": "+Z"
+                            },
+                            "textureLayout": {
+                              "front": {
+                                "offset": {"x": 294, "y": 65},
+                                "mirror": {"x": true, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "29",
+                  "name": "L-Arm",
+                  "position": {"x": 12, "y": 7, "z": -1},
+                  "orientation": {"x": 0.00266, "y": 0.06099, "z": 0.04354, "w": 0.99719},
+                  "shape": {
+                    "type": "none",
+                    "offset": {"x": 4, "y": -7, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": true
+                    },
+                    "textureLayout": {},
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "30",
+                      "name": "L-ArmCostume",
+                      "position": {"x": -4, "y": 7, "z": 0},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": 4, "y": -7, "z": 0},
+                        "stretch": {"x": -0.99, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 10, "y": 22, "z": 14}
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 225, "y": 0},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {"x": 211, "y": 0},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {"x": 201, "y": 0},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {"x": 187, "y": 0},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {"x": 236, "y": 30},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "bottom": {
+                            "offset": {"x": 236, "y": 0},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "31",
+                      "name": "L-Forearm",
+                      "position": {"x": 0, "y": -18, "z": 0},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                      "shape": {
+                        "type": "none",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": true
+                        },
+                        "textureLayout": {},
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "32",
+                          "name": "L-ForearmTunic",
+                          "position": {"x": -4, "y": 7.5, "z": 0},
+                          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                          "shape": {
+                            "type": "box",
+                            "offset": {"x": 4, "y": -7, "z": 0},
+                            "stretch": {"x": -1, "y": 1, "z": 1.05},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 10, "y": 16, "z": 14}
+                            },
+                            "textureLayout": {
+                              "back": {
+                                "offset": {"x": 225, "y": 22},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "right": {
+                                "offset": {"x": 211, "y": 22},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "front": {
+                                "offset": {"x": 201, "y": 22},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "left": {
+                                "offset": {"x": 187, "y": 22},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "top": {
+                                "offset": {"x": 236, "y": 0},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "bottom": {
+                                "offset": {"x": 236, "y": 15},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": false,
+                            "shadingMode": "flat"
+                          }
+                        },
+                        {
+                          "id": "33",
+                          "name": "L-ForearmSleeve",
+                          "position": {"x": -5.11, "y": -1.569, "z": 0},
+                          "orientation": {"x": 0, "y": 0, "z": 0.04551, "w": 0.99896},
+                          "shape": {
+                            "type": "box",
+                            "offset": {"x": 4, "y": -7, "z": 0},
+                            "stretch": {"x": -1.02, "y": 1.01, "z": 1.06},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 12, "y": 12, "z": 15}
+                            },
+                            "textureLayout": {
+                              "back": {
+                                "offset": {"x": 202, "y": 39},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "right": {
+                                "offset": {"x": 187, "y": 39},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "front": {
+                                "offset": {"x": 214, "y": 39},
+                                "mirror": {"x": true, "y": false},
+                                "angle": 0
+                              },
+                              "left": {
+                                "offset": {"x": 214, "y": 39},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "top": {
+                                "offset": {"x": 234, "y": 45},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": true,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "34",
+                              "name": "L-ForearmSleeve-Tip",
+                              "position": {"x": 6.12, "y": -6, "z": 0},
+                              "orientation": {"x": 0, "y": -0.70711, "z": 0, "w": 0.70711},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 0, "y": -4, "z": 0},
+                                "stretch": {"x": -1, "y": 1, "z": 1},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 15, "y": 8},
+                                  "normal": "+Z"
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 229, "y": 51},
+                                    "mirror": {"x": true, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "35",
+              "name": "Belt",
+              "position": {"x": 0, "y": -7.30916, "z": 0},
+              "orientation": {"x": 0.02154, "y": 0, "z": 0, "w": 0.99977},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": 4, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 28, "y": 6, "z": 22}
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 150, "y": 42},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "right": {
+                    "offset": {"x": 128, "y": 42},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "front": {
+                    "offset": {"x": 100, "y": 42},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "left": {
+                    "offset": {"x": 150, "y": 42},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 158, "y": 49},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "bottom": {
+                    "offset": {"x": 158, "y": 49},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "36",
+                  "name": "Front_Cloth_1",
+                  "position": {"x": 7, "y": -3, "z": 11},
+                  "orientation": {"x": -0.21326, "y": 0, "z": 0, "w": 0.977},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": -9, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 6, "y": 18},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 138, "y": 50},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "37",
+                  "name": "VeltBuckle",
+                  "position": {"x": -6, "y": 0, "z": 10.847},
+                  "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 2, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 10, "y": 8},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 105, "y": 41},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "38",
+                  "name": "BeltKnot",
+                  "position": {"x": 6.59459, "y": 0.18229, "z": 10.82996},
+                  "orientation": {"x": 0, "y": -0.00277, "z": -0.0643, "w": 0.99793},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 6, "y": 8, "z": 4}
+                    },
+                    "textureLayout": {
+                      "right": {
+                        "offset": {"x": 152, "y": 56},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {"x": 146, "y": 56},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 156, "y": 56},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {"x": 146, "y": 52},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 146, "y": 64},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "39",
+          "name": "Back_Cloth_1",
+          "position": {"x": 0, "y": 3.95413, "z": -9.9803},
+          "orientation": {"x": 0.13053, "y": 0, "z": 0, "w": 0.99144},
+          "shape": {
+            "type": "quad",
+            "offset": {"x": 0, "y": -9, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": -1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 26, "y": 18},
+              "normal": "+Z"
+            },
+            "textureLayout": {
+              "front": {
+                "offset": {"x": 63, "y": 58},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "40",
+              "name": "Back_Cloth_L",
+              "position": {"x": 13, "y": 9, "z": 0},
+              "orientation": {"x": 0, "y": 0.79335, "z": 0, "w": 0.60876},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": -6.50001, "y": -9.00014, "z": -0.00002},
+                "stretch": {"x": 1, "y": 1, "z": -1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 13, "y": 18},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 103, "y": 58},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "41",
+              "name": "Back_Cloth_R",
+              "position": {"x": -13, "y": 9, "z": 0},
+              "orientation": {"x": 0, "y": 0.79335, "z": 0, "w": -0.60876},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 6.50006, "y": -9.00014, "z": -0.00002},
+                "stretch": {"x": -1, "y": 1, "z": -1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 13, "y": 18},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 103, "y": 58},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "42",
+              "name": "Back_Cloth_2",
+              "position": {"x": 0, "y": -9, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0, "y": -4, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 26, "y": 8},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 63, "y": 76},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "43",
+                  "name": "Back_Cloth_L",
+                  "position": {"x": 13, "y": 9, "z": 0},
+                  "orientation": {"x": 0, "y": 0.79335, "z": 0, "w": 0.60876},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": -6.5, "y": -8, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 13, "y": 6},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 103, "y": 76},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "44",
+                  "name": "Back_Cloth_R2",
+                  "position": {"x": -13, "y": 9, "z": 0},
+                  "orientation": {"x": 0, "y": 0.79388, "z": 0, "w": -0.60807},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 6.5, "y": -8, "z": 0},
+                    "stretch": {"x": -1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 13, "y": 6},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 103, "y": 76},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "45",
+          "name": "Front_Cloth_1",
+          "position": {"x": 0, "y": 3.782, "z": 10},
+          "orientation": {"x": -0.13053, "y": 0, "z": 0, "w": 0.99144},
+          "shape": {
+            "type": "box",
+            "offset": {"x": 0, "y": -9, "z": -7.5},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 26, "y": 18, "z": 15}
+            },
+            "textureLayout": {
+              "front": {
+                "offset": {"x": 21, "y": 58},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "46",
+              "name": "Front_Cloth_L",
+              "position": {"x": -13, "y": 0, "z": 7.5},
+              "orientation": {"x": 0, "y": 0.79335, "z": 0, "w": 0.60876},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 7.5, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 15, "y": 18},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 47, "y": 58},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "47",
+              "name": "Front_Cloth_R",
+              "position": {"x": 13, "y": 0, "z": 7.5},
+              "orientation": {"x": 0, "y": 0.79335, "z": 0, "w": -0.60876},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": -7.5, "y": 0, "z": 0},
+                "stretch": {"x": -1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 15, "y": 18},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 47, "y": 58},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "48",
+              "name": "Front_Cloth_2",
+              "position": {"x": 0, "y": -9, "z": 7.5},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": -5, "z": -7.5},
+                "stretch": {"x": 0.975, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 26, "y": 10, "z": 15}
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 21, "y": 76},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "49",
+                  "name": "Front_Cloth_L",
+                  "position": {"x": -12.667, "y": 2, "z": 7.5},
+                  "orientation": {"x": 0, "y": 0.79335, "z": 0, "w": 0.60876},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 7.5, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 15, "y": 6},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 47, "y": 76},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "50",
+                  "name": "Front_Cloth_R",
+                  "position": {"x": 12.667, "y": 2, "z": 7.5},
+                  "orientation": {"x": 0, "y": 0.79335, "z": 0, "w": -0.60876},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": -7.5, "y": 0, "z": 0},
+                    "stretch": {"x": -1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 15, "y": 6},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 47, "y": 76},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "51",
+          "name": "L_Side_Cloth_1",
+          "position": {"x": 13.5, "y": 4, "z": 0},
+          "orientation": {"x": 0, "y": 0, "z": 0.13053, "w": 0.99144},
+          "shape": {
+            "type": "box",
+            "offset": {"x": -6.5, "y": -9, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 13, "y": 18, "z": 18}
+            },
+            "textureLayout": {
+              "right": {
+                "offset": {"x": 118, "y": 58},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "52",
+              "name": "L_Side_Cloth_Side_R",
+              "position": {"x": 6.5, "y": 0, "z": -9},
+              "orientation": {"x": 0, "y": -0.13053, "z": 0, "w": 0.99144},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": -6.50009, "y": -0.00016, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 13, "y": 18},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 117, "y": 58},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "53",
+              "name": "L_Side_Cloth_Side_L",
+              "position": {"x": 6.5, "y": 0, "z": 9},
+              "orientation": {"x": 0, "y": 0.13053, "z": 0, "w": 0.99144},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": -6.50009, "y": -0.00016, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 13, "y": 18},
+                  "normal": "-Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 104, "y": 58},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "54",
+              "name": "L_Side_Cloth_2",
+              "position": {"x": 6.5, "y": -9, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": -0.08716, "w": 0.99619},
+              "shape": {
+                "type": "box",
+                "offset": {"x": -6.5, "y": -5, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 13, "y": 10, "z": 18}
+                },
+                "textureLayout": {
+                  "right": {
+                    "offset": {"x": 118, "y": 76},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 0, "y": -16},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "55",
+                  "name": "L_Side_Cloth_Side_R",
+                  "position": {"x": 6.5, "y": 2, "z": -9},
+                  "orientation": {"x": 0, "y": -0.13139, "z": 0, "w": 0.99133},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": -6.5, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 13, "y": 6},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 117, "y": 76},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "56",
+                  "name": "L_Side_Cloth_Side_L",
+                  "position": {"x": 6.5, "y": 2, "z": 9},
+                  "orientation": {"x": 0, "y": 0.13139, "z": 0, "w": 0.99133},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": -6.5, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 13, "y": 6},
+                      "normal": "-Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 104, "y": 76},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "57",
+          "name": "Pelvis_Hider",
+          "position": {"x": 0, "y": 0, "z": 0},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "box",
+            "offset": {"x": 0, "y": 0, "z": 0},
+            "stretch": {"x": 1.06, "y": 1.06, "z": 1.06},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 26, "y": 8, "z": 18}
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {"x": 182, "y": 75},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "right": {
+                "offset": {"x": 164, "y": 75},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "front": {
+                "offset": {"x": 138, "y": 75},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "left": {
+                "offset": {"x": 182, "y": 75},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              },
+              "top": {
+                "offset": {"x": 76, "y": 0},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "bottom": {
+                "offset": {"x": 76, "y": 0},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          }
+        },
+        {
+          "id": "58",
+          "name": "Front_Cloth_1",
+          "position": {"x": 0, "y": 4.09428, "z": 10.22285},
+          "orientation": {"x": -0.15334, "y": 0, "z": 0, "w": 0.98817},
+          "shape": {
+            "type": "box",
+            "offset": {"x": 0, "y": -9, "z": -7.5},
+            "stretch": {"x": 1.05, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 26, "y": 18, "z": 15}
+            },
+            "textureLayout": {
+              "front": {
+                "offset": {"x": 133, "y": 0},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "59",
+              "name": "Front_Cloth_R",
+              "position": {"x": 13.65, "y": 0, "z": 7.5},
+              "orientation": {"x": 0, "y": 0.79335, "z": 0, "w": -0.60876},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": -7.5, "y": 0, "z": 0},
+                "stretch": {"x": -1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 15, "y": 18},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 159, "y": 0},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "60",
+                  "name": "Tessel01",
+                  "position": {"x": 4.84072, "y": -5.90457, "z": 0.35524},
+                  "orientation": {"x": 0.10469, "y": 0.89035, "z": -0.05037, "w": 0.44021},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0.07926, "y": -6.37508, "z": -0.02784},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 3, "y": 16},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 250, "y": 64},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "61",
+                      "name": "Tessel02",
+                      "position": {"x": 0, "y": 0, "z": 0},
+                      "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 3, "y": 16},
+                          "normal": "+Z"
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 255, "y": 64},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "62",
+              "name": "Tessel01",
+              "position": {"x": -2.04454, "y": 3.24771, "z": 7.69869},
+              "orientation": {"x": -0.02934, "y": -0.22803, "z": 0.00016, "w": 0.97321},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0.07926, "y": -6.37508, "z": -0.02784},
+                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 3, "y": 16},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 250, "y": 64},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "63",
+                  "name": "Tessel02",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 3, "y": 16},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 255, "y": 64},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "64",
+              "name": "Tessel01",
+              "position": {"x": -5.17269, "y": 7.77587, "z": 7.82053},
+              "orientation": {"x": -0.02238, "y": -0.22882, "z": -0.02949, "w": 0.97276},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0.079, "y": -3.375, "z": -0.028},
+                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 3, "y": 8},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 245, "y": 67},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "65",
+                  "name": "Tessel02",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 3, "y": 8},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 240, "y": 67},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "66",
+              "name": "Tessel01",
+              "position": {"x": 3.04188, "y": -0.64093, "z": 7.5565},
+              "orientation": {"x": -0.02932, "y": -0.18319, "z": -0.00119, "w": 0.98264},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0.07926, "y": -6.37508, "z": -0.02784},
+                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 3, "y": 16},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 250, "y": 64},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "67",
+                  "name": "Tessel02",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 3, "y": 16},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 255, "y": 64},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "68",
+              "name": "Tessel01",
+              "position": {"x": 9.15017, "y": -5.3948, "z": 7.81058},
+              "orientation": {"x": -0.03683, "y": 0.20191, "z": 0.00081, "w": 0.97871},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0.07926, "y": -6.37508, "z": -0.02784},
+                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 3, "y": 16},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 250, "y": 64},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "69",
+                  "name": "Tessel02",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 3, "y": 16},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 255, "y": 64},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "70",
+          "name": "L_Side_Cloth_1",
+          "position": {"x": 13.78409, "y": 4.07612, "z": 0},
+          "orientation": {"x": 0, "y": 0, "z": 0.15471, "w": 0.98796},
+          "shape": {
+            "type": "box",
+            "offset": {"x": -6.5, "y": -9, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1.05},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 13, "y": 18, "z": 18}
+            },
+            "textureLayout": {
+              "right": {
+                "offset": {"x": 100, "y": 21},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "71",
+              "name": "L_Side_Cloth_Side_R",
+              "position": {"x": 6.5, "y": 0, "z": -9.45},
+              "orientation": {"x": 0, "y": -0.13053, "z": 0, "w": 0.99144},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": -6.50009, "y": -0.00016, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 13, "y": 18},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 131, "y": 21},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "72",
+              "name": "L_Side_Cloth_Side_L",
+              "position": {"x": 6.5, "y": 0, "z": 9.45},
+              "orientation": {"x": 0, "y": 0.13053, "z": 0, "w": 0.99144},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": -6.50009, "y": -0.00016, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 13, "y": 18},
+                  "normal": "-Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 118, "y": 21},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            }
+          ]
+        },
+        {
+          "id": "73",
+          "name": "Back_Cloth_1",
+          "position": {"x": 0, "y": 3.95413, "z": -10.04789},
+          "orientation": {"x": 0.16828, "y": 0, "z": 0, "w": 0.98574},
+          "shape": {
+            "type": "quad",
+            "offset": {"x": 0, "y": -9, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": -1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 26, "y": 18},
+              "normal": "+Z"
+            },
+            "textureLayout": {
+              "front": {
+                "offset": {"x": 133, "y": 19},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "74",
+              "name": "Back_Cloth_L",
+              "position": {"x": 13, "y": 9, "z": 0},
+              "orientation": {"x": 0, "y": 0.79335, "z": 0, "w": 0.60876},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": -6.50001, "y": -9.00014, "z": -0.00002},
+                "stretch": {"x": 1, "y": 1, "z": -1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 13, "y": 18},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 172, "y": 19},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "75",
+                  "name": "Tessel01",
+                  "position": {"x": 2.75545, "y": -5.55578, "z": -0.33102},
+                  "orientation": {"x": 0.11597, "y": 0.88852, "z": 0.06029, "w": -0.43983},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0.079, "y": -3.375, "z": 0.028},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 3, "y": 8},
+                      "normal": "-Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 243, "y": 67},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "76",
+                      "name": "Tessel02",
+                      "position": {"x": 0, "y": 0, "z": 0},
+                      "orientation": {"x": -0.00667, "y": 0.53725, "z": -0.00235, "w": 0.84339},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 0, "y": 0, "z": 0},
+                        "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 3, "y": 8},
+                          "normal": "-Z"
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 248, "y": 67},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "77",
+              "name": "Tessel01",
+              "position": {"x": 3.62381, "y": -1.66933, "z": -0.08166},
+              "orientation": {"x": -0.00659, "y": -0.4385, "z": -0.01943, "w": 0.8985},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0.07926, "y": -6.37508, "z": -0.02784},
+                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 3, "y": 16},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 250, "y": 64},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "78",
+                  "name": "Tessel02",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 3, "y": 16},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 255, "y": 64},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "79",
+              "name": "Tessel01",
+              "position": {"x": -1.37733, "y": 3.35837, "z": -0.07458},
+              "orientation": {"x": 0.00065, "y": -0.12816, "z": -0.01563, "w": 0.99163},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0.07926, "y": -6.37508, "z": -0.02784},
+                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 3, "y": 16},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 250, "y": 64},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "80",
+                  "name": "Tessel02",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 3, "y": 16},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 255, "y": 64},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "81",
+              "name": "Tessel01",
+              "position": {"x": -5.18334, "y": 9.0561, "z": -0.1874},
+              "orientation": {"x": 0.00765, "y": 0.22835, "z": -0.03295, "w": 0.97299},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0.079, "y": -3.375, "z": 0.028},
+                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 3, "y": 8},
+                  "normal": "-Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 248, "y": 67},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "82",
+                  "name": "Tessel02",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": -0.00667, "y": 0.53725, "z": -0.00235, "w": 0.84339},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 3, "y": 8},
+                      "normal": "-Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 243, "y": 67},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "83",
+              "name": "Tessel01",
+              "position": {"x": 8.66959, "y": -5.28835, "z": 0.17178},
+              "orientation": {"x": 0.00401, "y": 0.08951, "z": -0.01512, "w": 0.99586},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0.07926, "y": -6.37508, "z": -0.02784},
+                "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 3, "y": 16},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 250, "y": 64},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "84",
+                  "name": "Tessel02",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": 0.00667, "y": -0.53725, "z": -0.00235, "w": 0.84339},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 3, "y": 16},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 255, "y": 64},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "85",
+          "name": "R_Side_Cloth_1",
+          "position": {"x": -13.5, "y": 4, "z": 0},
+          "orientation": {"x": 0, "y": 0, "z": -0.13053, "w": 0.99144},
+          "shape": {
+            "type": "box",
+            "offset": {"x": 6.5, "y": -9, "z": 0},
+            "stretch": {"x": -1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 13, "y": 18, "z": 18}
+            },
+            "textureLayout": {
+              "right": {
+                "offset": {"x": 2, "y": 60},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": true,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "86",
+              "name": "R_Side_Cloth_Side_R",
+              "position": {"x": -6.5, "y": 0, "z": -9},
+              "orientation": {"x": 0, "y": 0.13053, "z": 0, "w": 0.99144},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 6.50009, "y": -0.00016, "z": 0},
+                "stretch": {"x": -1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 13, "y": 18},
+                  "normal": "+Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 117, "y": 58},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "87",
+              "name": "R_Side_Cloth_2",
+              "position": {"x": -6.5, "y": -9, "z": 0},
+              "orientation": {"x": 0, "y": 0, "z": 0.08716, "w": 0.99619},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 6.5, "y": -5, "z": 0},
+                "stretch": {"x": -1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 13, "y": 10, "z": 18}
+                },
+                "textureLayout": {
+                  "right": {
+                    "offset": {"x": 2, "y": 78},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  },
+                  "top": {
+                    "offset": {"x": 0, "y": -16},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "88",
+                  "name": "R_Side_Cloth_Side_R",
+                  "position": {"x": -6.5, "y": 2, "z": -9},
+                  "orientation": {"x": 0, "y": 0.13139, "z": 0, "w": 0.99133},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 6.5, "y": 0, "z": 0},
+                    "stretch": {"x": -1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 13, "y": 6},
+                      "normal": "+Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 117, "y": 76},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "89",
+                  "name": "R_Side_Cloth_Side_L",
+                  "position": {"x": -6.5, "y": 2, "z": 9},
+                  "orientation": {"x": 0, "y": -0.13139, "z": 0, "w": 0.99133},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 6.5, "y": 0, "z": 0},
+                    "stretch": {"x": -1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 13, "y": 6},
+                      "normal": "-Z"
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 104, "y": 76},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "90",
+              "name": "R_Side_Cloth_Side_L",
+              "position": {"x": -6.5, "y": 0, "z": 9},
+              "orientation": {"x": 0, "y": -0.13053, "z": 0, "w": 0.99144},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 6.50009, "y": -0.00016, "z": 0},
+                "stretch": {"x": -1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 13, "y": 18},
+                  "normal": "-Z"
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 104, "y": 58},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}
