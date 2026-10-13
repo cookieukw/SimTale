@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.systems;
 
 import com.hypixel.hytale.component.system.WorldEventSystem;
 import com.cookieukw.SimTale.core.AssetIds;
+import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Rotation4;
@@ -95,7 +96,7 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
         }
         if (resolvedId == null) {
             // Fallback for any path that fires post-placement after all.
-            BlockType existing = world.getBlockType(pos.x, pos.y, pos.z);
+            BlockType existing = NPCMovementHelper.getBlockTypeSafe(world, pos.x, pos.y, pos.z);
             if (existing != null) resolvedId = existing.getId();
         }
         if (resolvedId == null) return;
@@ -201,7 +202,7 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
         /* The event is cancellable. If something downstream vetoed the placement — or the player
         broke the block in the meantime — the cell is empty and there is nothing to register.
         */
-        BlockType placed = world.getBlockType(pos.x, pos.y, pos.z);
+        BlockType placed = NPCMovementHelper.getBlockTypeSafe(world, pos.x, pos.y, pos.z);
         if (placed == null || placed.getId() == null || placed.getId().equalsIgnoreCase("Empty")) {
             return;
         }
