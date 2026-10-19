@@ -989,8 +989,19 @@ Yes. Names, needs, relationships, houses and jobs are all persisted.
 
 #### Can I change how fast they get hungry?
 
-Not from a config file yet — the values are constants in the code. See
-[Balancing](https://simtale.kukkie.org/admin/balancing).
+Yes. Edit `simtale-config.json` in the save folder:
+
+```json
+{
+  "hungerDecayMultiplier": 1.0,
+  "villageChestDepositChance": 0.3
+}
+```
+
+Restart the server after editing. `hungerDecayMultiplier` defaults to `1.0` (about 4h10 from 100
+to 70). Set it to `10.0` to reach the first food-search threshold in roughly 25 minutes, or `0` to
+freeze hunger. The deposit chance controls how often workers choose a village/global chest over
+their own pantry when both have room.
 
 #### How do I make NPCs do hobbies?
 

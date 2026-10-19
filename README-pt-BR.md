@@ -979,8 +979,19 @@ Sim. Nomes, necessidades, relacionamentos, casas e empregos são todos mantidos 
 
 #### Posso mudar a rapidez com que ficam com fome?
 
-Ainda não é possível fazer isso por um arquivo de configuração (config) — os valores são constantes no código. Veja
-[Balanceamento](https://simtale.kukkie.org/admin/balancing).
+Sim. Edite o `simtale-config.json` na pasta do save:
+
+```json
+{
+  "hungerDecayMultiplier": 1.0,
+  "villageChestDepositChance": 0.3
+}
+```
+
+Reinicie o servidor depois de editar. `hungerDecayMultiplier` vem com `1.0` (cerca de 4h10 de 100
+até 70). Use `10.0` para chegar ao primeiro limiar de busca de comida em ~25 minutos, ou `0` para
+congelar a fome. A chance de depósito controla quantas vezes o trabalhador escolhe o baú da vila em
+vez do baú de casa quando os dois têm espaço.
 
 #### Como faço para os NPCs praticarem hobbies?
 
