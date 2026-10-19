@@ -3,6 +3,8 @@ package com.cookieukw.SimTale.core;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import com.cookieukw.SimTale.config.SimTaleConfig;
+import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -215,8 +217,22 @@ public class NeedsHelper {
         boolean funny = traits != null && traits.contains(Trait.FUNNY);
         float energyDecay = lazy ? 0.0004f : 0.0002f;
         float funDecay = funny ? 0.00005f : 0.0001f;
-        
-        setNeed(store, entity, HUNGER_ID, getNeed(store, entity, HUNGER_ID) - 0.0001f);
+
+        /* Read live so tests/commands that replace the active config take effect immediately.
+        The JSON file itself is read at server startup. Clamped to 0 because a negative
+        multiplier would refill hunger every tick.
+        */
+        float hungerDecay = 0.0001f;
+        try {
+            SimTaleConfig cfg = SimTaleConfigManager.getConfig();
+            if (cfg != null) {
+                hungerDecay *= (float) Math.max(0.0, cfg.hungerDecayMultiplier);
+            }
+        } catch (RuntimeException ignored) {
+            // Config not ready (early boot/tests): keep the historical rate.
+        }
+
+        setNeed(store, entity, HUNGER_ID, getNeed(store, entity, HUNGER_ID) - hungerDecay);
         setNeed(store, entity, ENERGY_ID, getNeed(store, entity, ENERGY_ID) - energyDecay);
         setNeed(store, entity, SOCIAL_ID, getNeed(store, entity, SOCIAL_ID) - 0.00015f);
         setNeed(store, entity, FUN_ID, getNeed(store, entity, FUN_ID) - funDecay);
