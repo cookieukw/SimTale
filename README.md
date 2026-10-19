@@ -995,7 +995,8 @@ Yes. Edit `simtale-config.json` in the save folder:
 {
   "hungerDecayMultiplier": 1.0,
   "villageChestDepositChance": 0.3,
-  "villageSafeZoneEnabled": true
+  "villageSafeZoneEnabled": true,
+  "villageRegenEnabled": true
 }
 ```
 
