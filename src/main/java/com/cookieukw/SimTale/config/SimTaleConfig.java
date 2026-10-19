@@ -67,4 +67,7 @@ public class SimTaleConfig {
      * take damage. Turns off the protection but leaves villages otherwise unchanged.
      */
     public boolean villageSafeZoneEnabled = true;
+
+    /** Grants a RuneCore regeneration effect to players standing inside the village safe zone. */
+    public boolean villageRegenEnabled = true;
 }
