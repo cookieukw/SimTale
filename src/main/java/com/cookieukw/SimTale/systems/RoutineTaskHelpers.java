@@ -8,6 +8,7 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.logger.HytaleLogger;
 
 import java.util.*;
 
@@ -206,6 +207,14 @@ final class RoutineTaskHelpers {
                     if (dyingNpc != null && dyingNpc.entityId != null) {
                         PlumbobSystem.removePlumbob(dyingNpc.entityId);
                         EmoteBubbleSystem.removeThought(dyingNpc.entityId);
+                        /* Save once more before archiving, so lastDamageCause and the current
+                        needs reach the graveyard record. Without this the record was whatever the
+                        last periodic save happened to contain, and the graveyard could not say
+                        why the NPC disappeared.
+                        */
+                        SimNPCPersistence.saveNPC(dyingNpc);
+                        HytaleLogger.forEnclosingClass().atInfo().log("SimTale: NPC '" + dyingNpc.name
+                                + "' died (" + dyingNpc.lastDamageCause + ") and was archived to the graveyard.");
                         /* Record survives now instead of being deleted outright — foundation for
                         a future revive/cemetery feature (SimNPCPersistence.archiveToGraveyard).
                         */
