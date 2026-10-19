@@ -86,6 +86,8 @@ ring.holding = Entregue a aliança a um morador por perto, em vez de usá-la soz
 
 blueprint.no_bed_nearby = Nenhuma cama registrada num raio de {radius} blocos. Fique perto da cama da casa que você quer conferir.
 blueprint.summary = Interior: {interior} blocos | Portas: {doors} | Baús: {chests}
+blueprint.unloaded = Parte desta casa está num chunk não carregado. Chegue mais perto / carregue a área e escaneie de novo.
+blueprint.overflowed = A varredura passou de 512 blocos internos: o cômodo está aberto para fora ou é muito maior que uma casa.
 
 journal.no_target = Aponte o diário para um morador.
 journal.not_npc = Isso não é um dos seus moradores.
@@ -167,6 +169,7 @@ map.house.occupied = Casa ({owners})
 map.house.occupied_unknown = Casa (Ocupada)
 map.house.empty = Casa (Desocupada)
 map.bed.unclaimed = Cama sem dono (nenhum NPC pegou esta casa ainda)
+graveyard.pending = [SimTale] {count} NPC(s) estão no cemitério. Use /simtale graveyard para ver a causa e ressuscitá-los.
 cmd.chestcheck.type_global = [Tipo do Baú] GLOBAL (Dentro da vila, sem casa)
 cmd.chestcheck.type_shared = [Tipo do Baú] COMPARTILHADO (Estoque Comunitário da Vila)
 cmd.chestcheck.type_private = [Tipo do Baú] PRIVADO (Casa)

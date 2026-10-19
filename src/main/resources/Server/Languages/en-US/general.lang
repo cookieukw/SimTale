@@ -86,6 +86,8 @@ ring.holding = Give the ring to a villager you are close to, rather than using i
 
 blueprint.no_bed_nearby = No registered bed within {radius} blocks. Stand next to the bed of the house you want to check.
 blueprint.summary = Interior: {interior} blocks | Doors: {doors} | Chests: {chests}
+blueprint.unloaded = Part of this house is in an unloaded chunk. Stand closer / load the area and scan again.
+blueprint.overflowed = The scan exceeded 512 interior blocks: the room is open to the outside or far larger than a house.
 
 journal.no_target = Point the journal at a villager.
 journal.not_npc = That is not one of your villagers.
@@ -167,6 +169,7 @@ map.house.occupied = House ({owners})
 map.house.occupied_unknown = House (Occupied)
 map.house.empty = House (Unoccupied)
 map.bed.unclaimed = Unclaimed bed (no NPC has taken this house yet)
+graveyard.pending = [SimTale] {count} NPC(s) are in the graveyard. Use /simtale graveyard to see the cause and revive them.
 cmd.chestcheck.type_global = [Chest Type] GLOBAL (Inside the village, no house)
 cmd.chestcheck.type_shared = [Chest Type] SHARED (Village Community Stock)
 cmd.chestcheck.type_private = [Chest Type] PRIVATE (House)

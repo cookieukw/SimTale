@@ -246,6 +246,7 @@ graveyard.emptyTitle = Cemitério Vazio
 graveyard.emptySubtitle = Ninguém está enterrado aqui. Todos os moradores estão vivos e seguros.
 graveyard.entry = {index}. {name}
 graveyard.detail = {children} filho(s)
+graveyard.cause = causa: {cause}
 graveyard.btnRevive = Ressuscitar
 graveyard.btnPrev = < Anterior
 graveyard.btnNext = Proximo >

@@ -247,6 +247,7 @@ graveyard.emptyTitle = Graveyard is Empty
 graveyard.emptySubtitle = Nobody is buried yet. All villagers are alive and safe.
 graveyard.entry = {index}. {name}
 graveyard.detail = {children} child(ren)
+graveyard.cause = cause: {cause}
 graveyard.btnRevive = Revive
 graveyard.btnPrev = < Previous
 graveyard.btnNext = Next >
