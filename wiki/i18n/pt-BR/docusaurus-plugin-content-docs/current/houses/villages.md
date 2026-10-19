@@ -39,6 +39,9 @@ funcionando porque ignora o sistema de dano.
 A proteção acompanha a vila: cresce quando a vila cresce e desaparece se a vila for destruída. Para
 desativar, use `villageSafeZoneEnabled: false` no `simtale-config.json`.
 
+Entrar na vila também concede um efeito de **regeneração** via RuneCore. Ele é renovado enquanto você
+fica dentro e some alguns segundos depois de sair. Para desativar, use `villageRegenEnabled: false`.
+
 ## Marcadores no mapa
 
 O mapa usa três marcadores relacionados:

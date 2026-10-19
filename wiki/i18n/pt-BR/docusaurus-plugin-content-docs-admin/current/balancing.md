@@ -15,6 +15,7 @@ pacing and the village deposit chance are exposed in `simtale-config.json`.
 | `hungerDecayMultiplier` | `1.0` | Multiplies the `0.0001` hunger decay. `10.0` reaches the first search in ~25 min; `0` freezes hunger |
 | `villageChestDepositChance` | `0.30` | Chance a worker chooses a village/global chest even when her home chest has room |
 | `villageSafeZoneEnabled` | `true` | Cancela todo dano a NPCs do SimTale dentro da fronteira da vila |
+| `villageRegenEnabled` | `true` | Concede regeneração RuneCore ao jogador dentro da vila |
 
 The JSON file is read at boot; restart after editing.
 

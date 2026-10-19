@@ -39,6 +39,10 @@ it bypasses the damage system.
 The protection follows the village: it expands when the village grows and disappears if the village
 is torn down. Disable it with `villageSafeZoneEnabled: false` in `simtale-config.json`.
 
+Entering the village also grants a **regeneration** status effect through RuneCore. It refreshes
+while you stay inside and fades a few seconds after you leave. Disable it with
+`villageRegenEnabled: false`.
+
 ## Map markers
 
 The map uses three related markers:

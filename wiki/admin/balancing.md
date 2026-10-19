@@ -16,6 +16,7 @@ so you know what the numbers mean before you touch them.
 | `hungerDecayMultiplier` | `1.0` | Multiplies the `0.0001` hunger decay. `10.0` reaches the first search in ~25 min; `0` freezes hunger |
 | `villageChestDepositChance` | `0.30` | Chance a worker chooses a village/global chest even when her home chest has room |
 | `villageSafeZoneEnabled` | `true` | Cancels all damage to SimTale NPCs inside the village boundary |
+| `villageRegenEnabled` | `true` | Gives players a RuneCore regeneration effect while inside the village |
 
 The JSON file is read at boot; restart after editing.
 

@@ -79,6 +79,18 @@ It used to be based only on resolvable owner names, so an owner in an unloaded c
 blue ("unoccupied"). Registered beds that belong to no house are drawn separately as grey
 "unclaimed bed" markers.
 
+## Village safe zone
+
+The village boundary is also a safe zone. `NPCDamageEventSystem` cancels every damage event whose
+victim is a SimTale NPC inside `VillageManager.nearest(...).contains(...)`; `/simtale forcekill` still
+works because it does not go through damage.
+
+`VillageRegenSystem` ticks players, detects the village boundary and applies
+`Food_Health_Regen_Medium` through RuneCore's `RuneEffect.withNativeEffect(...)`. It refreshes every
+two seconds while inside, with a six-second lifetime, so leaving the village lets the effect fade.
+
+Both are controlled by `villageSafeZoneEnabled` and `villageRegenEnabled` in `simtale-config.json`.
+
 ## Deduplication
 
 Claiming used to mint a fresh `UUID.randomUUID()` every time, producing 109 duplicate records in one
