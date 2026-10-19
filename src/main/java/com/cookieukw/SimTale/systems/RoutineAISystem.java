@@ -27,7 +27,6 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.cookieukw.SimTale.core.Relationship;
 import com.hypixel.hytale.server.core.universe.world.World;
-
 import java.util.*;
 
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
@@ -331,7 +330,7 @@ once per NPC per tick for nothing.
                     ai.taskStartTime = world.getTick();
                     String deathCause = npc.lastDamageCause != null ? npc.lastDamageCause : "de causas naturais";
                     Universe.get().getPlayers().forEach(p -> {
-                        p.sendMessage(com.hypixel.hytale.server.core.Message.raw("§cO(A) aldeão(ã) " + npc.name + " morreu " + deathCause + "."));
+                        p.sendMessage(Message.raw("O(A) aldeão(ã) " + npc.name + " morreu " + deathCause + "."));
                     });
                     return;
                 }

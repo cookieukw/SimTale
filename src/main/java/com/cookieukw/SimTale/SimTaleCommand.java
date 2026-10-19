@@ -259,9 +259,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             float yaw = transform.getRotation().yaw();
             Ref<EntityStore> car = CalhambequeManager.spawnCalhambeque(store, pos, yaw);
             if (car != null) {
-                ctx.sendMessage(Message.raw("§6[SimTale] §aCalhambeque Vintage dos Anos 1930 invocado com sucesso!"));
+                ctx.sendMessage(Message.raw("[SimTale] Calhambeque Vintage dos Anos 1930 invocado com sucesso!"));
             } else {
-                ctx.sendMessage(Message.raw("§c[SimTale] Falha ao invocar o Calhambeque."));
+                ctx.sendMessage(Message.raw("[SimTale] Falha ao invocar o Calhambeque."));
             }
         }
     }
@@ -276,7 +276,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             if (!CalhambequeManager.exitCar(store, ref, playerRef)) {
-                ctx.sendMessage(Message.raw("§e[Calhambeque] §7Você não está em nenhum carro."));
+                ctx.sendMessage(Message.raw("[Calhambeque] Você não está em nenhum carro."));
             }
         }
     }
@@ -293,7 +293,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             Ref<EntityStore> carRef = t != null ? CalhambequeManager.nearestCar(store, t.getPosition(), 12.0) : null;
             CalhambequeComponent car = carRef != null ? store.getComponent(carRef, SimTale.CALHAMBEQUE_COMPONENT_TYPE) : null;
             if (car == null) {
-                ctx.sendMessage(Message.raw("§e[Calhambeque] §7Nenhum carro a menos de 12 blocos."));
+                ctx.sendMessage(Message.raw("[Calhambeque] Nenhum carro a menos de 12 blocos."));
                 return;
             }
             CalhambequeManager.pickUp(store, carRef, car, ref, playerRef);
@@ -319,11 +319,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             try {
                 percent = Integer.parseInt(ctx.get(this.percentArg).trim());
             } catch (NumberFormatException e) {
-                ctx.sendMessage(Message.raw("§cUse um número inteiro, ex.: /simtale carscale 350"));
+                ctx.sendMessage(Message.raw("[Calhambeque] Use um número inteiro, ex.: /simtale carscale 350"));
                 return;
             }
             CalhambequeGeometry.setScale(percent / 100f);
-            ctx.sendMessage(Message.raw("§6[Calhambeque] §aTamanho: " + Math.round(CalhambequeGeometry.scale() * 100)
+            ctx.sendMessage(Message.raw("[Calhambeque] Tamanho: " + Math.round(CalhambequeGeometry.scale() * 100)
                     + "% (padrão " + Math.round(CalhambequeGeometry.DEFAULT_SCALE * 100) + "%)."));
         }
     }
@@ -343,11 +343,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             try {
                 percent = Integer.parseInt(ctx.get(this.percentArg).trim());
             } catch (NumberFormatException e) {
-                ctx.sendMessage(Message.raw("§cUse um número inteiro, ex.: /simtale carspeed 150"));
+                ctx.sendMessage(Message.raw("[Calhambeque] Use um número inteiro, ex.: /simtale carspeed 150"));
                 return;
             }
             CalhambequeGeometry.setSpeedPercent(percent);
-            ctx.sendMessage(Message.raw("§6[Calhambeque] §aVelocidade: " + CalhambequeGeometry.speedPercent()
+            ctx.sendMessage(Message.raw("[Calhambeque] Velocidade: " + CalhambequeGeometry.speedPercent()
                     + "% (padrão " + CalhambequeGeometry.DEFAULT_SPEED_PERCENT + "%)."));
         }
     }
@@ -373,11 +373,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 height = Integer.parseInt(ctx.get(this.heightArg).trim());
                 back = Integer.parseInt(ctx.get(this.backArg).trim());
             } catch (NumberFormatException e) {
-                ctx.sendMessage(Message.raw("§cUse três números inteiros, ex.: /simtale carseat 7 20 15"));
+                ctx.sendMessage(Message.raw("[Calhambeque] Use três números inteiros, ex.: /simtale carseat 7 20 15"));
                 return;
             }
             CalhambequeGeometry.setSeat(side, height, back);
-            ctx.sendMessage(Message.raw("§6[Calhambeque] §aAssento: lado " + side + ", altura " + height
+            ctx.sendMessage(Message.raw("[Calhambeque] Assento: lado " + side + ", altura " + height
                     + ", trás " + back + " (padrão " + CalhambequeGeometry.DEFAULT_SEAT_SIDE + " "
                     + CalhambequeGeometry.DEFAULT_SEAT_HEIGHT + " " + CalhambequeGeometry.DEFAULT_SEAT_BACK + ")."));
         }
@@ -397,9 +397,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             float yaw = transform.getRotation().yaw();
             Ref<EntityStore> cat = WhiteCatManager.spawnWhiteCat(store, pos, yaw);
             if (cat != null) {
-                ctx.sendMessage(Message.raw("§6[SimTale] §aGatinho Branco invocado com sucesso!"));
+                ctx.sendMessage(Message.raw("[SimTale] Gatinho Branco invocado com sucesso!"));
             } else {
-                ctx.sendMessage(Message.raw("§c[SimTale] Falha ao invocar o gatinho branco."));
+                ctx.sendMessage(Message.raw("[SimTale] Falha ao invocar o gatinho branco."));
             }
         }
     }

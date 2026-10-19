@@ -154,7 +154,7 @@ public class CalhambequeManager {
         // Sitting in another car: get out of that one first
         Ref<EntityStore> other = RIDING.get(playerUuid);
         if (other != null && other.isValid() && !other.equals(carRef)) {
-            playerRefComp.sendMessage(Message.raw("§e[Calhambeque] §cDesça do outro carro primeiro."));
+            playerRefComp.sendMessage(Message.raw("[Calhambeque] Desça do outro carro primeiro."));
             return;
         }
 
@@ -170,7 +170,7 @@ public class CalhambequeManager {
             return;
         }
 
-        playerRefComp.sendMessage(Message.raw("§e[Calhambeque] §cO veículo já está com lotação máxima!"));
+        playerRefComp.sendMessage(Message.raw("[Calhambeque] O veículo já está com lotação máxima!"));
     }
 
     /**
@@ -187,8 +187,8 @@ public class CalhambequeManager {
 
         sendMount(playerRefComp, CalhambequeGeometry.driverSeat(carScale(store, carRef)), netId);
 
-        playerRefComp.sendMessage(Message.raw("§6[Calhambeque 1930s] §aMotor ligado! Use §fW/S §apara acelerar e dar ré."
-                + " Para descer: §fpule§a, §fShift §aou §f/simtale carexit§a."));
+        playerRefComp.sendMessage(Message.raw("[Calhambeque 1930s] Motor ligado! Use W/S para acelerar e dar ré."
+                + " Para descer: pule, Shift ou /simtale carexit."));
     }
 
     /**
@@ -204,8 +204,8 @@ public class CalhambequeManager {
 
         sendMount(playerRefComp, CalhambequeGeometry.passengerSeat(carScale(store, carRef)), netId);
 
-        playerRefComp.sendMessage(Message.raw("§6[Calhambeque 1930s] §aVocê sentou no banco do passageiro!"
-                + " Para descer: §fpule§a, §fShift §aou §f/simtale carexit§a."));
+        playerRefComp.sendMessage(Message.raw("[Calhambeque 1930s] Você sentou no banco do passageiro!"
+                + " Para descer: pule, Shift ou /simtale carexit."));
     }
 
     /**
@@ -233,7 +233,7 @@ public class CalhambequeManager {
         UUID uuid = car.driverUuid;
         car.driverUuid = null;
         car.speed = 0f;
-        leave(store, carRef, uuid, playerRef, playerRefComp, +1, "§6[Calhambeque 1930s] §7Você desceu do veículo.");
+        leave(store, carRef, uuid, playerRef, playerRefComp, +1, "[Calhambeque 1930s] Você desceu do veículo.");
     }
 
     /** Takes the passenger out to the right-hand side. Safe to call from inside a system. */
@@ -242,7 +242,7 @@ public class CalhambequeManager {
         if (car.passengerUuid == null) return;
         UUID uuid = car.passengerUuid;
         car.passengerUuid = null;
-        leave(store, carRef, uuid, playerRef, playerRefComp, -1, "§6[Calhambeque 1930s] §7Você desceu do banco do passageiro.");
+        leave(store, carRef, uuid, playerRef, playerRefComp, -1, "[Calhambeque 1930s] Você desceu do banco do passageiro.");
     }
 
     /**
@@ -394,7 +394,7 @@ public class CalhambequeManager {
         if (store == null || carRef == null || !carRef.isValid() || car == null || playerRef == null) return false;
         if (car.driverUuid != null || car.passengerUuid != null) {
             if (playerRefComp != null) {
-                playerRefComp.sendMessage(Message.raw("§e[Calhambeque] §cTem alguém dentro do carro."));
+                playerRefComp.sendMessage(Message.raw("[Calhambeque] Tem alguém dentro do carro."));
             }
             return false;
         }
@@ -402,7 +402,7 @@ public class CalhambequeManager {
         CombinedItemContainer inventory = InventoryComponent.getCombined(store, playerRef, InventoryComponent.HOTBAR_FIRST);
         if (inventory == null || !inventory.canAddItemStack(item)) {
             if (playerRefComp != null) {
-                playerRefComp.sendMessage(Message.raw("§e[Calhambeque] §cInventário cheio."));
+                playerRefComp.sendMessage(Message.raw("[Calhambeque] Inventário cheio."));
             }
             return false;
         }
@@ -413,7 +413,7 @@ public class CalhambequeManager {
         };
         if (world != null) world.execute(remove); else remove.run();
         if (playerRefComp != null) {
-            playerRefComp.sendMessage(Message.raw("§6[Calhambeque] §7Carro guardado no inventário."));
+            playerRefComp.sendMessage(Message.raw("[Calhambeque] Carro guardado no inventário."));
         }
         return true;
     }
@@ -472,7 +472,7 @@ public class CalhambequeManager {
         }
 
         if (playerRefComp != null) {
-            playerRefComp.sendMessage(Message.raw("§6* Vrum! * Calhambeque Vintage 1930s colocado no mundo!"));
+            playerRefComp.sendMessage(Message.raw("[Calhambeque] Vrum! Calhambeque Vintage 1930s colocado no mundo!"));
         }
         return true;
     }

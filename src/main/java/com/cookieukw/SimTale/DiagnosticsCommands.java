@@ -659,7 +659,7 @@ final class DiagnosticsCommands {
             } else {
                 ctx.sendMessage(Message.translation("general.cmd.villagestock.stocked_items"));
                 for (Map.Entry<String, Integer> entry : stock.entrySet()) {
-                    ctx.sendMessage(Message.raw("  §f- " + entry.getKey() + ": §e" + entry.getValue()));
+                    ctx.sendMessage(Message.raw("  - " + entry.getKey() + ": " + entry.getValue()));
                 }
             }
         }
@@ -952,8 +952,8 @@ final class DiagnosticsCommands {
         }
 
         private static void sendSummary(CommandContext ctx, SimTaleConfig config) {
-            Message active = Message.raw("§aATIVADO");
-            Message inactive = Message.raw("§cDESATIVADO");
+            Message active = Message.raw("ATIVADO");
+            Message inactive = Message.raw("DESATIVADO");
 
             ctx.sendMessage(Message.translation("general.cmd.proximity.header"));
             ctx.sendMessage(Message.translation("general.cmd.proximity.status").param("status", config.proximityEnabled ? active : inactive));
