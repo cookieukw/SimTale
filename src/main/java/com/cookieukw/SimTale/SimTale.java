@@ -14,6 +14,7 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.providers.GeminiProvider;
 import com.cookieukw.SimTale.ai.providers.OpenAIProvider;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
 import com.cookieukw.SimTale.core.WeaponCategoryRegistry;
@@ -119,6 +120,10 @@ public class SimTale extends JavaPlugin {
         if (!ACTIVE_NPCS.contains(npc)) {
             ACTIVE_NPCS.add(npc);
         }
+        /* Central point where a loaded component finally has its live ref. If the engine reset
+        its stat map, this is what puts the saved hunger/energy/... back.
+        */
+        NeedsHelper.restoreSavedNeeds(npc);
         SimNpcPlayerListHelper.broadcastAdd(npc);
     }
 
