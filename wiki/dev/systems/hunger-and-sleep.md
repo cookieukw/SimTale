@@ -39,6 +39,30 @@ their templates; anything cooked declares T2 or T3.
 `scoreFor` ranks **tier → taste → distance**. Tier dominates deliberately: a hated pie beats a
 beloved slab of raw beef, which is the behaviour a village sim wants.
 
+## Thresholds and pacing
+
+| Hunger | Behaviour |
+|---|---|
+| `< 70` | Idle NPCs start `FINDING_FOOD` (`RoutineSleepHelpers.handleIdle`) |
+| `< 25` | Any NPC drops its task and goes to eat (`RoutineAISystem` interrupt) |
+| `<= 5` | `tickStarvation` keeps it `IDLE`, sad and crying |
+
+From 100, the first search happens after roughly 4h10, and the interrupt after ~10h25. Both values
+scale with `hungerDecayMultiplier` in `simtale-config.json` (`1.0` = original pacing, `10.0` ≈
+25 minutes to the first search, `0` = frozen).
+
+## Where food comes from
+
+`NPCHungerHelper` scans `ChestRegistry.CHESTS` within 24 blocks and keeps only chests
+`HouseManager.canOpenChest` allows:
+
+- a private chest owned by the NPC's house;
+- an explicitly shared chest (`/simtale chestshare`);
+- a **village-global chest**: inside a village, owned by no house.
+
+The last rule is derived live by `ChestRegistry.isVillageGlobal`; it is not persisted. Move the chest
+into a house and it becomes private again. This is also how homeless NPCs (guards, miners) get food.
+
 :::note The key is an enum
 `getInteractions()` returns `Map<InteractionType, String>`, not `Map<String, String>`. Using
 `get("Secondary")` compiles and classifies every item as inedible.
@@ -73,11 +97,29 @@ with it, along with the now-unreferenced `STARVATION_DAMAGE`, `STARVATION_INTERV
 
 ## Feeding by hand
 
-`InteractionManager.tryFeed` runs before the normal gift rules. Below 50 hunger, edible gifts are
-eaten on the spot: hunger and health restored by tier, starvation cancelled, larger affinity gain.
+`InteractionManager.tryFeed` runs before the normal gift rules. At 70 hunger or below, edible gifts
+are eaten on the spot: hunger and health restored by tier, larger affinity gain.
 
 It uses the same `NPCFoodHelper` as the chest routine, so a player cannot force-feed something the
 NPC would refuse on her own.
+
+## Persistence
+
+Needs live in the entity's `EntityStatMap`, but SimTale keeps its own snapshot in
+`SimNPCData.needs` and writes it on every `saveNPC`. On load, `NeedsHelper.restoreSavedNeeds` applies
+the snapshot only when all five live needs are still at the asset default (`100`) — the signature of
+a stat map the engine reset. If the engine restored real values, those win instead of being rolled
+back to an older JSON snapshot.
+
+This also covers the detached-component paths (commands and lifecycle helpers) that save without a
+live `entityRef`: they reuse the snapshot already loaded rather than writing `100` over it.
+
+## Forced feeding
+
+`/simtale forceeat` zeroes hunger, backdates the search cooldown so the chest scan runs immediately,
+and keeps `forcedByDebug` set while the NPC is in `FINDING_FOOD` / `MOVING_TO_FOOD` / `EATING`.
+That is what prevents the night sleep interrupt from pulling her into bed before she reaches the
+chest.
 
 ## Constants
 
