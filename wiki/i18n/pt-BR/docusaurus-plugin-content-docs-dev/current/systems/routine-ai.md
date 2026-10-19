@@ -43,6 +43,12 @@ scheduled sleepers stay down until the window closes; naps end when energy fills
 
 Same shape, threshold 25, guarded by `nextFoodSearchTick`.
 
+Sleep is evaluated first and also excludes NPCs already in a bed task. Normal hunger therefore does
+not fight the night schedule: a hungry NPC goes to bed and eats after waking. `/simtale forceeat`
+is the exception — `forcedByDebug` survives for the whole feeding chain
+(`FINDING_FOOD`/`MOVING_TO_FOOD`/`EATING`), so the sleep interrupt cannot pull her away mid-walk.
+Every other forced debug task still clears the flag on the next tick.
+
 ## Three guards every interrupt (and heavy search) needs
 
 | Guard | Without it |
