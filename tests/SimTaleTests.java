@@ -161,6 +161,7 @@ public class SimTaleTests {
         npcData.needs.social = 18f;
         npcData.needs.fun = 91f;
         npcData.needs.hygiene = 44f;
+        npcData.deathCause = "por uma entidade";
 
         // Save to SimNPCData Core of DB_SHELL
         String savedId = SimNPCPersistence.DB_SHELL.core(SimNPCData.class).preserve(npcId.toString(), npcData);
@@ -176,6 +177,7 @@ public class SimTaleTests {
         assertEqual(loaded.needs.social, 18f, "Social persisted");
         assertEqual(loaded.needs.fun, 91f, "Fun persisted");
         assertEqual(loaded.needs.hygiene, 44f, "Hygiene persisted");
+        assertEqual(loaded.deathCause, "por uma entidade", "Death cause persisted");
 
         /* A detached component (no live entity ref) saves from the snapshot it loaded, not by
         writing 100s over the record. This is the command path used by LifecycleUtils.
