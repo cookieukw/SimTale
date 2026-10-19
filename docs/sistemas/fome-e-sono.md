@@ -73,6 +73,17 @@ ainda ganha de um pedaço de carne crua favorita, que é o comportamento que um 
 
 ---
 
+### Ajuste de ritmo
+
+`simtale-config.json` expõe `hungerDecayMultiplier` (padrão `1.0`). O multiplicador é aplicado à
+taxa-base de `0.0001` por tick:
+
+- `1.0` mantém o ritmo original (~4h10 até a primeira busca);
+- `10.0` chega ao primeiro limiar em ~25 minutos;
+- `0` congela a fome.
+
+O arquivo é lido no boot do servidor; reinicie depois de editar.
+
 ## 3. Os três limiares
 
 | Fome | O que acontece | Onde |
