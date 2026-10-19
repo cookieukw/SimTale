@@ -275,7 +275,10 @@ Veja [Interagindo com NPCs](interacting.md).
 
 ## 6. Deixe o tempo passar
 
-O mod é deliberadamente lento. Começando de 100 de fome, um NPC leva cerca de sete horas do jogo para ficar genuinamente com fome. Aos 5 de fome, eles começam a morrer de fome, chorando e largando todas as tarefas até serem alimentados. Quinze horas do jogo sem comida não os matará, mas eles se recusarão a trabalhar.
+O mod é deliberadamente lento. Começando de 100 de fome, um NPC leva cerca de 4h10 para começar a
+procurar comida e ~10h25 para largar tudo e comer. Aos 5 de fome ele chora e se recusa a trabalhar,
+mas a fome não o mata. Aumente `hungerDecayMultiplier` no `simtale-config.json` se quiser um ritmo
+mais rápido.
 
 ---
 
