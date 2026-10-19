@@ -5,5 +5,7 @@
   "proximityChatEnabled": true,
   "proximityNpcCooldownSeconds": 60,
   "proximityPlayerCooldownSeconds": 15,
-  "proximityRadius": 4.5
+  "proximityRadius": 4.5,
+  "hungerDecayMultiplier": 1.0,
+  "villageChestDepositChance": 0.3
 }
