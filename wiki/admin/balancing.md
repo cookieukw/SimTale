@@ -5,8 +5,18 @@ title: Balancing
 
 # Balancing
 
-These values are **constants in the code**, not configuration. Changing them means editing and
-rebuilding. They are documented here so you know what the numbers mean before you touch them.
+Most values are **constants in the code**; changing them means editing and rebuilding. Hunger
+pacing and the village deposit chance are exposed in `simtale-config.json`. They are documented here
+so you know what the numbers mean before you touch them.
+
+## Runtime configuration
+
+| Key | Default | Effect |
+|---|---|---|
+| `hungerDecayMultiplier` | `1.0` | Multiplies the `0.0001` hunger decay. `10.0` reaches the first search in ~25 min; `0` freezes hunger |
+| `villageChestDepositChance` | `0.30` | Chance a worker chooses a village/global chest even when her home chest has room |
+
+The JSON file is read at boot; restart after editing.
 
 ## Need decay
 
@@ -14,7 +24,7 @@ Per tick, from `NeedsHelper.tickDecay` (Adults):
 
 | Need | Rate | With trait |
 |---|---|---|
-| Hunger | 0.0001 | — |
+| Hunger | 0.0001 × `hungerDecayMultiplier` | — |
 | Energy | 0.0002 | 0.0004 if `LAZY` |
 | Social | 0.00015 | — |
 | Fun | 0.0001 | 0.00005 if `FUNNY` |
@@ -29,16 +39,17 @@ Per tick, from `BabyNeeds.tickDecay` (Babies/Children):
 | Health | 0.0001 | 0.0004 if Hunger < 20 |
 | Negative Experiences | +0.001 | if Hunger, Affection, or Health < 30 |
 
-At 20 ticks per second, adult hunger takes roughly 13.9 in-game hours to fall from 100 to 0.
+At 20 ticks per second and the default multiplier, adult hunger takes roughly 13.9 in-game hours to
+fall from 100 to 0. The first food search happens at 70 (~4h10) and the task interrupt at 25
+(~10h25).
 
 ## Hunger thresholds
 
 | Constant | Value | Effect |
 |---|---|---|
-| Idle search | 70 | Looks for food when idle |
-| `HUNGRY_ENOUGH_TO_EAT` | 70 | Eats a gift on the spot instead of pocketing it |
+| `HUNGER_SEEK_FOOD_THRESHOLD` | 70 | Looks for food when idle; also the gift-eats-on-the-spot threshold |
 | `HUNGER_INTERRUPT_THRESHOLD` | 25 | Drops its current task to eat |
-| `STARVATION_THRESHOLD` | 5 | Stops working and cries |
+| `HUNGER_STARVATION_THRESHOLD` | 5 | Stops working and cries |
 
 ## Starvation
 
@@ -82,6 +93,9 @@ Guards invert the window: they sleep during the day.
 | Constant | Value | Why it exists |
 |---|---|---|
 | `CHEST_SEARCH_RADIUS` | 24 blocks | How far an NPC walks for a meal |
+| `villageChestDepositChance` | 0.30 | Chance a worker uses a village/global chest instead of home even when home has room |
+| Village link distance | 64 blocks | Houses this close form one village |
+| Village radius margin | 24 blocks | Added to the furthest house when computing the radius/global-chest area |
 | `FOOD_SEARCH_COOLDOWN_TICKS` | 100 | Stops a search storm when no food is reachable |
 | `MOVE_TIMEOUT_TICKS` | 600 (30 s) | Gives up on an unreachable chest |
 | Furniture scan radius on join | 32 blocks | Picks up pre-existing beds and chests |
