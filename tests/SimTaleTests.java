@@ -95,6 +95,7 @@ public class SimTaleTests {
 
             System.out.println("Village Stock & Shared Chests");
             testVillageStockAndSharedChests();
+            testVillageGlobalChests();
 
             System.out.println("Proximity & Configuration");
             ProximityConfigTests.run();
@@ -754,6 +755,68 @@ public class SimTaleTests {
         ChestRegistry.removeAt(50, 64, 50);
         ChestRegistry.removeAt(999, 64, 999);
         Assert.equal(ChestRegistry.isShared(50, 64, 50), false, "Shared chest removed");
+
+        System.out.println("OK");
+    }
+
+    /**
+     * A chest inside the village but outside every house becomes global automatically; a chest
+     * inside a house stays private. This is the rule the player asked for: drop a chest in the
+     * village square and everyone may use it, but a bedroom chest still belongs to the household.
+     */
+    private static void testVillageGlobalChests() {
+        System.out.print("Testing Village-Global Chests... ");
+
+        UUID houseId = UUID.randomUUID();
+        UUID owner = UUID.randomUUID();
+        HouseBlockPos bed = new HouseBlockPos(300, 64, 300);
+        HouseBlockPos door = new HouseBlockPos(299, 64, 297);
+
+        Set<HouseBlockPos> interior = new HashSet<>();
+        for (int x = 298; x <= 302; x++) {
+            for (int z = 298; z <= 302; z++) {
+                interior.add(new HouseBlockPos(x, 64, z));
+            }
+        }
+
+        HouseBlockPos privateChest = new HouseBlockPos(301, 64, 301);
+        HouseBlockPos villageChest = new HouseBlockPos(310, 64, 300);
+        ChestRegistry.add(privateChest.x, privateChest.y, privateChest.z);
+        ChestRegistry.add(villageChest.x, villageChest.y, villageChest.z);
+
+        HouseData house = new HouseData(houseId, Set.of(owner), bed, interior, Set.of(door), Set.of());
+        HouseManager.registerHouse(house);
+
+        try {
+            VillageManager.Village village = VillageManager.nearest(300, 300);
+            Assert.equal(village != null, true, "Village was built from the test house");
+
+            Assert.equal(HouseManager.findHouseIdForChest(villageChest) != null, false,
+                    "Village chest belongs to no house");
+            Assert.equal(ChestRegistry.isVillageGlobal(villageChest), true,
+                    "Chest inside village and outside house is global");
+            Assert.equal(ChestRegistry.isShared(villageChest), true,
+                    "Global chest is shared for food/deposits");
+            Assert.equal(HouseManager.canOpenChest(UUID.randomUUID(), villageChest), true,
+                    "Any NPC can open a village-global chest");
+
+            Assert.equal(ChestRegistry.isVillageGlobal(privateChest), false,
+                    "Chest inside the house is not global");
+            Assert.equal(ChestRegistry.isShared(privateChest), false,
+                    "Chest inside the house stays private");
+            Assert.equal(HouseManager.canOpenChest(UUID.randomUUID(), privateChest), false,
+                    "A non-owner cannot open the house chest");
+
+            List<HouseBlockPos> communal = VillageStockManager.getSharedChestsInVillage(village);
+            Assert.equal(communal.contains(villageChest), true,
+                    "Village stock includes the global chest");
+            Assert.equal(communal.contains(privateChest), false,
+                    "Village stock excludes the house chest");
+        } finally {
+            ChestRegistry.removeAt(privateChest.x, privateChest.y, privateChest.z);
+            ChestRegistry.removeAt(villageChest.x, villageChest.y, villageChest.z);
+            HouseManager.deleteHouse(houseId);
+        }
 
         System.out.println("OK");
     }
