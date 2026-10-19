@@ -10,15 +10,25 @@ and there is no marker to lose.
 
 ## How one forms
 
-Two houses belong to the same village when their beds are within about **40 blocks** of each other,
-and that chains: if A is near B and B is near C, all three are one village, even when A and C are
-far apart.
+Two houses belong to the same village when their beds are within **64 blocks** of each other, and
+that chains: if A is near B and B is near C, all three are one village, even when A and C are far
+apart.
 
 So a village grows the way you build — outward from what is already there. A long street of houses
 30 blocks apart is one village, however long the street gets.
 
 The centre sits at the middle of the beds, and the village reaches from there to its furthest house
-plus a little margin.
+plus a 24-block margin.
+
+## Village chests
+
+A chest placed inside the village and outside every house is a **global chest**. Nobody owns it and
+any resident can take food from it — including NPCs who have no house of their own. Put it inside a
+house and it becomes private again.
+
+Villagers use the global chest for surplus too. They prefer their own house chest, but sometimes
+they choose the village one even when home still has room, which is what keeps the communal stock
+moving.
 
 ## It disappears if you tear it down
 

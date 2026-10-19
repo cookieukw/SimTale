@@ -32,12 +32,12 @@ rejects decimal points.
 | `/simtale debugnear` | Dumps nearby blocks and entities |
 | `/simtale village` | Lists the villages derived from the houses: centre, radius, house count, and whether you are inside |
 | `/simtale villagestock` | Summarizes communal storage and resources in the nearest village (food, crops, wood, ores) |
-| `/simtale chestshare` | Toggles the nearest chest between **Private** (home only) and **Shared** (communal village stock) |
+| `/simtale chestshare` | Toggles the nearest chest between **Private** (home only) and **Shared** (communal village stock). A chest inside the village and outside every house is already **Global**, so the command explains that instead of pretending it became private |
 | `/simtale graveyard` | Screen listing every NPC the Reaper collected, with a revive button each |
 | `/simtale npcstate` | State of the nearest NPC: role, animation, movement, needs, search cooldowns and the world clock |
 | `/simtale search` | Finds NPCs |
 | `/simtale housecheck` | Validates the house you are aiming at, and reports what is missing |
-| `/simtale chestcheck` | Describes the nearest chest |
+| `/simtale chestcheck` | Describes the nearest chest: private, explicitly shared, or village-global |
 | `/simtale camdebug` | Camera debugging |
 
 :::tip Prefer `debugchests` over `chestcheck`
@@ -61,7 +61,7 @@ Use `/simtale rescan` for worlds built before that fix.
 | `/simtale testshove` | Tests the angry shove reaction with knockback physics against player |
 | `/simtale testgreet` | Tests proximity wave and greeting on nearest NPC |
 | `/simtale forcesleep` | Forces the nearest NPC to sleep or wake |
-| `/simtale forceeat` | Zeroes hunger and sends the NPC to a chest |
+| `/simtale forceeat` | Zeroes hunger, starts the chest search immediately and keeps the NPC on the feeding task through the night |
 | `/simtale forcework` | Forces the nearest NPC to do its job |
 | `/simtale forceplant` | Gives seeds to a farmer and sends her to plant |
 | `/simtale unstick` | Frees stuck NPCs **and the player** |
@@ -110,6 +110,8 @@ the ground, `setstage` takes over.
 
 :::info Persistent Server Config
 All proximity settings are saved to `simtale-config.json` on the server root and loaded automatically on boot.
+The same file also holds `hungerDecayMultiplier` and `villageChestDepositChance`; edit those directly
+and restart the server.
 :::
 
 ---
