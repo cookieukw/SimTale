@@ -96,8 +96,11 @@ bloco de armazenamento que o Hytale não nomeasse com uma dessas palavras.
 NPCs longe dos baús de loot do gerador de mundo, já que a varredura registra qualquer contêiner no
 raio.
 
-Efeito colateral aceito: baú solto do jogador em campo aberto também é ignorado até fazer parte de
-uma casa reconhecida.
+Exceção: um baú solto **dentro do território da vila** e fora de qualquer casa é um **baú global**
+automático. Ele não tem dono e qualquer morador pode usar (comida, depósito de excedente). Um baú
+em campo aberto, fora da vila, continua ignorado. A exceção é calculada pela posição atual
+(`ChestRegistry.isVillageGlobal`), não gravada no banco; mover o baú para dentro de uma casa o torna
+privado de novo.
 
 A varredura de casa (`HouseManager.isChest`) usa a mesma checagem de contêiner. Quando ela usava só
 o nome, os baús não entravam no `interior` da casa, o `BLOCK_TO_HOUSE_ID` ficava sem entrada e o

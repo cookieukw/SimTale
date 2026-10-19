@@ -150,7 +150,20 @@ Celebrar com um morador oferecendo o **Bolo de Aniversário** restaura integralm
 ## 6. Estoque Compartilhado da Vila e Sino de Recolher
 
 ### Armazém Comunitário (`VillageStockManager`)
-Quando um morador fica com fome, ele prioriza os baús da sua própria residência. Se a despensa de sua casa estiver desprovida de alimentos (ou se ele for um colono novo sem residência definida), o sistema recorre aos **baús compartilhados da vila** (`ChestRegistry.isShared(pos) == true`). Isso permite a construção de celeiros e armazéns centrais que abastecem todos os cidadãos da colônia.
+Quando um morador fica com fome, ele prioriza os baús da sua própria residência. Se a despensa de sua casa estiver desprovida de alimentos (ou se ele for um colono novo sem residência definida), o sistema recorre aos **baús comunitários da vila** (`ChestRegistry.isShared(pos) == true`). Isso permite a construção de celeiros e armazéns centrais que abastecem todos os cidadãos da colônia.
+
+#### Baús globais automáticos
+
+Um baú colocado **dentro do território da vila e fora de qualquer casa** vira um baú global automaticamente. Ninguém precisa ser dono: qualquer morador pode tirar comida dele, inclusive NPCs sem casa (guardas, mineradores). A regra é calculada ao vivo:
+
+- o baú não pode estar dentro de uma casa (`HouseManager.findHouseIdForChest` precisa devolver `null`);
+- o baú precisa estar dentro do raio da vila (`VillageManager.nearest(...).contains(...)`).
+
+Mover o baú para dentro de uma casa faz ele voltar a ser privado. O estado global **não é gravado** no banco; ele é derivado da posição atual, então acompanha a vila sem ficar preso a um save antigo.
+
+#### Depósitos na vila
+
+Trabalhadores depositam o excedente primeiro no baú da própria casa. Quando a casa não tem baú ou ele está cheio, usam o baú comunitário da vila. Além disso, há uma chance de **30%** de escolherem o baú da vila mesmo com espaço sobrando em casa — é isso que mantém o armazém central abastecido em vez de transformá-lo em último recurso. NPCs sem casa resolvem a vila pela posição atual, então também contribuem para o estoque comunal.
 
 ### O Sino da Vila (`TownBell`) e Recolher Imediato
 Além do ciclo natural de dia/noite gerenciado pelo relógio do mundo, o jogador pode utilizar o **Sino da Vila (`TownBell`)**. Ao ser tocado, o sino reproduz um repique sonoro em 3D e aciona a flag `npc.forceSleep = true` para todos os moradores (exceto Guardas e o Ceifador) dentro de um raio de 50 blocos, ordenando que todos interrompam suas tarefas e retornem imediatamente para suas camas para dormir.
