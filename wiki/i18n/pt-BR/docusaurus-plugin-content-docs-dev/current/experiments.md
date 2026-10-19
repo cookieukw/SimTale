@@ -190,9 +190,9 @@ valeu a pena corrigir:
 
 **Causa raiz, confirmada lendo os arquivos de verdade:** todo cosmético de cabeça deste projeto
 (cortes de cabelo etc.) que é feito pensando num esqueleto adulto precisa passar por uma
-transformação de escala antes de poder ser usado num esqueleto de criança — ver
-`docs/assets/cosmeticos-node-scales.md` e a tabela `NODE_SCALES` de
-`scripts/generate_child_variants.py`. Resumindo: qualquer node com o nome exatamente `"Head"` (um
+transformação de escala antes de poder ser usado num esqueleto de criança — ver a tabela
+`NODE_SCALES` de `scripts/generate_child_variants.py`. Resumindo: qualquer node com o nome
+exatamente `"Head"` (um
 rótulo que significa "encaixa na cabeça", não literalmente um osso do esqueleto) recebe uma escala
 uniforme de 1.2×, e tudo que está aninhado dentro dele herda essa mesma escala (confirmado
 empiricamente comparando um par real de corte de cabelo adulto/criança, `CutePart.blockymodel` vs
@@ -234,9 +234,9 @@ correção acima).
 menino ruivo de cabelo curto, sem fantasia nenhuma. O bug de verdade era um node corrompido no
 próprio `Short_Child.blockymodel` (um node-pivô mesclado com sua caixa filha, perdendo o
 deslocamento de posição da caixa) — um de 23 modelos de corte de cabelo infantil achados com o
-mesmo tipo de defeito, de 112 checados. Ver `docs/assets/cosmeticos-node-scales.md` e
-`testing_checklist.md` pro relato completo e a correção; sem relação com o sistema de fantasia
-documentado nesta página.
+mesmo tipo de defeito, de 112 checados. Ver a tabela `NODE_SCALES` de
+`scripts/generate_child_variants.py`; sem relação com o sistema de fantasia documentado nesta
+página.
 
 ### Próximos passos, se isso virar uma funcionalidade de verdade
 
