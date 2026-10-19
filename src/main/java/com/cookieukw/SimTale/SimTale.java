@@ -29,6 +29,7 @@ import com.cookieukw.SimTale.systems.ConstructionSystem;
 import com.cookieukw.SimTale.systems.MoodAnimationSystem;
 import com.cookieukw.SimTale.systems.PlayerJoinHandler;
 import com.cookieukw.SimTale.systems.PlayerPregnancyTickSystem;
+import com.cookieukw.SimTale.systems.VillageRegenSystem;
 import com.cookieukw.SimTale.systems.EmoteBubbleSystem;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookieukw.SimTale.systems.PregnancyTickSystem;
@@ -247,6 +248,7 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new ConstructionPreviewSweepSystem());
         this.getEntityStoreRegistry().registerSystem(new PregnancyTickSystem());
         this.getEntityStoreRegistry().registerSystem(new PlayerPregnancyTickSystem());
+        this.getEntityStoreRegistry().registerSystem(new VillageRegenSystem());
         this.getEntityStoreRegistry().registerSystem(new BabyCareTickSystem());
         this.getEntityStoreRegistry().registerSystem(new GrowthTickSystem());
         this.getEntityStoreRegistry().registerSystem(new BabyBabbleSystem());
