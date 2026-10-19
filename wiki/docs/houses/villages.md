@@ -45,6 +45,10 @@ House markers sit at the **centre of the house interior**, not on the first bed,
 new wing moves the marker with the building. A separate house only gets a marker once an NPC claims
 its bed; until then it appears as an unclaimed bed.
 
+A house counts as occupied if it has owners **or** if any NPC's bed is inside it. The owner name is
+only shown when that NPC is loaded; an owner who is away still leaves the marker green instead of
+turning it blue.
+
 ## It disappears if you tear it down
 
 A house exists because of its bed. Break the bed and the house is gone, and the village recalculates

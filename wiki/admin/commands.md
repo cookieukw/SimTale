@@ -33,7 +33,7 @@ rejects decimal points.
 | `/simtale village` | Lists the villages derived from the houses: centre, radius, house count, and whether you are inside |
 | `/simtale villagestock` | Summarizes communal storage and resources in the nearest village (food, crops, wood, ores) |
 | `/simtale chestshare` | Toggles the nearest chest between **Private** (home only) and **Shared** (communal village stock). A chest inside the village and outside every house is already **Global**, so the command explains that instead of pretending it became private |
-| `/simtale graveyard` | Screen listing every NPC the Reaper collected, with a revive button each |
+| `/simtale graveyard` | Screen listing every NPC the Reaper collected, with the cause of death and a revive button each |
 | `/simtale npcstate` | State of the nearest NPC: role, animation, movement, needs, search cooldowns and the world clock |
 | `/simtale search` | Finds NPCs |
 | `/simtale housecheck` | Validates the house you are aiming at, and reports what is missing |

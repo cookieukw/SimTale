@@ -43,10 +43,19 @@ Yes. They open on the way through and close behind them.
 
 Yes. Names, needs, relationships, houses and jobs are all persisted.
 
+### NPCs are missing when I come back. What happened?
+
+They probably died while you were away — hostile mobs, fall damage and other engine damage can kill
+a resident, and the Grim Reaper then archives her. Run `/simtale graveyard`: each entry now shows the
+cause of death and has a revive button. The join message also tells you how many NPCs are buried.
+
+They are not silently deleted; if the graveyard is empty and an NPC is still missing, check the
+server log for a save/load error.
+
 ### Can I change how fast they get hungry?
 
-Not from a config file yet — the values are constants in the code. See
-[Balancing](/admin/balancing).
+Yes. Edit `hungerDecayMultiplier` in `simtale-config.json` (default `1.0`; `10.0` reaches the first
+food search in about 25 minutes) and restart the server. See [Balancing](/admin/balancing).
 
 ### How do I make NPCs do hobbies?
 

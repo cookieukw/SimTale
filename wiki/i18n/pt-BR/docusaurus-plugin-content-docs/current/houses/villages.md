@@ -45,6 +45,10 @@ O marcador da casa fica no **centro do interior**, não na primeira cama, então
 nova move o marcador junto com a construção. Uma casa separada só ganha marcador quando um NPC pega
 a cama; até lá ela aparece como cama sem dono.
 
+Uma casa conta como ocupada se tiver donos **ou** se a cama de algum NPC estiver dentro dela. O nome
+do dono só aparece quando o NPC está carregado; um dono ausente ainda deixa o marcador verde em vez
+de azul.
+
 ## Ela desaparece se você a destruir
 
 Uma casa só existe por causa de sua cama. Quebre a cama e a casa deixará de existir, e a vila será recalculada

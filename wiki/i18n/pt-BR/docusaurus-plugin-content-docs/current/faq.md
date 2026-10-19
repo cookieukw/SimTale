@@ -43,10 +43,20 @@ Sim. Eles abrem ao passar e fecham atrás deles.
 
 Sim. Nomes, necessidades, relacionamentos, casas e empregos são todos mantidos salvos.
 
+### Alguns NPCs somem quando eu volto. O que aconteceu?
+
+Eles provavelmente morreram enquanto você estava fora — mobs hostis, dano de queda e outros danos do
+motor podem matar um morador, e a Ceifadora arquiva o registro. Rode `/simtale graveyard`: cada
+entrada agora mostra a causa da morte e tem botão de ressurreição. A mensagem de entrada também diz
+quantos NPCs estão enterrados.
+
+Eles não são apagados silenciosamente; se o cemitério estiver vazio e ainda faltar alguém, procure
+erro de save/load no log do servidor.
+
 ### Posso mudar a rapidez com que ficam com fome?
 
-Ainda não é possível fazer isso por um arquivo de configuração (config) — os valores são constantes no código. Veja
-[Balanceamento](/admin/balancing).
+Sim. Edite `hungerDecayMultiplier` no `simtale-config.json` (padrão `1.0`; `10.0` chega à primeira
+busca de comida em cerca de 25 minutos) e reinicie o servidor. Veja [Balanceamento](/admin/balancing).
 
 ### Como faço para os NPCs praticarem hobbies?
 

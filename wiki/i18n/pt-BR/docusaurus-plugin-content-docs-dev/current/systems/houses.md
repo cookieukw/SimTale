@@ -17,13 +17,19 @@ Along the way it classifies what it meets:
 | Door | Recorded (bottom block only, to avoid double counting) and treated as boundary |
 | Bed | Recorded as another bed if not the origin, and **traversed** (no longer blocks its own scan) |
 | Chest | Recorded and traversed (its position joins the interior) |
-| Solid | Boundary. Se for um móvel reconhecido (ex: cadeira, mesa), ele também é registrado para satisfazer os requisitos da casa. |
+| Furniture (chair, table, workbench, lamp, chest…) | Recorded for validation and **traversed**, so it never walls off the room |
+| Other solid | Boundary |
 | Unloaded (`null` type) | Boundary, and the scan is flagged incomplete |
 
 :::caution `null` is not air
 A null block type means "not loaded", not "empty". Treating it as air made the fill pour out through
 unloaded chunks until it burned the 512-block budget and the house was rejected as unenclosed.
 :::
+
+Furniture used to be treated as a wall. A workbench or table in the middle of a room stopped the
+flood fill, which made valid houses report `TOO_LARGE_OR_UNENCLOSED` or `TOO_SMALL` depending on
+where the furniture sat. It is now recorded and walked through: the room is the air *around* the
+furniture, not the furniture itself.
 
 ## Furniture requirements
 
@@ -61,6 +67,17 @@ Structural limitation. Consequences:
 - Moving the bed can read as a different house
 
 Giving houses an id of their own is on the roadmap.
+
+## Map marker
+
+`SimTaleMarkerProvider` draws one Home marker per registered house, at the **centre of the interior**
+rather than the first bed. A one-house village used to put the Home and village markers on the same
+pixel because both were anchored to the same bed, which read as "the house marker is missing".
+
+Occupancy is based on `house.owners` being non-empty **or** any active NPC having a bed in the house.
+It used to be based only on resolvable owner names, so an owner in an unloaded chunk turned the house
+blue ("unoccupied"). Registered beds that belong to no house are drawn separately as grey
+"unclaimed bed" markers.
 
 ## Deduplication
 

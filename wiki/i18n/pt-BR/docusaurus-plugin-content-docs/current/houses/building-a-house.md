@@ -253,6 +253,12 @@ Se parte da casa estiver em um chunk descarregado (unloaded chunk), a checagem s
 de rejeitá-lo. Fique perto da casa ao fazer a checagem.
 :::
 
+:::info Móveis não são parede
+Mesas, bancadas de trabalho, cadeiras, lâmpadas e baús fazem parte do cômodo, não da fronteira. A
+varredura passa por eles ao verificar se o espaço é fechado, então uma casa mobiliada não é rejeitada
+só porque o flood fill parou numa bancada.
+:::
+
 ## A casa é identificada por sua cama
 
 Este é o detalhe mais importante e o mais fácil de errar: **a identidade da casa vem
