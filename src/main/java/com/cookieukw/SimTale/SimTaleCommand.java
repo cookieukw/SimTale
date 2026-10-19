@@ -45,6 +45,7 @@ import java.util.UUID;
 
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.cookieukw.SimTale.core.SimLog;
+import com.cookieukw.SimTale.systems.NPCHungerHelper;
 import com.cookieukw.SimTale.systems.NPCWorkHelper;
 import com.cookieukw.SimTale.systems.ConstructionPreviewManager;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
@@ -816,7 +817,15 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
             if (ai != null) {
                 ai.currentTask = RoutineAIComponent.TaskType.FINDING_FOOD;
-                ai.taskStartTime = world.getTick();
+                ai.targetBlockPosition = null;
+                /* Backdate past the search cooldown so the chest search runs this tick instead
+                of five seconds from now. The forced flag then survives for as long as the NPC is
+                still in a feeding task (see RoutineAISystem), so bedtime cannot yank her out of
+                the walk before she reaches the chest — which is exactly what happened when this
+                command was used at night.
+                */
+                ai.taskStartTime = world.getTick() - NPCHungerHelper.FOOD_SEARCH_COOLDOWN_TICKS;
+                ai.forcedByDebug = true;
                 store.putComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE, ai);
             }
             
