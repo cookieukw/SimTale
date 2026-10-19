@@ -177,6 +177,19 @@ public class SimTaleTests {
         assertEqual(loaded.needs.fun, 91f, "Fun persisted");
         assertEqual(loaded.needs.hygiene, 44f, "Hygiene persisted");
 
+        /* A detached component (no live entity ref) saves from the snapshot it loaded, not by
+        writing 100s over the record. This is the command path used by LifecycleUtils.
+        */
+        SimNPCComponent detached = new SimNPCComponent(npcId, "Detached");
+        detached.dataLoaded = true;
+        detached.savedNeeds = loaded.needs;
+        SimNPCPersistence.saveNPC(detached);
+        SimNPCData afterDetachedSave = SimNPCPersistence.DB_SHELL.core(SimNPCData.class)
+                .extract(npcId.toString()).sync().orElse(null);
+        assertEqual(afterDetachedSave != null && afterDetachedSave.needs != null, true,
+                "Detached save kept a needs snapshot");
+        assertEqual(afterDetachedSave.needs.hunger, 37.5f, "Detached save preserved hunger");
+
         // Delete
         SimNPCPersistence.DB_SHELL.core(SimNPCData.class).discard(npcId.toString());
         SimNPCData deleted = SimNPCPersistence.DB_SHELL.core(SimNPCData.class).extract(npcId.toString()).sync().orElse(null);
