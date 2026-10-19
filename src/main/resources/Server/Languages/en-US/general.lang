@@ -165,11 +165,13 @@ map.village = SimTale Village ({houses} houses | Radius: {radius}m)
 map.village.border = Village Boundary ({radius}m)
 map.house.occupied = House ({owners})
 map.house.empty = House (Unoccupied)
+cmd.chestcheck.type_global = [Chest Type] §aGLOBAL (Inside the village, no house)
 cmd.chestcheck.type_shared = [Chest Type] §aSHARED (Village Community Stock)
 cmd.chestcheck.type_private = [Chest Type] §ePRIVATE (House)
 cmd.chestshare.none_nearby = §cNo chest registered nearby (16-block radius).
 cmd.chestshare.now_shared = §aChest at ({x}, {y}, {z}) is now §6SHARED (Village Community Stock)
 cmd.chestshare.now_private = §aChest at ({x}, {y}, {z}) is now §7PRIVATE (Household Use)
+cmd.chestshare.auto_global = §eChest at ({x}, {y}, {z}) is §6GLOBAL because it stands inside the village and belongs to no house. Move it into a house to make it private.
 cmd.villagestock.no_village = §cNo village found nearby.
 cmd.villagestock.header = §6=== Village Stock ===
 cmd.villagestock.info = §eCenter: ({x}, {z}) | Radius: {radius}m | Houses: {houses}
