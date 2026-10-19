@@ -131,6 +131,17 @@ morrendo" repetia para sempre sem ela nunca morrer.
 
 ---
 
+## 4.1 Persistência das necessidades
+
+As cinco necessidades vivem no `EntityStatMap` do Hytale, mas isso não garante que sobrevivam a
+um restart. `SimNPCData.needs` guarda um snapshot dos cinco valores a cada save do NPC, e
+`NeedsHelper.restoreSavedNeeds` o aplica quando o NPC volta ao mundo.
+
+A restauração é conservadora: se o motor já restaurou valores reais (nem todos em 100), esses
+valores vencem. O snapshot só é aplicado quando as cinco necessidades ainda estão no valor padrão,
+que é o que acontece quando o stat map foi resetado. Assim a fome não volta para 100 a cada
+reinício, mas também não sobrescreve um estado mais novo que o próprio motor salvou.
+
 ## 5. Alimentar pela mão e Celebrações
 
 Com fome em **50 ou menos**, dar comida de presente faz a NPC comer na hora em vez de guardar
