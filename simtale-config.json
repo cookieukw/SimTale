@@ -8,5 +8,6 @@
   "proximityRadius": 4.5,
   "hungerDecayMultiplier": 1.0,
   "villageChestDepositChance": 0.3,
-  "villageSafeZoneEnabled": true
+  "villageSafeZoneEnabled": true,
+  "villageRegenEnabled": true
 }
