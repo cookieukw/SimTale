@@ -5,7 +5,8 @@ title: Needs
 
 # Needs
 
-Every NPC carries five needs, all starting at 100 and decaying over time.
+Every NPC carries five needs, all starting at 100 and decaying over time. They are saved with the
+NPC and restored when the server starts again, so hunger is cumulative across sessions.
 
 | Need | What it drives |
 |---|---|
@@ -24,9 +25,9 @@ Hunger is the need with the sharpest consequences, so it has clear thresholds:
 
 | Hunger | What happens |
 |---|---|
-| below 50 | looks for food **when idle** |
+| below 70 | looks for food **when idle** |
 | below 25 | **drops whatever it is doing** to eat |
-| below 5 | starts losing health |
+| below 5 | stops working, turns sad and cries |
 
 The interruption at 25 exists because a busy NPC would otherwise starve next to a full pantry —
 hunger used to be checked only while idle.
@@ -48,7 +49,23 @@ hobby and its social life, and stays that way until someone feeds it. Death is r
 and disease, which are not implemented yet.
 
 It can still reach food on its own — being starving does not stop it from walking to a chest, and
-it does not interrupt sleep.
+normal hunger does not interrupt sleep. `/simtale forceeat` is the exception: it keeps the NPC on
+the feeding task until she reaches the chest, even at night.
+
+### Where the food comes from
+
+An NPC first looks for a chest in her own house. If the house has no food (or she has no house),
+she can use a **global chest**: a chest placed inside the village and outside every house. Those
+belong to nobody and any resident may take food from them. Chests explicitly marked with
+`/simtale chestshare` also work this way.
+
+A chest outside the village, or a private chest inside someone else's house, is ignored.
+
+### Adjusting the pace
+
+`simtale-config.json` has `hungerDecayMultiplier` (default `1.0`). Raise it to make hunger arrive
+sooner; `10.0` reaches the first threshold in roughly 25 minutes, while `0` freezes hunger. The
+file is read at server boot, so restart after editing.
 
 ## What food restores
 
@@ -66,7 +83,7 @@ beef.
 
 ## Feeding by hand
 
-Give food to an NPC whose hunger is at 50 or below and she eats it on the spot instead of pocketing
+Give food to an NPC whose hunger is at 70 or below and she eats it on the spot instead of pocketing
 it — restoring hunger and health, and earning you far more goodwill than an ordinary gift.
 
 Hated food still feeds her. She eats it complaining, with a smaller gain and a hit to her mood.
