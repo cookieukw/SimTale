@@ -381,16 +381,22 @@ public class HouseManager {
                     queue.add(neighbor);
                     continue;
                 }
+
+                /* Furniture is part of the room, not a wall. Tables, workbenches, chairs, lamps
+                and similar blocks are solid, and treating them as boundaries made the flood fill
+                stop in the middle of a furnished room — which produced "too large/unenclosed" or
+                "too small" reports for perfectly valid houses. They are still recorded so the
+                mandatory furniture check can see them, but the fill walks through them.
+                */
+                if (type.getId() != null
+                        && FurnitureRequirement.classify(type.getId().toLowerCase()).isPresent()) {
+                    furniture.add(neighbor);
+                    visited.add(neighbor);
+                    queue.add(neighbor);
+                    continue;
+                }
+
                 if (isSolid(type)) {
-                    /* Still a wall for the fill — but if it is recognisable furniture, remember
-                    where it was. Chairs, tables and most lamps are solid, so skipping them
-                    silently is what made "needs a chair, a table" impossible to clear even in a
-                    room that had both.
-                    */
-                    if (type.getId() != null
-                            && FurnitureRequirement.classify(type.getId().toLowerCase()).isPresent()) {
-                        furniture.add(neighbor);
-                    }
                     continue;
                 }
 

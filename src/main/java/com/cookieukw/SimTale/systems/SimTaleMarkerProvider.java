@@ -243,8 +243,10 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             HouseBlockPos anchor = house.getAnchor();
             if (anchor == null) continue;
 
-            if (house.bedPos != null) houseBeds.add(house.bedPos);
-            if (house.beds != null) houseBeds.addAll(house.beds);
+            Set<HouseBlockPos> beds = new HashSet<>();
+            if (house.bedPos != null) beds.add(house.bedPos);
+            if (house.beds != null) beds.addAll(house.beds);
+            houseBeds.addAll(beds);
 
             List<String> names = new ArrayList<>();
             if (house.owners != null) {
@@ -252,14 +254,30 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                     try {
                         UUID u = UUID.fromString(ownerStr);
                         SimNPCComponent resident = SimTale.findNpc(u);
-                        if (resident != null && resident.name != null && !resident.name.isBlank()) {
+                        if (resident != null && resident.name != null && !resident.name.isBlank()
+                                && !names.contains(resident.name)) {
                             names.add(resident.name);
                         }
                     } catch (Exception ignored) {
                     }
                 }
             }
-            boolean occupied = !names.isEmpty();
+
+            /* The owners list is the source of truth for "occupied"; the name list is only what
+            can be resolved right now. Previously occupancy was tied to the *loaded* owners, so an
+            NPC in an unloaded chunk (or a house whose owner list was rebuilt empty while a
+            resident still slept there) painted the house blue as "unoccupied". A resident whose
+            bed is in this house also proves occupancy even if the owner list drifted.
+            */
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.bedLocation == null) continue;
+                HouseBlockPos bed = new HouseBlockPos(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
+                if (beds.contains(bed) && npc.name != null && !npc.name.isBlank() && !names.contains(npc.name)) {
+                    names.add(npc.name);
+                }
+            }
+
+            boolean occupied = !names.isEmpty() || (house.owners != null && !house.owners.isEmpty());
             String houseId = house.houseId != null ? house.houseId : (anchor.x + "_" + anchor.y + "_" + anchor.z);
             capturedHouses.add(new HouseMapMarker(houseId, List.copyOf(names),
                     houseMarkerPosition(house, anchor), occupied));
@@ -379,9 +397,18 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             try {
                 Transform houseTransform = new Transform(house.position());
                 TintComponent tint = new TintComponent(house.occupied() ? COLOR_HOUSE_OCCUPIED : COLOR_HOUSE_EMPTY);
-                Message houseName = house.occupied()
-                        ? Message.translation("general.map.house.occupied").param("owners", String.join(", ", house.ownerNames()))
-                        : Message.translation("general.map.house.empty");
+                Message houseName;
+                if (!house.occupied()) {
+                    houseName = Message.translation("general.map.house.empty");
+                } else if (house.ownerNames().isEmpty()) {
+                    /* Owners exist but none of them is loaded right now. Still occupied — the
+                    old code painted this blue because it only counted resolvable names.
+                    */
+                    houseName = Message.translation("general.map.house.occupied_unknown");
+                } else {
+                    houseName = Message.translation("general.map.house.occupied")
+                            .param("owners", String.join(", ", house.ownerNames()));
+                }
                 collector.addIgnoreViewDistance(
                         new MapMarkerBuilder(PROVIDER_ID + ":house:" + house.id(),
                                 MARKER_IMAGE_HOUSE, houseTransform)
