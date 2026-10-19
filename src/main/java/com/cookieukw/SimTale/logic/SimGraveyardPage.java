@@ -114,8 +114,13 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
         translation, and the separator lives in raw() so neither .lang value has to carry
         leading or trailing whitespace that a parser is free to trim.
         */
-        return profession.insert(Message.raw(" · "))
+        Message detail = profession.insert(Message.raw(" · "))
                 .insert(Message.translation("ui.graveyard.detail").param("children", children));
+        if (data.deathCause != null && !data.deathCause.isBlank()) {
+            detail = detail.insert(Message.raw(" · "))
+                    .insert(Message.translation("ui.graveyard.cause").param("cause", data.deathCause));
+        }
+        return detail;
     }
 
     @Override
