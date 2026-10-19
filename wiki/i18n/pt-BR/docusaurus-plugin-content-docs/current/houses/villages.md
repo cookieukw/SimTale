@@ -30,6 +30,21 @@ Os moradores também usam o baú global para o excedente. Eles preferem o baú d
 vezes escolhem o da vila mesmo quando ainda há espaço em casa, o que mantém o estoque comunitário
 em movimento.
 
+## Marcadores no mapa
+
+O mapa usa três marcadores relacionados:
+
+| Ícone | Significado |
+|---|---|
+| Ícone de Spawn | Centro da vila |
+| Casa verde | Casa registrada com pelo menos um morador |
+| Casa azul | Casa registrada, mas ainda sem morador |
+| Casa cinza | Cama registrada que não pertence a nenhuma casa — ninguém a pegou ainda |
+
+O marcador da casa fica no **centro do interior**, não na primeira cama, então uma extensão ou asa
+nova move o marcador junto com a construção. Uma casa separada só ganha marcador quando um NPC pega
+a cama; até lá ela aparece como cama sem dono.
+
 ## Ela desaparece se você a destruir
 
 Uma casa só existe por causa de sua cama. Quebre a cama e a casa deixará de existir, e a vila será recalculada

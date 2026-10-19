@@ -30,6 +30,21 @@ Villagers use the global chest for surplus too. They prefer their own house ches
 they choose the village one even when home still has room, which is what keeps the communal stock
 moving.
 
+## Map markers
+
+The map uses three related markers:
+
+| Icon | Meaning |
+|---|---|
+| Spawn icon | Village centre |
+| Green Home icon | Registered house with at least one resident |
+| Blue Home icon | Registered house with no resident yet |
+| Grey Home icon | Registered bed that belongs to no house — nobody has claimed it yet |
+
+House markers sit at the **centre of the house interior**, not on the first bed, so an extension or
+new wing moves the marker with the building. A separate house only gets a marker once an NPC claims
+its bed; until then it appears as an unclaimed bed.
+
 ## It disappears if you tear it down
 
 A house exists because of its bed. Break the bed and the house is gone, and the village recalculates
