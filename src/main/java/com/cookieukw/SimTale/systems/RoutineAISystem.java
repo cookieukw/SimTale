@@ -577,7 +577,16 @@ once per NPC per tick for nothing.
          force buttons) never passed through — leaving the flag stuck true forever on any NPC
          those touched, which silently and permanently disabled its sleep and hunger interrupts.
         */
-        ai.forcedByDebug = false;
+        /* A forced feeding errand keeps the flag until she has actually finished it. Clearing it
+        unconditionally on the next tick let the sleep interrupt win at night, so /simtale
+        forceeat looked broken: the search cooldown had not even elapsed before she was sent to
+        bed. Every other forced debug task still clears on this tick, as before.
+        */
+        if (ai.currentTask != TaskType.FINDING_FOOD
+                && ai.currentTask != TaskType.MOVING_TO_FOOD
+                && ai.currentTask != TaskType.EATING) {
+            ai.forcedByDebug = false;
+        }
 
         /* Socializing & Wandering (Delegated to NPCSocialHelper) 
         */
