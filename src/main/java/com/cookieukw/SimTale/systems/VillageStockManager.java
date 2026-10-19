@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.config.SimTaleConfig;
+import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.systems.VillageManager.Village;
@@ -71,11 +73,14 @@ public final class VillageStockManager {
     }
 
     /**
-     * Chance that a worker with room in her own pantry still walks surplus to the village chest.
-     * Without this the communal chest only ever filled once every home chest was already full,
-     * which made the warehouse look permanently empty even in a busy village.
+     * Fallback chance that a worker with room in her own pantry still walks surplus to the
+     * village chest. Without this the communal chest only ever filled once every home chest was
+     * already full, which made the warehouse look permanently empty even in a busy village.
+     *
+     * <p>The live value comes from {@link SimTaleConfig#villageChestDepositChance}; this constant
+     * only covers early boot/tests where the config manager is not ready yet.
      */
-    private static final double VILLAGE_DEPOSIT_CHANCE = 0.30;
+    private static final double DEFAULT_VILLAGE_DEPOSIT_CHANCE = 0.30;
 
     /**
      * Finds the best chest for an NPC to deposit work surplus into.
@@ -83,7 +88,7 @@ public final class VillageStockManager {
      * <p>Order of preference:
      * <ol>
      *   <li>a village-global/shared chest, either because the home chests are full or because of
-     *       an occasional {@link #VILLAGE_DEPOSIT_CHANCE} roll;</li>
+     *       an occasional {@link SimTaleConfig#villageChestDepositChance} roll;</li>
      *   <li>the NPC's own home chest;</li>
      *   <li>a shared chest even when full, so an existing save keeps its old fallback.</li>
      * </ol>
@@ -125,7 +130,7 @@ public final class VillageStockManager {
         */
         if (villageWithRoom != null
                 && (homeWithRoom == null
-                    || ThreadLocalRandom.current().nextDouble() < VILLAGE_DEPOSIT_CHANCE)) {
+                    || ThreadLocalRandom.current().nextDouble() < villageDepositChance())) {
             return villageWithRoom;
         }
 
@@ -133,6 +138,19 @@ public final class VillageStockManager {
         if (villageWithRoom != null) return villageWithRoom;
         if (villageFull != null) return villageFull;
         return homeFull;
+    }
+
+    /** Live config value, clamped so a malformed JSON file cannot break the roll. */
+    private static double villageDepositChance() {
+        try {
+            SimTaleConfig cfg = SimTaleConfigManager.getConfig();
+            if (cfg != null) {
+                return Math.max(0.0, Math.min(1.0, cfg.villageChestDepositChance));
+            }
+        } catch (RuntimeException ignored) {
+            // Config not ready: fall through to the historical default.
+        }
+        return DEFAULT_VILLAGE_DEPOSIT_CHANCE;
     }
 
     /**
