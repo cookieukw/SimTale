@@ -170,6 +170,11 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             npc = activeMatch;
         }
 
+        /* Covers the path where the component was already tracked and only its ref had to be
+        recovered above; the trackNpc call in the other paths is a no-op by then.
+        */
+        NeedsHelper.restoreSavedNeeds(npc);
+
         /* The Reaper is deliberately never written to SimTale's own database -- she is ephemeral
         by design (SimNPCFactory.spawnNPC: "O Reaper fica de fora de proposito"). If the server
         restarts, or a chunk saves and reloads, while one is mid-ceremony, the engine's own
