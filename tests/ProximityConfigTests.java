@@ -25,6 +25,10 @@ public final class ProximityConfigTests {
         Assert.floatEqual((float) cfg.proximityRadius, 4.5f, "proximityRadius default should be 4.5");
         Assert.isFalse(cfg.debugMode, "debugMode default should be false");
         Assert.isFalse(cfg.seasonalCostumesEnabled, "seasonalCostumesEnabled default should be false");
+        Assert.floatEqual((float) cfg.hungerDecayMultiplier, 1.0f,
+                "hungerDecayMultiplier default should preserve the original pacing");
+        Assert.floatEqual((float) cfg.villageChestDepositChance, 0.30f,
+                "villageChestDepositChance default should be 0.30");
     }
 
     private static void testConfigPersistence() {
@@ -39,6 +43,8 @@ public final class ProximityConfigTests {
             custom.proximityNpcCooldownSeconds = 120;
             custom.proximityPlayerCooldownSeconds = 30;
             custom.proximityRadius = 6.0;
+            custom.hungerDecayMultiplier = 10.0;
+            custom.villageChestDepositChance = 0.75;
 
             SimTaleConfigManager.setConfig(custom);
             Assert.equal(SimTaleConfigManager.getConfig(), custom, "setConfig should update active config");
@@ -49,6 +55,10 @@ public final class ProximityConfigTests {
             Assert.isFalse(SimTaleConfigManager.getConfig().proximityChatEnabled, "proximityChatEnabled should be false");
             Assert.equal(SimTaleConfigManager.getConfig().proximityNpcCooldownSeconds, 120, "proximityNpcCooldownSeconds should be 120");
             Assert.equal(SimTaleConfigManager.getConfig().proximityPlayerCooldownSeconds, 30, "proximityPlayerCooldownSeconds should be 30");
+            Assert.floatEqual((float) SimTaleConfigManager.getConfig().hungerDecayMultiplier, 10.0f,
+                    "hungerDecayMultiplier should be 10.0");
+            Assert.floatEqual((float) SimTaleConfigManager.getConfig().villageChestDepositChance, 0.75f,
+                    "villageChestDepositChance should be 0.75");
 
             // Save to disk and reload
             SimTaleConfigManager.save();
@@ -62,6 +72,10 @@ public final class ProximityConfigTests {
             Assert.equal(loaded.proximityNpcCooldownSeconds, 120, "loaded proximityNpcCooldownSeconds should match saved");
             Assert.equal(loaded.proximityPlayerCooldownSeconds, 30, "loaded proximityPlayerCooldownSeconds should match saved");
             Assert.floatEqual((float) loaded.proximityRadius, 6.0f, "loaded proximityRadius should match saved");
+            Assert.floatEqual((float) loaded.hungerDecayMultiplier, 10.0f,
+                    "loaded hungerDecayMultiplier should match saved");
+            Assert.floatEqual((float) loaded.villageChestDepositChance, 0.75f,
+                    "loaded villageChestDepositChance should match saved");
 
             // Null safety
             SimTaleConfigManager.setConfig(null);
