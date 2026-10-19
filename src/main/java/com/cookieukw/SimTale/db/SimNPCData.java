@@ -45,6 +45,9 @@ public class SimNPCData {
     // Profession reputation (wiki/dev/status.md, "Reputacao por profissao")
     public int jobsCompleted = 0;
 
+    /** Last damage source, shown in the graveyard so a missing NPC has an explanation. */
+    public String deathCause;
+
     /**
      * Last known values of the five SimTale needs.
      *
