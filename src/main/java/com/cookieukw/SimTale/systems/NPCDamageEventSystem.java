@@ -1,6 +1,8 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.config.SimTaleConfig;
+import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.Relationship;
@@ -54,6 +56,19 @@ public class NPCDamageEventSystem extends DamageEventSystem {
     ) {
         SimNPCComponent victimNpc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
         if (victimNpc == null) {
+            return;
+        }
+
+        /* Village safe zone. A resident standing inside the village boundary cannot be damaged at
+        all: hostile mobs, fall damage, fire and player hits are all cancelled. This is deliberately
+        broader than "mobs only" — a safe zone that still lets a player execute someone is not a
+        safe zone. /simtale forcekill bypasses damage and still works for administration.
+        */
+        TransformComponent victimTransform = chunk.getComponent(index, TransformComponent.getComponentType());
+        if (victimTransform != null && isInsideVillageSafeZone(victimTransform.getPosition())) {
+            event.setAmount(0f);
+            event.setCancelled(true);
+            LOGGER.debug("[SimTale] damage to NPC '{}' blocked by the village safe zone", victimNpc.name);
             return;
         }
 
@@ -141,5 +156,19 @@ public class NPCDamageEventSystem extends DamageEventSystem {
                 }
             }
         }
+    }
+
+    /**
+     * True when the point lies inside a village and the safe zone is enabled.
+     *
+     * <p>Villages are derived from houses, so the safe zone moves and disappears with the village
+     * itself. There is no separate persisted region to keep in sync.
+     */
+    private static boolean isInsideVillageSafeZone(Vector3d pos) {
+        SimTaleConfig config = SimTaleConfigManager.getConfig();
+        if (config != null && !config.villageSafeZoneEnabled) return false;
+
+        VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
+        return village != null && village.contains(pos.x, pos.z);
     }
 }
