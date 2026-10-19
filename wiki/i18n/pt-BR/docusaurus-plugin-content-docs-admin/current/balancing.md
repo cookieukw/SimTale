@@ -92,6 +92,9 @@ Guards invert the window: they sleep during the day.
 | Constant | Value | Why it exists |
 |---|---|---|
 | `CHEST_SEARCH_RADIUS` | 24 blocks | Distância máxima que o NPC caminha para buscar comida |
+| `villageChestDepositChance` | 0.30 | Chance de usar o baú da vila em vez do de casa mesmo com espaço em casa |
+| Village link distance | 64 blocks | Casas a essa distância formam uma vila |
+| Village radius margin | 24 blocks | Somado à casa mais distante ao calcular o raio/área de baús globais |
 | `FOOD_SEARCH_COOLDOWN_TICKS` | 100 | Evita tempestade de buscas quando não há comida acessível |
 | `MOVE_TIMEOUT_TICKS` | 600 (30 s) | Desiste de um baú ou destino inalcançável |
 | Furniture scan radius on join | 32 blocks | Detecta camas e baús pré-existentes ao entrar |

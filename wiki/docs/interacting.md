@@ -23,7 +23,8 @@ Aim at an NPC and press **F**, or right-click. The interaction panel opens.
 | Family | Parents, spouses, and children |
 | Status | Relationship, friendship, affinity, or **Filial Kinship** (for your children, showing son/daughter bond tiers instead of romantic levels) |
 
-The colors on the hunger line follow the thresholds the routine actually uses: green above 50, yellow below 50, orange below 25, red below 5. At 5, the NPC cries and abandons all tasks.
+The colors on the hunger line follow the thresholds the routine actually uses: green at 70 or above,
+yellow below 70, orange below 25, red below 5. At 5, the NPC cries and abandons all tasks.
 
 ### Dynamic Camera Framing
 When the interaction panel opens, the camera dynamically adjusts its distance, height offset, and pitch based on the NPC's actual bounding box and growth stage scale. This ensures toddlers and children are centered perfectly in frame without pointing awkwardly at the empty air above them.

@@ -54,7 +54,7 @@ Você não precisa dar ordens. Apenas coloque blocos que contenham `leisure_fish
 
 ### Como eu crio uma vila? Preciso de um bloco central?
 
-Não. Uma vila se forma automaticamente quando você constrói casas próximas umas das outras (cerca de 40 blocos entre as camas). A vila se expande naturalmente conforme você constrói mais casas na mesma região.
+Não. Uma vila se forma automaticamente quando você constrói casas próximas umas das outras (até 64 blocos entre as camas). A vila se expande naturalmente conforme você constrói mais casas na mesma região.
 
 ### Como os NPCs têm filhos e como cuidar deles?
 

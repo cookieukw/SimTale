@@ -23,7 +23,9 @@ Aponte para um NPC e aperte **F**, ou clique com o botão direito. O painel de i
 | Família | Pais, cônjuges e filhos |
 | Status | Relacionamento, amizade, afinidade ou **Vínculo Filial** (para seus filhos, mostrando níveis de carinho parental como Filho/Filha em vez de títulos românticos) |
 
-As cores na barra de fome seguem os limites que a rotina realmente usa: verde acima de 50, amarelo abaixo de 50, laranja abaixo de 25, vermelho abaixo de 5. No nível 5, o NPC chora e abandona todas as tarefas.
+As cores na barra de fome seguem os limites que a rotina realmente usa: verde em 70 ou mais,
+amarelo abaixo de 70, laranja abaixo de 25, vermelho abaixo de 5. No nível 5, o NPC chora e abandona
+todas as tarefas.
 
 ### Enquadramento Dinâmico de Câmera
 Ao abrir o painel de interação, a câmera ajusta dinamicamente a distância, elevação e inclinação vertical com base na caixa de colisão real (bounding box) e escala do NPC. Isso garante que crianças pequenas fiquem perfeitamente centralizadas na tela, em vez da câmera mirar no ar vazio acima de suas cabeças.

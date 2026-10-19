@@ -54,7 +54,7 @@ You don't need to order them. Just place blocks that contain `leisure_fishing`, 
 
 ### How do I create a village? Do I need a center block?
 
-No. A village forms automatically when you build houses close to each other (around 40 blocks between beds). The village expands naturally as you build more houses in the same area.
+No. A village forms automatically when you build houses close to each other (up to 64 blocks between beds). The village expands naturally as you build more houses in the same area.
 
 ### How do NPCs have babies and how do I care for them?
 
