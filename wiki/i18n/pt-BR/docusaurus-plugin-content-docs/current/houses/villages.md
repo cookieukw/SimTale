@@ -10,7 +10,7 @@ e não há nenhum marcador ou item que possa ser perdido.
 
 ## Como se forma
 
-Duas casas pertencem à mesma vila quando suas camas estão a cerca de **40 blocos** de distância uma da outra,
+Duas casas pertencem à mesma vila quando suas camas estão a até **64 blocos** de distância uma da outra,
 e isso gera uma corrente: se a casa A está perto da B, e a B está perto da C, todas as três formam uma vila, mesmo que A e C estejam
 muito distantes entre si.
 
@@ -18,7 +18,17 @@ Portanto, uma vila cresce à medida que você constrói — expandindo-se a part
 com 30 blocos de distância entre elas formará uma única vila, por maior que a rua fique.
 
 O centro fica no meio das camas, e a vila se estende dali até a casa mais distante
-acrescida de uma pequena margem.
+acrescida de uma margem de 24 blocos.
+
+## Baús da vila
+
+Um baú colocado dentro da vila e fora de todas as casas é um **baú global**. Ninguém é dono dele e
+qualquer morador pode pegar comida nele — inclusive NPCs que não têm casa. Se você colocar o baú
+dentro de uma casa, ele volta a ser privado.
+
+Os moradores também usam o baú global para o excedente. Eles preferem o baú da própria casa, mas às
+vezes escolhem o da vila mesmo quando ainda há espaço em casa, o que mantém o estoque comunitário
+em movimento.
 
 ## Ela desaparece se você a destruir
 

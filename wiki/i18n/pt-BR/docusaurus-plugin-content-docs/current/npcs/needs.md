@@ -5,7 +5,8 @@ title: Necessidades
 
 # Necessidades
 
-Todo NPC possui cinco necessidades, todas começando em 100 e caindo com o tempo.
+Todo NPC possui cinco necessidades, todas começando em 100 e caindo com o tempo. Elas são salvas
+com o NPC e restauradas quando o servidor reinicia, então a fome é cumulativa entre sessões.
 
 | Necessidade | O que ela motiva a fazer |
 |---|---|
@@ -23,9 +24,9 @@ A fome é a necessidade com as consequências mais duras, por isso ela tem limit
 
 | Fome | O que acontece |
 |---|---|
-| abaixo de 50 | procura comida **quando estiver ocioso** |
+| abaixo de 70 | procura comida **quando estiver ocioso** |
 | abaixo de 25 | **larga o que estiver fazendo** para comer |
-| abaixo de 5 | começa a perder vida |
+| abaixo de 5 | para de trabalhar, fica triste e chora |
 
 A interrupção aos 25 existe porque um NPC ocupado acabaria passando fome ao lado de uma despensa cheia —
 antes, a fome só era checada enquanto ele estivesse ocioso.
@@ -47,7 +48,23 @@ hobby e sua vida social, e fica desse jeito até que alguém o alimente. A morte
 e a doenças, que ainda não foram implementados.
 
 Ele ainda consegue pegar comida por conta própria — estar passando fome não o impede de caminhar até um baú, e
-isso não interrompe o sono.
+a fome normal não interrompe o sono. `/simtale forceeat` é a exceção: mantém o NPC na tarefa de
+comer até ele chegar ao baú, mesmo à noite.
+
+### De onde vem a comida
+
+O NPC procura primeiro um baú na própria casa. Se a casa não tiver comida (ou ele não tiver casa),
+pode usar um **baú global**: um baú colocado dentro da vila e fora de todas as casas. Esses baús não
+têm dono e qualquer morador pode pegar comida neles. Baús marcados com `/simtale chestshare` também
+funcionam assim.
+
+Um baú fora da vila, ou um baú privado dentro da casa de outra pessoa, é ignorado.
+
+### Ajustando o ritmo
+
+O `simtale-config.json` tem `hungerDecayMultiplier` (padrão `1.0`). Aumente para a fome chegar mais
+rápido; `10.0` alcança o primeiro limiar em cerca de 25 minutos, e `0` congela a fome. O arquivo é
+lido no boot, então reinicie depois de editar.
 
 ## O que a comida restaura
 
@@ -65,7 +82,7 @@ carne que ele ama.
 
 ## Alimentando à mão
 
-Dê comida para um NPC cuja fome está em 50 ou menos e ela a comerá na mesma hora em vez de guardar
+Dê comida para um NPC cuja fome está em 70 ou menos e ela a comerá na mesma hora em vez de guardar
 no bolso — restaurando fome e vida, e rendendo muito mais gratidão a você do que um presente comum.
 
 Comida odiada ainda alimenta. Ela come reclamando, ganha menos status e sofre uma queda no humor.

@@ -71,9 +71,17 @@ The same component NPCs read when looking for food, so registration and consumpt
 
 `BedRegistry.isBedId` is still name-based (`contains "bed"`, excluding `bedrock`). Known debt.
 
-## House scope
+## House scope and global chests
 
-`HouseManager.canOpenChest` refuses chests belonging to no house. That is what keeps NPCs out of
-world-generated loot chests, since the scan registers any container in range.
+`HouseManager.canOpenChest` refuses a private chest that belongs to no house. That is what keeps NPCs
+out of world-generated loot chests, since the scan registers any container in range.
 
-Accepted side effect: a player's chest in an open field is ignored until it is part of a house.
+There is one deliberate exception: a chest **inside a village and outside every house** is a
+**village-global chest**. It has no owner and any resident may take food from it, including
+homeless NPCs. `ChestRegistry.isVillageGlobal` computes this live from
+`HouseManager.findHouseIdForChest` + `VillageManager.nearest`, so moving the chest into a house makes
+it private again, and destroying the village removes the global status with it. The status is never
+written to Caskara.
+
+A chest outside the village in open field is still ignored. `/simtale chestshare` can mark a chest
+shared explicitly regardless of location.
