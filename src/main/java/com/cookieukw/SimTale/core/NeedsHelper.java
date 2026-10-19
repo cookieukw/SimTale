@@ -3,6 +3,7 @@ package com.cookieukw.SimTale.core;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import com.cookieukw.SimTale.db.SimNPCData;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
@@ -137,6 +138,71 @@ public class NeedsHelper {
             || getNeed(store, entity, SOCIAL_ID) < 10 
             || getNeed(store, entity, FUN_ID) < 10 
             || getNeed(store, entity, HYGIENE_ID) < 10;
+    }
+
+    /**
+     * Captures the five needs for the Caskara record.
+     *
+     * <p>Returns {@code null} when the live entity cannot be read, so the caller can keep the
+     * previous snapshot instead of writing a bogus one.
+     */
+    public static SimNPCData.NeedsData snapshot(SimNPCComponent npc) {
+        if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) return null;
+
+        Store<EntityStore> store = npc.entityRef.getStore();
+        SimNPCData.NeedsData data = new SimNPCData.NeedsData();
+        data.hunger = getNeed(store, npc.entityRef, HUNGER_ID);
+        data.energy = getNeed(store, npc.entityRef, ENERGY_ID);
+        data.social = getNeed(store, npc.entityRef, SOCIAL_ID);
+        data.fun = getNeed(store, npc.entityRef, FUN_ID);
+        data.hygiene = getNeed(store, npc.entityRef, HYGIENE_ID);
+        return data;
+    }
+
+    /**
+     * Applies the snapshot loaded from the database, once, when the live entity is available.
+     *
+     * <p>The engine's own {@code EntityStatMap} may already have survived the restart. In that
+     * case every need will have a real, non-default value and it wins: restoring our older JSON
+     * snapshot over newer live stats would roll the NPC back. When all five are still at the
+     * asset default (100), the engine did not carry them over and the saved values are applied.
+     */
+    public static void restoreSavedNeeds(SimNPCComponent npc) {
+        if (npc == null) return;
+
+        SimNPCData.NeedsData saved = npc.savedNeeds;
+        if (saved == null) return;
+
+        Ref<EntityStore> entity = npc.entityRef;
+        if (entity == null || !entity.isValid()) return;
+
+        Store<EntityStore> store = entity.getStore();
+        if (!allNeedsAtDefault(store, entity)) {
+            /* Live stats are authoritative; drop the snapshot so it cannot be applied later. */
+            npc.savedNeeds = null;
+            return;
+        }
+
+        setNeed(store, entity, HUNGER_ID, saved.hunger);
+        setNeed(store, entity, ENERGY_ID, saved.energy);
+        setNeed(store, entity, SOCIAL_ID, saved.social);
+        setNeed(store, entity, FUN_ID, saved.fun);
+        setNeed(store, entity, HYGIENE_ID, saved.hygiene);
+        npc.savedNeeds = null;
+
+        LOGGER.debug("[SimTale] restored needs for {} (hunger {})", npc.name, saved.hunger);
+    }
+
+    private static boolean allNeedsAtDefault(Store<EntityStore> store, Ref<EntityStore> entity) {
+        return isDefault(getNeed(store, entity, HUNGER_ID))
+                && isDefault(getNeed(store, entity, ENERGY_ID))
+                && isDefault(getNeed(store, entity, SOCIAL_ID))
+                && isDefault(getNeed(store, entity, FUN_ID))
+                && isDefault(getNeed(store, entity, HYGIENE_ID));
+    }
+
+    private static boolean isDefault(float value) {
+        return Math.abs(value - DEFAULT_VALUE) < 0.01f;
     }
 
     public static void tickDecay(Store<EntityStore> store, Ref<EntityStore> entity, Set<Trait> traits) {
