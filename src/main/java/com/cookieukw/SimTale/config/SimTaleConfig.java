@@ -61,4 +61,10 @@ public class SimTaleConfig {
      * chest still has room. 0 makes village chests a last resort; 1 always uses them.
      */
     public double villageChestDepositChance = 0.30;
+
+    /**
+     * Village safe zone: while inside the boundary derived from the houses, SimTale NPCs cannot
+     * take damage. Turns off the protection but leaves villages otherwise unchanged.
+     */
+    public boolean villageSafeZoneEnabled = true;
 }
