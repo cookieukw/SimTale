@@ -155,6 +155,12 @@ public class SimTaleTests {
         SimNPCData npcData = new SimNPCData();
         npcData.id = npcId.toString();
         npcData.name = "Test NPC Name";
+        npcData.needs = new SimNPCData.NeedsData();
+        npcData.needs.hunger = 37.5f;
+        npcData.needs.energy = 62.25f;
+        npcData.needs.social = 18f;
+        npcData.needs.fun = 91f;
+        npcData.needs.hygiene = 44f;
 
         // Save to SimNPCData Core of DB_SHELL
         String savedId = SimNPCPersistence.DB_SHELL.core(SimNPCData.class).preserve(npcId.toString(), npcData);
@@ -164,6 +170,12 @@ public class SimTaleTests {
         SimNPCData loaded = SimNPCPersistence.DB_SHELL.core(SimNPCData.class).extract(npcId.toString()).sync().orElse(null);
         assertEqual(loaded != null, true, "NPC loaded");
         assertEqual(loaded.name, "Test NPC Name", "Validation of saved name");
+        assertEqual(loaded.needs != null, true, "Needs snapshot loaded");
+        assertEqual(loaded.needs.hunger, 37.5f, "Hunger persisted");
+        assertEqual(loaded.needs.energy, 62.25f, "Energy persisted");
+        assertEqual(loaded.needs.social, 18f, "Social persisted");
+        assertEqual(loaded.needs.fun, 91f, "Fun persisted");
+        assertEqual(loaded.needs.hygiene, 44f, "Hygiene persisted");
 
         // Delete
         SimNPCPersistence.DB_SHELL.core(SimNPCData.class).discard(npcId.toString());
