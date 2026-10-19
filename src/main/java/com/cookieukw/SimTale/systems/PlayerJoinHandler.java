@@ -7,6 +7,7 @@ import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.cookieukw.SimTale.logic.PlayerGenderPage;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
@@ -127,6 +128,20 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
             SimNPCPersistence.reassembleActiveNPCs(player.getWorld());
         } catch (Exception e) {
             LOGGER.warn("[SimTale] Error reassembling active NPCs: " + e.getMessage());
+        }
+
+        /* Missing NPCs have a concrete explanation: they died while the player was away and the
+        Reaper archived them. Say so on join instead of leaving the player to notice the roster
+        silently shrinking.
+        */
+        try {
+            int buried = SimNPCPersistence.listGraveyard().size();
+            if (buried > 0) {
+                playerRefComponent.sendMessage(Message.translation("general.graveyard.pending")
+                        .param("count", buried));
+            }
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] Error reading graveyard count: " + e.getMessage());
         }
 
         /* Map markers attach here rather than at plugin startup, where the world does not exist
