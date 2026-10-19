@@ -150,6 +150,11 @@ public class NeedsHelper {
         if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) return null;
 
         Store<EntityStore> store = npc.entityRef.getStore();
+        /* A missing stat map is not "all needs are full"; it means the entity is not ready yet.
+        Writing 100s over a real snapshot would erase the very state this field exists to keep.
+        */
+        if (store.getComponent(npc.entityRef, EntityStatMap.getComponentType()) == null) return null;
+
         SimNPCData.NeedsData data = new SimNPCData.NeedsData();
         data.hunger = getNeed(store, npc.entityRef, HUNGER_ID);
         data.energy = getNeed(store, npc.entityRef, ENERGY_ID);
