@@ -46,4 +46,19 @@ public class SimTaleConfig {
      * Detection radius in blocks for player proximity.
      */
     public double proximityRadius = 4.5;
+
+    /**
+     * Multiplier applied to SimTale's hunger decay.
+     *
+     * <p>1.0 is the original pacing (about 4h10 from 100 to 70, the first "go find food"
+     * threshold). Raise it to make hunger visible sooner, e.g. 10.0 reaches that threshold in
+     * roughly 25 minutes. 0 freezes hunger entirely, which is useful for screenshots/trailers.
+     */
+    public double hungerDecayMultiplier = 1.0;
+
+    /**
+     * Chance (0..1) that a worker takes surplus to a village/global chest even when her own home
+     * chest still has room. 0 makes village chests a last resort; 1 always uses them.
+     */
+    public double villageChestDepositChance = 0.30;
 }
