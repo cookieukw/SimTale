@@ -30,6 +30,7 @@ public final class ProximityConfigTests {
         Assert.floatEqual((float) cfg.villageChestDepositChance, 0.30f,
                 "villageChestDepositChance default should be 0.30");
         Assert.isTrue(cfg.villageSafeZoneEnabled, "villageSafeZoneEnabled default should be true");
+        Assert.isTrue(cfg.villageRegenEnabled, "villageRegenEnabled default should be true");
     }
 
     private static void testConfigPersistence() {
@@ -47,6 +48,7 @@ public final class ProximityConfigTests {
             custom.hungerDecayMultiplier = 10.0;
             custom.villageChestDepositChance = 0.75;
             custom.villageSafeZoneEnabled = false;
+            custom.villageRegenEnabled = false;
 
             SimTaleConfigManager.setConfig(custom);
             Assert.equal(SimTaleConfigManager.getConfig(), custom, "setConfig should update active config");
@@ -63,6 +65,8 @@ public final class ProximityConfigTests {
                     "villageChestDepositChance should be 0.75");
             Assert.isFalse(SimTaleConfigManager.getConfig().villageSafeZoneEnabled,
                     "villageSafeZoneEnabled should be false");
+            Assert.isFalse(SimTaleConfigManager.getConfig().villageRegenEnabled,
+                    "villageRegenEnabled should be false");
 
             // Save to disk and reload
             SimTaleConfigManager.save();
@@ -82,6 +86,8 @@ public final class ProximityConfigTests {
                     "loaded villageChestDepositChance should match saved");
             Assert.isFalse(loaded.villageSafeZoneEnabled,
                     "loaded villageSafeZoneEnabled should match saved");
+            Assert.isFalse(loaded.villageRegenEnabled,
+                    "loaded villageRegenEnabled should match saved");
 
             // Null safety
             SimTaleConfigManager.setConfig(null);
