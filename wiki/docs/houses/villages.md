@@ -30,6 +30,15 @@ Villagers use the global chest for surplus too. They prefer their own house ches
 they choose the village one even when home still has room, which is what keeps the communal stock
 moving.
 
+## Safe zone
+
+The village boundary is also a **safe zone**. While a SimTale NPC is inside it, all damage is
+cancelled — hostile mobs, fall damage, fire and player hits. `/simtale forcekill` still works because
+it bypasses the damage system.
+
+The protection follows the village: it expands when the village grows and disappears if the village
+is torn down. Disable it with `villageSafeZoneEnabled: false` in `simtale-config.json`.
+
 ## Map markers
 
 The map uses three related markers:

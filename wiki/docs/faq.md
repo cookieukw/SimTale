@@ -46,8 +46,12 @@ Yes. Names, needs, relationships, houses and jobs are all persisted.
 ### NPCs are missing when I come back. What happened?
 
 They probably died while you were away — hostile mobs, fall damage and other engine damage can kill
-a resident, and the Grim Reaper then archives her. Run `/simtale graveyard`: each entry now shows the
-cause of death and has a revive button. The join message also tells you how many NPCs are buried.
+a resident **outside the village safe zone**, and the Grim Reaper then archives her. Run
+`/simtale graveyard`: each entry now shows the cause of death and has a revive button. The join
+message also tells you how many NPCs are buried.
+
+Inside the village boundary, SimTale NPCs are protected from all damage
+(`villageSafeZoneEnabled`, default `true`).
 
 They are not silently deleted; if the graveyard is empty and an NPC is still missing, check the
 server log for a save/load error.

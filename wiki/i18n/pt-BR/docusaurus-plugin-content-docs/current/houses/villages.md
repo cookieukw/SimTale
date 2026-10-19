@@ -30,6 +30,15 @@ Os moradores também usam o baú global para o excedente. Eles preferem o baú d
 vezes escolhem o da vila mesmo quando ainda há espaço em casa, o que mantém o estoque comunitário
 em movimento.
 
+## Zona segura
+
+A fronteira da vila também é uma **zona segura**. Enquanto um NPC do SimTale estiver dentro dela,
+todo dano é cancelado — mobs hostis, queda, fogo e ataques de jogador. `/simtale forcekill` continua
+funcionando porque ignora o sistema de dano.
+
+A proteção acompanha a vila: cresce quando a vila cresce e desaparece se a vila for destruída. Para
+desativar, use `villageSafeZoneEnabled: false` no `simtale-config.json`.
+
 ## Marcadores no mapa
 
 O mapa usa três marcadores relacionados:

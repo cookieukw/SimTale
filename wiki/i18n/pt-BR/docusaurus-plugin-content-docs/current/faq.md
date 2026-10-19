@@ -46,9 +46,12 @@ Sim. Nomes, necessidades, relacionamentos, casas e empregos são todos mantidos 
 ### Alguns NPCs somem quando eu volto. O que aconteceu?
 
 Eles provavelmente morreram enquanto você estava fora — mobs hostis, dano de queda e outros danos do
-motor podem matar um morador, e a Ceifadora arquiva o registro. Rode `/simtale graveyard`: cada
-entrada agora mostra a causa da morte e tem botão de ressurreição. A mensagem de entrada também diz
-quantos NPCs estão enterrados.
+motor podem matar um morador **fora da zona segura da vila**, e a Ceifadora arquiva o registro. Rode
+`/simtale graveyard`: cada entrada agora mostra a causa da morte e tem botão de ressurreição. A
+mensagem de entrada também diz quantos NPCs estão enterrados.
+
+Dentro da fronteira da vila, NPCs do SimTale são protegidos de todo dano
+(`villageSafeZoneEnabled`, padrão `true`).
 
 Eles não são apagados silenciosamente; se o cemitério estiver vazio e ainda faltar alguém, procure
 erro de save/load no log do servidor.
