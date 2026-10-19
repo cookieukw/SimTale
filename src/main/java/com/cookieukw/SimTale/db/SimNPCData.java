@@ -42,7 +42,7 @@ public class SimNPCData {
     public String emotionSource = "routine";
     public long lastEmotionChangeTick = 0;
 
-    // Profession reputation (docs/ROADMAP.md, "Reputacao por profissao")
+    // Profession reputation (wiki/dev/status.md, "Reputacao por profissao")
     public int jobsCompleted = 0;
 
     /**

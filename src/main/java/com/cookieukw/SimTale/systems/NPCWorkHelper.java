@@ -191,7 +191,7 @@ public class NPCWorkHelper {
      * in the simulation noticed.
      */
     private static void applyWorkSatisfaction(SimNPCComponent npc, long tick) {
-        /* docs/ROADMAP.md, "Reputacao por profissao": every one of this method's 5 call sites
+        /* wiki/dev/status.md, "Reputacao por profissao": every one of this method's 5 call sites
         is a finished unit of work (harvest, planting, catch, chop, hunter/miner expedition),
         so this one line is the whole counter -- no per-profession duplication needed.
         */

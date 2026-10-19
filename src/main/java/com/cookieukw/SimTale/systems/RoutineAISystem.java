@@ -615,10 +615,10 @@ once per NPC per tick for nothing.
         /* Player Proximity Greeting */
         checkPlayerProximityGreeting(ref, npc, ai, transform, world, store);
 
-        /* Face a nearby player while idle (docs/ROADMAP.md: "NPC staring at wall") */
+        /* Face a nearby player while idle (wiki/dev/status.md: "NPC staring at wall") */
         faceNearbyPlayerWhileIdle(ref, npc, ai, transform, world, store);
 
-        /* World-event commentary: NPC notices a sightworthy creature nearby (docs/ROADMAP.md:
+        /* World-event commentary: NPC notices a sightworthy creature nearby (wiki/dev/status.md:
         "Kweebec spotted")  */
         checkWorldEventCommentary(npc, ai, transform, world, store);
 
@@ -945,7 +945,7 @@ once per NPC per tick for nothing.
     }
 
     /**
-     * docs/ROADMAP.md, "Idle behavior -- NPC staring at wall": an idle NPC
+     * wiki/dev/status.md, "Idle behavior -- NPC staring at wall": an idle NPC
      * kept whatever rotation its last errand left it in -- most visibly, whatever direction it
      * happened to be walking when a wander destination was reached, wall or fence included --
      * because the only place that ever turned it towards a player was
@@ -1007,7 +1007,7 @@ once per NPC per tick for nothing.
     private static final int WORLD_EVENT_SCAN_PERIOD_TICKS = 20;
 
     /** Model-id keywords (lowercase) worth a comment. Only the one asked for tonight -- add
-     *  more here the same way later if wanted (docs/ROADMAP.md). */
+     *  more here the same way later if wanted (wiki/dev/status.md). */
     private static final String[] SIGHTWORTHY_MODEL_KEYWORDS = { "kweebec" };
 
     /** Floor between two sighting comments from the *same* NPC, so one that plants itself near a
@@ -1070,7 +1070,7 @@ once per NPC per tick for nothing.
     }
 
     /**
-     * Idle/wandering NPC comments when a sightworthy creature (Kweebec, docs/ROADMAP.md:
+     * Idle/wandering NPC comments when a sightworthy creature (Kweebec, wiki/dev/status.md:
      * "Kweebec avistado") is close enough to notice -- gated by a per-NPC cooldown and a 40%
      * roll so a Kweebec camped nearby is not narrated every single time it comes off cooldown.
      */

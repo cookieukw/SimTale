@@ -90,7 +90,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         /* Same free ride again: checks the calendar at most once every CHECK_INTERVAL_TICKS
         (all other NPCs ticked in that same tick just compare a long and return). Applies/
         removes seasonal costumes automatically -- see SeasonalCostumeHelper and
-        docs/experimentos.md for the full reasoning (13/09).
+        wiki/dev/experiments.md for the full reasoning (13/09).
         */
         SeasonalCostumeHelper.tick(store, absoluteTick);
 

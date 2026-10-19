@@ -216,7 +216,7 @@ public class NPCGuardHelper {
     }
 
     /** How close a child needs to be to the fight to react to it herself instead of the guard
-     *  (docs/ROADMAP.md, "reacao a briga" -- part of the dialogue-diversity request). */
+     *  (wiki/dev/status.md, "reacao a briga" -- part of the dialogue-diversity request). */
     private static final double CHILD_WITNESS_RANGE_SQ = 15.0 * 15.0;
 
     /** Who hears about it at all -- same 25-block radius {@code
@@ -224,7 +224,7 @@ public class NPCGuardHelper {
     private static final double HEARING_RANGE_SQ = 25.0 * 25.0;
 
     /**
-     * A guard defeating a hostile is small village news (docs/ROADMAP.md: "commentary on...
+     * A guard defeating a hostile is small village news (wiki/dev/status.md: "commentary on...
      * heroic guard"). If a child happens to be close enough to have watched, she reacts to it
      * herself instead of the guard -- wide-eyed, not detached, the way a kid would -- otherwise
      * the guard gets to say her own triumphant line. Exactly one chat line per victory either

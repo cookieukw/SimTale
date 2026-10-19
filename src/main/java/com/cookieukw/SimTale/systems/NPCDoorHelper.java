@@ -177,7 +177,7 @@ public final class NPCDoorHelper {
 
             HouseBlockPos doorKey = toKey(anchorPos);
 
-            /* Bug #5 (docs/ROADMAP.md, testing_checklist.md sec. 2): two NPCs hitting the same
+            /* Bug #5 (wiki/dev/status.md, testing_checklist.md sec. 2): two NPCs hitting the same
             doorway in the same window could each read door.getDoorState() == CLOSED, each decide
             their own transition, and each call setBlockInteractionState on top of the other --
             which is exactly the "one closes while the other is opening" symptom that kept
