@@ -984,7 +984,8 @@ Sim. Edite o `simtale-config.json` na pasta do save:
 ```json
 {
   "hungerDecayMultiplier": 1.0,
-  "villageChestDepositChance": 0.3
+  "villageChestDepositChance": 0.3,
+  "villageSafeZoneEnabled": true
 }
 ```
 
