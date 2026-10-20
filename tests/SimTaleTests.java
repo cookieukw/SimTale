@@ -96,6 +96,7 @@ public class SimTaleTests {
             System.out.println("Village Stock & Shared Chests");
             testVillageStockAndSharedChests();
             testVillageGlobalChests();
+            testHouseFurnitureClassification();
 
             System.out.println("Proximity & Configuration");
             ProximityConfigTests.run();
@@ -845,6 +846,17 @@ public class SimTaleTests {
             HouseManager.deleteHouse(houseId);
         }
 
+        System.out.println("OK");
+    }
+
+    private static void testHouseFurnitureClassification() {
+        System.out.print("Testing House Furniture Classification... ");
+        Assert.equal(HouseManager.FurnitureRequirement.classify("bench_workbench").orElse(null),
+                HouseManager.FurnitureRequirement.SURFACE, "Workbench counts as a surface");
+        Assert.equal(HouseManager.FurnitureRequirement.classify("furniture_village_bench").orElse(null),
+                HouseManager.FurnitureRequirement.SEATING, "Village bench still counts as seating");
+        Assert.equal(HouseManager.FurnitureRequirement.classify("furniture_village_table").orElse(null),
+                HouseManager.FurnitureRequirement.SURFACE, "Table counts as a surface");
         System.out.println("OK");
     }
 
