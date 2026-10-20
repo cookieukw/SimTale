@@ -564,9 +564,15 @@ public class SimTaleTests {
             Assert.equal(ChairRegistry.isChair("stone_stool"), true, "stone_stool is a chair");
             Assert.equal(ChairRegistry.isChair("sofa_red"), true, "sofa_red is a chair");
             Assert.equal(ChairRegistry.isChair("couch_luxury"), true, "couch_luxury is a chair");
-            Assert.equal(ChairRegistry.isChair("bench_lumbermill"), false, "bench_lumbermill is not a chair");
+            Assert.equal(ChairRegistry.isChair("Bench_Lumbermill"), false, "Bench_Lumbermill is not a chair");
+            Assert.equal(ChairRegistry.isChair("Bench_WorkBench"), false, "Bench_WorkBench is not a chair");
+            Assert.equal(ChairRegistry.isChair("Bench_Furnace"), false, "Bench_Furnace is not a chair");
+            Assert.equal(ChairRegistry.isChair("Bench_Alchemy"), false, "Bench_Alchemy is not a chair");
+            Assert.equal(ChairRegistry.isChair("GoblinLab_Tinkering_Bench"), false, "tinkering bench is not a chair");
             Assert.equal(ChairRegistry.isChair("workbench"), false, "workbench is not a chair");
-            Assert.equal(ChairRegistry.isChair("alchemybench"), false, "alchemybench is not a chair");
+            Assert.equal(ChairRegistry.isChair("Furniture_Village_Chair"), true, "village chair is a chair");
+            Assert.equal(ChairRegistry.isChair("Furniture_Village_Bench"), true, "village bench is a chair");
+            Assert.equal(ChairRegistry.isChair("Furniture_Village_Stool"), true, "village stool is a chair");
             Assert.equal(ChairRegistry.isChair("dirt_block"), false, "dirt_block is not a chair");
 
             // 2. Add and nearest search
@@ -857,6 +863,8 @@ public class SimTaleTests {
                 HouseManager.FurnitureRequirement.SEATING, "Village bench still counts as seating");
         Assert.equal(HouseManager.FurnitureRequirement.classify("furniture_village_table").orElse(null),
                 HouseManager.FurnitureRequirement.SURFACE, "Table counts as a surface");
+        Assert.equal(HouseManager.FurnitureRequirement.classify("bench_furnace").orElse(null),
+                null, "Furnace does not satisfy seating");
         System.out.println("OK");
     }
 
