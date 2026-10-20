@@ -130,6 +130,16 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
             LOGGER.warn("[SimTale] Error reassembling active NPCs: " + e.getMessage());
         }
 
+        /* Repair houses whose owner list was lost, then move homeless residents into valid empty
+        houses. Bed claiming from the idle loop is unreliable when NPCs are busy or their chunks
+        just loaded; this settlement-level pass makes the result deterministic.
+        */
+        try {
+            HouseManager.assignOwnerlessHouses(player.getWorld());
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] Error assigning ownerless houses: " + e.getMessage());
+        }
+
         /* Missing NPCs have a concrete explanation: they died while the player was away and the
         Reaper archived them. Say so on join instead of leaving the player to notice the roster
         silently shrinking.
