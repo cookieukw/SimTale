@@ -36,6 +36,10 @@
   armadilha de pesca, martelo ou mapa. A ferramenta usa um slot vazio para não apagar itens
   coletados, e o Guarda continua com a arma exata que recebeu.
 - Partidas e retornos de expedição de Minerador/Caçador agora aparecem no log do servidor.
+- Guardas ficaram mais fortes: o golpe de combate caiu de 3s para **1,5s**, e eles recebem
+  **vida máxima dobrada**, **+50 de armadura**, **+10 de dano físico** e **25% de redução de
+  dano**. Os bônus são aplicados ao nascer, ao receber o emprego e periodicamente; são removidos
+  se o NPC trocar de profissão.
 
 ### Casas e vila
 

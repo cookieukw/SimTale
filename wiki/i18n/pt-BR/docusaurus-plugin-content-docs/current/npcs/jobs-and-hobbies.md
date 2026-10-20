@@ -46,6 +46,13 @@ o emprego de Guarda, e o Guarda lembra se aquela arma era corpo-a-corpo ou à di
 - **À distância** (arco, besta, arma de fogo, ...): o Guarda para a uma certa distância (cerca de
   7 blocos) em vez de andar até o alcance corpo-a-corpo.
 
+Guardas são deliberadamente mais fortes que moradores comuns: o golpe roteirizado agora acontece
+em cerca de **1,5 segundo** em vez de 3, e eles recebem **vida máxima dobrada**, **+50 de armadura**,
+**+10 de dano físico** e **25% de redução de dano**. Os bônus são aplicados ao nascer, ao atribuir
+o emprego e periodicamente para guardas que já estão no mundo; são removidos se o NPC for
+reatribuído para outra profissão. Dentro da vila a zona segura ainda cancela todo dano, então a
+resistência extra importa quando o guarda luta fora da fronteira.
+
 Um arco ou besta continua tornando o NPC um **Caçador**, não um Guarda — essa checagem roda
 primeiro, então nada mudou para o Caçador.
 

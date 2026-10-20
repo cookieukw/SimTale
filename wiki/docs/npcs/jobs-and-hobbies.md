@@ -46,6 +46,13 @@ a weapon assigns the Guard job, and the Guard remembers whether that weapon was 
 - **Ranged** (bow, crossbow, firearm, ...): the Guard stops at range (about 7 blocks) and does not
   walk into melee distance.
 
+Guards are deliberately stronger than ordinary residents: their scripted strike now lands in
+about **1.5 seconds** instead of 3, and they receive **double maximum health**, **+50 armour**,
+**+10 physical damage** and **25% damage reduction**. The buffs are applied on spawn, when the
+job is assigned, and periodically for guards already in the world; they are removed if the NPC is
+reassigned to another job. Inside the village the safe zone still cancels all damage, so the
+extra toughness matters when a guard fights outside the boundary.
+
 A bow or crossbow still makes a **Hunter**, not a Guard — that check runs first, so nothing about
 Hunter changed.
 
