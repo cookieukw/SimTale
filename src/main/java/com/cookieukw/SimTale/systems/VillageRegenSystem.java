@@ -4,6 +4,7 @@ import com.cookie.runecore.api.CastContext;
 import com.cookie.runecore.api.RuneEffect;
 import com.cookieukw.SimTale.config.SimTaleConfig;
 import com.cookieukw.SimTale.config.SimTaleConfigManager;
+import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.SimLog;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -11,6 +12,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
+import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -77,7 +79,15 @@ public final class VillageRegenSystem extends EntityTickingSystem<EntityStore> {
 
         Vector3d pos = transform.getPosition();
         VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
-        boolean inside = village != null && village.contains(pos.x, pos.z);
+        boolean insideVillage = village != null && village.contains(pos.x, pos.z);
+
+        /* A house can sit just outside the computed village radius (a large wing, a second
+        building added before it joined the village). Standing inside a registered house is still
+        "inside the village" for this buff, so use the house interior index as a second check.
+        */
+        HouseBlockPos blockPos = new HouseBlockPos(
+                (int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z));
+        boolean inside = insideVillage || HouseManager.BLOCK_TO_HOUSE_ID.containsKey(blockPos);
 
         UUID playerId = playerRefComponent.getUuid();
         if (playerId == null) return;
@@ -109,6 +119,9 @@ public final class VillageRegenSystem extends EntityTickingSystem<EntityStore> {
         if (isEntry) {
             LOGGER.debug("[SimTale] {} entered the village safe zone; regeneration applied",
                     playerRefComponent.getUsername());
+            HytaleLogger.forEnclosingClass().atInfo().log("SimTale: " + playerRefComponent.getUsername()
+                    + " entered the village at (" + String.format("%.1f", pos.x) + ", "
+                    + String.format("%.1f", pos.z) + "); regeneration applied.");
         }
     }
 }
