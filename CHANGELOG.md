@@ -30,6 +30,12 @@
 - NPCs sem-teto são atribuídos automaticamente a casas registradas e vazias ao entrar no mundo.
 - A regeneração da vila também considera o interior de casas registradas, mesmo que a casa
   esteja um pouco fora do raio calculado da vila.
+- O trabalho agora tem prioridade sobre lazer, cadeiras, conversas e passeios ociosos. Antes,
+  Mineradores e Caçadores podiam passar a sessão inteira sem nunca chegar à expedição.
+- Todas as profissões seguram a ferramenta na mão: picareta, arco curto, enxada, machado,
+  armadilha de pesca, martelo ou mapa. A ferramenta usa um slot vazio para não apagar itens
+  coletados, e o Guarda continua com a arma exata que recebeu.
+- Partidas e retornos de expedição de Minerador/Caçador agora aparecem no log do servidor.
 
 ### Casas e vila
 

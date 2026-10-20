@@ -81,6 +81,10 @@ Quando o turno de trabalho começa, o modelo deles diminui (encolhe) e eles conc
 - **Caçadores** voltam com Carnes Cruas (Boi, Porco, Frango).
 Eles caminham imediatamente até o baú de suas casas para depositar os espólios.
 
+O trabalho é verificado logo depois da fome e da higiene, antes de hobbies, cadeiras, conversas e passeios ociosos, então um Minerador ou Caçador não passa mais o dia inteiro socializando em vez de sair. As partidas e os retornos também aparecem no log do servidor como `SimTale: <nome> left on a mining/hunting expedition` e `returned from an expedition with <item>`.
+
+Todas as profissões agora seguram visivelmente a ferramenta: Minerador uma picareta, Caçador um arco curto, Fazendeiro uma enxada, Lenhador um machado, Pescador uma armadilha de pesca, Construtor um martelo, Explorador um mapa, e o Guarda a arma exata usada para atribuí-lo. A ferramenta vai para um slot vazio da hotbar para não sobrescrever os itens coletados.
+
 ### O Pescador
 
 <div style={{textAlign: 'center'}}>

@@ -83,6 +83,10 @@ When their work shift begins, their model scales down (shrinks) and they concept
 - **Hunters** return with Raw Meats (Beef, Pork, Chicken).
 They immediately walk to their home chest to deposit the loot.
 
+Work is checked right after hunger and hygiene, before hobbies, chairs, chats and idle strolling, so a Miner or Hunter no longer spends the whole day socialising instead of leaving. Departures and returns are also written to the server log as `SimTale: <name> left on a mining/hunting expedition` and `returned from an expedition with <item>`.
+
+Every profession now visibly holds its tool: Miners a pickaxe, Hunters a shortbow, Farmers a hoe, Lumberjacks a hatchet, Fishermen a fishing trap, Builders a hammer, Explorers a map, and Guards the exact weapon used to assign them. The tool goes into an empty hotbar slot so gathered loot is not overwritten.
+
 ### The Fisherman
 
 <div style={{textAlign: 'center'}}>
