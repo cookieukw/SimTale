@@ -53,6 +53,13 @@ job is assigned, and periodically for guards already in the world; they are remo
 reassigned to another job. Inside the village the safe zone still cancels all damage, so the
 extra toughness matters when a guard fights outside the boundary.
 
+A hostile that enters village territory raises an alarm: the **two closest guards belonging to
+that village** stop patrolling and walk to it from anywhere inside the village radius (plus a
+16-block margin), instead of only reacting when the mob happens to come within 10 blocks of one
+guard. The response covers skeletons, zombies, ghouls, wraiths, werewolves, bleached hounds,
+shadow knights, goblins, scaraks and outlanders. Guards already busy, sleeping or on another
+errand are skipped so a closer but unavailable guard cannot use up one of the two response slots.
+
 A bow or crossbow still makes a **Hunter**, not a Guard — that check runs first, so nothing about
 Hunter changed.
 

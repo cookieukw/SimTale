@@ -53,6 +53,13 @@ o emprego e periodicamente para guardas que já estão no mundo; são removidos 
 reatribuído para outra profissão. Dentro da vila a zona segura ainda cancela todo dano, então a
 resistência extra importa quando o guarda luta fora da fronteira.
 
+Quando um hostil entra no território da vila, os **dois guardas mais próximos daquela vila**
+param a patrulha e vão até ele de qualquer ponto dentro do raio da vila (mais uma margem de 16
+blocos), em vez de reagir só quando o bicho chega a 10 blocos de um guarda. A resposta cobre
+esqueletos, zumbis, ghouls, wraiths, lobisomens, hounds desbotados, cavaleiros das sombras,
+goblins, scaraks e outlanders. Guardas ocupados, dormindo ou em outra tarefa são ignorados, para
+um guarda mais próximo mas indisponível não gastar uma das duas vagas de resposta.
+
 Um arco ou besta continua tornando o NPC um **Caçador**, não um Guarda — essa checagem roda
 primeiro, então nada mudou para o Caçador.
 

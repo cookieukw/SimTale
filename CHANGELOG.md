@@ -40,6 +40,10 @@
   **vida máxima dobrada**, **+50 de armadura**, **+10 de dano físico** e **25% de redução de
   dano**. Os bônus são aplicados ao nascer, ao receber o emprego e periodicamente; são removidos
   se o NPC trocar de profissão.
+- Quando um hostil entra na vila, os **dois guardas mais próximos** daquela vila largam a
+  patrulha e vão até ele, mesmo que estejam longe. Antes só reagiam se o bicho passasse a menos
+  de 10 blocos de um guarda. A detecção também cobre zumbis, ghouls, wraiths, lobisomens,
+  hounds desbotados, cavaleiros das sombras, goblins, scaraks e outlanders, além de esqueletos.
 
 ### Casas e vila
 
