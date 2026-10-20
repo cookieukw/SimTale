@@ -50,6 +50,19 @@ public class NPCGuardHelper {
     private static final SimLog LOGGER = SimLog.forClass(NPCGuardHelper.class);
 
     private static final double GUARD_SCAN_RADIUS = 10.0;
+    private static final double GUARD_SCAN_RADIUS_SQ = GUARD_SCAN_RADIUS * GUARD_SCAN_RADIUS;
+
+    /**
+     * A hostile that gets inside a village is no longer limited to whichever guard happens to be
+     * within ten blocks of it. The two closest guards belonging to that village respond from
+     * anywhere in its territory. Two is enough to look like a garrison without emptying every
+     * patrol post in town.
+     */
+    private static final int VILLAGE_RESPONSE_GUARDS = 2;
+
+    /** How far outside the village radius a guard may stand and still answer a village alarm. */
+    private static final double VILLAGE_RESPONSE_MARGIN = 16.0;
+
     private static final double MELEE_RANGE_SQ = 2.5 * 2.5;
     /** How far a Guard with a ranged weapon stops from the hostile instead of closing to melee
      *  range. Comfortably inside {@link #GUARD_SCAN_RADIUS} so a target found by the scan is
@@ -63,9 +76,14 @@ public class NPCGuardHelper {
 
     /** Model asset id keywords (lowercase) that mark a hostile mob. Confirmed via
      *  {@code /simtale debugnear}'s entity dump — the skeleton's raw model id is exactly
-     *  "Skeleton". Add more here once confirmed the same way; guessing got the old Hunter
-     *  "contains creature" filter permanently broken (it never matched anything real). */
-    private static final String[] HOSTILE_MODEL_KEYWORDS = { "skeleton" };
+     *  "Skeleton". The rest are the model names used by Hytale's aggressive undead, goblin,
+     *  scarak and outlander roles. Deliberately a curated list rather than "contains any
+     *  creature": that mistake made the old Hunter filter match nothing (or everything).
+     */
+    private static final String[] HOSTILE_MODEL_KEYWORDS = {
+            "skeleton", "zombie", "ghoul", "wraith", "werewolf", "hound_bleached",
+            "shadow_knight", "goblin", "scarak", "outlander"
+    };
 
     /** How often a given guard looks around. One second, as before. */
     private static final int GUARD_SCAN_PERIOD_TICKS = 20;
@@ -109,7 +127,7 @@ public class NPCGuardHelper {
         */
         ensureWeaponEquipped(ref, npc, store);
 
-        if (ai.currentTask == TaskType.IDLE) {
+        if (ai.currentTask == TaskType.IDLE || ai.currentTask == TaskType.WANDERING) {
             /* Staggered per guard rather than on a shared tick boundary: every guard checking on
             the same tick meant the whole squad's work landed in one frame, which is the shape
             that produces a visible hitch even when the total work is modest.
@@ -119,8 +137,9 @@ public class NPCGuardHelper {
             }
 
             Vector3d pos = transform.getPosition();
-            UUID hostileId = scanForHostile(pos, world, store);
+            UUID hostileId = scanForHostile(npc, pos, world, store);
             if (hostileId != null) {
+                NPCMovementHelper.clearMoveTarget(ref, ai);
                 ai.workTargetEntityId = hostileId;
                 ai.currentTask = TaskType.MOVING_TO_FIGHT;
                 ai.taskStartTime = world.getTick();
@@ -134,8 +153,14 @@ public class NPCGuardHelper {
             scan radius over the frontier rather than over the middle of town, where it overlaps
             everyone else's. It also gives the village a visible garrison, which is most of the
             point of having guards at all.
+
+            Only an idle guard starts a new patrol leg; a guard already walking one keeps that
+            destination. Otherwise every scan tick would recompute the same stop and restart the
+            walk animation.
             */
-            patrolPerimeter(ref, ai, transform, store);
+            if (ai.currentTask == TaskType.IDLE) {
+                patrolPerimeter(ref, ai, transform, store);
+            }
             return;
         }
 
@@ -331,8 +356,8 @@ public class NPCGuardHelper {
      * every guard filters the resulting handful of positions, which is the part that legitimately
      * differs between them.
      */
-    private static UUID scanForHostile(Vector3d center, World world, Store<EntityStore> store) {
-        double bestDistSq = GUARD_SCAN_RADIUS * GUARD_SCAN_RADIUS;
+    private static UUID scanForHostile(SimNPCComponent guard, Vector3d center, World world, Store<EntityStore> store) {
+        double bestDistSq = Double.MAX_VALUE;
         UUID best = null;
 
         for (Hostile hostile : hostiles(world, store)) {
@@ -340,6 +365,21 @@ public class NPCGuardHelper {
             double dy = hostile.y() - center.y;
             double dz = hostile.z() - center.z;
             double distSq = dx * dx + dy * dy + dz * dz;
+
+            VillageManager.Village hostileVillage = VillageManager.nearest(hostile.x(), hostile.z());
+            boolean insideVillage = hostileVillage != null && hostileVillage.contains(hostile.x(), hostile.z());
+
+            if (insideVillage) {
+                /* Village alarm: range is the whole territory, but only the closest guards from
+                that same village answer. Without the second check every guard in town would
+                abandon their patrol for the same skeleton.
+                */
+                if (!answersVillageAlarm(guard, center, hostileVillage, hostile, store)) continue;
+            } else if (distSq > GUARD_SCAN_RADIUS_SQ) {
+                // Outside a village the old local-scan rule still applies.
+                continue;
+            }
+
             if (distSq < bestDistSq) {
                 bestDistSq = distSq;
                 best = hostile.id();
@@ -347,6 +387,76 @@ public class NPCGuardHelper {
         }
 
         return best;
+    }
+
+    /**
+     * Whether this guard is one of the {@link #VILLAGE_RESPONSE_GUARDS} closest guards belonging
+     * to the village the hostile entered.
+     *
+     * <p>Distances are measured from the hostile. Ties are broken by UUID so two guards standing
+     * the same distance away cannot both count themselves as "closest" and both stay home.
+     */
+    private static boolean answersVillageAlarm(SimNPCComponent guard, Vector3d guardPos,
+                                               VillageManager.Village village, Hostile hostile,
+                                               Store<EntityStore> store) {
+        if (guard.entityId == null) return false;
+
+        double guardDistSq = village.distanceSqTo(guardPos.x, guardPos.z);
+        double responseRadius = village.radius() + VILLAGE_RESPONSE_MARGIN;
+        if (guardDistSq > responseRadius * responseRadius) return false;
+
+        VillageManager.Village guardVillage = VillageManager.nearest(guardPos.x, guardPos.z);
+        if (guardVillage == null || !guardVillage.equals(village)) return false;
+
+        double hostileDistSq = distanceSq(hostile, guardPos);
+        String guardKey = guard.entityId.toString();
+        int closer = 0;
+
+        for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
+            if (other == guard || other.profession != Profession.GUARD
+                    || !WorkEligibility.canWork(other) || other.entityId == null) {
+                continue;
+            }
+            Ref<EntityStore> otherRef = other.entityRef;
+            if (otherRef == null || !otherRef.isValid() || otherRef.getStore() != store) continue;
+
+            TransformComponent otherTransform = store.getComponent(otherRef, TransformComponent.getComponentType());
+            if (otherTransform == null) continue;
+
+            Vector3d otherPos = otherTransform.getPosition();
+            VillageManager.Village otherVillage = VillageManager.nearest(otherPos.x, otherPos.z);
+            if (otherVillage == null || !otherVillage.equals(village)) continue;
+            if (village.distanceSqTo(otherPos.x, otherPos.z) > responseRadius * responseRadius) continue;
+
+            /* A sleeping guard, or one already running an errand on the far side of town, is not
+            part of the response. Guards on patrol (WANDERING) and guards already converging on
+            this same hostile do count; otherwise a closer but unavailable guard could use up one
+            of the two response slots and leave the alarm unanswered.
+            */
+            RoutineAIComponent otherAi = store.getComponent(otherRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (otherAi != null
+                    && otherAi.currentTask != TaskType.IDLE
+                    && otherAi.currentTask != TaskType.WANDERING
+                    && !hostile.id().equals(otherAi.workTargetEntityId)) {
+                continue;
+            }
+
+            double otherDistSq = distanceSq(hostile, otherPos);
+            if (otherDistSq < hostileDistSq
+                    || (otherDistSq == hostileDistSq && other.entityId.toString().compareTo(guardKey) < 0)) {
+                closer++;
+                if (closer >= VILLAGE_RESPONSE_GUARDS) return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static double distanceSq(Hostile hostile, Vector3d pos) {
+        double dx = hostile.x() - pos.x;
+        double dy = hostile.y() - pos.y;
+        double dz = hostile.z() - pos.z;
+        return dx * dx + dy * dy + dz * dz;
     }
 
     /** How far around the circle a guard advances each leg. Twelve stops make a full circuit. */
