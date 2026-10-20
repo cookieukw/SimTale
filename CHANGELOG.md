@@ -43,7 +43,8 @@
 - Quando um hostil entra na vila, os **dois guardas mais próximos** daquela vila largam a
   patrulha e vão até ele, mesmo que estejam longe. Antes só reagiam se o bicho passasse a menos
   de 10 blocos de um guarda. A detecção também cobre zumbis, ghouls, wraiths, lobisomens,
-  hounds desbotados, cavaleiros das sombras, goblins, scaraks e outlanders, além de esqueletos.
+  hounds desbotados, cavaleiros das sombras, **trorks**, goblins, scaraks, outlanders, hederas e
+  fen stalkers, além de esqueletos.
 
 ### Casas e vila
 

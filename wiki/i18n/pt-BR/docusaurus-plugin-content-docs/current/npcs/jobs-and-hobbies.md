@@ -57,7 +57,7 @@ Quando um hostil entra no território da vila, os **dois guardas mais próximos 
 param a patrulha e vão até ele de qualquer ponto dentro do raio da vila (mais uma margem de 16
 blocos), em vez de reagir só quando o bicho chega a 10 blocos de um guarda. A resposta cobre
 esqueletos, zumbis, ghouls, wraiths, lobisomens, hounds desbotados, cavaleiros das sombras,
-goblins, scaraks e outlanders. Guardas ocupados, dormindo ou em outra tarefa são ignorados, para
+**trorks**, goblins, scaraks, outlanders, hederas e fen stalkers. Guardas ocupados, dormindo ou em outra tarefa são ignorados, para
 um guarda mais próximo mas indisponível não gastar uma das duas vagas de resposta.
 
 Um arco ou besta continua tornando o NPC um **Caçador**, não um Guarda — essa checagem roda

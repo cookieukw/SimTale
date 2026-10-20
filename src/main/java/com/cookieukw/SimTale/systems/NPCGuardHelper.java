@@ -82,7 +82,7 @@ public class NPCGuardHelper {
      */
     private static final String[] HOSTILE_MODEL_KEYWORDS = {
             "skeleton", "zombie", "ghoul", "wraith", "werewolf", "hound_bleached",
-            "shadow_knight", "goblin", "scarak", "outlander"
+            "shadow_knight", "trork", "goblin", "scarak", "outlander", "hedera", "fen_stalker"
     };
 
     /** How often a given guard looks around. One second, as before. */
