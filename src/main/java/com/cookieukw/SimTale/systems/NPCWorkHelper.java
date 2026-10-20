@@ -14,6 +14,7 @@ import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
@@ -179,6 +180,9 @@ public class NPCWorkHelper {
         NPCMovementHelper.clearMoveTarget(ref, ai);
         ai.currentTask = TaskType.EXPEDITION;
         ai.taskStartTime = world.getTick();
+        HytaleLogger.forEnclosingClass().atInfo().log("SimTale: " + npc.name
+                + " left on a " + (npc.profession == Profession.MINER ? "mining" : "hunting")
+                + " expedition.");
     }
 
     /**
@@ -596,6 +600,8 @@ public class NPCWorkHelper {
                     } else {
                         LOGGER.debug("[SimTale] NPC {} returned from expedition with {} but inventory is full — lost", npc.name, rewardId);
                     }
+                    HytaleLogger.forEnclosingClass().atInfo().log("SimTale: " + npc.name
+                            + " returned from an expedition with " + rewardId + ".");
                 }
                 applyWorkSatisfaction(npc, world.getTick());
                 ai.currentTask = TaskType.IDLE;
