@@ -28,11 +28,20 @@ public final class ChairRegistry {
     public static boolean isChair(String id) {
         if (id == null) return false;
         String lower = id.toLowerCase();
-        // Exclude crafting/processing benches
-        if (lower.contains("workbench") || lower.contains("alchemybench")
-                || lower.contains("cookingbench") || lower.contains("bench_lumbermill")) {
+
+        /* Crafting and processing stations are all Bench_* in vanilla Hytale
+        (Bench_WorkBench, Bench_Furnace, Bench_Cooking, Bench_Anvil, ...). They used to slip
+        through because the old exclusion list looked for "alchemybench"/"cookingbench", which is
+        not how the ids are spelled. NPCs then sat down on furnaces and workbenches.
+        Seating furniture is Furniture_*_Chair/Stool/Bench/Couch or Deco_Chair_*.
+        */
+        if (lower.startsWith("bench_")
+                || lower.contains("workbench")
+                || lower.contains("goblinlab")
+                || lower.contains("tinkering")) {
             return false;
         }
+
         return lower.contains("chair") || lower.contains("stool") || lower.contains("bench")
                 || lower.contains("seat") || lower.contains("sofa") || lower.contains("couch");
     }
