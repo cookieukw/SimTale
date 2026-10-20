@@ -792,6 +792,13 @@ public class HouseManager {
         }
 
         public boolean matches(String blockIdLower) {
+            /* Bench_* is a crafting station, not a seat. Without this, a furnace or workbench
+            satisfied the mandatory SEATING requirement. Real benches are Furniture_*_Bench.
+            */
+            if (this == SEATING
+                    && (blockIdLower.startsWith("bench_") || blockIdLower.contains("tinkering"))) {
+                return false;
+            }
             return idKeywords.stream().anyMatch(blockIdLower::contains);
         }
 
