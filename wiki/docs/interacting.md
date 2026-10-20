@@ -19,7 +19,7 @@ Aim at an NPC and press **F**, or right-click. The interaction panel opens.
 | Needs | Hunger and energy, colour-coded by severity |
 | Traits | Personality traits |
 | Identity | Job and hobby, as item icons |
-| Tastes | Showcase of items they love and hate, as interactive icons |
+| Tastes | Showcase of items they love and hate, as interactive icons. More are revealed as affinity grows; a `+N` at the end of a row counts the ones still hidden |
 | Family | Parents, spouses, and children |
 | Status | Relationship, friendship, affinity, or **Filial Kinship** (for your children, showing son/daughter bond tiers instead of romantic levels) |
 

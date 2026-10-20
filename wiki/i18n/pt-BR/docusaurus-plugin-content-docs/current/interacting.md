@@ -19,7 +19,7 @@ Aponte para um NPC e aperte **F**, ou clique com o botão direito. O painel de i
 | Necessidades | Fome e energia, codificadas por cor conforme a gravidade |
 | Traços | Traços de personalidade |
 | Identidade | Trabalho e hobby, como ícones de itens |
-| Gostos | Vitrine de itens favoritos e odiados, como ícones interativos |
+| Gostos | Vitrine de itens favoritos e odiados, como ícones interativos. Mais ícones são revelados conforme a afinidade cresce; o `+N` no fim da linha conta os que ainda estão ocultos |
 | Família | Pais, cônjuges e filhos |
 | Status | Relacionamento, amizade, afinidade ou **Vínculo Filial** (para seus filhos, mostrando níveis de carinho parental como Filho/Filha em vez de títulos românticos) |
 
