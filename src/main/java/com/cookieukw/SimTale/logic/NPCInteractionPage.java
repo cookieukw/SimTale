@@ -798,8 +798,15 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         */
         commandBuilder.set("#LikesCaption.TextSpans", Message.translation("ui.likes"));
         commandBuilder.set("#HatesCaption.TextSpans", Message.translation("ui.hates"));
-        setTasteRow(commandBuilder, "#Like", likes);
-        setTasteRow(commandBuilder, "#Hate", hates);
+
+        /* Intimacy gate: the player learns a little at first and the rest as the relationship
+        deepens. Affinity is the same number the relationship bar already shows, so the panel and
+        the unlock progress cannot tell different stories.
+        */
+        Relationship rel = npc.getRelationship(playerRefComp.getUuid());
+        int intimacy = rel != null ? Math.clamp(rel.affinity, 0, 100) : 0;
+        setTasteRow(commandBuilder, "#Like", likes, likesUnlocked(intimacy), "#LikesLocked");
+        setTasteRow(commandBuilder, "#Hate", hates, hatesUnlocked(intimacy), "#HatesLocked");
 
         String hobbyItem = npc.preferences != null
                 ? NPCShowcaseItems.forHobby(npc.preferences.getHobby()) : null;
@@ -813,22 +820,54 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     private static final int TASTE_SLOTS = 6;
 
     /**
-     * Fills one taste row, hiding the icons left over.
+     * How many taste icons are visible at a given affinity.
      *
-     * <p>The whole list is shown rather than a sample. Showing only the first entry made an NPC
-     * look like it did not hate something it actually hated, which read as a bug in the gift rules
-     * when the rules were right and the screen was lying.
+     * <p>The early relationship is deliberately stingy — two likes and no hates — and the panel
+     * opens up in five steps until everything is visible at 80 affinity.
      */
-    private void setTasteRow(UICommandBuilder commandBuilder, String prefix, List<String> items) {
+    private static int likesUnlocked(int intimacy) {
+        if (intimacy >= 80) return TASTE_SLOTS;
+        if (intimacy >= 60) return 5;
+        if (intimacy >= 40) return 4;
+        if (intimacy >= 20) return 3;
+        return 2;
+    }
+
+    private static int hatesUnlocked(int intimacy) {
+        if (intimacy >= 80) return TASTE_SLOTS;
+        if (intimacy >= 60) return 4;
+        if (intimacy >= 40) return 2;
+        if (intimacy >= 20) return 1;
+        return 0;
+    }
+
+    /**
+     * Fills one taste row, hiding the icons left over and showing how many remain hidden.
+     *
+     * <p>The old version showed the entire list. That made an NPC look like it did not hate
+     * something it actually hated, but it also handed a stranger the whole personality on the
+     * first conversation. The list still never lies about what is visible; the "+N" on the end
+     * says there is more to learn.
+     */
+    private void setTasteRow(UICommandBuilder commandBuilder, String prefix, List<String> items,
+            int visibleSlots, String lockedSelector) {
+        int available = items != null ? items.size() : 0;
+        int shown = Math.min(available, Math.clamp(visibleSlots, 0, TASTE_SLOTS));
+
         for (int i = 0; i < TASTE_SLOTS; i++) {
             String selector = prefix + i;
-            if (items != null && i < items.size()) {
+            if (i < shown) {
                 commandBuilder.set(selector + ".Visible", true);
                 commandBuilder.set(selector + " #Icon.ItemId", items.get(i));
             } else {
                 commandBuilder.set(selector + ".Visible", false);
             }
         }
+
+        int hidden = Math.max(0, available - shown);
+        commandBuilder.set(lockedSelector + ".Visible", hidden > 0);
+        commandBuilder.set(lockedSelector + ".TextSpans",
+                hidden > 0 ? Message.raw("+" + hidden) : Message.raw(""));
     }
 
     /** Shows one slot, or hides it when the item id is missing. */
