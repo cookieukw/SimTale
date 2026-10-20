@@ -57,6 +57,16 @@ public final class BedRegistry {
         }
     }
 
+    /** The registered bed at this exact position, or null. */
+    public static BedPos find(int x, int y, int z) {
+        synchronized (BEDS) {
+            for (BedPos b : BEDS) {
+                if (b.x == x && b.y == y && b.z == z) return b;
+            }
+        }
+        return null;
+    }
+
     /** Whether a bed is still registered at this exact position. */
     public static boolean exists(int x, int y, int z) {
         synchronized (BEDS) {
