@@ -20,6 +20,15 @@ So a village grows the way you build — outward from what is already there. A l
 The centre sits at the middle of the beds, and the village reaches from there to its furthest house
 plus a 24-block margin.
 
+A valid bed placed within 64 blocks of an existing village registers an **ownerless house**
+immediately, so you can see it on the map before an NPC moves in. The first valid house in a world
+can also start a village on its own. Rooms far from every existing village still wait for an NPC to
+claim the bed.
+
+Empty registered houses are also assigned at join: the mod first repairs the owner list of any house
+that already has an NPC sleeping in it, then moves the nearest homeless adult into a genuinely empty
+house. You no longer have to wait for the idle bed-claim loop.
+
 ## Village chests
 
 A chest placed inside the village and outside every house is a **global chest**. Nobody owns it and
@@ -40,7 +49,8 @@ The protection follows the village: it expands when the village grows and disapp
 is torn down. Disable it with `villageSafeZoneEnabled: false` in `simtale-config.json`.
 
 Entering the village also grants a **regeneration** status effect through RuneCore. It refreshes
-while you stay inside and fades a few seconds after you leave. Disable it with
+while you stay inside and fades a few seconds after you leave. Standing inside a registered house
+counts even if the house is just outside the computed village radius. Disable it with
 `villageRegenEnabled: false`.
 
 ## Map markers

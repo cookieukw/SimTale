@@ -20,6 +20,15 @@ com 30 blocos de distância entre elas formará uma única vila, por maior que a
 O centro fica no meio das camas, e a vila se estende dali até a casa mais distante
 acrescida de uma margem de 24 blocos.
 
+Uma cama válida colocada a até 64 blocos de uma vila existente registra uma **casa sem dono**
+imediatamente, então ela já aparece no mapa antes de um NPC se mudar. A primeira casa válida de um
+mundo também pode iniciar uma vila sozinha. Cômodos longe de qualquer vila ainda esperam um NPC
+reivindicar a cama.
+
+Casas registradas e vazias também são atribuídas ao entrar no mundo: o mod primeiro corrige a lista
+de donos de qualquer casa que já tenha um NPC dormindo nela e depois muda o adulto sem-teto mais
+próximo para uma casa realmente vazia. Não é mais preciso esperar o loop ocioso de reivindicar cama.
+
 ## Baús da vila
 
 Um baú colocado dentro da vila e fora de todas as casas é um **baú global**. Ninguém é dono dele e
@@ -40,7 +49,9 @@ A proteção acompanha a vila: cresce quando a vila cresce e desaparece se a vil
 desativar, use `villageSafeZoneEnabled: false` no `simtale-config.json`.
 
 Entrar na vila também concede um efeito de **regeneração** via RuneCore. Ele é renovado enquanto você
-fica dentro e some alguns segundos depois de sair. Para desativar, use `villageRegenEnabled: false`.
+fica dentro e some alguns segundos depois de sair. Estar dentro de uma casa registrada conta mesmo
+que ela esteja um pouco fora do raio calculado da vila. Para desativar, use
+`villageRegenEnabled: false`.
 
 ## Marcadores no mapa
 

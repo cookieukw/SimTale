@@ -79,6 +79,19 @@ It used to be based only on resolvable owner names, so an owner in an unloaded c
 blue ("unoccupied"). Registered beds that belong to no house are drawn separately as grey
 "unclaimed bed" markers.
 
+## Ownerless registration
+
+`HouseManager.tryRegisterValidBed` registers a valid room as an ownerless house when its bed is
+placed within `VillageManager.LINK_DISTANCE` (64 blocks) of an existing village, or when it is the
+first house in the world. The join scan runs the same check for beds that predate the change.
+Previously recognition only happened when an NPC claimed the bed, so a valid house could sit
+invisible and unmarked indefinitely.
+
+`HouseManager.assignOwnerlessHouses` is the settlement-level fallback: on join and after a new house
+is registered, it repairs owner lists from NPCs already sleeping in the house, then assigns the
+nearest homeless adult to a genuinely empty house. This removes the dependency on the idle loop
+winning a tick against work, socialising or a chunk that had not loaded yet.
+
 ## Village safe zone
 
 The village boundary is also a safe zone. `NPCDamageEventSystem` cancels every damage event whose
@@ -88,6 +101,8 @@ works because it does not go through damage.
 `VillageRegenSystem` ticks players, detects the village boundary and applies
 `Food_Health_Regen_Medium` through RuneCore's `RuneEffect.withNativeEffect(...)`. It refreshes every
 two seconds while inside, with a six-second lifetime, so leaving the village lets the effect fade.
+A registered house interior is accepted as a second containment check: a large wing can sit just
+outside the 24-block village radius even though it is part of the settlement.
 
 Both are controlled by `villageSafeZoneEnabled` and `villageRegenEnabled` in `simtale-config.json`.
 
