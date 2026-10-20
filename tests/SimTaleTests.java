@@ -19,6 +19,7 @@ import com.cookieukw.SimTale.core.Memory;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.systems.NPCSocialHelper;
+import com.cookieukw.SimTale.systems.NPCToolHelper;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.NPCPreferences;
@@ -97,6 +98,7 @@ public class SimTaleTests {
             testVillageStockAndSharedChests();
             testVillageGlobalChests();
             testHouseFurnitureClassification();
+            testProfessionTools();
 
             System.out.println("Proximity & Configuration");
             ProximityConfigTests.run();
@@ -852,6 +854,19 @@ public class SimTaleTests {
             HouseManager.deleteHouse(houseId);
         }
 
+        System.out.println("OK");
+    }
+
+    private static void testProfessionTools() {
+        System.out.print("Testing Profession Tools... ");
+        Assert.equal(NPCToolHelper.toolFor(Profession.MINER), "Tool_Pickaxe_Copper", "Miner holds a pickaxe");
+        Assert.equal(NPCToolHelper.toolFor(Profession.FARMER), "Tool_Hoe_Copper", "Farmer holds a hoe");
+        Assert.equal(NPCToolHelper.toolFor(Profession.LUMBERJACK), "Tool_Hatchet_Copper", "Lumberjack holds a hatchet");
+        Assert.equal(NPCToolHelper.toolFor(Profession.HUNTER), "Weapon_Shortbow_Copper", "Hunter holds a shortbow");
+        Assert.equal(NPCToolHelper.toolFor(Profession.BUILDER), "Tool_Hammer_Copper", "Builder holds a hammer");
+        Assert.equal(NPCToolHelper.toolFor(Profession.EXPLORER), "Tool_Map", "Explorer holds a map");
+        Assert.equal(NPCToolHelper.toolFor(Profession.GUARD), null, "Guard keeps its own exact weapon");
+        Assert.equal(NPCToolHelper.toolFor(Profession.UNEMPLOYED), null, "Unemployed has no tool");
         System.out.println("OK");
     }
 
