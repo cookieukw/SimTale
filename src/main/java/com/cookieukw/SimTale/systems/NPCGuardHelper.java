@@ -14,7 +14,10 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.protocol.MovementStates;
+import com.hypixel.hytale.server.core.asset.type.item.config.Item;
+import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
@@ -94,10 +97,9 @@ public class NPCGuardHelper {
     /** Fraction of the hostile's maximum health removed per swing (roughly three hits). */
     private static final float HIT_MAX_HEALTH_FRACTION = 0.34f;
 
-    private static final String ANIM_MELEE_SWING =
-            "Characters/Animations/Items/Main_Handed/Sword/Attacks/Swing_Right/Swing_Right.blockyanim";
-    private static final String ANIM_RANGED_SHOT =
-            "Characters/Animations/Items/Dual_Handed/Bow/Attacks/Shoot/Shoot.blockyanim";
+    /** Animation names inside the held item's own PlayerAnimations set. */
+    private static final String ATTACK_MELEE_ANIM = "SwingRight";
+    private static final String ATTACK_RANGED_ANIM = "Shoot";
 
     /** How much faster a guard moves while closing on a hostile. */
     private static final double CHASE_SPEED_MULTIPLIER = 1.9;
@@ -316,10 +318,23 @@ public class NPCGuardHelper {
     private static void playAttackAnimation(Ref<EntityStore> ref, SimNPCComponent npc,
                                             Store<EntityStore> store) {
         boolean ranged = npc.guardWeaponCategory == WeaponCategory.RANGED;
-        NPCMovementHelper.playAnim(ref,
-                ranged ? ANIM_RANGED_SHOT : ANIM_MELEE_SWING,
-                ranged ? "Shoot" : "SwingRight",
-                store);
+
+        /* Attack clips are not part of the Player model's own AnimationSets; they belong to the
+        held item's PlayerAnimations asset ("Sword", "Axe", "Bow", ...). Passing the raw
+        .blockyanim path to the model-based overload produces exactly the client log line
+        "No animation with id ... on entity with model Characters/Player.blockymodel" — the
+        guard stood still with no swing. Resolve the item's animation set instead.
+        */
+        String itemId = npc.guardWeaponItemId != null && !npc.guardWeaponItemId.isEmpty()
+                ? npc.guardWeaponItemId : weaponItemIdFor(npc.guardWeaponCategory);
+        Item item = Item.getAssetMap() != null ? Item.getAssetMap().getAsset(itemId) : null;
+        String itemAnimationsId = item != null ? item.getPlayerAnimationsId() : null;
+        if (itemAnimationsId == null || itemAnimationsId.isBlank()) {
+            itemAnimationsId = ranged ? "Bow" : "Sword";
+        }
+
+        AnimationUtils.playAnimation(ref, AnimationSlot.Action, itemAnimationsId,
+                ranged ? ATTACK_RANGED_ANIM : ATTACK_MELEE_ANIM, store);
     }
 
     /**
