@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
 
+import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import java.util.concurrent.ConcurrentHashMap;
@@ -139,6 +140,16 @@ public final class BedWorldBootstrap {
 
                     if ((f & F_BED) != 0) {
                         registerBedAt(world, x, y, z);
+                        /* Also register an existing valid room as an ownerless house. This is the
+                        join-time counterpart of the place-event path: a bed placed before the
+                        auto-registration existed still becomes visible after the next scan. Only
+                        the anchor is tried, so the six blocks of one bed do not trigger six scans.
+                        */
+                        Vector3i bedAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
+                        if (bedAnchor.x == x && bedAnchor.y == y && bedAnchor.z == z) {
+                            HouseManager.tryRegisterValidBed(world,
+                                    new HouseBlockPos(bedAnchor.x, bedAnchor.y, bedAnchor.z));
+                        }
                         continue;
                     }
 
