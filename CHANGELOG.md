@@ -36,10 +36,12 @@
   armadilha de pesca, martelo ou mapa. A ferramenta usa um slot vazio para não apagar itens
   coletados, e o Guarda continua com a arma exata que recebeu.
 - Partidas e retornos de expedição de Minerador/Caçador agora aparecem no log do servidor.
-- Guardas ficaram mais fortes: o golpe de combate caiu de 3s para **1,5s**, e eles recebem
-  **vida máxima dobrada**, **+50 de armadura**, **+10 de dano físico** e **25% de redução de
-  dano**. Os bônus são aplicados ao nascer, ao receber o emprego e periodicamente; são removidos
-  se o NPC trocar de profissão.
+- Guardas ficaram mais fortes: recebem **vida máxima dobrada**, **+50 de armadura**, **+10 de
+  dano físico** e **25% de redução de dano**. Os bônus são aplicados ao nascer, ao receber o
+  emprego e periodicamente; são removidos se o NPC trocar de profissão.
+- O combate dos guardas agora tem **golpes reais**: eles correm até o hostil, desferem cerca de
+  três ataques visíveis e o bicho morre pela própria animação de morte, em vez de simplesmente
+  desaparecer. Se o alvo recuar, o guarda volta a perseguir.
 - Quando um hostil entra na vila, os **dois guardas mais próximos** daquela vila largam a
   patrulha e vão até ele, mesmo que estejam longe. Antes só reagiam se o bicho passasse a menos
   de 10 blocos de um guarda. A detecção também cobre zumbis, ghouls, wraiths, lobisomens,

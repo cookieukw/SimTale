@@ -46,12 +46,17 @@ a weapon assigns the Guard job, and the Guard remembers whether that weapon was 
 - **Ranged** (bow, crossbow, firearm, ...): the Guard stops at range (about 7 blocks) and does not
   walk into melee distance.
 
-Guards are deliberately stronger than ordinary residents: their scripted strike now lands in
-about **1.5 seconds** instead of 3, and they receive **double maximum health**, **+50 armour**,
-**+10 physical damage** and **25% damage reduction**. The buffs are applied on spawn, when the
-job is assigned, and periodically for guards already in the world; they are removed if the NPC is
-reassigned to another job. Inside the village the safe zone still cancels all damage, so the
-extra toughness matters when a guard fights outside the boundary.
+Guards are deliberately stronger than ordinary residents and receive **double maximum health**,
+**+50 armour**, **+10 physical damage** and **25% damage reduction**. The buffs are applied on
+spawn, when the job is assigned, and periodically for guards already in the world; they are
+removed if the NPC is reassigned to another job. Inside the village the safe zone still cancels
+all damage, so the extra toughness matters when a guard fights outside the boundary.
+
+When a guard engages, it now **runs** to the target (its movement speed is temporarily increased
+while closing) and fights with several visible swings instead of making the mob vanish. Each
+swing applies a real damage event scaled to roughly a third of the hostile's maximum health, so
+the hostile plays its hurt/death reactions and dies after about three hits. If the mob backs
+away, the guard switches back to the chase.
 
 A hostile that enters village territory raises an alarm: the **two closest guards belonging to
 that village** stop patrolling and walk to it from anywhere inside the village radius (plus a

@@ -46,12 +46,17 @@ o emprego de Guarda, e o Guarda lembra se aquela arma era corpo-a-corpo ou à di
 - **À distância** (arco, besta, arma de fogo, ...): o Guarda para a uma certa distância (cerca de
   7 blocos) em vez de andar até o alcance corpo-a-corpo.
 
-Guardas são deliberadamente mais fortes que moradores comuns: o golpe roteirizado agora acontece
-em cerca de **1,5 segundo** em vez de 3, e eles recebem **vida máxima dobrada**, **+50 de armadura**,
-**+10 de dano físico** e **25% de redução de dano**. Os bônus são aplicados ao nascer, ao atribuir
-o emprego e periodicamente para guardas que já estão no mundo; são removidos se o NPC for
-reatribuído para outra profissão. Dentro da vila a zona segura ainda cancela todo dano, então a
-resistência extra importa quando o guarda luta fora da fronteira.
+Guardas são deliberadamente mais fortes que moradores comuns e recebem **vida máxima dobrada**,
+**+50 de armadura**, **+10 de dano físico** e **25% de redução de dano**. Os bônus são aplicados
+ao nascer, ao atribuir o emprego e periodicamente para guardas que já estão no mundo; são
+removidos se o NPC for reatribuído para outra profissão. Dentro da vila a zona segura ainda
+cancela todo dano, então a resistência extra importa quando o guarda luta fora da fronteira.
+
+Quando o guarda engaja, ele agora **corre** até o alvo (a velocidade de movimento aumenta
+temporariamente enquanto se aproxima) e luta com vários golpes visíveis em vez de fazer o bicho
+desaparecer. Cada golpe aplica um evento de dano real equivalente a cerca de um terço da vida
+máxima do hostil, então o bicho reage aos ferimentos, tem animação de morte e cai após cerca de
+três golpes. Se o bicho recuar, o guarda volta a perseguir.
 
 Quando um hostil entra no território da vila, os **dois guardas mais próximos daquela vila**
 param a patrulha e vão até ele de qualquer ponto dentro do raio da vila (mais uma margem de 16
