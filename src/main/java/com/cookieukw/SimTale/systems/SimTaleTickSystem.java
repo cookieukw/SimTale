@@ -212,6 +212,7 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         if (npc.entityId != null && Math.floorMod(absoluteTick + npc.entityId.hashCode() + 1, 200) == 0) {
             NPCArmorHelper.ensureArmorEquipped(npc.entityRef, npc, store, commandBuffer);
             NPCToolHelper.ensureToolEquipped(npc.entityRef, npc, store);
+            GuardStatsHelper.ensureGuardStats(npc.entityRef, npc, store);
         }
 
         // Daily natural pregnancy check for married female NPCs

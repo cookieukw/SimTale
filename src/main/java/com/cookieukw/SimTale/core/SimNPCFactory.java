@@ -20,6 +20,7 @@ import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.Message;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.systems.GuardStatsHelper;
 import com.cookieukw.SimTale.systems.NPCToolHelper;
 import com.hypixel.hytale.logger.HytaleLogger;
 import it.unimi.dsi.fastutil.Pair;
@@ -222,6 +223,7 @@ public class SimNPCFactory {
         // 5. Track for chat system
         SimTale.trackNpc(simComponent);
         NPCToolHelper.ensureToolEquipped(ref, simComponent, store);
+        GuardStatsHelper.ensureGuardStats(ref, simComponent, store);
 
         /* 6. Write to database IMMEDIATELY.
 

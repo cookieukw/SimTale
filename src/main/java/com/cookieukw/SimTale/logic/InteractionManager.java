@@ -25,6 +25,7 @@ import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.core.WeaponCategory;
 import com.cookieukw.SimTale.core.WeaponCategoryRegistry;
+import com.cookieukw.SimTale.systems.GuardStatsHelper;
 import com.cookieukw.SimTale.systems.NPCToolHelper;
 import com.cookieukw.SimTale.systems.EmoteBubbleSystem;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
@@ -870,7 +871,13 @@ public class InteractionManager {
         }
 
         if (npc.entityRef != null && npc.entityRef.isValid()) {
-            NPCToolHelper.ensureToolEquipped(npc.entityRef, npc, npc.entityRef.getStore());
+            Store<EntityStore> npcStore = npc.entityRef.getStore();
+            NPCToolHelper.ensureToolEquipped(npc.entityRef, npc, npcStore);
+            if (targetProf == Profession.GUARD) {
+                GuardStatsHelper.ensureGuardStats(npc.entityRef, npc, npcStore);
+            } else {
+                GuardStatsHelper.removeGuardStats(npc, npcStore);
+            }
         }
 
         return buildProfessionAcceptance(npc, profName, itemName, prefix, ctx);

@@ -55,7 +55,10 @@ public class NPCGuardHelper {
      *  range. Comfortably inside {@link #GUARD_SCAN_RADIUS} so a target found by the scan is
      *  never already "too close to keep distance from" the moment it's spotted. */
     private static final double RANGED_RANGE_SQ = 7.0 * 7.0;
-    private static final int ATTACK_DURATION_TICKS = 60; // 3s
+    /** Guards hit hard: a fight used to take three seconds of standing still before the hostile
+     *  was removed. Halving it makes the guard feel lethal without changing the scripted
+     *  one-target combat model. */
+    private static final int ATTACK_DURATION_TICKS = 30; // 1.5s
     private static final int MOVE_TIMEOUT_TICKS = 600; // 30s, same as other MOVING_* states
 
     /** Model asset id keywords (lowercase) that mark a hostile mob. Confirmed via
