@@ -229,6 +229,11 @@ final class RoutineTaskHelpers {
                     */
                     if (dyingNpc != null) {
                         SimTale.untrackNpc(dyingNpc);
+                        /* Death must free the house immediately. Otherwise the owner list keeps a
+                        UUID with no loaded NPC and the map paints "Casa (Ocupada)" with no name.
+                        */
+                        HouseManager.releaseOwner(dyingNpc.entityId);
+                        HouseManager.assignOwnerlessHouses(world);
                     }
                     commandBuffer.removeEntity(dyingRef, RemoveReason.REMOVE);
 
