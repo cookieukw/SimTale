@@ -311,6 +311,28 @@ public class HouseManager {
      * sleeping in the house (the owner list may have been lost by an older save), then give a
      * genuinely empty house to the nearest homeless adult.
      */
+    /**
+     * Removes a dead NPC from every house owner list.
+     *
+     * <p>Without this a dead resident left its house marked "occupied" but with no resolvable
+     * name — exactly the "Casa (Ocupada)" marker with no owner that shows up after a death. The
+     * house itself and its beds remain; it simply becomes ownerless and the normal assignment
+     * pass can move someone else in.
+     */
+    public static void releaseOwner(UUID npcId) {
+        if (npcId == null) return;
+        String owner = npcId.toString();
+
+        for (HouseData house : new ArrayList<>(HOUSES_BY_ID.values())) {
+            if (house == null || house.owners == null) continue;
+            if (!house.owners.remove(owner)) continue;
+
+            registerHouse(house);
+            LOGGER.info("[SimTale] Released house {} after owner {} died; {} owner(s) remain",
+                    house.houseId, npcId, house.owners.size());
+        }
+    }
+
     public static int assignOwnerlessHouses(World world) {
         if (world == null) return 0;
         int assigned = 0;
