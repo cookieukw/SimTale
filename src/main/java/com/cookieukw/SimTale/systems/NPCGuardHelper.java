@@ -14,14 +14,26 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.protocol.MovementStates;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
+import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
+import com.hypixel.hytale.server.core.modules.entity.damage.DamageCause;
+import com.hypixel.hytale.server.core.modules.entity.damage.DeathComponent;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
+import com.hypixel.hytale.server.npc.movement.controllers.MotionController;
+import com.hypixel.hytale.server.npc.movement.controllers.MotionControllerWalk;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -38,12 +50,11 @@ import com.hypixel.hytale.server.core.universe.Universe;
  * anything at all for Guard before this — {@code Profession.GUARD} existed only so a sword gift
  * could assign the title, with zero actual behavior behind it.
  * <p>
- * Deliberately not real engine combat (swing timing, hit detection, the NPC's own health at
- * risk) — same reasoning as the Hunter/Miner expedition redesign this session: an NPC losing a
- * fight to a skeleton and needing to be rescued/replaced was more complexity and risk than this
- * project wants for a background villager. Unlike the expedition though, this stays visible and
- * local (walk over, swing, done) rather than a whole vanish-and-return abstraction, since it's
- * meant to read as "the guard handled that thing right next to you," not an offscreen errand.
+ * The guard still uses scripted movement rather than the engine's NPC combat role, but the
+ * fight itself is no longer a delayed {@code removeEntity}. Each swing applies a real
+ * {@link Damage} event to the hostile, so it keeps its model, plays its hurt/death reactions and
+ * only disappears when its health reaches zero. That also means the hostile can fight back while
+ * the exchange lasts, which is what the guard's extra health and armour are for.
  */
 public class NPCGuardHelper {
 
@@ -68,10 +79,29 @@ public class NPCGuardHelper {
      *  range. Comfortably inside {@link #GUARD_SCAN_RADIUS} so a target found by the scan is
      *  never already "too close to keep distance from" the moment it's spotted. */
     private static final double RANGED_RANGE_SQ = 7.0 * 7.0;
-    /** Guards hit hard: a fight used to take three seconds of standing still before the hostile
-     *  was removed. Halving it makes the guard feel lethal without changing the scripted
-     *  one-target combat model. */
-    private static final int ATTACK_DURATION_TICKS = 30; // 1.5s
+    /** Time before the first swing after closing to range. */
+    private static final int ATTACK_WINDUP_TICKS = 8;
+
+    /** One visible swing per second, instead of one instant removal after a fixed delay. */
+    private static final int ATTACK_INTERVAL_TICKS = 20;
+
+    /** Safety valve: a hostile that cannot be damaged by the event pipeline still leaves. */
+    private static final int MAX_FIGHT_TICKS = 200;
+
+    /** Fallback hit for entities without a Health stat. Living mobs take a percentage instead. */
+    private static final float FALLBACK_HIT_DAMAGE = 25.0f;
+
+    /** Fraction of the hostile's maximum health removed per swing (roughly three hits). */
+    private static final float HIT_MAX_HEALTH_FRACTION = 0.34f;
+
+    private static final String ANIM_MELEE_SWING =
+            "Characters/Animations/Items/Main_Handed/Sword/Attacks/Swing_Right/Swing_Right.blockyanim";
+    private static final String ANIM_RANGED_SHOT =
+            "Characters/Animations/Items/Dual_Handed/Bow/Attacks/Shoot/Shoot.blockyanim";
+
+    /** How much faster a guard moves while closing on a hostile. */
+    private static final double CHASE_SPEED_MULTIPLIER = 1.9;
+
     private static final int MOVE_TIMEOUT_TICKS = 600; // 30s, same as other MOVING_* states
 
     /** Model asset id keywords (lowercase) that mark a hostile mob. Confirmed via
@@ -90,6 +120,23 @@ public class NPCGuardHelper {
 
     /** How long a world-wide hostile snapshot is reused across all guards. */
     private static final int HOSTILE_CACHE_TICKS = 20;
+
+    /**
+     * MotionControllerWalk has no public speed setter, but its horizontal multiplier is the
+     * value {@code getMaximumSpeed()} already multiplies by. Cached once; when the field cannot
+     * be accessed the guard simply keeps its normal walking speed.
+     */
+    private static final Field HORIZONTAL_SPEED_MULTIPLIER = findHorizontalSpeedMultiplier();
+
+    private static Field findHorizontalSpeedMultiplier() {
+        try {
+            Field field = MotionControllerWalk.class.getDeclaredField("horizontalSpeedMultiplier");
+            field.setAccessible(true);
+            return field;
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            return null;
+        }
+    }
 
     /**
      * Spreads guards across the scan period so they never all check on the same tick.
@@ -126,6 +173,7 @@ public class NPCGuardHelper {
         or switched category should not wait up to a second empty-handed before it shows.
         */
         ensureWeaponEquipped(ref, npc, store);
+        setChaseSpeed(ref, ai.currentTask == TaskType.MOVING_TO_FIGHT, store);
 
         if (ai.currentTask == TaskType.IDLE || ai.currentTask == TaskType.WANDERING) {
             /* Staggered per guard rather than on a shared tick boundary: every guard checking on
@@ -143,7 +191,6 @@ public class NPCGuardHelper {
                 ai.workTargetEntityId = hostileId;
                 ai.currentTask = TaskType.MOVING_TO_FIGHT;
                 ai.taskStartTime = world.getTick();
-                NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Walk.blockyanim", "Walk", store);
                 return;
             }
 
@@ -199,6 +246,7 @@ public class NPCGuardHelper {
                 NPCMovementHelper.clearMoveTarget(ref, ai);
                 ai.currentTask = TaskType.FIGHTING;
                 ai.taskStartTime = world.getTick();
+                ai.nextGuardAttackTick = world.getTick() + ATTACK_WINDUP_TICKS;
             } else {
                 NPCMovementHelper.moveTo(ref, ai, world, hostileTransform.getPosition());
             }
@@ -211,35 +259,144 @@ public class NPCGuardHelper {
                 return;
             }
             Ref<EntityStore> hostileRef = world.getEntityStore().getRefFromUUID(ai.workTargetEntityId);
-            if (hostileRef == null || store.getComponent(hostileRef, TransformComponent.getComponentType()) == null) {
+            TransformComponent hostileTransform = hostileRef != null
+                    ? store.getComponent(hostileRef, TransformComponent.getComponentType()) : null;
+            if (hostileTransform == null) {
+                /* It vanished between swings. Usually that means somebody else killed it; there
+                is no corpse left to announce, so just return to patrol.
+                */
                 ai.workTargetEntityId = null;
                 ai.currentTask = TaskType.IDLE;
                 return;
             }
 
-            if (world.getTick() - ai.taskStartTime == 1) {
-                if (npc.guardWeaponCategory == WeaponCategory.RANGED) {
-                    /* No dedicated aim/draw animation available either — reusing the same
-                    "look around" flavor clip the routine already has on hand beats standing
-                    in the melee "Smith" pose while visibly holding a bow or gun.
-                    */
-                    NPCMovementHelper.playAnim(ref, "Characters/Animations/Flavor/Look_Around.blockyanim", "LookAround", store);
-                } else {
-                    /* No dedicated sword-swing animation available — same "Smith" stand-in the other
-                    professions reuse for "NPC is doing manual work at a fixed spot".
-                    */
-                    NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Smith.blockyanim", "Smith", store);
+            long tick = world.getTick();
+            double engageRangeSq = npc.guardWeaponCategory == WeaponCategory.RANGED
+                    ? RANGED_RANGE_SQ : MELEE_RANGE_SQ;
+            double dx = hostileTransform.getPosition().x - transform.getPosition().x;
+            double dz = hostileTransform.getPosition().z - transform.getPosition().z;
+
+            /* A mob that backs away turns the exchange back into a chase instead of leaving the
+            guard swinging at air from ten blocks away.
+            */
+            if (dx * dx + dz * dz > engageRangeSq * 1.5) {
+                ai.currentTask = TaskType.MOVING_TO_FIGHT;
+                ai.taskStartTime = tick;
+                return;
+            }
+
+            if (isDead(hostileRef, store)) {
+                finishFight(npc, ai, transform, store);
+                return;
+            }
+
+            if (tick >= ai.nextGuardAttackTick) {
+                playAttackAnimation(ref, npc, store);
+                applyGuardHit(ref, hostileRef, store, commandBuffer);
+                ai.nextGuardAttackTick = tick + ATTACK_INTERVAL_TICKS;
+
+                if (isDead(hostileRef, store)) {
+                    finishFight(npc, ai, transform, store);
+                    return;
                 }
             }
 
-            if (world.getTick() - ai.taskStartTime >= ATTACK_DURATION_TICKS) {
-                LOGGER.debug("[SimTale] Guard {} derrotou um hostil ({})", npc.name, ai.workTargetEntityId);
+            /* Damage events can be cancelled by invulnerable mobs or a plugin in the pipeline.
+            The fallback keeps a guard from standing in FIGHTING forever against something that
+            cannot be hurt.
+            */
+            if (tick - ai.taskStartTime > MAX_FIGHT_TICKS) {
+                LOGGER.debug("[SimTale] Guard {} could not damage a hostile, removing it after timeout", npc.name);
                 commandBuffer.removeEntity(hostileRef, RemoveReason.REMOVE);
-                announceVictory(npc, transform, store);
-                ai.workTargetEntityId = null;
-                ai.currentTask = TaskType.IDLE;
-                ai.taskStartTime = world.getTick();
+                finishFight(npc, ai, transform, store);
             }
+        }
+    }
+
+    private static void playAttackAnimation(Ref<EntityStore> ref, SimNPCComponent npc,
+                                            Store<EntityStore> store) {
+        boolean ranged = npc.guardWeaponCategory == WeaponCategory.RANGED;
+        NPCMovementHelper.playAnim(ref,
+                ranged ? ANIM_RANGED_SHOT : ANIM_MELEE_SWING,
+                ranged ? "Shoot" : "SwingRight",
+                store);
+    }
+
+    /**
+     * Applies one real hit through the damage pipeline. Scaling by the target's maximum health
+     * keeps the exchange readable for both a 50 HP skeleton and a 226 HP Hedera: roughly three
+     * swings either way, rather than one-shotting small mobs and taking forever on big ones.
+     */
+    private static void applyGuardHit(Ref<EntityStore> guardRef, Ref<EntityStore> hostileRef,
+                                      Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
+        float damage = FALLBACK_HIT_DAMAGE;
+        EntityStatMap stats = store.getComponent(hostileRef, EntityStatMap.getComponentType());
+        if (stats != null) {
+            EntityStatValue health = stats.get(DefaultEntityStatTypes.getHealth());
+            if (health != null) {
+                damage = Math.max(FALLBACK_HIT_DAMAGE, health.getMax() * HIT_MAX_HEALTH_FRACTION);
+            }
+        }
+
+        Damage hit = new Damage(new Damage.EntitySource(guardRef), DamageCause.PHYSICAL, damage);
+        commandBuffer.invoke(hostileRef, hit);
+    }
+
+    private static boolean isDead(Ref<EntityStore> hostileRef, Store<EntityStore> store) {
+        if (store.getComponent(hostileRef, DeathComponent.getComponentType()) != null) return true;
+
+        EntityStatMap stats = store.getComponent(hostileRef, EntityStatMap.getComponentType());
+        if (stats == null) return false;
+        EntityStatValue health = stats.get(DefaultEntityStatTypes.getHealth());
+        return health != null && health.get() <= 0f;
+    }
+
+    private static void finishFight(SimNPCComponent npc, RoutineAIComponent ai,
+                                    TransformComponent transform, Store<EntityStore> store) {
+        LOGGER.debug("[SimTale] Guard {} defeated a hostile", npc.name);
+        announceVictory(npc, transform, store);
+        ai.workTargetEntityId = null;
+        ai.currentTask = TaskType.IDLE;
+        ai.taskStartTime = store.getExternalData().getWorld().getTick();
+        ai.nextGuardAttackTick = 0;
+    }
+
+    /**
+     * Temporarily raises the guard's horizontal speed while it closes on a hostile. The engine
+     * has no public speed setter; {@code horizontalSpeedMultiplier} is the same field
+     * {@code MotionControllerWalk.getMaximumSpeed()} already multiplies by, so this makes the
+     * guard actually run rather than merely turning up after a long walk.
+     */
+    private static void setChaseSpeed(Ref<EntityStore> ref, boolean chasing, Store<EntityStore> store) {
+        NPCEntity npcEntity = store.getComponent(ref, NPCEntity.getComponentType());
+        if (npcEntity == null || npcEntity.getRole() == null) return;
+        MotionController controller = npcEntity.getRole().getActiveMotionController();
+
+        if (HORIZONTAL_SPEED_MULTIPLIER != null && controller instanceof MotionControllerWalk walk) {
+            try {
+                double current = HORIZONTAL_SPEED_MULTIPLIER.getDouble(walk);
+                if (chasing && Math.abs(current - CHASE_SPEED_MULTIPLIER) > 1.0e-6) {
+                    HORIZONTAL_SPEED_MULTIPLIER.setDouble(walk, CHASE_SPEED_MULTIPLIER);
+                } else if (!chasing && Math.abs(current - CHASE_SPEED_MULTIPLIER) <= 1.0e-6) {
+                    HORIZONTAL_SPEED_MULTIPLIER.setDouble(walk, 1.0);
+                }
+            } catch (IllegalAccessException | IllegalArgumentException ignored) {
+                // Leave the normal speed in place if the field ever changes shape.
+            }
+        }
+
+        /* Ask the animation layer for the run cycle too. The movement controller normally sets
+        these flags from speed, but the SimTale roles do not declare a run threshold; forcing
+        the flag while chasing keeps the legs in step with the faster movement.
+        */
+        MovementStatesComponent movement = store.getComponent(ref, MovementStatesComponent.getComponentType());
+        if (movement == null) return;
+        MovementStates states = movement.getMovementStates();
+        if (chasing) {
+            states.running = true;
+            states.walking = false;
+        } else if (states.running) {
+            states.running = false;
         }
     }
 

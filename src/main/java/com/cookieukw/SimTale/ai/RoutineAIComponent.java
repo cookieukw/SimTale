@@ -70,7 +70,14 @@ public class RoutineAIComponent implements Component<EntityStore> {
     public UUID reaperEntityId = null;
     public long reapTimer = 0;
     public UUID workTargetEntityId = null;
-    
+
+    /**
+     * Tick at which a Guard should land its next scripted hit. Kept separate from
+     * {@code taskStartTime} because the fight now has several swings instead of one delayed
+     * removal; {@code taskStartTime} still marks when the fight began (used for the timeout).
+     */
+    public long nextGuardAttackTick = 0;
+
     // Autonomy fields
     public UUID socializeTargetId = null;
     /** Reserved when another NPC has chosen this NPC for socialization. */
@@ -195,6 +202,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.reaperEntityId = this.reaperEntityId;
         comp.reapTimer = this.reapTimer;
         comp.workTargetEntityId = this.workTargetEntityId;
+        comp.nextGuardAttackTick = this.nextGuardAttackTick;
         comp.socializeTargetId = this.socializeTargetId;
         comp.reservedForSocialUuid = this.reservedForSocialUuid;
         comp.lastPlayerGreetingTick = this.lastPlayerGreetingTick;
