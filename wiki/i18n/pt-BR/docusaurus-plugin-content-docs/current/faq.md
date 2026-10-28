@@ -53,8 +53,22 @@ mensagem de entrada também diz quantos NPCs estão enterrados.
 Dentro da fronteira da vila, NPCs do SimTale são protegidos de todo dano
 (`villageSafeZoneEnabled`, padrão `true`).
 
-Eles não são apagados silenciosamente; se o cemitério estiver vazio e ainda faltar alguém, procure
-erro de save/load no log do servidor.
+Eles não são apagados silenciosamente. Se o cemitério estiver vazio e ainda faltar alguém, rode:
+
+```text
+/simtale respawnmissing
+```
+
+Isso lista os moradores salvos que estão sem entidade no mundo. Para recriar um:
+
+```text
+/simtale respawnmissing <nome>
+```
+
+O comando cria o NPC perto de você e remapeia relacionamentos, família e casa. Espere os chunks
+próximos carregarem antes de usar: um NPC em chunk não carregado também pode parecer sumido. Se
+o log do servidor disser `removed externally` ou `despawning due to lost marker`, foi uma remoção
+externa, não uma morte — por isso o cemitério não mostra causa.
 
 ### Posso mudar a rapidez com que ficam com fome?
 

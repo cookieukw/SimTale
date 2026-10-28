@@ -53,8 +53,22 @@ message also tells you how many NPCs are buried.
 Inside the village boundary, SimTale NPCs are protected from all damage
 (`villageSafeZoneEnabled`, default `true`).
 
-They are not silently deleted; if the graveyard is empty and an NPC is still missing, check the
-server log for a save/load error.
+They are not silently deleted. If the graveyard is empty and an NPC is still missing, run:
+
+```text
+/simtale respawnmissing
+```
+
+This lists saved residents whose entity is no longer in the world. Recreate one with:
+
+```text
+/simtale respawnmissing <name>
+```
+
+The command spawns the NPC near you and remaps relationships, family and house references. Wait
+for nearby chunks to load before using it: an NPC in an unloaded chunk can also look missing. If
+the server log says `removed externally` or `despawning due to lost marker`, it was an external
+removal rather than a death, which is why the graveyard has no cause for it.
 
 ### Can I change how fast they get hungry?
 
