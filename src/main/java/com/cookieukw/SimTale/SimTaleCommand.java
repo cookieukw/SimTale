@@ -646,6 +646,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 }
                 ctx.sendMessage(Message.raw("[SimTale] Missing NPCs (" + missing.size() + "): " + names));
                 ctx.sendMessage(Message.raw("[SimTale] Use /simtale respawnmissing <name> to bring one back."));
+                ctx.sendMessage(Message.raw("[SimTale] Only do this for true disappearances; an NPC in an unloaded chunk can also look missing."));
                 return;
             }
 
