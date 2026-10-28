@@ -2,15 +2,15 @@
   "nodes": [
     {
       "id": "1",
-      "name": "Origin",
-      "position": {"x": 0, "y": 0, "z": 0},
+      "name": "Pelvis",
+      "position": {"x": 0, "y": 51, "z": 0},
       "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
       "shape": {
         "type": "none",
-        "offset": {"x": 0, "y": 0, "z": 0},
+        "offset": {"x": 0, "y": -0.5, "z": 0},
         "stretch": {"x": 1, "y": 1, "z": 1},
         "settings": {
-          "isPiece": true
+          "isPiece": false
         },
         "textureLayout": {},
         "unwrapMode": "custom",
@@ -21,12 +21,12 @@
       "children": [
         {
           "id": "2",
-          "name": "Pelvis",
-          "position": {"x": 0, "y": 51, "z": 0},
+          "name": "PelvisCloth",
+          "position": {"x": 0, "y": 0, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
-            "offset": {"x": 0, "y": -0.5, "z": 0},
+            "offset": {"x": 0, "y": 0, "z": 0},
             "stretch": {"x": 1.01, "y": 1.01, "z": 1.01},
             "settings": {
               "isPiece": false,
@@ -68,48 +68,67 @@
             "visible": true,
             "doubleSided": false,
             "shadingMode": "flat"
+          }
+        },
+        {
+          "id": "3",
+          "name": "R-Thigh",
+          "position": {"x": -7.5, "y": -0.5, "z": 1},
+          "orientation": {"x": 0, "y": -0.0192, "z": 0, "w": 0.99982},
+          "shape": {
+            "type": "box",
+            "offset": {"x": -0.00001, "y": -11, "z": 0},
+            "stretch": {"x": 1.04, "y": 1.0075, "z": 1.04},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 10, "y": 20, "z": 12}
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {"x": 35, "y": 2},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "right": {
+                "offset": {"x": 23, "y": 2},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "front": {
+                "offset": {"x": 13, "y": 2},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "left": {
+                "offset": {"x": 1, "y": 2},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "bottom": {
+                "offset": {"x": 13, "y": 18},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
           },
           "children": [
             {
-              "id": "3",
-              "name": "R-Thigh",
-              "position": {"x": -7.5, "y": -0.5, "z": 1},
-              "orientation": {"x": 0, "y": -0.0192, "z": 0, "w": 0.99982},
+              "id": "4",
+              "name": "R-Calf",
+              "position": {"x": 0, "y": -10, "z": 2},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
               "shape": {
-                "type": "box",
-                "offset": {"x": -0.00001, "y": -11, "z": 0},
-                "stretch": {"x": 1.04, "y": 1.0075, "z": 1.04},
+                "type": "none",
+                "offset": {"x": 0, "y": -12, "z": -2},
+                "stretch": {"x": 1, "y": 1, "z": 1},
                 "settings": {
-                  "isPiece": false,
-                  "size": {"x": 10, "y": 20, "z": 12}
+                  "isPiece": false
                 },
-                "textureLayout": {
-                  "back": {
-                    "offset": {"x": 35, "y": 2},
-                    "mirror": {"x": false, "y": false},
-                    "angle": 0
-                  },
-                  "right": {
-                    "offset": {"x": 23, "y": 2},
-                    "mirror": {"x": false, "y": false},
-                    "angle": 0
-                  },
-                  "front": {
-                    "offset": {"x": 13, "y": 2},
-                    "mirror": {"x": false, "y": false},
-                    "angle": 0
-                  },
-                  "left": {
-                    "offset": {"x": 1, "y": 2},
-                    "mirror": {"x": false, "y": false},
-                    "angle": 0
-                  },
-                  "bottom": {
-                    "offset": {"x": 13, "y": 18},
-                    "mirror": {"x": false, "y": false},
-                    "angle": 0
-                  }
-                },
+                "textureLayout": {},
                 "unwrapMode": "custom",
                 "visible": true,
                 "doubleSided": false,
@@ -117,13 +136,13 @@
               },
               "children": [
                 {
-                  "id": "4",
-                  "name": "R-Calf",
-                  "position": {"x": 0, "y": -10, "z": 2},
+                  "id": "5",
+                  "name": "RCalfCloth",
+                  "position": {"x": 0, "y": 0, "z": 0},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                   "shape": {
                     "type": "box",
-                    "offset": {"x": 0, "y": -12, "z": -2},
+                    "offset": {"x": 0, "y": 0, "z": 0},
                     "stretch": {"x": 1.03, "y": 1.03, "z": 1.03},
                     "settings": {
                       "isPiece": false,
@@ -157,10 +176,29 @@
                       },
                       "bottom": {
                         "offset": {"x": 103, "y": 55},
-                        "mirror": {"x": true, "y": true},
-                        "angle": 270
+                        "mirror": {"x": false, "y": false},
+                        "angle": 90
                       }
                     },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "6",
+                  "name": "R-Foot",
+                  "position": {"x": 0, "y": -10, "z": -4},
+                  "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                  "shape": {
+                    "type": "none",
+                    "offset": {"x": 0, "y": -3, "z": 6},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false
+                    },
+                    "textureLayout": {},
                     "unwrapMode": "custom",
                     "visible": true,
                     "doubleSided": false,
@@ -168,13 +206,13 @@
                   },
                   "children": [
                     {
-                      "id": "5",
-                      "name": "R-Foot",
-                      "position": {"x": 0, "y": -10, "z": -4},
+                      "id": "7",
+                      "name": "RFootCloth",
+                      "position": {"x": 0, "y": 0, "z": 0},
                       "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
                         "type": "box",
-                        "offset": {"x": 0, "y": -3, "z": 6},
+                        "offset": {"x": 0, "y": 0, "z": 0},
                         "stretch": {"x": 0.979, "y": 0.97, "z": 0.961},
                         "settings": {
                           "isPiece": false,
@@ -193,8 +231,8 @@
                           },
                           "front": {
                             "offset": {"x": 86, "y": 83},
-                            "mirror": {"x": true, "y": true},
-                            "angle": 90
+                            "mirror": {"x": false, "y": false},
+                            "angle": 270
                           },
                           "left": {
                             "offset": {"x": 66, "y": 83},
@@ -203,8 +241,8 @@
                           },
                           "top": {
                             "offset": {"x": 66, "y": 83},
-                            "mirror": {"x": true, "y": true},
-                            "angle": 90
+                            "mirror": {"x": false, "y": false},
+                            "angle": 270
                           },
                           "bottom": {
                             "offset": {"x": 111, "y": 53},
@@ -221,47 +259,68 @@
                   ]
                 }
               ]
+            }
+          ]
+        },
+        {
+          "id": "8",
+          "name": "L-Thigh",
+          "position": {"x": 7.5, "y": -0.5, "z": 1},
+          "orientation": {"x": 0, "y": 0.0192, "z": 0, "w": 0.99982},
+          "shape": {
+            "type": "box",
+            "offset": {"x": 0, "y": -11, "z": 0},
+            "stretch": {"x": -1.04, "y": 1.0075, "z": 1.04},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 10, "y": 20, "z": 12}
             },
+            "textureLayout": {
+              "back": {
+                "offset": {"x": 80, "y": 2},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "right": {
+                "offset": {"x": 68, "y": 2},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "front": {
+                "offset": {"x": 68, "y": 2},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              },
+              "left": {
+                "offset": {"x": 46, "y": 2},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "bottom": {
+                "offset": {"x": 58, "y": 30},
+                "mirror": {"x": false, "y": true},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
             {
-              "id": "6",
-              "name": "L-Thigh",
-              "position": {"x": 7.5, "y": -0.5, "z": 1},
-              "orientation": {"x": 0, "y": 0.0192, "z": 0, "w": 0.99982},
+              "id": "9",
+              "name": "L-Calf",
+              "position": {"x": 0, "y": -10, "z": 2},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
               "shape": {
-                "type": "box",
-                "offset": {"x": 0, "y": -11, "z": 0},
-                "stretch": {"x": -1.04, "y": 1.0075, "z": 1.04},
+                "type": "none",
+                "offset": {"x": 0, "y": -12, "z": -2},
+                "stretch": {"x": 1, "y": 1, "z": 1},
                 "settings": {
-                  "isPiece": false,
-                  "size": {"x": 10, "y": 20, "z": 12}
+                  "isPiece": true
                 },
-                "textureLayout": {
-                  "back": {
-                    "offset": {"x": 80, "y": 2},
-                    "mirror": {"x": false, "y": false},
-                    "angle": 0
-                  },
-                  "right": {
-                    "offset": {"x": 68, "y": 2},
-                    "mirror": {"x": false, "y": false},
-                    "angle": 0
-                  },
-                  "front": {
-                    "offset": {"x": 68, "y": 2},
-                    "mirror": {"x": true, "y": false},
-                    "angle": 0
-                  },
-                  "left": {
-                    "offset": {"x": 46, "y": 2},
-                    "mirror": {"x": false, "y": false},
-                    "angle": 0
-                  },
-                  "bottom": {
-                    "offset": {"x": 58, "y": 30},
-                    "mirror": {"x": false, "y": true},
-                    "angle": 0
-                  }
-                },
+                "textureLayout": {},
                 "unwrapMode": "custom",
                 "visible": true,
                 "doubleSided": false,
@@ -269,13 +328,13 @@
               },
               "children": [
                 {
-                  "id": "7",
-                  "name": "L-Calf",
-                  "position": {"x": 0, "y": -10, "z": 2},
+                  "id": "10",
+                  "name": "LCalfCloth",
+                  "position": {"x": 0, "y": 0, "z": 0},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                   "shape": {
                     "type": "box",
-                    "offset": {"x": 0, "y": -12, "z": -2},
+                    "offset": {"x": 0, "y": 0, "z": 0},
                     "stretch": {"x": -1.03, "y": 1.03, "z": 1.03},
                     "settings": {
                       "isPiece": false,
@@ -309,10 +368,29 @@
                       },
                       "bottom": {
                         "offset": {"x": 103, "y": 55},
-                        "mirror": {"x": true, "y": true},
-                        "angle": 270
+                        "mirror": {"x": false, "y": false},
+                        "angle": 90
                       }
                     },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "11",
+                  "name": "L-Foot",
+                  "position": {"x": 0, "y": -10, "z": -4},
+                  "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                  "shape": {
+                    "type": "none",
+                    "offset": {"x": 0, "y": -3, "z": 6},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false
+                    },
+                    "textureLayout": {},
                     "unwrapMode": "custom",
                     "visible": true,
                     "doubleSided": false,
@@ -320,13 +398,13 @@
                   },
                   "children": [
                     {
-                      "id": "8",
-                      "name": "L-Foot",
-                      "position": {"x": 0, "y": -10, "z": -4},
+                      "id": "12",
+                      "name": "LFootCloth",
+                      "position": {"x": 0, "y": 0, "z": 0},
                       "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
                         "type": "box",
-                        "offset": {"x": 0, "y": -3, "z": 6},
+                        "offset": {"x": 0, "y": 0, "z": 0},
                         "stretch": {"x": -0.979, "y": 0.97, "z": 0.961},
                         "settings": {
                           "isPiece": false,
@@ -345,8 +423,8 @@
                           },
                           "front": {
                             "offset": {"x": 119, "y": 24},
-                            "mirror": {"x": true, "y": true},
-                            "angle": 90
+                            "mirror": {"x": false, "y": false},
+                            "angle": 270
                           },
                           "left": {
                             "offset": {"x": 99, "y": 24},
