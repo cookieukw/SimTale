@@ -56,6 +56,9 @@
   fluxo de morte e sem causa registrada.
 - Remoções externas de NPCs agora geram um aviso no log com nome, tarefa atual e último dano,
   deixando claro que não foi uma morte normal do SimTale.
+- Novo comando `/simtale respawnmissing [nome]`: lista NPCs salvos que estão sem entidade no
+  mundo e recria um deles pelo nome (ou parte do nome), reaproveitando o mesmo fluxo de revive do
+  cemitério e remapeando relacionamentos, família e casa.
 - Plumbobs e balões de pensamento agora possuem componente `Velocity`. A ausência dele podia
   derrubar o mundo com um `NullPointerException` no sistema de avoidance dos NPCs.
 
