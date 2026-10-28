@@ -541,18 +541,20 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             int count = 0;
             List<SimNPCComponent> toRemove = new ArrayList<>(SimTale.ACTIVE_NPCS);
             for (SimNPCComponent npc : toRemove) {
+                PlumbobSystem.removePlumbob(npc.entityId);
+                com.cookieukw.SimTale.systems.EmoteBubbleSystem.removeThought(npc.entityId);
+
+                /* Untrack and archive before removing the entity. EntityRemoveEvent fires
+                synchronously, and the new external-removal warning would otherwise treat this
+                deliberate command as a bug for every resident in the village.
+                */
+                SimTale.untrackNpc(npc);
+                SimNPCPersistence.archiveToGraveyard(npc.entityId);
+
                 if (npc.entityRef != null && npc.entityRef.isValid()) {
                     store.removeEntity(npc.entityRef, RemoveReason.REMOVE);
                     count++;
                 }
-                PlumbobSystem.removePlumbob(npc.entityId);
-                com.cookieukw.SimTale.systems.EmoteBubbleSystem.removeThought(npc.entityId);
-                /* Buried, not deleted. Everything the Reaper collects ends up in the graveyard and
-                can be brought back; clearing the village by command used to be the one way to
-                destroy an NPC outright, which made it a trap — one command and a whole village
-                of histories was gone with no way back.
-                */
-                SimNPCPersistence.archiveToGraveyard(npc.entityId);
             }
             SimTale.clearActiveNpcs();
 

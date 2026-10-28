@@ -48,6 +48,7 @@ import com.cookieukw.SimTale.systems.NPCDamageEventSystem;
 import com.cookieukw.SimTale.systems.ConstructionPreviewSweepSystem;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.event.EventPriority;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.event.events.entity.EntityRemoveEvent;
@@ -80,6 +81,9 @@ import javax.annotation.Nonnull;
 public class SimTale extends JavaPlugin {
 
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+
+    /** Set while the plugin is shutting down, so bulk entity removal is not logged as a bug. */
+    public static volatile boolean shuttingDown = false;
 
     public static ComponentType<EntityStore, SimNPCComponent> SIM_NPC_COMPONENT_TYPE;
     public static ComponentType<EntityStore, RoutineAIComponent> ROUTINE_AI_COMPONENT_TYPE;
@@ -293,9 +297,33 @@ public class SimTale extends JavaPlugin {
         this.getEventRegistry().registerGlobal(EntityRemoveEvent.class, event -> {
             if (event == null || event.getEntity() == null) return;
             UUID entityUuid = event.getEntity().getUuid();
-            if (entityUuid != null) {
-                SimTale.untrackNpcById(entityUuid);
+            if (entityUuid == null) return;
+
+            SimNPCComponent removed = findNpc(entityUuid);
+            if (removed != null && !shuttingDown) {
+                World removedWorld = event.getEntity().getWorld();
+                boolean worldStillActive = removedWorld != null && removedWorld.getPlayerCount() > 0;
+
+                RoutineAIComponent removedAi = null;
+                Ref<EntityStore> removedRef = event.getEntity().getReference();
+                if (removedRef != null && removedRef.isValid()) {
+                    removedAi = removedRef.getStore().getComponent(removedRef, ROUTINE_AI_COMPONENT_TYPE);
+                }
+                RoutineAIComponent.TaskType task = removedAi != null ? removedAi.currentTask : null;
+                boolean normalDeath = task == RoutineAIComponent.TaskType.DYING
+                        || task == RoutineAIComponent.TaskType.DEAD
+                        || task == RoutineAIComponent.TaskType.REAPING
+                        || removed.isReaper;
+
+                if (worldStillActive && !normalDeath) {
+                    LOGGER.atWarning().log("SimTale: NPC '" + removed.name
+                            + "' was removed externally while task=" + task
+                            + " (last damage: " + removed.lastDamageCause
+                            + "). This did NOT go through SimTale's death flow; check SpawnMarkers and other mods.");
+                }
             }
+
+            SimTale.untrackNpcById(entityUuid);
         });
 
         this.getCommandRegistry()
@@ -327,6 +355,7 @@ public class SimTale extends JavaPlugin {
 
     @Override
     protected void shutdown() {
+        shuttingDown = true;
         if (carDismountWatcher != null) {
             PacketAdapters.deregisterInbound(carDismountWatcher);
             carDismountWatcher = null;

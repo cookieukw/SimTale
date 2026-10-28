@@ -48,6 +48,17 @@
   hounds desbotados, cavaleiros das sombras, **trorks**, goblins, scaraks, outlanders, hederas e
   fen stalkers, além de esqueletos.
 
+### Estabilidade e NPCs desaparecidos
+
+- NPCs do SimTale agora removem qualquer `SpawnMarkerReference` que outro mod tenha anexado.
+  O sistema de Spawning do Hytale removia a entidade 30 segundos depois de o marcador sumir
+  (`NPCEntity despawning due to lost marker`), o que fazia a guarda desaparecer sem passar pelo
+  fluxo de morte e sem causa registrada.
+- Remoções externas de NPCs agora geram um aviso no log com nome, tarefa atual e último dano,
+  deixando claro que não foi uma morte normal do SimTale.
+- Plumbobs e balões de pensamento agora possuem componente `Velocity`. A ausência dele podia
+  derrubar o mundo com um `NullPointerException` no sistema de avoidance dos NPCs.
+
 ### Casas e vila
 
 - Corrigido o bug em que **ar era tratado como chunk não carregado**. Isso fazia toda varredura
@@ -89,6 +100,14 @@
 - Ao entrar no mundo, o jogador é avisado quantos NPCs estão enterrados.
 - O log do servidor registra a morte e a causa.
 - A casa do NPC falecido é liberada e pode ser atribuída a outro morador.
+
+### Compatibilidade com outros mods
+
+- O log da sessão de 28/10 mostra plugins mirando versões antigas do servidor: **RuneCore**,
+  **Automatic Slab Placement**, **Arm Cannons**, **Composter Table** e **BetterSigns**.
+- O BetterFood registra um spawn com o role inexistente `Spectre_Void`, e o Patchwork falha ao
+  gerar arquivos em `/mnt` (`Operação sem suporte`). Nenhum desses é causado pelo SimTale, mas
+  todos aparecem como erros no boot e devem ser atualizados/desabilitados.
 
 ### Configuração
 

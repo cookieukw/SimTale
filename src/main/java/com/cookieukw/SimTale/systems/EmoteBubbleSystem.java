@@ -27,6 +27,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entity.player.PlayerProcessMovementSystem;
 import com.hypixel.hytale.server.core.modules.entity.tracker.NetworkId;
+import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
@@ -258,6 +259,8 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
         holder.addComponent(ModelComponent.getComponentType(), new ModelComponent(model));
         holder.addComponent(NetworkId.getComponentType(), new NetworkId(store.getExternalData().takeNextNetworkId()));
         holder.addComponent(Intangible.getComponentType(), Intangible.INSTANCE);
+        /* See PlumbobSystem: NPC avoidance assumes every modelled entity has Velocity. */
+        holder.addComponent(Velocity.getComponentType(), new Velocity());
         holder.ensureComponent(UUIDComponent.getComponentType());
 
         Ref<EntityStore> newBubble = commandBuffer.addEntity(holder, AddReason.SPAWN);

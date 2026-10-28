@@ -37,6 +37,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.npc.components.SpawnMarkerReference;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.joml.Vector3d;
@@ -213,6 +214,14 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             NPCArmorHelper.ensureArmorEquipped(npc.entityRef, npc, store, commandBuffer);
             NPCToolHelper.ensureToolEquipped(npc.entityRef, npc, store);
             GuardStatsHelper.ensureGuardStats(npc.entityRef, npc, store);
+
+            /* Another mod can attach this after spawn; the Spawning system then despawns the
+            resident 30s after the marker goes away. SimTale NPCs are permanent, so keep the
+            reference off even when it is re-added.
+            */
+            if (store.getComponent(npc.entityRef, SpawnMarkerReference.getComponentType()) != null) {
+                commandBuffer.tryRemoveComponent(npc.entityRef, SpawnMarkerReference.getComponentType());
+            }
         }
 
         // Daily natural pregnancy check for married female NPCs

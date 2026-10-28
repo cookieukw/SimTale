@@ -9,6 +9,7 @@ import org.joml.Vector3d;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
+import com.hypixel.hytale.server.npc.components.SpawnMarkerReference;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.npc.systems.NewSpawnStartTickingSystem;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model;
@@ -146,7 +147,19 @@ public class SimNPCFactory {
         if (ref == null) {
             throw new NullPointerException("Spawned NPC entity reference is null");
         }
-        
+
+        /* SimTale NPCs are persistent residents, not spawner output. If a SpawnMarkerReference
+        is present (some mods add one to every NPC for population tracking), Hytale's
+        TickingSpawnMarkerSystem despawns the NPC 30 seconds after its marker disappears —
+        visible in the log as "NPCEntity despawning due to lost marker". Removing the reference
+        keeps the resident out of that lifecycle entirely.
+        */
+        try {
+            store.tryRemoveComponent(ref, SpawnMarkerReference.getComponentType());
+        } catch (RuntimeException ignored) {
+            // Harmless: the periodic sweep in SimTaleTickSystem tries again later.
+        }
+
         ComponentAccessor<EntityStore> accessor = ref.getStore();
         
         // 2. Add SimTale custom components to the spawned entity

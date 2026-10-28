@@ -31,6 +31,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entity.player.PlayerProcessMovementSystem;
 import com.hypixel.hytale.server.core.modules.entity.tracker.NetworkId;
+import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
@@ -218,6 +219,12 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
                 holder.addComponent(PersistentModel.getComponentType(), new PersistentModel(model.toReference()));
                 holder.addComponent(ModelComponent.getComponentType(), new ModelComponent(model));
                 holder.addComponent(Intangible.getComponentType(), Intangible.INSTANCE);
+                /* Hytale's NPC avoidance iterates modelled entities and assumes every one has a
+                Velocity component. A plumbob without it caused a NullPointerException in
+                GroupSteeringAccumulator and removed the whole world. Cosmetics are stationary,
+                but the zero vector is what keeps that engine path safe.
+                */
+                holder.addComponent(Velocity.getComponentType(), new Velocity());
                 /* Deliberately no BoundingBox and Intangible attached: this is a purely cosmetic
                 floating icon, so raycasts (mining, interacting, attacking) must pass straight through it.
                 */
