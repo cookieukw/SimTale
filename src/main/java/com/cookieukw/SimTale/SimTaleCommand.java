@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.ArrayList;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookieukw.SimTale.db.SimNPCData;
+import com.cookieukw.SimTale.core.lifecycle.SimNPCRevival;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
@@ -99,6 +100,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new DiagnosticsCommands.VillageStockSubCommand());
         this.addSubCommand(new DiagnosticsCommands.ChairCheckSubCommand());
         this.addSubCommand(new DespawnNearestSubCommand());
+        this.addSubCommand(new RespawnMissingSubCommand());
         this.addSubCommand(new ForceEatSubCommand());
         this.addSubCommand(new ForceWorkSubCommand());
         this.addSubCommand(new ForceKillSubCommand());
@@ -138,7 +140,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|forceplay|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|despawnnearest|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown|costume|car|cat>"));
+        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|forceplay|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|despawnnearest|respawnmissing|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown|costume|car|cat>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -579,6 +581,130 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             ctx.sendMessage(Message.raw("Removed " + count + " NPCs from the world and "
                     + purged + " bank records."));
+        }
+    }
+
+    /**
+     * Recovers a saved resident whose entity is no longer in the world (lost spawn marker,
+     * external mod removal, an old crash). Revival mints a new entity UUID and remaps every
+     * stored reference, exactly like the graveyard revive path.
+     *
+     * <p>Without an argument the command only lists candidates; respawning is deliberate because
+     * an NPC whose chunk is merely unloaded can also look "missing" to the entity index.
+     */
+    private static class RespawnMissingSubCommand extends AbstractPlayerCommand {
+        private final OptionalArg<String> nameArg;
+
+        public RespawnMissingSubCommand() {
+            super("respawnmissing", "Recreates a saved NPC whose entity disappeared from the world");
+            this.nameArg = this.withOptionalArg("name", "Name (or part of the name) of the missing NPC", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+            if (transform == null) {
+                ctx.sendMessage(Message.raw("[SimTale] Could not read your position."));
+                return;
+            }
+
+            List<SimNPCData> missing = new ArrayList<>();
+            for (SimNPCData data : SimNPCPersistence.listAll()) {
+                if (data == null || data.id == null) continue;
+
+                UUID id;
+                try {
+                    id = UUID.fromString(data.id);
+                } catch (IllegalArgumentException ignored) {
+                    continue;
+                }
+
+                Ref<EntityStore> existing = world.getEntityStore().getRefFromUUID(id);
+                SimNPCComponent tracked = SimTale.findNpc(id);
+                boolean alive = existing != null
+                        || (tracked != null && tracked.entityRef != null && tracked.entityRef.isValid());
+                if (!alive) missing.add(data);
+            }
+
+            if (missing.isEmpty()) {
+                ctx.sendMessage(Message.raw("[SimTale] No missing NPCs: every saved resident has a live entity."));
+                return;
+            }
+
+            String query = ctx.get(this.nameArg);
+            if (query == null || query.isBlank()) {
+                StringBuilder names = new StringBuilder();
+                int shown = 0;
+                for (SimNPCData data : missing) {
+                    if (shown++ >= 15) {
+                        names.append(", ...");
+                        break;
+                    }
+                    if (shown > 1) names.append(", ");
+                    names.append(data.name);
+                }
+                ctx.sendMessage(Message.raw("[SimTale] Missing NPCs (" + missing.size() + "): " + names));
+                ctx.sendMessage(Message.raw("[SimTale] Use /simtale respawnmissing <name> to bring one back."));
+                return;
+            }
+
+            String needle = query.toLowerCase(java.util.Locale.ROOT);
+            List<SimNPCData> matches = new ArrayList<>();
+            for (SimNPCData data : missing) {
+                if (data.name != null && data.name.toLowerCase(java.util.Locale.ROOT).contains(needle)) {
+                    matches.add(data);
+                }
+            }
+
+            if (matches.isEmpty()) {
+                ctx.sendMessage(Message.raw("[SimTale] No missing NPC matches '" + query + "'."));
+                return;
+            }
+            if (matches.size() > 1) {
+                StringBuilder names = new StringBuilder();
+                for (SimNPCData data : matches) {
+                    if (names.length() > 0) names.append(", ");
+                    names.append(data.name);
+                }
+                ctx.sendMessage(Message.raw("[SimTale] More than one missing NPC matches: " + names));
+                return;
+            }
+
+            SimNPCData data = matches.get(0);
+            UUID oldId;
+            try {
+                oldId = UUID.fromString(data.id);
+            } catch (IllegalArgumentException e) {
+                ctx.sendMessage(Message.raw("[SimTale] That NPC has a malformed id."));
+                return;
+            }
+
+            Vector3d spawnAt = new Vector3d(transform.getPosition()).add(1.0, 0.0, 1.0);
+            String name = data.name;
+
+            /* Untrack the stale component before the deferred revival creates a new UUID. */
+            SimNPCComponent stale = SimTale.findNpc(oldId);
+            if (stale != null) {
+                SimTale.untrackNpc(stale);
+            }
+            PlumbobSystem.removePlumbob(oldId);
+            com.cookieukw.SimTale.systems.EmoteBubbleSystem.removeThought(oldId);
+
+            ctx.sendMessage(Message.raw("[SimTale] Respawning '" + name + "' near you..."));
+
+            world.execute(() -> {
+                Store<EntityStore> liveStore = world.getEntityStore().getStore();
+                SimNPCPersistence.archiveToGraveyard(oldId);
+                SimNPCRevival.Result result = SimNPCRevival.revive(liveStore, world, spawnAt, oldId);
+                if (!result.ok()) {
+                    playerRef.sendMessage(Message.raw("[SimTale] Could not respawn '" + name
+                            + "': " + result.failure() + ". The record remains in the graveyard."));
+                    return;
+                }
+                playerRef.sendMessage(Message.raw("[SimTale] '" + result.npc().name
+                        + "' is back in the world" + (result.reclaimedBed() ? " with her old bed." : ".")));
+            });
         }
     }
 
