@@ -317,9 +317,10 @@ public class SimTale extends JavaPlugin {
 
                 if (worldStillActive && !normalDeath) {
                     LOGGER.atWarning().log("SimTale: NPC '" + removed.name
-                            + "' was removed externally while task=" + task
+                            + "' was removed externally while task="
+                            + (task != null ? task : removed.lastTaskName)
                             + " (last damage: " + removed.lastDamageCause
-                            + "). This did NOT go through SimTale's death flow; check SpawnMarkers and other mods.");
+                            + "). This did NOT go through SimTale's death flow; check the cause above.");
                 }
             }
 

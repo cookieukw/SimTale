@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.config.SimTaleConfig;
 import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.core.MemoryEvent;
@@ -18,6 +19,7 @@ import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
+import com.hypixel.hytale.server.core.modules.entity.damage.DamageCause;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageEventSystem;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -59,6 +61,23 @@ public class NPCDamageEventSystem extends DamageEventSystem {
             return;
         }
 
+        DamageCause cause = event.getCause();
+        String causeId = cause != null && cause.getId() != null ? cause.getId() : "";
+
+        /* Suffocation and drowning are pathfinding accidents, not combat. Left alone they dealt
+        15 damage per second until the NPC died — and because the engine removes a 0 HP NPC
+        before SimTale's own tick sees it, the death flow never ran (the log only showed
+        "removed externally"). Cancel the damage and move the victim back to its bed/home so it
+        stops accumulating more.
+        */
+        if (isSuffocationOrDrowning(causeId)) {
+            event.setAmount(0f);
+            event.setCancelled(true);
+            victimNpc.lastDamageCause = "por " + causeId;
+            rescueFromEnvironment(chunk.getReferenceTo(index), victimNpc, store, causeId);
+            return;
+        }
+
         /* Village safe zone. A resident standing inside the village boundary cannot be damaged at
         all: hostile mobs, fall damage, fire and player hits are all cancelled. This is deliberately
         broader than "mobs only" — a safe zone that still lets a player execute someone is not a
@@ -86,7 +105,9 @@ public class NPCDamageEventSystem extends DamageEventSystem {
                 victimNpc.lastDamageCause = "por uma entidade";
             }
         } else {
-            victimNpc.lastDamageCause = "por " + source.getClass().getSimpleName();
+            victimNpc.lastDamageCause = causeId.isBlank()
+                    ? "por " + source.getClass().getSimpleName()
+                    : "por " + causeId;
         }
 
         if (!(source instanceof Damage.EntitySource entitySource)) {
@@ -156,6 +177,59 @@ public class NPCDamageEventSystem extends DamageEventSystem {
                 }
             }
         }
+    }
+
+    private static boolean isSuffocationOrDrowning(String causeId) {
+        return "Suffocation".equalsIgnoreCase(causeId) || "Drowning".equalsIgnoreCase(causeId);
+    }
+
+    /**
+     * Moves a victim of suffocation/drowning back to its bed or shared home. The damage itself is
+     * already cancelled; this stops the NPC from standing in the bad spot and re-triggering the
+     * same damage every second.
+     */
+    private static void rescueFromEnvironment(Ref<EntityStore> victimRef, SimNPCComponent npc,
+                                              Store<EntityStore> store, String causeId) {
+        World world = store.getExternalData().getWorld();
+        if (world == null) return;
+
+        long tick = world.getTick();
+        if (tick - npc.lastEnvironmentRescueTick < 200) return;
+        npc.lastEnvironmentRescueTick = tick;
+
+        Vector3d target = null;
+        String destination = "above their current position";
+        if (npc.bedLocation != null) {
+            target = new Vector3d(npc.bedLocation.x + 0.5, npc.bedLocation.y + 1.0, npc.bedLocation.z + 0.5);
+            destination = "their bed";
+        } else if (npc.family != null && npc.family.hasSharedHome) {
+            target = new Vector3d(npc.family.homeX, npc.family.homeY + 1.0, npc.family.homeZ);
+            destination = "their home";
+        } else {
+            TransformComponent transform = store.getComponent(victimRef, TransformComponent.getComponentType());
+            if (transform != null) {
+                target = new Vector3d(transform.getPosition()).add(0, 3.0, 0);
+            }
+        }
+        if (target == null) return;
+
+        Vector3d rescueTarget = target;
+        String rescueDestination = destination;
+        world.execute(() -> {
+            if (victimRef == null || !victimRef.isValid()) return;
+            Store<EntityStore> liveStore = victimRef.getStore();
+            TransformComponent transform = liveStore.getComponent(victimRef, TransformComponent.getComponentType());
+            if (transform != null) {
+                transform.setPosition(rescueTarget);
+                liveStore.putComponent(victimRef, TransformComponent.getComponentType(), transform);
+            }
+            RoutineAIComponent ai = liveStore.getComponent(victimRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (ai != null) {
+                NPCMovementHelper.clearMoveTarget(victimRef, ai);
+            }
+            LOGGER.info("[SimTale] NPC '{}' rescued from {} and moved to {}",
+                    npc.name, causeId, rescueDestination);
+        });
     }
 
     /**

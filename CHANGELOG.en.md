@@ -113,6 +113,11 @@ This is the first release on the 1.3.1 branch and includes the complete 1.3.x fe
   (`NPCEntity despawning due to lost marker`), which made them vanish without a death cause.
 - Plumbobs and thought bubbles now have a `Velocity` component. Its absence could crash the world
   with a `NullPointerException` in Hytale's NPC avoidance system.
+- NPCs no longer die from drowning or suffocation caused by getting stuck in water/blocks: that
+  damage is cancelled and the NPC is moved back to its bed or home. External-removal warnings now
+  show the real cause (`Drowning`, `Suffocation`, etc.) instead of an empty `por `.
+- The 0 HP check now also runs during Miner/Hunter expeditions, so an external-damage death cannot
+  bypass the death flow.
 - The session log also showed unrelated compatibility warnings from the following mods:
   - **RuneCore** targets `>=0.6.8 <0.7.0` while the server is `0.7.4`;
   - **Automatic Slab Placement** targets `0.7.2`;

@@ -108,6 +108,10 @@ public class SimNPCComponent implements Component<EntityStore> {
 
     public transient boolean isInteractingViaUI = false;
     public transient String lastDamageCause = "desconhecida";
+    /** Last AI task seen while the entity was still alive; used by removal diagnostics. */
+    public transient String lastTaskName = "desconhecida";
+    /** Throttles teleport rescues from drowning/suffocation damage. */
+    public transient long lastEnvironmentRescueTick = 0L;
     /**
      * Player whose interaction page is currently open, so the AI can keep the NPC turned
      * toward them. Separate from {@link #currentConversationPartner}, which the page clears on

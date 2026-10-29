@@ -190,6 +190,7 @@ once per NPC per tick for nothing.
         */
         World world = WorldUtil.fromEntityRef(ref);
         if (world == null) return;
+        npc.lastTaskName = ai.currentTask.name();
 
         /* Being carried by a player suspends the routine entirely.
         This has to come before the mount cleanup below, which exists for beds and would rip a
@@ -318,8 +319,7 @@ once per NPC per tick for nothing.
         means any way an NPC reaches 0 HP funnels into the same DYING -> DEAD -> REAPING
         pipeline instead of leaving a broken not-quite-dead entity behind.
         */
-        if (ai.currentTask != TaskType.DYING && ai.currentTask != TaskType.DEAD && ai.currentTask != TaskType.REAPING
-                && ai.currentTask != TaskType.EXPEDITION) {
+        if (ai.currentTask != TaskType.DYING && ai.currentTask != TaskType.DEAD && ai.currentTask != TaskType.REAPING) {
             EntityStatMap statMap = store.getComponent(ref, EntityStatMap.getComponentType());
             if (statMap != null) {
                 EntityStatValue healthVal = statMap.get(DefaultEntityStatTypes.getHealth());

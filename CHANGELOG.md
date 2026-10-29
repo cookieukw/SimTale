@@ -61,6 +61,11 @@
   cemitério e remapeando relacionamentos, família e casa.
 - Plumbobs e balões de pensamento agora possuem componente `Velocity`. A ausência dele podia
   derrubar o mundo com um `NullPointerException` no sistema de avoidance dos NPCs.
+- NPCs não morrem mais afogados ou sufocados por ficarem presos em água/blocos: esse dano é
+  cancelado e o NPC é levado de volta para a cama ou casa. O log de remoção externa agora mostra
+  a causa real (`Drowning`, `Suffocation`, etc.) em vez de `por `.
+- A checagem de 0 HP agora também roda durante expedições de Minerador/Caçador, em vez de deixar
+  uma morte por dano externo sem passar pelo fluxo de morte.
 
 ### Casas e vila
 
