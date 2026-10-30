@@ -267,7 +267,7 @@ public class NPCWorkHelper {
                     they stroll further than an adult with a bed to go home to.
                     */
                     Vector3d npcPos = transform.getPosition();
-                    FarmPostRegistry.FarmPost claimedPost = FarmPostRegistry.claimNearest(npcPos.x, npcPos.y, npcPos.z, npc.entityId);
+                    FarmPostRegistry.FarmPost claimedPost = FarmPostRegistry.claimNearest(world, npcPos.x, npcPos.y, npcPos.z, npc.entityId);
 
                     /* Scoped rather than returned: this runs inside the IDLE branch, and an early
                     return would also skip the MOVING_TO_WORK / PLANTING handling further down
@@ -306,18 +306,18 @@ public class NPCWorkHelper {
                                     /* Release the plot claim — fetching seeds may take a while and
                                     another farmer shouldn't be blocked from using it meanwhile.
                                     */
-                                    FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
+                                    FarmPostRegistry.release(world, claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
                                     ai.currentTask = TaskType.MOVING_TO_SEEDS;
                                     ai.taskStartTime = world.getTick();
                                     playWalk(ref, store);
                                 } else {
-                                    FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
+                                    FarmPostRegistry.release(world, claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
                                 }
                             } else {
                                 /* Nothing to do at this plot right now — don't sit on the claim,
                                 another farmer (or this one, next cycle) might find work there.
                                 */
-                                FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
+                                FarmPostRegistry.release(world, claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
                             }
                         }
                     }
@@ -732,7 +732,8 @@ public class NPCWorkHelper {
             }
 
             // Patch is clear (or she's out of seeds) — free the claim for the next visit/farmer.
-            FarmPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
+            FarmPostRegistry.release(WorldUtil.fromEntityRef(npc.entityRef), ai.claimedWorkPost.x,
+                    ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
             ai.claimedWorkPost = null;
         }
         ai.currentTask = TaskType.IDLE;
@@ -763,7 +764,8 @@ public class NPCWorkHelper {
                     ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
             LumberPostRegistry.release(WorldUtil.fromEntityRef(npc.entityRef), ai.claimedWorkPost.x,
                     ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
-            FarmPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
+            FarmPostRegistry.release(WorldUtil.fromEntityRef(npc.entityRef), ai.claimedWorkPost.x,
+                    ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
         }
         ai.claimedWorkPost = null;
     }

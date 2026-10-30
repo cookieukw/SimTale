@@ -1301,7 +1301,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 standing right now.
                 */
                 FarmPostRegistry.FarmPost claimedPost =
-                        FarmPostRegistry.claimNearest(npcPos.x, npcPos.y, npcPos.z, nearestNPC.entityId);
+                        FarmPostRegistry.claimNearest(world, npcPos.x, npcPos.y, npcPos.z, nearestNPC.entityId);
                 Vector3d scanCenter = claimedPost != null
                         ? new Vector3d(claimedPost.postX() + 0.5, claimedPost.postY(), claimedPost.postZ() + 0.5)
                         : npcPos;
@@ -1322,7 +1322,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                     ctx.sendMessage(Message.translation("general.cmd.forceplant.success").param("name", nearestNPC.name).param("pos", farmPos.toString()));
                 } else {
                     if (claimedPost != null) {
-                        FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), nearestNPC.entityId);
+                        FarmPostRegistry.release(world, claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), nearestNPC.entityId);
                     }
                     ctx.sendMessage(Message.translation("general.cmd.forceplant.farmland_not_found").param("name", nearestNPC.name));
                 }

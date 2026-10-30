@@ -317,7 +317,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         synchronized (FarmPostRegistry.POSTS) {
             for (FarmPostRegistry.FarmPost post : FarmPostRegistry.POSTS) {
                 capturedWorkPosts.add(new WorkPostMapMarker(
-                        "farm:" + post.postX() + ":" + post.postY() + ":" + post.postZ(),
+                        "farm:" + post.worldName() + ":" + post.postX() + ":" + post.postY() + ":" + post.postZ(),
                         "farm", new Vector3d(post.postX() + 0.5, post.postY() + 0.5, post.postZ() + 0.5)));
             }
         }

@@ -75,7 +75,7 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         /* Registered by anchor (the scarecrow is 3 blocks tall) — remove by anchor too, or
         breaking a non-anchor block of it leaves the registration behind.
         */
-        FarmPostRegistry.removeAt(anchor.x, anchor.y, anchor.z);
+        FarmPostRegistry.removeAt(world, anchor.x, anchor.y, anchor.z);
 
         /* Breaking a blueprint marker cancels its preview — safe to call unconditionally, same
         as every removeAt above: a no-op if nothing was ever registered at this position (e.g.

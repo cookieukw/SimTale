@@ -171,7 +171,7 @@ public final class BedWorldBootstrap {
                         LumberPostRegistry.registerAt(world, x, y, z);
                     } else if ((f & F_FARM_POST) != 0) {
                         Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
-                        FarmPostRegistry.registerAt(scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
+                        FarmPostRegistry.registerAt(world, scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
                     }
 
                     if ((f & F_BATH) != 0) {

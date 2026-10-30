@@ -256,7 +256,7 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
             its own separate (and redundant) registered post.
             */
             Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
-            FarmPostRegistry.registerAt(scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
+            FarmPostRegistry.registerAt(world, scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
         }
 
         if (BathRegistry.isBathId(placedId)) {
