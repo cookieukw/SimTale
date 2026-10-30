@@ -297,7 +297,8 @@ public class EmoteBubbleSystem extends EntityTickingSystem<EntityStore> {
             triggerThought(npcUuid, thought);
             return;
         }
-        World world = WorldUtil.first();
+        SimNPCComponent npc = SimTale.findNpc(npcUuid);
+        World world = npc != null && npc.entityRef != null ? WorldUtil.fromEntityRef(npc.entityRef) : null;
         long currentTick = world != null ? world.getTick() : 0;
         delayedRequests.put(npcUuid, new DelayedThought(thought, currentTick + delayTicks));
     }
