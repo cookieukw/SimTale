@@ -155,12 +155,12 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private record WorkPostMapMarker(String id, String type, Vector3d position) {
     }
 
-    private static volatile List<NpcMarker> snapshot = List.of();
-    private static volatile List<Village> villageSnapshot = List.of();
-    private static volatile List<HouseMapMarker> houseSnapshot = List.of();
-    private static volatile List<WorkPostMapMarker> workPostSnapshot = List.of();
-    /** Beds that are registered but belong to no house yet — the "not claimed" state. */
-    private static volatile List<HouseBlockPos> unclaimedBedSnapshot = List.of();
+    private record WorldMarkerSnapshot(List<NpcMarker> npcs, List<Village> villages,
+                                       List<HouseMapMarker> houses, List<WorkPostMapMarker> workPosts,
+                                       List<HouseBlockPos> unclaimedBeds) {
+    }
+
+    private static volatile Map<String, WorldMarkerSnapshot> snapshots = Map.of();
 
     /**
      * Tick of the last capture, or {@code -1} when there has not been one.
@@ -246,10 +246,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                     transform.getTransform().clone(), statuses));
         }
 
-        snapshot = List.copyOf(captured);
-
-        // Capture active villages
-        villageSnapshot = List.copyOf(VillageManager.villages());
+        List<Village> capturedVillages = List.copyOf(VillageManager.villages());
 
         // Capture registered houses
         List<HouseMapMarker> capturedHouses = new ArrayList<>();
@@ -298,7 +295,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             capturedHouses.add(new HouseMapMarker(houseId, List.copyOf(names),
                     houseMarkerPosition(house, anchor), occupied));
         }
-        houseSnapshot = List.copyOf(capturedHouses);
+        List<HouseMapMarker> capturedHousesSnapshot = List.copyOf(capturedHouses);
 
         List<WorkPostMapMarker> capturedWorkPosts = new ArrayList<>();
         synchronized (FishingPostRegistry.POSTS) {
@@ -322,7 +319,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                         "farm", new Vector3d(post.postX() + 0.5, post.postY() + 0.5, post.postZ() + 0.5)));
             }
         }
-        workPostSnapshot = List.copyOf(capturedWorkPosts);
+        List<WorkPostMapMarker> capturedWorkPostsSnapshot = List.copyOf(capturedWorkPosts);
 
         /* A registered bed that belongs to no house is the "built but not claimed yet" state.
         Without these the map is silent exactly while the player is waiting for an NPC to take the
@@ -343,7 +340,12 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                 unclaimed.add(pos);
             }
         }
-        unclaimedBedSnapshot = List.copyOf(unclaimed);
+        WorldMarkerSnapshot capturedSnapshot = new WorldMarkerSnapshot(
+                List.copyOf(captured), capturedVillages, capturedHousesSnapshot,
+                capturedWorkPostsSnapshot, List.copyOf(unclaimed));
+        Map<String, WorldMarkerSnapshot> updatedSnapshots = new HashMap<>(snapshots);
+        updatedSnapshots.put(world.getName(), capturedSnapshot);
+        snapshots = Map.copyOf(updatedSnapshots);
     }
 
     /**
@@ -377,7 +379,9 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         UUID viewerId = (playerRef != null) ? playerRef.getUuid() : player.getUuid();
         if (viewerId == null) return;
 
-        List<NpcMarker> current = snapshot;
+        WorldMarkerSnapshot worldSnapshot = snapshots.get(world.getName());
+        if (worldSnapshot == null) return;
+        List<NpcMarker> current = worldSnapshot.npcs();
         int emitted = 0;
         int outOfRange = 0;
 
@@ -415,7 +419,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         }
 
         // Emit village center markers
-        for (Village village : villageSnapshot) {
+        for (Village village : worldSnapshot.villages()) {
             try {
                 Transform centerTransform = new Transform(new Vector3d(village.centerX(), 65.0, village.centerZ()));
                 collector.addIgnoreViewDistance(
@@ -433,7 +437,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         }
 
         // Emit house markers
-        for (HouseMapMarker house : houseSnapshot) {
+        for (HouseMapMarker house : worldSnapshot.houses()) {
             try {
                 Transform houseTransform = new Transform(house.position());
                 TintComponent tint = new TintComponent(house.occupied() ? COLOR_HOUSE_OCCUPIED : COLOR_HOUSE_EMPTY);
@@ -462,7 +466,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         }
 
         // Emit recognized profession work posts: fishing traps, lumbermills and scarecrows.
-        for (WorkPostMapMarker post : workPostSnapshot) {
+        for (WorkPostMapMarker post : worldSnapshot.workPosts()) {
             try {
                 Color tint;
                 Message name;
@@ -493,7 +497,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         }
 
         // Emit beds that are registered but not part of any house yet
-        for (HouseBlockPos bed : unclaimedBedSnapshot) {
+        for (HouseBlockPos bed : worldSnapshot.unclaimedBeds()) {
             try {
                 Transform bedTransform = new Transform(new Vector3d(bed.x + 0.5, bed.y + 0.5, bed.z + 0.5));
                 collector.addIgnoreViewDistance(
