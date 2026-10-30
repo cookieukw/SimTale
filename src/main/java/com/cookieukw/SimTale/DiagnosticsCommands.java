@@ -638,7 +638,7 @@ final class DiagnosticsCommands {
                 return;
             }
 
-            List<HouseBlockPos> sharedChests = VillageStockManager.getSharedChestsInVillage(village);
+            List<HouseBlockPos> sharedChests = VillageStockManager.getSharedChestsInVillage(world, village);
             Map<String, Integer> stock = VillageStockManager.getVillageStockSummary(village, world);
 
             ctx.sendMessage(Message.translation("general.cmd.villagestock.header"));
