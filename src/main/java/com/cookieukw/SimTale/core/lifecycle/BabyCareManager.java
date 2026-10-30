@@ -362,10 +362,10 @@ public class BabyCareManager {
     }
 
     private static void removeBabyEntityFromWorld(UUID babyId) {
-        World world = WorldUtil.first();
+        Ref<EntityStore> ref = LifecycleUtils.getEntityRef(babyId);
+        World world = ref != null ? WorldUtil.fromEntityRef(ref) : null;
         if (world == null) return;
-        
-        Ref<EntityStore> ref = world.getEntityStore().getRefFromUUID(babyId);
+
         if (ref != null) {
             world.getEntityStore().getStore().removeEntity(ref, RemoveReason.REMOVE);
         }
