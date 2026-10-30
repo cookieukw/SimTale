@@ -53,7 +53,7 @@ public class PlayerPregnancyTickSystem extends EntityTickingSystem<EntityStore> 
         Ref<EntityStore> playerRef = player.getReference();
         if (playerRef == null) return;
 
-        World world = WorldUtil.first();
+        World world = WorldUtil.fromEntityRef(playerRef);
         if (world == null) return;
         long worldTick = world.getTick();
 
