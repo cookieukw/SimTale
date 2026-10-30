@@ -55,7 +55,7 @@ public class BabyBabbleSystem extends EntityTickingSystem<EntityStore> {
     public void tick(float dt, int index, @Nonnull ArchetypeChunk<EntityStore> chunk,
                      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
 
-        World world = WorldUtil.first();
+        World world = WorldUtil.fromEntityRef(chunk.getReferenceTo(index));
         if (world == null) return;
 
         // Staggered by chunk index so two players carrying babies do not babble in lockstep.
