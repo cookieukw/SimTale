@@ -899,9 +899,8 @@ public class NPCWorkHelper {
      *  has seeds in it right now — so a Farmer with an empty pouch can go restock instead of
      *  standing around forever waiting for the player to hand-feed her. */
     private static HouseBlockPos findSeedChest(SimNPCComponent npc, World world) {
-        synchronized (ChestRegistry.CHESTS) {
-            for (HouseBlockPos cp : ChestRegistry.CHESTS) {
-                if (!HouseManager.canOpenChest(npc.entityId, cp)) continue;
+        for (HouseBlockPos cp : ChestRegistry.registeredChests(world)) {
+                if (!HouseManager.canOpenChest(world, npc.entityId, cp)) continue;
                 ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, cp.x, cp.y, cp.z);
                 if (cb == null) continue;
                 ItemContainer chestInv = cb.getItemContainer();
@@ -909,7 +908,6 @@ public class NPCWorkHelper {
                     return cp;
                 }
             }
-        }
         return null;
     }
 
