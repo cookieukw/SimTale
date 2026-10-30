@@ -484,7 +484,7 @@ final class DiagnosticsCommands {
             ctx.sendMessage(HouseManager.buildCompatibilityReport(result));
 
             // Update existing house's structure dynamically if the house is registered
-            HouseData existingHouse = HouseManager.HOUSES_BY_ID.values().stream()
+            HouseData existingHouse = HouseManager.indexes(world).housesById.values().stream()
                 .filter(h -> (h.beds != null && h.beds.contains(houseBed)) || (h.bedPos != null && h.bedPos.equals(houseBed)))
                 .findFirst()
                 .orElse(null);
@@ -554,9 +554,9 @@ final class DiagnosticsCommands {
                 ctx.sendMessage(Message.translation(isShared ? "general.cmd.chestcheck.type_shared" : "general.cmd.chestcheck.type_private"));
             }
 
-            UUID houseId = HouseManager.findHouseIdForChest(nearestChest);
-            if (houseId != null) {
-                HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
+             UUID houseId = HouseManager.findHouseIdForChest(world, nearestChest);
+             if (houseId != null) {
+                 HouseData house = HouseManager.indexes(world).housesById.get(houseId);
                 if (house != null) {
                     ctx.sendMessage(Message.translation("general.cmd.chestcheck.house").param("houseId", houseId.toString()));
                     ctx.sendMessage(Message.translation("general.cmd.chestcheck.owners").param("owners", String.join(", ", house.owners)));
