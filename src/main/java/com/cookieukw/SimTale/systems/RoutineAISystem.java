@@ -1309,7 +1309,7 @@ once per NPC per tick for nothing.
             centerX = npc.bedLocation.x;
             centerZ = npc.bedLocation.z;
         } else {
-            VillageManager.Village village = VillageManager.nearest(centerX, centerZ);
+            VillageManager.Village village = VillageManager.nearest(world, centerX, centerZ);
             if (village != null) {
                 centerX = village.centerX();
                 centerZ = village.centerZ();
