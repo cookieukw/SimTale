@@ -43,7 +43,7 @@ Group {
   Background: #00000000;
 
   Group #MainPanel {
-    Anchor: (Right: 48, Width: 480, Height: 750);
+    Anchor: (Right: 48, Width: 520, Height: 820);
     LayoutMode: Top;
     Background: $T.@PanelSurface;
     Padding: (Top: 18, Bottom: 16, Horizontal: 22);
@@ -150,10 +150,10 @@ Group {
 
     // ---------------------------------------------------------------- info well
     Group #InfoPanel {
-      Anchor: (Height: 240, Bottom: 8);
+      Anchor: (Height: 238, Bottom: 8);
       LayoutMode: Top;
       Background: $T.@InsetSurface;
-      Padding: (Top: 8, Bottom: 8, Horizontal: 12);
+      Padding: (Top: 9, Bottom: 9, Horizontal: 14);
 
       Label #InfoHeader {
         Text: "INFORMAÇÕES";
@@ -161,68 +161,74 @@ Group {
         Style: (...$T.@SectionHeaderStyle, FontSize: 11);
       }
 
-      // Dense 2-column info grid
+      // Two-column identity details
       Group #InfoGrid {
-        Anchor: (Height: 44, Bottom: 6);
+        Anchor: (Height: 50, Bottom: 7);
         LayoutMode: Left;
 
         Group #InfoColLeft {
-          Anchor: (Width: 200, Right: 12);
+          Anchor: (Width: 218, Right: 18);
           LayoutMode: Top;
 
           Label #NpcTraits {
             Text: "Traços: —";
-            Anchor: (Height: 20, Bottom: 2);
-            Style: (...$T.@BodyStyle, FontSize: 12);
+            Anchor: (Height: 23, Bottom: 3);
+            Style: (...$T.@BodyStyle, FontSize: 13);
           }
 
           Label #NpcSeason {
             Text: "Estação Fav.: —";
-            Anchor: (Height: 20);
-            Style: (...$T.@BodyStyle, FontSize: 12);
+            Anchor: (Height: 23);
+            Style: (...$T.@BodyStyle, FontSize: 13);
           }
         }
 
         Group #InfoColRight {
-          Anchor: (Width: 200);
+          Anchor: (Width: 218);
           LayoutMode: Top;
 
           Label #NpcFamilyParents {
             Text: "Pais: —";
-            Anchor: (Height: 20, Bottom: 2);
-            Style: (...$T.@BodyStyle, FontSize: 12);
+            Anchor: (Height: 23, Bottom: 3);
+            Style: (...$T.@BodyStyle, FontSize: 13);
           }
 
           Label #NpcFamilyChildren {
             Text: "Filhos: —";
-            Anchor: (Height: 20);
-            Style: (...$T.@BodyStyle, FontSize: 12);
+            Anchor: (Height: 23);
+            Style: (...$T.@BodyStyle, FontSize: 13);
           }
         }
       }
 
+      Label #PreferenceHeader {
+        Text: "PREFERÊNCIAS";
+        Anchor: (Height: 16, Bottom: 3);
+        Style: (...$T.@SectionHeaderStyle, FontSize: 11);
+      }
+
       // Showcase items (Profession & Hobby)
       Group #Showcase {
-        Anchor: (Height: 56, Bottom: 4);
+        Anchor: (Height: 52, Bottom: 5);
         LayoutMode: CenterMiddle;
 
         @ShowcaseSlot #SlotProfession {
-          Anchor: (Width: 96, Height: 56, Right: 12);
+          Anchor: (Width: 108, Height: 52, Right: 18);
         }
         @ShowcaseSlot #SlotHobby {
-          Anchor: (Width: 96, Height: 56);
+          Anchor: (Width: 108, Height: 52);
         }
       }
 
       // Taste rows (Likes & Hates)
       Group #LikesRow {
-        Anchor: (Height: 40, Bottom: 3);
+        Anchor: (Height: 36, Bottom: 3);
         LayoutMode: Left;
 
         Label #LikesCaption {
           Text: "Gosta:";
-          Anchor: (Width: 56, Height: 36, Top: 2);
-          Style: (...$T.@BodyStyle, FontSize: 12, TextColor: $T.@AccentLike, RenderBold: true);
+          Anchor: (Width: 70, Height: 32, Top: 2);
+          Style: (...$T.@BodyStyle, FontSize: 13, TextColor: $T.@AccentLike, RenderBold: true);
         }
         @TasteIcon #Like0 {}
         @TasteIcon #Like1 {}
@@ -238,13 +244,13 @@ Group {
       }
 
       Group #HatesRow {
-        Anchor: (Height: 40);
+        Anchor: (Height: 36);
         LayoutMode: Left;
 
         Label #HatesCaption {
           Text: "Odeia:";
-          Anchor: (Width: 56, Height: 36, Top: 2);
-          Style: (...$T.@BodyStyle, FontSize: 12, TextColor: $T.@AccentHate, RenderBold: true);
+          Anchor: (Width: 70, Height: 32, Top: 2);
+          Style: (...$T.@BodyStyle, FontSize: 13, TextColor: $T.@AccentHate, RenderBold: true);
         }
         @TasteIcon #Hate0 {}
         @TasteIcon #Hate1 {}
@@ -262,21 +268,21 @@ Group {
 
     // ---------------------------------------------------------------- relationship status
     Group #RelationshipCard {
-      Anchor: (Height: 44, Bottom: 8);
+      Anchor: (Height: 72, Bottom: 8);
       Background: $T.@WellSurface;
-      Padding: (Horizontal: 12, Vertical: 4);
+      Padding: (Horizontal: 14, Vertical: 7);
       LayoutMode: Top;
 
       Label #NpcRelationship {
         Text: "Relacionamento: Desconhecido";
-        Anchor: (Height: 18, Bottom: 2);
-        Style: (...$T.@BodyStrong, FontSize: 12, TextColor: $T.@TextGold);
+        Anchor: (Height: 27, Bottom: 6);
+        Style: (...$T.@BodyStrong, FontSize: 15, TextColor: $T.@TextGold);
       }
 
       Group #RelationshipBarTrack {
-        Anchor: (Height: 10);
+        Anchor: (Height: 12);
         Background: $T.@BarTrack;
-        Padding: (Horizontal: 3, Vertical: 1);
+        Padding: (Horizontal: 3, Vertical: 2);
 
         Group #RelationshipBarFill {
           Anchor: (Width: 80, Height: 8);
