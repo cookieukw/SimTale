@@ -128,7 +128,7 @@ public final class ChestRegistry {
     public static boolean isVillageGlobal(World world, HouseBlockPos pos) {
         if (pos == null) return false;
         if (HouseManager.findHouseIdForChest(world, pos) != null) return false;
-        VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
+        VillageManager.Village village = VillageManager.nearest(world, pos.x, pos.z);
         return village != null && village.contains(pos.x, pos.z);
     }
 
