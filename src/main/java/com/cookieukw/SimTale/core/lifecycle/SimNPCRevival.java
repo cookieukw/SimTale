@@ -18,6 +18,7 @@ import com.cookieukw.SimTale.systems.HouseManager;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 
@@ -110,7 +111,7 @@ public final class SimNPCRevival {
         */
         SimNPCFactory.refreshNameplate(store, ref, npc.name);
 
-        remapReferences(graveId, newId);
+        remapReferences(store.getExternalData().getWorld(), graveId, newId);
 
         boolean reclaimed = tryReclaimBed(world, npc, oldBed);
 
@@ -145,7 +146,7 @@ public final class SimNPCRevival {
      * <p>Deliberately not covered: the revived NPC's own outgoing references. Those point at other
      * people, whose ids did not change.
      */
-    private static void remapReferences(UUID oldId, UUID newId) {
+    private static void remapReferences(World world, UUID oldId, UUID newId) {
         if (oldId == null || newId == null || oldId.equals(newId)) return;
 
         for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
@@ -171,7 +172,7 @@ public final class SimNPCRevival {
             if (oldId.equals(child.carriedBy)) child.carriedBy = newId;
         }
 
-        remapHouseOwnership(oldId, newId);
+        remapHouseOwnership(world, oldId, newId);
     }
 
     private static void remapRelationships(Map<UUID, Relationship> relationships, UUID oldId, UUID newId) {
@@ -215,9 +216,10 @@ public final class SimNPCRevival {
      * and both have to move together or {@code OWNER_TO_HOUSE_ID} starts answering for a UUID that
      * no house admits to owning.
      */
-    private static void remapHouseOwnership(UUID oldId, UUID newId) {
+    private static void remapHouseOwnership(World world, UUID oldId, UUID newId) {
         List<HouseData> changed = new ArrayList<>();
-        for (HouseData house : HouseManager.HOUSES_BY_ID.values()) {
+        HouseManager.HouseIndexes indexes = HouseManager.indexes(world);
+        for (HouseData house : indexes.housesById.values()) {
             if (house == null || house.owners == null) continue;
             if (house.owners.remove(oldId.toString())) {
                 house.owners.add(newId.toString());
@@ -225,13 +227,13 @@ public final class SimNPCRevival {
             }
         }
 
-        UUID houseId = HouseManager.OWNER_TO_HOUSE_ID.remove(oldId);
+        UUID houseId = indexes.ownerToHouseId.remove(oldId);
         if (houseId != null) {
-            HouseManager.OWNER_TO_HOUSE_ID.put(newId, houseId);
+            indexes.ownerToHouseId.put(newId, houseId);
         }
 
         for (HouseData house : changed) {
-            HouseManager.saveHouse(house);
+            HouseManager.saveHouse(world, house);
         }
     }
 
