@@ -137,6 +137,11 @@ public final class FishingPostRegistry {
         CLAIMED_BY.remove(key(worldName, postX, postY, postZ), npcId);
     }
 
+    public static boolean isClaimed(World world, int postX, int postY, int postZ) {
+        String worldName = world != null ? world.getName() : "";
+        return CLAIMED_BY.containsKey(key(worldName, postX, postY, postZ));
+    }
+
     private static Vector3i findNearestWater(World world, int cx, int cy, int cz) {
         Vector3i closest = null;
         int closestDistSq = Integer.MAX_VALUE;

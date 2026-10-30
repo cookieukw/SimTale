@@ -159,6 +159,11 @@ public final class LumberPostRegistry {
         CLAIMED_BY.remove(key(worldName, postX, postY, postZ), npcId);
     }
 
+    public static boolean isClaimed(World world, int postX, int postY, int postZ) {
+        String worldName = world != null ? world.getName() : "";
+        return CLAIMED_BY.containsKey(key(worldName, postX, postY, postZ));
+    }
+
     private static Vector3i findNearestTree(World world, int cx, int cy, int cz) {
         return findNearestTree(world, cx, cy, cz, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
     }

@@ -113,4 +113,10 @@ public final class FarmPostRegistry {
         String worldName = world != null ? world.getName() : "";
         CLAIMED_BY.remove(key(worldName, postX, postY, postZ), npcId);
     }
+
+    public static boolean isClaimed(com.hypixel.hytale.server.core.universe.world.World world,
+                                    int postX, int postY, int postZ) {
+        String worldName = world != null ? world.getName() : "";
+        return CLAIMED_BY.containsKey(key(worldName, postX, postY, postZ));
+    }
 }

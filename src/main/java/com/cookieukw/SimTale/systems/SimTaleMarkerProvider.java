@@ -471,18 +471,28 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             try {
                 Color tint;
                 Message name;
+                boolean occupied;
                 switch (post.type()) {
                     case "fishing" -> {
                         tint = COLOR_FISHING_POST;
-                        name = Message.translation("general.map.workpost.fishing");
+                        occupied = FishingPostRegistry.isClaimed(world, (int) post.position().x(),
+                                (int) post.position().y(), (int) post.position().z());
+                        name = Message.translation(occupied ? "general.map.workpost.fishing.occupied"
+                                : "general.map.workpost.fishing.free");
                     }
                     case "lumber" -> {
                         tint = COLOR_LUMBER_POST;
-                        name = Message.translation("general.map.workpost.lumber");
+                        occupied = LumberPostRegistry.isClaimed(world, (int) post.position().x(),
+                                (int) post.position().y(), (int) post.position().z());
+                        name = Message.translation(occupied ? "general.map.workpost.lumber.occupied"
+                                : "general.map.workpost.lumber.free");
                     }
                     default -> {
                         tint = COLOR_FARM_POST;
-                        name = Message.translation("general.map.workpost.farm");
+                        occupied = FarmPostRegistry.isClaimed(world, (int) post.position().x(),
+                                (int) post.position().y(), (int) post.position().z());
+                        name = Message.translation(occupied ? "general.map.workpost.farm.occupied"
+                                : "general.map.workpost.farm.free");
                     }
                 }
                 collector.addIgnoreViewDistance(
