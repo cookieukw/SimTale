@@ -607,9 +607,27 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                     || rel.status == RelationshipStatus.ENGAGED
                     || rel.status == RelationshipStatus.MARRIED);
         commandBuilder.set("#KissButton.Visible", canKiss);
+        Anchor professionAnchor = new Anchor();
+        professionAnchor.setWidth(Value.of(canKiss ? 213 : 436));
+        professionAnchor.setHeight(Value.of(38));
+        if (canKiss) {
+            professionAnchor.setRight(Value.of(10));
+        }
+        commandBuilder.setObject("#AssignProfessionButton.Anchor", professionAnchor);
         boolean isPregnant = !isChild && npc.pregnancy != null && npc.pregnancy.pregnant;
         commandBuilder.set("#ButtonRow3.Visible", !isChild);
         commandBuilder.set("#ButtonRow4.Visible", isMarried || isPregnant);
+
+        boolean showInventory = isMarried;
+        boolean showPregnancy = isPregnant;
+        if (showInventory ^ showPregnancy) {
+            Anchor singleUtilityAnchor = new Anchor();
+            singleUtilityAnchor.setWidth(Value.of(436));
+            singleUtilityAnchor.setHeight(Value.of(38));
+            commandBuilder.setObject(showInventory
+                    ? "#InventoryButton.Anchor"
+                    : "#PregnancyButton.Anchor", singleUtilityAnchor);
+        }
 
         /* Follow is a menu action, not a hidden command: guards always expose it, everyone else
         only while close enough for the request to make sense. The check is re-run on click, so
