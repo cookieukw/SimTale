@@ -79,7 +79,7 @@ public final class VillageRegenSystem extends EntityTickingSystem<EntityStore> {
 
         Vector3d pos = transform.getPosition();
         World world = store.getExternalData().getWorld();
-        VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
+        VillageManager.Village village = VillageManager.nearest(world, pos.x, pos.z);
         boolean insideVillage = village != null && village.contains(pos.x, pos.z);
 
         /* A house can sit just outside the computed village radius (a large wing, a second
