@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class ChestRegistry {
     private static final SimLog LOGGER = SimLog.forClass(ChestRegistry.class);
@@ -24,6 +26,20 @@ public final class ChestRegistry {
 
     public static final Set<HouseBlockPos> CHESTS = Collections.synchronizedSet(new HashSet<>());
     public static final Set<HouseBlockPos> SHARED_CHESTS = Collections.synchronizedSet(new HashSet<>());
+    private static final Map<String, Set<HouseBlockPos>> CHESTS_BY_WORLD = new ConcurrentHashMap<>();
+    private static final Map<String, Set<HouseBlockPos>> SHARED_BY_WORLD = new ConcurrentHashMap<>();
+
+    private static String worldKey(World world) {
+        return world != null ? world.getName() : "";
+    }
+
+    private static Set<HouseBlockPos> chests(World world) {
+        return CHESTS_BY_WORLD.computeIfAbsent(worldKey(world), _ -> Collections.synchronizedSet(new HashSet<>()));
+    }
+
+    private static Set<HouseBlockPos> sharedChests(World world) {
+        return SHARED_BY_WORLD.computeIfAbsent(worldKey(world), _ -> Collections.synchronizedSet(new HashSet<>()));
+    }
 
     /**
      * Name-based guess, kept only as a fallback for callers that have an id and no world.
@@ -73,6 +89,10 @@ public final class ChestRegistry {
         return pos != null && (isExplicitlyShared(pos) || isVillageGlobal(pos));
     }
 
+    public static boolean isShared(World world, HouseBlockPos pos) {
+        return pos != null && (isExplicitlyShared(world, pos) || isVillageGlobal(world, pos));
+    }
+
     public static boolean isShared(int x, int y, int z) {
         return isShared(new HouseBlockPos(x, y, z));
     }
@@ -80,6 +100,10 @@ public final class ChestRegistry {
     /** True only when {@code /simtale chestshare} (or a saved flag) marked this chest shared. */
     public static boolean isExplicitlyShared(HouseBlockPos pos) {
         return pos != null && SHARED_CHESTS.contains(pos);
+    }
+
+    public static boolean isExplicitlyShared(World world, HouseBlockPos pos) {
+        return pos != null && sharedChests(world).contains(pos);
     }
 
     /**
@@ -95,6 +119,50 @@ public final class ChestRegistry {
 
         VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
         return village != null && village.contains(pos.x, pos.z);
+    }
+
+    public static boolean isVillageGlobal(World world, HouseBlockPos pos) {
+        if (pos == null) return false;
+        if (HouseManager.findHouseIdForChest(world, pos) != null) return false;
+        VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
+        return village != null && village.contains(pos.x, pos.z);
+    }
+
+    public static void setShared(World world, int x, int y, int z, boolean shared) {
+        HouseBlockPos pos = new HouseBlockPos(x, y, z);
+        chests(world).add(pos);
+        if (shared) sharedChests(world).add(pos); else sharedChests(world).remove(pos);
+        persist(world, x, y, z, shared);
+    }
+
+    public static void add(World world, int x, int y, int z) {
+        if (chests(world).add(new HouseBlockPos(x, y, z))) persist(world, x, y, z);
+    }
+
+    private static void persist(World world, int x, int y, int z) {
+        persist(world, x, y, z, sharedChests(world).contains(new HouseBlockPos(x, y, z)));
+    }
+
+    private static void persist(World world, int x, int y, int z, boolean shared) {
+        try {
+            SimNPCPersistence.worldShell(world).core(ChestData.class)
+                    .preserve(ChestData.key(worldKey(world), x, y, z),
+                            new ChestData(worldKey(world), x, y, z, shared));
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] falha ao salvar o registro do bau ({},{},{}): {}", x, y, z, e.getMessage());
+        }
+    }
+
+    public static void removeAt(World world, int x, int y, int z) {
+        HouseBlockPos pos = new HouseBlockPos(x, y, z);
+        chests(world).remove(pos);
+        sharedChests(world).remove(pos);
+        try {
+            SimNPCPersistence.worldShell(world).core(ChestData.class)
+                    .discard(ChestData.key(worldKey(world), x, y, z));
+        } catch (Exception e) {
+            LOGGER.warn("[SimTale] falha ao apagar o registro do bau ({},{},{}): {}", x, y, z, e.getMessage());
+        }
     }
 
     public static void setShared(int x, int y, int z, boolean shared) {
