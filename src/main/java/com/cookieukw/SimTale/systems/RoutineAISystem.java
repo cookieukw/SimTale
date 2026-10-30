@@ -107,6 +107,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     static final double SOCIALIZE_SEARCH_RANGE_SQ = 20.0 * 20.0;
     /** Max distance from home an idle stroll may take the NPC. */
     static final double WANDER_RADIUS = 8.0;
+    /** /simtale follow: stop walking once this close to the player. */
+    static final double FOLLOW_STOP_DISTANCE_SQ = 2.5 * 2.5;
+    /** /simtale follow: keep pathing while the player is more than this far above/below. */
+    static final double FOLLOW_VERTICAL_THRESHOLD = 0.75;
     static final SimLog LOGGER = SimLog.forClass(RoutineAISystem.class);
 
     /** Anti-spam tracking per player UUID to prevent multiple NPCs greeting simultaneously. */
@@ -541,6 +545,13 @@ once per NPC per tick for nothing.
         }
 
         handleNpcSeparation(ref, npc, transform, ai, store);
+
+        /* /simtale follow: deliberately placed before the IDLE ladder so a follower does not
+        pick up a new errand the moment it reaches the player. Needs and sleep still outrank it
+        (their interrupts run above); once that errand ends and the NPC returns to IDLE, this
+        picks the follow behaviour back up because followPlayerId survives the interruption.
+        */
+        if (handleFollowing(ref, ai, transform, world, store)) return;
 
         if (RoutineSleepHelpers.handleIdle(ref, npc, ai, store, world, transform)) return;
 
@@ -1137,6 +1148,79 @@ once per NPC per tick for nothing.
      * root cause behind "conversa espontanea nunca observada" (roadmap / testing_checklist.md):
      * the trigger itself fires constantly, but the pool of valid targets only ever shrank.
      */
+    /**
+     * Keeps a commanded follower walking toward its player. This is intentionally a thin layer
+     * over the same leash/pathfinding used by every other errand: the role still owns collision,
+     * doors, stairs and small drops, so the follower behaves like any other walking NPC instead
+     * of being teleported around.
+     *
+     * @return true when this NPC's follow state owns the tick and the ordinary routine must not run
+     */
+    private static boolean handleFollowing(Ref<EntityStore> ref, RoutineAIComponent ai,
+                                           TransformComponent transform, World world,
+                                           Store<EntityStore> store) {
+        if (ai.followPlayerId == null && ai.currentTask != TaskType.FOLLOWING) {
+            return false;
+        }
+
+        if (ai.followPlayerId == null) {
+            stopFollowing(ref, ai);
+            return true;
+        }
+
+        /* Sleep, hunger and other errands win temporarily. They leave followPlayerId intact, so
+        the next time the NPC lands in IDLE this block starts following again automatically.
+        */
+        if (ai.currentTask != TaskType.FOLLOWING) {
+            if (ai.currentTask != TaskType.IDLE && ai.currentTask != TaskType.WANDERING) {
+                return false;
+            }
+            ai.currentTask = TaskType.FOLLOWING;
+            ai.targetBlockPosition = null;
+            ai.taskStartTime = world.getTick();
+        }
+
+        Ref<EntityStore> playerEntityRef = world.getEntityStore().getRefFromUUID(ai.followPlayerId);
+        if (playerEntityRef == null || !playerEntityRef.isValid()) {
+            stopFollowing(ref, ai);
+            return true;
+        }
+
+        TransformComponent playerTransform = store.getComponent(playerEntityRef,
+                TransformComponent.getComponentType());
+        if (playerTransform == null) {
+            stopFollowing(ref, ai);
+            return true;
+        }
+
+        Vector3d target = new Vector3d(playerTransform.getPosition());
+        Vector3d myPos = transform.getPosition();
+        double dx = target.x - myPos.x;
+        double dz = target.z - myPos.z;
+        double horizontalSq = dx * dx + dz * dz;
+
+        /* Vertical difference matters: without it a follower would stop underneath a one-block
+        ledge because its horizontal distance was already small. Re-targeting makes the native
+        pathfinder try the step/jump, exactly as it would for any other destination.
+        */
+        if (horizontalSq > FOLLOW_STOP_DISTANCE_SQ
+                || Math.abs(target.y - myPos.y) > FOLLOW_VERTICAL_THRESHOLD) {
+            NPCMovementHelper.moveTo(ref, ai, world, target);
+        } else {
+            NPCMovementHelper.clearMoveTarget(ref, ai);
+        }
+        return true;
+    }
+
+    /** Drops a follow command and leaves the NPC standing where it is, ready for the routine. */
+    public static void stopFollowing(Ref<EntityStore> ref, RoutineAIComponent ai) {
+        ai.followPlayerId = null;
+        ai.currentTask = TaskType.IDLE;
+        ai.forcedByDebug = false;
+        ai.targetBlockPosition = null;
+        NPCMovementHelper.clearMoveTarget(ref, ai);
+    }
+
     private static void clearAutonomyState(RoutineAIComponent ai, SimNPCComponent npc, World world, Store<EntityStore> store) {
         if (ai.socializeTargetId != null && npc != null && npc.entityId != null && world != null && store != null) {
             Ref<EntityStore> targetRef = world.getEntityStore().getRefFromUUID(ai.socializeTargetId);

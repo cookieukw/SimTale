@@ -52,7 +52,8 @@ public class RoutineAIComponent implements Component<EntityStore> {
         TAG_FLEEING,
         MOVING_TO_HIDE,
         HIDING,
-        SEEKING
+        SEEKING,
+        FOLLOWING
     }
 
     public TaskType currentTask = TaskType.IDLE;
@@ -79,6 +80,8 @@ public class RoutineAIComponent implements Component<EntityStore> {
     public long nextGuardAttackTick = 0;
 
     // Autonomy fields
+    /** Set by {@code /simtale follow}; cleared by the stop action or when the player leaves. */
+    public UUID followPlayerId = null;
     public UUID socializeTargetId = null;
     /** Reserved when another NPC has chosen this NPC for socialization. */
     public UUID reservedForSocialUuid = null;
@@ -203,6 +206,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.reapTimer = this.reapTimer;
         comp.workTargetEntityId = this.workTargetEntityId;
         comp.nextGuardAttackTick = this.nextGuardAttackTick;
+        comp.followPlayerId = this.followPlayerId;
         comp.socializeTargetId = this.socializeTargetId;
         comp.reservedForSocialUuid = this.reservedForSocialUuid;
         comp.lastPlayerGreetingTick = this.lastPlayerGreetingTick;

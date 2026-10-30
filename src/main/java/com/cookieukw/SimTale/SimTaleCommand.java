@@ -47,8 +47,16 @@ import java.util.UUID;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.systems.NPCHungerHelper;
+import com.cookieukw.SimTale.systems.NPCMovementHelper;
+import com.cookieukw.SimTale.systems.NPCSeatingHelper;
 import com.cookieukw.SimTale.systems.NPCWorkHelper;
+import com.cookieukw.SimTale.systems.RoutineAISystem;
 import com.cookieukw.SimTale.systems.ConstructionPreviewManager;
+import com.cookieukw.SimTale.core.WorldUtil;
+import com.hypixel.hytale.builtin.mounts.MountedComponent;
+import com.hypixel.hytale.server.core.entity.Frozen;
+import com.hypixel.hytale.server.core.entity.AnimationUtils;
+import com.hypixel.hytale.protocol.AnimationSlot;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Rotation4;
 import com.hypixel.hytale.logger.HytaleLogger;
@@ -103,6 +111,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new RespawnMissingSubCommand());
         this.addSubCommand(new ForceEatSubCommand());
         this.addSubCommand(new ForceWorkSubCommand());
+        this.addSubCommand(new FollowSubCommand());
         this.addSubCommand(new ForceKillSubCommand());
         this.addSubCommand(new SetProfessionSubCommand());
         this.addSubCommand(new ForcePlantSubCommand());
@@ -1020,6 +1029,123 @@ public class SimTaleCommand extends AbstractPlayerCommand {
             } else {
                 ctx.sendMessage(Message.raw("NPC AI not active."));
             }
+        }
+    }
+
+    /**
+     * Makes the nearest NPC follow the player using the same leash/pathfinding every other
+     * errand uses. {@code /simtale follow stop} releases every NPC currently following the
+     * player, which is more predictable than trying to guess which one "nearest" means after
+     * the player has walked away from it.
+     */
+    private static class FollowSubCommand extends AbstractPlayerCommand {
+        private final OptionalArg<String> actionArg;
+
+        public FollowSubCommand() {
+            super("follow", "Makes the nearest NPC follow you. Use /simtale follow stop to stop.");
+            this.actionArg = this.withOptionalArg("action", "stop|off|parar", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            String action = ctx.get(this.actionArg);
+
+            if (action != null && !action.isBlank()
+                    && (action.equalsIgnoreCase("stop")
+                        || action.equalsIgnoreCase("off")
+                        || action.equalsIgnoreCase("parar"))) {
+                int stopped = 0;
+                for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                    if (npc.entityRef == null || !npc.entityRef.isValid() || npc.isReaper) continue;
+                    RoutineAIComponent ai = store.getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+                    if (ai != null && playerRef.getUuid().equals(ai.followPlayerId)) {
+                        RoutineAISystem.stopFollowing(npc.entityRef, ai);
+                        stopped++;
+                    }
+                }
+                ctx.sendMessage(Message.raw(stopped == 0
+                        ? "No NPC is following you."
+                        : "Stopped " + stopped + " NPC(s) from following you."));
+                return;
+            }
+
+            if (action != null && !action.isBlank()
+                    && !action.equalsIgnoreCase("start")
+                    && !action.equalsIgnoreCase("on")
+                    && !action.equalsIgnoreCase("seguir")) {
+                ctx.sendMessage(Message.raw("Usage: /simtale follow [stop]"));
+                return;
+            }
+
+            TransformComponent playerTransform = store.getComponent(ref, TransformComponent.getComponentType());
+            if (playerTransform == null) {
+                ctx.sendMessage(Message.raw("Could not read your position."));
+                return;
+            }
+
+            SimNPCComponent nearestNPC = null;
+            double minDistance = Double.MAX_VALUE;
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.entityRef == null || !npc.entityRef.isValid() || npc.isReaper) continue;
+                if (WorldUtil.fromEntityRef(npc.entityRef) != world) continue;
+                TransformComponent npcTransform = store.getComponent(npc.entityRef,
+                        TransformComponent.getComponentType());
+                if (npcTransform == null) continue;
+                double distSq = playerTransform.getPosition().distanceSquared(npcTransform.getPosition());
+                if (distSq < minDistance) {
+                    minDistance = distSq;
+                    nearestNPC = npc;
+                }
+            }
+
+            if (nearestNPC == null) {
+                ctx.sendMessage(Message.raw("No NPCs nearby."));
+                return;
+            }
+
+            RoutineAIComponent ai = store.getComponent(nearestNPC.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (ai == null) {
+                ctx.sendMessage(Message.raw("NPC AI not active."));
+                return;
+            }
+
+            if (ai.currentTask == RoutineAIComponent.TaskType.DYING
+                    || ai.currentTask == RoutineAIComponent.TaskType.DEAD
+                    || ai.currentTask == RoutineAIComponent.TaskType.REAPING) {
+                ctx.sendMessage(Message.raw(nearestNPC.name + " is busy dying right now."));
+                return;
+            }
+
+            if (playerRef.getUuid().equals(ai.followPlayerId)) {
+                ctx.sendMessage(Message.raw(nearestNPC.name + " is already following you."));
+                return;
+            }
+
+            /* Stop whatever pose or errand the NPC was in. The follow task begins next tick,
+            after the store has processed these component changes.
+            */
+            NPCSeatingHelper.exitSitting(nearestNPC.entityRef, store, null, nearestNPC, ai);
+            NPCWorkHelper.releaseWorkPost(ai, nearestNPC);
+            NPCMovementHelper.setSleepingState(nearestNPC.entityRef, store, false);
+            store.tryRemoveComponent(nearestNPC.entityRef, MountedComponent.getComponentType());
+            store.tryRemoveComponent(nearestNPC.entityRef, Frozen.getComponentType());
+            AnimationUtils.stopAnimation(nearestNPC.entityRef, AnimationSlot.Status, true, store);
+            NPCMovementHelper.playAnim(nearestNPC.entityRef, AnimationSlot.Status,
+                    "Characters/Animations/Default/Idle.blockyanim", "Idle", store);
+            nearestNPC.isInteractingViaUI = false;
+            nearestNPC.uiInteractionPlayer = null;
+            nearestNPC.currentConversationPartner = null;
+
+            ai.followPlayerId = playerRef.getUuid();
+            ai.currentTask = RoutineAIComponent.TaskType.FOLLOWING;
+            ai.targetBlockPosition = null;
+            ai.forcedByDebug = false;
+            ai.taskStartTime = world.getTick();
+            NPCMovementHelper.clearMoveTarget(nearestNPC.entityRef, ai);
+
+            ctx.sendMessage(Message.raw(nearestNPC.name
+                    + " is now following you. Use /simtale follow stop to stop."));
         }
     }
 

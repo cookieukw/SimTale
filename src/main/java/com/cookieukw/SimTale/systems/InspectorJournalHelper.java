@@ -116,7 +116,7 @@ public final class InspectorJournalHelper {
             case FINDING_CHAIR, MOVING_TO_CHAIR, SITTING -> Message.translation("general.journal.task.resting");
             case TAG_CHASING, TAG_FLEEING, MOVING_TO_HIDE, HIDING, SEEKING ->
                     Message.translation("general.journal.task.playing");
-            case IDLE -> Message.translation("general.journal.task.idle");
+            case IDLE, FOLLOWING -> Message.translation("general.journal.task.idle");
             default -> Message.translation("general.journal.task.working");
         };
     }
