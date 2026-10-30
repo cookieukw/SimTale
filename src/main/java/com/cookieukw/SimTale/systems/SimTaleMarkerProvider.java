@@ -248,7 +248,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                     transform.getTransform().clone(), statuses));
         }
 
-        List<Village> capturedVillages = List.copyOf(VillageManager.villages());
+        List<Village> capturedVillages = List.copyOf(VillageManager.villages(world));
 
         // Capture registered houses
         List<HouseMapMarker> capturedHouses = new ArrayList<>();
