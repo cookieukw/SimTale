@@ -531,7 +531,7 @@ public class InteractionManager {
 
         Ref<EntityStore> npcRef = npc.entityRef;
         if (npcRef == null || !npcRef.isValid()) {
-            World world = WorldUtil.first();
+            World world = npc.entityRef != null ? WorldUtil.fromEntityRef(npc.entityRef) : null;
             npcRef = (world != null && npc.entityId != null)
                     ? world.getEntityStore().getRefFromUUID(npc.entityId) : null;
         }
@@ -586,9 +586,11 @@ public class InteractionManager {
     /** Best-effort heal: the NPC entity may not be resolvable, and a missed heal is not fatal. */
     private static void healNpc(SimNPCComponent npc, float amount) {
         try {
-            World world = WorldUtil.first();
-            if (world == null || npc.entityId == null) return;
-            Ref<EntityStore> npcRef = world.getEntityStore().getRefFromUUID(npc.entityId);
+            Ref<EntityStore> npcRef = npc.entityRef;
+            if ((npcRef == null || !npcRef.isValid()) && npc.entityId != null) {
+                World world = WorldUtil.first();
+                npcRef = world != null ? world.getEntityStore().getRefFromUUID(npc.entityId) : null;
+            }
             if (npcRef != null && npcRef.isValid()) {
                 StatHelper.addHealth(npcRef, amount);
             }
@@ -601,7 +603,7 @@ public class InteractionManager {
         boolean isFood = FOOD_KEYWORDS.stream().anyMatch(itemId::contains);
         if (isFood) {
             GrowthComponent childComp = Caskara.load("child_" + npc.entityId.toString(), GrowthComponent.class);
-            World world = WorldUtil.first();
+            World world = npc.entityRef != null ? WorldUtil.fromEntityRef(npc.entityRef) : null;
             if (childComp != null && world != null) {
                 childComp.birthTick -= 24000;
                 Caskara.save("child_" + npc.entityId.toString(), childComp);
