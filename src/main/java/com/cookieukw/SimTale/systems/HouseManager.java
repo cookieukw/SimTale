@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.cookieukw.SimTale.core.SimLog;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
 import com.cookieukw.SimTale.logic.InteractionManager;
 import com.hypixel.hytale.server.core.Message;
@@ -61,12 +62,17 @@ public class HouseManager {
     }
 
     public static void loadAllHouses() {
+        loadAllHouses(WorldUtil.first());
+    }
+
+    /** Loads houses from the explicitly selected world's persistence shell. */
+    public static void loadAllHouses(World world) {
         HOUSES_BY_ID.clear();
         BLOCK_TO_HOUSE_ID.clear();
         OWNER_TO_HOUSE_ID.clear();
 
         try {
-            List<HouseData> list = SimNPCPersistence.worldShell().core(HouseData.class).extractAll();
+            List<HouseData> list = SimNPCPersistence.worldShell(world).core(HouseData.class).extractAll();
             if (list != null) {
                 for (HouseData house : list) {
                     if (house.houseId == null) continue;
@@ -137,8 +143,13 @@ public class HouseManager {
     }
 
     public static void saveHouse(HouseData house) {
+        saveHouse(WorldUtil.first(), house);
+    }
+
+    /** Saves a house to the explicitly selected world's persistence shell. */
+    public static void saveHouse(World world, HouseData house) {
         if (house == null || house.houseId == null) return;
-        SimNPCPersistence.worldShell().core(HouseData.class).preserve("house_" + house.houseId, house);
+        SimNPCPersistence.worldShell(world).core(HouseData.class).preserve("house_" + house.houseId, house);
     }
 
     /**
@@ -684,10 +695,15 @@ public class HouseManager {
      * is part of a recognised house, which is the intended trade.
      */
     public static boolean canOpenChest(UUID npcId, HouseBlockPos chestPos) {
+        return canOpenChest(WorldUtil.first(), npcId, chestPos);
+    }
+
+    /** World-aware chest permission check; the legacy overload remains source-compatible. */
+    public static boolean canOpenChest(World world, UUID npcId, HouseBlockPos chestPos) {
         if (chestPos == null || npcId == null) return false;
 
         // Communal/shared chests in a village can be opened by villagers
-        if (ChestRegistry.isShared(chestPos)) {
+        if (ChestRegistry.isShared(world, chestPos)) {
             VillageManager.Village village = VillageManager.nearest(chestPos.x, chestPos.z);
             if (village != null && village.contains(chestPos.x, chestPos.z)) {
                 return true;
@@ -695,7 +711,7 @@ public class HouseManager {
             return true;
         }
 
-        UUID houseId = findHouseIdForChest(chestPos);
+        UUID houseId = findHouseIdForChest(world, chestPos);
         if (houseId == null) {
             return false;
         }
@@ -733,7 +749,17 @@ public class HouseManager {
 
     /** World-aware entry point; the context migration keeps the legacy lookup as a fallback. */
     public static UUID findHouseIdForChest(World world, HouseBlockPos chestPos) {
-        return findHouseIdForChest(chestPos);
+        if (world == null) return findHouseIdForChest(chestPos);
+        if (chestPos == null) return null;
+
+        UUID direct = BLOCK_TO_HOUSE_ID.get(chestPos);
+        if (direct != null) return direct;
+
+        for (HouseBlockPos neighbor : get6Neighbors(chestPos)) {
+            UUID houseId = BLOCK_TO_HOUSE_ID.get(neighbor);
+            if (houseId != null) return houseId;
+        }
+        return null;
     }
 
     private static UUID getBedOwnerUuid(HouseBlockPos pos) {
