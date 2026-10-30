@@ -4,6 +4,7 @@ import com.cookieukw.SimTale.config.SimTaleConfig;
 import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.systems.VillageManager.Village;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
@@ -39,13 +40,18 @@ public final class VillageStockManager {
      * Resolves the primary village for the given NPC.
      */
     public static Village getVillageForNpc(SimNPCComponent npc) {
+        World world = npc != null && npc.entityRef != null ? WorldUtil.fromEntityRef(npc.entityRef) : null;
+        return getVillageForNpc(world, npc);
+    }
+
+    public static Village getVillageForNpc(World world, SimNPCComponent npc) {
         if (npc == null) return null;
         if (npc.bedLocation != null) {
-            Village v = VillageManager.nearest(npc.bedLocation.x, npc.bedLocation.z);
+            Village v = VillageManager.nearest(world, npc.bedLocation.x, npc.bedLocation.z);
             if (v != null && v.contains(npc.bedLocation.x, npc.bedLocation.z)) return v;
         }
         if (npc.family != null && npc.family.hasSharedHome) {
-            Village v = VillageManager.nearest(npc.family.homeX, npc.family.homeZ);
+            Village v = VillageManager.nearest(world, npc.family.homeX, npc.family.homeZ);
             if (v != null && v.contains(npc.family.homeX, npc.family.homeZ)) return v;
         }
         return null;
@@ -120,7 +126,7 @@ public final class VillageStockManager {
             }
         }
 
-        Village village = resolveVillage(npc, homeWithRoom != null ? homeWithRoom : homeFull);
+        Village village = resolveVillage(world, npc, homeWithRoom != null ? homeWithRoom : homeFull);
 
         HouseBlockPos villageWithRoom = null;
         HouseBlockPos villageFull = null;
@@ -169,8 +175,8 @@ public final class VillageStockManager {
      * (guards, miners) still live in the settlement and should use its warehouse instead of
      * keeping every ore in their pockets — then the village around the fallback chest.
      */
-    private static Village resolveVillage(SimNPCComponent npc, HouseBlockPos fallbackChest) {
-        Village village = getVillageForNpc(npc);
+    private static Village resolveVillage(World world, SimNPCComponent npc, HouseBlockPos fallbackChest) {
+        Village village = getVillageForNpc(world, npc);
         if (village != null) return village;
 
         if (npc.entityRef != null && npc.entityRef.isValid()) {
@@ -178,7 +184,7 @@ public final class VillageStockManager {
                     .getComponent(npc.entityRef, TransformComponent.getComponentType());
             if (transform != null) {
                 Vector3d pos = transform.getPosition();
-                village = VillageManager.nearest(pos.x, pos.z);
+                village = VillageManager.nearest(world, pos.x, pos.z);
                 if (village != null && village.contains(pos.x, pos.z)) {
                     return village;
                 }
@@ -186,7 +192,7 @@ public final class VillageStockManager {
         }
 
         if (fallbackChest != null) {
-            village = VillageManager.nearest(fallbackChest.x, fallbackChest.z);
+            village = VillageManager.nearest(world, fallbackChest.x, fallbackChest.z);
             if (village != null && village.contains(fallbackChest.x, fallbackChest.z)) {
                 return village;
             }
