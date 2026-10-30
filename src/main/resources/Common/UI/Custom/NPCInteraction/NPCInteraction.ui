@@ -50,7 +50,7 @@ Group {
 
     // ---------------------------------------------------------------- header
     Label #NpcName {
-      Text: "NPC";
+      Text: %ui.npc;
       Anchor: (Height: 32, Bottom: 4);
       Style: (...$T.@TitleStyle, FontSize: 24, HorizontalAlignment: Center);
     }
@@ -66,7 +66,7 @@ Group {
         LayoutMode: MiddleCenter;
 
         Label #NpcProfession {
-          Text: "Profissão: Desempregado";
+          Text: %ui.job;
           Anchor: (Height: 20);
           Style: (...$T.@SubtitleStyle, FontSize: 12, TextColor: $T.@TextGold, HorizontalAlignment: Center);
         }
@@ -79,7 +79,7 @@ Group {
         LayoutMode: MiddleCenter;
 
         Label #NpcMood {
-          Text: "Humor: Feliz";
+          Text: %ui.mood;
           Anchor: (Height: 20);
           Style: (...$T.@CaptionStyle, FontSize: 12, TextColor: $T.@TextPrimary, HorizontalAlignment: Center);
         }
@@ -102,7 +102,7 @@ Group {
           LayoutMode: Left;
 
           Label #NpcHunger {
-            Text: "Fome: —";
+            Text: %ui.needs.hunger;
             Anchor: (Full: 0);
             Style: (...$T.@BodyStrong, FontSize: 12);
           }
@@ -129,7 +129,7 @@ Group {
           LayoutMode: Left;
 
           Label #NpcEnergy {
-            Text: "Energia: —";
+            Text: %ui.needs.energy;
             Anchor: (Full: 0);
             Style: (...$T.@BodyStrong, FontSize: 12);
           }
@@ -156,7 +156,7 @@ Group {
       Padding: (Top: 9, Bottom: 9, Horizontal: 14);
 
       Label #InfoHeader {
-        Text: "INFORMAÇÕES";
+        Text: %ui.info;
         Anchor: (Height: 16, Bottom: 4);
         Style: (...$T.@SectionHeaderStyle, FontSize: 11);
       }
@@ -171,13 +171,13 @@ Group {
           LayoutMode: Top;
 
           Label #NpcTraits {
-            Text: "Traços: —";
+            Text: %ui.traits;
             Anchor: (Height: 23, Bottom: 3);
             Style: (...$T.@BodyStyle, FontSize: 13);
           }
 
           Label #NpcSeason {
-            Text: "Estação Fav.: —";
+            Text: %ui.season;
             Anchor: (Height: 23);
             Style: (...$T.@BodyStyle, FontSize: 13);
           }
@@ -188,13 +188,13 @@ Group {
           LayoutMode: Top;
 
           Label #NpcFamilyParents {
-            Text: "Pais: —";
+            Text: %ui.parents;
             Anchor: (Height: 23, Bottom: 3);
             Style: (...$T.@BodyStyle, FontSize: 13);
           }
 
           Label #NpcFamilyChildren {
-            Text: "Filhos: —";
+            Text: %ui.children;
             Anchor: (Height: 23);
             Style: (...$T.@BodyStyle, FontSize: 13);
           }
@@ -202,7 +202,7 @@ Group {
       }
 
       Label #PreferenceHeader {
-        Text: "PREFERÊNCIAS";
+        Text: %ui.preferences;
         Anchor: (Height: 16, Bottom: 3);
         Style: (...$T.@SectionHeaderStyle, FontSize: 11);
       }
@@ -226,7 +226,7 @@ Group {
         LayoutMode: Left;
 
         Label #LikesCaption {
-          Text: "Gosta:";
+          Text: %ui.likes;
           Anchor: (Width: 70, Height: 32, Top: 2);
           Style: (...$T.@BodyStyle, FontSize: 13, TextColor: $T.@AccentLike, RenderBold: true);
         }
@@ -248,7 +248,7 @@ Group {
         LayoutMode: Left;
 
         Label #HatesCaption {
-          Text: "Odeia:";
+          Text: %ui.hates;
           Anchor: (Width: 70, Height: 32, Top: 2);
           Style: (...$T.@BodyStyle, FontSize: 13, TextColor: $T.@AccentHate, RenderBold: true);
         }
@@ -274,7 +274,7 @@ Group {
       LayoutMode: Top;
 
       Label #NpcRelationship {
-        Text: "Relacionamento: Desconhecido";
+        Text: %ui.relationship;
         Anchor: (Height: 27, Bottom: 6);
         Style: (...$T.@BodyStrong, FontSize: 15, TextColor: $T.@TextGold);
       }
@@ -305,7 +305,7 @@ Group {
           Anchor: (Width: 213, Height: 38, Right: 10);
           Style: $T.@BtnChat;
           Label #ChatButtonText {
-            Text: "Bater Papo";
+            Text: %ui.button.chat;
             Anchor: (Full: 0);
             Style: $T.@ButtonLabelStyle;
           }
@@ -314,7 +314,7 @@ Group {
           Anchor: (Width: 213, Height: 38);
           Style: $T.@BtnJoke;
           Label #JokeButtonText {
-            Text: "Contar Piada";
+            Text: %ui.button.joke;
             Anchor: (Full: 0);
             Style: $T.@ButtonLabelStyle;
           }
@@ -329,7 +329,7 @@ Group {
           Anchor: (Width: 213, Height: 38, Right: 10);
           Style: $T.@BtnGift;
           Label #GiftButtonText {
-            Text: "Presentear";
+            Text: %ui.button.gift;
             Anchor: (Full: 0);
             Style: $T.@ButtonLabelStyle;
           }
@@ -338,7 +338,7 @@ Group {
           Anchor: (Width: 213, Height: 38);
           Style: $T.@BtnFlirt;
           Label #FlirtButtonText {
-            Text: "Paquerar";
+            Text: %ui.button.flirt;
             Anchor: (Full: 0);
             Style: $T.@ButtonLabelStyle;
           }
@@ -363,7 +363,7 @@ Group {
           Anchor: (Width: 213, Height: 38, Right: 10);
           Style: $T.@BtnProfession;
           Label #AssignProfessionButtonText {
-            Text: "Dar Emprego";
+            Text: %ui.button.prof;
             Anchor: (Full: 0);
             Style: $T.@ButtonLabelStyle;
           }
@@ -425,7 +425,7 @@ Group {
           Anchor: (Width: 436, Height: 36);
           Style: $T.@BtnDestructive;
           Label #InsultButtonText {
-            Text: "Insultar";
+            Text: %ui.button.insult;
             Anchor: (Full: 0);
             Style: (...$T.@ButtonLabelStyle, FontSize: 14);
           }
