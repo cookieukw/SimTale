@@ -84,6 +84,19 @@ $Game = "Common.ui";
 @BtnTintTertiary    = #26303D; // Dark Iron / Slate
 @BtnTintDestructive = #9E372E; // Muted Crimson / Danger
 
+// Interaction button colors. Each action has its own readable role color so adjacent
+// actions are easy to distinguish at a glance.
+@BtnTintChat         = #496E91; // Conversation blue
+@BtnTintJoke         = #765D8C; // Joke violet
+@BtnTintGift         = #A6783F; // Gift amber
+@BtnTintFlirt        = #9A5574; // Flirt rose
+@BtnTintProfession   = #4D7A5B; // Profession green
+@BtnTintFollow       = #3D7E7A; // Follow teal
+@BtnTintCarry        = #4D8294; // Carry cyan
+@BtnTintKiss         = #B05F7C; // Kiss pink
+@BtnTintInventory    = #6D6641; // Inventory olive
+@BtnTintPregnancy    = #8B5A82; // Pregnancy plum
+
 // ---------------------------------------------------------------- button styles
 @BtnNeutral = ButtonStyle(
   Default:  (Background: (TexturePath: "Common/Buttons/Primary_Square.png", Border: 12, Color: @BtnTintPrimary)),
@@ -113,6 +126,86 @@ $Game = "Common.ui";
   Default:  (Background: (TexturePath: "Common/Buttons/Destructive.png", Border: 12, Color: @BtnTintDestructive)),
   Hovered:  (Background: (TexturePath: "Common/Buttons/Destructive_Hovered.png", Border: 12, Color: @BtnTintDestructive)),
   Pressed:  (Background: (TexturePath: "Common/Buttons/Destructive_Pressed.png", Border: 12, Color: @BtnTintDestructive)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnChat = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12, Color: @BtnTintChat)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12, Color: @BtnTintChat)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12, Color: @BtnTintChat)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnJoke = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12, Color: @BtnTintJoke)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12, Color: @BtnTintJoke)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12, Color: @BtnTintJoke)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnGift = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12, Color: @BtnTintGift)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12, Color: @BtnTintGift)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12, Color: @BtnTintGift)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnFlirt = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12, Color: @BtnTintFlirt)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12, Color: @BtnTintFlirt)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12, Color: @BtnTintFlirt)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnProfession = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12, Color: @BtnTintProfession)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12, Color: @BtnTintProfession)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12, Color: @BtnTintProfession)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnFollow = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12, Color: @BtnTintFollow)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12, Color: @BtnTintFollow)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12, Color: @BtnTintFollow)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnCarry = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12, Color: @BtnTintCarry)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12, Color: @BtnTintCarry)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12, Color: @BtnTintCarry)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnKiss = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12, Color: @BtnTintKiss)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12, Color: @BtnTintKiss)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12, Color: @BtnTintKiss)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnInventory = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12, Color: @BtnTintInventory)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12, Color: @BtnTintInventory)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12, Color: @BtnTintInventory)),
+  Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
+  Sounds: $Game.@ButtonSounds,
+);
+
+@BtnPregnancy = ButtonStyle(
+  Default:  (Background: (TexturePath: "Common/Buttons/Secondary.png", Border: 12, Color: @BtnTintPregnancy)),
+  Hovered:  (Background: (TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12, Color: @BtnTintPregnancy)),
+  Pressed:  (Background: (TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12, Color: @BtnTintPregnancy)),
   Disabled: (Background: (TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
   Sounds: $Game.@ButtonSounds,
 );

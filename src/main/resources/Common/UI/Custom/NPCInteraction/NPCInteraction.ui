@@ -297,7 +297,7 @@ Group {
 
         Button #ChatButton {
           Anchor: (Width: 213, Height: 38, Right: 10);
-          Style: $T.@BtnNeutral;
+          Style: $T.@BtnChat;
           Label #ChatButtonText {
             Text: "Bater Papo";
             Anchor: (Full: 0);
@@ -306,7 +306,7 @@ Group {
         }
         Button #JokeButton {
           Anchor: (Width: 213, Height: 38);
-          Style: $T.@BtnNeutral;
+          Style: $T.@BtnJoke;
           Label #JokeButtonText {
             Text: "Contar Piada";
             Anchor: (Full: 0);
@@ -321,7 +321,7 @@ Group {
 
         Button #GiftButton {
           Anchor: (Width: 213, Height: 38, Right: 10);
-          Style: $T.@BtnSecondary;
+          Style: $T.@BtnGift;
           Label #GiftButtonText {
             Text: "Presentear";
             Anchor: (Full: 0);
@@ -330,7 +330,7 @@ Group {
         }
         Button #FlirtButton {
           Anchor: (Width: 213, Height: 38);
-          Style: $T.@BtnSecondary;
+          Style: $T.@BtnFlirt;
           Label #FlirtButtonText {
             Text: "Paquerar";
             Anchor: (Full: 0);
@@ -339,7 +339,7 @@ Group {
         }
         Button #CarryButton {
           Anchor: (Width: 213, Height: 38);
-          Style: $T.@BtnSecondary;
+          Style: $T.@BtnCarry;
           Visible: false;
           Label #CarryButtonText {
             Text: %ui.button.carry;
@@ -355,7 +355,7 @@ Group {
 
         Button #AssignProfessionButton {
           Anchor: (Width: 213, Height: 38, Right: 10);
-          Style: $T.@BtnTertiary;
+          Style: $T.@BtnProfession;
           Label #AssignProfessionButtonText {
             Text: "Dar Emprego";
             Anchor: (Full: 0);
@@ -364,7 +364,7 @@ Group {
         }
         Button #KissButton {
           Anchor: (Width: 213, Height: 38);
-          Style: $T.@BtnSecondary;
+          Style: $T.@BtnKiss;
           Visible: false;
           Label #KissButtonText {
             Text: %ui.button.kiss;
@@ -381,7 +381,7 @@ Group {
 
         Button #InventoryButton {
           Anchor: (Width: 213, Height: 38, Right: 10);
-          Style: $T.@BtnTertiary;
+          Style: $T.@BtnInventory;
           Visible: false;
           Label #InventoryButtonText {
             Text: %ui.button.inventory;
@@ -391,7 +391,7 @@ Group {
         }
         Button #PregnancyButton {
           Anchor: (Width: 213, Height: 38);
-          Style: $T.@BtnSecondary;
+          Style: $T.@BtnPregnancy;
           Visible: false;
           Label #PregnancyButtonText {
             Text: %ui.button.pregnancy;
@@ -407,7 +407,7 @@ Group {
 
         Button #FollowButton {
           Anchor: (Width: 213, Height: 36, Right: 10);
-          Style: $T.@BtnNeutral;
+          Style: $T.@BtnFollow;
           Visible: false;
           Label #FollowButtonText {
             Text: %ui.button.follow;
