@@ -168,14 +168,14 @@ public class GrowthManager {
             default -> GrowthStage.ADULT;
         };
 
-        World world = WorldUtil.first();
+        Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
+        World world = childRef != null ? WorldUtil.fromEntityRef(childRef) : null;
         long currentTick = world != null ? world.getTick() : 0L;
 
         child.stage = nextStage;
         child.birthTick = currentTick - (nextStage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
         child.currentScale = calculateTargetScale(child, currentTick);
 
-        Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
         if (childRef != null && childRef.isValid()) {
             applyVisualScale(childRef, child.currentScale);
         }
@@ -239,7 +239,8 @@ public class GrowthManager {
                 ? SimNPCFactory.NPCType.CHILD_MALE 
                 : SimNPCFactory.NPCType.CHILD_FEMALE;
                 
-            World world = WorldUtil.first();
+            Ref<EntityStore> holderEntityRef = holderId != null ? LifecycleUtils.getEntityRef(holderId) : null;
+            World world = holderEntityRef != null ? WorldUtil.fromEntityRef(holderEntityRef) : null;
             if (world == null) {
                 LOGGER.atWarning().log("SimTale: nenhum mundo carregado; promocao para TODDLER adiada.");
                 return;
@@ -336,7 +337,8 @@ public class GrowthManager {
      * @param announceTeen true when this is the teenage promotion, which has its own message
      */
     private static void promoteToAdultBody(GrowthComponent child, boolean announceTeen) {
-        World world = WorldUtil.first();
+        Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
+        World world = childRef != null ? WorldUtil.fromEntityRef(childRef) : null;
         if (world == null) {
             LOGGER.atWarning().log("SimTale: nenhum mundo carregado; promocao de corpo adiada.");
             return;
@@ -346,7 +348,6 @@ public class GrowthManager {
             return;
         }
 
-        Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
         Vector3d spawnPos = new Vector3d(0, 100, 0);
         boolean wasBeingCarried = false;
         UUID carrierId = null;
