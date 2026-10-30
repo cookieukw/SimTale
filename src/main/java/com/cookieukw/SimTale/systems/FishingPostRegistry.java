@@ -29,15 +29,16 @@ public final class FishingPostRegistry {
     private static final int WATER_SEARCH_XZ = 8;
     private static final int WATER_SEARCH_Y = 3;
 
-    public record FishingPost(int postX, int postY, int postZ, int waterX, int waterY, int waterZ) {}
+    public record FishingPost(String worldName, int postX, int postY, int postZ,
+                              int waterX, int waterY, int waterZ) {}
 
     public static final Set<FishingPost> POSTS = Collections.synchronizedSet(new HashSet<>());
 
     /** Post marker position (encoded "x,y,z") -> claiming NPC's UUID. One worker per post. */
     private static final Map<String, UUID> CLAIMED_BY = new ConcurrentHashMap<>();
 
-    private static String key(int x, int y, int z) {
-        return x + "," + y + "," + z;
+    private static String key(String worldName, int x, int y, int z) {
+        return worldName + ":" + x + "," + y + "," + z;
     }
 
     /* Was equalsIgnoreCase, which is the same trap the blueprint marker fell into: a rotation or
@@ -68,17 +69,19 @@ public final class FishingPostRegistry {
         }
 
         synchronized (POSTS) {
-            POSTS.add(new FishingPost(x, y, z, water.x, water.y, water.z));
+            POSTS.add(new FishingPost(world.getName(), x, y, z, water.x, water.y, water.z));
         }
         LOGGER.info("[SimTale] Fishing post registered at ({},{},{}), water at ({},{},{})",
                 x, y, z, water.x, water.y, water.z);
     }
 
-    public static void removeAt(int x, int y, int z) {
+    public static void removeAt(World world, int x, int y, int z) {
+        String worldName = world != null ? world.getName() : "";
         synchronized (POSTS) {
-            POSTS.removeIf(p -> p.postX() == x && p.postY() == y && p.postZ() == z);
+            POSTS.removeIf(p -> p.worldName().equals(worldName)
+                    && p.postX() == x && p.postY() == y && p.postZ() == z);
         }
-        CLAIMED_BY.remove(key(x, y, z));
+        CLAIMED_BY.remove(key(worldName, x, y, z));
     }
 
     /**
@@ -98,12 +101,14 @@ public final class FishingPostRegistry {
      * post within reach is taken — the caller should just wait for IDLE's next retry instead of
      * queueing, matching how a bed search behaves when nothing is free.
      */
-    public static FishingPost claimNearest(double x, double y, double z, UUID npcId) {
+    public static FishingPost claimNearest(World world, double x, double y, double z, UUID npcId) {
+        String worldName = world != null ? world.getName() : "";
         FishingPost chosen = null;
         double closestDistSq = CLAIM_SEARCH_RADIUS * CLAIM_SEARCH_RADIUS;
         synchronized (POSTS) {
             for (FishingPost p : POSTS) {
-                UUID holder = CLAIMED_BY.get(key(p.postX(), p.postY(), p.postZ()));
+                if (!p.worldName().equals(worldName)) continue;
+                UUID holder = CLAIMED_BY.get(key(worldName, p.postX(), p.postY(), p.postZ()));
                 /* A holder that no longer exists (died, forgotten, respawned under a new UUID)
                 never calls release(), so its claim would lock the post forever. */
                 if (holder != null && !holder.equals(npcId) && !ChairRegistry.isStale(holder)) continue;
@@ -119,16 +124,17 @@ public final class FishingPostRegistry {
             }
         }
         if (chosen != null) {
-            CLAIMED_BY.put(key(chosen.postX(), chosen.postY(), chosen.postZ()), npcId);
+            CLAIMED_BY.put(key(worldName, chosen.postX(), chosen.postY(), chosen.postZ()), npcId);
         }
         return chosen;
     }
 
     /** Releases a claim, but only if it actually belongs to {@code npcId} — never steal someone
      *  else's release call by accident. */
-    public static void release(int postX, int postY, int postZ, UUID npcId) {
+    public static void release(World world, int postX, int postY, int postZ, UUID npcId) {
         if (npcId == null) return;
-        CLAIMED_BY.remove(key(postX, postY, postZ), npcId);
+        String worldName = world != null ? world.getName() : "";
+        CLAIMED_BY.remove(key(worldName, postX, postY, postZ), npcId);
     }
 
     private static Vector3i findNearestWater(World world, int cx, int cy, int cz) {
