@@ -632,7 +632,7 @@ final class DiagnosticsCommands {
             if (tc == null) return;
             Vector3d pos = tc.getPosition();
 
-            VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
+            VillageManager.Village village = VillageManager.nearest(world, pos.x, pos.z);
             if (village == null) {
                 ctx.sendMessage(Message.translation("general.cmd.villagestock.no_village"));
                 return;
