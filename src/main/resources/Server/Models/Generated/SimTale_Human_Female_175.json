@@ -29,6 +29,12 @@
       "GradientId": "Grey"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/Voidbearer_Top.blockymodel",
       "Texture": "Cosmetics/Overtops/Voidbearer_Top_textures/Voidbearer_Top_Texture.png",
       "GradientSet": "Faded_Leather",

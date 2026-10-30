@@ -26,6 +26,12 @@
       "GradientId": "Maroon"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/TrenchCoat.blockymodel",
       "Texture": "Cosmetics/Overtops/TrenchCoat_Greyscale.png",
       "GradientSet": "Faded_Leather",

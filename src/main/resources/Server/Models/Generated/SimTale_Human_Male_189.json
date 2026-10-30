@@ -29,6 +29,12 @@
       "GradientId": "OrangePastel"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/NeckHighJumper_Ribbon.blockymodel",
       "Texture": "Cosmetics/Overtops/NeckHighJumper_Textures/SavanaShirt.png",
       "GradientSet": "Colored_Cotton",

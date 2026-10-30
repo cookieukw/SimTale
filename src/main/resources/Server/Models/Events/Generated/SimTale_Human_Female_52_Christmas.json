@@ -26,6 +26,12 @@
       "GradientId": "Blue"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/ShirtBulkyShoulders.blockymodel",
       "Texture": "Cosmetics/Overtops/ShirtBulkyShoulders_Textures/MageShirt_Greyscale_Texture.png",
       "GradientSet": "Colored_Cotton",

@@ -29,6 +29,12 @@
       "GradientId": "Pink"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/Overtops_Top.blockymodel",
       "Texture": "Cosmetics/Overtops/Overtops_Top_Textures/Long_Leather_Vest_Greyscale.png",
       "GradientSet": "Faded_Leather",

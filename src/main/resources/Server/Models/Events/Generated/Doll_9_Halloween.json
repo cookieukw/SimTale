@@ -24,6 +24,12 @@
       "Texture": "Cosmetics/Pants/Pants_Asymetrical_Textures/Survivor_Brown.png"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "NPC/Dolls/Cosmetics/Overtops/Overtops_Top_ChibiDoll.blockymodel",
       "Texture": "Cosmetics/Overtops/Overtops_Top_Textures/Pirate_Shirt_Greyscale.png",
       "GradientSet": "Colored_Cotton",

@@ -26,6 +26,12 @@
       "GradientId": "Turquoise_Dark"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "NPC/Dolls/Cosmetics/Overtops/OnePiece_ChibiDoll.blockymodel",
       "Texture": "Cosmetics/Overtops/OnePiece_Textures/Noble_Beige.png"
     },
