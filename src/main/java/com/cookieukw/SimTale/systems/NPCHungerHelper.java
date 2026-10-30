@@ -147,15 +147,14 @@ public class NPCHungerHelper {
             */
             ChestFood best = null;
 
-            synchronized (ChestRegistry.CHESTS) {
-                for (HouseBlockPos chestPos : ChestRegistry.CHESTS) {
+            for (HouseBlockPos chestPos : ChestRegistry.registeredChests(world)) {
                     double dx = pos.x - (chestPos.x + 0.5);
                     double dy = pos.y - (chestPos.y + 0.5);
                     double dz = pos.z - (chestPos.z + 0.5);
                     double distSq = dx * dx + dy * dy + dz * dz;
 
                     if (distSq > CHEST_SEARCH_RADIUS * CHEST_SEARCH_RADIUS) continue;
-                    if (!HouseManager.canOpenChest(npc.entityId, chestPos)) continue;
+                    if (!HouseManager.canOpenChest(world, npc.entityId, chestPos)) continue;
 
                     ChestFood candidate = bestFoodIn(world, chestPos, npc, distSq);
                     if (candidate == null) continue;
@@ -166,7 +165,6 @@ public class NPCHungerHelper {
                         best = candidate;
                     }
                 }
-            }
 
             if (best != null) {
                 ai.targetBlockPosition = new Vector3i(best.chest().x, best.chest().y, best.chest().z);
