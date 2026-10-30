@@ -28,14 +28,15 @@ public final class LumberPostRegistry {
     private static final int TREE_SEARCH_XZ = 10;
     private static final int TREE_SEARCH_Y = 6;
 
-    public record LumberPost(int postX, int postY, int postZ, int treeX, int treeY, int treeZ) {}
+    public record LumberPost(String worldName, int postX, int postY, int postZ,
+                             int treeX, int treeY, int treeZ) {}
 
     public static final Set<LumberPost> POSTS = Collections.synchronizedSet(new HashSet<>());
 
     private static final Map<String, UUID> CLAIMED_BY = new ConcurrentHashMap<>();
 
-    private static String key(int x, int y, int z) {
-        return x + "," + y + "," + z;
+    private static String key(String worldName, int x, int y, int z) {
+        return worldName + ":" + x + "," + y + "," + z;
     }
 
     public static boolean isLumberPostId(String id) {
@@ -53,7 +54,8 @@ public final class LumberPostRegistry {
     public static void registerAt(World world, int x, int y, int z) {
         synchronized (POSTS) {
             for (LumberPost p : POSTS) {
-                if (p.postX() == x && p.postY() == y && p.postZ() == z) return;
+                if (p.worldName().equals(world.getName()) && p.postX() == x
+                        && p.postY() == y && p.postZ() == z) return;
             }
         }
 
@@ -65,17 +67,19 @@ public final class LumberPostRegistry {
         }
 
         synchronized (POSTS) {
-            POSTS.add(new LumberPost(x, y, z, tree.x, tree.y, tree.z));
+            POSTS.add(new LumberPost(world.getName(), x, y, z, tree.x, tree.y, tree.z));
         }
         LOGGER.info("[SimTale] Lumber post registered at ({},{},{}), tree at ({},{},{})",
                 x, y, z, tree.x, tree.y, tree.z);
     }
 
-    public static void removeAt(int x, int y, int z) {
+    public static void removeAt(World world, int x, int y, int z) {
+        String worldName = world != null ? world.getName() : "";
         synchronized (POSTS) {
-            POSTS.removeIf(p -> p.postX() == x && p.postY() == y && p.postZ() == z);
+            POSTS.removeIf(p -> p.worldName().equals(worldName) && p.postX() == x
+                    && p.postY() == y && p.postZ() == z);
         }
-        CLAIMED_BY.remove(key(x, y, z));
+        CLAIMED_BY.remove(key(worldName, x, y, z));
     }
 
     /**
@@ -89,7 +93,8 @@ public final class LumberPostRegistry {
         List<LumberPost> affected = new ArrayList<>();
         synchronized (POSTS) {
             for (LumberPost p : POSTS) {
-                if (p.treeX() == treeX && p.treeY() == treeY && p.treeZ() == treeZ) affected.add(p);
+                if (world != null && p.worldName().equals(world.getName())
+                        && p.treeX() == treeX && p.treeY() == treeY && p.treeZ() == treeZ) affected.add(p);
             }
         }
         if (affected.isEmpty()) return;
@@ -101,11 +106,11 @@ public final class LumberPostRegistry {
             synchronized (POSTS) {
                 if (!POSTS.remove(p)) continue; // removed meanwhile (bench broken)
                 if (tree != null) {
-                    POSTS.add(new LumberPost(p.postX(), p.postY(), p.postZ(), tree.x, tree.y, tree.z));
+                    POSTS.add(new LumberPost(p.worldName(), p.postX(), p.postY(), p.postZ(), tree.x, tree.y, tree.z));
                 }
             }
             if (tree == null) {
-                CLAIMED_BY.remove(key(p.postX(), p.postY(), p.postZ()));
+                CLAIMED_BY.remove(key(p.worldName(), p.postX(), p.postY(), p.postZ()));
                 LOGGER.info("[SimTale] Lumber post at ({},{},{}) has no trees left in range; removed.",
                         p.postX(), p.postY(), p.postZ());
             }
@@ -120,12 +125,14 @@ public final class LumberPostRegistry {
      */
     private static final double CLAIM_SEARCH_RADIUS = 48.0;
 
-    public static LumberPost claimNearest(double x, double y, double z, UUID npcId) {
+    public static LumberPost claimNearest(World world, double x, double y, double z, UUID npcId) {
+        String worldName = world != null ? world.getName() : "";
         LumberPost chosen = null;
         double closestDistSq = CLAIM_SEARCH_RADIUS * CLAIM_SEARCH_RADIUS;
         synchronized (POSTS) {
             for (LumberPost p : POSTS) {
-                UUID holder = CLAIMED_BY.get(key(p.postX(), p.postY(), p.postZ()));
+                if (!p.worldName().equals(worldName)) continue;
+                UUID holder = CLAIMED_BY.get(key(worldName, p.postX(), p.postY(), p.postZ()));
                 /* A holder that no longer exists (died, forgotten, respawned under a new UUID)
                 never calls release(), so its claim would lock the post forever. */
                 if (holder != null && !holder.equals(npcId) && !ChairRegistry.isStale(holder)) continue;
@@ -141,14 +148,15 @@ public final class LumberPostRegistry {
             }
         }
         if (chosen != null) {
-            CLAIMED_BY.put(key(chosen.postX(), chosen.postY(), chosen.postZ()), npcId);
+            CLAIMED_BY.put(key(worldName, chosen.postX(), chosen.postY(), chosen.postZ()), npcId);
         }
         return chosen;
     }
 
-    public static void release(int postX, int postY, int postZ, UUID npcId) {
+    public static void release(World world, int postX, int postY, int postZ, UUID npcId) {
         if (npcId == null) return;
-        CLAIMED_BY.remove(key(postX, postY, postZ), npcId);
+        String worldName = world != null ? world.getName() : "";
+        CLAIMED_BY.remove(key(worldName, postX, postY, postZ), npcId);
     }
 
     private static Vector3i findNearestTree(World world, int cx, int cy, int cz) {
