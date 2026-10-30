@@ -695,8 +695,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             if (reaperAi != null && reaperAi.currentTask == TaskType.REAPING && reaperAi.dyingEntityId != null) {
                 if (Math.random() < 0.5) {
                     playerRefComp.sendMessage(Message.raw("Grim Reaper nodded. The life was spared... this time."));
-                    World w;
-                    w = WorldUtil.first();
+                    World w = WorldUtil.fromEntityRef(storeRef);
                     if (w != null) {
                         Ref<EntityStore> dyingRef = w.getEntityStore().getRefFromUUID(reaperAi.dyingEntityId);
                         if (dyingRef != null) {
