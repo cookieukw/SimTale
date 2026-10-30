@@ -275,5 +275,7 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
             LOGGER.debug("[SimTale] Chair registered from placement: {} at ({},{},{})",
                     placedId, chairAnchor.x, chairAnchor.y, chairAnchor.z);
         }
+
+        SimTaleMarkerProvider.requestRefresh();
     }
 }
