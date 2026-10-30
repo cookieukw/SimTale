@@ -51,7 +51,7 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
 
         BedRegistry.removeAt(anchor.x, anchor.y, anchor.z);
-        ChestRegistry.removeAt(anchor.x, anchor.y, anchor.z);
+        ChestRegistry.removeAt(world, anchor.x, anchor.y, anchor.z);
 
         /* Breaking a bed removes it from the house's beds and unassigns residents from that bed,
         while the house itself remains intact with its owners, chests, and interior.
