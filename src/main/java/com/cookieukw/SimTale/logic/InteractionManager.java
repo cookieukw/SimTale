@@ -907,7 +907,7 @@ public class InteractionManager {
 
         // Dynamic emotion trigger based on interaction outcome
         long tick = 0;
-        World world = WorldUtil.first();
+        World world = npc.entityRef != null ? WorldUtil.fromEntityRef(npc.entityRef) : null;
         if (world != null) {
             tick = world.getTick();
         }
@@ -1050,7 +1050,7 @@ public class InteractionManager {
                 */
             }
 
-            World world = WorldUtil.first();
+            World world = npc.entityRef != null ? WorldUtil.fromEntityRef(npc.entityRef) : null;
             if (world != null) {
                 WorldTimeResource timeResource = world.getEntityStore().getStore().getResource(WorldTimeResource.getResourceType());
                 float dayProgress = timeResource.getDayProgress();
