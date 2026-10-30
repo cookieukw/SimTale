@@ -83,5 +83,6 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         the right-click confirm and so is no longer a pending session at all).
         */
         ConstructionPreviewManager.clear(ConstructionPreviewManager.idForBlock(pos), world);
+        SimTaleMarkerProvider.requestRefresh();
     }
 }
