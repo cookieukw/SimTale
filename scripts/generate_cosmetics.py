@@ -63,6 +63,15 @@ def extract_attachment(item):
             att["GradientId"] = random.choice(gradients[item["GradientSet"]])
     return att
 
+def base_undertop():
+    """Guarantees torso coverage beneath an overtop layer."""
+    return {
+        "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+        "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+        "GradientSet": "Colored_Cotton",
+        "GradientId": "White"
+    }
+
 def generate_model(gender, index):
     skin_gradient = random.choice(gradients["Skin"])
     hair_gradient = random.choice(gradients["Hair"])
@@ -117,6 +126,8 @@ def generate_model(gender, index):
             continue
         top = extract_attachment(top_item)
         if top:
+            if top_catalog is overtops:
+                attachments.append(base_undertop())
             attachments.append(top)
             break
             
