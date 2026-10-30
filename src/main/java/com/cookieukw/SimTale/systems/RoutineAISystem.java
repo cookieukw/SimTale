@@ -329,6 +329,13 @@ once per NPC per tick for nothing.
             if (statMap != null) {
                 EntityStatValue healthVal = statMap.get(DefaultEntityStatTypes.getHealth());
                 if (healthVal != null && healthVal.get() <= 0f) {
+                    if (NPCDamageEventSystem.isInsideVillageSafeZone(transform.getPosition())) {
+                        statMap.setStatValue(DefaultEntityStatTypes.getHealth(), healthVal.getMax());
+                        npc.lastDamageCause = "protegido pela zona segura da vila";
+                        LOGGER.warn("[SimTale] NPC '{}' reached 0 HP inside the village safe zone; restored health",
+                                npc.name);
+                        return;
+                    }
                     LOGGER.info("[SimTale] NPC '{}' reached 0 HP outside of forcekill — routing into the death flow", npc.name);
                     NPCMovementHelper.clearMoveTarget(ref, ai);
                     ai.currentTask = TaskType.DYING;
