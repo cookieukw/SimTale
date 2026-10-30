@@ -117,22 +117,23 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
      * its storage from the registry.
      */
     private List<HouseBlockPos> getChests(World world) {
-        synchronized (ChestRegistry.CHESTS) {
-            if (world != null) {
-                ChestRegistry.CHESTS.removeIf(cp -> {
-                    WorldChunk chunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunkFromBlock(cp.x, cp.z), WorldChunk.getComponentType());
-                    if (chunk == null) return false;
-                    return !ChestRegistry.isContainerAt(world, cp.x, cp.y, cp.z);
-                });
+        List<HouseBlockPos> list = new ArrayList<>(ChestRegistry.registeredChests(world));
+        if (world != null) {
+            for (HouseBlockPos cp : list) {
+                WorldChunk chunk = world.getChunkStore().getChunkComponent(
+                        ChunkUtil.indexChunkFromBlock(cp.x, cp.z), WorldChunk.getComponentType());
+                if (chunk != null && !ChestRegistry.isContainerAt(world, cp.x, cp.y, cp.z)) {
+                    ChestRegistry.removeAt(world, cp.x, cp.y, cp.z);
+                }
             }
-            List<HouseBlockPos> list = new ArrayList<>(ChestRegistry.CHESTS);
-            list.sort((a, b) -> {
-                if (a.x != b.x) return Integer.compare(a.x, b.x);
-                if (a.y != b.y) return Integer.compare(a.y, b.y);
-                return Integer.compare(a.z, b.z);
-            });
-            return list;
+            list = new ArrayList<>(ChestRegistry.registeredChests(world));
         }
+        list.sort((a, b) -> {
+            if (a.x != b.x) return Integer.compare(a.x, b.x);
+            if (a.y != b.y) return Integer.compare(a.y, b.y);
+            return Integer.compare(a.z, b.z);
+        });
+        return list;
     }
 
     /** "3 itens (2 comida)", or "Vazio" / "Fora de alcance" when there is nothing to report. */
@@ -393,7 +394,7 @@ public class SimChestDebugPage extends InteractiveCustomUIPage<String> {
                 int index = Integer.parseInt(eventData.substring(eventData.indexOf("forget_") + 7));
                 if (index >= 0 && index < chests.size()) {
                     HouseBlockPos cp = chests.get(index);
-                    ChestRegistry.removeAt(cp.x, cp.y, cp.z);
+                    ChestRegistry.removeAt(world, cp.x, cp.y, cp.z);
                     playerRefComp.sendMessage(Message.translation("ui.debugchests.msgForgetSuccess").param("index", index + 1));
                 }
             } catch (RuntimeException e) {

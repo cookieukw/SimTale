@@ -523,16 +523,14 @@ final class DiagnosticsCommands {
             HouseBlockPos nearestChest = null;
             double minDist = Double.MAX_VALUE;
 
-            synchronized (ChestRegistry.CHESTS) {
-                for (HouseBlockPos cp : ChestRegistry.CHESTS) {
-                    double dx = cp.x - pos.x;
-                    double dy = cp.y - pos.y;
-                    double dz = cp.z - pos.z;
-                    double distSq = dx*dx + dy*dy + dz*dz;
-                    if (distSq < minDist) {
-                        minDist = distSq;
-                        nearestChest = cp;
-                    }
+            for (HouseBlockPos cp : ChestRegistry.registeredChests(world)) {
+                double dx = cp.x - pos.x;
+                double dy = cp.y - pos.y;
+                double dz = cp.z - pos.z;
+                double distSq = dx*dx + dy*dy + dz*dz;
+                if (distSq < minDist) {
+                    minDist = distSq;
+                    nearestChest = cp;
                 }
             }
 
@@ -549,10 +547,10 @@ final class DiagnosticsCommands {
             ctx.sendMessage(Message.translation("general.cmd.chestcheck.located")
                 .param("x", nearestChest.x).param("y", nearestChest.y).param("z", nearestChest.z));
 
-            if (ChestRegistry.isVillageGlobal(nearestChest)) {
+            if (ChestRegistry.isVillageGlobal(world, nearestChest)) {
                 ctx.sendMessage(Message.translation("general.cmd.chestcheck.type_global"));
             } else {
-                boolean isShared = ChestRegistry.isExplicitlyShared(nearestChest);
+                boolean isShared = ChestRegistry.isExplicitlyShared(world, nearestChest);
                 ctx.sendMessage(Message.translation(isShared ? "general.cmd.chestcheck.type_shared" : "general.cmd.chestcheck.type_private"));
             }
 
@@ -586,16 +584,14 @@ final class DiagnosticsCommands {
 
             HouseBlockPos nearestChest = null;
             double minDist = Double.MAX_VALUE;
-            synchronized (ChestRegistry.CHESTS) {
-                for (HouseBlockPos cp : ChestRegistry.CHESTS) {
-                    double dx = cp.x - pos.x;
-                    double dy = cp.y - pos.y;
-                    double dz = cp.z - pos.z;
-                    double distSq = dx*dx + dy*dy + dz*dz;
-                    if (distSq < minDist) {
-                        minDist = distSq;
-                        nearestChest = cp;
-                    }
+            for (HouseBlockPos cp : ChestRegistry.registeredChests(world)) {
+                double dx = cp.x - pos.x;
+                double dy = cp.y - pos.y;
+                double dz = cp.z - pos.z;
+                double distSq = dx*dx + dy*dy + dz*dz;
+                if (distSq < minDist) {
+                    minDist = distSq;
+                    nearestChest = cp;
                 }
             }
 
@@ -607,7 +603,7 @@ final class DiagnosticsCommands {
             /* A village-global chest is already communal because of where it stands. Toggling the
             explicit flag would not make it private, so say why instead of lying to the player.
             */
-            if (ChestRegistry.isVillageGlobal(nearestChest)) {
+            if (ChestRegistry.isVillageGlobal(world, nearestChest)) {
                 ctx.sendMessage(Message.translation("general.cmd.chestshare.auto_global")
                         .param("x", nearestChest.x)
                         .param("y", nearestChest.y)
@@ -615,8 +611,8 @@ final class DiagnosticsCommands {
                 return;
             }
 
-            boolean nowShared = !ChestRegistry.isExplicitlyShared(nearestChest);
-            ChestRegistry.setShared(nearestChest.x, nearestChest.y, nearestChest.z, nowShared);
+            boolean nowShared = !ChestRegistry.isExplicitlyShared(world, nearestChest);
+            ChestRegistry.setShared(world, nearestChest.x, nearestChest.y, nearestChest.z, nowShared);
             ctx.sendMessage(Message.translation(nowShared ? "general.cmd.chestshare.now_shared" : "general.cmd.chestshare.now_private")
                     .param("x", nearestChest.x)
                     .param("y", nearestChest.y)
