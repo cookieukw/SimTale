@@ -92,6 +92,7 @@ public final class VillageManager {
     /** Called by {@link HouseManager} whenever a house is added, changed or removed. */
     public static void markDirty() {
         dirty.set(true);
+        SimTaleMarkerProvider.requestRefresh();
     }
 
     public static List<Village> villages() {
