@@ -222,7 +222,7 @@ public final class VillageStockManager {
         Map<String, Integer> counts = new LinkedHashMap<>();
         if (village == null || world == null) return counts;
 
-        List<HouseBlockPos> shared = getSharedChestsInVillage(village);
+        List<HouseBlockPos> shared = getSharedChestsInVillage(world, village);
         for (HouseBlockPos pos : shared) {
             try {
                 ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, pos.x, pos.y, pos.z);
