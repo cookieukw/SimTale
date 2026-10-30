@@ -72,6 +72,15 @@ public final class VillageStockManager {
         return list;
     }
 
+    public static List<HouseBlockPos> getSharedChestsInVillage(World world, Village village) {
+        if (world == null || village == null) return List.of();
+        List<HouseBlockPos> list = new ArrayList<>();
+        for (HouseBlockPos cp : ChestRegistry.registeredChests(world)) {
+            if (village.contains(cp.x, cp.z) && ChestRegistry.isShared(world, cp)) list.add(cp);
+        }
+        return list;
+    }
+
     /**
      * Fallback chance that a worker with room in her own pantry still walks surplus to the
      * village chest. Without this the communal chest only ever filled once every home chest was
@@ -99,8 +108,8 @@ public final class VillageStockManager {
         HouseBlockPos homeWithRoom = null;
         HouseBlockPos homeFull = null;
         synchronized (ChestRegistry.CHESTS) {
-            for (HouseBlockPos cp : ChestRegistry.CHESTS) {
-                if (ChestRegistry.isShared(cp)) continue;
+            for (HouseBlockPos cp : ChestRegistry.registeredChests(world)) {
+                if (ChestRegistry.isShared(world, cp)) continue;
                 if (!HouseManager.canOpenChest(npc.entityId, cp)) continue;
 
                 if (hasFreeSlot(world, cp)) {
@@ -116,7 +125,7 @@ public final class VillageStockManager {
         HouseBlockPos villageWithRoom = null;
         HouseBlockPos villageFull = null;
         if (village != null) {
-            for (HouseBlockPos cp : getSharedChestsInVillage(village)) {
+            for (HouseBlockPos cp : getSharedChestsInVillage(world, village)) {
                 if (hasFreeSlot(world, cp)) {
                     villageWithRoom = cp;
                     break;
