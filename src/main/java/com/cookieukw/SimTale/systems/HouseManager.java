@@ -20,7 +20,11 @@ import java.util.stream.Collectors;
 
 public class HouseManager {
     private static final SimLog LOGGER = SimLog.forClass(HouseManager.class);
-    private static final int MAX_INTERIOR_BLOCKS = 512;
+    /** Large enough for normal houses, but still bounded so an open room cannot flood the world. */
+    private static final int MAX_INTERIOR_BLOCKS = 2048;
+    /** A tiny opening can be a balcony access or a missing decorative block. */
+    private static final int MAX_TOLERATED_OPENING_BLOCKS = 2;
+    private static final int SKY_PROBE_HEIGHT = 24;
     public static final int MIN_INTERIOR_BLOCKS = 50;
 
     public static final Map<UUID, HouseData> HOUSES_BY_ID = new ConcurrentHashMap<>();
@@ -48,7 +52,8 @@ public class HouseManager {
     public record HouseScanResult(Set<HouseBlockPos> interiorBlocks, Set<HouseBlockPos> doorBlocks,
                                   Set<HouseBlockPos> otherBeds, Set<HouseBlockPos> chestBlocks,
                                   Set<HouseBlockPos> furnitureBlocks, boolean overflowed,
-                                  boolean hitUnloaded) {
+                                  boolean hitUnloaded, boolean exposedOutside,
+                                  boolean bedExposedToSky, int openingEdges) {
     }
 
     public record ScanReport(ScanOutcome outcome, Set<UUID> freshBedOwners, UUID conflictingHouseId,
@@ -507,7 +512,8 @@ public class HouseManager {
 
         while (!queue.isEmpty()) {
             if (visited.size() > MAX_INTERIOR_BLOCKS) {
-                return new HouseScanResult(visited, doors, otherBeds, chestBlocks, furniture, true, hitUnloaded);
+                return new HouseScanResult(visited, doors, otherBeds, chestBlocks, furniture, true,
+                        hitUnloaded, false, false, 0);
             }
 
             HouseBlockPos current = queue.poll();
@@ -579,17 +585,39 @@ public class HouseManager {
                 }
 
                 visited.add(neighbor);
-                queue.add(neighbor);
+                /* Do not flood through sky-exposed air. A small opening is recorded as an edge and
+                 * tolerated later; without this stop, one missing wall block turns the whole world
+                 * into the house until the hard cap is reached. */
+                if (!isSkyExposed(world, neighbor)) {
+                    queue.add(neighbor);
+                }
             }
         }
 
-        return new HouseScanResult(visited, doors, otherBeds, chestBlocks, furniture, false, hitUnloaded);
+        boolean bedExposedToSky = isSkyExposed(world, bedPos);
+        int openingEdges = 0;
+        for (HouseBlockPos pos : visited) {
+            if (isSkyExposed(world, pos)) continue;
+            for (HouseBlockPos neighbor : get6Neighbors(pos)) {
+                if (visited.contains(neighbor)) continue;
+                BlockType type = NPCMovementHelper.getBlockTypeSafe(world, neighbor.x, neighbor.y, neighbor.z);
+                if (type != null && !isSolid(type) && isSkyExposed(world, neighbor)) openingEdges++;
+            }
+        }
+        boolean exposedOutside = bedExposedToSky || openingEdges > 0;
+        if (exposedOutside && !bedExposedToSky && openingEdges <= MAX_TOLERATED_OPENING_BLOCKS) {
+            visited.removeIf(pos -> isSkyExposed(world, pos));
+        }
+        return new HouseScanResult(visited, doors, otherBeds, chestBlocks, furniture, false,
+                hitUnloaded, exposedOutside, bedExposedToSky, openingEdges);
     }
 
     public static ScanReport scanAndClassify(World world, HouseBlockPos bedPos, UUID scanningOwner) {
         HouseScanResult raw = scanHouseFromBed(world, bedPos);
 
-        if (raw.overflowed || raw.hitUnloaded) {
+        boolean toleratedOpening = raw.exposedOutside && !raw.bedExposedToSky
+                && raw.openingEdges <= MAX_TOLERATED_OPENING_BLOCKS;
+        if (raw.overflowed || raw.hitUnloaded || (raw.exposedOutside && !toleratedOpening)) {
             return new ScanReport(ScanOutcome.TOO_LARGE_OR_UNENCLOSED, Set.of(), null, raw);
         }
         if (raw.interiorBlocks.size() < MIN_INTERIOR_BLOCKS) return new ScanReport(ScanOutcome.TOO_SMALL, Set.of(), null, raw);
@@ -740,6 +768,16 @@ public class HouseManager {
     private static boolean isDoor(BlockType type) {
         if (type == null || type.getId() == null) return false;
         return type.getId().toLowerCase().contains("door");
+    }
+
+    /** Returns true when a column above a block has no roof within a normal house height. */
+    private static boolean isSkyExposed(World world, HouseBlockPos pos) {
+        for (int dy = 1; dy <= SKY_PROBE_HEIGHT; dy++) {
+            BlockType above = NPCMovementHelper.getBlockTypeSafe(world, pos.x, pos.y + dy, pos.z);
+            if (above == null) return false; // unloaded is handled by the main scan
+            if (isSolid(above)) return false;
+        }
+        return true;
     }
 
     private static boolean isBed(BlockType type) {
