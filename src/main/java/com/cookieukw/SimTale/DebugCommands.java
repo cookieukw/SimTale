@@ -225,7 +225,7 @@ final class DebugCommands {
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
-            List<VillageManager.Village> villages = VillageManager.villages();
+            List<VillageManager.Village> villages = VillageManager.villages(world);
 
             ctx.sendMessage(Message.translation("general.cmd.village.header")
                     .param("count", String.valueOf(villages.size())));
