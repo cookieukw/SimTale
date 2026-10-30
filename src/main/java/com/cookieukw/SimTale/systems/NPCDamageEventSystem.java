@@ -238,7 +238,7 @@ public class NPCDamageEventSystem extends DamageEventSystem {
      * <p>Villages are derived from houses, so the safe zone moves and disappears with the village
      * itself. There is no separate persisted region to keep in sync.
      */
-    private static boolean isInsideVillageSafeZone(Vector3d pos) {
+    public static boolean isInsideVillageSafeZone(Vector3d pos) {
         SimTaleConfig config = SimTaleConfigManager.getConfig();
         if (config != null && !config.villageSafeZoneEnabled) return false;
 
