@@ -41,6 +41,10 @@ public final class ChestRegistry {
         return SHARED_BY_WORLD.computeIfAbsent(worldKey(world), _ -> Collections.synchronizedSet(new HashSet<>()));
     }
 
+    public static Set<HouseBlockPos> registeredChests(World world) {
+        return Set.copyOf(chests(world));
+    }
+
     /**
      * Name-based guess, kept only as a fallback for callers that have an id and no world.
      *
