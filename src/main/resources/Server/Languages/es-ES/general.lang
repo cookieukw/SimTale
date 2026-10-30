@@ -87,7 +87,8 @@ ring.holding = Entrégale el anillo a un aldeano que esté cerca de ti, en lugar
 blueprint.no_bed_nearby = No hay ninguna cama registrada en un radio de {radius} bloques. Colócate junto a la cama de la casa que quieres revisar.
 blueprint.summary = Interior\: {interior} bloques | Puertas\: {doors} | Cofres\: {chests}
 blueprint.unloaded = Parte de esta casa está en un chunk no cargado. Acércate / carga la zona y vuelve a escanear.
-blueprint.overflowed = El escaneo superó los 512 bloques interiores\: la habitación está abierta al exterior o es mucho más grande que una casa.
+blueprint.open = La casa tiene una abertura grande o el techo está expuesto. Se toleran aberturas pequeñas de hasta 2 bloques.
+blueprint.overflowed = El escaneo superó los 2048 bloques interiores\: la habitación supera el límite de tamaño de una casa.
 
 journal.no_target = Apunta el diario hacia un aldeano.
 journal.not_npc = Ese no es uno de los aldeanos de tu aldea.
@@ -161,7 +162,7 @@ cmd.chaircheck.occupied = Estado\: ocupada actualmente por otro NPC.
 cmd.chaircheck.free = Estado\: libre.
 yes = Sí
 no = No
-house.debug.status = [House Debug] Bloques interiores revisados\: {visited} (máx.\: 512) | Puertas\: {doors} | Cofres\: {chests} | Exceso/aberturas\: {overflowed} | Fragmentos no cargados\: {unloaded}
+house.debug.status = [House Debug] Bloques interiores revisados\: {visited} (máx.\: 2048) | Puertas\: {doors} | Cofres\: {chests} | Exceso/aberturas\: {overflowed} | Fragmentos no cargados\: {unloaded}
 
 map.village = Aldea de SimTale ({houses} casas | Radio\: {radius} m)
 map.village.border = Límite de la aldea ({radius} m)

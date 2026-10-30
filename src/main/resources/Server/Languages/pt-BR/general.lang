@@ -87,7 +87,8 @@ ring.holding = Entregue a aliança a um morador por perto, em vez de usá-la soz
 blueprint.no_bed_nearby = Nenhuma cama registrada num raio de {radius} blocos. Fique perto da cama da casa que você quer conferir.
 blueprint.summary = Interior\: {interior} blocos | Portas\: {doors} | Baús\: {chests}
 blueprint.unloaded = Parte desta casa está num chunk não carregado. Chegue mais perto / carregue a área e escaneie de novo.
-blueprint.overflowed = A varredura passou de 512 blocos internos\: o cômodo está aberto para fora ou é muito maior que uma casa.
+blueprint.open = A casa tem uma abertura grande ou o teto está exposto. Pequenas aberturas de até 2 blocos são toleradas.
+blueprint.overflowed = A varredura passou de 2048 blocos internos\: o cômodo é maior que o limite suportado para casas.
 
 journal.no_target = Aponte o diário para um morador.
 journal.not_npc = Isso não é um dos seus moradores.
@@ -161,7 +162,7 @@ cmd.chaircheck.occupied = Status\: Ocupada por outro NPC no momento.
 cmd.chaircheck.free = Status\: Livre.
 yes = Sim
 no = Não
-house.debug.status = [Debug de Casa] Blocos internos visitados\: {visited} (Máx\: 512) | Portas\: {doors} | Baús\: {chests} | Transbordou/Aberto\: {overflowed} | Chunks Descarregados\: {unloaded}
+house.debug.status = [Debug de Casa] Blocos internos visitados\: {visited} (Máx\: 2048) | Portas\: {doors} | Baús\: {chests} | Transbordou/Aberto\: {overflowed} | Chunks Descarregados\: {unloaded}
 
 map.village = Vila SimTale ({houses} casas | Raio\: {radius}m)
 map.village.border = Limite da Vila ({radius}m)

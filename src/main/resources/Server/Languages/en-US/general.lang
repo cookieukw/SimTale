@@ -87,7 +87,8 @@ ring.holding = Give the ring to a villager you are close to, rather than using i
 blueprint.no_bed_nearby = No registered bed within {radius} blocks. Stand next to the bed of the house you want to check.
 blueprint.summary = Interior: {interior} blocks | Doors: {doors} | Chests: {chests}
 blueprint.unloaded = Part of this house is in an unloaded chunk. Stand closer / load the area and scan again.
-blueprint.overflowed = The scan exceeded 512 interior blocks: the room is open to the outside or far larger than a house.
+blueprint.open = The house has a large opening or an exposed roof. Small openings of up to 2 blocks are tolerated.
+blueprint.overflowed = The scan exceeded 2048 interior blocks: the room is far larger than the supported house limit.
 
 journal.no_target = Point the journal at a villager.
 journal.not_npc = That is not one of your villagers.
@@ -161,7 +162,7 @@ cmd.chaircheck.occupied = Status: Currently occupied by another NPC.
 cmd.chaircheck.free = Status: Free.
 yes = Yes
 no = No
-house.debug.status = [House Debug] Interior blocks visited: {visited} (Max: 512) | Doors: {doors} | Chests: {chests} | Overflowed/Open: {overflowed} | Unloaded Chunks: {unloaded}
+house.debug.status = [House Debug] Interior blocks visited: {visited} (Max: 2048) | Doors: {doors} | Chests: {chests} | Overflowed/Open: {overflowed} | Unloaded Chunks: {unloaded}
 
 map.village = SimTale Village ({houses} houses | Radius: {radius}m)
 map.village.border = Village Boundary ({radius}m)
