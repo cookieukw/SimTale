@@ -114,7 +114,7 @@ public class SimTaleItemRegistry {
         */
         RuneCoreItemManager.register("InspectorsJournal", (_, playerRef) ->
                 withPlayerPosition(playerRef, pos ->
-                        InspectorJournalHelper.inspect(WorldUtil.first(), playerRef, pos)));
+                        InspectorJournalHelper.inspect(worldOf(playerRef), playerRef, pos)));
 
         RuneCoreItemManager.register("InnkeepersLedger", (player, playerRef) ->
                 openPage(player, playerRef, (_, _) ->
