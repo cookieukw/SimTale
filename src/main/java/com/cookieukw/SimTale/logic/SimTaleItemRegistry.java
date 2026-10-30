@@ -20,6 +20,7 @@ import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCu
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import org.joml.Vector3d;
@@ -121,7 +122,7 @@ public class SimTaleItemRegistry {
 
         RuneCoreItemManager.register("HouseBlueprint", (_, playerRef) ->
                 withPlayerPosition(playerRef, pos ->
-                        HouseBlueprintHelper.inspect(WorldUtil.first(), playerRef, pos)));
+                        HouseBlueprintHelper.inspect(worldOf(playerRef), playerRef, pos)));
         
         RuneCoreItemManager.register("ImmigrationContract", (_, playerRef) -> {
             if (SimTale.ACTIVE_NPCS.size() >= MAX_ACTIVE_NPCS) {
@@ -298,6 +299,13 @@ public class SimTaleItemRegistry {
         if (transform == null) return;
 
         action.accept(new Vector3d(transform.getPosition()));
+    }
+
+    /** Resolves the world that owns the player instead of assuming the first loaded world. */
+    private static World worldOf(PlayerRef playerRef) {
+        Ref<EntityStore> ref = playerRef != null ? playerRef.getReference() : null;
+        World world = ref != null && ref.isValid() ? WorldUtil.fromEntityRef(ref) : null;
+        return world != null ? world : WorldUtil.first();
     }
 
     /**
