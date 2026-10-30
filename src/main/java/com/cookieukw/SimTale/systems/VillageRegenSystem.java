@@ -78,6 +78,7 @@ public final class VillageRegenSystem extends EntityTickingSystem<EntityStore> {
         if (transform == null) return;
 
         Vector3d pos = transform.getPosition();
+        World world = store.getExternalData().getWorld();
         VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
         boolean insideVillage = village != null && village.contains(pos.x, pos.z);
 
@@ -87,7 +88,8 @@ public final class VillageRegenSystem extends EntityTickingSystem<EntityStore> {
         */
         HouseBlockPos blockPos = new HouseBlockPos(
                 (int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z));
-        boolean inside = insideVillage || HouseManager.BLOCK_TO_HOUSE_ID.containsKey(blockPos);
+        boolean inside = insideVillage
+                || HouseManager.indexes(world).blockToHouseId.containsKey(blockPos);
 
         UUID playerId = playerRefComponent.getUuid();
         if (playerId == null) return;
@@ -101,7 +103,6 @@ public final class VillageRegenSystem extends EntityTickingSystem<EntityStore> {
             return;
         }
 
-        World world = store.getExternalData().getWorld();
         long tick = world.getTick();
         Long lastApplied = LAST_APPLIED.get(playerId);
 
