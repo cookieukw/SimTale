@@ -106,8 +106,24 @@ public final class FishingPostRegistry {
         FishingPost chosen = null;
         double closestDistSq = CLAIM_SEARCH_RADIUS * CLAIM_SEARCH_RADIUS;
         synchronized (POSTS) {
-            for (FishingPost p : POSTS) {
+            for (FishingPost original : new HashSet<>(POSTS)) {
+                FishingPost p = original;
                 if (!p.worldName().equals(worldName)) continue;
+
+                /* Water is mutable. Re-resolve the target before sending a fisherman out so a
+                * drained pond or edited river does not leave the post pointing at stale air. */
+                if (!isWater(NPCMovementHelper.getBlockTypeSafe(world, p.waterX(), p.waterY(), p.waterZ()))) {
+                    Vector3i replacement = findNearestWater(world, p.postX(), p.postY(), p.postZ());
+                    POSTS.remove(original);
+                    CLAIMED_BY.remove(key(worldName, p.postX(), p.postY(), p.postZ()));
+                    if (replacement == null) continue;
+                    p = new FishingPost(worldName, p.postX(), p.postY(), p.postZ(),
+                            replacement.x, replacement.y, replacement.z);
+                    POSTS.add(p);
+                    LOGGER.info("[SimTale] Fishing post at ({},{},{}) retargeted to water at ({},{},{})",
+                            p.postX(), p.postY(), p.postZ(), p.waterX(), p.waterY(), p.waterZ());
+                }
+
                 UUID holder = CLAIMED_BY.get(key(worldName, p.postX(), p.postY(), p.postZ()));
                 /* A holder that no longer exists (died, forgotten, respawned under a new UUID)
                 never calls release(), so its claim would lock the post forever. */
