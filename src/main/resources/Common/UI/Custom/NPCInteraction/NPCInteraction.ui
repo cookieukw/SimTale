@@ -405,6 +405,16 @@ Group {
         Anchor: (Height: 36);
         LayoutMode: CenterMiddle;
 
+        Button #FollowButton {
+          Anchor: (Width: 213, Height: 36, Right: 10);
+          Style: $T.@BtnNeutral;
+          Visible: false;
+          Label #FollowButtonText {
+            Text: %ui.button.follow;
+            Anchor: (Full: 0);
+            Style: (...$T.@ButtonLabelStyle, FontSize: 14);
+          }
+        }
         Button #InsultButton {
           Anchor: (Width: 436, Height: 36);
           Style: $T.@BtnDestructive;

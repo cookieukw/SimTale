@@ -11,6 +11,7 @@ import com.cookieukw.SimTale.config.SimTaleConfig;
 import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -1209,6 +1210,45 @@ once per NPC per tick for nothing.
         } else {
             NPCMovementHelper.clearMoveTarget(ref, ai);
         }
+        return true;
+    }
+
+    /**
+     * Starts a follow command from the interaction menu or {@code /simtale follow}. Cancels any
+     * pose/errand that would otherwise keep the NPC pinned (bed, chair, work post, dialogue) so
+     * the next tick can hand movement back to the role's own pathfinder.
+     *
+     * @return false when the NPC cannot follow (invalid body or an active death ceremony)
+     */
+    public static boolean startFollowing(Ref<EntityStore> npcRef, SimNPCComponent npc,
+                                         RoutineAIComponent ai, UUID playerId,
+                                         Store<EntityStore> store, World world) {
+        if (npcRef == null || !npcRef.isValid() || npc == null || ai == null || playerId == null) {
+            return false;
+        }
+        if (ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.DEAD
+                || ai.currentTask == TaskType.REAPING) {
+            return false;
+        }
+
+        NPCSeatingHelper.exitSitting(npcRef, store, null, npc, ai);
+        NPCWorkHelper.releaseWorkPost(ai, npc);
+        NPCMovementHelper.setSleepingState(npcRef, store, false);
+        store.tryRemoveComponent(npcRef, MountedComponent.getComponentType());
+        store.tryRemoveComponent(npcRef, Frozen.getComponentType());
+        AnimationUtils.stopAnimation(npcRef, AnimationSlot.Status, true, store);
+        NPCMovementHelper.playAnim(npcRef, AnimationSlot.Status,
+                "Characters/Animations/Default/Idle.blockyanim", "Idle", store);
+        npc.isInteractingViaUI = false;
+        npc.uiInteractionPlayer = null;
+        npc.currentConversationPartner = null;
+
+        ai.followPlayerId = playerId;
+        ai.currentTask = TaskType.FOLLOWING;
+        ai.targetBlockPosition = null;
+        ai.forcedByDebug = false;
+        ai.taskStartTime = world != null ? world.getTick() : 0;
+        NPCMovementHelper.clearMoveTarget(npcRef, ai);
         return true;
     }
 

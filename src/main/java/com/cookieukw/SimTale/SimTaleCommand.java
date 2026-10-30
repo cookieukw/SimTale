@@ -47,16 +47,10 @@ import java.util.UUID;
 import com.cookieukw.SimTale.db.SimPlayerPersistence;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.systems.NPCHungerHelper;
-import com.cookieukw.SimTale.systems.NPCMovementHelper;
-import com.cookieukw.SimTale.systems.NPCSeatingHelper;
 import com.cookieukw.SimTale.systems.NPCWorkHelper;
 import com.cookieukw.SimTale.systems.RoutineAISystem;
 import com.cookieukw.SimTale.systems.ConstructionPreviewManager;
 import com.cookieukw.SimTale.core.WorldUtil;
-import com.hypixel.hytale.builtin.mounts.MountedComponent;
-import com.hypixel.hytale.server.core.entity.Frozen;
-import com.hypixel.hytale.server.core.entity.AnimationUtils;
-import com.hypixel.hytale.protocol.AnimationSlot;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
 import com.cookieukw.SimTale.core.Rotation4;
 import com.hypixel.hytale.logger.HytaleLogger;
@@ -1122,27 +1116,11 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 return;
             }
 
-            /* Stop whatever pose or errand the NPC was in. The follow task begins next tick,
-            after the store has processed these component changes.
-            */
-            NPCSeatingHelper.exitSitting(nearestNPC.entityRef, store, null, nearestNPC, ai);
-            NPCWorkHelper.releaseWorkPost(ai, nearestNPC);
-            NPCMovementHelper.setSleepingState(nearestNPC.entityRef, store, false);
-            store.tryRemoveComponent(nearestNPC.entityRef, MountedComponent.getComponentType());
-            store.tryRemoveComponent(nearestNPC.entityRef, Frozen.getComponentType());
-            AnimationUtils.stopAnimation(nearestNPC.entityRef, AnimationSlot.Status, true, store);
-            NPCMovementHelper.playAnim(nearestNPC.entityRef, AnimationSlot.Status,
-                    "Characters/Animations/Default/Idle.blockyanim", "Idle", store);
-            nearestNPC.isInteractingViaUI = false;
-            nearestNPC.uiInteractionPlayer = null;
-            nearestNPC.currentConversationPartner = null;
-
-            ai.followPlayerId = playerRef.getUuid();
-            ai.currentTask = RoutineAIComponent.TaskType.FOLLOWING;
-            ai.targetBlockPosition = null;
-            ai.forcedByDebug = false;
-            ai.taskStartTime = world.getTick();
-            NPCMovementHelper.clearMoveTarget(nearestNPC.entityRef, ai);
+            if (!RoutineAISystem.startFollowing(nearestNPC.entityRef, nearestNPC, ai,
+                    playerRef.getUuid(), store, world)) {
+                ctx.sendMessage(Message.raw(nearestNPC.name + " cannot follow you right now."));
+                return;
+            }
 
             ctx.sendMessage(Message.raw(nearestNPC.name
                     + " is now following you. Use /simtale follow stop to stop."));
