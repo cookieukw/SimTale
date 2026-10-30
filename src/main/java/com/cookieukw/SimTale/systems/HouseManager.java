@@ -28,9 +28,50 @@ public class HouseManager {
     private static final int SKY_PROBE_HEIGHT = 24;
     public static final int MIN_INTERIOR_BLOCKS = 50;
 
+    /**
+     * Legacy view, retained for binary/source compatibility.  New code must use the world-aware
+     * accessors below.  It represents the first world only and is never used as storage for other
+     * worlds.
+     */
     public static final Map<UUID, HouseData> HOUSES_BY_ID = new ConcurrentHashMap<>();
     public static final Map<HouseBlockPos, UUID> BLOCK_TO_HOUSE_ID = new ConcurrentHashMap<>();
     public static final Map<UUID, UUID> OWNER_TO_HOUSE_ID = new ConcurrentHashMap<>();
+
+    private static final Map<World, HouseIndexes> HOUSES_BY_WORLD = new ConcurrentHashMap<>();
+
+    /** The three indexes belonging to one concrete world instance. */
+    public static final class HouseIndexes {
+        public final Map<UUID, HouseData> housesById = new ConcurrentHashMap<>();
+        public final Map<HouseBlockPos, UUID> blockToHouseId = new ConcurrentHashMap<>();
+        public final Map<UUID, UUID> ownerToHouseId = new ConcurrentHashMap<>();
+    }
+
+    /** Returns the isolated indexes for {@code world}; World identity is the scope. */
+    public static HouseIndexes indexes(World world) {
+        if (world == null) return legacyIndexes();
+        return HOUSES_BY_WORLD.computeIfAbsent(world, ignored -> new HouseIndexes());
+    }
+
+    private static HouseIndexes legacyIndexes() {
+        HouseIndexes indexes = new HouseIndexes();
+        indexes.housesById.putAll(HOUSES_BY_ID);
+        indexes.blockToHouseId.putAll(BLOCK_TO_HOUSE_ID);
+        indexes.ownerToHouseId.putAll(OWNER_TO_HOUSE_ID);
+        return indexes;
+    }
+
+    /** Clears only the selected world's indexes. */
+    public static void clear(World world) {
+        HouseIndexes indexes = indexes(world);
+        indexes.housesById.clear();
+        indexes.blockToHouseId.clear();
+        indexes.ownerToHouseId.clear();
+        if (world == WorldUtil.first()) {
+            HOUSES_BY_ID.clear();
+            BLOCK_TO_HOUSE_ID.clear();
+            OWNER_TO_HOUSE_ID.clear();
+        }
+    }
 
     public enum ScanOutcome {
         NEW_HOUSE_SINGLE_OWNER,
@@ -67,9 +108,9 @@ public class HouseManager {
 
     /** Loads houses from the explicitly selected world's persistence shell. */
     public static void loadAllHouses(World world) {
-        HOUSES_BY_ID.clear();
-        BLOCK_TO_HOUSE_ID.clear();
-        OWNER_TO_HOUSE_ID.clear();
+        if (world == null) return;
+        HouseIndexes indexes = indexes(world);
+        clear(world);
 
         try {
             List<HouseData> list = SimNPCPersistence.worldShell(world).core(HouseData.class).extractAll();
@@ -77,10 +118,16 @@ public class HouseManager {
                 for (HouseData house : list) {
                     if (house.houseId == null) continue;
                     house.syncBeds();
-                    HOUSES_BY_ID.put(UUID.fromString(house.houseId), house);
-                    indexHouse(house);
+                    indexes.housesById.put(UUID.fromString(house.houseId), house);
+                    indexHouse(indexes, house);
                 }
-                LOGGER.info("[SimTale] Carregadas {} casas com sucesso da persistência Caskara", HOUSES_BY_ID.size());
+                LOGGER.info("[SimTale] Carregadas {} casas com sucesso da persistência Caskara", indexes.housesById.size());
+                // The compatibility view is intentionally populated only for the first world.
+                if (world == WorldUtil.first()) {
+                    HOUSES_BY_ID.putAll(indexes.housesById);
+                    BLOCK_TO_HOUSE_ID.putAll(indexes.blockToHouseId);
+                    OWNER_TO_HOUSE_ID.putAll(indexes.ownerToHouseId);
+                }
                 pruneOrphanOwners();
                 dedupeHousesByOverlap();
                 VillageManager.markDirty();
@@ -475,6 +522,21 @@ public class HouseManager {
             try {
                 OWNER_TO_HOUSE_ID.put(UUID.fromString(ownerStr), houseId);
             } catch (Exception ignored) {}
+        }
+    }
+
+    private static void indexHouse(HouseIndexes indexes, HouseData house) {
+        if (house == null || house.houseId == null) return;
+        UUID houseId = UUID.fromString(house.houseId);
+        if (house.interior != null) {
+            for (HouseBlockPos pos : house.interior) indexes.blockToHouseId.put(pos, houseId);
+        }
+        if (house.owners != null) {
+            for (String ownerStr : house.owners) {
+                try {
+                    indexes.ownerToHouseId.put(UUID.fromString(ownerStr), houseId);
+                } catch (Exception ignored) { }
+            }
         }
     }
 
