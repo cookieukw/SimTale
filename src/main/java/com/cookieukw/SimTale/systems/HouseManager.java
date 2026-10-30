@@ -766,7 +766,7 @@ public class HouseManager {
 
         // Communal/shared chests in a village can be opened by villagers
         if (ChestRegistry.isShared(world, chestPos)) {
-            VillageManager.Village village = VillageManager.nearest(chestPos.x, chestPos.z);
+            VillageManager.Village village = VillageManager.nearest(world, chestPos.x, chestPos.z);
             if (village != null && village.contains(chestPos.x, chestPos.z)) {
                 return true;
             }
