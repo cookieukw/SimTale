@@ -1,11 +1,11 @@
 name: Crowdin
 
-# Sincroniza o en-US com o Crowdin e abre um PR com as traduções.
-# O gatilho de push fica só no en-US de propósito: o commit que adiciona este
-# workflow não deve iniciar uma sincronização antes do seed manual de pt-BR/es-ES.
+# Syncs en-US with Crowdin and opens a PR with the translations.
+# The push trigger is intentionally only on en-US: the commit that adds this
+# workflow should not start a sync before the manual seed of pt-BR/es-ES.
 on:
   push:
-    branches: [feat/1.3.1]
+    branches: [main]
     paths:
       - 'src/main/resources/Server/Languages/en-US/**'
   schedule:
@@ -39,8 +39,7 @@ jobs:
           create_pull_request: true
           pull_request_title: 'i18n: update translations'
           pull_request_body: 'Traduções sincronizadas pelo Crowdin.'
-          # Troque para 'main' quando esta branch for mergeada.
-          pull_request_base_branch_name: 'feat/1.3.1'
+          pull_request_base_branch_name: 'main'
           pull_request_labels: 'i18n, crowdin'
           skip_untranslated_strings: true
           skip_untranslated_files: true
