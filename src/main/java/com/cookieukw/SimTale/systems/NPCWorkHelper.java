@@ -328,7 +328,7 @@ public class NPCWorkHelper {
                     scan needed here, just look the post up. One NPC per post at a time.
                     */
                     Vector3d pos = transform.getPosition();
-                    FishingPostRegistry.FishingPost post = FishingPostRegistry.claimNearest(pos.x, pos.y, pos.z, npc.entityId);
+                    FishingPostRegistry.FishingPost post = FishingPostRegistry.claimNearest(world, pos.x, pos.y, pos.z, npc.entityId);
                     if (post != null) {
                         ai.targetBlockPosition = new Vector3i(post.waterX(), post.waterY(), post.waterZ());
                         ai.claimedWorkPost = new Vector3i(post.postX(), post.postY(), post.postZ());
@@ -759,7 +759,8 @@ public class NPCWorkHelper {
             wrong one is a harmless no-op (it only removes an entry that matches both the exact
             position and this NPC's id) — simpler than threading the profession through here.
             */
-            FishingPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
+            FishingPostRegistry.release(WorldUtil.fromEntityRef(npc.entityRef), ai.claimedWorkPost.x,
+                    ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
             LumberPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
             FarmPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
         }
