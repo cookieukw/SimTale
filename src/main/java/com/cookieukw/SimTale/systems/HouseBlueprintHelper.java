@@ -102,6 +102,9 @@ public final class HouseBlueprintHelper {
         */
         if (raw.hitUnloaded()) {
             playerRef.sendMessage(Message.translation("general.blueprint.unloaded"));
+        } else if (raw.exposedOutside() && (raw.bedExposedToSky()
+                || raw.openingEdges() > 2)) {
+            playerRef.sendMessage(Message.translation("general.blueprint.open"));
         } else if (raw.overflowed()) {
             playerRef.sendMessage(Message.translation("general.blueprint.overflowed"));
         }
