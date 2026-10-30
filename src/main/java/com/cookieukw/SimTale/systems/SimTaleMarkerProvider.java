@@ -335,13 +335,11 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         }
 
         List<HouseBlockPos> unclaimed = new ArrayList<>();
-        synchronized (BedRegistry.BEDS) {
-            for (SimBedData.BedPos bed : BedRegistry.BEDS) {
+        for (SimBedData.BedPos bed : BedRegistry.registeredBeds(world)) {
                 HouseBlockPos pos = new HouseBlockPos(bed.x, bed.y, bed.z);
                 if (houseBeds.contains(pos) || claimedBeds.contains(pos)) continue;
                 unclaimed.add(pos);
             }
-        }
         WorldMarkerSnapshot capturedSnapshot = new WorldMarkerSnapshot(
                 List.copyOf(captured), capturedVillages, capturedHousesSnapshot,
                 capturedWorkPostsSnapshot, List.copyOf(unclaimed));

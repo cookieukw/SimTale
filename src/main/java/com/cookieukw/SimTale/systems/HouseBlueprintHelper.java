@@ -79,7 +79,7 @@ public final class HouseBlueprintHelper {
     public static boolean inspect(World world, PlayerRef playerRef, Vector3d playerPos) {
         if (world == null || playerRef == null || playerPos == null) return false;
 
-        HouseBlockPos bed = nearestBed(playerPos);
+        HouseBlockPos bed = nearestBed(world, playerPos);
         if (bed == null) {
             playerRef.sendMessage(Message.translation("general.blueprint.no_bed_nearby")
                     .param("radius", SEARCH_RADIUS));
@@ -116,12 +116,11 @@ public final class HouseBlueprintHelper {
     }
 
     /** Closest registered bed within {@link #SEARCH_RADIUS}, or null when there is none. */
-    private static HouseBlockPos nearestBed(Vector3d from) {
+    private static HouseBlockPos nearestBed(World world, Vector3d from) {
         HouseBlockPos best = null;
         double bestDist = (double) SEARCH_RADIUS * SEARCH_RADIUS;
 
-        synchronized (BedRegistry.BEDS) {
-            for (SimBedData.BedPos bed : BedRegistry.BEDS) {
+        for (SimBedData.BedPos bed : BedRegistry.registeredBeds(world)) {
                 double dx = from.x - (bed.x + 0.5);
                 double dy = from.y - (bed.y + 0.5);
                 double dz = from.z - (bed.z + 0.5);
@@ -131,7 +130,6 @@ public final class HouseBlueprintHelper {
                     best = new HouseBlockPos(bed.x, bed.y, bed.z);
                 }
             }
-        }
         return best;
     }
 

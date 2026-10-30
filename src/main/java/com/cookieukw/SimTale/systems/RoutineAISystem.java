@@ -694,7 +694,7 @@ once per NPC per tick for nothing.
     }
 
     @NullableDecl
-    static BedPos getBedPos(TransformComponent transform) {
+    static BedPos getBedPos(TransformComponent transform, World world) {
         BedPos bestBed = null;
         double closestDistSq = Double.MAX_VALUE;
         Vector3d myPos = transform.getPosition();
@@ -710,8 +710,8 @@ once per NPC per tick for nothing.
             }
         }
 
-        synchronized (BedRegistry.BEDS) {
-            for (BedPos bp : BedRegistry.BEDS) {
+        Set<BedPos> registeredBeds = BedRegistry.registeredBeds(world);
+        for (BedPos bp : registeredBeds) {
                 if (claimedBeds.contains(bp)) continue;
 
                 double dx = bp.x - myPos.x;
@@ -723,11 +723,10 @@ once per NPC per tick for nothing.
                     bestBed = bp;
                 }
             }
-        }
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[SimTale] getBedPos: registry={}, claimed={}, chosen={}",
-                    BedRegistry.BEDS.size(), claimedBeds.size(),
+                    registeredBeds.size(), claimedBeds.size(),
                     bestBed != null ? "(" + bestBed.x + "," + bestBed.y + "," + bestBed.z + ")" : "null");
         }
         return bestBed;

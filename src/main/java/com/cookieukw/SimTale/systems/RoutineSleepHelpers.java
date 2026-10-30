@@ -81,7 +81,7 @@ final class RoutineSleepHelpers {
         */
         if (ai.currentTask == TaskType.IDLE && NPCSocialHelper.isReservedAndActive(ai, world.getTick())) {
             if (npc.bedLocation == null && world.getTick() % 60 == 0) {
-                BedPos bestBed = RoutineAISystem.getBedPos(transform);
+                BedPos bestBed = RoutineAISystem.getBedPos(transform, world);
                 if (bestBed != null) {
                     HouseManager.validateAndClaimBed(world, bestBed, npc);
                 }
@@ -300,7 +300,7 @@ final class RoutineSleepHelpers {
             } else if (ai.taskStartTime == 0 || world.getTick() - ai.taskStartTime >= RoutineAISystem.BED_SEARCH_RETRY_COOLDOWN_TICKS) {
                 ai.taskStartTime = world.getTick();
                 
-                BedPos bestBed = RoutineAISystem.getBedPos(transform);
+                BedPos bestBed = RoutineAISystem.getBedPos(transform, world);
 
                 if (bestBed != null) {
                     RoutineAISystem.LOGGER.info("[SimTale] NPC '{}' found unclaimed bed at ({},{},{})",
@@ -317,7 +317,7 @@ final class RoutineSleepHelpers {
                     }
                 } else {
                     RoutineAISystem.LOGGER.warn("[SimTale] NPC '{}' could not find any bed! BedRegistry.BEDS.size={}",
-                            npc.name, BedRegistry.BEDS.size());
+                            npc.name, BedRegistry.size(world));
                     ai.nextBedSearchTick = world.getTick() + RoutineAISystem.BED_SEARCH_RETRY_COOLDOWN_TICKS;
                     ai.taskStartTime = world.getTick();
                     RoutineAISystem.startWanderingFallback(ref, ai, npc, transform, store, world);
@@ -351,9 +351,9 @@ final class RoutineSleepHelpers {
                     return true;
                 } else {
                     // Self-healing: if the bed block is present in the world, make sure it is in BedRegistry (e.g. after server restart)
-                    synchronized (BedRegistry.BEDS) {
+                    synchronized (BedRegistry.registeredBeds(world)) {
                         boolean existsInRegistry = false;
-                        for (BedPos b : BedRegistry.BEDS) {
+                        for (BedPos b : BedRegistry.registeredBeds(world)) {
                             if (b.x == bedPos.x && b.y == bedPos.y && b.z == bedPos.z) {
                                 existsInRegistry = true;
                                 break;
@@ -361,7 +361,7 @@ final class RoutineSleepHelpers {
                         }
                         if (!existsInRegistry) {
                             RoutineAISystem.LOGGER.debug("[SimTale] Re-registering loaded bed at (" + bedPos.x + "," + bedPos.y + "," + bedPos.z + ") from NPC's memory");
-                            BedRegistry.addOrReplace(bedPos.x, bedPos.y, bedPos.z, 0f);
+                            BedRegistry.addOrReplace(world, bedPos.x, bedPos.y, bedPos.z, 0f);
                         }
                     }
                 }
