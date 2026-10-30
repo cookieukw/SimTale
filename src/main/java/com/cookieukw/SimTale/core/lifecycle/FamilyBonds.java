@@ -4,6 +4,8 @@ import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Child;
 import com.cookieukw.SimTale.core.HouseData;
+import com.cookieukw.SimTale.core.WorldUtil;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
@@ -215,9 +217,10 @@ public final class FamilyBonds {
             return parentNpc.bedLocation;
         }
 
-        UUID houseId = HouseManager.OWNER_TO_HOUSE_ID.get(parentId);
+        World world = parentNpc.entityRef != null ? WorldUtil.fromEntityRef(parentNpc.entityRef) : null;
+        UUID houseId = HouseManager.indexes(world).ownerToHouseId.get(parentId);
         if (houseId != null) {
-            HouseData house = HouseManager.HOUSES_BY_ID.get(houseId);
+            HouseData house = HouseManager.indexes(world).housesById.get(houseId);
             if (house != null) {
                 if (house.bedPos != null) {
                     return new BedPos(house.bedPos.x, house.bedPos.y, house.bedPos.z, 0f);
