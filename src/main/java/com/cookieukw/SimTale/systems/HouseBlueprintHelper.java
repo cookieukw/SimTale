@@ -96,6 +96,16 @@ public final class HouseBlueprintHelper {
                 .param("doors", raw.doorBlocks().size())
                 .param("chests", raw.chestBlocks().size()));
 
+        /* "Too large or unenclosed" is one outcome for two very different causes. Say which one
+        applies, otherwise the player cannot tell an open roof from a chunk that simply was not
+        loaded while the scan ran.
+        */
+        if (raw.hitUnloaded()) {
+            playerRef.sendMessage(Message.translation("general.blueprint.unloaded"));
+        } else if (raw.overflowed()) {
+            playerRef.sendMessage(Message.translation("general.blueprint.overflowed"));
+        }
+
         showOutline(world, playerRef.getUuid(), raw, result.fullyCompatible());
         LOGGER.info("[SimTale] Blueprint inspecionou a cama ({},{},{}): {} blocos internos, valida={}",
                 bed.x, bed.y, bed.z, raw.interiorBlocks().size(), result.fullyCompatible());

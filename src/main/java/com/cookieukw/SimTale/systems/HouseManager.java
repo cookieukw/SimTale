@@ -7,10 +7,13 @@ import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimBedData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
+import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
+import com.cookieukw.SimTale.logic.InteractionManager;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -234,6 +237,181 @@ public class HouseManager {
         return false;
     }
 
+    /**
+     * Registers an ownerless house when a valid bed is placed near an existing village (or when it
+     * would be the first house in the world).
+     *
+     * <p>Previously a bed only became a house when an NPC happened to claim it. A player could
+     * build a perfectly valid house, see no marker, and have no way to tell whether the room was
+     * rejected or simply waiting for a homeless NPC to walk over. Registering valid rooms on
+     * placement makes recognition immediate; an NPC claim later just adds the owner.
+     *
+     * <p>Rooms far from every existing village are deliberately left alone. A player's bed deep in
+     * the wilderness should not silently create a village marker far from the settlement.
+     */
+    public static boolean tryRegisterValidBed(World world, HouseBlockPos bedPos) {
+        if (world == null || bedPos == null) return false;
+        if (!VillageManager.isNearVillage(bedPos.x, bedPos.z)) return false;
+
+        ScanReport report = scanAndClassify(world, bedPos, null);
+        if (report.outcome != ScanOutcome.NEW_HOUSE_SINGLE_OWNER
+                && report.outcome != ScanOutcome.NEW_HOUSE_MULTI_OWNER) {
+            LOGGER.info("[SimTale] Bed ({},{},{}) was not registered as a house: {}",
+                    bedPos.x, bedPos.y, bedPos.z, report.outcome);
+            HytaleLogger.forEnclosingClass().atInfo().log("SimTale: bed at ("
+                    + bedPos.x + "," + bedPos.y + "," + bedPos.z + ") is not a valid house yet: "
+                    + report.outcome + " (interior=" + report.raw.interiorBlocks.size()
+                    + ", doors=" + report.raw.doorBlocks.size() + ", overflowed="
+                    + report.raw.overflowed + ", unloaded=" + report.raw.hitUnloaded + ")");
+            return false;
+        }
+
+        UUID reusedId = findHouseIdForRoom(bedPos, report.raw.interiorBlocks);
+        if (reusedId != null) {
+            HouseData existing = HOUSES_BY_ID.get(reusedId);
+            if (existing != null) {
+                existing.addBed(bedPos);
+                registerHouse(existing);
+                assignOwnerlessHouses(world);
+                return true;
+            }
+        }
+
+        Set<UUID> owners = new HashSet<>(report.freshBedOwners);
+        HouseData house = new HouseData(
+                UUID.randomUUID(),
+                owners,
+                bedPos,
+                report.raw.interiorBlocks,
+                report.raw.doorBlocks,
+                report.raw.chestBlocks);
+        if (report.raw.otherBeds != null) {
+            for (HouseBlockPos other : report.raw.otherBeds) {
+                house.addBed(other);
+            }
+        }
+        house.addBed(bedPos);
+        registerHouse(house);
+        LOGGER.info("[SimTale] Bed ({},{},{}) registered as an ownerless house ({} interior blocks)",
+                bedPos.x, bedPos.y, bedPos.z, report.raw.interiorBlocks.size());
+        HytaleLogger.forEnclosingClass().atInfo().log("SimTale: bed at ("
+                + bedPos.x + "," + bedPos.y + "," + bedPos.z
+                + ") registered as an ownerless house (" + report.raw.interiorBlocks.size()
+                + " interior blocks).");
+        assignOwnerlessHouses(world);
+        return true;
+    }
+
+    /**
+     * Repairs ownerless houses and moves homeless NPCs into them.
+     *
+     * <p>Bed claiming normally happens from the NPC's idle loop. That loop can be starved by work,
+     * social tasks or an unloaded chunk, and a house can sit valid and empty forever even though
+     * homeless residents exist. This is the settlement-level fallback: first adopt any NPC already
+     * sleeping in the house (the owner list may have been lost by an older save), then give a
+     * genuinely empty house to the nearest homeless adult.
+     */
+    /**
+     * Removes a dead NPC from every house owner list.
+     *
+     * <p>Without this a dead resident left its house marked "occupied" but with no resolvable
+     * name — exactly the "Casa (Ocupada)" marker with no owner that shows up after a death. The
+     * house itself and its beds remain; it simply becomes ownerless and the normal assignment
+     * pass can move someone else in.
+     */
+    public static void releaseOwner(UUID npcId) {
+        if (npcId == null) return;
+        String owner = npcId.toString();
+
+        for (HouseData house : new ArrayList<>(HOUSES_BY_ID.values())) {
+            if (house == null || house.owners == null) continue;
+            if (!house.owners.remove(owner)) continue;
+
+            registerHouse(house);
+            LOGGER.info("[SimTale] Released house {} after owner {} died; {} owner(s) remain",
+                    house.houseId, npcId, house.owners.size());
+        }
+    }
+
+    public static int assignOwnerlessHouses(World world) {
+        if (world == null) return 0;
+        int assigned = 0;
+
+        for (HouseData house : new ArrayList<>(HOUSES_BY_ID.values())) {
+            if (house == null || house.beds == null || house.beds.isEmpty()) continue;
+
+            Set<String> owners = house.owners != null ? house.owners : new HashSet<>();
+            house.owners = owners;
+
+            /* A resident already sleeping here proves ownership even when the owner list was
+            lost. Repair that first; it is what makes the map marker green again.
+            */
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc == null || npc.entityId == null || npc.bedLocation == null) continue;
+                HouseBlockPos sleepingAt = new HouseBlockPos(
+                        npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
+                if (!house.beds.contains(sleepingAt)) continue;
+
+                if (owners.add(npc.entityId.toString())) {
+                    house.addBed(sleepingAt);
+                    registerHouse(house);
+                    SimNPCPersistence.saveNPC(npc);
+                    assigned++;
+                    LOGGER.info("[SimTale] NPC '{}' adopted ownerless house {} at bed ({},{},{})",
+                            npc.name, house.houseId, sleepingAt.x, sleepingAt.y, sleepingAt.z);
+                }
+            }
+
+            if (!owners.isEmpty()) continue;
+
+            HouseBlockPos bed = house.bedPos != null ? house.bedPos : house.beds.iterator().next();
+            if (bed == null || !BedRegistry.exists(bed.x, bed.y, bed.z)) continue;
+
+            SimNPCComponent candidate = null;
+            double bestDistSq = Double.MAX_VALUE;
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc == null || npc.entityId == null || npc.isReaper) continue;
+                if (npc.entityRef == null || !npc.entityRef.isValid()) continue;
+                if (npc.bedLocation != null) continue; // already has a home
+                if (InteractionManager.isNpcAChild(npc)) continue; // children share parents
+
+                TransformComponent transform = npc.entityRef.getStore()
+                        .getComponent(npc.entityRef, TransformComponent.getComponentType());
+                if (transform == null) continue;
+
+                double dx = (bed.x + 0.5) - transform.getPosition().x;
+                double dy = (bed.y + 0.5) - transform.getPosition().y;
+                double dz = (bed.z + 0.5) - transform.getPosition().z;
+                double distSq = dx * dx + dy * dy + dz * dz;
+                if (distSq < bestDistSq) {
+                    bestDistSq = distSq;
+                    candidate = npc;
+                }
+            }
+
+            if (candidate == null) continue;
+
+            SimBedData.BedPos registered = BedRegistry.find(bed.x, bed.y, bed.z);
+            float yaw = registered != null ? registered.yaw : 0f;
+            candidate.bedLocation = new SimBedData.BedPos(bed.x, bed.y, bed.z, yaw);
+            if (candidate.family != null) {
+                candidate.family.homeX = bed.x;
+                candidate.family.homeY = bed.y;
+                candidate.family.homeZ = bed.z;
+                candidate.family.hasSharedHome = true;
+            }
+            owners.add(candidate.entityId.toString());
+            house.addBed(bed);
+            registerHouse(house);
+            SimNPCPersistence.saveNPC(candidate);
+            assigned++;
+            LOGGER.info("[SimTale] Homeless NPC '{}' moved into empty house {} at bed ({},{},{})",
+                    candidate.name, house.houseId, bed.x, bed.y, bed.z);
+        }
+
+        return assigned;
+    }
+
     public static SimBedData.BedPos findUnclaimedBedInHouse(HouseData house, SimNPCComponent self) {
         if (house == null || house.beds == null || house.beds.isEmpty()) return null;
         for (HouseBlockPos pos : house.beds) {
@@ -381,16 +559,22 @@ public class HouseManager {
                     queue.add(neighbor);
                     continue;
                 }
+
+                /* Furniture is part of the room, not a wall. Tables, workbenches, chairs, lamps
+                and similar blocks are solid, and treating them as boundaries made the flood fill
+                stop in the middle of a furnished room — which produced "too large/unenclosed" or
+                "too small" reports for perfectly valid houses. They are still recorded so the
+                mandatory furniture check can see them, but the fill walks through them.
+                */
+                if (type.getId() != null
+                        && FurnitureRequirement.classify(type.getId().toLowerCase()).isPresent()) {
+                    furniture.add(neighbor);
+                    visited.add(neighbor);
+                    queue.add(neighbor);
+                    continue;
+                }
+
                 if (isSolid(type)) {
-                    /* Still a wall for the fill — but if it is recognisable furniture, remember
-                    where it was. Chairs, tables and most lamps are solid, so skipping them
-                    silently is what made "needs a chair, a table" impossible to clear even in a
-                    room that had both.
-                    */
-                    if (type.getId() != null
-                            && FurnitureRequirement.classify(type.getId().toLowerCase()).isPresent()) {
-                        furniture.add(neighbor);
-                    }
                     continue;
                 }
 
@@ -451,7 +635,9 @@ public class HouseManager {
         }
 
         Set<UUID> allOwners = new HashSet<>(freshOwners);
-        allOwners.add(scanningOwner);
+        if (scanningOwner != null) {
+            allOwners.add(scanningOwner);
+        }
 
         if (allOwners.size() > 1) {
             return new ScanReport(ScanOutcome.NEW_HOUSE_MULTI_OWNER, allOwners, null, raw);
@@ -589,8 +775,14 @@ public class HouseManager {
 
     public enum FurnitureRequirement {
         LIGHT_SOURCE("torch", "lantern", "candle", "campfire", "glow", "lamp", "chandelier"),
-        SEATING("chair", "stool", "bench", "seat", "sofa", "couch"),
+        /* SURFACE before SEATING: a Bench_WorkBench contains "bench", and classification takes
+        the first match. Before this order a workbench counted as a chair, so a room with a
+        workbench but no table failed the SURFACE requirement and the player was told the house
+        was incomplete for no visible reason. Furniture_Village_Bench has no surface keyword, so
+        it still falls through to SEATING.
+        */
         SURFACE("table", "workbench", "desk", "counter"),
+        SEATING("chair", "stool", "bench", "seat", "sofa", "couch"),
         STORAGE_OPTIONAL("chest", "barrel", "cupboard", "cabinet");
 
         private final List<String> idKeywords;
@@ -600,6 +792,13 @@ public class HouseManager {
         }
 
         public boolean matches(String blockIdLower) {
+            /* Bench_* is a crafting station, not a seat. Without this, a furnace or workbench
+            satisfied the mandatory SEATING requirement. Real benches are Furniture_*_Bench.
+            */
+            if (this == SEATING
+                    && (blockIdLower.startsWith("bench_") || blockIdLower.contains("tinkering"))) {
+                return false;
+            }
             return idKeywords.stream().anyMatch(blockIdLower::contains);
         }
 
@@ -753,6 +952,8 @@ public class HouseManager {
             npc.family.hasSharedHome = true;
             SimNPCPersistence.saveNPC(npc);
             LOGGER.info("[SimTale] NPC '{}' successfully registered and validated home at bed ({},{},{})!", npc.name, bestBed.x, bestBed.y, bestBed.z);
+            HytaleLogger.forEnclosingClass().atInfo().log("SimTale: NPC '" + npc.name
+                    + "' claimed bed (" + bestBed.x + "," + bestBed.y + "," + bestBed.z + ").");
             return true;
         } else if (report.outcome == ScanOutcome.CONFLICT_WITH_EXISTING
                 || report.outcome == ScanOutcome.MERGED_INTO_EXISTING) {
@@ -808,6 +1009,9 @@ public class HouseManager {
 
             LOGGER.info("[SimTale] NPC '{}' moved into existing house {} using bed ({},{},{}).",
                     npc.name, existing.houseId, bestBed.x, bestBed.y, bestBed.z);
+            HytaleLogger.forEnclosingClass().atInfo().log("SimTale: NPC '" + npc.name
+                    + "' moved into house " + existing.houseId + " using bed ("
+                    + bestBed.x + "," + bestBed.y + "," + bestBed.z + ").");
             return true;
 
         } else {

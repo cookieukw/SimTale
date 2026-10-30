@@ -210,7 +210,14 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
         if (BedRegistry.isBedId(placedId)) {
             BedWorldBootstrap.registerBedAt(world, pos.x, pos.y, pos.z);
             Vector3i bedAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
-            HouseManager.registerBedInHouse(new HouseBlockPos(bedAnchor.x, bedAnchor.y, bedAnchor.z));
+            HouseBlockPos anchorPos = new HouseBlockPos(bedAnchor.x, bedAnchor.y, bedAnchor.z);
+            if (!HouseManager.registerBedInHouse(anchorPos)) {
+                /* A new room with a valid bed becomes an ownerless house immediately. An NPC
+                claiming it later simply adds the owner; until then the map shows it as empty
+                instead of showing nothing at all.
+                */
+                HouseManager.tryRegisterValidBed(world, anchorPos);
+            }
         }
 
         /* Ask the engine whether the block holds an item container instead of guessing from its

@@ -19,6 +19,7 @@ import com.cookieukw.SimTale.core.Memory;
 import com.cookieukw.SimTale.core.MemoryEvent;
 import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.systems.NPCSocialHelper;
+import com.cookieukw.SimTale.systems.NPCToolHelper;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.NPCPreferences;
@@ -95,6 +96,9 @@ public class SimTaleTests {
 
             System.out.println("Village Stock & Shared Chests");
             testVillageStockAndSharedChests();
+            testVillageGlobalChests();
+            testHouseFurnitureClassification();
+            testProfessionTools();
 
             System.out.println("Proximity & Configuration");
             ProximityConfigTests.run();
@@ -154,6 +158,13 @@ public class SimTaleTests {
         SimNPCData npcData = new SimNPCData();
         npcData.id = npcId.toString();
         npcData.name = "Test NPC Name";
+        npcData.needs = new SimNPCData.NeedsData();
+        npcData.needs.hunger = 37.5f;
+        npcData.needs.energy = 62.25f;
+        npcData.needs.social = 18f;
+        npcData.needs.fun = 91f;
+        npcData.needs.hygiene = 44f;
+        npcData.deathCause = "por uma entidade";
 
         // Save to SimNPCData Core of DB_SHELL
         String savedId = SimNPCPersistence.DB_SHELL.core(SimNPCData.class).preserve(npcId.toString(), npcData);
@@ -163,6 +174,26 @@ public class SimTaleTests {
         SimNPCData loaded = SimNPCPersistence.DB_SHELL.core(SimNPCData.class).extract(npcId.toString()).sync().orElse(null);
         assertEqual(loaded != null, true, "NPC loaded");
         assertEqual(loaded.name, "Test NPC Name", "Validation of saved name");
+        assertEqual(loaded.needs != null, true, "Needs snapshot loaded");
+        assertEqual(loaded.needs.hunger, 37.5f, "Hunger persisted");
+        assertEqual(loaded.needs.energy, 62.25f, "Energy persisted");
+        assertEqual(loaded.needs.social, 18f, "Social persisted");
+        assertEqual(loaded.needs.fun, 91f, "Fun persisted");
+        assertEqual(loaded.needs.hygiene, 44f, "Hygiene persisted");
+        assertEqual(loaded.deathCause, "por uma entidade", "Death cause persisted");
+
+        /* A detached component (no live entity ref) saves from the snapshot it loaded, not by
+        writing 100s over the record. This is the command path used by LifecycleUtils.
+        */
+        SimNPCComponent detached = new SimNPCComponent(npcId, "Detached");
+        detached.dataLoaded = true;
+        detached.savedNeeds = loaded.needs;
+        SimNPCPersistence.saveNPC(detached);
+        SimNPCData afterDetachedSave = SimNPCPersistence.DB_SHELL.core(SimNPCData.class)
+                .extract(npcId.toString()).sync().orElse(null);
+        assertEqual(afterDetachedSave != null && afterDetachedSave.needs != null, true,
+                "Detached save kept a needs snapshot");
+        assertEqual(afterDetachedSave.needs.hunger, 37.5f, "Detached save preserved hunger");
 
         // Delete
         SimNPCPersistence.DB_SHELL.core(SimNPCData.class).discard(npcId.toString());
@@ -535,9 +566,15 @@ public class SimTaleTests {
             Assert.equal(ChairRegistry.isChair("stone_stool"), true, "stone_stool is a chair");
             Assert.equal(ChairRegistry.isChair("sofa_red"), true, "sofa_red is a chair");
             Assert.equal(ChairRegistry.isChair("couch_luxury"), true, "couch_luxury is a chair");
-            Assert.equal(ChairRegistry.isChair("bench_lumbermill"), false, "bench_lumbermill is not a chair");
+            Assert.equal(ChairRegistry.isChair("Bench_Lumbermill"), false, "Bench_Lumbermill is not a chair");
+            Assert.equal(ChairRegistry.isChair("Bench_WorkBench"), false, "Bench_WorkBench is not a chair");
+            Assert.equal(ChairRegistry.isChair("Bench_Furnace"), false, "Bench_Furnace is not a chair");
+            Assert.equal(ChairRegistry.isChair("Bench_Alchemy"), false, "Bench_Alchemy is not a chair");
+            Assert.equal(ChairRegistry.isChair("GoblinLab_Tinkering_Bench"), false, "tinkering bench is not a chair");
             Assert.equal(ChairRegistry.isChair("workbench"), false, "workbench is not a chair");
-            Assert.equal(ChairRegistry.isChair("alchemybench"), false, "alchemybench is not a chair");
+            Assert.equal(ChairRegistry.isChair("Furniture_Village_Chair"), true, "village chair is a chair");
+            Assert.equal(ChairRegistry.isChair("Furniture_Village_Bench"), true, "village bench is a chair");
+            Assert.equal(ChairRegistry.isChair("Furniture_Village_Stool"), true, "village stool is a chair");
             Assert.equal(ChairRegistry.isChair("dirt_block"), false, "dirt_block is not a chair");
 
             // 2. Add and nearest search
@@ -755,6 +792,94 @@ public class SimTaleTests {
         ChestRegistry.removeAt(999, 64, 999);
         Assert.equal(ChestRegistry.isShared(50, 64, 50), false, "Shared chest removed");
 
+        System.out.println("OK");
+    }
+
+    /**
+     * A chest inside the village but outside every house becomes global automatically; a chest
+     * inside a house stays private. This is the rule the player asked for: drop a chest in the
+     * village square and everyone may use it, but a bedroom chest still belongs to the household.
+     */
+    private static void testVillageGlobalChests() {
+        System.out.print("Testing Village-Global Chests... ");
+
+        UUID houseId = UUID.randomUUID();
+        UUID owner = UUID.randomUUID();
+        HouseBlockPos bed = new HouseBlockPos(300, 64, 300);
+        HouseBlockPos door = new HouseBlockPos(299, 64, 297);
+
+        Set<HouseBlockPos> interior = new HashSet<>();
+        for (int x = 298; x <= 302; x++) {
+            for (int z = 298; z <= 302; z++) {
+                interior.add(new HouseBlockPos(x, 64, z));
+            }
+        }
+
+        HouseBlockPos privateChest = new HouseBlockPos(301, 64, 301);
+        HouseBlockPos villageChest = new HouseBlockPos(310, 64, 300);
+        ChestRegistry.add(privateChest.x, privateChest.y, privateChest.z);
+        ChestRegistry.add(villageChest.x, villageChest.y, villageChest.z);
+
+        HouseData house = new HouseData(houseId, Set.of(owner), bed, interior, Set.of(door), Set.of());
+        HouseManager.registerHouse(house);
+
+        try {
+            VillageManager.Village village = VillageManager.nearest(300, 300);
+            Assert.equal(village != null, true, "Village was built from the test house");
+
+            Assert.equal(HouseManager.findHouseIdForChest(villageChest) != null, false,
+                    "Village chest belongs to no house");
+            Assert.equal(ChestRegistry.isVillageGlobal(villageChest), true,
+                    "Chest inside village and outside house is global");
+            Assert.equal(ChestRegistry.isShared(villageChest), true,
+                    "Global chest is shared for food/deposits");
+            Assert.equal(HouseManager.canOpenChest(UUID.randomUUID(), villageChest), true,
+                    "Any NPC can open a village-global chest");
+
+            Assert.equal(ChestRegistry.isVillageGlobal(privateChest), false,
+                    "Chest inside the house is not global");
+            Assert.equal(ChestRegistry.isShared(privateChest), false,
+                    "Chest inside the house stays private");
+            Assert.equal(HouseManager.canOpenChest(UUID.randomUUID(), privateChest), false,
+                    "A non-owner cannot open the house chest");
+
+            List<HouseBlockPos> communal = VillageStockManager.getSharedChestsInVillage(village);
+            Assert.equal(communal.contains(villageChest), true,
+                    "Village stock includes the global chest");
+            Assert.equal(communal.contains(privateChest), false,
+                    "Village stock excludes the house chest");
+        } finally {
+            ChestRegistry.removeAt(privateChest.x, privateChest.y, privateChest.z);
+            ChestRegistry.removeAt(villageChest.x, villageChest.y, villageChest.z);
+            HouseManager.deleteHouse(houseId);
+        }
+
+        System.out.println("OK");
+    }
+
+    private static void testProfessionTools() {
+        System.out.print("Testing Profession Tools... ");
+        Assert.equal(NPCToolHelper.toolFor(Profession.MINER), "Tool_Pickaxe_Copper", "Miner holds a pickaxe");
+        Assert.equal(NPCToolHelper.toolFor(Profession.FARMER), "Tool_Hoe_Copper", "Farmer holds a hoe");
+        Assert.equal(NPCToolHelper.toolFor(Profession.LUMBERJACK), "Tool_Hatchet_Copper", "Lumberjack holds a hatchet");
+        Assert.equal(NPCToolHelper.toolFor(Profession.HUNTER), "Weapon_Shortbow_Copper", "Hunter holds a shortbow");
+        Assert.equal(NPCToolHelper.toolFor(Profession.BUILDER), "Tool_Hammer_Copper", "Builder holds a hammer");
+        Assert.equal(NPCToolHelper.toolFor(Profession.EXPLORER), "Tool_Map", "Explorer holds a map");
+        Assert.equal(NPCToolHelper.toolFor(Profession.GUARD), null, "Guard keeps its own exact weapon");
+        Assert.equal(NPCToolHelper.toolFor(Profession.UNEMPLOYED), null, "Unemployed has no tool");
+        System.out.println("OK");
+    }
+
+    private static void testHouseFurnitureClassification() {
+        System.out.print("Testing House Furniture Classification... ");
+        Assert.equal(HouseManager.FurnitureRequirement.classify("bench_workbench").orElse(null),
+                HouseManager.FurnitureRequirement.SURFACE, "Workbench counts as a surface");
+        Assert.equal(HouseManager.FurnitureRequirement.classify("furniture_village_bench").orElse(null),
+                HouseManager.FurnitureRequirement.SEATING, "Village bench still counts as seating");
+        Assert.equal(HouseManager.FurnitureRequirement.classify("furniture_village_table").orElse(null),
+                HouseManager.FurnitureRequirement.SURFACE, "Table counts as a surface");
+        Assert.equal(HouseManager.FurnitureRequirement.classify("bench_furnace").orElse(null),
+                null, "Furnace does not satisfy seating");
         System.out.println("OK");
     }
 

@@ -53,12 +53,48 @@ public final class ChestRegistry {
         }
     }
 
+    /**
+     * Whether an NPC may treat this chest as communal storage.
+     *
+     * <p>Two things make a chest communal:
+     * <ul>
+     *   <li>it was explicitly marked shared with {@code /simtale chestshare}; or</li>
+     *   <li>it stands inside a village and belongs to no house. Those are the "global" chests:
+     *       the player drops a chest in the village square, nobody owns it, and every resident
+     *       may take food from it or leave surplus there.</li>
+     * </ul>
+     *
+     * <p>The second case is computed from the live house/village state instead of being written
+     * into {@link #SHARED_CHESTS}. That keeps it honest: move the chest into a house and it
+     * becomes private again; level the last house and the village (and the global status) goes
+     * away with it.
+     */
     public static boolean isShared(HouseBlockPos pos) {
-        return pos != null && SHARED_CHESTS.contains(pos);
+        return pos != null && (isExplicitlyShared(pos) || isVillageGlobal(pos));
     }
 
     public static boolean isShared(int x, int y, int z) {
-        return SHARED_CHESTS.contains(new HouseBlockPos(x, y, z));
+        return isShared(new HouseBlockPos(x, y, z));
+    }
+
+    /** True only when {@code /simtale chestshare} (or a saved flag) marked this chest shared. */
+    public static boolean isExplicitlyShared(HouseBlockPos pos) {
+        return pos != null && SHARED_CHESTS.contains(pos);
+    }
+
+    /**
+     * A chest inside a village that is not part of any house.
+     *
+     * <p>This is the automatic "global chest" rule. {@link HouseManager#findHouseIdForChest}
+     * deliberately resolves a chest that merely touches a room, so a chest placed inside a
+     * bedroom stays private even when the house is inside the village.
+     */
+    public static boolean isVillageGlobal(HouseBlockPos pos) {
+        if (pos == null) return false;
+        if (HouseManager.findHouseIdForChest(pos) != null) return false;
+
+        VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
+        return village != null && village.contains(pos.x, pos.z);
     }
 
     public static void setShared(int x, int y, int z, boolean shared) {
@@ -95,7 +131,11 @@ public final class ChestRegistry {
     }
 
     private static void persist(int x, int y, int z) {
-        persist(x, y, z, isShared(x, y, z));
+        /* Only the explicit flag is persisted. Village-global status is derived from the live
+        house/village layout, so saving it would make a chest stay global after the player moved
+        it into a house or the village disappeared.
+        */
+        persist(x, y, z, SHARED_CHESTS.contains(new HouseBlockPos(x, y, z)));
     }
 
     private static void persist(int x, int y, int z, boolean shared) {

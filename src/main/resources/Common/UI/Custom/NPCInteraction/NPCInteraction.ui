@@ -9,15 +9,15 @@ $T = "../SimTaleTheme.ui";
 
 // One showcase slot: the item on top, a short caption under it.
 @ShowcaseSlot = Group {
-  Anchor: (Width: 96, Height: 50);
+  Anchor: (Width: 96, Height: 56);
   LayoutMode: Top;
 
   Group {
-    Anchor: (Height: 32, Bottom: 2);
+    Anchor: (Height: 38, Bottom: 2);
     LayoutMode: MiddleCenter;
 
     ItemIcon #Icon {
-      Anchor: (Width: 28, Height: 28);
+      Anchor: (Width: 34, Height: 34);
     }
   }
 
@@ -30,11 +30,11 @@ $T = "../SimTaleTheme.ui";
 
 // Bare icon for the taste rows: no caption, since the row label already says what it means.
 @TasteIcon = Group {
-  Anchor: (Width: 26, Height: 26, Right: 4);
+  Anchor: (Width: 38, Height: 38, Right: 4, Top: 1);
   LayoutMode: MiddleCenter;
 
   ItemIcon #Icon {
-    Anchor: (Width: 24, Height: 24);
+    Anchor: (Width: 36, Height: 36);
   }
 };
 
@@ -203,25 +203,25 @@ Group {
 
       // Showcase items (Profession & Hobby)
       Group #Showcase {
-        Anchor: (Height: 48, Bottom: 4);
+        Anchor: (Height: 56, Bottom: 4);
         LayoutMode: CenterMiddle;
 
         @ShowcaseSlot #SlotProfession {
-          Anchor: (Width: 96, Height: 48, Right: 12);
+          Anchor: (Width: 96, Height: 56, Right: 12);
         }
         @ShowcaseSlot #SlotHobby {
-          Anchor: (Width: 96, Height: 48);
+          Anchor: (Width: 96, Height: 56);
         }
       }
 
       // Taste rows (Likes & Hates)
       Group #LikesRow {
-        Anchor: (Height: 28, Bottom: 3);
+        Anchor: (Height: 40, Bottom: 3);
         LayoutMode: Left;
 
         Label #LikesCaption {
           Text: "Gosta:";
-          Anchor: (Width: 56, Height: 24, Top: 2);
+          Anchor: (Width: 56, Height: 36, Top: 2);
           Style: (...$T.@BodyStyle, FontSize: 12, TextColor: $T.@AccentLike, RenderBold: true);
         }
         @TasteIcon #Like0 {}
@@ -230,15 +230,20 @@ Group {
         @TasteIcon #Like3 {}
         @TasteIcon #Like4 {}
         @TasteIcon #Like5 {}
+        Label #LikesLocked {
+          Text: "";
+          Anchor: (Width: 34, Height: 36, Top: 2, Left: 4);
+          Style: (...$T.@CaptionStyle, FontSize: 12, TextColor: $T.@TextMuted);
+        }
       }
 
       Group #HatesRow {
-        Anchor: (Height: 28);
+        Anchor: (Height: 40);
         LayoutMode: Left;
 
         Label #HatesCaption {
           Text: "Odeia:";
-          Anchor: (Width: 56, Height: 24, Top: 2);
+          Anchor: (Width: 56, Height: 36, Top: 2);
           Style: (...$T.@BodyStyle, FontSize: 12, TextColor: $T.@AccentHate, RenderBold: true);
         }
         @TasteIcon #Hate0 {}
@@ -247,6 +252,11 @@ Group {
         @TasteIcon #Hate3 {}
         @TasteIcon #Hate4 {}
         @TasteIcon #Hate5 {}
+        Label #HatesLocked {
+          Text: "";
+          Anchor: (Width: 34, Height: 36, Top: 2, Left: 4);
+          Style: (...$T.@CaptionStyle, FontSize: 12, TextColor: $T.@TextMuted);
+        }
       }
     }
 
@@ -395,6 +405,16 @@ Group {
         Anchor: (Height: 36);
         LayoutMode: CenterMiddle;
 
+        Button #FollowButton {
+          Anchor: (Width: 213, Height: 36, Right: 10);
+          Style: $T.@BtnNeutral;
+          Visible: false;
+          Label #FollowButtonText {
+            Text: %ui.button.follow;
+            Anchor: (Full: 0);
+            Style: (...$T.@ButtonLabelStyle, FontSize: 14);
+          }
+        }
         Button #InsultButton {
           Anchor: (Width: 436, Height: 36);
           Style: $T.@BtnDestructive;

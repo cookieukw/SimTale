@@ -43,10 +43,37 @@ Yes. They open on the way through and close behind them.
 
 Yes. Names, needs, relationships, houses and jobs are all persisted.
 
+### NPCs are missing when I come back. What happened?
+
+They probably died while you were away — hostile mobs, fall damage and other engine damage can kill
+a resident **outside the village safe zone**, and the Grim Reaper then archives her. Run
+`/simtale graveyard`: each entry now shows the cause of death and has a revive button. The join
+message also tells you how many NPCs are buried.
+
+Inside the village boundary, SimTale NPCs are protected from all damage
+(`villageSafeZoneEnabled`, default `true`).
+
+They are not silently deleted. If the graveyard is empty and an NPC is still missing, run:
+
+```text
+/simtale respawnmissing
+```
+
+This lists saved residents whose entity is no longer in the world. Recreate one with:
+
+```text
+/simtale respawnmissing <name>
+```
+
+The command spawns the NPC near you and remaps relationships, family and house references. Wait
+for nearby chunks to load before using it: an NPC in an unloaded chunk can also look missing. If
+the server log says `removed externally` or `despawning due to lost marker`, it was an external
+removal rather than a death, which is why the graveyard has no cause for it.
+
 ### Can I change how fast they get hungry?
 
-Not from a config file yet — the values are constants in the code. See
-[Balancing](/admin/balancing).
+Yes. Edit `hungerDecayMultiplier` in `simtale-config.json` (default `1.0`; `10.0` reaches the first
+food search in about 25 minutes) and restart the server. See [Balancing](/admin/balancing).
 
 ### How do I make NPCs do hobbies?
 
@@ -54,7 +81,7 @@ You don't need to order them. Just place blocks that contain `leisure_fishing`, 
 
 ### How do I create a village? Do I need a center block?
 
-No. A village forms automatically when you build houses close to each other (around 40 blocks between beds). The village expands naturally as you build more houses in the same area.
+No. A village forms automatically when you build houses close to each other (up to 64 blocks between beds). The village expands naturally as you build more houses in the same area.
 
 ### How do NPCs have babies and how do I care for them?
 

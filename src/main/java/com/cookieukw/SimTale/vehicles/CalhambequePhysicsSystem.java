@@ -156,7 +156,7 @@ public class CalhambequePhysicsSystem extends EntityTickingSystem<EntityStore> {
                             car.lastHonkTick = currentTick;
                             PlayerRef pRef = store.getComponent(driverRef, Universe.get().getPlayerRefComponentType());
                             if (pRef != null) {
-                                pRef.sendMessage(Message.raw("§e[Calhambeque] §6* FON-FON! (Ahooga!) *"));
+                                pRef.sendMessage(Message.raw("[Calhambeque] * FON-FON! (Ahooga!) *"));
                             }
                         }
                     }

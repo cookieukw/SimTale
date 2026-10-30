@@ -31,11 +31,11 @@ rejects decimal points.
 | `/simtale debugchests` | Screen listing registered chests, their house and their contents |
 | `/simtale debugnear` | Dumps nearby blocks and entities |
 | `/simtale village` | Lists the villages derived from the houses: centre, radius, house count, and whether you are inside |
-| `/simtale graveyard` | Screen listing every NPC the Reaper collected, with a revive button each |
+| `/simtale graveyard` | Tela listando cada NPC coletado pela Ceifadora, com a causa da morte e botão de ressurreição |
 | `/simtale npcstate` | State of the nearest NPC: role, animation, movement, needs, search cooldowns and the world clock |
 | `/simtale search` | Finds NPCs |
 | `/simtale housecheck` | Validates the house you are aiming at, and reports what is missing |
-| `/simtale chestcheck` | Describes the nearest chest |
+| `/simtale chestcheck` | Descreve o baú mais próximo: privado, compartilhado explicitamente ou global da vila |
 | `/simtale camdebug` | Camera debugging |
 
 :::tip Prefer `debugchests` over `chestcheck`
@@ -59,7 +59,7 @@ Use `/simtale rescan` for worlds built before that fix.
 | `/simtale testshove` | Testa o empurrão violento de raiva com física real de repulsão (*knockback*) contra o jogador |
 | `/simtale testgreet` | Testa o aceno de proximidade e cumprimento do NPC mais próximo |
 | `/simtale forcesleep` | Força o NPC mais próximo a dormir ou acordar |
-| `/simtale forceeat` | Zera a fome e envia o NPC até um baú |
+| `/simtale forceeat` | Zera a fome, inicia a busca pelo baú imediatamente e mantém o NPC na tarefa de comer durante a noite |
 | `/simtale forcework` | Força o NPC mais próximo a trabalhar |
 | `/simtale forceplant` | Dá sementes a um fazendeiro e envia para plantar |
 | `/simtale unstick` | Libera NPCs travados **e o jogador** |
@@ -108,6 +108,8 @@ the ground, `setstage` takes over.
 
 :::info Configuração Persistente do Servidor
 Todas as preferências de proximidade são salvas automaticamente no arquivo `simtale-config.json` na raiz do servidor.
+O mesmo arquivo também guarda `hungerDecayMultiplier` e `villageChestDepositChance`; edite esses
+valores diretamente e reinicie o servidor.
 :::
 
 ---

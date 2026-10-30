@@ -253,6 +253,12 @@ If part of the house sits in an unloaded chunk, the check flags the result as in
 than rejecting it. Stand near the house when checking.
 :::
 
+:::info Furniture is not a wall
+Tables, workbenches, chairs, lamps and chests are part of the room, not its boundary. The scan
+walks through them when checking whether the space is enclosed, so a furnished house is not rejected
+just because the flood fill stopped at a workbench.
+:::
+
 ## The house is identified by its bed
 
 This is the most important detail and the easiest to trip over: **the house's identity comes from

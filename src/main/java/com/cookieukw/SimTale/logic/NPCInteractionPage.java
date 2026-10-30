@@ -20,6 +20,7 @@ import com.cookieukw.SimTale.core.lifecycle.ParentChildBond;
 import com.cookieukw.SimTale.systems.ChildCarryHelper;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
+import com.cookieukw.SimTale.systems.RoutineAISystem;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -73,6 +74,10 @@ import javax.annotation.Nonnull;
 
 @SuppressWarnings("null")
 public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
+
+    /** How close a non-guard must be for the interaction menu to offer Follow. Guards ignore
+     *  this check, so they always expose the action (the "100% with guards" rule). */
+    private static final double FOLLOW_MENU_RANGE_SQ = 6.0 * 6.0;
 
     private final SimNPCComponent npc;
     private final Player player;
@@ -606,6 +611,34 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         commandBuilder.set("#ButtonRow3.Visible", !isChild);
         commandBuilder.set("#ButtonRow4.Visible", isMarried || isPregnant);
 
+        /* Follow is a menu action, not a hidden command: guards always expose it, everyone else
+        only while close enough for the request to make sense. The check is re-run on click, so
+        a page left open while the player walks away cannot start a remote follow.
+        */
+        RoutineAIComponent followAi = npc.entityRef != null
+                ? store.getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE)
+                : null;
+        boolean inDeathFlow = followAi != null
+                && (followAi.currentTask == TaskType.DYING
+                    || followAi.currentTask == TaskType.DEAD
+                    || followAi.currentTask == TaskType.REAPING);
+        boolean canFollow = followAi != null && !npc.isReaper && !inDeathFlow
+                && (npc.profession == Profession.GUARD || isPlayerNear(store, playerRef));
+        boolean followingPlayer = canFollow
+                && playerRefComp.getUuid().equals(followAi.followPlayerId);
+        commandBuilder.set("#FollowButton.Visible", canFollow);
+        if (canFollow) {
+            commandBuilder.set("#FollowButtonText.TextSpans",
+                    Message.translation(followingPlayer ? "ui.button.stop_follow" : "ui.button.follow"));
+        }
+        /* Row 5 is shared with Insult. Keep the destructive action full width when Follow is
+        hidden instead of leaving a visibly off-centre half-row.
+        */
+        Anchor insultAnchor = new Anchor();
+        insultAnchor.setWidth(Value.of(canFollow ? 213 : 436));
+        insultAnchor.setHeight(Value.of(36));
+        commandBuilder.setObject("#InsultButton.Anchor", insultAnchor);
+
         // --- Button Event Bindings ---
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ChatButton", new EventData().append("button", "ChatButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#JokeButton", new EventData().append("button", "JokeButton"), false);
@@ -616,6 +649,21 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#AssignProfessionButton", new EventData().append("button", "AssignProfessionButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#PregnancyButton", new EventData().append("button", "PregnancyButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#InventoryButton", new EventData().append("button", "InventoryButton"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#FollowButton", new EventData().append("button", "FollowButton"), false);
+    }
+
+    /** Proximity gate for the Follow action; guards bypass it in {@link #build}. */
+    private boolean isPlayerNear(Store<EntityStore> store, Ref<EntityStore> playerRef) {
+        if (npc == null || npc.entityRef == null || !npc.entityRef.isValid()) {
+            return false;
+        }
+        TransformComponent playerTransform = store.getComponent(playerRef,
+                TransformComponent.getComponentType());
+        TransformComponent npcTransform = store.getComponent(npc.entityRef,
+                TransformComponent.getComponentType());
+        return playerTransform != null && npcTransform != null
+                && playerTransform.getPosition().distanceSquared(npcTransform.getPosition())
+                    <= FOLLOW_MENU_RANGE_SQ;
     }
 
     @Override
@@ -700,6 +748,37 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             ChildCarryHelper.pickUp(store, storeRef, playerRefComp, npc);
         } else if (eventData.contains("InventoryButton")) {
             openNpcInventory(storeRef, store);
+        } else if (eventData.contains("FollowButton")) {
+            if (npc.entityRef == null || !npc.entityRef.isValid()) {
+                playerRefComp.sendMessage(Message.translation("general.npc.invalid"));
+                return;
+            }
+            RoutineAIComponent ai = store.getComponent(npc.entityRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (ai == null) {
+                playerRefComp.sendMessage(Message.translation("general.npc.invalid"));
+                return;
+            }
+
+            /* Re-check proximity here rather than trusting the button's visibility: the page may
+            have been built before the player walked away. Guards are exempt by design.
+            */
+            if (npc.profession != Profession.GUARD && !isPlayerNear(store, storeRef)) {
+                playerRefComp.sendMessage(Message.translation("ui.follow.unavailable").param("name", npc.name));
+                return;
+            }
+
+            if (playerRefComp.getUuid().equals(ai.followPlayerId)) {
+                RoutineAISystem.stopFollowing(npc.entityRef, ai);
+                playerRefComp.sendMessage(Message.translation("ui.follow.stopped").param("name", npc.name));
+            } else {
+                World world = store.getExternalData().getWorld();
+                if (RoutineAISystem.startFollowing(npc.entityRef, npc, ai,
+                        playerRefComp.getUuid(), store, world)) {
+                    playerRefComp.sendMessage(Message.translation("ui.follow.started").param("name", npc.name));
+                } else {
+                    playerRefComp.sendMessage(Message.translation("ui.follow.unavailable").param("name", npc.name));
+                }
+            }
         }
     }
 
@@ -798,8 +877,15 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         */
         commandBuilder.set("#LikesCaption.TextSpans", Message.translation("ui.likes"));
         commandBuilder.set("#HatesCaption.TextSpans", Message.translation("ui.hates"));
-        setTasteRow(commandBuilder, "#Like", likes);
-        setTasteRow(commandBuilder, "#Hate", hates);
+
+        /* Intimacy gate: the player learns a little at first and the rest as the relationship
+        deepens. Affinity is the same number the relationship bar already shows, so the panel and
+        the unlock progress cannot tell different stories.
+        */
+        Relationship rel = npc.getRelationship(playerRefComp.getUuid());
+        int intimacy = rel != null ? Math.clamp(rel.affinity, 0, 100) : 0;
+        setTasteRow(commandBuilder, "#Like", likes, likesUnlocked(intimacy), "#LikesLocked");
+        setTasteRow(commandBuilder, "#Hate", hates, hatesUnlocked(intimacy), "#HatesLocked");
 
         String hobbyItem = npc.preferences != null
                 ? NPCShowcaseItems.forHobby(npc.preferences.getHobby()) : null;
@@ -813,22 +899,54 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
     private static final int TASTE_SLOTS = 6;
 
     /**
-     * Fills one taste row, hiding the icons left over.
+     * How many taste icons are visible at a given affinity.
      *
-     * <p>The whole list is shown rather than a sample. Showing only the first entry made an NPC
-     * look like it did not hate something it actually hated, which read as a bug in the gift rules
-     * when the rules were right and the screen was lying.
+     * <p>The early relationship is deliberately stingy — two likes and no hates — and the panel
+     * opens up in five steps until everything is visible at 80 affinity.
      */
-    private void setTasteRow(UICommandBuilder commandBuilder, String prefix, List<String> items) {
+    private static int likesUnlocked(int intimacy) {
+        if (intimacy >= 80) return TASTE_SLOTS;
+        if (intimacy >= 60) return 5;
+        if (intimacy >= 40) return 4;
+        if (intimacy >= 20) return 3;
+        return 2;
+    }
+
+    private static int hatesUnlocked(int intimacy) {
+        if (intimacy >= 80) return TASTE_SLOTS;
+        if (intimacy >= 60) return 4;
+        if (intimacy >= 40) return 2;
+        if (intimacy >= 20) return 1;
+        return 0;
+    }
+
+    /**
+     * Fills one taste row, hiding the icons left over and showing how many remain hidden.
+     *
+     * <p>The old version showed the entire list. That made an NPC look like it did not hate
+     * something it actually hated, but it also handed a stranger the whole personality on the
+     * first conversation. The list still never lies about what is visible; the "+N" on the end
+     * says there is more to learn.
+     */
+    private void setTasteRow(UICommandBuilder commandBuilder, String prefix, List<String> items,
+            int visibleSlots, String lockedSelector) {
+        int available = items != null ? items.size() : 0;
+        int shown = Math.min(available, Math.clamp(visibleSlots, 0, TASTE_SLOTS));
+
         for (int i = 0; i < TASTE_SLOTS; i++) {
             String selector = prefix + i;
-            if (items != null && i < items.size()) {
+            if (i < shown) {
                 commandBuilder.set(selector + ".Visible", true);
                 commandBuilder.set(selector + " #Icon.ItemId", items.get(i));
             } else {
                 commandBuilder.set(selector + ".Visible", false);
             }
         }
+
+        int hidden = Math.max(0, available - shown);
+        commandBuilder.set(lockedSelector + ".Visible", hidden > 0);
+        commandBuilder.set(lockedSelector + ".TextSpans",
+                hidden > 0 ? Message.raw("+" + hidden) : Message.raw(""));
     }
 
     /** Shows one slot, or hides it when the item id is missing. */

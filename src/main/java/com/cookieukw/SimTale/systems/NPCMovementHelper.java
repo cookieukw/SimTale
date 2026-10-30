@@ -354,7 +354,12 @@ public class NPCMovementHelper {
             BlockSection section = secRef.getStore().getComponent(secRef, BlockSection.getComponentType());
             if (section == null) return null;
             int blockId = section.get(x, y, z);
-            if (blockId == 0) return null;
+            /* Block id 0 is AIR, not "chunk not loaded". Returning null here made every house
+            flood fill stop at the first empty block and report hitUnloaded, which rejected valid
+            rooms and prevented new beds from ever becoming houses. A missing section above is the
+            only real "not loaded" signal.
+            */
+            if (blockId == 0) return BlockType.EMPTY;
             return BlockType.getAssetMap().getAsset(blockId);
         } catch (Exception e) {
             return null;

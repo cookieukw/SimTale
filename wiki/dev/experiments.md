@@ -202,8 +202,8 @@ bug was found and is worth keeping fixed:
 
 **Root cause, confirmed by reading the actual files:** every head cosmetic in this project
 (haircuts, etc.) that's authored for an adult skeleton has to be run through a node-scaling
-transform before it's usable on a child skeleton — see `docs/assets/cosmeticos-node-scales.md` and
-`scripts/generate_child_variants.py`'s `NODE_SCALES` table. In short: any node named exactly
+transform before it's usable on a child skeleton — see `scripts/generate_child_variants.py`'s
+`NODE_SCALES` table. In short: any node named exactly
 `"Head"` (a label meaning "attaches to the head", not a literal skeleton bone) gets a uniform
 1.2× scale, and everything nested under it inherits that same scale (confirmed empirically by
 diffing a real adult/child haircut pair, `CutePart.blockymodel` vs `CutePart_Child.blockymodel`).
@@ -242,8 +242,8 @@ address the original screenshot report, which was a false alarm** (see the corre
 was a red-haired boy with short hair, no costume at all. The actual bug was a corrupted node in
 `Short_Child.blockymodel` itself (a pivot node merged with its child box, losing the child's own
 position offset) — one of 23 child haircut models found with the same class of defect out of 112
-checked. See `docs/assets/cosmeticos-node-scales.md` and `testing_checklist.md` for the full
-writeup and fix; unrelated to the costume system documented on this page.
+checked. See `scripts/generate_child_variants.py` for the scale table; unrelated to the costume
+system documented on this page.
 
 ### Next steps, if this graduates into a real feature
 

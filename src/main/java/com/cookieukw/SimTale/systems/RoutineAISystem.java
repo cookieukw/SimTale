@@ -11,6 +11,7 @@ import com.cookieukw.SimTale.config.SimTaleConfig;
 import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -27,7 +28,6 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.cookieukw.SimTale.core.Relationship;
 import com.hypixel.hytale.server.core.universe.world.World;
-
 import java.util.*;
 
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
@@ -108,6 +108,10 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     static final double SOCIALIZE_SEARCH_RANGE_SQ = 20.0 * 20.0;
     /** Max distance from home an idle stroll may take the NPC. */
     static final double WANDER_RADIUS = 8.0;
+    /** /simtale follow: stop walking once this close to the player. */
+    static final double FOLLOW_STOP_DISTANCE_SQ = 2.5 * 2.5;
+    /** /simtale follow: keep pathing while the player is more than this far above/below. */
+    static final double FOLLOW_VERTICAL_THRESHOLD = 0.75;
     static final SimLog LOGGER = SimLog.forClass(RoutineAISystem.class);
 
     /** Anti-spam tracking per player UUID to prevent multiple NPCs greeting simultaneously. */
@@ -191,6 +195,7 @@ once per NPC per tick for nothing.
         */
         World world = WorldUtil.fromEntityRef(ref);
         if (world == null) return;
+        npc.lastTaskName = ai.currentTask.name();
 
         /* Being carried by a player suspends the routine entirely.
         This has to come before the mount cleanup below, which exists for beds and would rip a
@@ -319,8 +324,7 @@ once per NPC per tick for nothing.
         means any way an NPC reaches 0 HP funnels into the same DYING -> DEAD -> REAPING
         pipeline instead of leaving a broken not-quite-dead entity behind.
         */
-        if (ai.currentTask != TaskType.DYING && ai.currentTask != TaskType.DEAD && ai.currentTask != TaskType.REAPING
-                && ai.currentTask != TaskType.EXPEDITION) {
+        if (ai.currentTask != TaskType.DYING && ai.currentTask != TaskType.DEAD && ai.currentTask != TaskType.REAPING) {
             EntityStatMap statMap = store.getComponent(ref, EntityStatMap.getComponentType());
             if (statMap != null) {
                 EntityStatValue healthVal = statMap.get(DefaultEntityStatTypes.getHealth());
@@ -331,7 +335,7 @@ once per NPC per tick for nothing.
                     ai.taskStartTime = world.getTick();
                     String deathCause = npc.lastDamageCause != null ? npc.lastDamageCause : "de causas naturais";
                     Universe.get().getPlayers().forEach(p -> {
-                        p.sendMessage(com.hypixel.hytale.server.core.Message.raw("§cO(A) aldeão(ã) " + npc.name + " morreu " + deathCause + "."));
+                        p.sendMessage(Message.raw("O(A) aldeão(ã) " + npc.name + " morreu " + deathCause + "."));
                     });
                     return;
                 }
@@ -543,6 +547,13 @@ once per NPC per tick for nothing.
 
         handleNpcSeparation(ref, npc, transform, ai, store);
 
+        /* /simtale follow: deliberately placed before the IDLE ladder so a follower does not
+        pick up a new errand the moment it reaches the player. Needs and sleep still outrank it
+        (their interrupts run above); once that errand ends and the NPC returns to IDLE, this
+        picks the follow behaviour back up because followPlayerId survives the interruption.
+        */
+        if (handleFollowing(ref, ai, transform, world, store)) return;
+
         if (RoutineSleepHelpers.handleIdle(ref, npc, ai, store, world, transform)) return;
 
         /* FINDING_BED */
@@ -577,7 +588,16 @@ once per NPC per tick for nothing.
          force buttons) never passed through — leaving the flag stuck true forever on any NPC
          those touched, which silently and permanently disabled its sleep and hunger interrupts.
         */
-        ai.forcedByDebug = false;
+        /* A forced feeding errand keeps the flag until she has actually finished it. Clearing it
+        unconditionally on the next tick let the sleep interrupt win at night, so /simtale
+        forceeat looked broken: the search cooldown had not even elapsed before she was sent to
+        bed. Every other forced debug task still clears on this tick, as before.
+        */
+        if (ai.currentTask != TaskType.FINDING_FOOD
+                && ai.currentTask != TaskType.MOVING_TO_FOOD
+                && ai.currentTask != TaskType.EATING) {
+            ai.forcedByDebug = false;
+        }
 
         /* Socializing & Wandering (Delegated to NPCSocialHelper) 
         */
@@ -607,10 +627,10 @@ once per NPC per tick for nothing.
         /* Player Proximity Greeting */
         checkPlayerProximityGreeting(ref, npc, ai, transform, world, store);
 
-        /* Face a nearby player while idle (docs/ROADMAP.md: "NPC staring at wall") */
+        /* Face a nearby player while idle (wiki/dev/status.md: "NPC staring at wall") */
         faceNearbyPlayerWhileIdle(ref, npc, ai, transform, world, store);
 
-        /* World-event commentary: NPC notices a sightworthy creature nearby (docs/ROADMAP.md:
+        /* World-event commentary: NPC notices a sightworthy creature nearby (wiki/dev/status.md:
         "Kweebec spotted")  */
         checkWorldEventCommentary(npc, ai, transform, world, store);
 
@@ -937,7 +957,7 @@ once per NPC per tick for nothing.
     }
 
     /**
-     * docs/ROADMAP.md, "Idle behavior -- NPC staring at wall": an idle NPC
+     * wiki/dev/status.md, "Idle behavior -- NPC staring at wall": an idle NPC
      * kept whatever rotation its last errand left it in -- most visibly, whatever direction it
      * happened to be walking when a wander destination was reached, wall or fence included --
      * because the only place that ever turned it towards a player was
@@ -999,7 +1019,7 @@ once per NPC per tick for nothing.
     private static final int WORLD_EVENT_SCAN_PERIOD_TICKS = 20;
 
     /** Model-id keywords (lowercase) worth a comment. Only the one asked for tonight -- add
-     *  more here the same way later if wanted (docs/ROADMAP.md). */
+     *  more here the same way later if wanted (wiki/dev/status.md). */
     private static final String[] SIGHTWORTHY_MODEL_KEYWORDS = { "kweebec" };
 
     /** Floor between two sighting comments from the *same* NPC, so one that plants itself near a
@@ -1062,7 +1082,7 @@ once per NPC per tick for nothing.
     }
 
     /**
-     * Idle/wandering NPC comments when a sightworthy creature (Kweebec, docs/ROADMAP.md:
+     * Idle/wandering NPC comments when a sightworthy creature (Kweebec, wiki/dev/status.md:
      * "Kweebec avistado") is close enough to notice -- gated by a per-NPC cooldown and a 40%
      * roll so a Kweebec camped nearby is not narrated every single time it comes off cooldown.
      */
@@ -1129,6 +1149,118 @@ once per NPC per tick for nothing.
      * root cause behind "conversa espontanea nunca observada" (roadmap / testing_checklist.md):
      * the trigger itself fires constantly, but the pool of valid targets only ever shrank.
      */
+    /**
+     * Keeps a commanded follower walking toward its player. This is intentionally a thin layer
+     * over the same leash/pathfinding used by every other errand: the role still owns collision,
+     * doors, stairs and small drops, so the follower behaves like any other walking NPC instead
+     * of being teleported around.
+     *
+     * @return true when this NPC's follow state owns the tick and the ordinary routine must not run
+     */
+    private static boolean handleFollowing(Ref<EntityStore> ref, RoutineAIComponent ai,
+                                           TransformComponent transform, World world,
+                                           Store<EntityStore> store) {
+        if (ai.followPlayerId == null && ai.currentTask != TaskType.FOLLOWING) {
+            return false;
+        }
+
+        if (ai.followPlayerId == null) {
+            stopFollowing(ref, ai);
+            return true;
+        }
+
+        /* Sleep, hunger and other errands win temporarily. They leave followPlayerId intact, so
+        the next time the NPC lands in IDLE this block starts following again automatically.
+        */
+        if (ai.currentTask != TaskType.FOLLOWING) {
+            if (ai.currentTask != TaskType.IDLE && ai.currentTask != TaskType.WANDERING) {
+                return false;
+            }
+            ai.currentTask = TaskType.FOLLOWING;
+            ai.targetBlockPosition = null;
+            ai.taskStartTime = world.getTick();
+        }
+
+        Ref<EntityStore> playerEntityRef = world.getEntityStore().getRefFromUUID(ai.followPlayerId);
+        if (playerEntityRef == null || !playerEntityRef.isValid()) {
+            stopFollowing(ref, ai);
+            return true;
+        }
+
+        TransformComponent playerTransform = store.getComponent(playerEntityRef,
+                TransformComponent.getComponentType());
+        if (playerTransform == null) {
+            stopFollowing(ref, ai);
+            return true;
+        }
+
+        Vector3d target = new Vector3d(playerTransform.getPosition());
+        Vector3d myPos = transform.getPosition();
+        double dx = target.x - myPos.x;
+        double dz = target.z - myPos.z;
+        double horizontalSq = dx * dx + dz * dz;
+
+        /* Vertical difference matters: without it a follower would stop underneath a one-block
+        ledge because its horizontal distance was already small. Re-targeting makes the native
+        pathfinder try the step/jump, exactly as it would for any other destination.
+        */
+        if (horizontalSq > FOLLOW_STOP_DISTANCE_SQ
+                || Math.abs(target.y - myPos.y) > FOLLOW_VERTICAL_THRESHOLD) {
+            NPCMovementHelper.moveTo(ref, ai, world, target);
+        } else {
+            NPCMovementHelper.clearMoveTarget(ref, ai);
+        }
+        return true;
+    }
+
+    /**
+     * Starts a follow command from the interaction menu or {@code /simtale follow}. Cancels any
+     * pose/errand that would otherwise keep the NPC pinned (bed, chair, work post, dialogue) so
+     * the next tick can hand movement back to the role's own pathfinder.
+     *
+     * @return false when the NPC cannot follow (invalid body or an active death ceremony)
+     */
+    public static boolean startFollowing(Ref<EntityStore> npcRef, SimNPCComponent npc,
+                                         RoutineAIComponent ai, UUID playerId,
+                                         Store<EntityStore> store, World world) {
+        if (npcRef == null || !npcRef.isValid() || npc == null || ai == null || playerId == null) {
+            return false;
+        }
+        if (ai.currentTask == TaskType.DYING || ai.currentTask == TaskType.DEAD
+                || ai.currentTask == TaskType.REAPING) {
+            return false;
+        }
+
+        NPCSeatingHelper.exitSitting(npcRef, store, null, npc, ai);
+        NPCWorkHelper.releaseWorkPost(ai, npc);
+        NPCMovementHelper.setSleepingState(npcRef, store, false);
+        store.tryRemoveComponent(npcRef, MountedComponent.getComponentType());
+        store.tryRemoveComponent(npcRef, Frozen.getComponentType());
+        AnimationUtils.stopAnimation(npcRef, AnimationSlot.Status, true, store);
+        NPCMovementHelper.playAnim(npcRef, AnimationSlot.Status,
+                "Characters/Animations/Default/Idle.blockyanim", "Idle", store);
+        npc.isInteractingViaUI = false;
+        npc.uiInteractionPlayer = null;
+        npc.currentConversationPartner = null;
+
+        ai.followPlayerId = playerId;
+        ai.currentTask = TaskType.FOLLOWING;
+        ai.targetBlockPosition = null;
+        ai.forcedByDebug = false;
+        ai.taskStartTime = world != null ? world.getTick() : 0;
+        NPCMovementHelper.clearMoveTarget(npcRef, ai);
+        return true;
+    }
+
+    /** Drops a follow command and leaves the NPC standing where it is, ready for the routine. */
+    public static void stopFollowing(Ref<EntityStore> ref, RoutineAIComponent ai) {
+        ai.followPlayerId = null;
+        ai.currentTask = TaskType.IDLE;
+        ai.forcedByDebug = false;
+        ai.targetBlockPosition = null;
+        NPCMovementHelper.clearMoveTarget(ref, ai);
+    }
+
     private static void clearAutonomyState(RoutineAIComponent ai, SimNPCComponent npc, World world, Store<EntityStore> store) {
         if (ai.socializeTargetId != null && npc != null && npc.entityId != null && world != null && store != null) {
             Ref<EntityStore> targetRef = world.getEntityStore().getRefFromUUID(ai.socializeTargetId);

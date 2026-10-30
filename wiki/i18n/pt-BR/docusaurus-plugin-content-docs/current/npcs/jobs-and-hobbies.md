@@ -46,6 +46,25 @@ o emprego de Guarda, e o Guarda lembra se aquela arma era corpo-a-corpo ou à di
 - **À distância** (arco, besta, arma de fogo, ...): o Guarda para a uma certa distância (cerca de
   7 blocos) em vez de andar até o alcance corpo-a-corpo.
 
+Guardas são deliberadamente mais fortes que moradores comuns e recebem **vida máxima dobrada**,
+**+50 de armadura**, **+10 de dano físico** e **25% de redução de dano**. Os bônus são aplicados
+ao nascer, ao atribuir o emprego e periodicamente para guardas que já estão no mundo; são
+removidos se o NPC for reatribuído para outra profissão. Dentro da vila a zona segura ainda
+cancela todo dano, então a resistência extra importa quando o guarda luta fora da fronteira.
+
+Quando o guarda engaja, ele agora **corre** até o alvo (a velocidade de movimento aumenta
+temporariamente enquanto se aproxima) e luta com vários golpes visíveis em vez de fazer o bicho
+desaparecer. Cada golpe aplica um evento de dano real equivalente a cerca de um terço da vida
+máxima do hostil, então o bicho reage aos ferimentos, tem animação de morte e cai após cerca de
+três golpes. Se o bicho recuar, o guarda volta a perseguir.
+
+Quando um hostil entra no território da vila, os **dois guardas mais próximos daquela vila**
+param a patrulha e vão até ele de qualquer ponto dentro do raio da vila (mais uma margem de 16
+blocos), em vez de reagir só quando o bicho chega a 10 blocos de um guarda. A resposta cobre
+esqueletos, zumbis, ghouls, wraiths, lobisomens, hounds desbotados, cavaleiros das sombras,
+**trorks**, goblins, scaraks, outlanders, hederas e fen stalkers. Guardas ocupados, dormindo ou em outra tarefa são ignorados, para
+um guarda mais próximo mas indisponível não gastar uma das duas vagas de resposta.
+
 Um arco ou besta continua tornando o NPC um **Caçador**, não um Guarda — essa checagem roda
 primeiro, então nada mudou para o Caçador.
 
@@ -80,6 +99,10 @@ Quando o turno de trabalho começa, o modelo deles diminui (encolhe) e eles conc
 - **Mineradores** voltam com minérios (Cobre, Ferro, Prata, Ouro, Adamantium, etc.).
 - **Caçadores** voltam com Carnes Cruas (Boi, Porco, Frango).
 Eles caminham imediatamente até o baú de suas casas para depositar os espólios.
+
+O trabalho é verificado logo depois da fome e da higiene, antes de hobbies, cadeiras, conversas e passeios ociosos, então um Minerador ou Caçador não passa mais o dia inteiro socializando em vez de sair. As partidas e os retornos também aparecem no log do servidor como `SimTale: <nome> left on a mining/hunting expedition` e `returned from an expedition with <item>`.
+
+Todas as profissões agora seguram visivelmente a ferramenta: Minerador uma picareta, Caçador um arco curto, Fazendeiro uma enxada, Lenhador um machado, Pescador uma armadilha de pesca, Construtor um martelo, Explorador um mapa, e o Guarda a arma exata usada para atribuí-lo. A ferramenta vai para um slot vazio da hotbar para não sobrescrever os itens coletados.
 
 ### O Pescador
 

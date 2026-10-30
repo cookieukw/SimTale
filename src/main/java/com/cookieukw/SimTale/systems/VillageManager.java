@@ -36,7 +36,7 @@ public final class VillageManager {
     private static final SimLog LOGGER = SimLog.forClass(VillageManager.class);
 
     /** Two houses this close (in blocks, on the XZ plane) are neighbours (2 chunks). */
-    private static final double LINK_DISTANCE = 64.0;
+    public static final double LINK_DISTANCE = 64.0;
     private static final double LINK_DISTANCE_SQ = LINK_DISTANCE * LINK_DISTANCE;
 
     /**
@@ -113,6 +113,15 @@ public final class VillageManager {
             }
         }
         return best;
+    }
+
+    /**
+     * Whether a point is close enough to an existing village to become part of it once a house is
+     * registered there. With no villages yet, any valid first house may start one.
+     */
+    public static boolean isNearVillage(double x, double z) {
+        Village nearest = nearest(x, z);
+        return nearest == null || nearest.distanceSqTo(x, z) <= LINK_DISTANCE_SQ;
     }
 
     /**

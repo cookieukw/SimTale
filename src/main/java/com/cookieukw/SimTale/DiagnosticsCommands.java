@@ -549,8 +549,12 @@ final class DiagnosticsCommands {
             ctx.sendMessage(Message.translation("general.cmd.chestcheck.located")
                 .param("x", nearestChest.x).param("y", nearestChest.y).param("z", nearestChest.z));
 
-            boolean isShared = ChestRegistry.isShared(nearestChest);
-            ctx.sendMessage(Message.translation(isShared ? "general.cmd.chestcheck.type_shared" : "general.cmd.chestcheck.type_private"));
+            if (ChestRegistry.isVillageGlobal(nearestChest)) {
+                ctx.sendMessage(Message.translation("general.cmd.chestcheck.type_global"));
+            } else {
+                boolean isShared = ChestRegistry.isExplicitlyShared(nearestChest);
+                ctx.sendMessage(Message.translation(isShared ? "general.cmd.chestcheck.type_shared" : "general.cmd.chestcheck.type_private"));
+            }
 
             UUID houseId = HouseManager.findHouseIdForChest(nearestChest);
             if (houseId != null) {
@@ -600,7 +604,18 @@ final class DiagnosticsCommands {
                 return;
             }
 
-            boolean nowShared = !ChestRegistry.isShared(nearestChest);
+            /* A village-global chest is already communal because of where it stands. Toggling the
+            explicit flag would not make it private, so say why instead of lying to the player.
+            */
+            if (ChestRegistry.isVillageGlobal(nearestChest)) {
+                ctx.sendMessage(Message.translation("general.cmd.chestshare.auto_global")
+                        .param("x", nearestChest.x)
+                        .param("y", nearestChest.y)
+                        .param("z", nearestChest.z));
+                return;
+            }
+
+            boolean nowShared = !ChestRegistry.isExplicitlyShared(nearestChest);
             ChestRegistry.setShared(nearestChest.x, nearestChest.y, nearestChest.z, nowShared);
             ctx.sendMessage(Message.translation(nowShared ? "general.cmd.chestshare.now_shared" : "general.cmd.chestshare.now_private")
                     .param("x", nearestChest.x)
@@ -644,7 +659,7 @@ final class DiagnosticsCommands {
             } else {
                 ctx.sendMessage(Message.translation("general.cmd.villagestock.stocked_items"));
                 for (Map.Entry<String, Integer> entry : stock.entrySet()) {
-                    ctx.sendMessage(Message.raw("  §f- " + entry.getKey() + ": §e" + entry.getValue()));
+                    ctx.sendMessage(Message.raw("  - " + entry.getKey() + ": " + entry.getValue()));
                 }
             }
         }
@@ -937,8 +952,8 @@ final class DiagnosticsCommands {
         }
 
         private static void sendSummary(CommandContext ctx, SimTaleConfig config) {
-            Message active = Message.raw("§aATIVADO");
-            Message inactive = Message.raw("§cDESATIVADO");
+            Message active = Message.raw("ATIVADO");
+            Message inactive = Message.raw("DESATIVADO");
 
             ctx.sendMessage(Message.translation("general.cmd.proximity.header"));
             ctx.sendMessage(Message.translation("general.cmd.proximity.status").param("status", config.proximityEnabled ? active : inactive));

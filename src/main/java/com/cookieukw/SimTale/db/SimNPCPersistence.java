@@ -2,6 +2,7 @@ package com.cookieukw.SimTale.db;
 
 import com.cookieukw.SimTale.core.MemoryManager;
 import com.cookieukw.SimTale.core.Mood;
+import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Relationship;
@@ -247,6 +248,17 @@ public class SimNPCPersistence {
         data.guardWeaponItemId = component.guardWeaponItemId;
         data.armorItemIds = component.armorItemIds != null ? component.armorItemIds.clone() : null;
         data.jobsCompleted = component.jobsCompleted;
+        data.deathCause = component.lastDamageCause;
+
+        /* Needs live in EntityStatMap, not in the component. Snapshot them here so they survive
+        even when the engine does not carry the stat map across a restart. If the live ref is
+        unavailable (a detached component used by a command), keep the snapshot already loaded
+        from the database rather than wiping it.
+        */
+        data.needs = NeedsHelper.snapshot(component);
+        if (data.needs == null) {
+            data.needs = component.savedNeeds;
+        }
 
         worldShell().core(SimNPCData.class).preserve(component.entityId.toString(), data);
     }
@@ -414,6 +426,16 @@ public class SimNPCPersistence {
         }
         component.lastEmotionChangeTick = data.lastEmotionChangeTick;
         component.jobsCompleted = data.jobsCompleted;
+        if (data.deathCause != null) {
+            component.lastDamageCause = data.deathCause;
+        }
+
+        /* May still be null here: loadAllNPCs/resolve paths often read the record before the
+        live entity ref exists. In that case the snapshot waits on the component and
+        NeedsHelper.restoreSavedNeeds applies it from SimTale.trackNpc.
+        */
+        component.savedNeeds = data.needs;
+        NeedsHelper.restoreSavedNeeds(component);
     }
 
     /**

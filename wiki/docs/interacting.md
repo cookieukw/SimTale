@@ -19,11 +19,12 @@ Aim at an NPC and press **F**, or right-click. The interaction panel opens.
 | Needs | Hunger and energy, colour-coded by severity |
 | Traits | Personality traits |
 | Identity | Job and hobby, as item icons |
-| Tastes | Showcase of items they love and hate, as interactive icons |
+| Tastes | Showcase of items they love and hate, as interactive icons. More are revealed as affinity grows; a `+N` at the end of a row counts the ones still hidden |
 | Family | Parents, spouses, and children |
 | Status | Relationship, friendship, affinity, or **Filial Kinship** (for your children, showing son/daughter bond tiers instead of romantic levels) |
 
-The colors on the hunger line follow the thresholds the routine actually uses: green above 50, yellow below 50, orange below 25, red below 5. At 5, the NPC cries and abandons all tasks.
+The colors on the hunger line follow the thresholds the routine actually uses: green at 70 or above,
+yellow below 70, orange below 25, red below 5. At 5, the NPC cries and abandons all tasks.
 
 ### Dynamic Camera Framing
 When the interaction panel opens, the camera dynamically adjusts its distance, height offset, and pitch based on the NPC's actual bounding box and growth stage scale. This ensures toddlers and children are centered perfectly in frame without pointing awkwardly at the empty air above them.
@@ -40,6 +41,7 @@ When the interaction panel opens, the camera dynamically adjusts its distance, h
 | **Scold** | Specific to your children. Reactions vary by age: Teens become angry, Adults become bored, and Babies/Toddlers become sad. Repeated scolding drops trust and affinity. |
 | **Pick Up / Carry** | Allows carrying toddlers or children on your back or shoulders. Release by crouching and right-clicking a block or typing `/simtale putdown`. |
 | **Assign job** | Sets her job from the tool you are holding (e.g., holding a hoe assigns Farmer). Protected: young children will refuse to work. |
+| **Follow / Stop following** | Available while you are close to the NPC; **guards always offer it**. The NPC follows with normal walking and pathfinding, stopping about 2.5 blocks away. Sleep and hunger can interrupt briefly, then the follow resumes. It climbs stairs and small ledges but does not teleport onto roofs or over tall walls. |
 | **View pregnancy** | Opens the gestation panel |
 | **Inventory** | Opens her inventory |
 

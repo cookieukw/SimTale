@@ -1,7 +1,7 @@
 # Technical Concerns
 
 > Auditoria real feita em 13/09, lendo o código (grep/wc/du), não suposição genérica. Ver
-> `testing_checklist.md` e `docs/historico/bugs-resolvidos.md` para o histórico de bugs que já
+> `testing_checklist.md` e `wiki/dev/lessons-learned.md` para o histórico de bugs que já
 > motivou parte dos pontos abaixo.
 
 ## Identified Issues

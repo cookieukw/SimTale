@@ -46,6 +46,25 @@ a weapon assigns the Guard job, and the Guard remembers whether that weapon was 
 - **Ranged** (bow, crossbow, firearm, ...): the Guard stops at range (about 7 blocks) and does not
   walk into melee distance.
 
+Guards are deliberately stronger than ordinary residents and receive **double maximum health**,
+**+50 armour**, **+10 physical damage** and **25% damage reduction**. The buffs are applied on
+spawn, when the job is assigned, and periodically for guards already in the world; they are
+removed if the NPC is reassigned to another job. Inside the village the safe zone still cancels
+all damage, so the extra toughness matters when a guard fights outside the boundary.
+
+When a guard engages, it now **runs** to the target (its movement speed is temporarily increased
+while closing) and fights with several visible swings instead of making the mob vanish. Each
+swing applies a real damage event scaled to roughly a third of the hostile's maximum health, so
+the hostile plays its hurt/death reactions and dies after about three hits. If the mob backs
+away, the guard switches back to the chase.
+
+A hostile that enters village territory raises an alarm: the **two closest guards belonging to
+that village** stop patrolling and walk to it from anywhere inside the village radius (plus a
+16-block margin), instead of only reacting when the mob happens to come within 10 blocks of one
+guard. The response covers skeletons, zombies, ghouls, wraiths, werewolves, bleached hounds,
+shadow knights, **trorks**, goblins, scaraks, outlanders, hederas and fen stalkers. Guards already busy, sleeping or on another
+errand are skipped so a closer but unavailable guard cannot use up one of the two response slots.
+
 A bow or crossbow still makes a **Hunter**, not a Guard — that check runs first, so nothing about
 Hunter changed.
 
@@ -82,6 +101,10 @@ When their work shift begins, their model scales down (shrinks) and they concept
 - **Miners** return with ores (Copper, Iron, Silver, Gold, Adamantite, etc.).
 - **Hunters** return with Raw Meats (Beef, Pork, Chicken).
 They immediately walk to their home chest to deposit the loot.
+
+Work is checked right after hunger and hygiene, before hobbies, chairs, chats and idle strolling, so a Miner or Hunter no longer spends the whole day socialising instead of leaving. Departures and returns are also written to the server log as `SimTale: <name> left on a mining/hunting expedition` and `returned from an expedition with <item>`.
+
+Every profession now visibly holds its tool: Miners a pickaxe, Hunters a shortbow, Farmers a hoe, Lumberjacks a hatchet, Fishermen a fishing trap, Builders a hammer, Explorers a map, and Guards the exact weapon used to assign them. The tool goes into an empty hotbar slot so gathered loot is not overwritten.
 
 ### The Fisherman
 

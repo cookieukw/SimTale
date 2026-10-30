@@ -20,9 +20,9 @@ at that moment, so there is nothing left behind to be wrong.
 
 ## Grouping
 
-Single linkage. Two houses belong to the same village when their beds are within **40 blocks** of
+Single linkage. Two houses belong to the same village when their beds are within **64 blocks** of
 each other on the XZ plane, and the relation chains: A near B and B near C puts all three together
-even when A and C are 80 blocks apart.
+even when A and C are far apart.
 
 That matches how people build — outward from what is already there — and it is why the boundary is
 not a circle drawn in advance. A row of houses 30 blocks apart is one village however long it gets.
@@ -30,8 +30,8 @@ not a circle drawn in advance. A row of houses 30 blocks apart is one village ho
 | Property | Value |
 |---|---|
 | Centre | mean of the member beds |
-| Radius | distance to the furthest member, plus a 16-block margin |
-| Membership | single-linkage, 40-block threshold |
+| Radius | distance to the furthest member, plus a 24-block margin |
+| Membership | single-linkage, 64-block threshold |
 
 The margin exists so a one-house village has somewhere to walk. Without it the radius would be
 zero and the resident would be pinned to the doorstep.
@@ -64,6 +64,17 @@ instead of piling onto the centre tile.
 
 The leash is soft. Work, hobbies and food searches still take an NPC outside the village — it only
 stops it from wandering off for no reason.
+
+### Communal storage
+
+The village radius also decides which chests are **global**. A chest inside the village and outside
+every house belongs to nobody, so any resident may take food from it and workers may deposit surplus
+there. The status is recomputed from the live radius and house index, never persisted.
+
+Deposits prefer the NPC's own home chest, but `VillageStockManager.findDepositChest` rolls
+`villageChestDepositChance` (`0.30` by default) to use the village chest even when home has room —
+otherwise the warehouse would only fill after every private pantry was already full. Homeless
+workers resolve the village from their current position, so guards and miners contribute too.
 
 ### Guards
 

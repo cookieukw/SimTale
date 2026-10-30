@@ -228,7 +228,7 @@ public class NpcContextBuilder {
         }
         /* 9b. World Awareness -- location, time, health, home, nearby players, other NPC bonds
 
-        Added per docs/ROADMAP.md's "Contexto da IA" item: all of this reads data that already
+        Added per wiki/dev/status.md's "Contexto da IA" item: all of this reads data that already
         exists elsewhere in the mod (position, the built-in Health stat, HouseManager's owner
         map, the relationships map already used for the player above) -- no new system, just
         wiring more of what is already tracked into the prompt.

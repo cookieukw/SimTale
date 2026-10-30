@@ -121,7 +121,20 @@ final class RoutineSleepHelpers {
                 ai.currentTask = TaskType.FINDING_BATH;
                 ai.targetBlockPosition = null;
                 ai.taskStartTime = world.getTick() - RoutineAISystem.BATH_SEARCH_COOLDOWN_TICKS;
-            } else if (ai.currentTask == TaskType.IDLE && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.FUN_ID) < NPCLeisureHelper.FUN_THRESHOLD) {
+            }
+
+            /* Work gets a chance after hunger and hygiene, but before leisure, chairs, socialising
+            and the aimless stroll. It used to run only at the very end of RoutineAISystem, after
+            this ladder had already handed the NPC a hobby or a chat; a miner whose fun/social
+            needs were low could go entire sessions without ever reaching the expedition branch.
+            If work starts a task the ladder below skips itself because currentTask is no longer
+            IDLE; if there is no work, leisure/social still get their turn.
+            */
+            if (ai.currentTask == TaskType.IDLE) {
+                NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store);
+            }
+
+            if (ai.currentTask == TaskType.IDLE && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.FUN_ID) < NPCLeisureHelper.FUN_THRESHOLD) {
                 ai.currentTask = TaskType.FINDING_LEISURE;
                 ai.targetBlockPosition = null;
                 ai.taskStartTime = world.getTick() - NPCLeisureHelper.LEISURE_SEARCH_COOLDOWN_TICKS;

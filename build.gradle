@@ -83,6 +83,26 @@ tasks.register('checkUi', Exec) {
     }
 }
 
+tasks.register('checkLocales', Exec) {
+    group = 'verification'
+    description = 'Valida completude, placeholders e sintaxe dos arquivos .lang'
+
+    def script = file("$projectDir/tools/check_locales.py")
+    onlyIf { script.exists() }
+
+    commandLine 'python3', script.absolutePath
+}
+
+tasks.register('checkLocalesStrict', Exec) {
+    group = 'verification'
+    description = 'Valida os .lang e falha se faltar alguma chave do en-US'
+
+    def script = file("$projectDir/tools/check_locales.py")
+    onlyIf { script.exists() }
+
+    commandLine 'python3', script.absolutePath, '--strict'
+}
+
 tasks.register('syncCosmetics') {
     doLast {
         def localProps = new Properties()
@@ -132,6 +152,7 @@ tasks.register('syncCosmetics') {
 tasks.named('processResources') {
     dependsOn 'syncCosmetics'
     dependsOn 'checkUi'
+    dependsOn 'checkLocales'
 }
 
 tasks.register('deploy') {

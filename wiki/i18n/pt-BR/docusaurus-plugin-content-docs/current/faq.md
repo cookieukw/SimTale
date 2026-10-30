@@ -43,10 +43,37 @@ Sim. Eles abrem ao passar e fecham atrás deles.
 
 Sim. Nomes, necessidades, relacionamentos, casas e empregos são todos mantidos salvos.
 
+### Alguns NPCs somem quando eu volto. O que aconteceu?
+
+Eles provavelmente morreram enquanto você estava fora — mobs hostis, dano de queda e outros danos do
+motor podem matar um morador **fora da zona segura da vila**, e a Ceifadora arquiva o registro. Rode
+`/simtale graveyard`: cada entrada agora mostra a causa da morte e tem botão de ressurreição. A
+mensagem de entrada também diz quantos NPCs estão enterrados.
+
+Dentro da fronteira da vila, NPCs do SimTale são protegidos de todo dano
+(`villageSafeZoneEnabled`, padrão `true`).
+
+Eles não são apagados silenciosamente. Se o cemitério estiver vazio e ainda faltar alguém, rode:
+
+```text
+/simtale respawnmissing
+```
+
+Isso lista os moradores salvos que estão sem entidade no mundo. Para recriar um:
+
+```text
+/simtale respawnmissing <nome>
+```
+
+O comando cria o NPC perto de você e remapeia relacionamentos, família e casa. Espere os chunks
+próximos carregarem antes de usar: um NPC em chunk não carregado também pode parecer sumido. Se
+o log do servidor disser `removed externally` ou `despawning due to lost marker`, foi uma remoção
+externa, não uma morte — por isso o cemitério não mostra causa.
+
 ### Posso mudar a rapidez com que ficam com fome?
 
-Ainda não é possível fazer isso por um arquivo de configuração (config) — os valores são constantes no código. Veja
-[Balanceamento](/admin/balancing).
+Sim. Edite `hungerDecayMultiplier` no `simtale-config.json` (padrão `1.0`; `10.0` chega à primeira
+busca de comida em cerca de 25 minutos) e reinicie o servidor. Veja [Balanceamento](/admin/balancing).
 
 ### Como faço para os NPCs praticarem hobbies?
 
@@ -54,7 +81,7 @@ Você não precisa dar ordens. Apenas coloque blocos que contenham `leisure_fish
 
 ### Como eu crio uma vila? Preciso de um bloco central?
 
-Não. Uma vila se forma automaticamente quando você constrói casas próximas umas das outras (cerca de 40 blocos entre as camas). A vila se expande naturalmente conforme você constrói mais casas na mesma região.
+Não. Uma vila se forma automaticamente quando você constrói casas próximas umas das outras (até 64 blocos entre as camas). A vila se expande naturalmente conforme você constrói mais casas na mesma região.
 
 ### Como os NPCs têm filhos e como cuidar deles?
 

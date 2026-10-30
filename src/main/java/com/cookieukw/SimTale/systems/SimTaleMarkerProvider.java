@@ -6,6 +6,7 @@ import com.cookieukw.SimTale.core.HouseData;
 import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.db.SimBedData;
 import com.cookieukw.SimTale.systems.VillageManager.Village;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.Ref;
@@ -30,6 +31,7 @@ import org.joml.Vector3d;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -119,6 +121,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private static final Color COLOR_VILLAGE_CENTER = rgb(255, 215, 0);
     private static final Color COLOR_HOUSE_OCCUPIED = rgb(80, 220, 120);
     private static final Color COLOR_HOUSE_EMPTY = rgb(100, 200, 255);
+    private static final Color COLOR_BED_UNCLAIMED = rgb(150, 170, 190);
 
     private static Color rgb(int r, int g, int b) {
         Color color = new Color();
@@ -141,12 +144,14 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                              Map<UUID, RelationshipStatus> statuses) {
     }
 
-    private record HouseMapMarker(String id, List<String> ownerNames, HouseBlockPos anchor, boolean occupied) {
+    private record HouseMapMarker(String id, List<String> ownerNames, Vector3d position, boolean occupied) {
     }
 
     private static volatile List<NpcMarker> snapshot = List.of();
     private static volatile List<Village> villageSnapshot = List.of();
     private static volatile List<HouseMapMarker> houseSnapshot = List.of();
+    /** Beds that are registered but belong to no house yet — the "not claimed" state. */
+    private static volatile List<HouseBlockPos> unclaimedBedSnapshot = List.of();
 
     /**
      * Tick of the last capture, or {@code -1} when there has not been one.
@@ -232,10 +237,16 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
 
         // Capture registered houses
         List<HouseMapMarker> capturedHouses = new ArrayList<>();
+        Set<HouseBlockPos> houseBeds = new HashSet<>();
         for (HouseData house : HouseManager.HOUSES_BY_ID.values()) {
             if (house == null) continue;
             HouseBlockPos anchor = house.getAnchor();
             if (anchor == null) continue;
+
+            Set<HouseBlockPos> beds = new HashSet<>();
+            if (house.bedPos != null) beds.add(house.bedPos);
+            if (house.beds != null) beds.addAll(house.beds);
+            houseBeds.addAll(beds);
 
             List<String> names = new ArrayList<>();
             if (house.owners != null) {
@@ -243,18 +254,80 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                     try {
                         UUID u = UUID.fromString(ownerStr);
                         SimNPCComponent resident = SimTale.findNpc(u);
-                        if (resident != null && resident.name != null && !resident.name.isBlank()) {
+                        if (resident != null && resident.name != null && !resident.name.isBlank()
+                                && !names.contains(resident.name)) {
                             names.add(resident.name);
                         }
                     } catch (Exception ignored) {
                     }
                 }
             }
-            boolean occupied = !names.isEmpty();
+
+            /* The owners list is the source of truth for "occupied"; the name list is only what
+            can be resolved right now. Previously occupancy was tied to the *loaded* owners, so an
+            NPC in an unloaded chunk (or a house whose owner list was rebuilt empty while a
+            resident still slept there) painted the house blue as "unoccupied". A resident whose
+            bed is in this house also proves occupancy even if the owner list drifted.
+            */
+            for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+                if (npc.bedLocation == null) continue;
+                HouseBlockPos bed = new HouseBlockPos(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z);
+                if (beds.contains(bed) && npc.name != null && !npc.name.isBlank() && !names.contains(npc.name)) {
+                    names.add(npc.name);
+                }
+            }
+
+            boolean occupied = !names.isEmpty() || (house.owners != null && !house.owners.isEmpty());
             String houseId = house.houseId != null ? house.houseId : (anchor.x + "_" + anchor.y + "_" + anchor.z);
-            capturedHouses.add(new HouseMapMarker(houseId, List.copyOf(names), anchor, occupied));
+            capturedHouses.add(new HouseMapMarker(houseId, List.copyOf(names),
+                    houseMarkerPosition(house, anchor), occupied));
         }
         houseSnapshot = List.copyOf(capturedHouses);
+
+        /* A registered bed that belongs to no house is the "built but not claimed yet" state.
+        Without these the map is silent exactly while the player is waiting for an NPC to take the
+        room, which reads as recognition being broken. Once claimed, the same bed disappears from
+        this list and the house marker (green, with owner names) takes over.
+        */
+        Set<HouseBlockPos> claimedBeds = new HashSet<>();
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc.bedLocation == null) continue;
+            claimedBeds.add(new HouseBlockPos(npc.bedLocation.x, npc.bedLocation.y, npc.bedLocation.z));
+        }
+
+        List<HouseBlockPos> unclaimed = new ArrayList<>();
+        synchronized (BedRegistry.BEDS) {
+            for (SimBedData.BedPos bed : BedRegistry.BEDS) {
+                HouseBlockPos pos = new HouseBlockPos(bed.x, bed.y, bed.z);
+                if (houseBeds.contains(pos) || claimedBeds.contains(pos)) continue;
+                unclaimed.add(pos);
+            }
+        }
+        unclaimedBedSnapshot = List.copyOf(unclaimed);
+    }
+
+    /**
+     * Marker position for a house: the centre of its interior, not the first bed.
+     *
+     * <p>The old position was {@code HouseData.getAnchor()}, which is the original bed. In a
+     * one-house village that is also exactly the village centre, so the Home and Spawn markers
+     * landed on the same pixel and the house looked missing. It also meant that adding a wing with
+     * a new bed left the marker sitting on the old bed, giving no visual hint that the extension
+     * had been recognised. The interior centre follows the actual building instead.
+     */
+    private static Vector3d houseMarkerPosition(HouseData house, HouseBlockPos fallback) {
+        Set<HouseBlockPos> interior = house.interior;
+        if (interior != null && !interior.isEmpty()) {
+            double sumX = 0, sumY = 0, sumZ = 0;
+            for (HouseBlockPos pos : interior) {
+                sumX += pos.x;
+                sumY += pos.y;
+                sumZ += pos.z;
+            }
+            int count = interior.size();
+            return new Vector3d(sumX / count + 0.5, sumY / count + 0.5, sumZ / count + 0.5);
+        }
+        return new Vector3d(fallback.x + 0.5, fallback.y + 0.5, fallback.z + 0.5);
     }
 
     @Override
@@ -322,11 +395,20 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         // Emit house markers
         for (HouseMapMarker house : houseSnapshot) {
             try {
-                Transform houseTransform = new Transform(new Vector3d(house.anchor().x, house.anchor().y, house.anchor().z));
+                Transform houseTransform = new Transform(house.position());
                 TintComponent tint = new TintComponent(house.occupied() ? COLOR_HOUSE_OCCUPIED : COLOR_HOUSE_EMPTY);
-                Message houseName = house.occupied()
-                        ? Message.translation("general.map.house.occupied").param("owners", String.join(", ", house.ownerNames()))
-                        : Message.translation("general.map.house.empty");
+                Message houseName;
+                if (!house.occupied()) {
+                    houseName = Message.translation("general.map.house.empty");
+                } else if (house.ownerNames().isEmpty()) {
+                    /* Owners exist but none of them is loaded right now. Still occupied — the
+                    old code painted this blue because it only counted resolvable names.
+                    */
+                    houseName = Message.translation("general.map.house.occupied_unknown");
+                } else {
+                    houseName = Message.translation("general.map.house.occupied")
+                            .param("owners", String.join(", ", house.ownerNames()));
+                }
                 collector.addIgnoreViewDistance(
                         new MapMarkerBuilder(PROVIDER_ID + ":house:" + house.id(),
                                 MARKER_IMAGE_HOUSE, houseTransform)
@@ -336,6 +418,22 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                 emitted++;
             } catch (RuntimeException e) {
                 LOGGER.debug("[MAP] Failed to mark house '{}': {}", house.id(), e.toString());
+            }
+        }
+
+        // Emit beds that are registered but not part of any house yet
+        for (HouseBlockPos bed : unclaimedBedSnapshot) {
+            try {
+                Transform bedTransform = new Transform(new Vector3d(bed.x + 0.5, bed.y + 0.5, bed.z + 0.5));
+                collector.addIgnoreViewDistance(
+                        new MapMarkerBuilder(PROVIDER_ID + ":bed:" + bed.x + ":" + bed.y + ":" + bed.z,
+                                MARKER_IMAGE_HOUSE, bedTransform)
+                                .withName(Message.translation("general.map.bed.unclaimed"))
+                                .withComponent(new TintComponent(COLOR_BED_UNCLAIMED))
+                                .build());
+                emitted++;
+            } catch (RuntimeException e) {
+                LOGGER.debug("[MAP] Failed to mark unclaimed bed at {}: {}", bed, e.toString());
             }
         }
 

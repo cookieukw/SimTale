@@ -89,7 +89,7 @@ public class WhiteCatManager {
         }
 
         if (playerRefComp != null) {
-            playerRefComp.sendMessage(Message.raw("§a* Miau! * Um lindo gatinho branco apareceu!"));
+            playerRefComp.sendMessage(Message.raw("* Miau! * Um lindo gatinho branco apareceu!"));
         }
         return true;
     }

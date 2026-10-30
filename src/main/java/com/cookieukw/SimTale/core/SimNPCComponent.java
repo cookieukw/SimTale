@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.core;
 
 import com.cookieukw.SimTale.db.SimBedData.BedPos;
+import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.engine.MagicEngine;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 import com.cookieukw.SimTale.logic.JobType;
@@ -96,8 +97,21 @@ public class SimNPCComponent implements Component<EntityStore> {
      */
     public transient boolean dataLoaded = false;
 
+    /**
+     * Snapshot loaded from {@link com.cookieukw.SimTale.db.SimNPCData} but not applied yet.
+     *
+     * <p>Needs cannot be written to {@code EntityStatMap} until the live entity reference exists,
+     * which happens after the database record is read in several load paths. This holds the
+     * snapshot until {@code NeedsHelper.restoreSavedNeeds} can apply it.
+     */
+    public transient SimNPCData.NeedsData savedNeeds;
+
     public transient boolean isInteractingViaUI = false;
     public transient String lastDamageCause = "desconhecida";
+    /** Last AI task seen while the entity was still alive; used by removal diagnostics. */
+    public transient String lastTaskName = "desconhecida";
+    /** Throttles teleport rescues from drowning/suffocation damage. */
+    public transient long lastEnvironmentRescueTick = 0L;
     /**
      * Player whose interaction page is currently open, so the AI can keep the NPC turned
      * toward them. Separate from {@link #currentConversationPartner}, which the page clears on
@@ -215,6 +229,7 @@ public class SimNPCComponent implements Component<EntityStore> {
         ECS swapping in a clone would silently block persistence for that NPC.
         */
         clone.dataLoaded = dataLoaded;
+        clone.savedNeeds = savedNeeds;
 
         /* Identity/family state — must be copied explicitly, otherwise the
         default constructor's random profession would leak into the clone.

@@ -26,7 +26,7 @@ import java.util.UUID;
  * "/simtale costume" command in SimTaleCommand.java, ensuring the two never disagree on what
  * an NPC is actually wearing (a single backup map, a single "active event" map).
  * The calendar comes from {@link WorldTimeResource#getGameDateTime()}, already used in
- * NPCSleepHelper/InteractionManager -- see docs/experimentos.md / wiki/dev/experiments.md
+ * NPCSleepHelper/InteractionManager -- see wiki/dev/experiments.md / wiki/dev/experiments.md
  * (section "automatic calendar trigger", 13/09) for full reasoning, including the two gotchas:
  * getMoonPhase() is not a named phase, and isYearWithinRange() has an unimplemented TODO
  * (which is why dates below are manually compared by month/day rather than using that method).

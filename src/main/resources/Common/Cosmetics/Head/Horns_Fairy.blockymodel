@@ -1,0 +1,1947 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Head",
+      "position": {"x": 0, "y": 0, "z": 0},
+      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+      "shape": {
+        "type": "none",
+        "offset": {"x": 0, "y": 0, "z": 0},
+        "stretch": {"x": 1, "y": 1, "z": 1},
+        "settings": {
+          "isPiece": true
+        },
+        "textureLayout": {},
+        "unwrapMode": "custom",
+        "visible": true,
+        "doubleSided": false,
+        "shadingMode": "flat"
+      },
+      "children": [
+        {
+          "id": "2",
+          "name": "R-Horn",
+          "position": {"x": -11.41091, "y": 12.49286, "z": 5.91895},
+          "orientation": {"x": -0.41454, "y": 0.09713, "z": 0.22971, "w": 0.87519},
+          "shape": {
+            "type": "box",
+            "offset": {"x": 0, "y": 4, "z": -0.207},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 8, "y": 16, "z": 7}
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {"x": 31, "y": 24},
+                "mirror": {"x": false, "y": true},
+                "angle": 180
+              },
+              "right": {
+                "offset": {"x": 8, "y": 24},
+                "mirror": {"x": false, "y": true},
+                "angle": 180
+              },
+              "front": {
+                "offset": {"x": 16, "y": 24},
+                "mirror": {"x": false, "y": true},
+                "angle": 180
+              },
+              "left": {
+                "offset": {"x": 23, "y": 24},
+                "mirror": {"x": false, "y": true},
+                "angle": 180
+              },
+              "top": {
+                "offset": {"x": 39, "y": 20},
+                "mirror": {"x": false, "y": false},
+                "angle": 90
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "3",
+              "name": "R-Small-Horn",
+              "position": {"x": -1.35539, "y": 3.61067, "z": -2.1533},
+              "orientation": {"x": 0.08946, "y": -0.04698, "z": -0.26885, "w": 0.95787},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 6, "z": -0.207},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "4",
+                  "name": "smallHornBase--C1",
+                  "position": {"x": 1.8, "y": 4, "z": 1.493},
+                  "orientation": {"x": 0.02616, "y": -0.03925, "z": 0.00103, "w": 0.99889},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": -0.5, "y": -3, "z": -0.5},
+                    "stretch": {"x": -1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 4, "y": 6, "z": 4},
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 32, "y": 34},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 36, "y": 34},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {"x": 32, "y": 34},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 36, "y": 34},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {"x": 40, "y": 30},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 90
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "5",
+                  "name": "HornTip",
+                  "position": {"x": -0.81393, "y": 3.92013, "z": 2.84235},
+                  "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                  "shape": {
+                    "type": "none",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false
+                    },
+                    "textureLayout": {},
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "6",
+                      "name": "hornTip--C1",
+                      "position": {"x": 0, "y": 0, "z": 0},
+                      "orientation": {"x": 0.02377, "y": 0.346, "z": 0.01096, "w": 0.93787},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 2.83, "y": 4, "z": 0},
+                        "stretch": {"x": 0.94333, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 6, "y": 8},
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 26, "y": 1},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "7",
+                      "name": "hornTip--C2",
+                      "position": {"x": 3.98767, "y": 0, "z": 0.31384},
+                      "orientation": {"x": -0.03108, "y": 0.9013, "z": 0.11146, "w": 0.41746},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": 2.83, "y": 4, "z": 0},
+                        "stretch": {"x": 0.94333, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 6, "y": 8},
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 33, "y": 1},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "8",
+              "name": "R-Horn2",
+              "position": {"x": 0.18325, "y": 4.7765, "z": 0.22527},
+              "orientation": {"x": 0.04144, "y": 0.22523, "z": 0.31742, "w": 0.92022},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": 3.5, "z": -0.207},
+                "stretch": {"x": -1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 6, "y": 11, "z": 6}
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 19, "y": 12},
+                    "mirror": {"x": true, "y": true},
+                    "angle": 180
+                  },
+                  "right": {
+                    "offset": {"x": 19, "y": 12},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 180
+                  },
+                  "front": {
+                    "offset": {"x": 7, "y": 12},
+                    "mirror": {"x": true, "y": true},
+                    "angle": 180
+                  },
+                  "left": {
+                    "offset": {"x": 1, "y": 12},
+                    "mirror": {"x": true, "y": true},
+                    "angle": 180
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "9",
+                  "name": "R-Horn3",
+                  "position": {"x": -3.00899, "y": 5.49737, "z": -2.99501},
+                  "orientation": {"x": 0.31725, "y": 0.00731, "z": -0.0168, "w": 0.94816},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 3.009, "y": 5.49863, "z": 2.99453},
+                    "stretch": {"x": -1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 6, "y": 11, "z": 6}
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 19, "y": 1},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 180
+                      },
+                      "right": {
+                        "offset": {"x": 19, "y": 1},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 180
+                      },
+                      "front": {
+                        "offset": {"x": 7, "y": 1},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 180
+                      },
+                      "left": {
+                        "offset": {"x": 1, "y": 1},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 180
+                      },
+                      "top": {
+                        "offset": {"x": 40, "y": 20},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "10",
+                      "name": "R-Small-Horn2",
+                      "position": {"x": 1.76331, "y": 2.71612, "z": 1.44324},
+                      "orientation": {"x": 0.3337, "y": 0.11426, "z": -0.21026, "w": 0.9118},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": 0.00069, "y": 0.75, "z": 0.00139},
+                        "stretch": {"x": -1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 4, "y": 9, "z": 4}
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 41, "y": 31},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {"x": 45, "y": 31},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {"x": 41, "y": 31},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {"x": 45, "y": 31},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {"x": 49, "y": 27},
+                            "mirror": {"x": false, "y": false},
+                            "angle": 90
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "11",
+                          "name": "HornTip2",
+                          "position": {"x": -2.00138, "y": 4.5, "z": -2.00279},
+                          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                          "shape": {
+                            "type": "none",
+                            "offset": {"x": 0, "y": 0, "z": 0},
+                            "stretch": {"x": 1, "y": 1, "z": 1},
+                            "settings": {
+                              "isPiece": false
+                            },
+                            "textureLayout": {},
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": false,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "12",
+                              "name": "hornTip--C1",
+                              "position": {"x": 0, "y": 0, "z": 0},
+                              "orientation": {"x": 0, "y": -0.38268, "z": 0, "w": 0.92388},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 2.8299, "y": 4, "z": 0},
+                                "stretch": {"x": 0.9433, "y": 1, "z": 1},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 6, "y": 8},
+                                  "normal": "+Z",
+                                  "isStaticBox": true
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 40, "y": 1},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            },
+                            {
+                              "id": "13",
+                              "name": "hornTip--C2",
+                              "position": {"x": 0.00138, "y": 0, "z": 4.00279},
+                              "orientation": {"x": -0.04835, "y": 0.38216, "z": 0.02003, "w": 0.92261},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": 2.8299, "y": 4, "z": 0},
+                                "stretch": {"x": 0.9433, "y": 1, "z": 1},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 6, "y": 8},
+                                  "normal": "+Z",
+                                  "isStaticBox": true
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 47, "y": 1},
+                                    "mirror": {"x": false, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "14",
+                      "name": "R-Horn4",
+                      "position": {"x": 2.22507, "y": 3.91946, "z": 0.05674},
+                      "orientation": {"x": 0.2221, "y": -0.05719, "z": -0.17131, "w": 0.95815},
+                      "shape": {
+                        "type": "none",
+                        "offset": {"x": -3, "y": 4, "z": 0},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false
+                        },
+                        "textureLayout": {},
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "15",
+                          "name": "R-Small-Horn3",
+                          "position": {"x": -3.11084, "y": -1.54628, "z": 0.3061},
+                          "orientation": {"x": 0.06112, "y": 0.05211, "z": 0.30511, "w": 0.94892},
+                          "shape": {
+                            "type": "box",
+                            "offset": {"x": 1.06067, "y": -1.35916, "z": 0.69614},
+                            "stretch": {"x": -1, "y": 1, "z": 1},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 5, "y": 9, "z": 5}
+                            },
+                            "textureLayout": {
+                              "back": {
+                                "offset": {"x": 50, "y": 32},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "right": {
+                                "offset": {"x": 55, "y": 32},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "front": {
+                                "offset": {"x": 50, "y": 32},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "left": {
+                                "offset": {"x": 55, "y": 32},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "top": {
+                                "offset": {"x": 60, "y": 27},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 90
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": false,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "16",
+                              "name": "HornTip",
+                              "position": {"x": 2.49995, "y": 4.5, "z": -2.49929},
+                              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                              "shape": {
+                                "type": "none",
+                                "offset": {"x": 0, "y": 0, "z": 0},
+                                "stretch": {"x": 1, "y": 1, "z": 1},
+                                "settings": {
+                                  "isPiece": false
+                                },
+                                "textureLayout": {},
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": false,
+                                "shadingMode": "flat"
+                              },
+                              "children": [
+                                {
+                                  "id": "17",
+                                  "name": "hornTip--C1",
+                                  "position": {"x": 0, "y": 0, "z": 0},
+                                  "orientation": {"x": 0.07249, "y": 0.3815, "z": -0.03002, "w": 0.92103},
+                                  "shape": {
+                                    "type": "quad",
+                                    "offset": {"x": -3.535, "y": 4.5, "z": -0.001},
+                                    "stretch": {"x": 1.01, "y": 1, "z": 1},
+                                    "settings": {
+                                      "isPiece": false,
+                                      "size": {"x": 7, "y": 9},
+                                      "normal": "+Z",
+                                      "isStaticBox": true
+                                    },
+                                    "textureLayout": {
+                                      "front": {
+                                        "offset": {"x": 41, "y": 10},
+                                        "mirror": {"x": true, "y": false},
+                                        "angle": 0
+                                      }
+                                    },
+                                    "unwrapMode": "custom",
+                                    "visible": true,
+                                    "doubleSided": true,
+                                    "shadingMode": "flat"
+                                  }
+                                },
+                                {
+                                  "id": "18",
+                                  "name": "hornTip--C2",
+                                  "position": {"x": -0.00141, "y": 0, "z": 4.99925},
+                                  "orientation": {"x": 0, "y": -0.38268, "z": 0, "w": 0.92388},
+                                  "shape": {
+                                    "type": "quad",
+                                    "offset": {"x": -3.535, "y": 4.5, "z": -0.001},
+                                    "stretch": {"x": 1.01, "y": 1, "z": 1},
+                                    "settings": {
+                                      "isPiece": false,
+                                      "size": {"x": 7, "y": 9},
+                                      "normal": "+Z",
+                                      "isStaticBox": true
+                                    },
+                                    "textureLayout": {
+                                      "front": {
+                                        "offset": {"x": 33, "y": 10},
+                                        "mirror": {"x": true, "y": false},
+                                        "angle": 0
+                                      }
+                                    },
+                                    "unwrapMode": "custom",
+                                    "visible": true,
+                                    "doubleSided": true,
+                                    "shadingMode": "flat"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "19",
+          "name": "L-Horn",
+          "position": {"x": 11.41091, "y": 12.49286, "z": 5.91895},
+          "orientation": {"x": -0.41454, "y": -0.09713, "z": -0.22971, "w": 0.87519},
+          "shape": {
+            "type": "box",
+            "offset": {"x": 0, "y": 4, "z": -0.207},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 8, "y": 16, "z": 7}
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {"x": 23, "y": 24},
+                "mirror": {"x": true, "y": true},
+                "angle": 180
+              },
+              "right": {
+                "offset": {"x": 16, "y": 24},
+                "mirror": {"x": true, "y": true},
+                "angle": 180
+              },
+              "front": {
+                "offset": {"x": 8, "y": 24},
+                "mirror": {"x": true, "y": true},
+                "angle": 180
+              },
+              "left": {
+                "offset": {"x": 1, "y": 24},
+                "mirror": {"x": true, "y": true},
+                "angle": 180
+              },
+              "top": {
+                "offset": {"x": 39, "y": 28},
+                "mirror": {"x": true, "y": false},
+                "angle": 90
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "20",
+              "name": "L-Small-Horn",
+              "position": {"x": 1.35539, "y": 3.61067, "z": -2.1533},
+              "orientation": {"x": 0.08946, "y": 0.04698, "z": 0.26885, "w": 0.95787},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 6, "z": -0.207},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "21",
+                  "name": "smallHornBase--C1",
+                  "position": {"x": -1.8, "y": 4, "z": 1.493},
+                  "orientation": {"x": 0.02616, "y": 0.03925, "z": -0.00103, "w": 0.99889},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0.5, "y": -3, "z": -0.5},
+                    "stretch": {"x": -1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 4, "y": 6, "z": 4},
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 36, "y": 34},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 40, "y": 34},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "front": {
+                        "offset": {"x": 36, "y": 34},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 40, "y": 34},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "top": {
+                        "offset": {"x": 40, "y": 34},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 90
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "22",
+                  "name": "HornTip",
+                  "position": {"x": 0.81393, "y": 3.92013, "z": 2.84235},
+                  "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                  "shape": {
+                    "type": "none",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false
+                    },
+                    "textureLayout": {},
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "23",
+                      "name": "hornTip--C1",
+                      "position": {"x": 0, "y": 0, "z": 0},
+                      "orientation": {"x": 0.02377, "y": -0.346, "z": -0.01096, "w": 0.93787},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": -2.83, "y": 4, "z": 0},
+                        "stretch": {"x": 0.94333, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 6, "y": 8},
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 32, "y": 1},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    },
+                    {
+                      "id": "24",
+                      "name": "hornTip--C2",
+                      "position": {"x": -3.98767, "y": 0, "z": 0.31384},
+                      "orientation": {"x": -0.03108, "y": -0.9013, "z": -0.11146, "w": 0.41746},
+                      "shape": {
+                        "type": "quad",
+                        "offset": {"x": -2.83, "y": 4, "z": 0},
+                        "stretch": {"x": 0.94333, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 6, "y": 8},
+                          "normal": "+Z",
+                          "isStaticBox": true
+                        },
+                        "textureLayout": {
+                          "front": {
+                            "offset": {"x": 39, "y": 1},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": true,
+                        "shadingMode": "flat"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "25",
+              "name": "L-Horn2",
+              "position": {"x": -0.18325, "y": 4.7765, "z": 0.22527},
+              "orientation": {"x": 0.04144, "y": -0.22523, "z": -0.31742, "w": 0.92022},
+              "shape": {
+                "type": "box",
+                "offset": {"x": 0, "y": 3.5, "z": -0.207},
+                "stretch": {"x": -1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 6, "y": 11, "z": 6}
+                },
+                "textureLayout": {
+                  "back": {
+                    "offset": {"x": 25, "y": 12},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 180
+                  },
+                  "right": {
+                    "offset": {"x": 7, "y": 12},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 180
+                  },
+                  "front": {
+                    "offset": {"x": 13, "y": 12},
+                    "mirror": {"x": false, "y": true},
+                    "angle": 180
+                  },
+                  "left": {
+                    "offset": {"x": 13, "y": 12},
+                    "mirror": {"x": true, "y": true},
+                    "angle": 180
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "26",
+                  "name": "L-Horn3",
+                  "position": {"x": 3.00899, "y": 5.49737, "z": -2.99501},
+                  "orientation": {"x": 0.31725, "y": -0.00731, "z": 0.0168, "w": 0.94816},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": -3.009, "y": 5.49863, "z": 2.99453},
+                    "stretch": {"x": -1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 6, "y": 11, "z": 6}
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 25, "y": 1},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 180
+                      },
+                      "right": {
+                        "offset": {"x": 7, "y": 1},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 180
+                      },
+                      "front": {
+                        "offset": {"x": 13, "y": 1},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 180
+                      },
+                      "left": {
+                        "offset": {"x": 13, "y": 1},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 180
+                      },
+                      "top": {
+                        "offset": {"x": 46, "y": 20},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  },
+                  "children": [
+                    {
+                      "id": "27",
+                      "name": "L-Small-Horn2",
+                      "position": {"x": -1.76331, "y": 2.71612, "z": 1.44324},
+                      "orientation": {"x": 0.3337, "y": -0.11426, "z": 0.21026, "w": 0.9118},
+                      "shape": {
+                        "type": "box",
+                        "offset": {"x": -0.00069, "y": 0.75, "z": 0.00139},
+                        "stretch": {"x": -1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false,
+                          "size": {"x": 4, "y": 9, "z": 4}
+                        },
+                        "textureLayout": {
+                          "back": {
+                            "offset": {"x": 45, "y": 31},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          },
+                          "right": {
+                            "offset": {"x": 49, "y": 31},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          },
+                          "front": {
+                            "offset": {"x": 45, "y": 31},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          },
+                          "left": {
+                            "offset": {"x": 49, "y": 31},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 0
+                          },
+                          "top": {
+                            "offset": {"x": 49, "y": 31},
+                            "mirror": {"x": true, "y": false},
+                            "angle": 90
+                          }
+                        },
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "28",
+                          "name": "HornTip",
+                          "position": {"x": 2.00138, "y": 4.5, "z": -2.00279},
+                          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                          "shape": {
+                            "type": "none",
+                            "offset": {"x": 0, "y": 0, "z": 0},
+                            "stretch": {"x": 1, "y": 1, "z": 1},
+                            "settings": {
+                              "isPiece": false
+                            },
+                            "textureLayout": {},
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": false,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "29",
+                              "name": "hornTip--C1",
+                              "position": {"x": 0, "y": 0, "z": 0},
+                              "orientation": {"x": 0, "y": 0.38268, "z": 0, "w": 0.92388},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": -2.8299, "y": 4, "z": 0},
+                                "stretch": {"x": 0.9433, "y": 1, "z": 1},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 6, "y": 8},
+                                  "normal": "+Z",
+                                  "isStaticBox": true
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 46, "y": 1},
+                                    "mirror": {"x": true, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            },
+                            {
+                              "id": "30",
+                              "name": "hornTip--C2",
+                              "position": {"x": -0.00138, "y": 0, "z": 4.00279},
+                              "orientation": {"x": -0.04835, "y": -0.38216, "z": -0.02003, "w": 0.92261},
+                              "shape": {
+                                "type": "quad",
+                                "offset": {"x": -2.8299, "y": 4, "z": 0},
+                                "stretch": {"x": 0.9433, "y": 1, "z": 1},
+                                "settings": {
+                                  "isPiece": false,
+                                  "size": {"x": 6, "y": 8},
+                                  "normal": "+Z",
+                                  "isStaticBox": true
+                                },
+                                "textureLayout": {
+                                  "front": {
+                                    "offset": {"x": 53, "y": 1},
+                                    "mirror": {"x": true, "y": false},
+                                    "angle": 0
+                                  }
+                                },
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": true,
+                                "shadingMode": "flat"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "31",
+                      "name": "L-Horn4",
+                      "position": {"x": -2.22507, "y": 3.91946, "z": 0.05674},
+                      "orientation": {"x": 0.2221, "y": 0.05719, "z": 0.17131, "w": 0.95815},
+                      "shape": {
+                        "type": "none",
+                        "offset": {"x": -3, "y": 4, "z": 0},
+                        "stretch": {"x": 1, "y": 1, "z": 1},
+                        "settings": {
+                          "isPiece": false
+                        },
+                        "textureLayout": {},
+                        "unwrapMode": "custom",
+                        "visible": true,
+                        "doubleSided": false,
+                        "shadingMode": "flat"
+                      },
+                      "children": [
+                        {
+                          "id": "32",
+                          "name": "L-Small-Horn3",
+                          "position": {"x": 9.11084, "y": -1.54628, "z": 0.3061},
+                          "orientation": {"x": 0.06112, "y": -0.05211, "z": -0.30511, "w": 0.94892},
+                          "shape": {
+                            "type": "box",
+                            "offset": {"x": -1.06067, "y": -1.35916, "z": 0.69614},
+                            "stretch": {"x": -1, "y": 1, "z": 1},
+                            "settings": {
+                              "isPiece": false,
+                              "size": {"x": 5, "y": 9, "z": 5}
+                            },
+                            "textureLayout": {
+                              "back": {
+                                "offset": {"x": 55, "y": 32},
+                                "mirror": {"x": true, "y": false},
+                                "angle": 0
+                              },
+                              "right": {
+                                "offset": {"x": 60, "y": 32},
+                                "mirror": {"x": true, "y": false},
+                                "angle": 0
+                              },
+                              "front": {
+                                "offset": {"x": 55, "y": 32},
+                                "mirror": {"x": true, "y": false},
+                                "angle": 0
+                              },
+                              "left": {
+                                "offset": {"x": 60, "y": 32},
+                                "mirror": {"x": true, "y": false},
+                                "angle": 0
+                              },
+                              "top": {
+                                "offset": {"x": 60, "y": 32},
+                                "mirror": {"x": true, "y": false},
+                                "angle": 90
+                              }
+                            },
+                            "unwrapMode": "custom",
+                            "visible": true,
+                            "doubleSided": false,
+                            "shadingMode": "flat"
+                          },
+                          "children": [
+                            {
+                              "id": "33",
+                              "name": "HornTip",
+                              "position": {"x": -2.49995, "y": 4.5, "z": -2.49929},
+                              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                              "shape": {
+                                "type": "none",
+                                "offset": {"x": 0, "y": 0, "z": 0},
+                                "stretch": {"x": 1, "y": 1, "z": 1},
+                                "settings": {
+                                  "isPiece": false
+                                },
+                                "textureLayout": {},
+                                "unwrapMode": "custom",
+                                "visible": true,
+                                "doubleSided": false,
+                                "shadingMode": "flat"
+                              },
+                              "children": [
+                                {
+                                  "id": "34",
+                                  "name": "hornTip--C1",
+                                  "position": {"x": 0, "y": 0, "z": 0},
+                                  "orientation": {"x": 0.07249, "y": -0.3815, "z": 0.03002, "w": 0.92103},
+                                  "shape": {
+                                    "type": "quad",
+                                    "offset": {"x": 3.535, "y": 4.5, "z": -0.001},
+                                    "stretch": {"x": 1.01, "y": 1, "z": 1},
+                                    "settings": {
+                                      "isPiece": false,
+                                      "size": {"x": 7, "y": 9},
+                                      "normal": "+Z",
+                                      "isStaticBox": true
+                                    },
+                                    "textureLayout": {
+                                      "front": {
+                                        "offset": {"x": 34, "y": 10},
+                                        "mirror": {"x": false, "y": false},
+                                        "angle": 0
+                                      }
+                                    },
+                                    "unwrapMode": "custom",
+                                    "visible": true,
+                                    "doubleSided": true,
+                                    "shadingMode": "flat"
+                                  }
+                                },
+                                {
+                                  "id": "35",
+                                  "name": "hornTip--C2",
+                                  "position": {"x": 0.00141, "y": 0, "z": 4.99925},
+                                  "orientation": {"x": 0, "y": 0.38268, "z": 0, "w": 0.92388},
+                                  "shape": {
+                                    "type": "quad",
+                                    "offset": {"x": 3.535, "y": 4.5, "z": -0.001},
+                                    "stretch": {"x": 1.01, "y": 1, "z": 1},
+                                    "settings": {
+                                      "isPiece": false,
+                                      "size": {"x": 7, "y": 9},
+                                      "normal": "+Z",
+                                      "isStaticBox": true
+                                    },
+                                    "textureLayout": {
+                                      "front": {
+                                        "offset": {"x": 26, "y": 10},
+                                        "mirror": {"x": false, "y": false},
+                                        "angle": 0
+                                      }
+                                    },
+                                    "unwrapMode": "custom",
+                                    "visible": true,
+                                    "doubleSided": true,
+                                    "shadingMode": "flat"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "36",
+          "name": "R-Plants",
+          "position": {"x": -17.95, "y": 1.94281, "z": 14.12641},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 0, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "37",
+              "name": "vines--C1",
+              "position": {"x": 0.4589, "y": 4.4967, "z": -1.96268},
+              "orientation": {"x": -0.05555, "y": -0.68575, "z": -0.06715, "w": 0.7226},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": -4.5, "y": 1, "z": 0},
+                "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 17, "y": 14},
+                  "normal": "+Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 1, "y": 41},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "38",
+              "name": "leaves--C2",
+              "position": {"x": 1.94891, "y": 14.54755, "z": -2.05677},
+              "orientation": {"x": -0.35076, "y": -0.67407, "z": -0.04396, "w": 0.64858},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": -6.3, "y": 1.75, "z": -0.001},
+                "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 14, "y": 13},
+                  "normal": "+Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 19, "y": 41},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "39",
+              "name": "Flower",
+              "position": {"x": 1.05863, "y": 6.86957, "z": 0.37119},
+              "orientation": {"x": -0.08424, "y": -0.34302, "z": 0.0458, "w": 0.93442},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "40",
+                  "name": "flowerBase--C1",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": 0, "y": 0, "z": 0.38268, "w": 0.92388},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 0, "z": 0.5},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 6, "y": 6, "z": 3},
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 34, "y": 41},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 40, "y": 47},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 90
+                      },
+                      "front": {
+                        "offset": {"x": 40, "y": 41},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 40, "y": 50},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 90
+                      },
+                      "top": {
+                        "offset": {"x": 34, "y": 50},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 34, "y": 47},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "41",
+                  "name": "petal--C2",
+                  "position": {"x": 0, "y": -0.11882, "z": 1.46769},
+                  "orientation": {"x": 0.12187, "y": 0, "z": 0, "w": 0.99255},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 4, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 10, "y": 8},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 53, "y": 9},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "42",
+                  "name": "petal--C3",
+                  "position": {"x": 0, "y": -0.11882, "z": 1.46769},
+                  "orientation": {"x": 0.06093, "y": -0.10554, "z": -0.85957, "w": 0.49627},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 4, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 10, "y": 8},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 53, "y": 18},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "43",
+                  "name": "petal--C4",
+                  "position": {"x": 0, "y": -0.11882, "z": 1.46769},
+                  "orientation": {"x": 0.06093, "y": 0.10554, "z": 0.85957, "w": 0.49627},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 4, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 10, "y": 8},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 63, "y": 18},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "44",
+                  "name": "leaves--C5",
+                  "position": {"x": 0.55, "y": 2.09411, "z": -0.001},
+                  "orientation": {"x": 0.06839, "y": -0.01607, "z": 0.28127, "w": 0.95705},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": -1.5, "y": 3.5, "z": 0},
+                    "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 11, "y": 9},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 41, "y": 54},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "45",
+                  "name": "leaves--C6",
+                  "position": {"x": 0.05809, "y": -5.32208, "z": 0.04022},
+                  "orientation": {"x": -0.11248, "y": 0.11249, "z": 0.01281, "w": 0.98718},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": -1.5, "y": 2, "z": 0},
+                    "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 11, "y": 6},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 17, "y": 57},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "46",
+              "name": "Flower2",
+              "position": {"x": 0.13087, "y": 8.86524, "z": -15.07625},
+              "orientation": {"x": -0.72886, "y": -0.18437, "z": 0.64294, "w": 0.14628},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "47",
+                  "name": "flowerBase--C1",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": 0, "y": 0, "z": 0.38268, "w": 0.92388},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 0, "z": 1},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 3, "y": 3, "z": 2},
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 36, "y": 42},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 41, "y": 48},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 90
+                      },
+                      "front": {
+                        "offset": {"x": 42, "y": 42},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 41, "y": 50},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 90
+                      },
+                      "top": {
+                        "offset": {"x": 36, "y": 50},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 36, "y": 48},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "48",
+                  "name": "petal--C2",
+                  "position": {"x": -0.5, "y": -0.1, "z": 1.85},
+                  "orientation": {"x": 0, "y": 0, "z": 0.30071, "w": 0.95372},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0.5, "y": 0, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 9, "y": 8},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 42, "y": 10},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "49",
+                  "name": "leaves--C3",
+                  "position": {"x": 2.55478, "y": -1.0698, "z": 0.14216},
+                  "orientation": {"x": 0.06839, "y": -0.01607, "z": 0.28127, "w": 0.95705},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": -1.5, "y": 3.5, "z": 0},
+                    "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 11, "y": 9},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 29, "y": 54},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "50",
+          "name": "L-Plants",
+          "position": {"x": 17.95, "y": 1.94281, "z": 14.12641},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "none",
+            "offset": {"x": 0, "y": 0, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false
+            },
+            "textureLayout": {},
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          },
+          "children": [
+            {
+              "id": "51",
+              "name": "vines--C1",
+              "position": {"x": -0.45132, "y": 4.49983, "z": -2.11245},
+              "orientation": {"x": -0.05555, "y": 0.68575, "z": 0.06715, "w": 0.7226},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 4.5, "y": 1, "z": 0},
+                "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 17, "y": 14},
+                  "normal": "+Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 18, "y": 41},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "52",
+              "name": "leaves--C2",
+              "position": {"x": -1.94891, "y": 14.54755, "z": -2.05677},
+              "orientation": {"x": -0.35076, "y": 0.67407, "z": 0.04396, "w": 0.64858},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 6.3, "y": 1.75, "z": -0.001},
+                "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 14, "y": 13},
+                  "normal": "+Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 33, "y": 41},
+                    "mirror": {"x": true, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
+              }
+            },
+            {
+              "id": "53",
+              "name": "Flower",
+              "position": {"x": -0.10676, "y": 13.49419, "z": -5.82787},
+              "orientation": {"x": -0.21596, "y": 0.47989, "z": 0.01037, "w": 0.85027},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "54",
+                  "name": "flowerBase--C1",
+                  "position": {"x": 0, "y": 0, "z": -0.3},
+                  "orientation": {"x": 0, "y": 0, "z": -0.38268, "w": 0.92388},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": -0.2, "y": -0.2, "z": 0.6},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 5, "y": 5, "z": 3},
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 40, "y": 41},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 40, "y": 47},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 90
+                      },
+                      "front": {
+                        "offset": {"x": 46, "y": 41},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 40, "y": 50},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 90
+                      },
+                      "top": {
+                        "offset": {"x": 40, "y": 50},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 40, "y": 47},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "55",
+                  "name": "petal--C2",
+                  "position": {"x": -0.25, "y": -0.53194, "z": 1.32092},
+                  "orientation": {"x": 0.12187, "y": 0, "z": 0, "w": 0.99255},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 3.5, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 9, "y": 7},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 63, "y": 1},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "56",
+                  "name": "petal--C3",
+                  "position": {"x": -0.25, "y": -0.53194, "z": 1.32092},
+                  "orientation": {"x": 0.06093, "y": 0.10554, "z": 0.85957, "w": 0.49627},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 3.5, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 9, "y": 7},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 63, "y": 1},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "57",
+                  "name": "petal--C4",
+                  "position": {"x": -0.25, "y": -0.53194, "z": 1.32092},
+                  "orientation": {"x": 0.06093, "y": -0.10554, "z": -0.85957, "w": 0.49627},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 3.5, "z": 0},
+                    "stretch": {"x": 0.8, "y": 0.8, "z": 0.8},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 9, "y": 7},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 63, "y": 1},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "58",
+                  "name": "leaves--C5",
+                  "position": {"x": -1.84646, "y": -0.19634, "z": -0.30558},
+                  "orientation": {"x": 0.06839, "y": 0.01607, "z": -0.28127, "w": 0.95705},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 1.4, "y": 1.6, "z": 0},
+                    "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 10, "y": 11},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 63, "y": 52},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "59",
+              "name": "Flower2",
+              "position": {"x": 0.08908, "y": 6.62173, "z": -11.42331},
+              "orientation": {"x": 0.6209, "y": 0.2525, "z": 0.70096, "w": 0.2437},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "60",
+                  "name": "flowerBase--C1",
+                  "position": {"x": 0, "y": 0, "z": 0},
+                  "orientation": {"x": 0, "y": 0, "z": -0.38268, "w": 0.92388},
+                  "shape": {
+                    "type": "box",
+                    "offset": {"x": 0, "y": 0, "z": 1},
+                    "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 3, "y": 3, "z": 2},
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "back": {
+                        "offset": {"x": 39, "y": 42},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "right": {
+                        "offset": {"x": 41, "y": 48},
+                        "mirror": {"x": false, "y": true},
+                        "angle": 90
+                      },
+                      "front": {
+                        "offset": {"x": 45, "y": 42},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      },
+                      "left": {
+                        "offset": {"x": 41, "y": 50},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 90
+                      },
+                      "top": {
+                        "offset": {"x": 39, "y": 50},
+                        "mirror": {"x": true, "y": true},
+                        "angle": 0
+                      },
+                      "bottom": {
+                        "offset": {"x": 39, "y": 48},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": false,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "61",
+                  "name": "petal--C2",
+                  "position": {"x": 0.5, "y": -0.1, "z": 1.925},
+                  "orientation": {"x": 0, "y": 0, "z": -0.30071, "w": 0.95372},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": -0.5, "y": 0, "z": 0},
+                    "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 9, "y": 8},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 51, "y": 10},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                },
+                {
+                  "id": "62",
+                  "name": "leaves--C3",
+                  "position": {"x": 0.50829, "y": 1.05601, "z": 0.66849},
+                  "orientation": {"x": 0.04007, "y": 0.05771, "z": -0.84942, "w": 0.52302},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 0, "z": 0},
+                    "stretch": {"x": 0.9, "y": 0.9, "z": 0.9},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 11, "y": 9},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 63, "y": 42},
+                        "mirror": {"x": true, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format": "character",
+  "lod": "auto"
+}

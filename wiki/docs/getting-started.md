@@ -274,7 +274,10 @@ See [Interacting with NPCs](interacting.md).
 
 ## 6. Let time pass
 
-The mod is deliberately slow. Starting from 100 hunger, an NPC takes roughly seven in-game hours to get genuinely hungry. At 5 hunger, they begin to starve, crying and dropping all tasks until fed. Fifteen in-game hours without food will not kill them, but they will refuse to work.
+The mod is deliberately slow. Starting from 100 hunger, an NPC takes roughly 4h10 to start looking
+for food, and about 10h25 to drop everything to eat. At 5 hunger they cry and refuse to work, but
+hunger does not kill them. Raise `hungerDecayMultiplier` in `simtale-config.json` if you want a
+faster pace.
 
 ---
 

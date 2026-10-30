@@ -42,8 +42,33 @@ public class SimNPCData {
     public String emotionSource = "routine";
     public long lastEmotionChangeTick = 0;
 
-    // Profession reputation (docs/ROADMAP.md, "Reputacao por profissao")
+    // Profession reputation (wiki/dev/status.md, "Reputacao por profissao")
     public int jobsCompleted = 0;
+
+    /** Last damage source, shown in the graveyard so a missing NPC has an explanation. */
+    public String deathCause;
+
+    /**
+     * Last known values of the five SimTale needs.
+     *
+     * <p>Needs live in Hytale's {@code EntityStatMap}, not in this component. Depending on how
+     * the engine serialises an NPC entity, those stats may or may not survive a restart; keeping
+     * our own snapshot guarantees that at least the last SimTale save is restored. The live stat
+     * map wins when it still has real values (see {@code NeedsHelper.restoreSavedNeeds}).
+     */
+    public NeedsData needs;
+
+    /** Plain public-field POJO so Caskara can serialise it without a custom codec. */
+    public static class NeedsData {
+        public float hunger = 100f;
+        public float energy = 100f;
+        public float social = 100f;
+        public float fun = 100f;
+        public float hygiene = 100f;
+
+        public NeedsData() {
+        }
+    }
 
     /**
      * Required for Caskara POJO persistence.

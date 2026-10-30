@@ -91,8 +91,8 @@ tied to **real log lines**.
 
 ### 🧩 Developer — "how is this built"
 
-Architecture, systems, extension recipes. Reuses what already exists in the repository's
-`docs/sistemas/` rather than rewriting it.
+Architecture, systems, extension recipes. This track is now the canonical technical
+documentation; the old repository `docs/` folder has been removed.
 
 Includes a page most projects skip and this one needs: **lessons learned**, documenting the failure
 patterns that have already cost time here.
