@@ -110,7 +110,7 @@ public final class VillageStockManager {
         synchronized (ChestRegistry.CHESTS) {
             for (HouseBlockPos cp : ChestRegistry.registeredChests(world)) {
                 if (ChestRegistry.isShared(world, cp)) continue;
-                if (!HouseManager.canOpenChest(npc.entityId, cp)) continue;
+                if (!HouseManager.canOpenChest(world, npc.entityId, cp)) continue;
 
                 if (hasFreeSlot(world, cp)) {
                     if (homeWithRoom == null) homeWithRoom = cp;
