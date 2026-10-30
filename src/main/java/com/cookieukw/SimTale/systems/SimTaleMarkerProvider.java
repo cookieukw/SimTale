@@ -170,7 +170,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
      * than the interval. The guard therefore returned on every single call and the snapshot stayed
      * empty forever — "0 NPC(s) no snapshot" with a world full of NPCs.
      */
-    private static volatile long snapshotTick = -1L;
+    private static final Map<String, Long> snapshotTicks = new ConcurrentHashMap<>();
     private static final AtomicBoolean snapshotDirty = new AtomicBoolean(true);
 
     /** How often the snapshot is rebuilt. The map redraws slower than this anyway. */
@@ -196,8 +196,10 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         if (world == null || store == null) return;
 
         long tick = world.getTick();
-        if (!snapshotDirty.get() && snapshotTick >= 0 && tick - snapshotTick < SNAPSHOT_INTERVAL_TICKS) return;
-        snapshotTick = tick;
+        String worldName = world.getName();
+        long previousTick = snapshotTicks.getOrDefault(worldName, -1L);
+        if (!snapshotDirty.get() && previousTick >= 0 && tick - previousTick < SNAPSHOT_INTERVAL_TICKS) return;
+        snapshotTicks.put(worldName, tick);
         snapshotDirty.set(false);
 
         List<NpcMarker> captured = new ArrayList<>();
