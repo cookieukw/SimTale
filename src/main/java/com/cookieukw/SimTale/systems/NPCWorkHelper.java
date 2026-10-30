@@ -341,7 +341,7 @@ public class NPCWorkHelper {
                     placed, so this is a lookup, not a scan.
                     */
                     Vector3d pos = transform.getPosition();
-                    LumberPostRegistry.LumberPost post = LumberPostRegistry.claimNearest(pos.x, pos.y, pos.z, npc.entityId);
+                    LumberPostRegistry.LumberPost post = LumberPostRegistry.claimNearest(world, pos.x, pos.y, pos.z, npc.entityId);
                     if (post != null) {
                         ai.targetBlockPosition = new Vector3i(post.treeX(), post.treeY(), post.treeZ());
                         ai.claimedWorkPost = new Vector3i(post.postX(), post.postY(), post.postZ());
@@ -761,7 +761,8 @@ public class NPCWorkHelper {
             */
             FishingPostRegistry.release(WorldUtil.fromEntityRef(npc.entityRef), ai.claimedWorkPost.x,
                     ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
-            LumberPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
+            LumberPostRegistry.release(WorldUtil.fromEntityRef(npc.entityRef), ai.claimedWorkPost.x,
+                    ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
             FarmPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
         }
         ai.claimedWorkPost = null;
