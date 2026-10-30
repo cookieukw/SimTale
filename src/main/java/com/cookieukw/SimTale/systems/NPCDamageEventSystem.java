@@ -10,6 +10,7 @@ import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -84,7 +85,8 @@ public class NPCDamageEventSystem extends DamageEventSystem {
         safe zone. /simtale forcekill bypasses damage and still works for administration.
         */
         TransformComponent victimTransform = chunk.getComponent(index, TransformComponent.getComponentType());
-        if (victimTransform != null && isInsideVillageSafeZone(victimTransform.getPosition())) {
+        World victimWorld = WorldUtil.fromEntityRef(chunk.getReferenceTo(index));
+        if (victimTransform != null && isInsideVillageSafeZone(victimWorld, victimTransform.getPosition())) {
             event.setAmount(0f);
             event.setCancelled(true);
             LOGGER.debug("[SimTale] damage to NPC '{}' blocked by the village safe zone", victimNpc.name);
@@ -239,10 +241,14 @@ public class NPCDamageEventSystem extends DamageEventSystem {
      * itself. There is no separate persisted region to keep in sync.
      */
     public static boolean isInsideVillageSafeZone(Vector3d pos) {
+        return isInsideVillageSafeZone(null, pos);
+    }
+
+    public static boolean isInsideVillageSafeZone(World world, Vector3d pos) {
         SimTaleConfig config = SimTaleConfigManager.getConfig();
         if (config != null && !config.villageSafeZoneEnabled) return false;
 
-        VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
+        VillageManager.Village village = VillageManager.nearest(world, pos.x, pos.z);
         return village != null && village.contains(pos.x, pos.z);
     }
 }
