@@ -253,7 +253,8 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         // Capture registered houses
         List<HouseMapMarker> capturedHouses = new ArrayList<>();
         Set<HouseBlockPos> houseBeds = new HashSet<>();
-        for (HouseData house : HouseManager.HOUSES_BY_ID.values()) {
+        HouseManager.HouseIndexes houseIndexes = HouseManager.indexes(world);
+        for (HouseData house : houseIndexes.housesById.values()) {
             if (house == null) continue;
             HouseBlockPos anchor = house.getAnchor();
             if (anchor == null) continue;
