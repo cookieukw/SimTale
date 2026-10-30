@@ -158,7 +158,7 @@ public final class BedWorldBootstrap {
                     */
                     if ((f & F_BLOCK_ENTITY) != 0 && ChestRegistry.isContainerAt(world, x, y, z)) {
                         Vector3i chestAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
-                        ChestRegistry.add(chestAnchor.x, chestAnchor.y, chestAnchor.z);
+                        ChestRegistry.add(world, chestAnchor.x, chestAnchor.y, chestAnchor.z);
                     }
 
                     /* Work posts (fishing/lumber/farm) have the exact same gap the chests did:
