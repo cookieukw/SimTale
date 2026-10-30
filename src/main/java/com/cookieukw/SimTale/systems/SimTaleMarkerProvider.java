@@ -72,6 +72,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private static final String MARKER_IMAGE = "Player.png";
     private static final String MARKER_IMAGE_VILLAGE = "Spawn.png";
     private static final String MARKER_IMAGE_HOUSE = "Home.png";
+    private static final String MARKER_IMAGE_WORK = "Spawn.png";
 
     /**
      * Worlds already carrying the provider, so a re-registration is a no-op instead of a stack.
@@ -122,6 +123,9 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private static final Color COLOR_HOUSE_OCCUPIED = rgb(80, 220, 120);
     private static final Color COLOR_HOUSE_EMPTY = rgb(100, 200, 255);
     private static final Color COLOR_BED_UNCLAIMED = rgb(150, 170, 190);
+    private static final Color COLOR_FISHING_POST = rgb(70, 170, 220);
+    private static final Color COLOR_LUMBER_POST = rgb(170, 120, 65);
+    private static final Color COLOR_FARM_POST = rgb(100, 190, 90);
 
     private static Color rgb(int r, int g, int b) {
         Color color = new Color();
@@ -147,9 +151,13 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private record HouseMapMarker(String id, List<String> ownerNames, Vector3d position, boolean occupied) {
     }
 
+    private record WorkPostMapMarker(String id, String type, Vector3d position) {
+    }
+
     private static volatile List<NpcMarker> snapshot = List.of();
     private static volatile List<Village> villageSnapshot = List.of();
     private static volatile List<HouseMapMarker> houseSnapshot = List.of();
+    private static volatile List<WorkPostMapMarker> workPostSnapshot = List.of();
     /** Beds that are registered but belong to no house yet — the "not claimed" state. */
     private static volatile List<HouseBlockPos> unclaimedBedSnapshot = List.of();
 
@@ -283,6 +291,30 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                     houseMarkerPosition(house, anchor), occupied));
         }
         houseSnapshot = List.copyOf(capturedHouses);
+
+        List<WorkPostMapMarker> capturedWorkPosts = new ArrayList<>();
+        synchronized (FishingPostRegistry.POSTS) {
+            for (FishingPostRegistry.FishingPost post : FishingPostRegistry.POSTS) {
+                capturedWorkPosts.add(new WorkPostMapMarker(
+                        "fishing:" + post.postX() + ":" + post.postY() + ":" + post.postZ(),
+                        "fishing", new Vector3d(post.postX() + 0.5, post.postY() + 0.5, post.postZ() + 0.5)));
+            }
+        }
+        synchronized (LumberPostRegistry.POSTS) {
+            for (LumberPostRegistry.LumberPost post : LumberPostRegistry.POSTS) {
+                capturedWorkPosts.add(new WorkPostMapMarker(
+                        "lumber:" + post.postX() + ":" + post.postY() + ":" + post.postZ(),
+                        "lumber", new Vector3d(post.postX() + 0.5, post.postY() + 0.5, post.postZ() + 0.5)));
+            }
+        }
+        synchronized (FarmPostRegistry.POSTS) {
+            for (FarmPostRegistry.FarmPost post : FarmPostRegistry.POSTS) {
+                capturedWorkPosts.add(new WorkPostMapMarker(
+                        "farm:" + post.postX() + ":" + post.postY() + ":" + post.postZ(),
+                        "farm", new Vector3d(post.postX() + 0.5, post.postY() + 0.5, post.postZ() + 0.5)));
+            }
+        }
+        workPostSnapshot = List.copyOf(capturedWorkPosts);
 
         /* A registered bed that belongs to no house is the "built but not claimed yet" state.
         Without these the map is silent exactly while the player is waiting for an NPC to take the
@@ -418,6 +450,37 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                 emitted++;
             } catch (RuntimeException e) {
                 LOGGER.debug("[MAP] Failed to mark house '{}': {}", house.id(), e.toString());
+            }
+        }
+
+        // Emit recognized profession work posts: fishing traps, lumbermills and scarecrows.
+        for (WorkPostMapMarker post : workPostSnapshot) {
+            try {
+                Color tint;
+                Message name;
+                switch (post.type()) {
+                    case "fishing" -> {
+                        tint = COLOR_FISHING_POST;
+                        name = Message.translation("general.map.workpost.fishing");
+                    }
+                    case "lumber" -> {
+                        tint = COLOR_LUMBER_POST;
+                        name = Message.translation("general.map.workpost.lumber");
+                    }
+                    default -> {
+                        tint = COLOR_FARM_POST;
+                        name = Message.translation("general.map.workpost.farm");
+                    }
+                }
+                collector.addIgnoreViewDistance(
+                        new MapMarkerBuilder(PROVIDER_ID + ":workpost:" + post.id(), MARKER_IMAGE_WORK,
+                                new Transform(post.position()))
+                                .withName(name)
+                                .withComponent(new TintComponent(tint))
+                                .build());
+                emitted++;
+            } catch (RuntimeException e) {
+                LOGGER.debug("[MAP] Failed to mark work post '{}': {}", post.id(), e.toString());
             }
         }
 
