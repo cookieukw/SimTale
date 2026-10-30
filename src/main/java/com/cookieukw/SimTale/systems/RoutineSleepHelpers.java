@@ -241,7 +241,7 @@ final class RoutineSleepHelpers {
                 double centerZ = transform.getPosition().z;
                 double wanderRadius = 18.0;
 
-                VillageManager.Village village = VillageManager.nearest(centerX, centerZ);
+                VillageManager.Village village = VillageManager.nearest(world, centerX, centerZ);
                 if (village != null) {
                     centerX = village.centerX();
                     centerZ = village.centerZ();
