@@ -731,6 +731,11 @@ public class HouseManager {
         return null;
     }
 
+    /** World-aware entry point; the context migration keeps the legacy lookup as a fallback. */
+    public static UUID findHouseIdForChest(World world, HouseBlockPos chestPos) {
+        return findHouseIdForChest(chestPos);
+    }
+
     private static UUID getBedOwnerUuid(HouseBlockPos pos) {
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
             if (npc.bedLocation != null &&
