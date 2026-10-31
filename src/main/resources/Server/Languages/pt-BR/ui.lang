@@ -100,6 +100,11 @@ pregnancy.children = {count}
 button.carry = Pegar no Colo
 button.inventory = Inventário
 button.pregnancy = Ver Gestação
+button.follow = Seguir
+button.stop_follow = Parar de Seguir
+follow.started = {name} está te seguindo.
+follow.stopped = {name} parou de seguir você.
+follow.unavailable = {name} não pode te seguir agora.
 
 parents = Pais\:
 children = Filhos\:
