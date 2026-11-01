@@ -155,9 +155,13 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private record WorkPostMapMarker(String id, String type, Vector3d position) {
     }
 
+    private record GlobalChestMapMarker(String id, Vector3d position, int count) {
+    }
+
     private record WorldMarkerSnapshot(List<NpcMarker> npcs, List<Village> villages,
                                        List<HouseMapMarker> houses, List<WorkPostMapMarker> workPosts,
-                                       List<HouseBlockPos> unclaimedBeds) {
+                                       List<HouseBlockPos> unclaimedBeds,
+                                       List<GlobalChestMapMarker> globalChests) {
     }
 
     private static volatile Map<String, WorldMarkerSnapshot> snapshots = Map.of();
@@ -324,6 +328,8 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         }
         List<WorkPostMapMarker> capturedWorkPostsSnapshot = List.copyOf(capturedWorkPosts);
 
+        List<GlobalChestMapMarker> capturedGlobalChests = clusterGlobalChests(world);
+
         /* A registered bed that belongs to no house is the "built but not claimed yet" state.
         Without these the map is silent exactly while the player is waiting for an NPC to take the
         room, which reads as recognition being broken. Once claimed, the same bed disappears from
@@ -343,10 +349,53 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             }
         WorldMarkerSnapshot capturedSnapshot = new WorldMarkerSnapshot(
                 List.copyOf(captured), capturedVillages, capturedHousesSnapshot,
-                capturedWorkPostsSnapshot, List.copyOf(unclaimed));
+                capturedWorkPostsSnapshot, List.copyOf(unclaimed), capturedGlobalChests);
         Map<String, WorldMarkerSnapshot> updatedSnapshots = new HashMap<>(snapshots);
         updatedSnapshots.put(world.getName(), capturedSnapshot);
         snapshots = Map.copyOf(updatedSnapshots);
+    }
+
+    private static List<GlobalChestMapMarker> clusterGlobalChests(World world) {
+        List<HouseBlockPos> chests = new ArrayList<>();
+        for (HouseBlockPos pos : ChestRegistry.registeredChests(world)) {
+            if (ChestRegistry.isShared(world, pos)) chests.add(pos);
+        }
+        List<GlobalChestMapMarker> result = new ArrayList<>();
+        boolean[] used = new boolean[chests.size()];
+        int cluster = 0;
+        for (int i = 0; i < chests.size(); i++) {
+            if (used[i]) continue;
+            used[i] = true;
+            List<HouseBlockPos> group = new ArrayList<>();
+            group.add(chests.get(i));
+            for (int j = i + 1; j < chests.size(); j++) {
+                if (used[j]) continue;
+                HouseBlockPos candidate = chests.get(j);
+                boolean near = false;
+                for (HouseBlockPos member : group) {
+                    int dx = candidate.x - member.x;
+                    int dz = candidate.z - member.z;
+                    if (dx * dx + dz * dz <= 8 * 8) {
+                        near = true;
+                        break;
+                    }
+                }
+                if (near) {
+                    used[j] = true;
+                    group.add(candidate);
+                }
+            }
+            double x = 0, y = 0, z = 0;
+            for (HouseBlockPos pos : group) {
+                x += pos.x + 0.5;
+                y += pos.y + 0.5;
+                z += pos.z + 0.5;
+            }
+            int count = group.size();
+            result.add(new GlobalChestMapMarker("global:" + cluster++ + ":" + (int) x + ":" + (int) z,
+                    new Vector3d(x / count, y / count, z / count), count));
+        }
+        return List.copyOf(result);
     }
 
     /**
@@ -505,6 +554,16 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             } catch (RuntimeException e) {
                 LOGGER.debug("[MAP] Failed to mark work post '{}': {}", post.id(), e.toString());
             }
+        }
+
+        for (GlobalChestMapMarker chest : worldSnapshot.globalChests()) {
+            collector.addIgnoreViewDistance(new MapMarkerBuilder(
+                    PROVIDER_ID + ":global-chest:" + chest.id(), MARKER_IMAGE_HOUSE,
+                    new Transform(chest.position()))
+                    .withName(Message.translation("general.map.chest.global").param("count", chest.count()))
+                    .withComponent(new TintComponent(COLOR_VILLAGE_CENTER))
+                    .build());
+            emitted++;
         }
 
         // Emit beds that are registered but not part of any house yet
