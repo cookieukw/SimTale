@@ -17,6 +17,9 @@ public class ChestData {
     /** Storage key, and the position itself. Kept as a string so it doubles as the record id. */
     public String id;
 
+    /** Stable world name used to prevent equal coordinates colliding across worlds. */
+    public String worldName;
+
     public int x;
     public int y;
     public int z;
@@ -31,14 +34,23 @@ public class ChestData {
     }
 
     public ChestData(int x, int y, int z, boolean shared) {
+        this("", x, y, z, shared);
+    }
+
+    public ChestData(String worldName, int x, int y, int z, boolean shared) {
+        this.worldName = worldName != null ? worldName : "";
         this.x = x;
         this.y = y;
         this.z = z;
         this.shared = shared;
-        this.id = key(x, y, z);
+        this.id = key(this.worldName, x, y, z);
     }
 
     public static String key(int x, int y, int z) {
-        return x + "_" + y + "_" + z;
+        return key("", x, y, z);
+    }
+
+    public static String key(String worldName, int x, int y, int z) {
+        return (worldName == null ? "" : worldName) + "_" + x + "_" + y + "_" + z;
     }
 }

@@ -228,7 +228,10 @@ public class NPCWorkHelper {
         second, independent path into a new task from IDLE, and needs the same guard so a
         reserved NPC does not get pulled into a work errand before her suitor arrives.
         */
-        if (ai.currentTask == TaskType.IDLE && NPCSocialHelper.isReservedAndActive(ai, world.getTick()) && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK || npc.profession == Profession.MINER)) {
+        if (ai.currentTask == TaskType.IDLE && !NPCSocialHelper.isReservedAndActive(ai, world.getTick())
+                && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER
+                || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK
+                || npc.profession == Profession.MINER)) {
             ItemContainer inventory = getInventory(store, ref);
             boolean hasItemsToDeposit = hasAnyDepositableItem(inventory);
 
@@ -267,7 +270,7 @@ public class NPCWorkHelper {
                     they stroll further than an adult with a bed to go home to.
                     */
                     Vector3d npcPos = transform.getPosition();
-                    FarmPostRegistry.FarmPost claimedPost = FarmPostRegistry.claimNearest(npcPos.x, npcPos.y, npcPos.z, npc.entityId);
+                    FarmPostRegistry.FarmPost claimedPost = FarmPostRegistry.claimNearest(world, npcPos.x, npcPos.y, npcPos.z, npc.entityId);
 
                     /* Scoped rather than returned: this runs inside the IDLE branch, and an early
                     return would also skip the MOVING_TO_WORK / PLANTING handling further down
@@ -306,18 +309,18 @@ public class NPCWorkHelper {
                                     /* Release the plot claim — fetching seeds may take a while and
                                     another farmer shouldn't be blocked from using it meanwhile.
                                     */
-                                    FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
+                                    FarmPostRegistry.release(world, claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
                                     ai.currentTask = TaskType.MOVING_TO_SEEDS;
                                     ai.taskStartTime = world.getTick();
                                     playWalk(ref, store);
                                 } else {
-                                    FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
+                                    FarmPostRegistry.release(world, claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
                                 }
                             } else {
                                 /* Nothing to do at this plot right now — don't sit on the claim,
                                 another farmer (or this one, next cycle) might find work there.
                                 */
-                                FarmPostRegistry.release(claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
+                                FarmPostRegistry.release(world, claimedPost.postX(), claimedPost.postY(), claimedPost.postZ(), npc.entityId);
                             }
                         }
                     }
@@ -328,7 +331,7 @@ public class NPCWorkHelper {
                     scan needed here, just look the post up. One NPC per post at a time.
                     */
                     Vector3d pos = transform.getPosition();
-                    FishingPostRegistry.FishingPost post = FishingPostRegistry.claimNearest(pos.x, pos.y, pos.z, npc.entityId);
+                    FishingPostRegistry.FishingPost post = FishingPostRegistry.claimNearest(world, pos.x, pos.y, pos.z, npc.entityId);
                     if (post != null) {
                         ai.targetBlockPosition = new Vector3i(post.waterX(), post.waterY(), post.waterZ());
                         ai.claimedWorkPost = new Vector3i(post.postX(), post.postY(), post.postZ());
@@ -341,7 +344,7 @@ public class NPCWorkHelper {
                     placed, so this is a lookup, not a scan.
                     */
                     Vector3d pos = transform.getPosition();
-                    LumberPostRegistry.LumberPost post = LumberPostRegistry.claimNearest(pos.x, pos.y, pos.z, npc.entityId);
+                    LumberPostRegistry.LumberPost post = LumberPostRegistry.claimNearest(world, pos.x, pos.y, pos.z, npc.entityId);
                     if (post != null) {
                         ai.targetBlockPosition = new Vector3i(post.treeX(), post.treeY(), post.treeZ());
                         ai.claimedWorkPost = new Vector3i(post.postX(), post.postY(), post.postZ());
@@ -732,7 +735,8 @@ public class NPCWorkHelper {
             }
 
             // Patch is clear (or she's out of seeds) — free the claim for the next visit/farmer.
-            FarmPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
+            FarmPostRegistry.release(WorldUtil.fromEntityRef(npc.entityRef), ai.claimedWorkPost.x,
+                    ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
             ai.claimedWorkPost = null;
         }
         ai.currentTask = TaskType.IDLE;
@@ -759,9 +763,12 @@ public class NPCWorkHelper {
             wrong one is a harmless no-op (it only removes an entry that matches both the exact
             position and this NPC's id) — simpler than threading the profession through here.
             */
-            FishingPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
-            LumberPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
-            FarmPostRegistry.release(ai.claimedWorkPost.x, ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
+            FishingPostRegistry.release(WorldUtil.fromEntityRef(npc.entityRef), ai.claimedWorkPost.x,
+                    ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
+            LumberPostRegistry.release(WorldUtil.fromEntityRef(npc.entityRef), ai.claimedWorkPost.x,
+                    ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
+            FarmPostRegistry.release(WorldUtil.fromEntityRef(npc.entityRef), ai.claimedWorkPost.x,
+                    ai.claimedWorkPost.y, ai.claimedWorkPost.z, npc.entityId);
         }
         ai.claimedWorkPost = null;
     }
@@ -895,9 +902,8 @@ public class NPCWorkHelper {
      *  has seeds in it right now — so a Farmer with an empty pouch can go restock instead of
      *  standing around forever waiting for the player to hand-feed her. */
     private static HouseBlockPos findSeedChest(SimNPCComponent npc, World world) {
-        synchronized (ChestRegistry.CHESTS) {
-            for (HouseBlockPos cp : ChestRegistry.CHESTS) {
-                if (!HouseManager.canOpenChest(npc.entityId, cp)) continue;
+        for (HouseBlockPos cp : ChestRegistry.registeredChests(world)) {
+                if (!HouseManager.canOpenChest(world, npc.entityId, cp)) continue;
                 ItemContainerBlock cb = BlockModule.getComponent(ItemContainerBlock.getComponentType(), world, cp.x, cp.y, cp.z);
                 if (cb == null) continue;
                 ItemContainer chestInv = cb.getItemContainer();
@@ -905,7 +911,6 @@ public class NPCWorkHelper {
                     return cp;
                 }
             }
-        }
         return null;
     }
 

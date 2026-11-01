@@ -24,6 +24,12 @@
       "Texture": "Cosmetics/Pants/Shorty_Slim_Textures/Zombie_Brown.png"
     },
     {
+      "Model": "NPC/Player_Child/Cosmetics/Undertops/Tshirt_Child.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "NPC/Player_Child/Cosmetics/Overtops/Overtops_Long_Waist_Sleeve_Child.blockymodel",
       "Texture": "Cosmetics/Overtops/Overtops_Long_Sleeve_Waist_Sleeve/Long_Cardigan_Greyscale.png",
       "GradientSet": "Colored_Cotton",

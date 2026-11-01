@@ -1,6 +1,8 @@
 traits = Traits:
+npc = NPC
 likes = Likes:
 hates = Hates:
+preferences = PREFERENCES
 hobby = Hobby:
 season = Fav. Season:
 relationship = Status:

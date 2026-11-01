@@ -28,6 +28,12 @@
       "Texture": "Cosmetics/Pants/Pants_Straight_Textures/Striped_Brown.png"
     },
     {
+      "Model": "NPC/Player_Child/Cosmetics/Undertops/Tshirt_Child.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "NPC/Player_Child/Cosmetics/Overtops/NeckHighJumper_Child.blockymodel",
       "Texture": "Cosmetics/Overtops/NeckHighJumper_Textures/LeatherCladShirt.png",
       "GradientSet": "Fantasy_Cotton",

@@ -27,6 +27,12 @@
       "Texture": "Cosmetics/Pants/Pants_Large_Textures/Fiber.png"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/Dress.blockymodel",
       "Texture": "Cosmetics/Overtops/Dress_Textures/Adventurer_Dark_Greyscale.png",
       "GradientSet": "Fantasy_Cotton_Dark",

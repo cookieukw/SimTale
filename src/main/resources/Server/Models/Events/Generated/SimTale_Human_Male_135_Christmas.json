@@ -26,6 +26,12 @@
       "GradientId": "Black"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/GaiaPure_Overtop.blockymodel",
       "Texture": "Cosmetics/Overtops/GaiaPure_Overtop_Texture.png",
       "GradientSet": "Ornamented_Metal",

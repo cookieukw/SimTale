@@ -56,7 +56,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
         // Execute only once per interval, at first index
         if (index != 0) return;
 
-        World world = WorldUtil.first();
+        World world = WorldUtil.fromEntityRef(chunk.getReferenceTo(index));
         if (world == null) return;
 
         long nowTicks = world.getTick();

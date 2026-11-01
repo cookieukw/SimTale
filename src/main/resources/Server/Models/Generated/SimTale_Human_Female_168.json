@@ -29,6 +29,12 @@
       "GradientId": "Green"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/Overtops_Rolled_Sleeve.blockymodel",
       "Texture": "Cosmetics/Overtops/Overtops_Rolled_Sleeves_Textures/Rural_2_Greyscale.png",
       "GradientSet": "Fantasy_Cotton_Dark",

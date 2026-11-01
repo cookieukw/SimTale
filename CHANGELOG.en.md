@@ -1,5 +1,89 @@
 # Changelog
 
+## [1.3.2] — Unreleased
+
+This section records the improvements made after the 1.3.1 release.
+
+### NPC following
+
+- Added `/simtale follow` to make the nearest NPC follow the player.
+- Added `/simtale follow stop` to release NPCs following the player.
+- Added **Follow** / **Stop Following** to the NPC interaction menu.
+- Normal NPCs show the action within 6 blocks; guards can always be ordered to follow.
+- Following does not require friendship, romance or intimacy.
+- Followers use native pathfinding instead of teleporting, stop at a natural distance and resume
+  following after sleep, hunger or another temporary task.
+- Follow messages and menu labels are localized in English, Portuguese and Spanish.
+
+### Houses and house validation
+
+- Increased the supported house interior limit from 512 to 2,048 blocks.
+- House validation now distinguishes large houses, exposed roofs/openings and unloaded chunks.
+- Small openings of up to two exposed blocks are tolerated, allowing minor balcony access or
+  decorative gaps without treating the whole exterior as the house interior.
+- Open rooms no longer flood the scan into the surrounding world until the old hard limit.
+- The House Blueprint now reports clearer diagnostics for oversized or open houses.
+- The House Blueprint and inspection items use the player's current world instead of assuming the
+  first loaded world.
+
+### Professional work posts
+
+- Added world-scoped records for Fishing Posts, Lumber Posts and Farm Posts.
+- Post claims, releases, removal and boot-time discovery are now isolated per world.
+- Post markers are unique per world and show whether the post is available or occupied.
+- Fishing Posts revalidate their water target before a fisherman claims them.
+- A Fishing Post automatically retargets nearby water when its original water block is removed.
+- A Fishing Post with no remaining water target is released instead of sending an NPC to stale air.
+- Professional post marker labels are localized in English, Portuguese and Spanish.
+
+### World isolation and persistence
+
+- Added explicit per-world persistence APIs for SimTale data and graveyards.
+- Bed registries, house indexes, chest registrations, professional posts and village snapshots now
+  support world-aware access.
+- NPC routines, growth, pregnancy, baby care, construction, doors, guard behavior, stockpiles,
+  map markers and debug tools now resolve their world from the relevant entity or player.
+- Map snapshots and village overlays are isolated per world.
+- Village safe-zone checks now use the village belonging to the NPC's current world.
+- Shared chest discovery and village stock summaries no longer select chests from another world.
+- NPC home, family and revival lookups use world-scoped house indexes.
+
+### Village safety and recovery
+
+- NPCs inside a village safe zone are protected from normal damage, including damage from players,
+  mobs, fire and falls.
+- If a direct or debug damage path still reduces an NPC inside the safe zone to 0 HP, SimTale
+  restores the NPC's health instead of entering the death flow.
+- External NPC removal continues to be logged with the NPC name, task and last known damage cause.
+- Missing residents can be recovered with `/simtale respawnmissing [name]`.
+
+### NPC appearance and clothing
+
+- Added a neutral base undertop beneath overtop clothing layers.
+- Repaired adult, child, Christmas and Halloween model variants that could leave the upper torso
+  visually uncovered.
+- Updated the model generation scripts so future variants keep the base undertop automatically.
+- Repaired 1,089 existing generated model variants.
+
+### Map and interface
+
+- Map marker snapshots refresh immediately after houses, villages, beds, posts and recognized
+  furniture change.
+- House markers are read from the current world's house index.
+- NPC interaction panels were reorganized with clearer sections for needs, relationships,
+  preferences, details and actions.
+- NPC interaction fallback labels now use translation keys instead of hardcoded text.
+- Added complete Follow and professional-post translations for `pt-BR` and `es-ES`.
+- Added strict locale validation for key parity, placeholders, duplicate entries, empty values,
+  BOMs and UTF-8 encoding.
+
+### Tooling and validation
+
+- Added Crowdin configuration and GitHub Actions synchronization for English, Portuguese and
+  Spanish resources.
+- Added automated checks for UI files, locale consistency and generated resources.
+- The full test suite, strict locale validation and UI validation pass after these changes.
+
 ## [1.3.1] — 2026-10-28
 
 This is the first release on the 1.3.1 branch and includes the complete 1.3.x feature set.

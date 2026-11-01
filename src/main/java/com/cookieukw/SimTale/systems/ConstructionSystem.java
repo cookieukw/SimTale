@@ -47,7 +47,7 @@ public class ConstructionSystem extends EntityTickingSystem<EntityStore> {
             SimTale.ACTIVE_SITES.add(site);
         }
 
-        World world = WorldUtil.first();
+        World world = WorldUtil.fromEntityRef(chunk.getReferenceTo(index));
         if (world == null) return;
 
         if (!site.isBuilding) return;

@@ -68,7 +68,7 @@ public class SimTaleWorldMapGenerator implements IWorldMap {
             try {
                 Long2ObjectMap<MapImage> chunks = worldMap.getChunks();
                 if (chunks != null && !chunks.isEmpty()) {
-                    applyVillageOverlay(chunks);
+                     applyVillageOverlay(world, chunks);
                 }
             } catch (Throwable t) {
                 LOGGER.error("[SimTale] Error applying village overlay to map chunks: {}", t.toString());
@@ -91,22 +91,22 @@ public class SimTaleWorldMapGenerator implements IWorldMap {
     /**
      * Intercepts the generated MapImage for every chunk and applies the village tint and boundary.
      */
-    private void applyVillageOverlay(Long2ObjectMap<MapImage> chunks) {
+    private void applyVillageOverlay(World world, Long2ObjectMap<MapImage> chunks) {
         for (Long2ObjectMap.Entry<MapImage> entry : chunks.long2ObjectEntrySet()) {
             long chunkIdx = entry.getLongKey();
             int chunkX = ChunkUtil.xOfChunkIndex(chunkIdx);
             int chunkZ = ChunkUtil.zOfChunkIndex(chunkIdx);
 
-            Village village = VillageManager.getVillageForChunk(chunkX, chunkZ);
+            Village village = VillageManager.getVillageForChunk(world, chunkX, chunkZ);
             if (village == null) continue;
 
             MapImage image = entry.getValue();
             if (image == null || image.palette == null || image.packedIndices == null) continue;
 
-            boolean westBorder = VillageManager.isSameVillageChunk(village, chunkX - 1, chunkZ);
-            boolean eastBorder = VillageManager.isSameVillageChunk(village, chunkX + 1, chunkZ);
-            boolean northBorder = VillageManager.isSameVillageChunk(village, chunkX, chunkZ - 1);
-            boolean southBorder = VillageManager.isSameVillageChunk(village, chunkX, chunkZ + 1);
+            boolean westBorder = VillageManager.getVillageForChunk(world, chunkX - 1, chunkZ) != village;
+            boolean eastBorder = VillageManager.getVillageForChunk(world, chunkX + 1, chunkZ) != village;
+            boolean northBorder = VillageManager.getVillageForChunk(world, chunkX, chunkZ - 1) != village;
+            boolean southBorder = VillageManager.getVillageForChunk(world, chunkX, chunkZ + 1) != village;
 
             tintAndBorderChunk(image, westBorder, eastBorder, northBorder, southBorder);
         }

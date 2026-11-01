@@ -158,7 +158,7 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         TransformComponent entityTransform = chunk.getComponent(index, TransformComponent.getComponentType());
         if (entityTransform == null) return;
         
-        World world = WorldUtil.first();
+        World world = WorldUtil.fromEntityRef(chunk.getReferenceTo(index));
         if (world == null) return;
 
         Ref<EntityStore> plumbobRef = playerPlumbobs.get(entityUuid);

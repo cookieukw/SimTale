@@ -24,6 +24,12 @@
       "Texture": "Cosmetics/Pants/Void_Hero_Pants.png"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/Overtops_Long_Waist_Sleeve.blockymodel",
       "Texture": "Cosmetics/Overtops/Overtops_Long_Sleeve_Waist_Sleeve/Long_Belted_Greyscale.png",
       "GradientSet": "Colored_Cotton",

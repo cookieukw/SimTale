@@ -26,6 +26,12 @@
       "GradientId": "PinkPastel"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/Robe_Wizard.blockymodel",
       "Texture": "Cosmetics/Overtops/Blazen_Wizard_Coat_Red.png"
     },

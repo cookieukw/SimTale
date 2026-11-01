@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.cookieukw.SimTale.core.SimLog;
+import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
 import com.cookieukw.SimTale.logic.InteractionManager;
 import com.hypixel.hytale.server.core.Message;
@@ -20,12 +21,57 @@ import java.util.stream.Collectors;
 
 public class HouseManager {
     private static final SimLog LOGGER = SimLog.forClass(HouseManager.class);
-    private static final int MAX_INTERIOR_BLOCKS = 512;
+    /** Large enough for normal houses, but still bounded so an open room cannot flood the world. */
+    private static final int MAX_INTERIOR_BLOCKS = 2048;
+    /** A tiny opening can be a balcony access or a missing decorative block. */
+    private static final int MAX_TOLERATED_OPENING_BLOCKS = 2;
+    private static final int SKY_PROBE_HEIGHT = 24;
     public static final int MIN_INTERIOR_BLOCKS = 50;
 
+    /**
+     * Legacy view, retained for binary/source compatibility.  New code must use the world-aware
+     * accessors below.  It represents the first world only and is never used as storage for other
+     * worlds.
+     */
     public static final Map<UUID, HouseData> HOUSES_BY_ID = new ConcurrentHashMap<>();
     public static final Map<HouseBlockPos, UUID> BLOCK_TO_HOUSE_ID = new ConcurrentHashMap<>();
     public static final Map<UUID, UUID> OWNER_TO_HOUSE_ID = new ConcurrentHashMap<>();
+
+    private static final Map<World, HouseIndexes> HOUSES_BY_WORLD = new ConcurrentHashMap<>();
+
+    /** The three indexes belonging to one concrete world instance. */
+    public static final class HouseIndexes {
+        public final Map<UUID, HouseData> housesById = new ConcurrentHashMap<>();
+        public final Map<HouseBlockPos, UUID> blockToHouseId = new ConcurrentHashMap<>();
+        public final Map<UUID, UUID> ownerToHouseId = new ConcurrentHashMap<>();
+    }
+
+    /** Returns the isolated indexes for {@code world}; World identity is the scope. */
+    public static HouseIndexes indexes(World world) {
+        if (world == null) return legacyIndexes();
+        return HOUSES_BY_WORLD.computeIfAbsent(world, ignored -> new HouseIndexes());
+    }
+
+    private static HouseIndexes legacyIndexes() {
+        HouseIndexes indexes = new HouseIndexes();
+        indexes.housesById.putAll(HOUSES_BY_ID);
+        indexes.blockToHouseId.putAll(BLOCK_TO_HOUSE_ID);
+        indexes.ownerToHouseId.putAll(OWNER_TO_HOUSE_ID);
+        return indexes;
+    }
+
+    /** Clears only the selected world's indexes. */
+    public static void clear(World world) {
+        HouseIndexes indexes = indexes(world);
+        indexes.housesById.clear();
+        indexes.blockToHouseId.clear();
+        indexes.ownerToHouseId.clear();
+        if (world == WorldUtil.first()) {
+            HOUSES_BY_ID.clear();
+            BLOCK_TO_HOUSE_ID.clear();
+            OWNER_TO_HOUSE_ID.clear();
+        }
+    }
 
     public enum ScanOutcome {
         NEW_HOUSE_SINGLE_OWNER,
@@ -48,7 +94,8 @@ public class HouseManager {
     public record HouseScanResult(Set<HouseBlockPos> interiorBlocks, Set<HouseBlockPos> doorBlocks,
                                   Set<HouseBlockPos> otherBeds, Set<HouseBlockPos> chestBlocks,
                                   Set<HouseBlockPos> furnitureBlocks, boolean overflowed,
-                                  boolean hitUnloaded) {
+                                  boolean hitUnloaded, boolean exposedOutside,
+                                  boolean bedExposedToSky, int openingEdges) {
     }
 
     public record ScanReport(ScanOutcome outcome, Set<UUID> freshBedOwners, UUID conflictingHouseId,
@@ -56,20 +103,31 @@ public class HouseManager {
     }
 
     public static void loadAllHouses() {
-        HOUSES_BY_ID.clear();
-        BLOCK_TO_HOUSE_ID.clear();
-        OWNER_TO_HOUSE_ID.clear();
+        loadAllHouses(WorldUtil.first());
+    }
+
+    /** Loads houses from the explicitly selected world's persistence shell. */
+    public static void loadAllHouses(World world) {
+        if (world == null) return;
+        HouseIndexes indexes = indexes(world);
+        clear(world);
 
         try {
-            List<HouseData> list = SimNPCPersistence.worldShell().core(HouseData.class).extractAll();
+            List<HouseData> list = SimNPCPersistence.worldShell(world).core(HouseData.class).extractAll();
             if (list != null) {
                 for (HouseData house : list) {
                     if (house.houseId == null) continue;
                     house.syncBeds();
-                    HOUSES_BY_ID.put(UUID.fromString(house.houseId), house);
-                    indexHouse(house);
+                    indexes.housesById.put(UUID.fromString(house.houseId), house);
+                    indexHouse(indexes, house);
                 }
-                LOGGER.info("[SimTale] Carregadas {} casas com sucesso da persistência Caskara", HOUSES_BY_ID.size());
+                LOGGER.info("[SimTale] Carregadas {} casas com sucesso da persistência Caskara", indexes.housesById.size());
+                // The compatibility view is intentionally populated only for the first world.
+                if (world == WorldUtil.first()) {
+                    HOUSES_BY_ID.putAll(indexes.housesById);
+                    BLOCK_TO_HOUSE_ID.putAll(indexes.blockToHouseId);
+                    OWNER_TO_HOUSE_ID.putAll(indexes.ownerToHouseId);
+                }
                 pruneOrphanOwners();
                 dedupeHousesByOverlap();
                 VillageManager.markDirty();
@@ -132,8 +190,13 @@ public class HouseManager {
     }
 
     public static void saveHouse(HouseData house) {
+        saveHouse(WorldUtil.first(), house);
+    }
+
+    /** Saves a house to the explicitly selected world's persistence shell. */
+    public static void saveHouse(World world, HouseData house) {
         if (house == null || house.houseId == null) return;
-        SimNPCPersistence.worldShell().core(HouseData.class).preserve("house_" + house.houseId, house);
+        SimNPCPersistence.worldShell(world).core(HouseData.class).preserve("house_" + house.houseId, house);
     }
 
     /**
@@ -462,6 +525,21 @@ public class HouseManager {
         }
     }
 
+    private static void indexHouse(HouseIndexes indexes, HouseData house) {
+        if (house == null || house.houseId == null) return;
+        UUID houseId = UUID.fromString(house.houseId);
+        if (house.interior != null) {
+            for (HouseBlockPos pos : house.interior) indexes.blockToHouseId.put(pos, houseId);
+        }
+        if (house.owners != null) {
+            for (String ownerStr : house.owners) {
+                try {
+                    indexes.ownerToHouseId.put(UUID.fromString(ownerStr), houseId);
+                } catch (Exception ignored) { }
+            }
+        }
+    }
+
     /**
      * Reverses {@link #indexHouse}: removes a house's interior/owners from the lookup maps. Only
      * entries that still point at this house: a block or owner that has since been indexed under
@@ -507,7 +585,8 @@ public class HouseManager {
 
         while (!queue.isEmpty()) {
             if (visited.size() > MAX_INTERIOR_BLOCKS) {
-                return new HouseScanResult(visited, doors, otherBeds, chestBlocks, furniture, true, hitUnloaded);
+                return new HouseScanResult(visited, doors, otherBeds, chestBlocks, furniture, true,
+                        hitUnloaded, false, false, 0);
             }
 
             HouseBlockPos current = queue.poll();
@@ -579,17 +658,39 @@ public class HouseManager {
                 }
 
                 visited.add(neighbor);
-                queue.add(neighbor);
+                /* Do not flood through sky-exposed air. A small opening is recorded as an edge and
+                 * tolerated later; without this stop, one missing wall block turns the whole world
+                 * into the house until the hard cap is reached. */
+                if (!isSkyExposed(world, neighbor)) {
+                    queue.add(neighbor);
+                }
             }
         }
 
-        return new HouseScanResult(visited, doors, otherBeds, chestBlocks, furniture, false, hitUnloaded);
+        boolean bedExposedToSky = isSkyExposed(world, bedPos);
+        int openingEdges = 0;
+        for (HouseBlockPos pos : visited) {
+            if (isSkyExposed(world, pos)) continue;
+            for (HouseBlockPos neighbor : get6Neighbors(pos)) {
+                if (visited.contains(neighbor)) continue;
+                BlockType type = NPCMovementHelper.getBlockTypeSafe(world, neighbor.x, neighbor.y, neighbor.z);
+                if (type != null && !isSolid(type) && isSkyExposed(world, neighbor)) openingEdges++;
+            }
+        }
+        boolean exposedOutside = bedExposedToSky || openingEdges > 0;
+        if (exposedOutside && !bedExposedToSky && openingEdges <= MAX_TOLERATED_OPENING_BLOCKS) {
+            visited.removeIf(pos -> isSkyExposed(world, pos));
+        }
+        return new HouseScanResult(visited, doors, otherBeds, chestBlocks, furniture, false,
+                hitUnloaded, exposedOutside, bedExposedToSky, openingEdges);
     }
 
     public static ScanReport scanAndClassify(World world, HouseBlockPos bedPos, UUID scanningOwner) {
         HouseScanResult raw = scanHouseFromBed(world, bedPos);
 
-        if (raw.overflowed || raw.hitUnloaded) {
+        boolean toleratedOpening = raw.exposedOutside && !raw.bedExposedToSky
+                && raw.openingEdges <= MAX_TOLERATED_OPENING_BLOCKS;
+        if (raw.overflowed || raw.hitUnloaded || (raw.exposedOutside && !toleratedOpening)) {
             return new ScanReport(ScanOutcome.TOO_LARGE_OR_UNENCLOSED, Set.of(), null, raw);
         }
         if (raw.interiorBlocks.size() < MIN_INTERIOR_BLOCKS) return new ScanReport(ScanOutcome.TOO_SMALL, Set.of(), null, raw);
@@ -656,18 +757,23 @@ public class HouseManager {
      * is part of a recognised house, which is the intended trade.
      */
     public static boolean canOpenChest(UUID npcId, HouseBlockPos chestPos) {
+        return canOpenChest(WorldUtil.first(), npcId, chestPos);
+    }
+
+    /** World-aware chest permission check; the legacy overload remains source-compatible. */
+    public static boolean canOpenChest(World world, UUID npcId, HouseBlockPos chestPos) {
         if (chestPos == null || npcId == null) return false;
 
         // Communal/shared chests in a village can be opened by villagers
-        if (ChestRegistry.isShared(chestPos)) {
-            VillageManager.Village village = VillageManager.nearest(chestPos.x, chestPos.z);
+        if (ChestRegistry.isShared(world, chestPos)) {
+            VillageManager.Village village = VillageManager.nearest(world, chestPos.x, chestPos.z);
             if (village != null && village.contains(chestPos.x, chestPos.z)) {
                 return true;
             }
             return true;
         }
 
-        UUID houseId = findHouseIdForChest(chestPos);
+        UUID houseId = findHouseIdForChest(world, chestPos);
         if (houseId == null) {
             return false;
         }
@@ -691,6 +797,21 @@ public class HouseManager {
      * outside has none — the loot chests in the world stay excluded.
      */
     public static UUID findHouseIdForChest(HouseBlockPos chestPos) {
+        if (chestPos == null) return null;
+
+        UUID direct = BLOCK_TO_HOUSE_ID.get(chestPos);
+        if (direct != null) return direct;
+
+        for (HouseBlockPos neighbor : get6Neighbors(chestPos)) {
+            UUID houseId = BLOCK_TO_HOUSE_ID.get(neighbor);
+            if (houseId != null) return houseId;
+        }
+        return null;
+    }
+
+    /** World-aware entry point; the context migration keeps the legacy lookup as a fallback. */
+    public static UUID findHouseIdForChest(World world, HouseBlockPos chestPos) {
+        if (world == null) return findHouseIdForChest(chestPos);
         if (chestPos == null) return null;
 
         UUID direct = BLOCK_TO_HOUSE_ID.get(chestPos);
@@ -740,6 +861,16 @@ public class HouseManager {
     private static boolean isDoor(BlockType type) {
         if (type == null || type.getId() == null) return false;
         return type.getId().toLowerCase().contains("door");
+    }
+
+    /** Returns true when a column above a block has no roof within a normal house height. */
+    private static boolean isSkyExposed(World world, HouseBlockPos pos) {
+        for (int dy = 1; dy <= SKY_PROBE_HEIGHT; dy++) {
+            BlockType above = NPCMovementHelper.getBlockTypeSafe(world, pos.x, pos.y + dy, pos.z);
+            if (above == null) return false; // unloaded is handled by the main scan
+            if (isSolid(above)) return false;
+        }
+        return true;
     }
 
     private static boolean isBed(BlockType type) {

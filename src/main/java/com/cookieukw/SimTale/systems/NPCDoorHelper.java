@@ -141,10 +141,10 @@ public final class NPCDoorHelper {
 
             // 2. House boundary & intent check: if destination is known, verify that the NPC actually needs this door
             if (destination != null) {
-                UUID houseAtDoor = houseForDoor(anchorPos);
+                UUID houseAtDoor = houseForDoor(world, anchorPos);
                 if (houseAtDoor != null) {
-                    UUID houseAtNpc = houseIdAt(npcPos);
-                    UUID houseAtDest = houseIdAt(destination);
+                    UUID houseAtNpc = houseIdAt(world, npcPos);
+                    UUID houseAtDest = houseIdAt(world, destination);
                     // Outside NPC whose destination is NOT in this house has no reason to enter
                     if (!houseAtDoor.equals(houseAtNpc) && !houseAtDoor.equals(houseAtDest)) {
                         return;
@@ -158,7 +158,7 @@ public final class NPCDoorHelper {
                 }
             } else {
                 // If destination is unknown, do not open house doors
-                if (houseForDoor(anchorPos) != null) {
+                if (houseForDoor(world, anchorPos) != null) {
                     return;
                 }
             }
@@ -235,21 +235,23 @@ public final class NPCDoorHelper {
     }
 
     /** House that owns the interior block at this position, or null when it belongs to none. */
-    private static UUID houseIdAt(Vector3d pos) {
+    private static UUID houseIdAt(World world, Vector3d pos) {
         if (pos == null) return null;
         HouseBlockPos block = new HouseBlockPos(
                 (int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z));
-        UUID direct = HouseManager.BLOCK_TO_HOUSE_ID.get(block);
+        HouseManager.HouseIndexes indexes = HouseManager.indexes(world);
+        UUID direct = indexes.blockToHouseId.get(block);
         if (direct != null) return direct;
 
         HouseBlockPos above = new HouseBlockPos(block.x, block.y + 1, block.z);
-        return HouseManager.BLOCK_TO_HOUSE_ID.get(above);
+        return indexes.blockToHouseId.get(above);
     }
 
     /** Returns the house this door belongs to, or null if unassigned/outdoor. */
-    private static UUID houseForDoor(Vector3i doorPos) {
+    private static UUID houseForDoor(World world, Vector3i doorPos) {
         HouseBlockPos key = toKey(doorPos);
-        for (HouseData house : HouseManager.HOUSES_BY_ID.values()) {
+        HouseManager.HouseIndexes indexes = HouseManager.indexes(world);
+        for (HouseData house : indexes.housesById.values()) {
             if (house.doors != null && house.doors.contains(key)) {
                 try {
                     return UUID.fromString(house.houseId);
@@ -259,7 +261,7 @@ public final class NPCDoorHelper {
         int[][] offsets = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         for (int[] off : offsets) {
             HouseBlockPos neighbor = new HouseBlockPos(doorPos.x + off[0], doorPos.y, doorPos.z + off[1]);
-            UUID houseId = HouseManager.BLOCK_TO_HOUSE_ID.get(neighbor);
+            UUID houseId = indexes.blockToHouseId.get(neighbor);
             if (houseId != null) return houseId;
         }
         return null;

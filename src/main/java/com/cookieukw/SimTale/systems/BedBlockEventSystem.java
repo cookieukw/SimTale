@@ -50,8 +50,8 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         */
         Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
 
-        BedRegistry.removeAt(anchor.x, anchor.y, anchor.z);
-        ChestRegistry.removeAt(anchor.x, anchor.y, anchor.z);
+        BedRegistry.removeAt(world, anchor.x, anchor.y, anchor.z);
+        ChestRegistry.removeAt(world, anchor.x, anchor.y, anchor.z);
 
         /* Breaking a bed removes it from the house's beds and unassigns residents from that bed,
         while the house itself remains intact with its owners, chests, and interior.
@@ -62,8 +62,8 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         // Crops and farmland are single blocks, so they use the hit position directly.
         CropRegistry.removeAt(pos.x, pos.y, pos.z);
         FarmlandRegistry.removeAt(pos.x, pos.y, pos.z);
-        FishingPostRegistry.removeAt(pos.x, pos.y, pos.z);
-        LumberPostRegistry.removeAt(pos.x, pos.y, pos.z);
+        FishingPostRegistry.removeAt(world, pos.x, pos.y, pos.z);
+        LumberPostRegistry.removeAt(world, pos.x, pos.y, pos.z);
         BathRegistry.removeAt(anchor.x, anchor.y, anchor.z);
         LeisureRegistry.removeAt(anchor.x, anchor.y, anchor.z);
         ChairRegistry.removeAt(anchor.x, anchor.y, anchor.z);
@@ -75,7 +75,7 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         /* Registered by anchor (the scarecrow is 3 blocks tall) — remove by anchor too, or
         breaking a non-anchor block of it leaves the registration behind.
         */
-        FarmPostRegistry.removeAt(anchor.x, anchor.y, anchor.z);
+        FarmPostRegistry.removeAt(world, anchor.x, anchor.y, anchor.z);
 
         /* Breaking a blueprint marker cancels its preview — safe to call unconditionally, same
         as every removeAt above: a no-op if nothing was ever registered at this position (e.g.
@@ -83,5 +83,6 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         the right-click confirm and so is no longer a pending session at all).
         */
         ConstructionPreviewManager.clear(ConstructionPreviewManager.idForBlock(pos), world);
+        SimTaleMarkerProvider.requestRefresh();
     }
 }

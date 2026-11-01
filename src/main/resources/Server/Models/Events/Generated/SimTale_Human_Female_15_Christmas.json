@@ -26,6 +26,12 @@
       "GradientId": "Lime"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/OnePiece.blockymodel",
       "Texture": "Cosmetics/Overtops/OnePiece_Textures/ApronDress_Greyscale.png",
       "GradientSet": "Pastel_Cotton",

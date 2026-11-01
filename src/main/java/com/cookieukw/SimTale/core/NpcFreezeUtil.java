@@ -36,9 +36,9 @@ public final class NpcFreezeUtil {
             return;
         }
 
-        World world = WorldUtil.first();
+        World world = WorldUtil.fromEntityRef(npcRef);
         if (world != null && world.isTicking()) {
-            WorldUtil.execute(() -> {
+            world.execute(() -> {
                 if (npcRef.isValid()) {
                     write(npcRef.getStore(), npcRef, frozen);
                 }

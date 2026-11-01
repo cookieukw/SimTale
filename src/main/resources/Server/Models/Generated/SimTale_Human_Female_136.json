@@ -27,6 +27,12 @@
       "Texture": "Cosmetics/Pants/Shorty_Slim_Textures/Mossy_Shorts.png"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/Dress.blockymodel",
       "Texture": "Cosmetics/Overtops/Dress_Textures/Oasis_Greyscale.png",
       "GradientSet": "Pastel_Cotton",

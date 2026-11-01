@@ -53,7 +53,10 @@ public final class BedWorldBootstrap {
 
     /** Registry sizes before a scan, to report what the scan added. */
     private static final class Before {
-        final int beds = BedRegistry.size(), chests = ChestRegistry.size(),
+        final World world;
+        final int beds;
+        Before(World world) { this.world = world; this.beds = BedRegistry.size(world); }
+        final int chests = ChestRegistry.size(),
                 fishing = FishingPostRegistry.POSTS.size(), lumber = LumberPostRegistry.POSTS.size(),
                 farmPosts = FarmPostRegistry.POSTS.size(), farmland = FarmlandRegistry.FARMLAND.size(),
                 crops = CropRegistry.CROPS.size(), baths = BathRegistry.BATHS.size(),
@@ -61,7 +64,7 @@ public final class BedWorldBootstrap {
         int markers;
 
         void log() {
-            int newBeds = BedRegistry.size() - beds;
+            int newBeds = BedRegistry.size(world) - beds;
             int newChests = ChestRegistry.size() - chests;
             int newFishingPosts = FishingPostRegistry.POSTS.size() - fishing;
             int newLumberPosts = LumberPostRegistry.POSTS.size() - lumber;
@@ -80,11 +83,11 @@ public final class BedWorldBootstrap {
                 */
                 LOGGER.info("[SimTale] Scan found {} new beds, {} new chests, {} new fishing posts, {} new lumber posts, {} new farm posts, {} new farmland, {} new crops, {} new baths, {} new leisure. Totals: {} beds, {} chests, {} fishing, {} lumber, {} farm, {} farmland, {} crops, {} baths, {} leisure",
                         newBeds, newChests, newFishingPosts, newLumberPosts, newFarmPosts, newFarmland, newCrops, newBaths, newLeisure,
-                        BedRegistry.size(), ChestRegistry.size(), FishingPostRegistry.POSTS.size(), LumberPostRegistry.POSTS.size(), FarmPostRegistry.POSTS.size(),
+                        BedRegistry.size(world), ChestRegistry.size(), FishingPostRegistry.POSTS.size(), LumberPostRegistry.POSTS.size(), FarmPostRegistry.POSTS.size(),
                         FarmlandRegistry.FARMLAND.size(), CropRegistry.CROPS.size(), BathRegistry.BATHS.size(), LeisureRegistry.LEISURE_BLOCKS.size());
             } else {
                 LOGGER.debug("[SimTale-DEBUG] Scan finished: nothing new. Totals: "
-                        + BedRegistry.size() + " beds, " + ChestRegistry.size() + " chests");
+                        + BedRegistry.size(world) + " beds, " + ChestRegistry.size() + " chests");
             }
         }
     }
@@ -94,7 +97,7 @@ public final class BedWorldBootstrap {
         int px = (int) Math.floor(center.x);
         int py = (int) Math.floor(center.y);
         int pz = (int) Math.floor(center.z);
-        Before before = new Before();
+        Before before = new Before(world);
         LOGGER.debug("[SimTale-DEBUG] Starting simple radius scan around (" + px + "," + py + "," + pz + ") with radius " + radius);
         before.markers += scanColumns(world, px - radius, px + radius, py, pz, radius);
         before.log();
@@ -113,7 +116,7 @@ public final class BedWorldBootstrap {
         int px = (int) Math.floor(center.x);
         int py = (int) Math.floor(center.y);
         int pz = (int) Math.floor(center.z);
-        Before before = new Before();
+        Before before = new Before(world);
         int xEnd = px + radius;
         int slice = 0;
         for (int x0 = px - radius; x0 <= xEnd; x0 += SLICE_COLUMNS, slice++) {
@@ -158,7 +161,7 @@ public final class BedWorldBootstrap {
                     */
                     if ((f & F_BLOCK_ENTITY) != 0 && ChestRegistry.isContainerAt(world, x, y, z)) {
                         Vector3i chestAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
-                        ChestRegistry.add(chestAnchor.x, chestAnchor.y, chestAnchor.z);
+                        ChestRegistry.add(world, chestAnchor.x, chestAnchor.y, chestAnchor.z);
                     }
 
                     /* Work posts (fishing/lumber/farm) have the exact same gap the chests did:
@@ -171,7 +174,7 @@ public final class BedWorldBootstrap {
                         LumberPostRegistry.registerAt(world, x, y, z);
                     } else if ((f & F_FARM_POST) != 0) {
                         Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
-                        FarmPostRegistry.registerAt(scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
+                        FarmPostRegistry.registerAt(world, scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
                     }
 
                     if ((f & F_BATH) != 0) {
@@ -250,7 +253,7 @@ public final class BedWorldBootstrap {
         }
 
         // addOrReplace dedupes by position, so the six blocks converge on a single record.
-        BedRegistry.addOrReplace(anchor.x, anchor.y, anchor.z, yaw);
+        BedRegistry.addOrReplace(world, anchor.x, anchor.y, anchor.z, yaw);
     }
 
     public static boolean isPrimaryBedBlock(World world, int x, int y, int z) {
