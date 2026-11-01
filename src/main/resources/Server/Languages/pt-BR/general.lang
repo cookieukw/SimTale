@@ -179,6 +179,7 @@ map.workpost.lumber.free = Posto de Lenhador (Disponível)
 map.workpost.lumber.occupied = Posto de Lenhador (Ocupado)
 map.workpost.farm.free = Posto de Fazenda (Disponível)
 map.workpost.farm.occupied = Posto de Fazenda (Ocupado)
+map.chest.global = Baús Globais ({count})
 graveyard.pending = [SimTale] {count} NPC(s) estão no cemitério. Use /simtale graveyard para ver a causa e ressuscitá-los.
 cmd.chestcheck.type_global = [Tipo do Baú] GLOBAL (Dentro da vila, sem casa)
 cmd.chestcheck.type_shared = [Tipo do Baú] COMPARTILHADO (Estoque Comunitário da Vila)

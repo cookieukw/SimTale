@@ -179,6 +179,7 @@ map.workpost.lumber.free = Lumber Post (Available)
 map.workpost.lumber.occupied = Lumber Post (Occupied)
 map.workpost.farm.free = Farm Post (Available)
 map.workpost.farm.occupied = Farm Post (Occupied)
+map.chest.global = Global Chests ({count})
 graveyard.pending = [SimTale] {count} NPC(s) are in the graveyard. Use /simtale graveyard to see the cause and revive them.
 cmd.chestcheck.type_global = [Chest Type] GLOBAL (Inside the village, no house)
 cmd.chestcheck.type_shared = [Chest Type] SHARED (Village Community Stock)
