@@ -247,22 +247,24 @@ public final class VillageManager {
         state.lastKnownVillageChunks = Set.copyOf(currentAllChunks);
 
         if (!changedChunks.isEmpty()) {
-            invalidateMapChunks(changedChunks);
+            invalidateMapChunks(world, changedChunks);
         }
 
         LOGGER.debug("[SimTale] Villages recalculated: {} village(s) from {} house(s)",
                 built.size(), houseAnchors.size());
     }
 
-    private static void invalidateMapChunks(Set<Long> chunkIndices) {
+    private static void invalidateMapChunks(World targetWorld, Set<Long> chunkIndices) {
         try {
             Universe universe = Universe.get();
             if (universe == null) return;
             LongSet set = new LongOpenHashSet(chunkIndices);
+            if (targetWorld != null) {
+                targetWorld.getWorldMapManager().clearImagesInChunks(set);
+                return;
+            }
             for (World world : universe.getWorlds().values()) {
-                if (world != null) {
-                    world.getWorldMapManager().clearImagesInChunks(set);
-                }
+                if (world != null) world.getWorldMapManager().clearImagesInChunks(set);
             }
         } catch (Throwable t) {
             LOGGER.debug("[SimTale] Map chunk invalidation skipped: {}", t.toString());
