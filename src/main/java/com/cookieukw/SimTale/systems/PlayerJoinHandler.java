@@ -86,7 +86,7 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
         // Load all houses from database
         if (HOUSES_LOADED.compareAndSet(false, true)) {
             try {
-                HouseManager.loadAllHouses();
+                HouseManager.loadAllHouses(player.getWorld());
             } catch (Exception e) {
                 HOUSES_LOADED.set(false);
                 LOGGER.debug("[SimTale] Error loading houses: " + e.getMessage());

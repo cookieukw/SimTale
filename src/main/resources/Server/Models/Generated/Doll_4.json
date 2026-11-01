@@ -41,6 +41,12 @@
       "GradientId": "GreyDark"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "NPC/Dolls/Cosmetics/Overtops/Overtops_Long_Sleeve_ChibiDoll.blockymodel",
       "Texture": "Cosmetics/Overtops/Overtops_Long_Sleeve_Textures/Bunny_Hoody_Greyscale.png",
       "GradientSet": "Colored_Cotton",

@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -80,32 +82,57 @@ public final class VillageManager {
         }
     }
 
-    private static volatile List<Village> villages = List.of();
-    private static volatile Set<Long> lastKnownVillageChunks = Set.of();
+    /** Village snapshots are scoped by the concrete World instance. */
+    private static final Map<World, State> STATES = new ConcurrentHashMap<>();
+    private static final State LEGACY_STATE = new State();
+
+    private static final class State {
+        volatile List<Village> villages = List.of();
+        volatile Set<Long> lastKnownVillageChunks = Set.of();
+        final AtomicBoolean dirty = new AtomicBoolean(true);
+    }
 
     /**
      * Set whenever the house set changes; the rebuild happens on the next query instead of inside
      * the mutation.
      */
-    private static final AtomicBoolean dirty = new AtomicBoolean(true);
-
     /** Called by {@link HouseManager} whenever a house is added, changed or removed. */
     public static void markDirty() {
-        dirty.set(true);
+        LEGACY_STATE.dirty.set(true);
+        for (State state : STATES.values()) state.dirty.set(true);
+        SimTaleMarkerProvider.requestRefresh();
+    }
+
+    /** Marks only one world's derived village snapshot dirty. */
+    public static void markDirty(World world) {
+        if (world == null) {
+            markDirty();
+            return;
+        }
+        state(world).dirty.set(true);
+        SimTaleMarkerProvider.requestRefresh();
     }
 
     public static List<Village> villages() {
-        if (dirty.compareAndSet(true, false)) {
-            rebuild();
-        }
-        return villages;
+        return villages(null);
+    }
+
+    /** Returns only villages derived from houses in {@code world}. */
+    public static List<Village> villages(World world) {
+        State state = state(world);
+        if (state.dirty.compareAndSet(true, false)) rebuild(world, state);
+        return state.villages;
     }
 
     /** The village containing {@code (x, z)}, or the nearest one, or null when there are none. */
     public static Village nearest(double x, double z) {
+        return nearest(null, x, z);
+    }
+
+    public static Village nearest(World world, double x, double z) {
         Village best = null;
         double bestDistSq = Double.MAX_VALUE;
-        for (Village village : villages()) {
+        for (Village village : villages(world)) {
             double distSq = village.distanceSqTo(x, z);
             if (distSq < bestDistSq) {
                 bestDistSq = distSq;
@@ -120,7 +147,11 @@ public final class VillageManager {
      * registered there. With no villages yet, any valid first house may start one.
      */
     public static boolean isNearVillage(double x, double z) {
-        Village nearest = nearest(x, z);
+        return isNearVillage(null, x, z);
+    }
+
+    public static boolean isNearVillage(World world, double x, double z) {
+        Village nearest = nearest(world, x, z);
         return nearest == null || nearest.distanceSqTo(x, z) <= LINK_DISTANCE_SQ;
     }
 
@@ -128,8 +159,12 @@ public final class VillageManager {
      * Returns the village that owns the given chunk coordinates, or {@code null} if unowned.
      */
     public static Village getVillageForChunk(int chunkX, int chunkZ) {
+        return getVillageForChunk(null, chunkX, chunkZ);
+    }
+
+    public static Village getVillageForChunk(World world, int chunkX, int chunkZ) {
         long idx = ChunkUtil.indexChunk(chunkX, chunkZ);
-        for (Village v : villages()) {
+        for (Village v : villages(world)) {
             if (v.containsChunk(idx)) {
                 return v;
             }
@@ -149,9 +184,14 @@ public final class VillageManager {
     /**
      * Single-linkage clustering over the house beds.
      */
-    private static void rebuild() {
+    private static State state(World world) {
+        return world == null ? LEGACY_STATE : STATES.computeIfAbsent(world, ignored -> new State());
+    }
+
+    private static void rebuild(World world, State state) {
         List<HouseBlockPos> houseAnchors = new ArrayList<>();
-        for (HouseData house : HouseManager.HOUSES_BY_ID.values()) {
+        HouseManager.HouseIndexes indexes = HouseManager.indexes(world);
+        for (HouseData house : indexes.housesById.values()) {
             if (house == null) continue;
             HouseBlockPos anchor = house.getAnchor();
             if (anchor != null) {
@@ -186,7 +226,7 @@ public final class VillageManager {
             built.add(toVillage(cluster));
         }
 
-        villages = List.copyOf(built);
+        state.villages = List.copyOf(built);
 
         // Collect all chunks currently occupied by villages
         Set<Long> currentAllChunks = new HashSet<>();
@@ -198,31 +238,33 @@ public final class VillageManager {
 
         // Detect modified chunks to invalidate map cache
         Set<Long> changedChunks = new HashSet<>();
-        for (Long c : lastKnownVillageChunks) {
+        for (Long c : state.lastKnownVillageChunks) {
             if (!currentAllChunks.contains(c)) changedChunks.add(c);
         }
         for (Long c : currentAllChunks) {
-            if (!lastKnownVillageChunks.contains(c)) changedChunks.add(c);
+            if (!state.lastKnownVillageChunks.contains(c)) changedChunks.add(c);
         }
-        lastKnownVillageChunks = Set.copyOf(currentAllChunks);
+        state.lastKnownVillageChunks = Set.copyOf(currentAllChunks);
 
         if (!changedChunks.isEmpty()) {
-            invalidateMapChunks(changedChunks);
+            invalidateMapChunks(world, changedChunks);
         }
 
         LOGGER.debug("[SimTale] Villages recalculated: {} village(s) from {} house(s)",
                 built.size(), houseAnchors.size());
     }
 
-    private static void invalidateMapChunks(Set<Long> chunkIndices) {
+    private static void invalidateMapChunks(World targetWorld, Set<Long> chunkIndices) {
         try {
             Universe universe = Universe.get();
             if (universe == null) return;
             LongSet set = new LongOpenHashSet(chunkIndices);
+            if (targetWorld != null) {
+                targetWorld.getWorldMapManager().clearImagesInChunks(set);
+                return;
+            }
             for (World world : universe.getWorlds().values()) {
-                if (world != null) {
-                    world.getWorldMapManager().clearImagesInChunks(set);
-                }
+                if (world != null) world.getWorldMapManager().clearImagesInChunks(set);
             }
         } catch (Throwable t) {
             LOGGER.debug("[SimTale] Map chunk invalidation skipped: {}", t.toString());

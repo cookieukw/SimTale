@@ -73,13 +73,14 @@ public class GrowthManager {
      * Enqueueing on the world thread resolves this because that queue drains outside the
      * systems tick.
      */
-    private static void runOutsideTick(Store<EntityStore> store, Runnable task) {
-        World world = WorldUtil.first();
+    private static void runOutsideTick(World world, Runnable task) {
         if (world != null && !world.isTicking()) {
             task.run();
             return;
         }
-        if (!WorldUtil.execute(task)) {
+        if (world != null) {
+            world.execute(task);
+        } else {
             LOGGER.atWarning().log("SimTale: nenhum mundo carregado; etapa de crescimento ignorada.");
         }
     }
@@ -117,7 +118,7 @@ public class GrowthManager {
         */
         String modelId = oldRef.getModelAssetId();
         Map<String, String> attachments = oldRef.getRandomAttachmentIds();
-        runOutsideTick(store, () -> SimNPCFactory.applyModel(store, ref, modelId, scale, attachments));
+        runOutsideTick(WorldUtil.fromEntityRef(ref), () -> SimNPCFactory.applyModel(store, ref, modelId, scale, attachments));
     }
 
     public static void tickGrowth(GrowthComponent child, long worldTick) {
@@ -139,9 +140,10 @@ public class GrowthManager {
             that does not exist yet. As this chain starts in GrowthTickSystem.tick(), without
             this, no child would ever change stage in normal gameplay.
             */
-            World world = WorldUtil.first();
-            Store<EntityStore> store = world != null ? world.getEntityStore().getStore() : null;
-            runOutsideTick(store, () -> onStageChanged(child));
+            Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
+            World world = childRef != null ? WorldUtil.fromEntityRef(childRef) : null;
+            Store<EntityStore> store = childRef != null ? childRef.getStore() : null;
+            if (store != null) runOutsideTick(world, () -> onStageChanged(child));
         }
 
         if (child.needsCare() && child.babyNeeds != null) {
@@ -166,21 +168,21 @@ public class GrowthManager {
             default -> GrowthStage.ADULT;
         };
 
-        World world = WorldUtil.first();
+        Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
+        World world = childRef != null ? WorldUtil.fromEntityRef(childRef) : null;
         long currentTick = world != null ? world.getTick() : 0L;
 
         child.stage = nextStage;
         child.birthTick = currentTick - (nextStage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
         child.currentScale = calculateTargetScale(child, currentTick);
 
-        Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
         if (childRef != null && childRef.isValid()) {
             applyVisualScale(childRef, child.currentScale);
         }
 
-        World w = WorldUtil.first();
-        Store<EntityStore> store = w != null ? w.getEntityStore().getStore() : null;
-        runOutsideTick(store, () -> onStageChanged(child));
+        Store<EntityStore> store = childRef != null ? childRef.getStore() : null;
+        World childWorld = childRef != null ? WorldUtil.fromEntityRef(childRef) : null;
+        if (store != null) runOutsideTick(childWorld, () -> onStageChanged(child));
         return true;
     }
 
@@ -237,7 +239,8 @@ public class GrowthManager {
                 ? SimNPCFactory.NPCType.CHILD_MALE 
                 : SimNPCFactory.NPCType.CHILD_FEMALE;
                 
-            World world = WorldUtil.first();
+            Ref<EntityStore> holderEntityRef = holderId != null ? LifecycleUtils.getEntityRef(holderId) : null;
+            World world = holderEntityRef != null ? WorldUtil.fromEntityRef(holderEntityRef) : null;
             if (world == null) {
                 LOGGER.atWarning().log("SimTale: nenhum mundo carregado; promocao para TODDLER adiada.");
                 return;
@@ -334,7 +337,8 @@ public class GrowthManager {
      * @param announceTeen true when this is the teenage promotion, which has its own message
      */
     private static void promoteToAdultBody(GrowthComponent child, boolean announceTeen) {
-        World world = WorldUtil.first();
+        Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
+        World world = childRef != null ? WorldUtil.fromEntityRef(childRef) : null;
         if (world == null) {
             LOGGER.atWarning().log("SimTale: nenhum mundo carregado; promocao de corpo adiada.");
             return;
@@ -344,7 +348,6 @@ public class GrowthManager {
             return;
         }
 
-        Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
         Vector3d spawnPos = new Vector3d(0, 100, 0);
         boolean wasBeingCarried = false;
         UUID carrierId = null;

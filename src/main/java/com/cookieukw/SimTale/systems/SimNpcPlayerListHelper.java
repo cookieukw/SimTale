@@ -58,7 +58,7 @@ public final class SimNpcPlayerListHelper {
      */
     public static void broadcastAdd(SimNPCComponent npc) {
         if (npc == null || npc.entityId == null || npc.name == null) return;
-        World world = WorldUtil.first();
+        World world = WorldUtil.fromEntityRef(npc.entityRef);
         UUID worldUuid = world != null ? world.getWorldConfig().getUuid() : null;
 
         ServerPlayerListPlayer p = new ServerPlayerListPlayer();

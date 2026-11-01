@@ -29,6 +29,12 @@
       "GradientId": "Beige"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/Battleworn_Tunic.blockymodel",
       "Texture": "Cosmetics/Overtops/Battleworn_Tunic_Texture.png",
       "GradientSet": "Colored_Cotton",

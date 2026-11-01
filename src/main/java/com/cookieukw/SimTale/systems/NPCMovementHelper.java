@@ -140,6 +140,17 @@ public class NPCMovementHelper {
         }
     }
 
+    /** Keeps the movement flags and leg animation aligned for commanded follow movement. */
+    public static void setRunningState(Ref<EntityStore> ref, Store<EntityStore> store, boolean running) {
+        MovementStatesComponent component = store.getComponent(ref, MovementStatesComponent.getComponentType());
+        if (component == null) return;
+        MovementStates states = component.getMovementStates();
+        states.running = running;
+        states.walking = running;
+        states.idle = !running;
+        states.horizontalIdle = !running;
+    }
+
     public static void playAnim(Ref<EntityStore> ref, String anim, String name, Store<EntityStore> store) {
         playAnim(ref, AnimationSlot.Action, anim, name, store);
     }

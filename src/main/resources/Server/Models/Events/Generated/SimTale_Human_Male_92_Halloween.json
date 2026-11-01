@@ -26,6 +26,12 @@
       "GradientId": "Grey"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/Scavenger_Poncho_Skull.blockymodel",
       "Texture": "Cosmetics/Overtops/Scavenger_Poncho_Textures/Scavenger_Poncho_Texture.png",
       "GradientSet": "Fantasy_Cotton_Dark",

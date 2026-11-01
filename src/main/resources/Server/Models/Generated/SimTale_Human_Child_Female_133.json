@@ -30,6 +30,12 @@
       "GradientId": "Orange"
     },
     {
+      "Model": "NPC/Player_Child/Cosmetics/Undertops/Tshirt_Child.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "NPC/Player_Child/Cosmetics/Overtops/Overtops_Mini_Jacket_Child.blockymodel",
       "Texture": "Cosmetics/Overtops/Overtops_Short_Sleeve_Textures/Jacket_Short_Greyscale.png",
       "GradientSet": "Fantasy_Cotton_Dark",

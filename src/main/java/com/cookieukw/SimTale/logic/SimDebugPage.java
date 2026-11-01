@@ -219,8 +219,7 @@ public class SimDebugPage extends InteractiveCustomUIPage<String> {
             ai.targetBlockPosition = null;
             ai.forcedByDebug = true;
 
-            World world;
-            world = WorldUtil.first();
+            World world = WorldUtil.fromEntityRef(npc.entityRef);
             if (world != null) {
                 ai.taskStartTime = world.getTick();
             }

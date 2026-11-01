@@ -110,6 +110,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     static final double WANDER_RADIUS = 8.0;
     /** /simtale follow: stop walking once this close to the player. */
     static final double FOLLOW_STOP_DISTANCE_SQ = 2.5 * 2.5;
+    /** Follow switches to a run when the player creates a meaningful gap. */
+    static final double FOLLOW_RUN_DISTANCE_SQ = 12.0 * 12.0;
     /** /simtale follow: keep pathing while the player is more than this far above/below. */
     static final double FOLLOW_VERTICAL_THRESHOLD = 0.75;
     static final SimLog LOGGER = SimLog.forClass(RoutineAISystem.class);
@@ -329,6 +331,13 @@ once per NPC per tick for nothing.
             if (statMap != null) {
                 EntityStatValue healthVal = statMap.get(DefaultEntityStatTypes.getHealth());
                 if (healthVal != null && healthVal.get() <= 0f) {
+                    if (NPCDamageEventSystem.isInsideVillageSafeZone(transform.getPosition())) {
+                        statMap.setStatValue(DefaultEntityStatTypes.getHealth(), healthVal.getMax());
+                        npc.lastDamageCause = "protegido pela zona segura da vila";
+                        LOGGER.warn("[SimTale] NPC '{}' reached 0 HP inside the village safe zone; restored health",
+                                npc.name);
+                        return;
+                    }
                     LOGGER.info("[SimTale] NPC '{}' reached 0 HP outside of forcekill — routing into the death flow", npc.name);
                     NPCMovementHelper.clearMoveTarget(ref, ai);
                     ai.currentTask = TaskType.DYING;
@@ -687,7 +696,7 @@ once per NPC per tick for nothing.
     }
 
     @NullableDecl
-    static BedPos getBedPos(TransformComponent transform) {
+    static BedPos getBedPos(TransformComponent transform, World world) {
         BedPos bestBed = null;
         double closestDistSq = Double.MAX_VALUE;
         Vector3d myPos = transform.getPosition();
@@ -703,8 +712,8 @@ once per NPC per tick for nothing.
             }
         }
 
-        synchronized (BedRegistry.BEDS) {
-            for (BedPos bp : BedRegistry.BEDS) {
+        Set<BedPos> registeredBeds = BedRegistry.registeredBeds(world);
+        for (BedPos bp : registeredBeds) {
                 if (claimedBeds.contains(bp)) continue;
 
                 double dx = bp.x - myPos.x;
@@ -716,11 +725,10 @@ once per NPC per tick for nothing.
                     bestBed = bp;
                 }
             }
-        }
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[SimTale] getBedPos: registry={}, claimed={}, chosen={}",
-                    BedRegistry.BEDS.size(), claimedBeds.size(),
+                    registeredBeds.size(), claimedBeds.size(),
                     bestBed != null ? "(" + bestBed.x + "," + bestBed.y + "," + bestBed.z + ")" : "null");
         }
         return bestBed;
@@ -1206,8 +1214,10 @@ once per NPC per tick for nothing.
         */
         if (horizontalSq > FOLLOW_STOP_DISTANCE_SQ
                 || Math.abs(target.y - myPos.y) > FOLLOW_VERTICAL_THRESHOLD) {
+            NPCMovementHelper.setRunningState(ref, store, horizontalSq > FOLLOW_RUN_DISTANCE_SQ);
             NPCMovementHelper.moveTo(ref, ai, world, target);
         } else {
+            NPCMovementHelper.setRunningState(ref, store, false);
             NPCMovementHelper.clearMoveTarget(ref, ai);
         }
         return true;
@@ -1259,6 +1269,7 @@ once per NPC per tick for nothing.
         ai.forcedByDebug = false;
         ai.targetBlockPosition = null;
         NPCMovementHelper.clearMoveTarget(ref, ai);
+        NPCMovementHelper.setRunningState(ref, ref.getStore(), false);
     }
 
     private static void clearAutonomyState(RoutineAIComponent ai, SimNPCComponent npc, World world, Store<EntityStore> store) {
@@ -1303,7 +1314,7 @@ once per NPC per tick for nothing.
             centerX = npc.bedLocation.x;
             centerZ = npc.bedLocation.z;
         } else {
-            VillageManager.Village village = VillageManager.nearest(centerX, centerZ);
+            VillageManager.Village village = VillageManager.nearest(world, centerX, centerZ);
             if (village != null) {
                 centerX = village.centerX();
                 centerZ = village.centerZ();

@@ -230,7 +230,7 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
                 || ChestRegistry.isChestId(placedId)) {
             // Register the anchor so placement and removal agree on one position per chest.
             Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
-            ChestRegistry.add(anchor.x, anchor.y, anchor.z);
+            ChestRegistry.add(world, anchor.x, anchor.y, anchor.z);
             LOGGER.debug("[SimTale] Chest registered from placement: {} at ({},{},{})",
                     placedId, anchor.x, anchor.y, anchor.z);
         }
@@ -256,7 +256,7 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
             its own separate (and redundant) registered post.
             */
             Vector3i scarecrowAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
-            FarmPostRegistry.registerAt(scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
+            FarmPostRegistry.registerAt(world, scarecrowAnchor.x, scarecrowAnchor.y, scarecrowAnchor.z);
         }
 
         if (BathRegistry.isBathId(placedId)) {
@@ -275,5 +275,7 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
             LOGGER.debug("[SimTale] Chair registered from placement: {} at ({},{},{})",
                     placedId, chairAnchor.x, chairAnchor.y, chairAnchor.z);
         }
+
+        SimTaleMarkerProvider.requestRefresh();
     }
 }

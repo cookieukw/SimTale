@@ -538,7 +538,7 @@ public class NPCGuardHelper {
             double dz = hostile.z() - center.z;
             double distSq = dx * dx + dy * dy + dz * dz;
 
-            VillageManager.Village hostileVillage = VillageManager.nearest(hostile.x(), hostile.z());
+            VillageManager.Village hostileVillage = VillageManager.nearest(world, hostile.x(), hostile.z());
             boolean insideVillage = hostileVillage != null && hostileVillage.contains(hostile.x(), hostile.z());
 
             if (insideVillage) {
@@ -570,14 +570,15 @@ public class NPCGuardHelper {
      */
     private static boolean answersVillageAlarm(SimNPCComponent guard, Vector3d guardPos,
                                                VillageManager.Village village, Hostile hostile,
-                                               Store<EntityStore> store) {
+                                                Store<EntityStore> store) {
         if (guard.entityId == null) return false;
 
         double guardDistSq = village.distanceSqTo(guardPos.x, guardPos.z);
         double responseRadius = village.radius() + VILLAGE_RESPONSE_MARGIN;
         if (guardDistSq > responseRadius * responseRadius) return false;
 
-        VillageManager.Village guardVillage = VillageManager.nearest(guardPos.x, guardPos.z);
+        World world = store.getExternalData().getWorld();
+        VillageManager.Village guardVillage = VillageManager.nearest(world, guardPos.x, guardPos.z);
         if (guardVillage == null || !guardVillage.equals(village)) return false;
 
         double hostileDistSq = distanceSq(hostile, guardPos);
@@ -596,7 +597,7 @@ public class NPCGuardHelper {
             if (otherTransform == null) continue;
 
             Vector3d otherPos = otherTransform.getPosition();
-            VillageManager.Village otherVillage = VillageManager.nearest(otherPos.x, otherPos.z);
+            VillageManager.Village otherVillage = VillageManager.nearest(world, otherPos.x, otherPos.z);
             if (otherVillage == null || !otherVillage.equals(village)) continue;
             if (village.distanceSqTo(otherPos.x, otherPos.z) > responseRadius * responseRadius) continue;
 
@@ -652,7 +653,8 @@ public class NPCGuardHelper {
                                         TransformComponent transform, Store<EntityStore> store) {
 
         Vector3d pos = transform.getPosition();
-        VillageManager.Village village = VillageManager.nearest(pos.x, pos.z);
+        World world = store.getExternalData().getWorld();
+        VillageManager.Village village = VillageManager.nearest(world, pos.x, pos.z);
         if (village == null) return;
 
         /* Start the circuit where the guard already stands, so it does not march across town to

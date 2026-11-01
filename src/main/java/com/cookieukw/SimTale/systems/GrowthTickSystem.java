@@ -48,7 +48,7 @@ public class GrowthTickSystem extends EntityTickingSystem<EntityStore> {
         // Run only once per interval, at the first index
         if (index != 0) return;
 
-        World world = WorldUtil.first();
+        World world = WorldUtil.fromEntityRef(chunk.getReferenceTo(index));
         if (world == null) return;
         long worldTick = world.getTick();
 

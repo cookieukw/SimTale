@@ -62,6 +62,11 @@ public class SimNPCPersistence {
      */
     public static Shell worldShell() {
         World world = WorldUtil.first();
+        return worldShell(world);
+    }
+
+    /** Explicit per-world persistence entry point. New world-owned systems must use this overload. */
+    public static Shell worldShell(World world) {
         return world != null ? Caskara.shell(world, "simtale") : DB_SHELL;
     }
 
@@ -104,6 +109,11 @@ public class SimNPCPersistence {
      */
     public static Shell graveyardShell() {
         World world = WorldUtil.first();
+        return graveyardShell(world);
+    }
+
+    /** Explicit per-world graveyard persistence entry point. */
+    public static Shell graveyardShell(World world) {
         return world != null ? Caskara.shell(world, "simtale_graveyard") : Caskara.shell("simtale_graveyard");
     }
 

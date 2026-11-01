@@ -260,7 +260,8 @@ public class NpcContextBuilder {
             }
         }
 
-        boolean hasHome = npc.entityId != null && HouseManager.OWNER_TO_HOUSE_ID.containsKey(npc.entityId);
+        boolean hasHome = npc.entityId != null && HouseManager.indexes(npcWorld)
+                .ownerToHouseId.containsKey(npc.entityId);
         systemPrompt.append(hasHome
                 ? "You have a home registered in the village.\n"
                 : "You do not have a home of your own yet.\n");

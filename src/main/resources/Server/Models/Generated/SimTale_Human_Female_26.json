@@ -27,6 +27,12 @@
       "Texture": "Cosmetics/Overpants/Icecream_Skirt_Texture.png"
     },
     {
+      "Model": "Cosmetics/Undertops/Tshirt.blockymodel",
+      "Texture": "Cosmetics/Undertops/Tshirt_Textures/ShortSleeves_Greyscale.png",
+      "GradientSet": "Colored_Cotton",
+      "GradientId": "White"
+    },
+    {
       "Model": "Cosmetics/Overtops/NeckHighJumper.blockymodel",
       "Texture": "Cosmetics/Overtops/NeckHighJumper_Textures/AlpineExplorerJumper_Texture.png"
     },

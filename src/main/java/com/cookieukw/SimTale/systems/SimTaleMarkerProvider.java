@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 
 /**
@@ -72,6 +73,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private static final String MARKER_IMAGE = "Player.png";
     private static final String MARKER_IMAGE_VILLAGE = "Spawn.png";
     private static final String MARKER_IMAGE_HOUSE = "Home.png";
+    private static final String MARKER_IMAGE_WORK = "Spawn.png";
 
     /**
      * Worlds already carrying the provider, so a re-registration is a no-op instead of a stack.
@@ -122,6 +124,9 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private static final Color COLOR_HOUSE_OCCUPIED = rgb(80, 220, 120);
     private static final Color COLOR_HOUSE_EMPTY = rgb(100, 200, 255);
     private static final Color COLOR_BED_UNCLAIMED = rgb(150, 170, 190);
+    private static final Color COLOR_FISHING_POST = rgb(70, 170, 220);
+    private static final Color COLOR_LUMBER_POST = rgb(170, 120, 65);
+    private static final Color COLOR_FARM_POST = rgb(100, 190, 90);
 
     private static Color rgb(int r, int g, int b) {
         Color color = new Color();
@@ -147,11 +152,19 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private record HouseMapMarker(String id, List<String> ownerNames, Vector3d position, boolean occupied) {
     }
 
-    private static volatile List<NpcMarker> snapshot = List.of();
-    private static volatile List<Village> villageSnapshot = List.of();
-    private static volatile List<HouseMapMarker> houseSnapshot = List.of();
-    /** Beds that are registered but belong to no house yet — the "not claimed" state. */
-    private static volatile List<HouseBlockPos> unclaimedBedSnapshot = List.of();
+    private record WorkPostMapMarker(String id, String type, Vector3d position) {
+    }
+
+    private record GlobalChestMapMarker(String id, Vector3d position, int count) {
+    }
+
+    private record WorldMarkerSnapshot(List<NpcMarker> npcs, List<Village> villages,
+                                       List<HouseMapMarker> houses, List<WorkPostMapMarker> workPosts,
+                                       List<HouseBlockPos> unclaimedBeds,
+                                       List<GlobalChestMapMarker> globalChests) {
+    }
+
+    private static volatile Map<String, WorldMarkerSnapshot> snapshots = Map.of();
 
     /**
      * Tick of the last capture, or {@code -1} when there has not been one.
@@ -161,10 +174,16 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
      * than the interval. The guard therefore returned on every single call and the snapshot stayed
      * empty forever — "0 NPC(s) no snapshot" with a world full of NPCs.
      */
-    private static volatile long snapshotTick = -1L;
+    private static final Map<String, Long> snapshotTicks = new ConcurrentHashMap<>();
+    private static final AtomicBoolean snapshotDirty = new AtomicBoolean(true);
 
     /** How often the snapshot is rebuilt. The map redraws slower than this anyway. */
     private static final int SNAPSHOT_INTERVAL_TICKS = 10;
+
+    /** Requests the next world-thread capture immediately instead of waiting for the interval. */
+    public static void requestRefresh() {
+        snapshotDirty.set(true);
+    }
 
     /**
      * Copies what the map needs, from the world thread.
@@ -181,8 +200,11 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         if (world == null || store == null) return;
 
         long tick = world.getTick();
-        if (snapshotTick >= 0 && tick - snapshotTick < SNAPSHOT_INTERVAL_TICKS) return;
-        snapshotTick = tick;
+        String worldName = world.getName();
+        long previousTick = snapshotTicks.getOrDefault(worldName, -1L);
+        if (!snapshotDirty.get() && previousTick >= 0 && tick - previousTick < SNAPSHOT_INTERVAL_TICKS) return;
+        snapshotTicks.put(worldName, tick);
+        snapshotDirty.set(false);
 
         List<NpcMarker> captured = new ArrayList<>();
         for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
@@ -230,15 +252,13 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                     transform.getTransform().clone(), statuses));
         }
 
-        snapshot = List.copyOf(captured);
-
-        // Capture active villages
-        villageSnapshot = List.copyOf(VillageManager.villages());
+        List<Village> capturedVillages = List.copyOf(VillageManager.villages(world));
 
         // Capture registered houses
         List<HouseMapMarker> capturedHouses = new ArrayList<>();
         Set<HouseBlockPos> houseBeds = new HashSet<>();
-        for (HouseData house : HouseManager.HOUSES_BY_ID.values()) {
+        HouseManager.HouseIndexes houseIndexes = HouseManager.indexes(world);
+        for (HouseData house : houseIndexes.housesById.values()) {
             if (house == null) continue;
             HouseBlockPos anchor = house.getAnchor();
             if (anchor == null) continue;
@@ -282,7 +302,33 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             capturedHouses.add(new HouseMapMarker(houseId, List.copyOf(names),
                     houseMarkerPosition(house, anchor), occupied));
         }
-        houseSnapshot = List.copyOf(capturedHouses);
+        List<HouseMapMarker> capturedHousesSnapshot = List.copyOf(capturedHouses);
+
+        List<WorkPostMapMarker> capturedWorkPosts = new ArrayList<>();
+        synchronized (FishingPostRegistry.POSTS) {
+            for (FishingPostRegistry.FishingPost post : FishingPostRegistry.POSTS) {
+                capturedWorkPosts.add(new WorkPostMapMarker(
+                        "fishing:" + post.worldName() + ":" + post.postX() + ":" + post.postY() + ":" + post.postZ(),
+                        "fishing", new Vector3d(post.postX() + 0.5, post.postY() + 0.5, post.postZ() + 0.5)));
+            }
+        }
+        synchronized (LumberPostRegistry.POSTS) {
+            for (LumberPostRegistry.LumberPost post : LumberPostRegistry.POSTS) {
+                capturedWorkPosts.add(new WorkPostMapMarker(
+                        "lumber:" + post.worldName() + ":" + post.postX() + ":" + post.postY() + ":" + post.postZ(),
+                        "lumber", new Vector3d(post.postX() + 0.5, post.postY() + 0.5, post.postZ() + 0.5)));
+            }
+        }
+        synchronized (FarmPostRegistry.POSTS) {
+            for (FarmPostRegistry.FarmPost post : FarmPostRegistry.POSTS) {
+                capturedWorkPosts.add(new WorkPostMapMarker(
+                        "farm:" + post.worldName() + ":" + post.postX() + ":" + post.postY() + ":" + post.postZ(),
+                        "farm", new Vector3d(post.postX() + 0.5, post.postY() + 0.5, post.postZ() + 0.5)));
+            }
+        }
+        List<WorkPostMapMarker> capturedWorkPostsSnapshot = List.copyOf(capturedWorkPosts);
+
+        List<GlobalChestMapMarker> capturedGlobalChests = clusterGlobalChests(world);
 
         /* A registered bed that belongs to no house is the "built but not claimed yet" state.
         Without these the map is silent exactly while the player is waiting for an NPC to take the
@@ -296,14 +342,60 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         }
 
         List<HouseBlockPos> unclaimed = new ArrayList<>();
-        synchronized (BedRegistry.BEDS) {
-            for (SimBedData.BedPos bed : BedRegistry.BEDS) {
+        for (SimBedData.BedPos bed : BedRegistry.registeredBeds(world)) {
                 HouseBlockPos pos = new HouseBlockPos(bed.x, bed.y, bed.z);
                 if (houseBeds.contains(pos) || claimedBeds.contains(pos)) continue;
                 unclaimed.add(pos);
             }
+        WorldMarkerSnapshot capturedSnapshot = new WorldMarkerSnapshot(
+                List.copyOf(captured), capturedVillages, capturedHousesSnapshot,
+                capturedWorkPostsSnapshot, List.copyOf(unclaimed), capturedGlobalChests);
+        Map<String, WorldMarkerSnapshot> updatedSnapshots = new HashMap<>(snapshots);
+        updatedSnapshots.put(world.getName(), capturedSnapshot);
+        snapshots = Map.copyOf(updatedSnapshots);
+    }
+
+    private static List<GlobalChestMapMarker> clusterGlobalChests(World world) {
+        List<HouseBlockPos> chests = new ArrayList<>();
+        for (HouseBlockPos pos : ChestRegistry.registeredChests(world)) {
+            if (ChestRegistry.isShared(world, pos)) chests.add(pos);
         }
-        unclaimedBedSnapshot = List.copyOf(unclaimed);
+        List<GlobalChestMapMarker> result = new ArrayList<>();
+        boolean[] used = new boolean[chests.size()];
+        int cluster = 0;
+        for (int i = 0; i < chests.size(); i++) {
+            if (used[i]) continue;
+            used[i] = true;
+            List<HouseBlockPos> group = new ArrayList<>();
+            group.add(chests.get(i));
+            for (int j = i + 1; j < chests.size(); j++) {
+                if (used[j]) continue;
+                HouseBlockPos candidate = chests.get(j);
+                boolean near = false;
+                for (HouseBlockPos member : group) {
+                    int dx = candidate.x - member.x;
+                    int dz = candidate.z - member.z;
+                    if (dx * dx + dz * dz <= 8 * 8) {
+                        near = true;
+                        break;
+                    }
+                }
+                if (near) {
+                    used[j] = true;
+                    group.add(candidate);
+                }
+            }
+            double x = 0, y = 0, z = 0;
+            for (HouseBlockPos pos : group) {
+                x += pos.x + 0.5;
+                y += pos.y + 0.5;
+                z += pos.z + 0.5;
+            }
+            int count = group.size();
+            result.add(new GlobalChestMapMarker("global:" + cluster++ + ":" + (int) x + ":" + (int) z,
+                    new Vector3d(x / count, y / count, z / count), count));
+        }
+        return List.copyOf(result);
     }
 
     /**
@@ -337,7 +429,9 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         UUID viewerId = (playerRef != null) ? playerRef.getUuid() : player.getUuid();
         if (viewerId == null) return;
 
-        List<NpcMarker> current = snapshot;
+        WorldMarkerSnapshot worldSnapshot = snapshots.get(world.getName());
+        if (worldSnapshot == null) return;
+        List<NpcMarker> current = worldSnapshot.npcs();
         int emitted = 0;
         int outOfRange = 0;
 
@@ -375,7 +469,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         }
 
         // Emit village center markers
-        for (Village village : villageSnapshot) {
+        for (Village village : worldSnapshot.villages()) {
             try {
                 Transform centerTransform = new Transform(new Vector3d(village.centerX(), 65.0, village.centerZ()));
                 collector.addIgnoreViewDistance(
@@ -393,7 +487,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         }
 
         // Emit house markers
-        for (HouseMapMarker house : houseSnapshot) {
+        for (HouseMapMarker house : worldSnapshot.houses()) {
             try {
                 Transform houseTransform = new Transform(house.position());
                 TintComponent tint = new TintComponent(house.occupied() ? COLOR_HOUSE_OCCUPIED : COLOR_HOUSE_EMPTY);
@@ -421,8 +515,59 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             }
         }
 
+        // Emit recognized profession work posts: fishing traps, lumbermills and scarecrows.
+        for (WorkPostMapMarker post : worldSnapshot.workPosts()) {
+            try {
+                Color tint;
+                Message name;
+                boolean occupied;
+                switch (post.type()) {
+                    case "fishing" -> {
+                        tint = COLOR_FISHING_POST;
+                        occupied = FishingPostRegistry.isClaimed(world, (int) post.position().x(),
+                                (int) post.position().y(), (int) post.position().z());
+                        name = Message.translation(occupied ? "general.map.workpost.fishing.occupied"
+                                : "general.map.workpost.fishing.free");
+                    }
+                    case "lumber" -> {
+                        tint = COLOR_LUMBER_POST;
+                        occupied = LumberPostRegistry.isClaimed(world, (int) post.position().x(),
+                                (int) post.position().y(), (int) post.position().z());
+                        name = Message.translation(occupied ? "general.map.workpost.lumber.occupied"
+                                : "general.map.workpost.lumber.free");
+                    }
+                    default -> {
+                        tint = COLOR_FARM_POST;
+                        occupied = FarmPostRegistry.isClaimed(world, (int) post.position().x(),
+                                (int) post.position().y(), (int) post.position().z());
+                        name = Message.translation(occupied ? "general.map.workpost.farm.occupied"
+                                : "general.map.workpost.farm.free");
+                    }
+                }
+                collector.addIgnoreViewDistance(
+                        new MapMarkerBuilder(PROVIDER_ID + ":workpost:" + post.id(), MARKER_IMAGE_WORK,
+                                new Transform(post.position()))
+                                .withName(name)
+                                .withComponent(new TintComponent(tint))
+                                .build());
+                emitted++;
+            } catch (RuntimeException e) {
+                LOGGER.debug("[MAP] Failed to mark work post '{}': {}", post.id(), e.toString());
+            }
+        }
+
+        for (GlobalChestMapMarker chest : worldSnapshot.globalChests()) {
+            collector.addIgnoreViewDistance(new MapMarkerBuilder(
+                    PROVIDER_ID + ":global-chest:" + chest.id(), MARKER_IMAGE_HOUSE,
+                    new Transform(chest.position()))
+                    .withName(Message.translation("general.map.chest.global").param("count", chest.count()))
+                    .withComponent(new TintComponent(COLOR_VILLAGE_CENTER))
+                    .build());
+            emitted++;
+        }
+
         // Emit beds that are registered but not part of any house yet
-        for (HouseBlockPos bed : unclaimedBedSnapshot) {
+        for (HouseBlockPos bed : worldSnapshot.unclaimedBeds()) {
             try {
                 Transform bedTransform = new Transform(new Vector3d(bed.x + 0.5, bed.y + 0.5, bed.z + 0.5));
                 collector.addIgnoreViewDistance(
