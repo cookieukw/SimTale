@@ -1,8 +1,6 @@
 traits = Traços\:
-npc = NPC
 likes = Gosta\:
 hates = Odeia\:
-preferences = PREFERÊNCIAS
 hobby = Hobby\:
 season = Estação Fav.\:
 relationship = Relacionamento\:
@@ -104,8 +102,8 @@ button.inventory = Inventário
 button.pregnancy = Ver Gestação
 button.follow = Seguir
 button.stop_follow = Parar de Seguir
-follow.started = {name} agora está te seguindo.
-follow.stopped = {name} parou de te seguir.
+follow.started = {name} está te seguindo.
+follow.stopped = {name} parou de seguir você.
 follow.unavailable = {name} não pode te seguir agora.
 
 parents = Pais\:
