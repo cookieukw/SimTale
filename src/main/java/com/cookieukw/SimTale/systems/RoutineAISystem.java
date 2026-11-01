@@ -110,6 +110,8 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
     static final double WANDER_RADIUS = 8.0;
     /** /simtale follow: stop walking once this close to the player. */
     static final double FOLLOW_STOP_DISTANCE_SQ = 2.5 * 2.5;
+    /** Follow switches to a run when the player creates a meaningful gap. */
+    static final double FOLLOW_RUN_DISTANCE_SQ = 12.0 * 12.0;
     /** /simtale follow: keep pathing while the player is more than this far above/below. */
     static final double FOLLOW_VERTICAL_THRESHOLD = 0.75;
     static final SimLog LOGGER = SimLog.forClass(RoutineAISystem.class);
@@ -1212,8 +1214,10 @@ once per NPC per tick for nothing.
         */
         if (horizontalSq > FOLLOW_STOP_DISTANCE_SQ
                 || Math.abs(target.y - myPos.y) > FOLLOW_VERTICAL_THRESHOLD) {
+            NPCMovementHelper.setRunningState(ref, store, horizontalSq > FOLLOW_RUN_DISTANCE_SQ);
             NPCMovementHelper.moveTo(ref, ai, world, target);
         } else {
+            NPCMovementHelper.setRunningState(ref, store, false);
             NPCMovementHelper.clearMoveTarget(ref, ai);
         }
         return true;
@@ -1265,6 +1269,7 @@ once per NPC per tick for nothing.
         ai.forcedByDebug = false;
         ai.targetBlockPosition = null;
         NPCMovementHelper.clearMoveTarget(ref, ai);
+        NPCMovementHelper.setRunningState(ref, ref.getStore(), false);
     }
 
     private static void clearAutonomyState(RoutineAIComponent ai, SimNPCComponent npc, World world, Store<EntityStore> store) {
