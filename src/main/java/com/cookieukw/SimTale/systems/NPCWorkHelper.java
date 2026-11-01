@@ -228,7 +228,10 @@ public class NPCWorkHelper {
         second, independent path into a new task from IDLE, and needs the same guard so a
         reserved NPC does not get pulled into a work errand before her suitor arrives.
         */
-        if (ai.currentTask == TaskType.IDLE && NPCSocialHelper.isReservedAndActive(ai, world.getTick()) && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK || npc.profession == Profession.MINER)) {
+        if (ai.currentTask == TaskType.IDLE && !NPCSocialHelper.isReservedAndActive(ai, world.getTick())
+                && (npc.profession == Profession.FARMER || npc.profession == Profession.HUNTER
+                || npc.profession == Profession.FISHERMAN || npc.profession == Profession.LUMBERJACK
+                || npc.profession == Profession.MINER)) {
             ItemContainer inventory = getInventory(store, ref);
             boolean hasItemsToDeposit = hasAnyDepositableItem(inventory);
 
