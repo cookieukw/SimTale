@@ -92,6 +92,7 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
                 LOGGER.debug("[SimTale] Error loading houses: " + e.getMessage());
             }
         }
+        MerchantVisitorPersistenceManager.restore(player.getWorld(), playerRef.getStore());
 
         /* Same gap the houses had, on the growth records: they were written to disk but nothing
         ever read them back into the in-memory list every age check consults. A restart left it
