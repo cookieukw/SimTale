@@ -114,7 +114,8 @@ public class NPCGuardHelper {
      */
     private static final String[] HOSTILE_MODEL_KEYWORDS = {
             "skeleton", "zombie", "ghoul", "wraith", "werewolf", "hound_bleached",
-            "shadow_knight", "trork", "goblin", "scarak", "outlander", "hedera", "fen_stalker"
+            "shadow_knight", "trork", "goblin", "scarak", "outlander", "hedera", "fen_stalker",
+            "spider", "bear", "cave_spider", "dire_wolf", "wild_boar"
     };
 
     /** How often a given guard looks around. One second, as before. */
@@ -313,6 +314,63 @@ public class NPCGuardHelper {
                 finishFight(npc, ai, transform, store);
             }
         }
+    }
+
+    /** Basic civilian self-defense: weaker, shorter-ranged and without guard bonuses. */
+    public static boolean handleCivilianDefense(Ref<EntityStore> ref, SimNPCComponent npc,
+                                                RoutineAIComponent ai, TransformComponent transform,
+                                                World world, Store<EntityStore> store,
+                                                CommandBuffer<EntityStore> commandBuffer) {
+        if (npc.profession == Profession.GUARD || !WorkEligibility.canWork(npc)) return false;
+        if (ai.currentTask == TaskType.IDLE || ai.currentTask == TaskType.WANDERING) {
+            UUID target = scanForHostile(npc, transform.getPosition(), world, store);
+            if (target == null) return false;
+            Ref<EntityStore> targetRef = world.getEntityStore().getRefFromUUID(target);
+            if (targetRef == null || !targetRef.isValid()) return false;
+            ai.workTargetEntityId = target;
+            ai.currentTask = TaskType.MOVING_TO_FIGHT;
+            ai.taskStartTime = world.getTick();
+        }
+
+        if (ai.currentTask != TaskType.MOVING_TO_FIGHT && ai.currentTask != TaskType.FIGHTING) return false;
+        Ref<EntityStore> targetRef = ai.workTargetEntityId == null
+                ? null : world.getEntityStore().getRefFromUUID(ai.workTargetEntityId);
+        TransformComponent targetTransform = targetRef != null && targetRef.isValid()
+                ? store.getComponent(targetRef, TransformComponent.getComponentType()) : null;
+        if (targetTransform == null || isDead(targetRef, store)) {
+            ai.workTargetEntityId = null;
+            ai.currentTask = TaskType.IDLE;
+            return false;
+        }
+
+        Vector3d pos = transform.getPosition();
+        Vector3d targetPos = targetTransform.getPosition();
+        double dx = targetPos.x - pos.x;
+        double dz = targetPos.z - pos.z;
+        double distanceSq = dx * dx + dz * dz;
+        if (distanceSq > 3.0 * 3.0) {
+            ai.currentTask = TaskType.MOVING_TO_FIGHT;
+            NPCMovementHelper.moveTo(ref, ai, world, targetPos);
+            return true;
+        }
+
+        ai.currentTask = TaskType.FIGHTING;
+        if ((world.getTick() - ai.taskStartTime) >= 30) {
+            ai.taskStartTime = world.getTick();
+            applyCivilianHit(ref, targetRef, store, commandBuffer);
+        }
+        return true;
+    }
+
+    private static void applyCivilianHit(Ref<EntityStore> attackerRef, Ref<EntityStore> targetRef,
+                                         Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
+        EntityStatMap stats = store.getComponent(targetRef, EntityStatMap.getComponentType());
+        if (stats == null) return;
+        EntityStatValue health = stats.get(DefaultEntityStatTypes.getHealth());
+        if (health == null) return;
+        float damage = Math.max(1f, health.getMax() * 0.10f);
+        commandBuffer.invoke(targetRef, new Damage(new Damage.EntitySource(attackerRef),
+                DamageCause.PHYSICAL, damage));
     }
 
     private static void playAttackAnimation(Ref<EntityStore> ref, SimNPCComponent npc,
