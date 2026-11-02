@@ -34,10 +34,16 @@ public final class MerchantCommand extends AbstractPlayerCommand {
         TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
         if (transform == null) return;
         Vector3d position = new Vector3d(transform.getPosition()).add(2, 0, 2);
+        SimNPCComponent merchant = spawnMerchant(store, world, position);
+        if (merchant == null) return;
+        playerRef.sendMessage(Message.raw("Merchant spawned: " + merchant.name));
+    }
+
+    public static SimNPCComponent spawnMerchant(Store<EntityStore> store, World world, Vector3d position) {
         Ref<EntityStore> merchantRef = SimNPCFactory.spawnNPC(store, position,
                 Math.random() < 0.5 ? SimNPCFactory.NPCType.HUMAN_MALE : SimNPCFactory.NPCType.HUMAN_FEMALE);
         SimNPCComponent merchant = store.getComponent(merchantRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-        if (merchant == null) return;
+        if (merchant == null) return null;
         merchant.profession = Profession.MERCHANT;
         merchant.name = "Viajante " + merchant.name;
         SimNPCFactory.refreshNameplate(store, merchantRef, merchant.name);
@@ -54,6 +60,6 @@ public final class MerchantCommand extends AbstractPlayerCommand {
         store.putComponent(merchantRef, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE, visitor);
         MerchantVisitPersistence.save(world, visitId,
                 MerchantVisitData.of(seed, merchant.name, world, departureTick, stock));
-        playerRef.sendMessage(Message.raw("Merchant spawned: " + merchant.name));
+        return merchant;
     }
 }
