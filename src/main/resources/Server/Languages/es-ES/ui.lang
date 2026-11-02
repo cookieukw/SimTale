@@ -1,6 +1,8 @@
 traits = Rasgos\:
+npc = NPC
 likes = Le gusta\:
 hates = Le disgusta\:
+preferences = PREFERENCIAS
 hobby = Pasatiempo\:
 season = Estación favorita\:
 relationship = Estado\:
