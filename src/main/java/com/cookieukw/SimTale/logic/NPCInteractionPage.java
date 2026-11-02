@@ -17,6 +17,7 @@ import com.cookieukw.SimTale.core.Trait;
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.ParentChildBond;
+import com.cookieukw.SimTale.core.MerchantVisitorComponent;
 import com.cookieukw.SimTale.systems.ChildCarryHelper;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
@@ -598,6 +599,12 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
 
         boolean isMarried = rel.status == RelationshipStatus.MARRIED;
         commandBuilder.set("#InventoryButton.Visible", isMarried);
+        boolean isMerchant = npc.entityRef != null
+                && store.getComponent(npc.entityRef, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE) != null;
+        commandBuilder.set("#TradeButton.Visible", isMerchant);
+        if (isMerchant) {
+            commandBuilder.set("#TradeButtonText.TextSpans", Message.raw("Trade"));
+        }
 
         /* Kiss is a deeper gesture than Flirt: only offered once the relationship already reads
         as a real couple, same bar isRomantic() elsewhere uses for PARTNER/ENGAGED/MARRIED.
@@ -616,7 +623,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         commandBuilder.setObject("#AssignProfessionButton.Anchor", professionAnchor);
         boolean isPregnant = !isChild && npc.pregnancy != null && npc.pregnancy.pregnant;
         commandBuilder.set("#ButtonRow3.Visible", !isChild);
-        commandBuilder.set("#ButtonRow4.Visible", isMarried || isPregnant);
+        commandBuilder.set("#ButtonRow4.Visible", isMarried || isPregnant || isMerchant);
 
         boolean showInventory = isMarried;
         boolean showPregnancy = isPregnant;
@@ -667,6 +674,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#AssignProfessionButton", new EventData().append("button", "AssignProfessionButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#PregnancyButton", new EventData().append("button", "PregnancyButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#InventoryButton", new EventData().append("button", "InventoryButton"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#TradeButton", new EventData().append("button", "TradeButton"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#FollowButton", new EventData().append("button", "FollowButton"), false);
     }
 
@@ -765,6 +773,9 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             ChildCarryHelper.pickUp(store, storeRef, playerRefComp, npc);
         } else if (eventData.contains("InventoryButton")) {
             openNpcInventory(storeRef, store);
+        } else if (eventData.contains("TradeButton")) {
+            player.getPageManager().openCustomPage(storeRef, store,
+                    new MerchantTradePage(playerRefComp, npc.entityRef));
         } else if (eventData.contains("FollowButton")) {
             if (npc.entityRef == null || !npc.entityRef.isValid()) {
                 playerRefComp.sendMessage(Message.translation("general.npc.invalid"));
