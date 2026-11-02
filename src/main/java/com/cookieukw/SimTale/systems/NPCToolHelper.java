@@ -32,7 +32,7 @@ public final class NPCToolHelper {
             case EXPLORER -> "Tool_Map";
             case HUNTER -> "Weapon_Shortbow_Copper";
             // Guards already get the exact weapon that promoted them, via NPCGuardHelper.
-            case GUARD, UNEMPLOYED -> null;
+            case GUARD, MERCHANT, UNEMPLOYED -> null;
         };
     }
 

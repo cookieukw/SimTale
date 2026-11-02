@@ -14,6 +14,7 @@ import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.providers.GeminiProvider;
 import com.cookieukw.SimTale.ai.providers.OpenAIProvider;
 import com.cookieukw.SimTale.core.ConstructionSiteComponent;
+import com.cookieukw.SimTale.core.MerchantVisitorComponent;
 import com.cookieukw.SimTale.core.NeedsHelper;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
@@ -33,6 +34,7 @@ import com.cookieukw.SimTale.systems.VillageRegenSystem;
 import com.cookieukw.SimTale.systems.EmoteBubbleSystem;
 import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.cookieukw.SimTale.systems.PregnancyTickSystem;
+import com.cookieukw.SimTale.systems.MerchantVisitorSystem;
 import com.cookieukw.SimTale.systems.RoutineAISystem;
 import com.cookieukw.SimTale.systems.SimTaleChatHandler;
 import com.cookieukw.SimTale.systems.SimTaleEventHandler;
@@ -90,6 +92,7 @@ public class SimTale extends JavaPlugin {
     public static ComponentType<EntityStore, ConstructionSiteComponent> CONSTRUCTION_COMPONENT_TYPE;
     public static ComponentType<EntityStore, SimPlayerComponent> SIM_PLAYER_COMPONENT_TYPE;
     public static ComponentType<EntityStore, CalhambequeComponent> CALHAMBEQUE_COMPONENT_TYPE;
+    public static ComponentType<EntityStore, MerchantVisitorComponent> MERCHANT_VISITOR_COMPONENT_TYPE;
     private PacketFilter carDismountWatcher;
     /**
      * Iteration view of the tracked NPCs. Mutate it only through {@link #trackNpc},
@@ -237,6 +240,8 @@ public class SimTale extends JavaPlugin {
                 SimPlayerComponent::new);
         CALHAMBEQUE_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(CalhambequeComponent.class,
                 "simtale:calhambeque", CalhambequeComponent.CODEC);
+        MERCHANT_VISITOR_COMPONENT_TYPE = this.getEntityStoreRegistry().registerComponent(
+                MerchantVisitorComponent.class, MerchantVisitorComponent::new);
 
         // Register tick systems
         this.getEntityStoreRegistry().registerSystem(new SimTaleTickSystem());
@@ -256,6 +261,7 @@ public class SimTale extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new BabyCareTickSystem());
         this.getEntityStoreRegistry().registerSystem(new GrowthTickSystem());
         this.getEntityStoreRegistry().registerSystem(new BabyBabbleSystem());
+        this.getEntityStoreRegistry().registerSystem(new MerchantVisitorSystem());
         /* Crouch + use a block to put a carried child down. An EntityEventSystem rather than an
         event-registry listener because UseBlockEvent is an EcsEvent — see the class doc for why
         the PlayerMouseButtonEvent version had to be abandoned.
@@ -329,6 +335,7 @@ public class SimTale extends JavaPlugin {
 
         this.getCommandRegistry()
                 .registerCommand(new SimTaleCommand());
+        this.getCommandRegistry().registerCommand(new MerchantCommand());
         this.getCommandRegistry().registerCommand(new BuildCommand());
         this.getCommandRegistry().registerCommand(new SimDebugCommand());
 

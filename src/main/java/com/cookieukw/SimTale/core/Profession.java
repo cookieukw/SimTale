@@ -52,7 +52,8 @@ public enum Profession {
         boolean matches(String normalizedItemId) {
             return normalizedItemId.contains("weaponshortbow") || normalizedItemId.contains("weaponcrossbow");
         }
-    };
+    },
+    MERCHANT("Mercador", EnumSet.noneOf(JobType.class), "", true);
 
     /**
      * Professions are checked against a held item in this order, independent of the declaration
