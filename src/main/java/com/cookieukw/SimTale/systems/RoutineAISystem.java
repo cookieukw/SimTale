@@ -579,7 +579,11 @@ once per NPC per tick for nothing.
 
         if (RoutineSleepHelpers.handleWaking(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
-        /* Chest Interaction & Feeding Logic (Delegado ao NPCHungerHelper) 
+        /* Ordinary residents can defend themselves against nearby hostiles, but use the weaker
+        * civilian combat path instead of the guard alarm/buffs. */
+        if (NPCGuardHelper.handleCivilianDefense(ref, npc, ai, transform, world, store, commandBuffer)) return;
+
+        /* Chest Interaction & Feeding Logic (Delegado ao NPCHungerHelper)
         */
         NPCHungerHelper.tickStarvation(ref, npc, world, store);
         NPCHungerHelper.handleHungerLogic(ref, npc, ai, transform, world, store);
