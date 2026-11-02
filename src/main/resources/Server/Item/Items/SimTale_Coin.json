@@ -1,0 +1,13 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.simtale_coin.name",
+    "Description": "general.item.simtale_coin.description"
+  },
+  "Icon": "Icons/Items/SimTale_Coin.png",
+  "Quality": "Uncommon",
+  "Categories": ["Items.Ingredients"],
+  "Tags": {"Type": ["Ingredient"]},
+  "PlayerAnimationsId": "Item",
+  "Scale": 0.75,
+  "MaxStack": 999
+}
