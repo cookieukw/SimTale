@@ -1,9 +1,11 @@
 package com.cookieukw.SimTale;
 
 import com.cookieukw.SimTale.core.MerchantVisitorComponent;
+import com.cookieukw.SimTale.core.MerchantStock;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
+import com.cookieukw.SimTale.core.TradingCatalog;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -16,7 +18,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 /** Development command for spawning a travelling merchant while the shop UI is built. */
 public final class MerchantCommand extends AbstractPlayerCommand {
@@ -38,9 +39,14 @@ public final class MerchantCommand extends AbstractPlayerCommand {
         merchant.profession = Profession.MERCHANT;
         merchant.name = "Viajante " + merchant.name;
         SimNPCFactory.refreshNameplate(store, merchantRef, merchant.name);
+        TradingCatalog catalog = new TradingCatalog(java.util.List.of(
+                TradingCatalog.item("Food_Bread", 3, 12, 4, 2),
+                TradingCatalog.item("Plant_Seeds_Carrot", 4, 16, 3, 1),
+                TradingCatalog.item("Ingredient_Iron_Bar", 1, 4, 12, 6)));
+        long seed = world.getTick() ^ merchant.entityId.getMostSignificantBits();
+        MerchantStock stock = catalog.roll(seed);
         store.putComponent(merchantRef, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE,
-                new MerchantVisitorComponent(world.getTick() + 20L * 60L * 10L,
-                        List.of("Food_Bread", "Plant_Seeds_Carrot", "Ingredient_Iron_Bar")));
+                new MerchantVisitorComponent(world.getTick() + 20L * 60L * 10L, stock));
         playerRef.sendMessage(Message.raw("Merchant spawned: " + merchant.name));
     }
 }
