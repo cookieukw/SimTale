@@ -5,20 +5,27 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 /** Marks a temporary travelling merchant and stores the visit's rolled stock. */
 public final class MerchantVisitorComponent implements Component<EntityStore> {
+    public String visitId;
+    public long seed;
+    public String merchantName;
     public long departureTick;
     public MerchantStock stock;
 
     public MerchantVisitorComponent() {
     }
 
-    public MerchantVisitorComponent(long departureTick, MerchantStock stock) {
+    public MerchantVisitorComponent(String visitId, long seed, String merchantName,
+                                    long departureTick, MerchantStock stock) {
+        this.visitId = visitId;
+        this.seed = seed;
+        this.merchantName = merchantName;
         this.departureTick = departureTick;
         this.stock = stock;
     }
 
     @Override
     public MerchantVisitorComponent clone() {
-        return new MerchantVisitorComponent(departureTick,
+        return new MerchantVisitorComponent(visitId, seed, merchantName, departureTick,
                 stock == null ? null : new MerchantStock(stock.offers().stream()
                         .map(offer -> new MerchantStock.Offer(offer.itemId(), offer.quantity(),
                                 offer.buyPrice(), offer.sellPrice())).toList()));

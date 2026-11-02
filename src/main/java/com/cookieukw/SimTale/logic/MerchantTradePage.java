@@ -2,7 +2,10 @@ package com.cookieukw.SimTale.logic;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.MerchantStock;
+import com.cookieukw.SimTale.core.TradeResult;
 import com.cookieukw.SimTale.core.MerchantVisitorComponent;
+import com.cookieukw.SimTale.db.MerchantVisitData;
+import com.cookieukw.SimTale.db.MerchantVisitPersistence;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -88,9 +91,19 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
             this.playerRef.sendMessage(Message.raw("Your inventory is full."));
             return;
         }
-        if (!remove(inventory, "SimTale_Coin", (int) offer.buyPrice())) return;
-        visitor.stock.buy(offer.itemId(), 1, offer.buyPrice());
+        TradeResult trade = visitor.stock.buy(offer.itemId(), 1, offer.buyPrice());
+        if (!trade.accepted()) {
+            this.playerRef.sendMessage(Message.raw("That item is no longer available."));
+            return;
+        }
+        if (!remove(inventory, "SimTale_Coin", (int) offer.buyPrice())) {
+            visitor.stock.restore(offer.itemId(), 1);
+            return;
+        }
         inventory.addItemStack(item);
+        MerchantVisitPersistence.save(store.getExternalData().getWorld(), visitor.visitId,
+                MerchantVisitData.of(visitor.seed, visitor.merchantName, store.getExternalData().getWorld(),
+                        visitor.departureTick, visitor.stock));
         this.playerRef.sendMessage(Message.raw("Bought " + offer.itemId() + "."));
         this.rebuild();
     }

@@ -46,6 +46,12 @@ public final class MerchantStock {
         return TradeResult.accepted(itemId, quantity, total);
     }
 
+    /** Restores stock after a failed external inventory transaction. */
+    public synchronized void restore(String itemId, int quantity) {
+        Offer offer = offers.get(itemId);
+        if (offer != null && quantity > 0) offer.quantity = Math.addExact(offer.quantity, quantity);
+    }
+
     public static final class Offer {
         private final String itemId;
         private int quantity;

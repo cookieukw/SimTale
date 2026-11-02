@@ -6,6 +6,8 @@ import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.TradingCatalog;
+import com.cookieukw.SimTale.db.MerchantVisitData;
+import com.cookieukw.SimTale.db.MerchantVisitPersistence;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -45,8 +47,13 @@ public final class MerchantCommand extends AbstractPlayerCommand {
                 TradingCatalog.item("Ingredient_Iron_Bar", 1, 4, 12, 6)));
         long seed = world.getTick() ^ merchant.entityId.getMostSignificantBits();
         MerchantStock stock = catalog.roll(seed);
-        store.putComponent(merchantRef, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE,
-                new MerchantVisitorComponent(world.getTick() + 20L * 60L * 10L, stock));
+        long departureTick = world.getTick() + 20L * 60L * 10L;
+        String visitId = merchant.entityId.toString();
+        MerchantVisitorComponent visitor = new MerchantVisitorComponent(visitId, seed, merchant.name,
+                departureTick, stock);
+        store.putComponent(merchantRef, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE, visitor);
+        MerchantVisitPersistence.save(world, visitId,
+                MerchantVisitData.of(seed, merchant.name, world, departureTick, stock));
         playerRef.sendMessage(Message.raw("Merchant spawned: " + merchant.name));
     }
 }
