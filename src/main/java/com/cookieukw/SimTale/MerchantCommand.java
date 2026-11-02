@@ -53,7 +53,7 @@ public final class MerchantCommand extends AbstractPlayerCommand {
                 TradingCatalog.item("Ingredient_Iron_Bar", 1, 4, 12, 6)));
         long seed = world.getTick() ^ merchant.entityId.getMostSignificantBits();
         MerchantStock stock = catalog.roll(seed);
-        long departureTick = world.getTick() + 20L * 60L * 10L;
+        long departureTick = world.getTick() + 20L * 60L * 30L;
         String visitId = merchant.entityId.toString();
         MerchantVisitorComponent visitor = new MerchantVisitorComponent(visitId, seed, merchant.name,
                 departureTick, stock);
