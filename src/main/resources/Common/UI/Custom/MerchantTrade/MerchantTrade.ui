@@ -42,7 +42,7 @@ $T = "../SimTaleTheme.ui";
   Button #BtnBuy {
     Anchor: (Width: 112, Height: 38, Top: 10);
     Style: $T.@BtnSecondary;
-    Label { Text: "BUY"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
+    Label #BuyLabel { Text: "BUY"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
   }
 };
 
@@ -120,7 +120,7 @@ Group {
       Button #BtnClose {
         Anchor: (Width: 142, Height: 42);
         Style: $T.@BtnNeutral;
-        Label { Text: "CLOSE"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
+        Label #CloseLabel { Text: "CLOSE"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
       }
     }
   }

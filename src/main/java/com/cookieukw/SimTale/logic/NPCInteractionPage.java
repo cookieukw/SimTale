@@ -603,7 +603,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
                 && store.getComponent(npc.entityRef, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE) != null;
         commandBuilder.set("#TradeButton.Visible", isMerchant);
         if (isMerchant) {
-            commandBuilder.set("#TradeButtonText.TextSpans", Message.raw("Trade"));
+            commandBuilder.set("#TradeButtonText.TextSpans", Message.translation("ui.button.trade"));
         }
 
         /* Kiss is a deeper gesture than Flirt: only offered once the relationship already reads
