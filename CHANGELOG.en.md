@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.3.2] — Unreleased
+## [1.4.0] — Unreleased
 
 This section records the improvements made after the 1.3.1 release.
 
@@ -90,7 +90,15 @@ This section records the improvements made after the 1.3.1 release.
   five male and five female appearances generated from existing resident faces.
 - Each visit rolls a fixed stock from its seed, so prices and quantities stay stable while the
   merchant is present and after a reload.
-- Added `SimTale_Coin`, the merchant currency used by the trade screen.
+- Added `SimTale_Coin` (copper), `SimTale_Coin_Thorium` and `SimTale_Coin_Gold`, with 3D models
+  and icons. One hundred copper coins equal one thorium coin; one hundred thorium coins equal one
+  gold coin.
+- Bar conversion recipes: one copper bar becomes 100 copper coins, one thorium bar becomes 100
+  thorium coins, and one gold bar becomes 100 gold coins. The exchange recipes turn 100 copper
+  into one thorium and 100 thorium into one gold.
+- Added the Piggy Bank item and its deposit screen. Coins deposited there are used automatically
+  by the merchant when the inventory does not carry enough, and sale proceeds overflow into
+  savings when the inventory is full.
 - Added Buy and Sell actions. Selling returns goods to the merchant's stock and pays the player
   in coins.
 - Visits, remaining stock and the merchant's identity are persisted with Caskara, so a restart

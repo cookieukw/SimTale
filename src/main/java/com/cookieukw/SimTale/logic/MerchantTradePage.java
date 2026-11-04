@@ -1,11 +1,13 @@
 package com.cookieukw.SimTale.logic;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.core.Currency;
 import com.cookieukw.SimTale.core.MerchantStock;
 import com.cookieukw.SimTale.core.TradeResult;
 import com.cookieukw.SimTale.core.MerchantVisitorComponent;
 import com.cookieukw.SimTale.db.MerchantVisitData;
 import com.cookieukw.SimTale.db.MerchantVisitPersistence;
+import com.cookieukw.SimTale.db.PiggyBankPersistence;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -21,6 +23,7 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import javax.annotation.Nonnull;
@@ -60,9 +63,13 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
                 .insert(Message.translation("ui.merchant.specialty." + specialtyKey)));
         CombinedItemContainer wallet = InventoryComponent.getCombined(store, playerRef,
                 InventoryComponent.HOTBAR_FIRST);
-        long balance = wallet == null ? 0L : count(wallet, "SimTale_Coin");
+        long walletValue = Currency.inventoryValue(wallet);
+        long piggyBalance = PiggyBankService.balance(store.getExternalData().getWorld(),
+                this.playerRef.getUuid());
         cmd.set("#Balance.TextSpans",
-                Message.translation("ui.merchant.balance").param("coins", Long.toString(balance)));
+                Message.translation("ui.merchant.balance")
+                        .param("coins", Long.toString(walletValue))
+                        .param("bank", Long.toString(piggyBalance)));
         cmd.set("#Status.TextSpans", Message.translation("ui.merchant.status.idle"));
         // The mockup ships five rows; hide the ones this visit did not roll so no placeholder text
         // in English ("Item name", "12 coins") leaks into an otherwise localized screen.
@@ -121,8 +128,11 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
             this.playerRef.sendMessage(Message.translation("ui.merchant.status.invalid_price"));
             return;
         }
-        long coins = count(inventory, "SimTale_Coin");
-        if (coins < offer.buyPrice()) {
+        World world = store.getExternalData().getWorld();
+        long walletValue = Currency.inventoryValue(inventory);
+        long piggyBalance = PiggyBankService.balance(world, this.playerRef.getUuid());
+        long totalFunds = walletValue + piggyBalance;
+        if (totalFunds < offer.buyPrice()) {
             this.playerRef.sendMessage(Message.translation("ui.merchant.status.no_coins"));
             return;
         }
@@ -131,13 +141,22 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
             this.playerRef.sendMessage(Message.translation("ui.merchant.status.inventory_full"));
             return;
         }
-        TradeResult trade = visitor.stock.buy(offer.itemId(), 1, coins);
+        TradeResult trade = visitor.stock.buy(offer.itemId(), 1, totalFunds);
         if (!trade.accepted()) {
             this.playerRef.sendMessage(Message.translation("ui.merchant.status.sold_out"));
             return;
         }
-        if (!remove(inventory, "SimTale_Coin", (int) trade.amount())) {
+        if (!PiggyBankService.pay(inventory, world, this.playerRef.getUuid(), trade.amount())) {
             visitor.stock.restore(offer.itemId(), 1);
+            this.playerRef.sendMessage(Message.translation("ui.merchant.status.no_coins"));
+            return;
+        }
+        if (!inventory.canAddItemStack(item)) {
+            /* Paying re-denominates the wallet and can fill the last free slot with change. Refund
+            the purchase to savings instead of deleting the item or the money. */
+            PiggyBankPersistence.add(world, this.playerRef.getUuid(), trade.amount());
+            visitor.stock.restore(offer.itemId(), 1);
+            this.playerRef.sendMessage(Message.translation("ui.merchant.status.inventory_full"));
             return;
         }
         inventory.addItemStack(item);
@@ -160,11 +179,6 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
                     .param("item", itemName(offer.itemId())));
             return;
         }
-        ItemStack coins = new ItemStack("SimTale_Coin", (int) offer.sellPrice());
-        if (!inventory.canAddItemStack(coins)) {
-            this.playerRef.sendMessage(Message.translation("ui.merchant.status.inventory_full"));
-            return;
-        }
         TradeResult trade = visitor.stock.sell(offer.itemId(), 1);
         if (!trade.accepted()) {
             this.playerRef.sendMessage(Message.translation("ui.merchant.status.trade_failed"));
@@ -174,7 +188,8 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
             visitor.stock.restore(offer.itemId(), 1);
             return;
         }
-        inventory.addItemStack(coins);
+        World world = store.getExternalData().getWorld();
+        PiggyBankService.credit(inventory, world, this.playerRef.getUuid(), trade.amount());
         MerchantVisitPersistence.save(store.getExternalData().getWorld(), visitor.visitId,
                 MerchantVisitData.of(visitor, store.getExternalData().getWorld()));
         this.playerRef.sendMessage(Message.translation("ui.merchant.status.sold")

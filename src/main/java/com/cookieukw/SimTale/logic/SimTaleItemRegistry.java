@@ -212,6 +212,9 @@ public class SimTaleItemRegistry {
         RuneCoreItemManager.register("QuartermastersGlass", (player, playerRef) ->
                 openPage(player, playerRef, (_, _) ->
                         new SimChestDebugPage(playerRef, player, 0, true)));
+
+        RuneCoreItemManager.register("SimTale_PiggyBank", (player, playerRef) ->
+                openPage(player, playerRef, (_, _) -> new PiggyBankPage(playerRef, player)));
         
         RuneCoreItemManager.register("BirthdayCake", (_, playerRef) -> {
             Ref<EntityStore> pRef = playerRef.getReference();
