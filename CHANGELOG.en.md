@@ -99,6 +99,8 @@ This section records the improvements made after the 1.3.1 release.
 - Added the Piggy Bank item and its deposit screen. Coins deposited there are used automatically
   by the merchant when the inventory does not carry enough, and sale proceeds overflow into
   savings when the inventory is full.
+- The trade screen shows the real item icon for every offer, uses ItemSlot quality backgrounds,
+  and now lists five stock entries per specialty instead of three.
 - Added Buy and Sell actions. Selling returns goods to the merchant's stock and pays the player
   in coins.
 - Interacting with a merchant opens the trade counter directly, with no resident sheet, needs
@@ -107,6 +109,8 @@ This section records the improvements made after the 1.3.1 release.
   hoe, bow or another profession tool.
 - Opening and closing the trade counter clears the movement animation slot and releases the
   merchant cleanly, so arriving and leaving use the normal walk animation.
+- Closing the counter explicitly releases the merchant pose too, so selling and then leaving the
+  shop no longer leaves the walk clip pinned in idle.
 - Visits, remaining stock and the merchant's identity are persisted with Caskara, so a restart
   does not duplicate the merchant or reset what was already sold.
 - The trade screen is localized in English, Portuguese and Spanish.

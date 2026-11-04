@@ -40,6 +40,7 @@ import javax.annotation.Nonnull;
 public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
     private final PlayerRef playerRef;
     private final Ref<EntityStore> merchantRef;
+    private boolean merchantPrepared;
 
     public MerchantTradePage(@Nonnull PlayerRef playerRef, @Nonnull Ref<EntityStore> merchantRef) {
         super(playerRef, CustomPageLifetime.CanDismiss,
@@ -92,6 +93,8 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
             }
             MerchantStock.Offer offer = offers.get(row);
             cmd.set(selector + ".Visible", true);
+            cmd.set(selector + " #ItemSlot.ItemId", offer.itemId());
+            cmd.set(selector + " #ItemSlot.Quantity", offer.quantity());
             cmd.set(selector + " #ItemName.TextSpans", itemName(offer.itemId()));
             cmd.set(selector + " #ItemMeta.TextSpans",
                     Message.translation("ui.merchant.meta")
@@ -114,6 +117,7 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
     public void handleDataEvent(@Nonnull Ref<EntityStore> playerRef, @Nonnull Store<EntityStore> store,
                                 @Nonnull String data) {
         if (data.contains("Close")) {
+            releaseMerchant(store);
             playerRef.getStore().getComponent(playerRef, com.hypixel.hytale.server.core.entity.entities.Player.getComponentType())
                     .getPageManager().setPage(playerRef, store, Page.None);
             return;
@@ -212,9 +216,10 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
      * the walk and clears every animation slot that could otherwise override locomotion later.
      */
     private void prepareMerchant(Store<EntityStore> store, Ref<EntityStore> playerEntityRef) {
-        if (merchantRef == null || !merchantRef.isValid()) return;
+        if (merchantPrepared || merchantRef == null || !merchantRef.isValid()) return;
         SimNPCComponent npc = store.getComponent(merchantRef, SimTale.SIM_NPC_COMPONENT_TYPE);
         if (npc == null) return;
+        merchantPrepared = true;
 
         npc.isInteractingViaUI = true;
         npc.uiInteractionPlayer = this.playerRef.getUuid();
@@ -249,17 +254,21 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
 
     @Override
     public void onDismiss(@Nonnull Ref<EntityStore> playerEntityRef, @Nonnull Store<EntityStore> store) {
-        if (merchantRef != null && merchantRef.isValid()) {
-            SimNPCComponent npc = store.getComponent(merchantRef, SimTale.SIM_NPC_COMPONENT_TYPE);
-            if (npc != null) {
-                npc.isInteractingViaUI = false;
-                npc.uiInteractionPlayer = null;
-            }
-            NpcFreezeUtil.unfreeze(store, merchantRef);
-            // The counter itself never plays a movement clip; the role's controller owns it again.
-            NPCMovementHelper.clearAnimationSlot(merchantRef, AnimationSlot.Movement, store);
-        }
+        releaseMerchant(store);
         super.onDismiss(playerEntityRef, store);
+    }
+
+    /** Releases the counter pose whether the page was closed by button, Escape or a page swap. */
+    private void releaseMerchant(Store<EntityStore> store) {
+        if (merchantRef == null || !merchantRef.isValid()) return;
+        SimNPCComponent npc = store.getComponent(merchantRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+        if (npc != null) {
+            npc.isInteractingViaUI = false;
+            npc.uiInteractionPlayer = null;
+        }
+        NpcFreezeUtil.unfreeze(store, merchantRef);
+        // The counter itself never plays a movement clip; the role's controller owns it again.
+        NPCMovementHelper.clearAnimationSlot(merchantRef, AnimationSlot.Movement, store);
     }
 
     private static long count(CombinedItemContainer inventory, String id) {

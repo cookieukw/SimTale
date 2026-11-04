@@ -12,9 +12,11 @@ $T = "../SimTaleTheme.ui";
   Background: $T.@InsetSurface;
   Padding: (Horizontal: 14, Vertical: 9);
 
-  Group #ItemIcon {
+  ItemSlot #ItemSlot {
     Anchor: (Width: 54, Height: 54, Right: 14);
-    Background: $T.@IconEmptyChest;
+    ShowQualityBackground: true;
+    ShowQuantity: false;
+    ShowDurabilityBar: false;
   }
 
   Group {
