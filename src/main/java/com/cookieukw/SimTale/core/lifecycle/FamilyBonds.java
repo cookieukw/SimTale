@@ -217,7 +217,9 @@ public final class FamilyBonds {
             return parentNpc.bedLocation;
         }
 
-        World world = parentNpc.entityRef != null ? WorldUtil.fromEntityRef(parentNpc.entityRef) : null;
+        World world = parentNpc != null && parentNpc.entityRef != null
+                ? WorldUtil.fromEntityRef(parentNpc.entityRef)
+                : null;
         UUID houseId = HouseManager.indexes(world).ownerToHouseId.get(parentId);
         if (houseId != null) {
             HouseData house = HouseManager.indexes(world).housesById.get(houseId);
