@@ -12,6 +12,7 @@ import com.hypixel.hytale.protocol.MovementStates;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
+import com.hypixel.hytale.server.core.modules.entity.component.ActiveAnimationComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -138,6 +139,27 @@ public class NPCMovementHelper {
             StateSupport stateSupport = StateSupport.get(npcRef, npcRef.getStore());
             stateSupport.setState(npcRef, "Idle", null, npcRef.getStore());
         }
+    }
+
+    /**
+     * Removes whatever clip is pinned in an animation slot.
+     *
+     * <p>{@code AnimationUtils.stopAnimation} stops playback but leaves the slot's entry in
+     * {@link ActiveAnimationComponent}. For the Movement slot that is the difference between a
+     * walking NPC and one whose legs are frozen while the pathfinder drags the body: the client
+     * keeps playing the last slot entry until the entry itself is cleared (see
+     * {@code NPCInteractionPage.releaseMovementAnimation}). The same applies to a Status clip
+     * such as Sleep, which is why follow also clears Status instead of replacing it with a new
+     * Idle clip.
+     */
+    public static void clearAnimationSlot(Ref<EntityStore> ref, AnimationSlot slot,
+                                          Store<EntityStore> store) {
+        ActiveAnimationComponent animComp =
+                store.getComponent(ref, ActiveAnimationComponent.getComponentType());
+        if (animComp != null) {
+            animComp.getActiveAnimations()[slot.ordinal()] = null;
+        }
+        AnimationUtils.playAnimation(ref, slot, null, store);
     }
 
     /**

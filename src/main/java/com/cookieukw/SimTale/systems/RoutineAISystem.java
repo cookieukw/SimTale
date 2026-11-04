@@ -11,7 +11,6 @@ import com.cookieukw.SimTale.config.SimTaleConfig;
 import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
-import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -1251,9 +1250,13 @@ once per NPC per tick for nothing.
         NPCMovementHelper.setSleepingState(npcRef, store, false);
         store.tryRemoveComponent(npcRef, MountedComponent.getComponentType());
         store.tryRemoveComponent(npcRef, Frozen.getComponentType());
-        AnimationUtils.stopAnimation(npcRef, AnimationSlot.Status, true, store);
-        NPCMovementHelper.playAnim(npcRef, AnimationSlot.Status,
-                "Characters/Animations/Default/Idle.blockyanim", "Idle", store);
+        /* Poses from dialogue, sleep, chairs and work animations live in slots that override
+        locomotion. StopAnimation alone leaves the slot entry behind, so clear the entries
+        explicitly -- otherwise the follower keeps the Idle/Sleep clip and slides while walking.
+        */
+        NPCMovementHelper.clearAnimationSlot(npcRef, AnimationSlot.Status, store);
+        NPCMovementHelper.clearAnimationSlot(npcRef, AnimationSlot.Movement, store);
+        NPCMovementHelper.clearAnimationSlot(npcRef, AnimationSlot.Action, store);
         npc.isInteractingViaUI = false;
         npc.uiInteractionPlayer = null;
         npc.currentConversationPartner = null;
