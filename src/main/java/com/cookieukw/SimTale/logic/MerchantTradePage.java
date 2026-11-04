@@ -1,16 +1,22 @@
 package com.cookieukw.SimTale.logic;
 
 import com.cookieukw.SimTale.SimTale;
+import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.core.Currency;
 import com.cookieukw.SimTale.core.MerchantStock;
+import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.NpcFreezeUtil;
 import com.cookieukw.SimTale.core.TradeResult;
 import com.cookieukw.SimTale.core.MerchantVisitorComponent;
 import com.cookieukw.SimTale.db.MerchantVisitData;
 import com.cookieukw.SimTale.db.MerchantVisitPersistence;
 import com.cookieukw.SimTale.db.PiggyBankPersistence;
+import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
@@ -19,12 +25,14 @@ import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCu
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import org.joml.Vector3d;
 
 import javax.annotation.Nonnull;
 
@@ -51,6 +59,7 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
             cmd.set("#Status.TextSpans", Message.translation("ui.merchant.status.unavailable"));
             return;
         }
+        prepareMerchant(store, playerRef);
         if (visitor.merchantName != null && !visitor.merchantName.isBlank()) {
             cmd.set("#Title.TextSpans",
                     Message.translation("ui.merchant.title").param("name", visitor.merchantName));
@@ -196,6 +205,61 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
                 .param("item", itemName(offer.itemId()))
                 .param("price", Long.toString(trade.amount())));
         this.rebuild();
+    }
+
+    /**
+     * Pins the merchant to the counter while the trade screen is open: faces the player, cancels
+     * the walk and clears every animation slot that could otherwise override locomotion later.
+     */
+    private void prepareMerchant(Store<EntityStore> store, Ref<EntityStore> playerEntityRef) {
+        if (merchantRef == null || !merchantRef.isValid()) return;
+        SimNPCComponent npc = store.getComponent(merchantRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+        if (npc == null) return;
+
+        npc.isInteractingViaUI = true;
+        npc.uiInteractionPlayer = this.playerRef.getUuid();
+
+        TransformComponent playerTransform = store.getComponent(playerEntityRef,
+                TransformComponent.getComponentType());
+        TransformComponent merchantTransform = store.getComponent(merchantRef,
+                TransformComponent.getComponentType());
+        if (playerTransform != null && merchantTransform != null) {
+            Vector3d playerPos = playerTransform.getPosition();
+            Vector3d merchantPos = merchantTransform.getPosition();
+            double dx = playerPos.x - merchantPos.x;
+            double dz = playerPos.z - merchantPos.z;
+            // Same -Z forward convention as the resident interaction page.
+            merchantTransform.teleportRotation(new Rotation3f(0f, (float) Math.atan2(-dx, -dz), 0f));
+        }
+
+        RoutineAIComponent ai = store.getComponent(merchantRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+        if (ai != null) {
+            NPCMovementHelper.clearMoveTarget(merchantRef, ai);
+            ai.currentTask = RoutineAIComponent.TaskType.IDLE;
+            ai.targetBlockPosition = null;
+            ai.socializeTargetId = null;
+            ai.socializeHost = false;
+            ai.wanderTimer = 0;
+        }
+        NPCMovementHelper.clearAnimationSlot(merchantRef, AnimationSlot.Movement, store);
+        NPCMovementHelper.clearAnimationSlot(merchantRef, AnimationSlot.Status, store);
+        NPCMovementHelper.clearAnimationSlot(merchantRef, AnimationSlot.Action, store);
+        NpcFreezeUtil.freeze(store, merchantRef);
+    }
+
+    @Override
+    public void onDismiss(@Nonnull Ref<EntityStore> playerEntityRef, @Nonnull Store<EntityStore> store) {
+        if (merchantRef != null && merchantRef.isValid()) {
+            SimNPCComponent npc = store.getComponent(merchantRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+            if (npc != null) {
+                npc.isInteractingViaUI = false;
+                npc.uiInteractionPlayer = null;
+            }
+            NpcFreezeUtil.unfreeze(store, merchantRef);
+            // The counter itself never plays a movement clip; the role's controller owns it again.
+            NPCMovementHelper.clearAnimationSlot(merchantRef, AnimationSlot.Movement, store);
+        }
+        super.onDismiss(playerEntityRef, store);
     }
 
     private static long count(CombinedItemContainer inventory, String id) {

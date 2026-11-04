@@ -13,6 +13,7 @@ import com.cookieukw.SimTale.systems.FarmlandRegistry;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.logic.MerchantInteractionHelper;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -133,6 +134,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new CarSpeedSubCommand());
         this.addSubCommand(new CarSeatSubCommand());
         this.addSubCommand(new CatSubCommand());
+        this.addSubCommand(new MerchantCommand());
     }
 
     @Override
@@ -504,7 +506,9 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 ctx.sendMessage(Message.raw("Player component unavailable."));
                 return;
             }
-            player.getPageManager().openCustomPage(ref, store, new NPCInteractionPage(playerRef, player, nearestNPC));
+            if (!MerchantInteractionHelper.openIfMerchant(player, playerRef, ref, nearestNPC, store)) {
+                player.getPageManager().openCustomPage(ref, store, new NPCInteractionPage(playerRef, player, nearestNPC));
+            }
             ctx.sendMessage(Message.translation("general.cmd.interact.success").param("name", nearestNPC.name));
         }
     }

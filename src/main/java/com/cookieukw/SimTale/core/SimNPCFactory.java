@@ -226,6 +226,16 @@ public class SimNPCFactory {
             SimNPCPersistence.loadNPC(simComponent);
         }
 
+        /* Merchants are spawned through the same factory as residents, whose default constructor
+        rolls a random profession. That roll used to happen before MerchantCommand assigned
+        Profession.MERCHANT, so ensureToolEquipped() below could put a pickaxe, hoe or bow in the
+        merchant's hand (and GuardStatsHelper could buff him). Pin the profession before either
+        helper runs so a merchant never carries a profession tool.
+        */
+        if (type == NPCType.MERCHANT_MALE || type == NPCType.MERCHANT_FEMALE) {
+            simComponent.profession = Profession.MERCHANT;
+        }
+
         accessor.addComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE, simComponent);
 
         /* NPCPlugin.spawnNPC attaches a Storage component backed by EmptyItemContainer

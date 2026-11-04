@@ -337,7 +337,6 @@ public class SimTale extends JavaPlugin {
 
         this.getCommandRegistry()
                 .registerCommand(new SimTaleCommand());
-        this.getCommandRegistry().registerCommand(new MerchantCommand());
         this.getCommandRegistry().registerCommand(new BuildCommand());
         this.getCommandRegistry().registerCommand(new SimDebugCommand());
 
