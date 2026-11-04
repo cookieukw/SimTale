@@ -33,6 +33,7 @@ public final class MerchantArrivalSystem extends TickingSystem<EntityStore> {
 
         if (SimTale.ACTIVE_NPCS.stream().anyMatch(npc -> npc.entityRef != null
                 && npc.entityRef.isValid()
+                && npc.entityRef.getStore() == store
                 && store.getComponent(npc.entityRef, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE) != null)) return;
         if (SimTale.ACTIVE_NPCS.size() < 3 || ThreadLocalRandom.current().nextDouble() > 0.25) return;
 
@@ -44,22 +45,34 @@ public final class MerchantArrivalSystem extends TickingSystem<EntityStore> {
         Village village = VillageManager.nearest(world, playerPos.x, playerPos.z);
         if (village == null) return;
 
-        org.joml.Vector3d arrival = findDistantVillagePoint(world, village, playerPos);
+        org.joml.Vector3d arrival = findDistantVillagePoint(store, village, playerPos);
         if (arrival == null) return;
         world.execute(() -> MerchantCommand.spawnMerchant(store, world, arrival));
     }
 
-    private static org.joml.Vector3d findDistantVillagePoint(World world, Village village,
-                                                               org.joml.Vector3d playerPos) {
-        double radius = Math.max(10.0, village.radius() - 5.0);
-        for (int attempt = 0; attempt < 12; attempt++) {
-            double angle = ThreadLocalRandom.current().nextDouble(0, Math.PI * 2.0);
-            double x = village.centerX() + Math.cos(angle) * radius;
-            double z = village.centerZ() + Math.sin(angle) * radius;
-            double dx = x - playerPos.x;
-            double dz = z - playerPos.z;
-            if (dx * dx + dz * dz < 20.0 * 20.0) continue;
-            return new org.joml.Vector3d(x, playerPos.y, z);
+    /** Prefers ground a villager already stands on, so the merchant never arrives inside a hill. */
+    private static org.joml.Vector3d findDistantVillagePoint(Store<EntityStore> store, Village village,
+                                                              org.joml.Vector3d playerPos) {
+        java.util.List<org.joml.Vector3d> candidates = new java.util.ArrayList<>();
+        double villageLimit = (village.radius() + 16.0) * (village.radius() + 16.0);
+        for (SimNPCComponent npc : SimTale.ACTIVE_NPCS) {
+            if (npc.entityRef == null || !npc.entityRef.isValid() || npc.entityRef.getStore() != store) continue;
+            TransformComponent transform = store.getComponent(npc.entityRef, TransformComponent.getComponentType());
+            if (transform == null) continue;
+            org.joml.Vector3d pos = transform.getPosition();
+            double dx = pos.x - playerPos.x;
+            double dz = pos.z - playerPos.z;
+            if (dx * dx + dz * dz < 28.0 * 28.0) continue;
+            double vx = pos.x - village.centerX();
+            double vz = pos.z - village.centerZ();
+            if (vx * vx + vz * vz > villageLimit) continue;
+            candidates.add(new org.joml.Vector3d(pos));
+        }
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        if (!candidates.isEmpty()) {
+            org.joml.Vector3d base = candidates.get(random.nextInt(candidates.size()));
+            double angle = random.nextDouble(0, Math.PI * 2.0);
+            return new org.joml.Vector3d(base.x + Math.cos(angle) * 1.5, base.y, base.z + Math.sin(angle) * 1.5);
         }
         return null;
     }
