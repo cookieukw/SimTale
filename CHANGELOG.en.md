@@ -86,6 +86,8 @@ This section records the improvements made after the 1.3.1 release.
   player, inside the nearest village.
 - Each visit rolls its own name, body variant, gender and specialty: general goods, provisions,
   ore, remedies, curiosities or seeds.
+- Merchants now wear the classic merchant outfit (beret, tunic, belted pants and mittens), with
+  five male and five female appearances generated from existing resident faces.
 - Each visit rolls a fixed stock from its seed, so prices and quantities stay stable while the
   merchant is present and after a reload.
 - Added `SimTale_Coin`, the merchant currency used by the trade screen.

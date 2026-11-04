@@ -27,13 +27,13 @@ public record MerchantIdentity(String name, MerchantSpecialty specialty, Gender 
         String last = LAST_NAMES[random.nextInt(LAST_NAMES.length)];
         MerchantSpecialty specialty = MerchantSpecialty.values()[random.nextInt(MerchantSpecialty.values().length)];
         Gender gender = random.nextBoolean() ? Gender.MALE : Gender.FEMALE;
-        int variant = 1 + random.nextInt(200);
+        int variant = 1 + random.nextInt(SimNPCFactory.MERCHANT_VARIANTS);
         return new MerchantIdentity(first + " " + last, specialty, gender, variant);
     }
 
     public SimNPCFactory.NPCType npcType() {
         return gender == Gender.FEMALE
-                ? SimNPCFactory.NPCType.HUMAN_FEMALE
-                : SimNPCFactory.NPCType.HUMAN_MALE;
+                ? SimNPCFactory.NPCType.MERCHANT_FEMALE
+                : SimNPCFactory.NPCType.MERCHANT_MALE;
     }
 }

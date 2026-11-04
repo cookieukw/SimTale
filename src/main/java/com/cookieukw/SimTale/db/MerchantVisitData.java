@@ -5,6 +5,7 @@ import com.cookieukw.SimTale.core.MerchantIdentity;
 import com.cookieukw.SimTale.core.MerchantSpecialty;
 import com.cookieukw.SimTale.core.MerchantStock;
 import com.cookieukw.SimTale.core.MerchantVisitorComponent;
+import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.hypixel.hytale.server.core.universe.world.World;
 
 import java.util.ArrayList;
@@ -62,7 +63,9 @@ public final class MerchantVisitData {
         } catch (IllegalArgumentException e) {
             storedGender = rolled.gender();
         }
-        int storedVariant = variant >= 1 && variant <= 200 ? variant : rolled.variant();
+        int storedVariant = variant >= 1 && variant <= SimNPCFactory.MERCHANT_VARIANTS
+                ? variant
+                : rolled.variant();
         return new MerchantIdentity(name, storedSpecialty, storedGender, storedVariant);
     }
 
