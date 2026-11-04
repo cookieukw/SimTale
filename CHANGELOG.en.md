@@ -77,6 +77,25 @@ This section records the improvements made after the 1.3.1 release.
 - Added strict locale validation for key parity, placeholders, duplicate entries, empty values,
   BOMs and UTF-8 encoding.
 
+### Travelling merchant
+
+- Added a temporary travelling merchant that visits a village for about 30 minutes and then leaves.
+- Arrival checks run every 15 minutes, require at least three residents and have a 25% chance, so
+  visits feel like an event instead of constant traffic.
+- The merchant arrives on ground already used by villagers, at least 28 blocks away from the
+  player, inside the nearest village.
+- Each visit rolls its own name, body variant, gender and specialty: general goods, provisions,
+  ore, remedies, curiosities or seeds.
+- Each visit rolls a fixed stock from its seed, so prices and quantities stay stable while the
+  merchant is present and after a reload.
+- Added `SimTale_Coin`, the merchant currency used by the trade screen.
+- Added Buy and Sell actions. Selling returns goods to the merchant's stock and pays the player
+  in coins.
+- Visits, remaining stock and the merchant's identity are persisted with Caskara, so a restart
+  does not duplicate the merchant or reset what was already sold.
+- The trade screen is localized in English, Portuguese and Spanish.
+- Added `/merchant` to spawn a test visit.
+
 ### Tooling and validation
 
 - Added Crowdin configuration and GitHub Actions synchronization for English, Portuguese and
