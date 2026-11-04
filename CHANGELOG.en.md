@@ -101,10 +101,16 @@ This section records the improvements made after the 1.3.1 release.
   savings when the inventory is full.
 - Added Buy and Sell actions. Selling returns goods to the merchant's stock and pays the player
   in coins.
+- Interacting with a merchant opens the trade counter directly, with no resident sheet, needs
+  panel, chat, flirt or scold actions.
+- Merchants no longer roll a random resident profession at spawn, so they never hold a pickaxe,
+  hoe, bow or another profession tool.
+- Opening and closing the trade counter clears the movement animation slot and releases the
+  merchant cleanly, so arriving and leaving use the normal walk animation.
 - Visits, remaining stock and the merchant's identity are persisted with Caskara, so a restart
   does not duplicate the merchant or reset what was already sold.
 - The trade screen is localized in English, Portuguese and Spanish.
-- Added `/merchant` to spawn a test visit.
+- Added `/simtale merchant` to spawn a test visit.
 
 ### Tooling and validation
 

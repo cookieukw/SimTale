@@ -46,6 +46,66 @@ O Bebê é um item único que representa um recém-nascido. Ele não pode ser cr
 
 Um bolo festivo que pode ser feito na Bancada de Trabalho. Atualmente, o Bolo de Aniversário é apenas um item decorativo e ainda não possui uma função especial, mas quem sabe o que o futuro reserva para as festas da vila!
 
+## Moedas e o mercador viajante
+
+<div align="center">
+  <img src="/img/SimTale_Coin_Copper.png" width="96" style={{imageRendering: 'pixelated', margin: '0 8px'}} />
+  <img src="/img/SimTale_Coin_Thorium.png" width="96" style={{imageRendering: 'pixelated', margin: '0 8px'}} />
+  <img src="/img/SimTale_Coin_Gold.png" width="96" style={{imageRendering: 'pixelated', margin: '0 8px'}} />
+  <img src="/img/SimTale_PiggyBank.png" width="96" style={{imageRendering: 'pixelated', margin: '0 8px'}} />
+</div>
+
+O SimTale usa uma moeda de três níveis. Todos os preços na tela do mercador são mostrados em **cobre**, e as moedas maiores valem uma quantidade fixa de moedas de cobre:
+
+| Moeda | Valor |
+|---|---|
+| <img src="/img/SimTale_Coin_Copper.png" width="24" align="absmiddle"/> Moeda de Cobre (`SimTale_Coin`) | 1 cobre |
+| <img src="/img/SimTale_Coin_Thorium.png" width="24" align="absmiddle"/> Moeda de Tório (`SimTale_Coin_Thorium`) | 100 cobre |
+| <img src="/img/SimTale_Coin_Gold.png" width="24" align="absmiddle"/> Moeda de Ouro (`SimTale_Coin_Gold`) | 10.000 cobre |
+
+### Conversão de barras
+
+Barras de metal podem ser transformadas em moedas na Bancada de Trabalho:
+
+- 1 Barra de Cobre → 100 Moedas de Cobre
+- 1 Barra de Tório → 100 Moedas de Tório
+- 1 Barra de Ouro → 100 Moedas de Ouro
+
+As próprias moedas podem ser trocadas para cima:
+
+- 100 Moedas de Cobre → 1 Moeda de Tório
+- 100 Moedas de Tório → 1 Moeda de Ouro
+
+O mercador dá troco automaticamente. Se uma compra custa 16 cobre e você paga com uma Moeda de Tório, os 84 cobre restantes voltam em moedas menores.
+
+### Porquinho
+
+<div align="center">
+  <img src="/img/SimTale_PiggyBank.png" width="128" style={{imageRendering: 'pixelated'}} />
+</div>
+
+O <img src="/img/SimTale_PiggyBank.png" width="24" align="absmiddle"/> **Porquinho** é um item de mão. Clique com o botão direito para depositar todas as moedas do inventário, ou sacar 100, 1.000 ou tudo.
+
+O saldo fica salvo por jogador e por mundo. Quando você abre o mercador e não tem moedas suficientes no inventário, ele desconta a diferença direto do Porquinho — sem precisar sacar antes. Se uma venda encher o inventário, o pagamento vai para as economias em vez de sumir.
+
+### Mercador viajante
+
+O mercador visita a vila por cerca de **30 minutos** e depois vai embora. As visitas são aleatórias e exigem pelo menos três moradores. Ele chega em chão já usado pelos moradores e nunca aparece colado no jogador.
+
+Cada visita sorteia:
+
+- nome, gênero e aparência diferentes;
+- uma especialidade: mercadorias gerais, mantimentos, minérios, remédios, curiosidades ou sementes;
+- um estoque que fica fixo durante aquela visita.
+
+Interagir com o mercador abre a tela de comércio diretamente — sem ficha de morador, sem painel de necessidades e sem ações de conversa. Na tela de comércio você pode comprar do estoque ou vender itens de volta; vender repõe o estoque do mercador e paga em moedas. O estoque, a identidade da visita e o tempo restante são salvos com Caskara, então reiniciar o mundo não duplica o mercador nem reseta o que já foi vendido.
+
+Administradores podem forçar uma visita de teste com:
+
+```text
+/simtale merchant
+```
+
 ## Receitas de Criação (Crafting)
 
 Todos os itens podem ser craftados em suas respectivas bancadas:
@@ -59,11 +119,17 @@ Todos os itens podem ser craftados em suas respectivas bancadas:
 | **Diário do Inspetor** | Inventário (Fieldcraft) | 1x <img src="/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell) |
 | **Contrato de Imigração** | Inventário (Fieldcraft) | 1x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll), 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
 | **Sino da Cidade** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 3x Barra de Ouro (Gold Bar), 2x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks) |
+| **100 Moedas de Cobre** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho | 1x <img src="/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Barra de Cobre |
+| **100 Moedas de Tório** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho | 1x <img src="/img/Ingredient_Bar_Thorium.png" width="24" align="absmiddle"/> Barra de Tório |
+| **100 Moedas de Ouro** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho | 1x <img src="/img/Ingredient_Bar_Gold.png" width="24" align="absmiddle"/> Barra de Ouro |
+| **1 Moeda de Tório** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho | 100x <img src="/img/SimTale_Coin_Copper.png" width="24" align="absmiddle"/> Moedas de Cobre |
+| **1 Moeda de Ouro** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho | 100x <img src="/img/SimTale_Coin_Thorium.png" width="24" align="absmiddle"/> Moedas de Tório |
+| **Porquinho** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho | 4x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia, 2x <img src="/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Barras de Cobre |
 | **Bolo de Aniversário** | Bancada de Trabalho (Workbench) | 1x Torta de Maçã (Apple Pie), 1x Fonte de Luz Laranja (Orange Light Source) |
 
 ### Ícones dos Itens
 
-![Teste de Gravidez](/img/PregnancyTest.png) ![Projeto de Casa](/img/HouseBlueprint.png) ![Livro do Estalajadeiro](/img/InnkeepersLedger.png) ![Lupa do Intendente](/img/QuartermastersGlass.png) ![Diário do Inspetor](/img/InspectorsJournal.png) ![Contrato de Imigração](/img/ImmigrationContract.png) ![Sino da Cidade](/img/TownBell.png) ![Aliança de Casamento](/img/WeddingRing.png) ![Bebê](/img/Baby.png) ![Bolo de Aniversário](/img/BirthdayCake.png)
+![Teste de Gravidez](/img/PregnancyTest.png) ![Projeto de Casa](/img/HouseBlueprint.png) ![Livro do Estalajadeiro](/img/InnkeepersLedger.png) ![Lupa do Intendente](/img/QuartermastersGlass.png) ![Diário do Inspetor](/img/InspectorsJournal.png) ![Contrato de Imigração](/img/ImmigrationContract.png) ![Sino da Cidade](/img/TownBell.png) ![Aliança de Casamento](/img/WeddingRing.png) ![Bebê](/img/Baby.png) ![Bolo de Aniversário](/img/BirthdayCake.png) ![Moeda de Cobre](/img/SimTale_Coin_Copper.png) ![Moeda de Tório](/img/SimTale_Coin_Thorium.png) ![Moeda de Ouro](/img/SimTale_Coin_Gold.png) ![Porquinho](/img/SimTale_PiggyBank.png)
 
 ## Projeto de Casa (House Blueprint)
 
