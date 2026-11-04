@@ -1218,10 +1218,11 @@ once per NPC per tick for nothing.
         */
         if (horizontalSq > FOLLOW_STOP_DISTANCE_SQ
                 || Math.abs(target.y - myPos.y) > FOLLOW_VERTICAL_THRESHOLD) {
-            NPCMovementHelper.setRunningState(ref, store, horizontalSq > FOLLOW_RUN_DISTANCE_SQ);
+            NPCMovementHelper.setFollowMovementState(ref, store, true,
+                    horizontalSq > FOLLOW_RUN_DISTANCE_SQ);
             NPCMovementHelper.moveTo(ref, ai, world, target);
         } else {
-            NPCMovementHelper.setRunningState(ref, store, false);
+            NPCMovementHelper.setFollowMovementState(ref, store, false, false);
             NPCMovementHelper.clearMoveTarget(ref, ai);
         }
         return true;
@@ -1263,6 +1264,7 @@ once per NPC per tick for nothing.
         ai.forcedByDebug = false;
         ai.taskStartTime = world != null ? world.getTick() : 0;
         NPCMovementHelper.clearMoveTarget(npcRef, ai);
+        NPCMovementHelper.setFollowMovementState(npcRef, store, false, false);
         return true;
     }
 
@@ -1273,7 +1275,7 @@ once per NPC per tick for nothing.
         ai.forcedByDebug = false;
         ai.targetBlockPosition = null;
         NPCMovementHelper.clearMoveTarget(ref, ai);
-        NPCMovementHelper.setRunningState(ref, ref.getStore(), false);
+        NPCMovementHelper.setFollowMovementState(ref, ref.getStore(), false, false);
     }
 
     private static void clearAutonomyState(RoutineAIComponent ai, SimNPCComponent npc, World world, Store<EntityStore> store) {
