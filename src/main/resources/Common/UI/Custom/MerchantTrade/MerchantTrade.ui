@@ -39,8 +39,14 @@ $T = "../SimTaleTheme.ui";
     Style: (...$T.@BodyStrong, FontSize: 14, TextColor: $T.@TextGold, HorizontalAlignment: Center);
   }
 
+  Button #BtnSell {
+    Anchor: (Width: 92, Height: 38, Top: 10, Right: 8);
+    Style: $T.@BtnTertiary;
+    Label #SellLabel { Text: "SELL"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
+  }
+
   Button #BtnBuy {
-    Anchor: (Width: 112, Height: 38, Top: 10);
+    Anchor: (Width: 100, Height: 38, Top: 10);
     Style: $T.@BtnSecondary;
     Label #BuyLabel { Text: "BUY"; Anchor: (Full: 0); Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
   }

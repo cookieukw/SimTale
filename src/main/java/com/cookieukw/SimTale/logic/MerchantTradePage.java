@@ -71,12 +71,17 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
             cmd.set(selector + ".Visible", true);
             cmd.set(selector + " #ItemName.TextSpans", itemName(offer.itemId()));
             cmd.set(selector + " #ItemMeta.TextSpans",
-                    Message.translation("ui.merchant.stock").param("quantity", Integer.toString(offer.quantity())));
+                    Message.translation("ui.merchant.meta")
+                            .param("quantity", Integer.toString(offer.quantity()))
+                            .param("sellPrice", Long.toString(offer.sellPrice())));
             cmd.set(selector + " #ItemPrice.TextSpans",
                     Message.translation("ui.merchant.price").param("price", Long.toString(offer.buyPrice())));
             cmd.set(selector + " #BtnBuy #BuyLabel.TextSpans", Message.translation("ui.merchant.buy"));
+            cmd.set(selector + " #BtnSell #SellLabel.TextSpans", Message.translation("ui.merchant.sell"));
             events.addEventBinding(CustomUIEventBindingType.Activating, selector + " #BtnBuy",
                     new EventData().append("button", "Buy" + row), false);
+            events.addEventBinding(CustomUIEventBindingType.Activating, selector + " #BtnSell",
+                    new EventData().append("button", "Sell" + row), false);
             row++;
         }
         events.addEventBinding(CustomUIEventBindingType.Activating, "#BtnClose",
@@ -91,7 +96,8 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
                     .getPageManager().setPage(playerRef, store, Page.None);
             return;
         }
-        if (!data.contains("Buy")) return;
+        boolean selling = data.contains("Sell");
+        if (!selling && !data.contains("Buy")) return;
         int row;
         try { row = Integer.parseInt(data.replaceAll("\\D", "")); }
         catch (NumberFormatException e) { return; }
@@ -101,6 +107,10 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
         CombinedItemContainer inventory = InventoryComponent.getCombined(store, playerRef,
                 InventoryComponent.HOTBAR_FIRST);
         if (inventory == null) return;
+        if (selling) {
+            sell(store, inventory, visitor, offer);
+            return;
+        }
         if (offer.buyPrice() > Integer.MAX_VALUE) {
             this.playerRef.sendMessage(Message.translation("ui.merchant.status.invalid_price"));
             return;
@@ -129,6 +139,41 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
                 MerchantVisitData.of(visitor, store.getExternalData().getWorld()));
         this.playerRef.sendMessage(Message.translation("ui.merchant.status.bought")
                 .param("item", itemName(offer.itemId())));
+        this.rebuild();
+    }
+
+    /** Sells one unit of an offer back to the merchant, paying the player in coins. */
+    private void sell(Store<EntityStore> store, CombinedItemContainer inventory,
+                      MerchantVisitorComponent visitor, MerchantStock.Offer offer) {
+        if (offer.sellPrice() > Integer.MAX_VALUE) {
+            this.playerRef.sendMessage(Message.translation("ui.merchant.status.invalid_price"));
+            return;
+        }
+        if (count(inventory, offer.itemId()) <= 0) {
+            this.playerRef.sendMessage(Message.translation("ui.merchant.status.no_item")
+                    .param("item", itemName(offer.itemId())));
+            return;
+        }
+        ItemStack coins = new ItemStack("SimTale_Coin", (int) offer.sellPrice());
+        if (!inventory.canAddItemStack(coins)) {
+            this.playerRef.sendMessage(Message.translation("ui.merchant.status.inventory_full"));
+            return;
+        }
+        TradeResult trade = visitor.stock.sell(offer.itemId(), 1);
+        if (!trade.accepted()) {
+            this.playerRef.sendMessage(Message.translation("ui.merchant.status.trade_failed"));
+            return;
+        }
+        if (!remove(inventory, offer.itemId(), 1)) {
+            visitor.stock.restore(offer.itemId(), 1);
+            return;
+        }
+        inventory.addItemStack(coins);
+        MerchantVisitPersistence.save(store.getExternalData().getWorld(), visitor.visitId,
+                MerchantVisitData.of(visitor, store.getExternalData().getWorld()));
+        this.playerRef.sendMessage(Message.translation("ui.merchant.status.sold")
+                .param("item", itemName(offer.itemId()))
+                .param("price", Long.toString(trade.amount())));
         this.rebuild();
     }
 
