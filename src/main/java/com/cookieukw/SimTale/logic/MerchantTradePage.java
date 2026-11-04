@@ -266,6 +266,12 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
             npc.isInteractingViaUI = false;
             npc.uiInteractionPlayer = null;
         }
+        RoutineAIComponent ai = store.getComponent(merchantRef, SimTale.ROUTINE_AI_COMPONENT_TYPE);
+        if (ai != null) {
+            ai.currentTask = RoutineAIComponent.TaskType.IDLE;
+            ai.targetBlockPosition = null;
+            ai.wanderTimer = 0;
+        }
         NpcFreezeUtil.unfreeze(store, merchantRef);
         // The counter itself never plays a movement clip; the role's controller owns it again.
         NPCMovementHelper.clearAnimationSlot(merchantRef, AnimationSlot.Movement, store);
