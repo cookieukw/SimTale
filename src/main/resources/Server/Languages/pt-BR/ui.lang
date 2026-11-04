@@ -38,6 +38,7 @@ prof.fisherman = Pescador
 prof.lumberjack = Lenhador
 prof.guard = Guarda
 prof.explorer = Explorador
+prof.merchant = Mercador
 prof.builder = Construtor
 prof.hunter = Caçador
 
@@ -279,7 +280,7 @@ button.trade = Negociar
 merchant.title = Banca Viajante de {name}
 merchant.subtitle = Novidades da estrada · Aberto para negócios
 merchant.balance = Carteira {coins} moedas
-merchant.meta = Em estoque: {quantity} · Compra por {sellPrice} moedas
+merchant.meta = Em estoque: {quantity} · Mercador paga {sellPrice}
 merchant.price = {price} moedas
 merchant.buy = Comprar
 merchant.sell = Vender

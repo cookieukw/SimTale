@@ -64,10 +64,17 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
         cmd.set("#Balance.TextSpans",
                 Message.translation("ui.merchant.balance").param("coins", Long.toString(balance)));
         cmd.set("#Status.TextSpans", Message.translation("ui.merchant.status.idle"));
-        int row = 0;
-        for (MerchantStock.Offer offer : visitor.stock.offers()) {
-            if (row >= 5) break;
+        // The mockup ships five rows; hide the ones this visit did not roll so no placeholder text
+        // in English ("Item name", "12 coins") leaks into an otherwise localized screen.
+        cmd.set("#CategoryTabs.Visible", false);
+        java.util.List<MerchantStock.Offer> offers = visitor.stock.offers();
+        for (int row = 0; row < 5; row++) {
             String selector = "#Row" + row;
+            if (row >= offers.size()) {
+                cmd.set(selector + ".Visible", false);
+                continue;
+            }
+            MerchantStock.Offer offer = offers.get(row);
             cmd.set(selector + ".Visible", true);
             cmd.set(selector + " #ItemName.TextSpans", itemName(offer.itemId()));
             cmd.set(selector + " #ItemMeta.TextSpans",
@@ -82,7 +89,6 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
                     new EventData().append("button", "Buy" + row), false);
             events.addEventBinding(CustomUIEventBindingType.Activating, selector + " #BtnSell",
                     new EventData().append("button", "Sell" + row), false);
-            row++;
         }
         events.addEventBinding(CustomUIEventBindingType.Activating, "#BtnClose",
                 new EventData().append("button", "Close"), false);

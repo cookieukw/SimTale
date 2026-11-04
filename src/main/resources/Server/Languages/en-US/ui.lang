@@ -38,6 +38,7 @@ prof.fisherman = Fisherman
 prof.lumberjack = Lumberjack
 prof.guard = Guard
 prof.explorer = Explorer
+prof.merchant = Merchant
 prof.builder = Builder
 prof.hunter = Hunter
 
@@ -279,7 +280,7 @@ button.trade = Trade
 merchant.title = {name}'s Traveling Stall
 merchant.subtitle = Fresh finds from the road · Open for trade
 merchant.balance = Balance {coins} coins
-merchant.meta = In stock: {quantity} · Buys for {sellPrice} coins
+merchant.meta = In stock: {quantity} · Merchant pays {sellPrice}
 merchant.price = {price} coins
 merchant.buy = Buy
 merchant.sell = Sell
