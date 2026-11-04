@@ -3,7 +3,9 @@
     "Name": "general.item.simtale_coin.name",
     "Description": "general.item.simtale_coin.description"
   },
-  "Icon": "Icons/Items/SimTale_Coin.png",
+  "Icon": "Icons/Items/SimTale_Coin_Copper.png",
+  "Model": "Resources/SimTale_Coin/SimTale_Coin.blockymodel",
+  "Texture": "Resources/SimTale_Coin/SimTale_Coin_Copper_texture.png",
   "Quality": "Uncommon",
   "Categories": ["Items.Ingredients"],
   "Tags": {"Type": ["Ingredient"]},

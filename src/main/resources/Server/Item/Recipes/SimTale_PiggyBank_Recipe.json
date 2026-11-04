@@ -1,0 +1,26 @@
+{
+  "Input": [
+    {
+      "ItemId": "Wood_Softwood_Planks",
+      "Quantity": 4
+    },
+    {
+      "ItemId": "Ingredient_Bar_Copper",
+      "Quantity": 2
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "SimTale_PiggyBank",
+    "Quantity": 1
+  },
+  "BenchRequirement": [
+    {
+      "Id": "Workbench",
+      "Type": "Crafting",
+      "Categories": [
+        "Workbench_Tools"
+      ]
+    }
+  ],
+  "Seconds": 2
+}

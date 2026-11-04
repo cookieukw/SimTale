@@ -1,0 +1,18 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.simtale_piggy_bank.name",
+    "Description": "general.item.simtale_piggy_bank.description"
+  },
+  "Icon": "Icons/Items/SimTale_PiggyBank.png",
+  "Model": "Resources/SimTale_PiggyBank/SimTale_PiggyBank.blockymodel",
+  "Texture": "Resources/SimTale_PiggyBank/SimTale_PiggyBank_texture.png",
+  "Quality": "Uncommon",
+  "Categories": ["Items.Ingredients"],
+  "Tags": {"Type": ["Ingredient"]},
+  "PlayerAnimationsId": "Item",
+  "Scale": 1.0,
+  "MaxStack": 1,
+  "Interactions": {
+    "Secondary": "RuneCore_GenericItemUse"
+  }
+}
