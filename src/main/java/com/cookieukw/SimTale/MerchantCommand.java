@@ -1,11 +1,11 @@
 package com.cookieukw.SimTale;
 
+import com.cookieukw.SimTale.core.MerchantIdentity;
 import com.cookieukw.SimTale.core.MerchantVisitorComponent;
 import com.cookieukw.SimTale.core.MerchantStock;
 import com.cookieukw.SimTale.core.Profession;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
-import com.cookieukw.SimTale.core.TradingCatalog;
 import com.cookieukw.SimTale.db.MerchantVisitData;
 import com.cookieukw.SimTale.db.MerchantVisitPersistence;
 import com.hypixel.hytale.component.Ref;
@@ -40,26 +40,24 @@ public final class MerchantCommand extends AbstractPlayerCommand {
     }
 
     public static SimNPCComponent spawnMerchant(Store<EntityStore> store, World world, Vector3d position) {
+        long seed = world.getTick() ^ java.util.concurrent.ThreadLocalRandom.current().nextLong();
+        MerchantIdentity visitIdentity = MerchantIdentity.roll(seed);
         Ref<EntityStore> merchantRef = SimNPCFactory.spawnNPC(store, position,
-                Math.random() < 0.5 ? SimNPCFactory.NPCType.HUMAN_MALE : SimNPCFactory.NPCType.HUMAN_FEMALE);
+                visitIdentity.npcType(), 1.0f, visitIdentity.variant());
         SimNPCComponent merchant = store.getComponent(merchantRef, SimTale.SIM_NPC_COMPONENT_TYPE);
         if (merchant == null) return null;
         merchant.profession = Profession.MERCHANT;
-        merchant.name = "Viajante " + merchant.name;
+        merchant.gender = visitIdentity.gender();
+        merchant.name = visitIdentity.name();
         SimNPCFactory.refreshNameplate(store, merchantRef, merchant.name);
-        TradingCatalog catalog = new TradingCatalog(java.util.List.of(
-                TradingCatalog.item("Food_Bread", 3, 12, 4, 2),
-                TradingCatalog.item("Plant_Seeds_Carrot", 4, 16, 3, 1),
-                TradingCatalog.item("Ingredient_Iron_Bar", 1, 4, 12, 6)));
-        long seed = world.getTick() ^ merchant.entityId.getMostSignificantBits();
-        MerchantStock stock = catalog.roll(seed);
+        MerchantStock stock = visitIdentity.specialty().catalog().roll(seed);
         long departureTick = world.getTick() + 20L * 60L * 30L;
         String visitId = merchant.entityId.toString();
         MerchantVisitorComponent visitor = new MerchantVisitorComponent(visitId, seed, merchant.name,
-                departureTick, stock);
+                visitIdentity.specialty().key(), visitIdentity.gender().name(),
+                visitIdentity.variant(), departureTick, stock);
         store.putComponent(merchantRef, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE, visitor);
-        MerchantVisitPersistence.save(world, visitId,
-                MerchantVisitData.of(seed, merchant.name, world, departureTick, stock));
+        MerchantVisitPersistence.save(world, visitId, MerchantVisitData.of(visitor, world));
         return merchant;
     }
 }

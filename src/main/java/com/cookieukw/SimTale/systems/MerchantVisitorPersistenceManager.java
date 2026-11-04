@@ -27,22 +27,32 @@ public final class MerchantVisitorPersistenceManager {
         if (world == null || store == null || !LOADED_WORLDS.add(world.getName())) return;
         long now = world.getTick();
         for (MerchantVisitData data : MerchantVisitPersistence.list(world)) {
-            if (data == null || data.merchantName == null || data.departureTick <= now) continue;
+            if (data == null) continue;
+            String visitId = data.visitId != null && !data.visitId.isBlank()
+                    ? data.visitId
+                    : data.merchantName;
+            if (data.merchantName == null || data.departureTick <= now) {
+                MerchantVisitPersistence.delete(world, visitId);
+                continue;
+            }
             PlayerRef player = world.getPlayerRefs().stream().findFirst().orElse(null);
             if (player == null || player.getReference() == null) continue;
             TransformComponent transform = store.getComponent(player.getReference(), TransformComponent.getComponentType());
             if (transform == null) continue;
             Vector3d pos = new Vector3d(transform.getPosition()).add(2, 0, 2);
             world.execute(() -> {
-                var ref = SimNPCFactory.spawnNPC(store, pos, SimNPCFactory.NPCType.HUMAN_MALE);
+                var identity = data.toIdentity();
+                var ref = SimNPCFactory.spawnNPC(store, pos, identity.npcType(), 1.0f, identity.variant());
                 SimNPCComponent npc = store.getComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE);
                 if (npc == null) return;
                 npc.profession = Profession.MERCHANT;
-                npc.name = data.merchantName;
+                npc.gender = identity.gender();
+                npc.name = identity.name();
                 SimNPCFactory.refreshNameplate(store, ref, npc.name);
-                store.putComponent(ref, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE,
-                        new MerchantVisitorComponent(data.merchantName, data.seed, data.merchantName,
-                                data.departureTick, data.toStock()));
+                var visitor = new MerchantVisitorComponent(visitId, data.seed, identity.name(),
+                        identity.specialty().key(), identity.gender().name(), identity.variant(),
+                        data.departureTick, data.toStock());
+                store.putComponent(ref, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE, visitor);
             });
         }
     }

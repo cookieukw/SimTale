@@ -52,7 +52,12 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
             cmd.set("#Title.TextSpans",
                     Message.translation("ui.merchant.title").param("name", visitor.merchantName));
         }
-        cmd.set("#Subtitle.TextSpans", Message.translation("ui.merchant.subtitle"));
+        String specialtyKey = visitor.specialty != null && !visitor.specialty.isBlank()
+                ? visitor.specialty
+                : "general";
+        cmd.set("#Subtitle.TextSpans", Message.translation("ui.merchant.subtitle")
+                .insert(Message.raw(" · "))
+                .insert(Message.translation("ui.merchant.specialty." + specialtyKey)));
         CombinedItemContainer wallet = InventoryComponent.getCombined(store, playerRef,
                 InventoryComponent.HOTBAR_FIRST);
         long balance = wallet == null ? 0L : count(wallet, "SimTale_Coin");
@@ -121,8 +126,7 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
         }
         inventory.addItemStack(item);
         MerchantVisitPersistence.save(store.getExternalData().getWorld(), visitor.visitId,
-                MerchantVisitData.of(visitor.seed, visitor.merchantName, store.getExternalData().getWorld(),
-                        visitor.departureTick, visitor.stock));
+                MerchantVisitData.of(visitor, store.getExternalData().getWorld()));
         this.playerRef.sendMessage(Message.translation("ui.merchant.status.bought")
                 .param("item", itemName(offer.itemId())));
         this.rebuild();
