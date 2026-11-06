@@ -88,8 +88,10 @@ This section records the improvements made after the 1.3.1 release.
   ore, remedies, curiosities or seeds.
 - Merchants now wear the classic merchant outfit (beret, tunic, belted pants and mittens), with
   five male and five female appearances generated from existing resident faces.
-- Each visit rolls a fixed stock from its seed, so prices and quantities stay stable while the
-  merchant is present and after a reload.
+- Each visit rolls five offers from a broad pool of roughly 400 vanilla items (ores, bars, gems,
+  food, potions, seeds, tools, weapons, armour, decoration and ingredients), rather than three
+  fixed staples. A premium entry is guaranteed when the specialty has one.
+- Stock, prices and quantities stay stable while the merchant is present and after a reload.
 - Added `SimTale_Coin` (copper), `SimTale_Coin_Thorium` and `SimTale_Coin_Gold`, with 3D models
   and icons. One hundred copper coins equal one thorium coin; one hundred thorium coins equal one
   gold coin.

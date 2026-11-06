@@ -96,6 +96,7 @@ Cada visita sorteia:
 
 - nome, gênero e aparência diferentes;
 - uma especialidade: mercadorias gerais, mantimentos, minérios, remédios, curiosidades ou sementes;
+- cinco ofertas sorteadas de um catálogo de cerca de 400 itens, com pelo menos um item premium quando a especialidade tem um;
 - um estoque que fica fixo durante aquela visita.
 
 Interagir com o mercador abre a tela de comércio diretamente — sem ficha de morador, sem painel de necessidades e sem ações de conversa. Na tela de comércio você pode comprar do estoque ou vender itens de volta; vender repõe o estoque do mercador e paga em moedas. O estoque, a identidade da visita e o tempo restante são salvos com Caskara, então reiniciar o mundo não duplica o mercador nem reseta o que já foi vendido.

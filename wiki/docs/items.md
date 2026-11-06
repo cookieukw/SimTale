@@ -108,6 +108,7 @@ Each visit rolls:
 
 - a different name, gender and appearance;
 - one specialty: general goods, provisions, ore, remedies, curiosities or seeds;
+- five offers drawn from a pool of roughly 400 items, with at least one premium entry when the specialty has one;
 - a stock that stays fixed for that visit.
 
 Interacting with the merchant opens the trade screen directly — no resident sheet, no needs panel and no chat actions. In the trade screen you can buy stock or sell goods back; selling replenishes the merchant's stock and pays you in coins. Stock, visit identity and the remaining time are saved with Caskara, so restarting the world does not duplicate the merchant or reset what was already sold.
