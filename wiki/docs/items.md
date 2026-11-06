@@ -88,6 +88,15 @@ The coins themselves can be exchanged upward:
 - 100 Copper Coins → 1 Thorium Coin
 - 100 Thorium Coins → 1 Gold Coin
 
+### Recovering gold from decorative blocks
+
+Gold does not have to remain decorative. The gold-brick building pieces can be broken back down
+at a Workbench:
+
+- 1 `Rock_Gold_Brick` or gold-brick variant → 1 Gold Bar (`Ingredient_Bar_Gold`)
+
+This includes walls, beams, pillars, roofs, stairs, smooth pieces, ornate pieces and half-blocks.
+
 The merchant gives change automatically. If a purchase costs 16 copper and you pay with one Thorium Coin, the remaining 84 copper comes back in smaller coins.
 
 ### Piggy Bank

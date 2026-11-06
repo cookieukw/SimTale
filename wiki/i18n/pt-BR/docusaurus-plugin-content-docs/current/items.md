@@ -76,6 +76,15 @@ As próprias moedas podem ser trocadas para cima:
 - 100 Moedas de Cobre → 1 Moeda de Tório
 - 100 Moedas de Tório → 1 Moeda de Ouro
 
+### Recuperando ouro de blocos decorativos
+
+O ouro não precisa continuar apenas decorativo. As peças de construção de tijolo de ouro podem ser
+desmontadas na Bancada de Trabalho:
+
+- 1 `Rock_Gold_Brick` ou variante de tijolo de ouro → 1 Barra de Ouro (`Ingredient_Bar_Gold`)
+
+Isso inclui paredes, vigas, pilares, telhados, escadas, peças lisas, ornamentadas e meios-blocos.
+
 O mercador dá troco automaticamente. Se uma compra custa 16 cobre e você paga com uma Moeda de Tório, os 84 cobre restantes voltam em moedas menores.
 
 ### Porquinho
