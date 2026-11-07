@@ -290,6 +290,7 @@ merchant.status.unavailable = Merchant stock unavailable.
 merchant.status.no_coins = Not enough coins.
 merchant.status.inventory_full = Your inventory is full.
 merchant.status.sold_out = That item is no longer available.
+merchant.soldOutLabel = SOLD OUT
 merchant.status.bought = Bought {item}.
 merchant.status.invalid_price = This offer cannot be paid with coins.
 merchant.status.no_item = You have no {item} to sell.

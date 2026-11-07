@@ -290,6 +290,7 @@ merchant.status.unavailable = Estoque do mercador indisponível.
 merchant.status.no_coins = Moedas insuficientes.
 merchant.status.inventory_full = Sua mochila está cheia.
 merchant.status.sold_out = Esse item não está mais disponível.
+merchant.soldOutLabel = ESGOTADO
 merchant.status.bought = Comprou {item}.
 merchant.status.invalid_price = Esta oferta não pode ser paga com moedas.
 merchant.status.no_item = Você não tem {item} para vender.

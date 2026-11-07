@@ -104,6 +104,13 @@ public final class MerchantTradePage extends InteractiveCustomUIPage<String> {
                     Message.translation("ui.merchant.price").param("price", Long.toString(offer.buyPrice())));
             cmd.set(selector + " #BtnBuy #BuyLabel.TextSpans", Message.translation("ui.merchant.buy"));
             cmd.set(selector + " #BtnSell #SellLabel.TextSpans", Message.translation("ui.merchant.sell"));
+            boolean soldOut = offer.quantity() <= 0;
+            cmd.set(selector + " #BtnBuy.Visible", !soldOut);
+            cmd.set(selector + " #SoldOut.Visible", soldOut);
+            if (soldOut) {
+                cmd.set(selector + " #SoldOut.TextSpans",
+                        Message.translation("ui.merchant.soldOutLabel"));
+            }
             events.addEventBinding(CustomUIEventBindingType.Activating, selector + " #BtnBuy",
                     new EventData().append("button", "Buy" + row), false);
             events.addEventBinding(CustomUIEventBindingType.Activating, selector + " #BtnSell",
