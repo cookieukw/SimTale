@@ -16,6 +16,7 @@ import com.cookieukw.SimTale.core.lifecycle.GrowthStage;
 import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.FamilyBonds;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.logic.MerchantInteractionHelper;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.component.ComponentAccessor;
@@ -279,6 +280,13 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         */
         if (npc.gender == null) {
             LOGGER.atFine().log("SimTale: entidade adotada por engano ignorada. Use /simtale forget.");
+            return;
+        }
+
+        /* A merchant has a single purpose. Skip the resident interaction sheet (hunger, traits,
+        chat, flirt, scold) and open the trade counter directly.
+        */
+        if (MerchantInteractionHelper.openIfMerchant(player, playerRefComp, playerRef, npc, store)) {
             return;
         }
 

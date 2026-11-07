@@ -12,6 +12,7 @@ import com.hypixel.hytale.protocol.MovementStates;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
+import com.hypixel.hytale.server.core.modules.entity.component.ActiveAnimationComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -140,15 +141,52 @@ public class NPCMovementHelper {
         }
     }
 
-    /** Keeps the movement flags and leg animation aligned for commanded follow movement. */
-    public static void setRunningState(Ref<EntityStore> ref, Store<EntityStore> store, boolean running) {
+    /**
+     * Removes whatever clip is pinned in an animation slot.
+     *
+     * <p>{@code AnimationUtils.stopAnimation} stops playback but leaves the slot's entry in
+     * {@link ActiveAnimationComponent}. For the Movement slot that is the difference between a
+     * walking NPC and one whose legs are frozen while the pathfinder drags the body: the client
+     * keeps playing the last slot entry until the entry itself is cleared (see
+     * {@code NPCInteractionPage.releaseMovementAnimation}). The same applies to a Status clip
+     * such as Sleep, which is why follow also clears Status instead of replacing it with a new
+     * Idle clip.
+     */
+    public static void clearAnimationSlot(Ref<EntityStore> ref, AnimationSlot slot,
+                                          Store<EntityStore> store) {
+        ActiveAnimationComponent animComp =
+                store.getComponent(ref, ActiveAnimationComponent.getComponentType());
+        if (animComp != null) {
+            animComp.getActiveAnimations()[slot.ordinal()] = null;
+        }
+        AnimationUtils.playAnimation(ref, slot, null, store);
+    }
+
+    /**
+     * Keeps the movement flags and the leg animation aligned for commanded follow movement.
+     *
+     * <p>This mirrors what vanilla's {@code MotionControllerBase.updateMovingStates} does for any
+     * NPC that walks on its own. The previous version set {@code walking = running}, so a follower
+     * walking normally (under 12 blocks, i.e. most of the time) went out with {@code walking=false}
+     * and {@code idle=true} while the pathfinder was still dragging it forward. The client then
+     * played the idle clip during displacement, which is exactly the "sliding on ice" look.
+     *
+     * <p>Walking and running are mutually exclusive in Hytale: {@code walking = !running}. Setting
+     * both at once made the engine prefer one of them inconsistently.
+     *
+     * @param moving whether the NPC is actually being moved this tick
+     * @param running when moving, whether it should use the run clip instead of the walk clip
+     */
+    public static void setFollowMovementState(Ref<EntityStore> ref, Store<EntityStore> store,
+                                              boolean moving, boolean running) {
         MovementStatesComponent component = store.getComponent(ref, MovementStatesComponent.getComponentType());
         if (component == null) return;
         MovementStates states = component.getMovementStates();
-        states.running = running;
-        states.walking = running;
-        states.idle = !running;
-        states.horizontalIdle = !running;
+        states.idle = !moving;
+        states.horizontalIdle = !moving;
+        states.walking = moving && !running;
+        states.running = moving && running;
+        states.sprinting = false;
     }
 
     public static void playAnim(Ref<EntityStore> ref, String anim, String name, Store<EntityStore> store) {

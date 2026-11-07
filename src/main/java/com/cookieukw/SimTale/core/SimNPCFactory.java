@@ -66,6 +66,8 @@ public class SimNPCFactory {
         TRORK("SimTale_Trork"),
         HUMAN_MALE("SimTale_Human_Male"),
         HUMAN_FEMALE("SimTale_Human_Female"),
+        MERCHANT_MALE("SimTale_Merchant_Male"),
+        MERCHANT_FEMALE("SimTale_Merchant_Female"),
         REAPER("SimTale_Human_Male"),
         CHILD_MALE("SimTale_Human_Child_Male"),
         CHILD_FEMALE("SimTale_Human_Child_Female");
@@ -75,6 +77,18 @@ public class SimNPCFactory {
         NPCType(String roleId) {
             this.roleId = roleId;
         }
+    }
+
+    /** Number of generated merchant outfits per gender (scripts/generate_merchant_variants.py). */
+    public static final int MERCHANT_VARIANTS = 5;
+
+    public static int randomMerchantVariant() {
+        return 1 + (int) (Math.random() * MERCHANT_VARIANTS);
+    }
+
+    /** Keeps restored or hand-edited visit data inside the generated outfit range. */
+    public static int clampMerchantVariant(int variant) {
+        return Math.clamp(variant, 1, MERCHANT_VARIANTS);
     }
 
     public static Ref<EntityStore> spawnNPC(Store<EntityStore> store, Vector3d position, NPCType type) {
@@ -122,6 +136,12 @@ public class SimNPCFactory {
         } else if (type == NPCType.HUMAN_FEMALE) {
             int variant = explicitVariant != null ? explicitVariant : 1 + (int)(Math.random() * 200);
             roleId = "SimTale_Human_Female_" + variant;
+        } else if (type == NPCType.MERCHANT_MALE) {
+            int variant = explicitVariant != null ? clampMerchantVariant(explicitVariant) : randomMerchantVariant();
+            roleId = "SimTale_Merchant_Male_" + variant;
+        } else if (type == NPCType.MERCHANT_FEMALE) {
+            int variant = explicitVariant != null ? clampMerchantVariant(explicitVariant) : randomMerchantVariant();
+            roleId = "SimTale_Merchant_Female_" + variant;
         } else if (type == NPCType.CHILD_MALE) {
             int variant = explicitVariant != null ? explicitVariant : 1 + (int)(Math.random() * 200);
             roleId = "SimTale_Human_Child_Male_" + variant;
@@ -188,9 +208,10 @@ public class SimNPCFactory {
         simComponent.dataLoaded = true;
         simComponent.isReaper = (type == NPCType.REAPER);
         
-        if (type == NPCType.HUMAN_MALE || type == NPCType.CHILD_MALE) {
+        if (type == NPCType.HUMAN_MALE || type == NPCType.CHILD_MALE || type == NPCType.MERCHANT_MALE) {
             simComponent.gender = Gender.MALE;
-        } else if (type == NPCType.HUMAN_FEMALE || type == NPCType.CHILD_FEMALE) {
+        } else if (type == NPCType.HUMAN_FEMALE || type == NPCType.CHILD_FEMALE
+                || type == NPCType.MERCHANT_FEMALE) {
             simComponent.gender = Gender.FEMALE;
         } else {
             simComponent.gender = Math.random() > 0.5 ? Gender.MALE : Gender.FEMALE;
@@ -203,6 +224,16 @@ public class SimNPCFactory {
         // Try to load existing data if available
         if (type != NPCType.REAPER) {
             SimNPCPersistence.loadNPC(simComponent);
+        }
+
+        /* Merchants are spawned through the same factory as residents, whose default constructor
+        rolls a random profession. That roll used to happen before MerchantCommand assigned
+        Profession.MERCHANT, so ensureToolEquipped() below could put a pickaxe, hoe or bow in the
+        merchant's hand (and GuardStatsHelper could buff him). Pin the profession before either
+        helper runs so a merchant never carries a profession tool.
+        */
+        if (type == NPCType.MERCHANT_MALE || type == NPCType.MERCHANT_FEMALE) {
+            simComponent.profession = Profession.MERCHANT;
         }
 
         accessor.addComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE, simComponent);

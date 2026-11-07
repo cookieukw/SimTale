@@ -1,8 +1,9 @@
 # Changelog
 
-## [1.3.2] — Unreleased
+## [1.4.0] — 2026-11-06
 
-This section records the improvements made after the 1.3.1 release.
+This release collects everything added after 1.3.1. Version 1.3.2 was an internal build used
+while the travelling merchant was being developed; its changes ship here.
 
 ### NPC following
 
@@ -13,6 +14,10 @@ This section records the improvements made after the 1.3.1 release.
 - Following does not require friendship, romance or intimacy.
 - Followers use native pathfinding instead of teleporting, stop at a natural distance and resume
   following after sleep, hunger or another temporary task.
+- Followers walk when close and run when they fall behind; walking and running animations now
+  switch correctly while they move.
+- Pinned animation slots are cleared when following starts, so the NPC cannot get stuck in the
+  wrong pose.
 - Follow messages and menu labels are localized in English, Portuguese and Spanish.
 
 ### Houses and house validation
@@ -35,6 +40,8 @@ This section records the improvements made after the 1.3.1 release.
 - A Fishing Post automatically retargets nearby water when its original water block is removed.
 - A Fishing Post with no remaining water target is released instead of sending an NPC to stale air.
 - Professional post marker labels are localized in English, Portuguese and Spanish.
+- Fixed a condition that prevented workers without an active social reservation from starting a
+  job.
 
 ### World isolation and persistence
 
@@ -48,7 +55,7 @@ This section records the improvements made after the 1.3.1 release.
 - Shared chest discovery and village stock summaries no longer select chests from another world.
 - NPC home, family and revival lookups use world-scoped house indexes.
 
-### Village safety and recovery
+### Village safety, guards and civilian defense
 
 - NPCs inside a village safe zone are protected from normal damage, including damage from players,
   mobs, fire and falls.
@@ -56,6 +63,11 @@ This section records the improvements made after the 1.3.1 release.
   restores the NPC's health instead of entering the death flow.
 - External NPC removal continues to be logged with the NPC name, task and last known damage cause.
 - Missing residents can be recovered with `/simtale respawnmissing [name]`.
+- Guards now recognize hostile animals in addition to the undead and creatures already covered:
+  spiders, bears, cave spiders, dire wolves and wild boars.
+- Ordinary residents also react to nearby hostiles while idle or wandering. They use the civilian
+  combat path, with lower damage (about 10% of maximum health per hit) and without the guard's
+  health, armour and damage-reduction bonuses.
 
 ### NPC appearance and clothing
 
@@ -70,12 +82,69 @@ This section records the improvements made after the 1.3.1 release.
 - Map marker snapshots refresh immediately after houses, villages, beds, posts and recognized
   furniture change.
 - House markers are read from the current world's house index.
+- Nearby global chests are grouped into a single map marker with a count, and the label is
+  localized.
+- Map chunk invalidation now targets only the world that changed, fixing chunks that appeared blue
+  or unloaded in other worlds.
+- NPCs away on expeditions or work journeys no longer leave a plumbob or map marker behind.
 - NPC interaction panels were reorganized with clearer sections for needs, relationships,
   preferences, details and actions.
 - NPC interaction fallback labels now use translation keys instead of hardcoded text.
 - Added complete Follow and professional-post translations for `pt-BR` and `es-ES`.
 - Added strict locale validation for key parity, placeholders, duplicate entries, empty values,
   BOMs and UTF-8 encoding.
+
+### Travelling merchant
+
+- Added a temporary travelling merchant that visits a village for about 30 minutes and then leaves.
+- Arrival checks run every 15 minutes, require at least three residents and have a 25% chance, so
+  visits feel like an event instead of constant traffic.
+- The merchant arrives on ground already used by villagers, at least 28 blocks away from the
+  player, inside the nearest village.
+- Each visit rolls its own name, body variant, gender and specialty: general goods, provisions,
+  ore, remedies, curiosities or seeds.
+- Merchants now wear the classic merchant outfit (beret, tunic, belted pants and mittens), with
+  five male and five female appearances generated from existing resident faces.
+- Each visit rolls five offers from a broad pool of roughly 400 vanilla items (ores, bars, gems,
+  food, potions, seeds, tools, weapons, armour, decoration and ingredients), rather than three
+  fixed staples. A premium entry is guaranteed when the specialty has one.
+- Stock, prices and quantities stay stable while the merchant is present and after a reload.
+- The trade screen shows the real item icon for every offer, uses ItemSlot quality backgrounds,
+  and lists five stock entries per specialty.
+- Sold-out offers hide the **Buy** button and show **Sold Out** in its place.
+- Added Buy and Sell actions. Selling returns goods to the merchant's stock and pays the player
+  in coins.
+- Interacting with a merchant opens the trade counter directly, with no resident sheet, needs
+  panel, chat, flirt or scold actions.
+- Merchants no longer roll a random resident profession at spawn, so they never hold a pickaxe,
+  hoe, bow or another profession tool.
+- Opening and closing the trade counter clears the movement animation slot and releases the
+  merchant cleanly, so arriving and leaving use the normal walk animation.
+- Closing the counter explicitly releases the merchant pose too, so selling and then leaving the
+  shop no longer leaves the walk clip pinned in idle.
+- Visits, remaining stock and the merchant's identity are persisted with Caskara, so a restart
+  does not duplicate the merchant or reset what was already sold.
+- The trade screen is localized in English, Portuguese and Spanish.
+- Added `/simtale merchant` to spawn a test visit.
+
+### Economy: coins, piggy bank and gold
+
+- Added `SimTale_Coin` (copper), `SimTale_Coin_Thorium` and `SimTale_Coin_Gold`, with 3D models
+  and icons. One hundred copper coins equal one thorium coin; one hundred thorium coins equal one
+  gold coin.
+- Bar conversion recipes: one copper bar becomes 100 copper coins, one thorium bar becomes 100
+  thorium coins, and one gold bar becomes 100 gold coins. The exchange recipes turn 100 copper
+  into one thorium and 100 thorium into one gold.
+- Added the Piggy Bank item and its deposit screen. Coins deposited there are used automatically
+  by the merchant when the inventory does not carry enough, and sale proceeds overflow into
+  savings when the inventory is full.
+- Decorative gold blocks can now be broken back down at a Workbench: each `Rock_Gold_Brick` or
+  variant (wall, beam, pillar, roof, stairs, smooth, ornate or half-block) yields one Gold Bar.
+
+### Stability
+
+- Fixed a `NullPointerException` when looking up a child's bed after the parent record no longer
+  existed.
 
 ### Tooling and validation
 

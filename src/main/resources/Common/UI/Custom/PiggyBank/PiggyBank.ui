@@ -1,0 +1,112 @@
+// Piggy bank: the wallet side of the currency system.
+//
+// PiggyBankPage sets #Title, #Subtitle, #Balance, #Hint, #Status and the five button labels.
+// Keep these ids stable.
+
+$T = "../SimTaleTheme.ui";
+
+Group {
+  LayoutMode: MiddleCenter;
+  Background: #0C0806(0.85);
+
+  SceneBlur {}
+
+  Group #PiggyPanel {
+    Anchor: (Width: 620, Height: 500);
+    LayoutMode: Top;
+    Background: $T.@PanelSurface;
+    Padding: (Horizontal: 34, Vertical: 26);
+
+    Label #Title {
+      Text: %ui.piggy.title;
+      Anchor: (Height: 36, Bottom: 4);
+      Style: (...$T.@TitleStyle, FontSize: 24, TextColor: $T.@TextGold);
+    }
+
+    $T.@Separator { @Anchor = (Bottom: 12); }
+
+    Label #Subtitle {
+      Text: %ui.piggy.subtitle;
+      Anchor: (Height: 44, Bottom: 8);
+      Style: (...$T.@CaptionStyle, FontSize: 15, Wrap: true);
+    }
+
+    Label #Balance {
+      Text: %ui.piggy.balance;
+      Anchor: (Height: 34, Bottom: 4);
+      Style: (...$T.@BodyStrong, FontSize: 18, TextColor: $T.@TextGold);
+    }
+
+    Label #Hint {
+      Text: %ui.piggy.hint;
+      Anchor: (Height: 40, Bottom: 10);
+      Style: (...$T.@CaptionStyle, FontSize: 13, TextColor: $T.@TextMuted, Wrap: true);
+    }
+
+    Group #ButtonRow1 {
+      Anchor: (Height: 44, Bottom: 10);
+      LayoutMode: Left;
+
+      Button #BtnDepositAll {
+        Anchor: (Width: 536, Height: 44);
+        Style: $T.@BtnNeutral;
+        Label #DepositLabel {
+          Text: %ui.piggy.deposit;
+          Anchor: (Full: 0);
+          Style: (...$T.@ButtonLabelStyle, FontSize: 15);
+        }
+      }
+    }
+
+    Group #ButtonRow2 {
+      Anchor: (Height: 44, Bottom: 10);
+      LayoutMode: Left;
+
+      Button #BtnWithdraw100 {
+        Anchor: (Width: 170, Height: 44, Right: 13);
+        Style: $T.@BtnSecondary;
+        Label #Withdraw100Label {
+          Text: %ui.piggy.withdraw100;
+          Anchor: (Full: 0);
+          Style: (...$T.@ButtonLabelStyle, FontSize: 14);
+        }
+      }
+
+      Button #BtnWithdraw1000 {
+        Anchor: (Width: 170, Height: 44, Right: 13);
+        Style: $T.@BtnSecondary;
+        Label #Withdraw1000Label {
+          Text: %ui.piggy.withdraw1000;
+          Anchor: (Full: 0);
+          Style: (...$T.@ButtonLabelStyle, FontSize: 14);
+        }
+      }
+
+      Button #BtnWithdrawAll {
+        Anchor: (Width: 170, Height: 44);
+        Style: $T.@BtnSecondary;
+        Label #WithdrawAllLabel {
+          Text: %ui.piggy.withdrawAll;
+          Anchor: (Full: 0);
+          Style: (...$T.@ButtonLabelStyle, FontSize: 14);
+        }
+      }
+    }
+
+    Label #Status {
+      Text: "";
+      FlexWeight: 1;
+      Style: (...$T.@CaptionStyle, FontSize: 14, TextColor: $T.@AccentLike, Wrap: true);
+    }
+
+    Button #BtnClose {
+      Anchor: (Width: 536, Height: 44, Top: 10);
+      Style: $T.@BtnTertiary;
+      Label #CloseLabel {
+        Text: %ui.piggy.close;
+        Anchor: (Full: 0);
+        Style: (...$T.@ButtonLabelStyle, FontSize: 15);
+      }
+    }
+  }
+}

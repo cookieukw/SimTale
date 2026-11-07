@@ -1,0 +1,3605 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "itemId": "Armor_Adamantite_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 68,
+      "sellPrice": 34
+    },
+    {
+      "itemId": "Armor_Adamantite_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 68,
+      "sellPrice": 34
+    },
+    {
+      "itemId": "Armor_Bronze_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Armor_Bronze_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Armor_Bronze_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Armor_Bronze_Ornate_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 61,
+      "sellPrice": 30
+    },
+    {
+      "itemId": "Armor_Cloth_Cindercloth_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 72,
+      "sellPrice": 36
+    },
+    {
+      "itemId": "Armor_Cloth_Cindercloth_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 72,
+      "sellPrice": 36
+    },
+    {
+      "itemId": "Armor_Cloth_Cotton_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 33,
+      "sellPrice": 16
+    },
+    {
+      "itemId": "Armor_Cloth_Cotton_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 33,
+      "sellPrice": 16
+    },
+    {
+      "itemId": "Armor_Cloth_Linen_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 29,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Armor_Cloth_Linen_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 29,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Armor_Cloth_Linen_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 29,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Armor_Cloth_Silk_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Armor_Cloth_Silk_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Armor_Cloth_Wool_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 28,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Armor_Cloth_Wool_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 28,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Armor_Cobalt_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 65,
+      "sellPrice": 32
+    },
+    {
+      "itemId": "Armor_Cobalt_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 65,
+      "sellPrice": 32
+    },
+    {
+      "itemId": "Armor_Copper_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 28,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Armor_Copper_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 28,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Armor_Diving_Crude_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Armor_Diving_Crude_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Armor_Iron_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 39,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Armor_Iron_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 39,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Armor_Kweebec_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 39,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Armor_Kweebec_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 39,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Armor_Leather_Heavy_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Armor_Leather_Heavy_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Armor_Leather_Light_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 29,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Armor_Leather_Light_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 29,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Armor_Leather_Medium_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 33,
+      "sellPrice": 16
+    },
+    {
+      "itemId": "Armor_Leather_Medium_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 33,
+      "sellPrice": 16
+    },
+    {
+      "itemId": "Armor_Leather_Raven_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 35,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Armor_Leather_Raven_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 35,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Armor_Leather_Soft_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 28,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Armor_Leather_Soft_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 28,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Armor_Mithril_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 116,
+      "sellPrice": 58
+    },
+    {
+      "itemId": "Armor_Mithril_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 116,
+      "sellPrice": 58
+    },
+    {
+      "itemId": "Armor_Onyxium_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 116,
+      "sellPrice": 58
+    },
+    {
+      "itemId": "Armor_Onyxium_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 116,
+      "sellPrice": 58
+    },
+    {
+      "itemId": "Armor_Onyxium_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 116,
+      "sellPrice": 58
+    },
+    {
+      "itemId": "Armor_Prisma_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 50,
+      "sellPrice": 25
+    },
+    {
+      "itemId": "Armor_Prisma_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 50,
+      "sellPrice": 25
+    },
+    {
+      "itemId": "Armor_QA_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 29,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Armor_Steel_Ancient_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 62,
+      "sellPrice": 31
+    },
+    {
+      "itemId": "Armor_Steel_Ancient_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 62,
+      "sellPrice": 31
+    },
+    {
+      "itemId": "Armor_Steel_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 30,
+      "sellPrice": 15
+    },
+    {
+      "itemId": "Armor_Steel_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 30,
+      "sellPrice": 15
+    },
+    {
+      "itemId": "Armor_Steel_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 30,
+      "sellPrice": 15
+    },
+    {
+      "itemId": "Armor_Thorium_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 62,
+      "sellPrice": 31
+    },
+    {
+      "itemId": "Armor_Thorium_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 62,
+      "sellPrice": 31
+    },
+    {
+      "itemId": "Armor_Trooper_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 34,
+      "sellPrice": 17
+    },
+    {
+      "itemId": "Armor_Trork_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Armor_Trork_Head",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Armor_Wood_Chest",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 24,
+      "sellPrice": 12
+    },
+    {
+      "itemId": "Armor_Wood_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 26,
+      "sellPrice": 13
+    },
+    {
+      "itemId": "Armor_Wood_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 26,
+      "sellPrice": 13
+    },
+    {
+      "itemId": "Armor_Wool_Hands",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 34,
+      "sellPrice": 17
+    },
+    {
+      "itemId": "Armor_Wool_Legs",
+      "kind": "armor",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 34,
+      "sellPrice": 17
+    },
+    {
+      "itemId": "Ingredient_Bar_Adamantite",
+      "kind": "bar",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 4,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Ingredient_Bar_Bronze",
+      "kind": "bar",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 4,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Ingredient_Bar_Cobalt",
+      "kind": "bar",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 4,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Ingredient_Bar_Copper",
+      "kind": "bar",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 4,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Ingredient_Bar_Gold",
+      "kind": "bar",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 4,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Ingredient_Bar_Iron",
+      "kind": "bar",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 4,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Ingredient_Bar_Mithril",
+      "kind": "bar",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 4,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Ingredient_Bar_Onyxium",
+      "kind": "bar",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 4,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Ingredient_Bar_Prisma",
+      "kind": "bar",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 4,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Ingredient_Bar_Silver",
+      "kind": "bar",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 4,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Ingredient_Bar_Thorium",
+      "kind": "bar",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 4,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Deco_Bat_Plush",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Bone_Ribs",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Bone_Skulls",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Bone_Skulls_Feran_Wall",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Bone_Spike",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Book_Pile_Large",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Campfire_Off",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Coral_Shell_Purple",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Coral_Shell_Urchin",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Halloween_Lights",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Halloween_Pumpkin_Lamp_Green",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Halloween_Pumpkin_Lamp_Yellow",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Inkwell",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Iron_Bars_Platforms",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Iron_Chains_Vertical",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Lantern",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Map",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Mug",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Pot_Clay_Broken",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Rope",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Scarak_Eggsacks",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Scarecrow",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Shutter",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_SpiderWeb_Flat",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Spider_Cocoon",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Target",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Trash_Banana_Peel",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Trash_Pile_Small",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Treasure_Pile_Small",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Deco_Wallchain",
+      "kind": "deco",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Food_Beef_Raw",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Bread",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Food_Candy_Cane",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Cheese",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Food_Chicken_Raw",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Egg",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Fish_Grilled",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Fish_Raw",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Fish_Raw_Epic",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Fish_Raw_Legendary",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 6,
+      "sellPrice": 3
+    },
+    {
+      "itemId": "Food_Fish_Raw_Rare",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Fish_Raw_Uncommon",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Kebab_Fruit",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 6,
+      "sellPrice": 3
+    },
+    {
+      "itemId": "Food_Kebab_Meat",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 6,
+      "sellPrice": 3
+    },
+    {
+      "itemId": "Food_Kebab_Mushroom",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Kebab_Vegetable",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 7,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Food_Pie_Apple",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 14,
+      "sellPrice": 7
+    },
+    {
+      "itemId": "Food_Pie_Meat",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 15,
+      "sellPrice": 8
+    },
+    {
+      "itemId": "Food_Pie_Pumpkin",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 15,
+      "sellPrice": 8
+    },
+    {
+      "itemId": "Food_Popcorn",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 9,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Food_Pork_Raw",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Salad_Berry",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Food_Salad_Caesar",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 13,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Food_Salad_Mushroom",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 7,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Food_Vegetable_Cooked",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Wildmeat_Cooked",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Food_Wildmeat_Raw",
+      "kind": "food",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Rock_Gem_Diamond",
+      "kind": "gem",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 2,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Rock_Gem_Emerald",
+      "kind": "gem",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 2,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Rock_Gem_Ruby",
+      "kind": "gem",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 2,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Rock_Gem_Sapphire",
+      "kind": "gem",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 2,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Rock_Gem_Topaz",
+      "kind": "gem",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 2,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Rock_Gem_Voidstone",
+      "kind": "gem",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 2,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Rock_Gem_Zephyr",
+      "kind": "gem",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 2,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Ingredient_Bolt_Cindercloth",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ingredient_Bolt_Prismaloom",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ingredient_Bolt_Wool",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ingredient_Chitin_Sturdy",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 17,
+      "sellPrice": 8
+    },
+    {
+      "itemId": "Ingredient_Crystal_Pink",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ingredient_Crystal_Void",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 13,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Ingredient_Deep_Resource",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 25,
+      "sellPrice": 12
+    },
+    {
+      "itemId": "Ingredient_Fabric_Scrap_Cotton",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ingredient_Fabric_Scrap_Shadoweave",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ingredient_Feathers_Blue",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ingredient_Feathers_Red",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ingredient_Fishbone",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ingredient_Hay",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 6,
+      "sellPrice": 3
+    },
+    {
+      "itemId": "Ingredient_Hide_Light",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ingredient_Hide_Soft",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ingredient_Leather_Dark",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 17,
+      "sellPrice": 8
+    },
+    {
+      "itemId": "Ingredient_Leather_Medium",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Ingredient_Leather_Storm",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 16,
+      "sellPrice": 8
+    },
+    {
+      "itemId": "Ingredient_Life_Essence_Aubergine",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 7,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ingredient_Life_Essence_Chilli",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ingredient_Life_Essence_Lettuce",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 6,
+      "sellPrice": 3
+    },
+    {
+      "itemId": "Ingredient_Life_Essence_Pumpkin",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ingredient_Life_Essence_Wheat",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ingredient_Poop",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ingredient_Sac_Venom",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 17,
+      "sellPrice": 8
+    },
+    {
+      "itemId": "Ingredient_Spices",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ingredient_Strap_Leather",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ingredient_Void_Essence",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 7,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ingredient_Water_Essence",
+      "kind": "ingredient",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 7,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ore_Adamantite",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ore_Adamantite_Magma",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Adamantite_Magma_Cracked",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Cobalt",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ore_Cobalt_Shale",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Cobalt_Slate",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Cobalt_Slate_Cracked",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Copper",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ore_Copper_Sandstone",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Copper_Shale",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Copper_Stone",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Gold",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ore_Gold_Basalt",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Gold_Calcite",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Gold_Sandstone",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Gold_Shale",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Gold_Stone",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Gold_Volcanic",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Iron",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ore_Iron_Basalt",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Iron_Sandstone",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Iron_Shale",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Iron_Slate",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Iron_Stone",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Iron_Volcanic",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Mithril",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ore_Mithril_Stone",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Onyxium",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ore_Prisma",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ore_Silver",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ore_Silver_Basalt",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Silver_Sandstone",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Silver_Shale",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Silver_Slate",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Silver_Stone",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Silver_Volcanic",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Thorium",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Ore_Thorium_Mud",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Thorium_Mud_Cracked",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Ore_Thorium_Sandstone",
+      "kind": "ore",
+      "featured": false,
+      "minQuantity": 2,
+      "maxQuantity": 8,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Potion_Antidote",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 15,
+      "sellPrice": 8
+    },
+    {
+      "itemId": "Potion_Health",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Potion_Health_Greater",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 18,
+      "sellPrice": 9
+    },
+    {
+      "itemId": "Potion_Health_Large",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 19,
+      "sellPrice": 10
+    },
+    {
+      "itemId": "Potion_Health_Lesser",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Health_Small",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 14,
+      "sellPrice": 7
+    },
+    {
+      "itemId": "Potion_Mana",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Mana_Large",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Mana_Small",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Morph_Dog",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 50,
+      "sellPrice": 25
+    },
+    {
+      "itemId": "Potion_Morph_Frog",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 50,
+      "sellPrice": 25
+    },
+    {
+      "itemId": "Potion_Morph_Mouse",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 51,
+      "sellPrice": 26
+    },
+    {
+      "itemId": "Potion_Morph_Pigeon",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 51,
+      "sellPrice": 26
+    },
+    {
+      "itemId": "Potion_Poison",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Poison_Large",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Poison_Minor",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Purify",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Regen_Health",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Regen_Health_Large",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Regen_Health_Small",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Regen_Mana",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Regen_Mana_Large",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Regen_Mana_Small",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Regen_Stamina",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Regen_Stamina_Large",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Regen_Stamina_Small",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Potion_Signature",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 13,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Potion_Signature_Greater",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 19,
+      "sellPrice": 10
+    },
+    {
+      "itemId": "Potion_Signature_Large",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 26,
+      "sellPrice": 13
+    },
+    {
+      "itemId": "Potion_Signature_Lesser",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 11,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Potion_Signature_Small",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 15,
+      "sellPrice": 8
+    },
+    {
+      "itemId": "Potion_Stamina",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 13,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Potion_Stamina_Greater",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 18,
+      "sellPrice": 9
+    },
+    {
+      "itemId": "Potion_Stamina_Large",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 19,
+      "sellPrice": 10
+    },
+    {
+      "itemId": "Potion_Stamina_Lesser",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 11,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Potion_Stamina_Small",
+      "kind": "potion",
+      "featured": false,
+      "minQuantity": 1,
+      "maxQuantity": 3,
+      "buyPrice": 15,
+      "sellPrice": 8
+    },
+    {
+      "itemId": "Plant_Seeds_Amber",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Apple",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Ash",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Aubergine",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 7,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Plant_Seeds_Azure",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Bamboo",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Banyan",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Beech",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Birch",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Bottletree",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Camphor",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Carrot",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Cedar",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Chilli",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 9,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Plant_Seeds_Corn",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Cotton",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 10,
+      "sellPrice": 5
+    },
+    {
+      "itemId": "Plant_Seeds_Dry",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Fig_Blue",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Fir",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Fire",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Frostwood",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Health1",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Health2",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Health3",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Jungle",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Mana1",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Mana2",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Mana3",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 6,
+      "sellPrice": 3
+    },
+    {
+      "itemId": "Plant_Seeds_Maple",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Oak",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Onion",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 11,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Plant_Seeds_Palm",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Palo",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Petrified",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Poisoned",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Potato",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 12,
+      "sellPrice": 6
+    },
+    {
+      "itemId": "Plant_Seeds_Pumpkin",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 8,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Plant_Seeds_Redwood",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Sadwillow",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Sallow",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Spiral",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Stamina1",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 4,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Stamina2",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 5,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Stormbark",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Sunflower",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Tomato",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 9,
+      "sellPrice": 4
+    },
+    {
+      "itemId": "Plant_Seeds_Turnip",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 6,
+      "sellPrice": 3
+    },
+    {
+      "itemId": "Plant_Seeds_Wild",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Willow",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Plant_Seeds_Wisteria_Wild",
+      "kind": "seed",
+      "featured": false,
+      "minQuantity": 4,
+      "maxQuantity": 16,
+      "buyPrice": 3,
+      "sellPrice": 2
+    },
+    {
+      "itemId": "Tool_Bark_Scraper",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Tool_Capture_Crate",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 28,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Tool_Feedbag",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Tool_Fertilizer",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 29,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Tool_Fertilizer_Crystal",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Tool_Growth_Potion",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Tool_Hammer_Crude",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 23,
+      "sellPrice": 12
+    },
+    {
+      "itemId": "Tool_Hammer_Iron",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Tool_Hatchet_Cobalt",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 62,
+      "sellPrice": 31
+    },
+    {
+      "itemId": "Tool_Hatchet_Copper",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 26,
+      "sellPrice": 13
+    },
+    {
+      "itemId": "Tool_Hatchet_Crude",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 23,
+      "sellPrice": 12
+    },
+    {
+      "itemId": "Tool_Hatchet_Mithril",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 111,
+      "sellPrice": 56
+    },
+    {
+      "itemId": "Tool_Hatchet_Onyxium",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 63,
+      "sellPrice": 32
+    },
+    {
+      "itemId": "Tool_Hatchet_Thorium",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 58,
+      "sellPrice": 29
+    },
+    {
+      "itemId": "Tool_Hoe_Copper",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 23,
+      "sellPrice": 12
+    },
+    {
+      "itemId": "Tool_Hoe_Crude",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Tool_Hoe_Iron",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 29,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Tool_Hookshot",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 49,
+      "sellPrice": 24
+    },
+    {
+      "itemId": "Tool_Map",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Tool_Pickaxe_Adamantite",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 65,
+      "sellPrice": 32
+    },
+    {
+      "itemId": "Tool_Pickaxe_Copper",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 26,
+      "sellPrice": 13
+    },
+    {
+      "itemId": "Tool_Pickaxe_Crude",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 24,
+      "sellPrice": 12
+    },
+    {
+      "itemId": "Tool_Pickaxe_Iron",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Tool_Pickaxe_Onyxium",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 63,
+      "sellPrice": 32
+    },
+    {
+      "itemId": "Tool_Pickaxe_Scrap",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 28,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Tool_Pickaxe_Thorium",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 58,
+      "sellPrice": 29
+    },
+    {
+      "itemId": "Tool_Repair_Kit_Crude",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Tool_Repair_Kit_Goblin",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 34,
+      "sellPrice": 17
+    },
+    {
+      "itemId": "Tool_Repair_Kit_Iron",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Tool_Sap_Shunt",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Tool_Shears_Basic",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 28,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Tool_Shovel_Cobalt",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 40,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Tool_Shovel_Crude",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 23,
+      "sellPrice": 12
+    },
+    {
+      "itemId": "Tool_Shovel_Iron",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Tool_Shovel_Thorium",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 40,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Tool_Sickle_Crude",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 24,
+      "sellPrice": 12
+    },
+    {
+      "itemId": "Tool_Sickle_Iron",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Tool_Sickle_Steel_Rusty",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 22,
+      "sellPrice": 11
+    },
+    {
+      "itemId": "Tool_Trap_Bait",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 29,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Tool_Watering_Can",
+      "kind": "tool",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 26,
+      "sellPrice": 13
+    },
+    {
+      "itemId": "Weapon_Arrow_Clearshot",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 45,
+      "sellPrice": 22
+    },
+    {
+      "itemId": "Weapon_Arrow_Iron",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Axe_Bone",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 63,
+      "sellPrice": 32
+    },
+    {
+      "itemId": "Weapon_Axe_Crude",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 28,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Weapon_Axe_Mithril",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 122,
+      "sellPrice": 61
+    },
+    {
+      "itemId": "Weapon_Axe_Thorium",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 66,
+      "sellPrice": 33
+    },
+    {
+      "itemId": "Weapon_Battleaxe_Cobalt",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 69,
+      "sellPrice": 34
+    },
+    {
+      "itemId": "Weapon_Battleaxe_Doomed",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 66,
+      "sellPrice": 33
+    },
+    {
+      "itemId": "Weapon_Battleaxe_Scarab",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 47,
+      "sellPrice": 24
+    },
+    {
+      "itemId": "Weapon_Battleaxe_Stone_Trork",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 43,
+      "sellPrice": 22
+    },
+    {
+      "itemId": "Weapon_Blowgun_Tribal",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 26,
+      "sellPrice": 13
+    },
+    {
+      "itemId": "Weapon_Bomb_Fire",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Bomb_Stun",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Club_Cobalt",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 69,
+      "sellPrice": 34
+    },
+    {
+      "itemId": "Weapon_Club_Iron",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Club_Onyxium",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 122,
+      "sellPrice": 61
+    },
+    {
+      "itemId": "Weapon_Club_Stone_Trork",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 43,
+      "sellPrice": 22
+    },
+    {
+      "itemId": "Weapon_Club_Zombie_Arm",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Weapon_Club_Zombie_Frost_Leg",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Weapon_Club_Zombie_Sand_Leg",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Weapon_Daggers_Adamantite_Saurian",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 72,
+      "sellPrice": 36
+    },
+    {
+      "itemId": "Weapon_Daggers_Bronze_Ancient",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 43,
+      "sellPrice": 22
+    },
+    {
+      "itemId": "Weapon_Daggers_Crude",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 28,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Weapon_Daggers_Iron",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Daggers_Thorium",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 66,
+      "sellPrice": 33
+    },
+    {
+      "itemId": "Weapon_Deployable_Healing_Totem",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 40,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Flamethrower_Scrap_Dungeon",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 26,
+      "sellPrice": 13
+    },
+    {
+      "itemId": "Weapon_Gun_Blunderbuss",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 26,
+      "sellPrice": 13
+    },
+    {
+      "itemId": "Weapon_Longsword_Adamantite",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 72,
+      "sellPrice": 36
+    },
+    {
+      "itemId": "Weapon_Longsword_Copper",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 30,
+      "sellPrice": 15
+    },
+    {
+      "itemId": "Weapon_Longsword_Katana",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Weapon_Longsword_Praetorian",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 35,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Weapon_Longsword_Ruined_Giant_NPC",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 26,
+      "sellPrice": 13
+    },
+    {
+      "itemId": "Weapon_Longsword_Stone_Trork",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 43,
+      "sellPrice": 22
+    },
+    {
+      "itemId": "Weapon_Mace_Adamantite",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 72,
+      "sellPrice": 36
+    },
+    {
+      "itemId": "Weapon_Mace_Crude",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 29,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Weapon_Mace_Prisma",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 44,
+      "sellPrice": 22
+    },
+    {
+      "itemId": "Weapon_Mace_Stone_Trork",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 43,
+      "sellPrice": 22
+    },
+    {
+      "itemId": "Weapon_Shield_Copper",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 37,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Weapon_Shield_Mithril",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 122,
+      "sellPrice": 61
+    },
+    {
+      "itemId": "Weapon_Shield_Praetorian",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 40,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Shield_Scrap",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 39,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Shortbow_Adamantite",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 72,
+      "sellPrice": 36
+    },
+    {
+      "itemId": "Weapon_Shortbow_Cobalt",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 69,
+      "sellPrice": 34
+    },
+    {
+      "itemId": "Weapon_Shortbow_Doomed",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 66,
+      "sellPrice": 33
+    },
+    {
+      "itemId": "Weapon_Shortbow_Iron",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Shortbow_Pull",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 26,
+      "sellPrice": 13
+    },
+    {
+      "itemId": "Weapon_Shortbow_Vampire",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 30,
+      "sellPrice": 15
+    },
+    {
+      "itemId": "Weapon_Spear_Bronze",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 43,
+      "sellPrice": 22
+    },
+    {
+      "itemId": "Weapon_Spear_Crude",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 28,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Weapon_Spear_Leaf",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 39,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Spear_Scrap",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 39,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Spellbook_Demon",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 40,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Spellbook_Grimoire_Brown",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 40,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Staff_Bo_Bamboo",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 40,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Staff_Bronze",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 35,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Weapon_Staff_Crystal_Fire_Trork",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 36,
+      "sellPrice": 18
+    },
+    {
+      "itemId": "Weapon_Staff_Crystal_Purple",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 40,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Staff_Iron",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Staff_Onyxium",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 44,
+      "sellPrice": 22
+    },
+    {
+      "itemId": "Weapon_Staff_Wizard",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 40,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Staff_Wood_Rotten",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 40,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Sword_Bronze_Ancient",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 43,
+      "sellPrice": 22
+    },
+    {
+      "itemId": "Weapon_Sword_Crude",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 27,
+      "sellPrice": 14
+    },
+    {
+      "itemId": "Weapon_Sword_Iron",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 41,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Sword_Onyxium",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 122,
+      "sellPrice": 61
+    },
+    {
+      "itemId": "Weapon_Sword_Steel",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 46,
+      "sellPrice": 23
+    },
+    {
+      "itemId": "Weapon_Sword_Stone_Trork",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 43,
+      "sellPrice": 22
+    },
+    {
+      "itemId": "Weapon_Wand_Stoneskin",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 40,
+      "sellPrice": 20
+    },
+    {
+      "itemId": "Weapon_Wand_Wood_Rotten",
+      "kind": "weapon",
+      "featured": true,
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "buyPrice": 40,
+      "sellPrice": 20
+    }
+  ]
+}

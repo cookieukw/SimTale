@@ -1,0 +1,22 @@
+{
+  "Input": [
+    {
+      "ItemId": "SimTale_Coin_Thorium",
+      "Quantity": 100
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "SimTale_Coin_Gold",
+    "Quantity": 1
+  },
+  "BenchRequirement": [
+    {
+      "Id": "Workbench",
+      "Type": "Crafting",
+      "Categories": [
+        "Workbench_Tools"
+      ]
+    }
+  ],
+  "Seconds": 1
+}

@@ -58,6 +58,76 @@ A festive celebratory cake that can be shared with villagers. Stand near an NPC 
 - **Effects:** The villager eats a generous slice, completely satisfying hunger and boosting their emotional state to maximum happiness (**Mood: EXCITED** with 1.0 intensity), sparking joyful particle effects and granting an affinity boost.
 - **Crafted at:** Cookingbench (Baked goods).
 
+## Currency and the travelling merchant
+
+<div align="center">
+  <img src="/img/SimTale_Coin_Copper.png" width="96" style={{imageRendering: 'pixelated', margin: '0 8px'}} />
+  <img src="/img/SimTale_Coin_Thorium.png" width="96" style={{imageRendering: 'pixelated', margin: '0 8px'}} />
+  <img src="/img/SimTale_Coin_Gold.png" width="96" style={{imageRendering: 'pixelated', margin: '0 8px'}} />
+  <img src="/img/SimTale_PiggyBank.png" width="96" style={{imageRendering: 'pixelated', margin: '0 8px'}} />
+</div>
+
+SimTale uses a three-tier coin currency. Every price in the merchant screen is shown in **copper**, and larger coins are worth a fixed number of copper coins:
+
+| Coin | Value |
+|---|---|
+| <img src="/img/SimTale_Coin_Copper.png" width="24" align="absmiddle"/> Copper Coin (`SimTale_Coin`) | 1 copper |
+| <img src="/img/SimTale_Coin_Thorium.png" width="24" align="absmiddle"/> Thorium Coin (`SimTale_Coin_Thorium`) | 100 copper |
+| <img src="/img/SimTale_Coin_Gold.png" width="24" align="absmiddle"/> Gold Coin (`SimTale_Coin_Gold`) | 10,000 copper |
+
+### Bar conversion
+
+Metal bars can be turned into coins at a Workbench:
+
+- 1 Copper Bar → 100 Copper Coins
+- 1 Thorium Bar → 100 Thorium Coins
+- 1 Gold Bar → 100 Gold Coins
+
+The coins themselves can be exchanged upward:
+
+- 100 Copper Coins → 1 Thorium Coin
+- 100 Thorium Coins → 1 Gold Coin
+
+### Recovering gold from decorative blocks
+
+Gold does not have to remain decorative. The gold-brick building pieces can be broken back down
+at a Workbench:
+
+- 1 `Rock_Gold_Brick` or gold-brick variant → 1 Gold Bar (`Ingredient_Bar_Gold`)
+
+This includes walls, beams, pillars, roofs, stairs, smooth pieces, ornate pieces and half-blocks.
+
+The merchant gives change automatically. If a purchase costs 16 copper and you pay with one Thorium Coin, the remaining 84 copper comes back in smaller coins.
+
+### Piggy Bank
+
+<div align="center">
+  <img src="/img/SimTale_PiggyBank.png" width="128" style={{imageRendering: 'pixelated'}} />
+</div>
+
+The <img src="/img/SimTale_PiggyBank.png" width="24" align="absmiddle"/> **Piggy Bank** is a handheld item. Right-click it to deposit every coin in your inventory, or withdraw 100, 1,000 or everything.
+
+The balance is stored per player and per world. When you open a merchant and your inventory does not hold enough coins, the merchant draws the difference straight from your Piggy Bank — no need to withdraw first. If a sale would overflow your inventory, the payment goes into savings instead of being lost.
+
+### Travelling merchant
+
+A merchant visits the village for about **30 minutes**, then leaves. Visits are random and need at least three residents. The merchant arrives on ground already used by villagers and never spawns right next to the player.
+
+Each visit rolls:
+
+- a different name, gender and appearance;
+- one specialty: general goods, provisions, ore, remedies, curiosities or seeds;
+- five offers drawn from a pool of roughly 400 items, with at least one premium entry when the specialty has one;
+- a stock that stays fixed for that visit.
+
+Interacting with the merchant opens the trade screen directly — no resident sheet, no needs panel and no chat actions. In the trade screen you can buy stock or sell goods back; selling replenishes the merchant's stock and pays you in coins. Stock, visit identity and the remaining time are saved with Caskara, so restarting the world does not duplicate the merchant or reset what was already sold.
+
+Admins can force a test visit with:
+
+```text
+/simtale merchant
+```
+
 ## Crafting Recipes
 
 All items can be crafted at their respective workstations:
@@ -71,11 +141,17 @@ All items can be crafted at their respective workstations:
 | **Inspector's Journal** | Inventory (Fieldcraft) | 1x <img src="/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Small Book Pile, 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell |
 | **Immigration Contract** | Inventory (Fieldcraft) | 1x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll, 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather |
 | **Town Bell** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 3x Gold Bar, 2x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks |
+| **100 Copper Coins** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 1x <img src="/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Copper Bar |
+| **100 Thorium Coins** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 1x <img src="/img/Ingredient_Bar_Thorium.png" width="24" align="absmiddle"/> Thorium Bar |
+| **100 Gold Coins** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 1x <img src="/img/Ingredient_Bar_Gold.png" width="24" align="absmiddle"/> Gold Bar |
+| **1 Thorium Coin** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 100x <img src="/img/SimTale_Coin_Copper.png" width="24" align="absmiddle"/> Copper Coins |
+| **1 Gold Coin** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 100x <img src="/img/SimTale_Coin_Thorium.png" width="24" align="absmiddle"/> Thorium Coins |
+| **Piggy Bank** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 4x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks, 2x <img src="/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Copper Bars |
 | **Birthday Cake** | Cookingbench | 1x Apple Pie (`Food_Pie_Apple`), 1x Orange Light Source / Candle (`Build_Lightsource_Orange`) |
 
 ### Item Icons
 
-![Pregnancy Test](/img/PregnancyTest.png) ![House Blueprint](/img/HouseBlueprint.png) ![Innkeeper Ledger](/img/InnkeepersLedger.png) ![Quartermaster Glass](/img/QuartermastersGlass.png) ![Inspector's Journal](/img/InspectorsJournal.png) ![Immigration Contract](/img/ImmigrationContract.png) ![Town Bell](/img/TownBell.png) ![Wedding Ring](/img/WeddingRing.png) ![Baby](/img/Baby.png) ![Birthday Cake](/img/BirthdayCake.png)
+![Pregnancy Test](/img/PregnancyTest.png) ![House Blueprint](/img/HouseBlueprint.png) ![Innkeeper Ledger](/img/InnkeepersLedger.png) ![Quartermaster Glass](/img/QuartermastersGlass.png) ![Inspector's Journal](/img/InspectorsJournal.png) ![Immigration Contract](/img/ImmigrationContract.png) ![Town Bell](/img/TownBell.png) ![Wedding Ring](/img/WeddingRing.png) ![Baby](/img/Baby.png) ![Birthday Cake](/img/BirthdayCake.png) ![Copper Coin](/img/SimTale_Coin_Copper.png) ![Thorium Coin](/img/SimTale_Coin_Thorium.png) ![Gold Coin](/img/SimTale_Coin_Gold.png) ![Piggy Bank](/img/SimTale_PiggyBank.png)
 
 ## House Blueprint
 

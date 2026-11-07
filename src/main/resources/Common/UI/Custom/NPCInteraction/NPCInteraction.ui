@@ -405,6 +405,16 @@ Group {
             Style: $T.@ButtonLabelStyle;
           }
         }
+        Button #TradeButton {
+          Anchor: (Width: 213, Height: 38);
+          Style: $T.@BtnProfession;
+          Visible: false;
+          Label #TradeButtonText {
+            Text: "Trade";
+            Anchor: (Full: 0);
+            Style: $T.@ButtonLabelStyle;
+          }
+        }
       }
 
       Group #ButtonRow5 {

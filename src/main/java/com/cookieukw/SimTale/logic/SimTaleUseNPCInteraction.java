@@ -168,6 +168,11 @@ public class SimTaleUseNPCInteraction extends SimpleInstantInteraction {
             }
 
             LOGGER.atInfo().log("SimTale [DEBUG]: player=" + (player != null) + ", npc=" + (npc != null));
+            if (player != null && npc != null && !wronglyAdopted
+                    && MerchantInteractionHelper.openIfMerchant(player, playerRefComponent, ref, npc, ref.getStore())) {
+                context.getState().state = InteractionState.Finished;
+                return;
+            }
             if (player != null && npc != null && !wronglyAdopted) {
                 final Player finalPlayer = player;
                 final SimNPCComponent finalNpc = npc;

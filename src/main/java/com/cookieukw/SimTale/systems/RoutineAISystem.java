@@ -11,7 +11,6 @@ import com.cookieukw.SimTale.config.SimTaleConfig;
 import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
-import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.entity.Frozen;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -579,7 +578,11 @@ once per NPC per tick for nothing.
 
         if (RoutineSleepHelpers.handleWaking(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
-        /* Chest Interaction & Feeding Logic (Delegado ao NPCHungerHelper) 
+        /* Ordinary residents can defend themselves against nearby hostiles, but use the weaker
+        * civilian combat path instead of the guard alarm/buffs. */
+        if (NPCGuardHelper.handleCivilianDefense(ref, npc, ai, transform, world, store, commandBuffer)) return;
+
+        /* Chest Interaction & Feeding Logic (Delegado ao NPCHungerHelper)
         */
         NPCHungerHelper.tickStarvation(ref, npc, world, store);
         NPCHungerHelper.handleHungerLogic(ref, npc, ai, transform, world, store);
@@ -1214,10 +1217,11 @@ once per NPC per tick for nothing.
         */
         if (horizontalSq > FOLLOW_STOP_DISTANCE_SQ
                 || Math.abs(target.y - myPos.y) > FOLLOW_VERTICAL_THRESHOLD) {
-            NPCMovementHelper.setRunningState(ref, store, horizontalSq > FOLLOW_RUN_DISTANCE_SQ);
+            NPCMovementHelper.setFollowMovementState(ref, store, true,
+                    horizontalSq > FOLLOW_RUN_DISTANCE_SQ);
             NPCMovementHelper.moveTo(ref, ai, world, target);
         } else {
-            NPCMovementHelper.setRunningState(ref, store, false);
+            NPCMovementHelper.setFollowMovementState(ref, store, false, false);
             NPCMovementHelper.clearMoveTarget(ref, ai);
         }
         return true;
@@ -1246,9 +1250,13 @@ once per NPC per tick for nothing.
         NPCMovementHelper.setSleepingState(npcRef, store, false);
         store.tryRemoveComponent(npcRef, MountedComponent.getComponentType());
         store.tryRemoveComponent(npcRef, Frozen.getComponentType());
-        AnimationUtils.stopAnimation(npcRef, AnimationSlot.Status, true, store);
-        NPCMovementHelper.playAnim(npcRef, AnimationSlot.Status,
-                "Characters/Animations/Default/Idle.blockyanim", "Idle", store);
+        /* Poses from dialogue, sleep, chairs and work animations live in slots that override
+        locomotion. StopAnimation alone leaves the slot entry behind, so clear the entries
+        explicitly -- otherwise the follower keeps the Idle/Sleep clip and slides while walking.
+        */
+        NPCMovementHelper.clearAnimationSlot(npcRef, AnimationSlot.Status, store);
+        NPCMovementHelper.clearAnimationSlot(npcRef, AnimationSlot.Movement, store);
+        NPCMovementHelper.clearAnimationSlot(npcRef, AnimationSlot.Action, store);
         npc.isInteractingViaUI = false;
         npc.uiInteractionPlayer = null;
         npc.currentConversationPartner = null;
@@ -1259,6 +1267,7 @@ once per NPC per tick for nothing.
         ai.forcedByDebug = false;
         ai.taskStartTime = world != null ? world.getTick() : 0;
         NPCMovementHelper.clearMoveTarget(npcRef, ai);
+        NPCMovementHelper.setFollowMovementState(npcRef, store, false, false);
         return true;
     }
 
@@ -1269,7 +1278,7 @@ once per NPC per tick for nothing.
         ai.forcedByDebug = false;
         ai.targetBlockPosition = null;
         NPCMovementHelper.clearMoveTarget(ref, ai);
-        NPCMovementHelper.setRunningState(ref, ref.getStore(), false);
+        NPCMovementHelper.setFollowMovementState(ref, ref.getStore(), false, false);
     }
 
     private static void clearAutonomyState(RoutineAIComponent ai, SimNPCComponent npc, World world, Store<EntityStore> store) {

@@ -1,5 +1,176 @@
 # Changelog
 
+## [1.4.0] — 2026-11-06
+
+Esta versão reúne tudo o que foi adicionado depois da 1.3.1. A versão 1.3.2 foi um build interno
+usado durante o desenvolvimento do mercador viajante; as mudanças dela estão incluídas aqui.
+
+### NPCs seguindo o jogador
+
+- Adicionado `/simtale follow` para fazer o NPC mais próximo seguir o jogador.
+- Adicionado `/simtale follow stop` para liberar os NPCs que estão seguindo.
+- Adicionados **Follow** / **Stop Following** ao menu de interação do NPC.
+- NPCs comuns mostram a ação em até 6 blocos; guardas podem ser mandados seguir sempre.
+- Seguir não exige amizade, romance ou intimidade.
+- Seguidores usam o pathfinding nativo em vez de teleportar, param a uma distância natural e
+  retomam o follow depois de dormir, comer ou cumprir outra tarefa temporária.
+- Seguidores andam quando estão perto e correm quando ficam longe; as animações de caminhada e
+  corrida agora alternam corretamente.
+- Slots de animação presos são limpos ao iniciar o follow, evitando que o NPC fique parado na
+  pose errada.
+- Mensagens e rótulos do follow localizados em inglês, português e espanhol.
+
+### Casas e validação de casas
+
+- Limite de interior suportado aumentado de 512 para 2.048 blocos.
+- A validação agora distingue casas grandes, telhados/aberturas expostos e chunks não carregados.
+- Aberturas de até dois blocos são toleradas, permitindo acesso de varanda ou pequenas falhas
+  decorativas sem tratar o exterior inteiro como interior da casa.
+- Cômodos abertos não espalham mais a varredura pelo mundo até o antigo limite rígido.
+- O Blueprint da Casa mostra diagnósticos mais claros para casas grandes demais ou abertas.
+- O Blueprint da Casa e os itens de inspeção usam o mundo atual do jogador em vez de assumir o
+  primeiro mundo carregado.
+
+### Postos de trabalho
+
+- Adicionados registros por mundo para Postos de Pesca, Postos de Lenha e Postos de Fazenda.
+- Reivindicação, liberação, remoção e descoberta no boot dos postos agora são isoladas por mundo.
+- Marcadores de postos são únicos por mundo e mostram se o posto está disponível ou ocupado.
+- Postos de Pesca revalidam o alvo de água antes de um pescador reivindicá-los.
+- Um Posto de Pesca redireciona automaticamente para água próxima quando o bloco de água original
+  é removido.
+- Um Posto de Pesca sem alvo de água restante é liberado em vez de mandar o NPC para o ar.
+- Rótulos dos marcadores de postos localizados em inglês, português e espanhol.
+- Corrigida uma condição que impedia trabalhadores sem reserva social ativa de iniciar o trabalho.
+
+### Isolamento por mundo e persistência
+
+- Adicionadas APIs explícitas de persistência por mundo para dados do SimTale e cemitérios.
+- Registros de camas, índices de casas, baús, postos de trabalho e snapshots de vila agora
+  suportam acesso por mundo.
+- Rotinas, crescimento, gravidez, cuidado com bebês, construção, portas, comportamento de guarda,
+  estoques, marcadores de mapa e ferramentas de debug resolvem o mundo a partir da entidade ou do
+  jogador relevante.
+- Snapshots de mapa e sobreposições da vila são isolados por mundo.
+- Verificações de zona segura usam a vila do mundo atual do NPC.
+- A descoberta de baús compartilhados e os resumos de estoque da vila não selecionam mais baús de
+  outro mundo.
+- Buscas por casa, família e revival de NPC usam índices de casas do mundo correto.
+
+### Segurança da vila, guardas e defesa civil
+
+- NPCs dentro da zona segura da vila são protegidos de dano normal, incluindo dano de jogadores,
+  mobs, fogo e quedas.
+- Se um caminho de dano direto ou de debug ainda reduzir o NPC a 0 HP dentro da zona segura, o
+  SimTale restaura a vida em vez de entrar no fluxo de morte.
+- A remoção externa de NPCs continua registrada no log com nome, tarefa e última causa de dano.
+- Residentes desaparecidos podem ser recuperados com `/simtale respawnmissing [nome]`.
+- Guardas agora reconhecem animais hostis além dos mortos-vivos e criaturas já cobertas: aranhas,
+  ursos, aranhas de caverna, lobos gigantes (dire wolves) e javalis.
+- Moradores comuns também reagem a hostis próximos enquanto estão ociosos ou passeando. Eles usam
+  a via de combate civil, com dano menor (cerca de 10% da vida máxima por golpe) e sem os bônus de
+  vida, armadura e redução de dano dos guardas.
+
+### Aparência e roupas dos NPCs
+
+- Adicionada uma camiseta base neutra sob as camadas de roupa superior.
+- Corrigidas variantes adultas, infantis, de Natal e de Halloween que podiam deixar o torso
+  superior visualmente descoberto.
+- Scripts de geração de modelos atualizados para manter a camiseta base automaticamente.
+- 1.089 variantes de modelo geradas foram corrigidas.
+
+### Mapa e interface
+
+- Snapshots de marcadores atualizam imediatamente depois que casas, vilas, camas, postos e móveis
+  reconhecidos mudam.
+- Marcadores de casa são lidos do índice de casas do mundo atual.
+- Baús globais próximos são agrupados em um único marcador de mapa, com contagem, e o rótulo é
+  localizado.
+- A invalidação de chunks do mapa agora atinge apenas o mundo que mudou, corrigindo chunks azuis
+  ou marcados como não carregados em outros mundos.
+- NPCs ausentes em expedições ou jornadas de trabalho não deixam mais plumbob nem marcador de mapa
+  para trás.
+- Painéis de interação com NPC foram reorganizados em seções mais claras de necessidades,
+  relacionamentos, preferências, detalhes e ações.
+- Rótulos de fallback da interação agora usam chaves de tradução em vez de texto fixo.
+- Traduções completas de Follow e postos de trabalho adicionadas para `pt-BR` e `es-ES`.
+- Adicionada validação estrita de locales para paridade de chaves, placeholders, entradas
+  duplicadas, valores vazios, BOM e codificação UTF-8.
+
+### Mercador viajante
+
+- Adicionado um mercador viajante temporário que visita a vila por cerca de 30 minutos e depois
+  vai embora.
+- As verificações de chegada rodam a cada 15 minutos, exigem pelo menos três moradores e têm 25%
+  de chance, para que as visitas pareçam um evento em vez de tráfego constante.
+- O mercador chega em chão já usado por aldeões, a pelo menos 28 blocos do jogador e dentro da vila
+  mais próxima.
+- Cada visita sorteia nome, variante de corpo, gênero e especialidade: mercadorias gerais,
+  mantimentos, minério, remédios, curiosidades ou sementes.
+- O mercador veste o traje clássico (boina, túnica, calça com cinto e luvas), com cinco aparências
+  masculinas e cinco femininas geradas a partir de rostos de moradores existentes.
+- Cada visita sorteia cinco ofertas de um catálogo com cerca de 400 itens vanilla (minérios,
+  barras, gemas, comida, poções, sementes, ferramentas, armas, armaduras, decoração e
+  ingredientes), em vez de três itens fixos. Uma entrada premium é garantida quando a
+  especialidade tem uma.
+- Estoque, preços e quantidades ficam fixos enquanto o mercador está presente e depois de recarregar
+  o mundo.
+- A tela de comércio mostra o ícone real de cada oferta, usa os fundos de qualidade do ItemSlot e
+  lista cinco entradas por especialidade.
+- Ofertas esgotadas escondem o botão **Buy** e mostram **Sold Out** no lugar.
+- Adicionadas ações de compra e venda. Vender devolve os itens ao estoque do mercador e paga o
+  jogador em moedas.
+- Interagir com o mercador abre direto o balcão de comércio, sem ficha de morador, painel de
+  necessidades, conversa, flirt ou bronca.
+- Mercadores não sorteiam mais uma profissão comum ao nascer, então nunca aparecem segurando
+  picareta, enxada, arco ou outra ferramenta de profissão.
+- Abrir e fechar o balcão limpa o slot de animação de movimento e libera o mercador corretamente,
+  para que chegada e saída usem a animação normal de caminhada.
+- Fechar o balcão libera explicitamente a pose do mercador, então vender e sair da loja não deixa
+  mais o clipe de caminhada preso no idle.
+- Visitas, estoque restante e identidade do mercador são persistidos com Caskara, para que reiniciar
+  o servidor não duplique o mercador nem redefina o que já foi vendido.
+- A tela de comércio está localizada em inglês, português e espanhol.
+- Adicionado `/simtale merchant` para gerar uma visita de teste.
+
+### Economia: moedas, porquinho e ouro
+
+- Adicionadas `SimTale_Coin` (cobre), `SimTale_Coin_Thorium` e `SimTale_Coin_Gold`, com modelos 3D
+  e ícones. Cem moedas de cobre equivalem a uma moeda de tório; cem moedas de tório equivalem a
+  uma moeda de ouro.
+- Receitas de conversão de barras: uma barra de cobre vira 100 moedas de cobre, uma barra de tório
+  vira 100 moedas de tório e uma barra de ouro vira 100 moedas de ouro. As receitas de troca
+  convertem 100 moedas de cobre em uma de tório e 100 de tório em uma de ouro.
+- Adicionado o item Porquinho e sua tela de depósito/saque. As moedas guardadas são usadas
+  automaticamente pelo mercador quando o inventário não tem o suficiente, e o troco de vendas
+  transborda para a poupança quando o inventário está cheio.
+- Blocos decorativos de ouro agora podem ser desmontados na Bancada de Trabalho: cada
+  `Rock_Gold_Brick` ou variante (parede, viga, pilar, telhado, escada, peça lisa, ornamentada ou
+  meio-bloco) rende uma Barra de Ouro.
+
+### Estabilidade
+
+- Corrigido um `NullPointerException` ao procurar a cama de um filho quando o registro do pai ou da
+  mãe não existia mais.
+
+### Ferramentas e validação
+
+- Adicionada configuração do Crowdin e sincronização via GitHub Actions para os recursos em inglês,
+  português e espanhol.
+- Adicionadas verificações automatizadas para arquivos de UI, consistência de locales e recursos
+  gerados.
+- A suíte completa de testes, a validação estrita de locales e a validação de UI passam depois
+  dessas mudanças.
+
+## [1.3.1] — 2026-10-28
+
+Esta versão consolidou o conjunto de recursos da linha 1.3.x. Não houve mudança de jogabilidade
+em relação à 1.3.0 além dos ajustes já listados abaixo.
+
+- A pasta `docs/` foi removida; a wiki passou a ser a documentação canônica em inglês e PT-BR.
+- A suíte de testes passou a registrar 1.881 asserções.
+- O build da wiki em inglês e PT-BR foi validado junto com a release.
+
 ## [1.3.0] — 2026-10-20
 
 ### Correções de interações

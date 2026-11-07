@@ -1,0 +1,15 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.simtale_coin_thorium.name",
+    "Description": "general.item.simtale_coin_thorium.description"
+  },
+  "Icon": "Icons/Items/SimTale_Coin_Thorium.png",
+  "Model": "Resources/SimTale_Coin/SimTale_Coin.blockymodel",
+  "Texture": "Resources/SimTale_Coin/SimTale_Coin_Thorium_texture.png",
+  "Quality": "Uncommon",
+  "Categories": ["Items.Ingredients"],
+  "Tags": {"Type": ["Ingredient"]},
+  "PlayerAnimationsId": "Item",
+  "Scale": 0.75,
+  "MaxStack": 999
+}
