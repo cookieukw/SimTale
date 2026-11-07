@@ -21,3 +21,7 @@ files:
     # Preserva traduções existentes quando o texto em inglês muda; elas voltam
     # para a fila de revisão em vez de serem perdidas silenciosamente.
     update_option: update_as_unapproved
+
+# O workflow baixa apenas chaves já traduzidas (skip_untranslated_strings).
+# Chaves novas que ainda não estão no Crowdin são restauradas pelo passo
+# tools/merge_crowdin_keys.py antes do push da branch l10n_crowdin.
