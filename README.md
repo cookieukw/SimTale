@@ -1113,3 +1113,37 @@ English.
 
 Translations are synchronized through Crowdin. If you would like to help with a language, open an
 issue or a pull request on [GitHub](https://github.com/cookieukw/SimTale).
+
+### Updating Crowdin
+
+The repository is the source of truth for English. To send changes to Crowdin:
+
+```bash
+export CROWDIN_PROJECT_ID="your-project-id"
+export CROWDIN_PERSONAL_TOKEN="your-personal-token"
+
+# New or changed en-US strings
+./scripts/crowdin.sh upload-sources
+
+# Repository translations (default: pt-BR and es-ES)
+./scripts/crowdin.sh upload-translations
+
+# Pull translations back; fallback keys are preserved
+./scripts/crowdin.sh download
+
+# All three, in order
+./scripts/crowdin.sh sync
+```
+
+To update only one language, pass its locale:
+
+```bash
+./scripts/crowdin.sh upload-translations pt-BR
+```
+
+Set `CROWDIN_DRY_RUN=1` to preview the commands. The same actions are available through
+`npm run crowdin:upload-sources`, `npm run crowdin:upload-translations`, `npm run crowdin:download`
+and `npm run crowdin:sync`.
+
+> **Caution:** uploading translations can overwrite newer unapproved text in Crowdin. Prefer
+> uploading a single locale when you only changed that language.
