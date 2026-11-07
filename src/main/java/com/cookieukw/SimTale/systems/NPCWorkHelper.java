@@ -148,6 +148,13 @@ public class NPCWorkHelper {
      */
     public static boolean isAwayOnExpedition(Store<EntityStore> store, Ref<EntityStore> ref) {
         if (store == null || ref == null || !ref.isValid()) return false;
+        SimNPCComponent npc = store.getComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE);
+        /* MobsAndMates jobs use SimNPCComponent.isAway and move the NPC to Y=1000 instead of
+        entering our EXPEDITION task. Both mechanisms mean exactly the same thing to overlays:
+        the resident is temporarily absent from the village. The old check only covered the
+        miner/hunter expedition path, so a job departure left the plumbob and map marker behind
+        at the hidden NPC's stale position. */
+        if (npc != null && npc.isAway) return true;
         RoutineAIComponent ai = store.getComponent(ref, SimTale.ROUTINE_AI_COMPONENT_TYPE);
         return ai != null && ai.currentTask == TaskType.EXPEDITION;
     }
