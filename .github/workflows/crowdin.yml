@@ -49,3 +49,30 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+
+      # skip_untranslated_strings drops every key that has no translation in
+      # Crowdin yet. Those keys still exist in the repository (usually as the
+      # fallback translation added together with a feature), so a plain download
+      # would delete them from the bot PR. Restore only what the download
+      # omitted; translations that Crowdin did provide are left untouched.
+      - name: Restore keys that Crowdin has not translated yet
+        run: |
+          set -euo pipefail
+          if ! git ls-remote --exit-code --heads origin l10n_crowdin >/dev/null 2>&1; then
+            echo "No Crowdin branch was created; nothing to restore."
+            exit 0
+          fi
+          if [ "$(git branch --show-current)" != "l10n_crowdin" ]; then
+            git fetch origin l10n_crowdin
+            git checkout -B l10n_crowdin origin/l10n_crowdin
+          fi
+          python3 tools/merge_crowdin_keys.py --base origin/main
+          if git diff --quiet; then
+            echo "No missing keys; nothing to restore."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/main/resources/Server/Languages
+          git commit -m "i18n: keep untranslated fallback keys"
+          git push origin HEAD:l10n_crowdin

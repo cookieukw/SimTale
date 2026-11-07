@@ -299,6 +299,31 @@ Ele apenas não vai mais embora à toa.
 **Guardas patrulham a borda.** Um guarda sem inimigos para lutar faz um circuito caminhando pela fronteira da
 vila, que é de onde os problemas geralmente vêm. Um guarda que não pertence a uma vila fica parado onde está.
 
+### Zona segura da vila
+
+Uma vila é mais do que um lugar para dormir — é uma área protegida.
+
+- **Moradores não tomam dano.** Jogadores, mobs, fogo e quedas não podem machucar um NPC do SimTale
+  dentro da fronteira da vila. `/simtale forcekill` continua funcionando para testes.
+- **Afogamento e sufocamento são cancelados.** Se um NPC ficar preso na água ou dentro de blocos, o
+  dano é ignorado e o NPC é teleportado de volta para a cama ou para casa em vez de morrer.
+- **Guardas são mais fortes.** Guardas recebem o dobro de vida máxima, +50 de armadura, +10 de dano
+  físico e 25% de redução de dano. Eles perseguem e matam mobs hostis — incluindo animais como
+  aranhas, ursos, aranhas de caverna, lobos gigantes e javalis, não apenas esqueletos e outros
+  inimigos humanoides.
+- **O jogador regenera.** Entrar na vila concede um efeito de regeneração, renovado enquanto você
+  permanecer dentro dela.
+- **Baús globais.** Baús colocados dentro da vila, mas fora de qualquer casa, viram estoque global:
+  qualquer morador pode retirar comida deles, e trabalhadores depositam o excedente ali.
+
+<p align="center">
+  <img src="https://simtale.kukkie.org/img/village_safe_zone_water.png" width="49%" />
+  <img src="https://simtale.kukkie.org/img/village_global_chests.png" width="49%" />
+</p>
+
+A zona segura e a regeneração podem ser desativadas no `simtale-config.json` com
+`villageSafeZoneEnabled` e `villageRegenEnabled`.
+
 ---
 
 ### Interagindo com NPCs
@@ -760,6 +785,53 @@ Se o cenário não existir — um pescador no deserto, por exemplo — ela não 
 
 ---
 
+### Mercadores viajantes
+
+De tempos em tempos, um mercador visita a vila. A visita dura cerca de 30 minutos. A cada 15
+minutos o jogo verifica a vila; se houver pelo menos três moradores, a visita tem 25% de chance.
+O mercador chega a pelo menos 28 blocos do jogador, em chão que os aldeões já usam.
+
+Cada visita é uma pessoa diferente — nome, variante de corpo, gênero e especialidade. As
+especialidades são mercadorias gerais, mantimentos, minério, remédios, curiosidades e sementes. Ele
+veste o traje clássico de mercador (boina, túnica, calça com cinto e luvas), com cinco aparências
+masculinas e cinco femininas.
+
+Clique com o botão direito no mercador para abrir direto o balcão de comércio. Não há ficha de
+morador, painel de necessidades nem conversa fiada: só a loja. Cada visita sorteia cinco ofertas de
+um catálogo com cerca de 400 itens vanilla, com um item premium garantido quando a especialidade
+tem um. Estoque, preços e quantidades ficam fixos durante toda a visita e sobrevivem a um reload.
+
+- **Compre** com moedas de cobre, tório ou ouro.
+- **Venda** itens de volta; o mercador paga em moedas e os itens retornam ao estoque dele.
+- Uma oferta esgotada mostra **ESGOTADO** e não pode ser comprada.
+- Se o inventário não tiver moedas suficientes, o mercador desconta a diferença do seu
+  **Porquinho**.
+- O troco volta em moedas menores, ou vai para o Porquinho quando o inventário está cheio.
+
+<p align="center">
+  <img src="https://simtale.kukkie.org/img/merchant_gold_trade.png" width="70%" />
+</p>
+
+#### Moedas, Porquinho e ouro
+
+- <img src="https://simtale.kukkie.org/img/SimTale_Coin_Copper.png" width="20" align="absmiddle" />
+  **Moeda de Cobre** (`SimTale_Coin`) é a moeda base.
+- 100 moedas de cobre = 1 **Moeda de Tório** (`SimTale_Coin_Thorium`); 100 moedas de tório = 1
+  **Moeda de Ouro** (`SimTale_Coin_Gold`).
+- Uma barra de cada metal vira 100 moedas daquele metal; 100 moedas viram uma moeda do próximo
+  nível.
+- O **Porquinho** guarda moedas e é usado automaticamente pelo mercador quando o inventário está
+  curto.
+- O ouro não é mais só decoração: paredes, vigas, pilares, telhados, escadas, peças lisas,
+  ornamentadas e meios-blocos de tijolo de ouro podem ser desmontados de volta em **Barras de
+  Ouro** na Bancada de Trabalho (1 bloco = 1 barra).
+
+A visita, a identidade e o estoque restante do mercador são persistidos com Caskara, então
+reiniciar o servidor não duplica o mercador nem reabastece o que você já comprou.
+`/simtale merchant` gera uma visita de teste.
+
+---
+
 ### Ferramentas e itens
 
 SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a vila possa ser compreendida de dentro do jogo, sem a necessidade de digitar comandos de debug.
@@ -934,3 +1006,18 @@ A forma mais confiável é **agachar e pular ao mesmo tempo** — ela desce na h
 #### Um NPC morreu. Tem como trazê-lo de volta?
 
 Sim. Quando a Ceifadora (Grim Reaper) aparecer para coletar a alma, interaja com ela durante o ritual segurando um Coração do Vazio (`Ingredient_Voidheart`) para cancelar a coleta e reviver o NPC.
+
+---
+
+## Traduções
+
+O SimTale é traduzido pela comunidade. Obrigado a todos que ajudam a tornar o mod legível fora do
+inglês.
+
+| Idioma             | Colaboradores                                                       |
+| ------------------ | ------------------------------------------------------------------- |
+| Português (Brasil) | Cookie e colaboradores da comunidade                                |
+| Espanhol           | [kanjimelofficial-stack](https://github.com/kanjimelofficial-stack) |
+
+As traduções são sincronizadas pelo Crowdin. Se quiser ajudar com um idioma, abra uma issue ou um
+pull request no [GitHub](https://github.com/cookieukw/SimTale).

@@ -1,14 +1,16 @@
 name: i18n
 
-# Validates the .lang in every PR that touches translations. Crowdin may export
-# only the translated strings, so missing keys are warnings; extra, duplicate,
-# empty, or altered-placeholder keys break the job.
+# Validates the .lang in every PR that touches translations. Missing keys are
+# fatal: Crowdin exports only translated strings, so a bot PR that drops a key
+# must be fixed (or the key restored) before it can be merged. Extra, duplicate,
+# empty, or altered-placeholder keys also break the job.
 on:
   pull_request:
     paths:
       - 'src/main/resources/Server/Languages/**'
       - 'tools/check_ui.py'
       - 'tools/check_locales.py'
+      - 'tools/merge_crowdin_keys.py'
       - '.github/workflows/i18n.yml'
   push:
     branches: [main]
@@ -16,6 +18,7 @@ on:
       - 'src/main/resources/Server/Languages/**'
       - 'tools/check_ui.py'
       - 'tools/check_locales.py'
+      - 'tools/merge_crowdin_keys.py'
       - '.github/workflows/i18n.yml'
   workflow_dispatch:
 
@@ -42,4 +45,4 @@ jobs:
         run: python3 tools/check_ui.py
 
       - name: Validate locale parity
-        run: python3 tools/check_locales.py
+        run: python3 tools/check_locales.py --strict

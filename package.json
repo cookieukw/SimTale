@@ -1,4 +1,10 @@
 {
+	"scripts": {
+		"crowdin:upload-sources": "bash scripts/crowdin.sh upload-sources",
+		"crowdin:upload-translations": "bash scripts/crowdin.sh upload-translations",
+		"crowdin:download": "bash scripts/crowdin.sh download",
+		"crowdin:sync": "bash scripts/crowdin.sh sync"
+	},
 	"dependencies": {
 		"@deepseek-ai/dsh": "0.2.1-rc.2"
 	}
