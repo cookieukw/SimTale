@@ -306,6 +306,30 @@ It just will not wander away for no reason.
 **Guards patrol the edge.** A guard with nothing to fight walks a circuit around the village
 boundary, which is where trouble comes from. A guard with no village stays where it is.
 
+### Village safe zone
+
+A village is more than a place to sleep — it is a protected area.
+
+- **Residents do not take damage.** Players, mobs, fire and falls cannot hurt a SimTale NPC inside
+  the village boundary. `/simtale forcekill` still works for testing.
+- **Drowning and suffocation are cancelled.** If an NPC gets stuck in water or inside blocks, the
+  damage is ignored and the NPC is teleported back to their bed or home instead of dying.
+- **Guards are stronger.** Guards receive double maximum health, +50 armour, +10 physical damage
+  and 25% damage reduction. They chase and kill hostile mobs — including animals such as spiders,
+  bears, cave spiders, dire wolves and wild boars, not only skeletons and other humanoid enemies.
+- **The player regenerates.** Entering the village grants a regeneration effect, refreshed while
+  you remain inside.
+- **Global chests.** Chests placed inside the village but outside any house become global storage:
+  any resident can take food from them, and workers deposit surplus there.
+
+<p align="center">
+  <img src="https://simtale.kukkie.org/img/village_safe_zone_water.png" width="49%" />
+  <img src="https://simtale.kukkie.org/img/village_global_chests.png" width="49%" />
+</p>
+
+The safe zone and regeneration can be disabled in `simtale-config.json` with
+`villageSafeZoneEnabled` and `villageRegenEnabled`.
+
 ---
 
 ### Interacting with NPCs
@@ -768,6 +792,52 @@ If the scenery does not exist — a fisherman in the desert — she does not get
 
 ---
 
+### Travelling merchants
+
+A merchant visits a village from time to time. The visit lasts about 30 minutes. Every 15 minutes
+the game checks the village; if there are at least three residents, the visit has a 25% chance.
+The merchant arrives at least 28 blocks away from the player, on ground villagers already use.
+
+Each visit is a different person — name, body variant, gender and specialty. Specialties are
+general goods, provisions, ore, remedies, curiosities and seeds. They wear the classic merchant
+outfit (beret, tunic, belted pants and gloves), with five male and five female appearances.
+
+Right-click the merchant to open the trade counter directly. There is no resident sheet, no needs
+panel and no small talk: just the shop. Each visit rolls five offers from a catalogue of roughly
+400 vanilla items, with a guaranteed premium item when the specialty has one. Stock, prices and
+quantities stay fixed for the whole visit and survive a reload.
+
+- **Buy** with copper, thorium or gold coins.
+- **Sell** goods back; the merchant pays in coins and the items return to their stock.
+- A sold-out offer shows **SOLD OUT** and cannot be bought.
+- If your inventory does not carry enough coins, the merchant draws the difference from your
+  **Piggy Bank**.
+- Sale change comes back as smaller coins, or goes into the Piggy Bank when your inventory is full.
+
+<p align="center">
+  <img src="https://simtale.kukkie.org/img/merchant_gold_trade.png" width="70%" />
+</p>
+
+#### Coins, the Piggy Bank and gold
+
+- <img src="https://simtale.kukkie.org/img/SimTale_Coin_Copper.png" width="20" align="absmiddle" />
+  **Copper Coin** (`SimTale_Coin`) is the base currency.
+- 100 copper coins = 1 **Thorium Coin** (`SimTale_Coin_Thorium`); 100 thorium coins = 1
+  **Gold Coin** (`SimTale_Coin_Gold`).
+- One bar of each metal converts into 100 coins of that metal; 100 coins convert into one coin of
+  the next tier.
+- The **Piggy Bank** stores coins and is used automatically by the merchant when your inventory is
+  short.
+- Gold is no longer purely decorative: gold-brick walls, beams, pillars, roofs, stairs, smooth,
+  ornate and half-block pieces can be broken back into **Gold Bars** at a Workbench (1 block = 1
+  bar).
+
+The merchant's visit, identity and remaining stock are persisted with Caskara, so restarting the
+server does not duplicate the merchant or refill what you already bought. `/simtale merchant`
+spawns a test visit.
+
+---
+
 ### Tools and items
 
 SimTale adds a set of craftable tools. They exist so the village can be understood from inside the game, without typing a debug command.
@@ -942,3 +1012,18 @@ The most reliable way is to **crouch and jump at the same time** — she gets of
 #### An NPC died. Can I bring them back?
 
 Yes. When the Grim Reaper appears to collect their soul, interact with her during the ritual while holding a Void Heart (`Ingredient_Voidheart`) to cancel the collection and revive the NPC.
+
+---
+
+## Translations
+
+SimTale is translated by the community. Thanks to everyone who helps make the mod readable outside
+English.
+
+| Language            | Contributors                                                          |
+| ------------------- | --------------------------------------------------------------------- |
+| Portuguese (Brazil) | Cookie and community contributors                                     |
+| Spanish             | [kanjimelofficial-stack](https://github.com/kanjimelofficial-stack)   |
+
+Translations are synchronized through Crowdin. If you would like to help with a language, open an
+issue or a pull request on [GitHub](https://github.com/cookieukw/SimTale).
