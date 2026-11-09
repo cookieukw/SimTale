@@ -499,10 +499,25 @@ public class NPCGuardHelper {
         SimNPCComponent witness = null;
         double bestD2 = CHILD_WITNESS_RANGE_SQ;
         for (SimNPCComponent other : SimTale.ACTIVE_NPCS) {
-            if (other == npc || !InteractionManager.isNpcAChild(other)) continue;
+            if (other == null || other == npc || other.entityId == null) continue;
             Ref<EntityStore> otherRef = other.entityRef;
-            if (otherRef == null || !otherRef.isValid()) continue;
-            TransformComponent ot = otherRef.getStore().getComponent(otherRef, TransformComponent.getComponentType());
+            if (otherRef == null) continue;
+            Store<EntityStore> otherStore;
+            try {
+                if (!otherRef.isValid()) continue;
+                otherStore = otherRef.getStore();
+            } catch (IllegalStateException ignored) {
+                continue;
+            }
+            if (otherStore != store) continue;
+            if (!InteractionManager.isNpcAChild(other)) continue;
+            TransformComponent ot;
+            try {
+                ot = otherStore.getComponent(otherRef, TransformComponent.getComponentType());
+            } catch (IllegalStateException ignored) {
+                // A bystander may be removed during the fight-ending tick.
+                continue;
+            }
             if (ot == null) continue;
             double dx = ot.getPosition().x - pos.x;
             double dy = ot.getPosition().y - pos.y;

@@ -982,11 +982,23 @@ public class InteractionManager {
      * is how two callers end up disagreeing about who is a child.
      */
     public static boolean isNpcAChild(SimNPCComponent npc) {
-        if (npc.entityRef != null) {
-            NPCEntity npcEntity = npc.entityRef.getStore().getComponent(npc.entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
-            if (npcEntity != null && npcEntity.getRoleName() != null && 
-                npcEntity.getRoleName().toLowerCase(Locale.ROOT).contains("child")) {
-                return true;
+        if (npc == null) return false;
+        Ref<EntityStore> entityRef = npc.entityRef;
+        if (entityRef != null) {
+            try {
+                if (entityRef.isValid()) {
+                    Store<EntityStore> store = entityRef.getStore();
+                    if (store != null && entityRef.isValid()) {
+                        NPCEntity npcEntity = store.getComponent(
+                                entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
+                        if (npcEntity != null && npcEntity.getRoleName() != null
+                                && npcEntity.getRoleName().toLowerCase(Locale.ROOT).contains("child")) {
+                            return true;
+                        }
+                    }
+                }
+            } catch (IllegalStateException ignored) {
+                // The live entity can disappear between the validity check and component lookup.
             }
         }
         for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {

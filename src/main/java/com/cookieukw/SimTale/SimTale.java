@@ -48,6 +48,7 @@ import com.cookieukw.SimTale.systems.BedPlaceBlockEventSystem;
 import com.cookieukw.SimTale.systems.BabyBabbleSystem;
 import com.cookieukw.SimTale.systems.GrowthTickSystem;
 import com.cookieukw.SimTale.systems.NPCDamageEventSystem;
+import com.cookieukw.SimTale.systems.SimTaleAttitudeBridge;
 import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
 import com.cookieukw.SimTale.systems.ConstructionPreviewSweepSystem;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
@@ -121,6 +122,7 @@ public class SimTale extends JavaPlugin {
      */
     public static void trackNpc(SimNPCComponent npc) {
         if (npc == null) return;
+        SimTaleAttitudeBridge.ensureRegistered(npc.entityRef);
         if (npc.entityId != null) {
             SimNPCComponent previous = NPCS_BY_ID.put(npc.entityId, npc);
             if (previous != null && previous != npc) {

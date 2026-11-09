@@ -47,6 +47,9 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
         PlayerRef playerRefComponent = playerRef.getStore().getComponent(playerRef, Universe.get().getPlayerRefComponentType());
         if (playerRefComponent == null) return;
 
+        // Install the per-world hostile-targeting bridge before the village NPCs start ticking.
+        SimTaleAttitudeBridge.ensureRegistered(playerRef);
+
         UUID playerUuid = playerRefComponent.getUuid();
 
         // Load or create player persistent data
