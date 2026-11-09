@@ -127,6 +127,9 @@ public class SimNPCPersistence {
         try {
             SimNPCData data = worldShell().core(SimNPCData.class).extract(entityId.toString()).sync().orElse(null);
             if (data != null) {
+                if (data.deathTimestamp <= 0L) {
+                    data.deathTimestamp = System.currentTimeMillis();
+                }
                 graveyardShell().core(SimNPCData.class).preserve(entityId.toString(), data);
             }
             worldShell().core(SimNPCData.class).discard(entityId.toString());
@@ -153,7 +156,7 @@ public class SimNPCPersistence {
         }
     }
 
-    /** Every archived record in the graveyard, newest-first ordering not guaranteed. Never null. */
+    /** Every archived record in the graveyard. Consumers choose a stable order. Never null. */
     public static List<SimNPCData> listGraveyard() {
         try {
             List<SimNPCData> all = graveyardShell().core(SimNPCData.class).extractAll();

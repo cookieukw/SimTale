@@ -11,6 +11,7 @@ import com.cookieukw.SimTale.core.Relationship;
 import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.systems.BedRegistry;
@@ -76,16 +77,29 @@ public final class SimNPCRevival {
             return new Result(null, Failure.NO_RECORD, false);
         }
 
-        /* Spawn by the recorded gender so the model matches who she was, rather than rolling a new
-        one and reviving someone visibly different from the person who died.
-        */
-        SimNPCFactory.NPCType type = data.gender == Gender.MALE
+        /* A child has a separate lifecycle record with her life stage, child/adult body choice,
+        scale and pinned visual variant. The old revival path ignored it and always spawned a new
+        adult with a random appearance, so a dead daughter returned as a different grown stranger. */
+        GrowthComponent growth = SimTaleLifecyclePersistence.load("child_" + graveId, GrowthComponent.class);
+        Gender savedGender = growth != null && growth.gender != null ? growth.gender : data.gender;
+        boolean childBody = growth != null && growth.stage != null
+                && growth.stage.ordinal() <= GrowthStage.CHILD.ordinal();
+        SimNPCFactory.NPCType type = childBody
+                ? (savedGender == Gender.MALE ? SimNPCFactory.NPCType.CHILD_MALE : SimNPCFactory.NPCType.CHILD_FEMALE)
+                : savedGender == Gender.MALE
                 ? SimNPCFactory.NPCType.HUMAN_MALE
                 : SimNPCFactory.NPCType.HUMAN_FEMALE;
+        float restoredScale = growth != null
+                ? LifecycleManager.calculateTargetScale(growth, WorldUtil.tick()) : 1.0f;
+        if (growth != null && growth.variant < 0) {
+            growth.variant = 1 + (int) (Math.random() * 200);
+        }
 
         Ref<EntityStore> ref;
         try {
-            ref = SimNPCFactory.spawnNPC(store, new Vector3d(position), type);
+            ref = growth != null
+                    ? SimNPCFactory.spawnNPC(store, new Vector3d(position), type, restoredScale, growth.variant)
+                    : SimNPCFactory.spawnNPC(store, new Vector3d(position), type);
         } catch (RuntimeException e) {
             LOGGER.warn("[SimTale] Revival spawn failed for {}: {}", graveId, e.getMessage());
             return new Result(null, Failure.SPAWN_FAILED, false);
@@ -98,6 +112,18 @@ public final class SimNPCRevival {
 
         UUID newId = npc.entityId;
 
+        if (growth != null) {
+            growth.childId = newId;
+            growth.isBeingCarried = false;
+            growth.carriedBy = null;
+            growth.currentScale = restoredScale;
+            SimTaleLifecyclePersistence.delete("child_" + graveId, GrowthComponent.class);
+            SimTaleLifecyclePersistence.save("child_" + newId, growth);
+            LifecycleManager.ACTIVE_CHILDREN.removeIf(existing -> existing != null
+                    && (graveId.equals(existing.childId) || newId.equals(existing.childId)));
+            LifecycleManager.ACTIVE_CHILDREN.add(growth);
+        }
+
         /* The bed is handled separately below, so the restore must not quietly re-register the old
         one as if it were still hers. Everything else about her comes back untouched.
         */
@@ -105,6 +131,11 @@ public final class SimNPCRevival {
         data.bedLocation = null;
         SimNPCPersistence.applyArchivedData(npc, data);
         data.bedLocation = oldBed;
+
+        if (growth != null) {
+            FamilyBonds.linkToFamily(npc, growth);
+            LifecycleManager.applyVisualScale(ref, growth.currentScale);
+        }
 
         /* The nameplate was stamped with the random name the factory rolled, before the real name
         was restored over it.
@@ -237,12 +268,14 @@ public final class SimNPCRevival {
         }
     }
 
-    /** Names currently buried, for the picker. Sorted so the list does not reshuffle between pages. */
+    /** Buried NPCs sorted newest-death-first; legacy records without a timestamp remain last. */
     public static List<SimNPCData> listBuried() {
         List<SimNPCData> all = new ArrayList<>(SimNPCPersistence.listGraveyard());
         Set<String> seen = new HashSet<>();
         all.removeIf(d -> d == null || d.id == null || !seen.add(d.id));
         all.sort((a, b) -> {
+            int byDeathDate = Long.compare(b.deathTimestamp, a.deathTimestamp);
+            if (byDeathDate != 0) return byDeathDate;
             String left = a.name != null ? a.name : "";
             String right = b.name != null ? b.name : "";
             int byName = left.compareToIgnoreCase(right);

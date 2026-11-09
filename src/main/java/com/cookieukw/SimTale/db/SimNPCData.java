@@ -48,6 +48,9 @@ public class SimNPCData {
     /** Last damage source, shown in the graveyard so a missing NPC has an explanation. */
     public String deathCause;
 
+    /** Unix epoch milliseconds when the Grim Reaper archived this NPC; zero for older records. */
+    public long deathTimestamp;
+
     /**
      * Last known values of the five SimTale needs.
      *
