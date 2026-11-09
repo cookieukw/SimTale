@@ -562,7 +562,7 @@ once per NPC per tick for nothing.
         */
         if (handleFollowing(ref, ai, transform, world, store)) return;
 
-        if (RoutineSleepHelpers.handleIdle(ref, npc, ai, store, world, transform)) return;
+        if (RoutineSleepHelpers.handleIdle(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
         /* FINDING_BED */
         if (RoutineSleepHelpers.handleFindingBed(ref, npc, ai, store, world, transform)) return;
@@ -589,7 +589,7 @@ once per NPC per tick for nothing.
 
         /* Crop Harvesting & Hunting Logic (Delegado ao NPCWorkHelper) 
         */
-        NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store);
+        NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store, commandBuffer);
 
         /* `forcedByDebug` only means "outrank the sleep/hunger interrupts for the tick a debug
          command just set the task on" — every read site above (the interrupt checks, and
@@ -1309,7 +1309,7 @@ once per NPC per tick for nothing.
         ai.playPartnerId = null;
         ai.playRoundsLeft = 0;
         if (ai.targetChairPos != null) {
-            ChairRegistry.releaseChair(ai.targetChairPos);
+            ChairRegistry.releaseChair(ai.targetChairPos, npc.entityId);
             ai.targetChairPos = null;
         }
     }

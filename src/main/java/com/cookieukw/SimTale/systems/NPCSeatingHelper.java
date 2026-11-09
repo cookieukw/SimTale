@@ -81,7 +81,11 @@ public final class NPCSeatingHelper {
                         int by = cy + dy;
                         BlockType bt = NPCMovementHelper.getBlockTypeSafe(world, bx, by, bz);
                         if (bt != null && ChairRegistry.isChair(bt.getId())) {
-                            ChairRegistry.add(bx, by, bz);
+                            // A chair can occupy several blocks. Keep the same canonical anchor
+                            // used by the world bootstrap/place-event paths, or each part looks
+                            // like a separate seat and two NPCs can claim the same physical chair.
+                            Vector3i anchor = FurnitureAnchorHelper.anchorOf(world, bx, by, bz);
+                            ChairRegistry.add(anchor.x, anchor.y, anchor.z);
                         }
                     }
                 }
@@ -228,7 +232,7 @@ public final class NPCSeatingHelper {
         }
         if (ai != null) {
             if (ai.targetChairPos != null) {
-                ChairRegistry.releaseChair(ai.targetChairPos);
+                ChairRegistry.releaseChair(ai.targetChairPos, npc != null ? npc.entityId : null);
                 ai.targetChairPos = null;
             }
             ai.targetBlockPosition = null;

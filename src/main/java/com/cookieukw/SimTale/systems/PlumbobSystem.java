@@ -268,4 +268,10 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         }
         LOGGER.atFine().log("[SimTale] Plumbob untracked para a entidade: " + entityUuid);
     }
+
+    /** Removes the current plumbob immediately when a tracked NPC leaves the visible world. */
+    public static void removePlumbob(UUID entityUuid, CommandBuffer<EntityStore> commandBuffer) {
+        if (entityUuid == null || commandBuffer == null) return;
+        despawnPlumbob(entityUuid, commandBuffer);
+    }
 }

@@ -70,7 +70,9 @@ import com.hypixel.hytale.server.npc.role.support.StateSupport;
 final class RoutineSleepHelpers {
     private RoutineSleepHelpers() {}
 
-    static boolean handleIdle(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, World world, TransformComponent transform) {
+    static boolean handleIdle(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
+                              Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer,
+                              World world, TransformComponent transform) {
         /* Reserved (waiting for a conversation partner to arrive) must mean actually standing
         still: reservedForSocialUuid previously only stopped OTHER NPCs' searches from picking
         this one (NPCSocialHelper.isAvailableToTalk) -- nothing stopped THIS ladder from handing
@@ -131,7 +133,7 @@ final class RoutineSleepHelpers {
             IDLE; if there is no work, leisure/social still get their turn.
             */
             if (ai.currentTask == TaskType.IDLE) {
-                NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store);
+                NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store, commandBuffer);
             }
 
             if (ai.currentTask == TaskType.IDLE && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.FUN_ID) < NPCLeisureHelper.FUN_THRESHOLD) {
