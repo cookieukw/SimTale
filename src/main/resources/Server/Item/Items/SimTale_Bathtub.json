@@ -1,0 +1,68 @@
+{
+  "TranslationProperties": {
+    "Name": "general.item.simtale_bathtub.name",
+    "Description": "general.item.simtale_bathtub.description"
+  },
+  "PlayerAnimationsId": "Block",
+  "Categories": [
+    "Furniture.Benches"
+  ],
+  "Icon": "Icons/ItemsGenerated/SimTale_Bathtub.png",
+  "BlockType": {
+    "BlockParticleSetId": "Stone",
+    "BlockSoundSetId": "Stone",
+    "PhysicalMaterialId": "Stone",
+    "CustomModel": "Blocks/SimTale/SimTale_Bathtub.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/SimTale/SimTale_Bathtub_Texture.png",
+        "Weight": 1
+      }
+    ],
+    "DrawType": "Model",
+    "Flags": {},
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Stone"
+      }
+    },
+    "HitboxType": "Bed_Crude",
+    "Material": "Solid",
+    "Opacity": "Transparent",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "VariantRotation": "NESW",
+    "Seats": [
+      {
+        "Offset": {
+          "X": 0,
+          "Y": 0.65,
+          "Z": 0
+        },
+        "Yaw": 0
+      }
+    ],
+    "Interactions": {
+      "Use": "Block_Seat"
+    },
+    "ParticleColor": "#E8E1D1",
+    "TextureComputedColor": "#E8E1D1"
+  },
+  "Scale": 0.5,
+  "MaxStack": 1,
+  "ItemLevel": 8,
+  "ItemSoundSetId": "ISS_Blocks_Stone",
+  "Tags": {
+    "Type": [
+      "Furniture"
+    ],
+    "Family": [
+      "SimTale"
+    ]
+  }
+}

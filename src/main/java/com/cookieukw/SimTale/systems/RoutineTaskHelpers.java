@@ -6,6 +6,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.logger.HytaleLogger;
@@ -96,8 +97,10 @@ final class RoutineTaskHelpers {
         return false;
     }
 
-    static boolean handleMovingToBath(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, World world, TransformComponent transform) {
-        if (ai.currentTask == TaskType.MOVING_TO_BATH) {
+    static boolean handleMovingToBath(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
+                                      Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer,
+                                      World world, TransformComponent transform) {
+            if (ai.currentTask == TaskType.MOVING_TO_BATH) {
             if (ai.targetBlockPosition == null) {
                 ai.currentTask = TaskType.IDLE; 
                 return true;
@@ -105,7 +108,7 @@ final class RoutineTaskHelpers {
             if (world.getTick() - ai.taskStartTime > RoutineAISystem.MOVE_TIMEOUT_TICKS) {
                 RoutineAISystem.LOGGER.debug("[SimTale] NPC '{}' gave up reaching the water", npc.name);
                 NPCMovementHelper.clearMoveTarget(ref, ai);
-                ai.targetBlockPosition = null;
+                exitBath(ref, ai, store, commandBuffer);
                 /* Unreachable water still scores as the best option, so without the backoff the
                 NPC is sent straight back to it on the next tick, forever.
                 */
@@ -114,34 +117,79 @@ final class RoutineTaskHelpers {
                 return true;
             }
             Vector3d pos = transform.getPosition();
-            double dx = (ai.targetBlockPosition.x + 0.5) - pos.x;
-            double dz = (ai.targetBlockPosition.z + 0.5) - pos.z;
-            if (dx*dx + dz*dz < 1.5 * 1.5) {
+            Vector3d bathSeat = bathSeatPosition(ai.targetBlockPosition);
+            double dx = bathSeat.x - pos.x;
+            double dz = bathSeat.z - pos.z;
+            if (dx * dx + dz * dz < 2.0 * 2.0) {
                 NPCMovementHelper.clearMoveTarget(ref, ai);
+                transform.getPosition().set(bathSeat);
+                NPCMovementHelper.setSittingState(ref, store, commandBuffer, true);
                 ai.currentTask = TaskType.BATHING;
                 ai.taskStartTime = world.getTick();
-                NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Swim.blockyanim", "Swim", store);
+                RoutineAISystem.LOGGER.info("[SimTale] NPC '{}' sat in bathtub at ({},{},{})",
+                        npc.name, ai.targetBlockPosition.x, ai.targetBlockPosition.y, ai.targetBlockPosition.z);
             } else {
-                NPCMovementHelper.moveTo(ref, ai, world, new Vector3d(ai.targetBlockPosition.x + 0.5, pos.y, ai.targetBlockPosition.z + 0.5));
+                Vector3i standPos = NPCMovementHelper.findStandableBeside(ai.targetBlockPosition, transform, world);
+                Vector3d target = standPos != null
+                        ? new Vector3d(standPos.x + 0.5, standPos.y, standPos.z + 0.5)
+                        : new Vector3d(bathSeat.x, pos.y, bathSeat.z);
+                NPCMovementHelper.moveTo(ref, ai, world, target);
             }
         }
         return false;
     }
 
-    static boolean handleBathing(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, World world) {
+    static boolean handleBathing(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
+                                 Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer,
+                                 World world) {
         if (ai.currentTask == TaskType.BATHING) {
+            if (ai.targetBlockPosition == null) {
+                exitBath(ref, ai, store, commandBuffer);
+                ai.currentTask = TaskType.IDLE;
+                return false;
+            }
+
+            BlockType bath = NPCMovementHelper.getBlockTypeSafe(world, ai.targetBlockPosition);
+            if (bath != null && !BathRegistry.isBathId(bath.getId())) {
+                exitBath(ref, ai, store, commandBuffer);
+                ai.currentTask = TaskType.IDLE;
+                return false;
+            }
+
+            if (world.getTick() % 40 == 0) {
+                NPCMovementHelper.setSittingState(ref, store, commandBuffer, true);
+            }
             NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) + 1.0f));
             /* The hygiene check alone was the only exit; if anything else clamped hygiene the
             NPC would swim forever.
             */
             if (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID) >= 100f
                     || world.getTick() - ai.taskStartTime > RoutineAISystem.BATH_DURATION_LIMIT_TICKS) {
+                exitBath(ref, ai, store, commandBuffer);
                 ai.currentTask = TaskType.IDLE;
-                ai.targetBlockPosition = null;
+                ai.nextBathSearchTick = world.getTick() + RoutineAISystem.BATH_SEARCH_RETRY_COOLDOWN_TICKS;
                 NPCMovementHelper.playAnim(ref, "Characters/Animations/Actions/Idle.blockyanim", "Idle", store);
+                RoutineAISystem.LOGGER.info("[SimTale] NPC '{}' finished bathing, hygiene is now {}",
+                        npc.name, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HYGIENE_ID));
             }
         }
         return false;
+    }
+
+    private static Vector3d bathSeatPosition(Vector3i bathPos) {
+        return new Vector3d(bathPos.x + 0.5, bathPos.y + 0.65, bathPos.z + 0.5);
+    }
+
+    /** Clears the in-tub sitting pose and target when bathing is interrupted or the tub disappears. */
+    static void exitBath(Ref<EntityStore> ref, RoutineAIComponent ai,
+                         Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
+        if (ai == null) return;
+        if (ai.currentTask == TaskType.BATHING) {
+            NPCMovementHelper.setSittingState(ref, store, commandBuffer, false);
+        }
+        if (ai.currentTask == TaskType.MOVING_TO_BATH || ai.currentTask == TaskType.BATHING) {
+            ai.targetBlockPosition = null;
+        }
     }
 
     static boolean handleReaping(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer, World world, TransformComponent transform) {

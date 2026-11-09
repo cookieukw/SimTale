@@ -338,6 +338,9 @@ once per NPC per tick for nothing.
                         return;
                     }
                     LOGGER.info("[SimTale] NPC '{}' reached 0 HP outside of forcekill — routing into the death flow", npc.name);
+                    if (ai.currentTask == TaskType.MOVING_TO_BATH || ai.currentTask == TaskType.BATHING) {
+                        RoutineTaskHelpers.exitBath(ref, ai, store, commandBuffer);
+                    }
                     NPCMovementHelper.clearMoveTarget(ref, ai);
                     ai.currentTask = TaskType.DYING;
                     ai.taskStartTime = world.getTick();
@@ -485,6 +488,8 @@ once per NPC per tick for nothing.
 
             if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
                 NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
+            } else if (ai.currentTask == TaskType.MOVING_TO_BATH || ai.currentTask == TaskType.BATHING) {
+                RoutineTaskHelpers.exitBath(ref, ai, store, commandBuffer);
             }
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
@@ -522,6 +527,8 @@ once per NPC per tick for nothing.
 
             if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
                 NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
+            } else if (ai.currentTask == TaskType.MOVING_TO_BATH || ai.currentTask == TaskType.BATHING) {
+                RoutineTaskHelpers.exitBath(ref, ai, store, commandBuffer);
             }
             ai.currentTask = TaskType.FINDING_FOOD;
             ai.targetBlockPosition = null;
@@ -538,6 +545,8 @@ once per NPC per tick for nothing.
             npc.forceSleep = false;
             if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
                 NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
+            } else if (ai.currentTask == TaskType.MOVING_TO_BATH || ai.currentTask == TaskType.BATHING) {
+                RoutineTaskHelpers.exitBath(ref, ai, store, commandBuffer);
             }
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
@@ -650,9 +659,9 @@ once per NPC per tick for nothing.
         */
         if (RoutineTaskHelpers.handleFindingBath(ref, npc, ai, store, world, transform)) return;
 
-        if (RoutineTaskHelpers.handleMovingToBath(ref, npc, ai, store, world, transform)) return;
+        if (RoutineTaskHelpers.handleMovingToBath(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
-        if (RoutineTaskHelpers.handleBathing(ref, npc, ai, store, world)) return;
+        if (RoutineTaskHelpers.handleBathing(ref, npc, ai, store, commandBuffer, world)) return;
 
         /* REAPING 
         */
