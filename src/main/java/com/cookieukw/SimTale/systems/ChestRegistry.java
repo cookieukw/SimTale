@@ -7,12 +7,14 @@ import com.cookieukw.SimTale.core.SimLog;
 import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.cookieukw.SimTale.db.ChestData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookie.caskara.db.Core;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -107,7 +109,8 @@ public final class ChestRegistry {
     }
 
     public static boolean isExplicitlyShared(World world, HouseBlockPos pos) {
-        return pos != null && sharedChests(world).contains(pos);
+        if (pos == null) return false;
+        return world == null ? SHARED_CHESTS.contains(pos) : sharedChests(world).contains(pos);
     }
 
     /**
@@ -162,8 +165,9 @@ public final class ChestRegistry {
         chests(world).remove(pos);
         sharedChests(world).remove(pos);
         try {
-            SimNPCPersistence.worldShell(world).core(ChestData.class)
-                    .discard(ChestData.key(worldKey(world), x, y, z));
+            Core<ChestData> core = SimNPCPersistence.worldShell(world).core(ChestData.class);
+            core.discard(ChestData.key(worldKey(world), x, y, z));
+            core.discard(ChestData.legacyUnscopedKey(x, y, z));
         } catch (Exception e) {
             LOGGER.warn("[SimTale] falha ao apagar o registro do bau ({},{},{}): {}", x, y, z, e.getMessage());
         }
@@ -196,7 +200,9 @@ public final class ChestRegistry {
         CHESTS.remove(pos);
         SHARED_CHESTS.remove(pos);
         try {
-            SimNPCPersistence.worldShell().core(ChestData.class).discard(ChestData.key(x, y, z));
+            Core<ChestData> core = SimNPCPersistence.worldShell().core(ChestData.class);
+            core.discard(ChestData.key(x, y, z));
+            core.discard(ChestData.legacyUnscopedKey(x, y, z));
         } catch (Exception e) {
             LOGGER.warn("[SimTale] falha ao apagar o registro do bau ({},{},{}): {}", x, y, z, e.getMessage());
         }
@@ -230,8 +236,13 @@ public final class ChestRegistry {
      */
     public static void loadAll(World world) {
         try {
-            List<ChestData> all = SimNPCPersistence.worldShell().core(ChestData.class).extractAll();
+            Set<HouseBlockPos> chestSet = world == null ? CHESTS : chests(world);
+            Set<HouseBlockPos> sharedSet = world == null ? SHARED_CHESTS : sharedChests(world);
+            Core<ChestData> chestCore = SimNPCPersistence.worldShell(world).core(ChestData.class);
+            List<ChestData> all = chestCore.extractAll();
             if (all == null) return;
+
+            all = migrateLegacyUnscopedKeys(chestCore, all, world);
 
             int restored = 0;
             int dropped = 0;
@@ -241,23 +252,62 @@ public final class ChestRegistry {
                 if (world != null
                         && world.getChunkStore().getChunkComponent(ChunkUtil.indexChunkFromBlock(data.x, data.z), WorldChunk.getComponentType()) != null
                         && !isContainerAt(world, data.x, data.y, data.z)) {
-                    removeAt(data.x, data.y, data.z);
+                    removeAt(world, data.x, data.y, data.z);
                     dropped++;
                     continue;
                 }
 
                 HouseBlockPos pos = new HouseBlockPos(data.x, data.y, data.z);
-                CHESTS.add(pos);
+                chestSet.add(pos);
                 if (data.shared) {
-                    SHARED_CHESTS.add(pos);
+                    sharedSet.add(pos);
                 }
                 restored++;
             }
             LOGGER.info("[SimTale] {} bau(s) recarregado(s) do banco ({} compartilhados), {} descartado(s)",
-                    restored, SHARED_CHESTS.size(), dropped);
+                    restored, sharedSet.size(), dropped);
         } catch (Exception e) {
             LOGGER.warn("[SimTale] falha ao recarregar os baus: {}", e.getMessage());
         }
+    }
+
+    /**
+     * Re-keys records written by old releases as {@code _x_y_z}. If a world is known,
+     * the replacement is scoped to that world; otherwise it uses the canonical
+     * unscoped key {@code x_y_z}. The old row is deleted only after the replacement
+     * has been persisted successfully; an existing canonical row takes precedence.
+     */
+    private static List<ChestData> migrateLegacyUnscopedKeys(Core<ChestData> core, List<ChestData> records,
+                                                              World world) {
+        List<ChestData> normalized = new ArrayList<>(records.size());
+        for (ChestData data : records) {
+            if (data == null || data.id == null || (data.worldName != null && !data.worldName.isBlank())) {
+                normalized.add(data);
+                continue;
+            }
+
+            String legacyId = ChestData.legacyUnscopedKey(data.x, data.y, data.z);
+            if (!legacyId.equals(data.id)) {
+                normalized.add(data);
+                continue;
+            }
+
+            String canonicalWorld = world != null ? world.getName() : "";
+            String canonicalId = ChestData.key(canonicalWorld, data.x, data.y, data.z);
+            ChestData canonical = core.extract(canonicalId).sync().orElse(null);
+            if (canonical == null) {
+                data.worldName = canonicalWorld;
+                data.id = canonicalId;
+                core.preserve(canonicalId, data);
+                canonical = data;
+            }
+
+            // Only remove the legacy row once a canonical copy exists.
+            core.discard(legacyId);
+            normalized.add(canonical);
+            LOGGER.info("[SimTale] Chest record key migrated: {} -> {}", legacyId, canonicalId);
+        }
+        return normalized;
     }
 
     public static int size() {

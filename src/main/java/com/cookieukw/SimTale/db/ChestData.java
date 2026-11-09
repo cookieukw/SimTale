@@ -51,6 +51,12 @@ public class ChestData {
     }
 
     public static String key(String worldName, int x, int y, int z) {
-        return (worldName == null ? "" : worldName) + "_" + x + "_" + y + "_" + z;
+        String coordinates = x + "_" + y + "_" + z;
+        return worldName == null || worldName.isBlank() ? coordinates : worldName + "_" + coordinates;
+    }
+
+    /** The pre-world-scoping key written by older SimTale versions. */
+    public static String legacyUnscopedKey(int x, int y, int z) {
+        return "_" + x + "_" + y + "_" + z;
     }
 }

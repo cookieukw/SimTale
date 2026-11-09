@@ -865,6 +865,23 @@ public class SimTaleTests {
         ChestData cdShared = new ChestData(12, 64, 12, true);
         Assert.equal(cdShared.shared, true, "Shared chest data");
 
+        // Legacy records with an empty world name used to have a leading underscore.
+        ChestData legacyChest = new ChestData();
+        legacyChest.id = ChestData.legacyUnscopedKey(77, 64, 77);
+        legacyChest.worldName = "";
+        legacyChest.x = 77;
+        legacyChest.y = 64;
+        legacyChest.z = 77;
+        legacyChest.shared = true;
+        SimNPCPersistence.DB_SHELL.core(ChestData.class)
+                .preserve(legacyChest.id, legacyChest);
+        ChestRegistry.loadAll(null);
+        var chestCore = SimNPCPersistence.DB_SHELL.core(ChestData.class);
+        Assert.equal(chestCore.extract(ChestData.key(77, 64, 77)).sync().isPresent(), true,
+                "Legacy chest key migrated to the canonical key");
+        Assert.equal(chestCore.extract(ChestData.legacyUnscopedKey(77, 64, 77)).sync().isEmpty(), true,
+                "Legacy chest key removed only after canonical record was saved");
+
         // 2. ChestRegistry shared state
         ChestRegistry.setShared(50, 64, 50, true);
         Assert.equal(ChestRegistry.isShared(50, 64, 50), true, "Chest (50,64,50) is shared");
