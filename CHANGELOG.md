@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1] — 2026-11-09
+
+- Migrados os dados de crescimento e cuidados com bebês para o shell próprio do SimTale, com
+  cópia repetível dos registros antigos e preservação do backup de `default.db` do Caskara.
+- Corrigida a chave dos baús sem mundo e adicionada migração das chaves antigas `_x_y_z`.
+- Atualizadas as receitas para usar `TimeSeconds`, aceito pelo schema atual do Hytale.
+- Atualizado o alvo de compatibilidade para a release 0.7.x e a pre-release 0.8.0-pre.2.1.
+
 ## [1.4.0] — 2026-11-06
 
 Esta versão reúne tudo o que foi adicionado depois da 1.3.1. A versão 1.3.2 foi um build interno

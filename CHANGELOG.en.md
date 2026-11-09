@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1] — 2026-11-09
+
+- Moved growth and baby-care data into SimTale's own Caskara shell, with repeatable migration of
+  legacy records and retention of Caskara's `default.db` safety backup.
+- Fixed unscoped chest keys and added migration for the legacy `_x_y_z` keys.
+- Updated recipes to use `TimeSeconds`, accepted by the current Hytale schema.
+- Updated the compatibility target to release 0.7.x and pre-release 0.8.0-pre.2.1.
+
 ## [1.4.0] — 2026-11-06
 
 This release collects everything added after 1.3.1. Version 1.3.2 was an internal build used
