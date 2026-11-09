@@ -10,7 +10,8 @@
 - Added `hostileMobsCanAttackNpcs` (off by default): game damage cannot kill NPCs unless enabled;
   when enabled, only recognized hostile mobs can attack them outside the safe zone.
 - Default protection also uses Hytale's native invulnerability component. Guards are the only
-  residents who fight hostiles; everyone else heads home for cover.
+  residents who fight hostiles; everyone else heads home and stays down until the threat passes,
+  rather than cycling between sleeping and standing during the day.
 - Added a craftable bathtub with its own collision, seat and NPC hygiene routine. Bathtubs now have
   map markers, and map markers re-register after a world instance is recreated.
 - The graveyard records and displays death dates, sorts the newest deaths first and shows the cause

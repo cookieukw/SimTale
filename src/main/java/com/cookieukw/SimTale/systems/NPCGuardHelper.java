@@ -119,7 +119,7 @@ public class NPCGuardHelper {
     };
 
     /** How often a given guard looks around. One second, as before. */
-    private static final int GUARD_SCAN_PERIOD_TICKS = 20;
+    static final int GUARD_SCAN_PERIOD_TICKS = 20;
 
     /** How long a world-wide hostile snapshot is reused across all guards. */
     private static final int HOSTILE_CACHE_TICKS = 20;
@@ -167,6 +167,12 @@ public class NPCGuardHelper {
         PersistentModel model = store.getComponent(ref, PersistentModel.getComponentType());
         return model != null && model.getModelReference() != null
                 && isHostileModelId(model.getModelReference().getModelAssetId());
+    }
+
+    /** True when a civilian would currently see a hostile worth fleeing from. */
+    public static boolean hasHostileThreat(SimNPCComponent npc, Vector3d position,
+                                           World world, Store<EntityStore> store) {
+        return npc != null && position != null && scanForHostile(npc, position, world, store) != null;
     }
 
     public static void handleGuardLogic(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
@@ -362,10 +368,14 @@ public class NPCGuardHelper {
         melee. Route them through the established bed/home path; Guards remain the only combatants. */
         ai.workTargetEntityId = null;
         ai.socializeTargetId = null;
+        if (ai.currentTask == TaskType.SITTING) {
+            NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
+        }
         NPCMovementHelper.clearMoveTarget(ref, ai);
         ai.currentTask = TaskType.FINDING_BED;
         ai.targetBlockPosition = null;
         ai.taskStartTime = 0L; // bypass the ordinary bed-search retry cooldown for an active threat
+        ai.shelteringFromHostiles = true;
         LOGGER.info("[SimTale] Civilian NPC '{}' taking cover from hostile {}", npc.name, hostileId);
         return true; // Stop other routines this tick; FINDING_BED is handled first next tick.
     }

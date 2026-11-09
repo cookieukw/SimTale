@@ -179,6 +179,9 @@ public class RoutineAIComponent implements Component<EntityStore> {
      */
     public boolean sleepingOnSchedule = false;
 
+    /** True while civilians are using their bed as cover during a hostile-mob alarm. */
+    public boolean shelteringFromHostiles = false;
+
     /** Set when the food is taken from the chest, consumed when the EATING state finishes. */
     public int eatingTier = 0;
     public boolean eatingWasHated = false;
@@ -228,6 +231,7 @@ public class RoutineAIComponent implements Component<EntityStore> {
         comp.nextChairSearchTick = this.nextChairSearchTick;
         comp.lastWakeTick = this.lastWakeTick;
         comp.sleepingOnSchedule = this.sleepingOnSchedule;
+        comp.shelteringFromHostiles = this.shelteringFromHostiles;
         comp.eatingTier = this.eatingTier;
         comp.eatingWasHated = this.eatingWasHated;
         comp.eatingWasFavorite = this.eatingWasFavorite;

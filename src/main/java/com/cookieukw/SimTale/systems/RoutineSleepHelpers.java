@@ -536,6 +536,32 @@ final class RoutineSleepHelpers {
                 return true;
             }
 
+            /* Shelter uses the sleep pose/mount, but must not run the ordinary daytime wake rule.
+            Otherwise every alarm cycle gets stuck in MOVING_TO_BED -> SLEEPING -> WAKING ->
+            civilian evacuation, making the NPC visibly pop upright on the mattress. Check for the
+            threat on the same staggered cadence as the guard scan; once the hostile leaves, normal
+            sleep completion/waking resumes. */
+            if (ai.shelteringFromHostiles) {
+                long phase = npc.entityId != null
+                        ? Math.floorMod(npc.entityId.hashCode(), NPCGuardHelper.GUARD_SCAN_PERIOD_TICKS)
+                        : 0L;
+                if (Math.floorMod(world.getTick() + phase, NPCGuardHelper.GUARD_SCAN_PERIOD_TICKS) == 0L) {
+                    TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+                    if (transform == null || !NPCGuardHelper.hasHostileThreat(
+                            npc, transform.getPosition(), world, store)) {
+                        ai.shelteringFromHostiles = false;
+                        RoutineAISystem.LOGGER.info("[SimTale] NPC '{}' left shelter; no hostile remains nearby",
+                                npc.name);
+                    }
+                }
+                if (ai.shelteringFromHostiles) {
+                    if (world.getTick() % 40 == 0) {
+                        NPCMovementHelper.setSleepingState(ref, store, commandBuffer, true);
+                    }
+                    return true;
+                }
+            }
+
             NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) + 0.045f));
 
             // Verify bed still exists periodically

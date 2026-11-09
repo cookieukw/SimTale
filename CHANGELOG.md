@@ -10,7 +10,8 @@
 - Adicionada a opção `hostileMobsCanAttackNpcs` (desligada por padrão); sem ela, dano do jogo não
   mata NPCs. Quando ativada, apenas mobs hostis reconhecidos podem atacá-los fora da zona segura.
 - A proteção padrão também usa o componente nativo de invulnerabilidade do Hytale; guardas são os
-  únicos moradores que enfrentam hostis, enquanto os demais procuram abrigo em casa.
+  únicos moradores que enfrentam hostis, enquanto os demais procuram abrigo em casa e permanecem
+  deitados até a ameaça passar, sem alternar entre dormir e levantar durante o dia.
 - Adicionada uma banheira craftável com colisão própria, assento e rotina de higiene dos NPCs; o
   mapa agora marca banheiras colocadas e volta a registrar os marcadores após recriar o mundo.
 - O cemitério registra e exibe a data da morte, ordena os NPCs do mais recente ao mais antigo e
