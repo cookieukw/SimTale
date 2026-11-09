@@ -152,7 +152,7 @@ public class InteractionManager {
         any legitimate outcome that happened to have no friendship/affinity delta.
         */
         Store<EntityStore> store = npc.entityRef != null ? npc.entityRef.getStore() : null;
-        long tick = System.currentTimeMillis() / 50;
+        long tick = currentWorldTick(npc);
 
         if (outcome.rejected() || (type == InteractionType.ROMANTIC && outcome.affinity() < 0)) {
             if (type == InteractionType.ROMANTIC) {
@@ -609,7 +609,7 @@ public class InteractionManager {
 
             GrowthComponent childComp = SimTaleLifecyclePersistence.load("child_" + npc.entityId.toString(), GrowthComponent.class);
             World world = npc.entityRef != null ? WorldUtil.fromEntityRef(npc.entityRef) : null;
-            long tick = world != null ? world.getTick() : System.currentTimeMillis();
+            long tick = world != null ? world.getTick() : 0L;
             if (childComp != null && world != null) {
                 childComp.birthTick -= 24000;
                 SimTaleLifecyclePersistence.save("child_" + npc.entityId.toString(), childComp);
@@ -798,13 +798,13 @@ public class InteractionManager {
     public static InteractionOutcome buildProfessionAcceptance(SimNPCComponent npc, Message profName, String itemName, Message prefix, ProfessionContext ctx) {
         if (isProfLiked(ctx)) {
             Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.liked", 9, npc.name).param("profName", profName).param("itemName", itemName);
-            npc.setEmotion(Mood.EXCITED, 0.9f, "dream_job", System.currentTimeMillis());
+            npc.setEmotion(Mood.EXCITED, 0.9f, "dream_job", currentWorldTick(npc));
             return InteractionOutcome.ofItem(15, 0, 10, 25, prefix.insert(reaction), MemoryEvent.CHATTED, true);
         }
 
         if (npc.personality.traits.contains(Trait.LOYAL) || npc.personality.traits.contains(Trait.FUNNY)) {
             Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.easy", 3, npc.name).param("profName", profName).param("itemName", itemName);
-            npc.setEmotion(Mood.HAPPY, 0.7f, "accepted_job", System.currentTimeMillis());
+            npc.setEmotion(Mood.HAPPY, 0.7f, "accepted_job", currentWorldTick(npc));
             return InteractionOutcome.ofItem(10, 0, 8, 18, prefix.insert(reaction), MemoryEvent.CHATTED, true);
         }
 
@@ -924,7 +924,11 @@ public class InteractionManager {
         }
         
         if (outcome.memoryEvent() == MemoryEvent.GIFTED) {
-            if (outcome.affinity() >= 20) {
+            if (isChild && outcome.affinity() > 0) {
+                // Keep the child's positive food-gift reaction distinct from the adult gift
+                // response so passive need moods do not immediately replace it.
+                npc.forceEmotion(Mood.HAPPY, 1.0f, "child_food_gift", tick);
+            } else if (outcome.affinity() >= 20) {
                 npc.setEmotion(Mood.HAPPY, 1.0f, "gift_loves", tick);
             } else if (outcome.affinity() < 0) {
                 if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
@@ -956,6 +960,13 @@ public class InteractionManager {
                 }
             }
         }
+    }
+
+    /** Emotion timestamps must share the server world's tick domain, not wall-clock millis. */
+    private static long currentWorldTick(SimNPCComponent npc) {
+        World world = npc != null && npc.entityRef != null
+                ? WorldUtil.fromEntityRef(npc.entityRef) : null;
+        return world != null ? world.getTick() : 0L;
     }
 
     /**

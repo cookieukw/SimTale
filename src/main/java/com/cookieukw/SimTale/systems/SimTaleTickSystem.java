@@ -266,11 +266,20 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
+        // A child's accepted food gift should be visible as a positive reaction before ongoing
+        // needs-based moods resume. Higher-priority attack/insult reactions below still win.
+        boolean recentChildFoodGift = InteractionManager.isNpcAChild(npc)
+                && "child_food_gift".equals(npc.emotionSource)
+                && absoluteTick >= npc.lastEmotionChangeTick
+                && absoluteTick - npc.lastEmotionChangeTick < 200;
+
         // Apply needs-based passive emotion triggers
         if (npc.memory.remembers(MemoryEvent.ATTACKED, null, 30000)) {
             npc.setEmotion(Mood.SCARED, 0.9f, "damage", absoluteTick);
         } else if (npc.memory.remembers(MemoryEvent.INSULTED, null, 30000)) {
             npc.setEmotion(Mood.ANGRY, 0.8f, "insult", absoluteTick);
+        } else if (recentChildFoodGift) {
+            // Preserve the just-applied happy response for ten seconds.
         } else {
             if (npc.personality.traits.contains(Trait.AGGRESSIVE) && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < 50 || NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < 50)) {
                 npc.setEmotion(Mood.ANGRY, 0.7f, "needs", absoluteTick);
