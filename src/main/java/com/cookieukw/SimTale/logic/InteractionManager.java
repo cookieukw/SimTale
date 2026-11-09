@@ -88,11 +88,6 @@ public class InteractionManager {
 
     private record DailyState(boolean cooldownActive, boolean missedLongTime) {}
 
-    private static final Set<String> FOOD_KEYWORDS = Set.of(
-        "food", "apple", "bread", "meat", "fish", "carrot", 
-        "potato", "soup", "fruit", "berry", "cookie", "pie"
-    );
-
     private enum GiftCategory {
         TRASH(
             Set.of("dirt", "soil_sand", "rock_stone", "spiderweb", "gravel", "deco_trash",
@@ -487,7 +482,7 @@ public class InteractionManager {
         }
 
         if (isChild) {
-            return handleChildGift(npc, itemId, itemName);
+            return handleChildGift(npc, heldItem, itemName);
         }
 
         if (isWeddingRing(heldItem.getItemId())) {
@@ -600,17 +595,32 @@ public class InteractionManager {
         }
     }
 
-    private static InteractionOutcome handleChildGift(SimNPCComponent npc, String itemId, String itemName) {
-        boolean isFood = FOOD_KEYWORDS.stream().anyMatch(itemId::contains);
-        if (isFood) {
+    private static InteractionOutcome handleChildGift(SimNPCComponent npc, ItemStack heldItem, String itemName) {
+        int tier = NPCFoodHelper.tierOf(heldItem);
+        if (tier != NPCFoodHelper.NOT_FOOD) {
+            boolean favorite = NPCFoodHelper.isFavorite(heldItem, npc.preferences);
+            boolean hated = NPCFoodHelper.isHated(heldItem, npc.preferences);
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID,
+                    NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID)
+                            + NPCFoodHelper.hungerRestored(tier));
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID,
+                    NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID)
+                            + (hated ? -10f : favorite ? 10f : 5f));
+
             GrowthComponent childComp = SimTaleLifecyclePersistence.load("child_" + npc.entityId.toString(), GrowthComponent.class);
             World world = npc.entityRef != null ? WorldUtil.fromEntityRef(npc.entityRef) : null;
+            long tick = world != null ? world.getTick() : System.currentTimeMillis();
             if (childComp != null && world != null) {
                 childComp.birthTick -= 24000;
                 SimTaleLifecyclePersistence.save("child_" + npc.entityId.toString(), childComp);
                 LifecycleManager.tickGrowth(childComp, world.getTick());
             }
-            return InteractionOutcome.ofItem(0, 0, 0, 0, 
+            int friendship = hated ? -2 : favorite ? 12 : 8;
+            int trust = hated ? -1 : favorite ? 10 : 6;
+            int affinity = hated ? -5 : favorite ? 30 : 18;
+            npc.forceEmotion(hated ? Mood.SAD : favorite ? Mood.EXCITED : Mood.HAPPY,
+                    hated ? 0.6f : 0.8f, hated ? "child_hated_food" : "child_food_gift", tick);
+            return InteractionOutcome.ofItem(friendship, 0, trust, affinity,
                 pickRandomTranslation("npc-dialogues.gift.accelerated", 3, npc.name).param("item", itemName), 
                 MemoryEvent.GIFTED, true);
         }
