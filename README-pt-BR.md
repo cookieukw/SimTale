@@ -64,21 +64,25 @@ Esta seção é para **jogadores**. Se você gerencia um servidor ou quer trabal
 
 | Item                     | Versão     | Obrigatório                                   |
 | ------------------------ | ---------- | --------------------------------------------- |
-| Servidor Hytale          | `>= 0.6.0` | sim                                           |
-| Caskara (banco de dados) | `>= 3.0.0` | sim                                           |
-| RuneCore                 | 1.0.12     | sim — usado para aplicar dano e cura aos NPCs |
+| Servidor Hytale          | release `^0.7.0` ou pre-release `^0.8.0-pre.2.1` | sim |
+| Caskara (banco de dados) | `>= 3.0.4` | sim                                           |
+| RuneCore                 | `>= 1.0.12` | sim — usado para aplicar dano e cura aos NPCs |
 | Java                     | 25         | apenas para compilar (build)                  |
 
 > **Nota:** De onde vêm esses números
-> `ServerVersion` e `Dependencies` no `manifest.json` do mod. A dependência do RuneCore não
-> está declarada lá, mas o código chama `com.cookie.runecore.api.StatHelper` — sem esse jar, a fome
-> não consegue tirar nem restaurar a vida.
+> `ServerVersion` e `Dependencies` no `manifest.json` do mod. RuneCore está declarado lá e fornece
+> `com.cookie.runecore.api.StatHelper`, usado para a fome causar dano e curar NPCs.
 
 ### Instalar
 
-1. Solte `SimTale-1.0.0.jar`, `Caskara.jar` e `RuneCore-1.0.12.jar` na pasta `Mods/` do servidor.
+1. Solte os jars do SimTale, Caskara 3.0.4+ e RuneCore 1.0.12+ na pasta `Mods/` do servidor.
 2. Inicie o servidor.
 3. Entre em um mundo e crafte seu primeiro Contrato de Imigração.
+
+Na primeira inicialização após atualizar, o SimTale move os registros antigos de crescimento e
+cuidados com bebês para o próprio shell do Caskara. Ao migrar o banco `default.db` antigo, o Caskara
+mantém uma cópia de segurança chamada `default.db.migration.bak`; só a remova depois de confirmar
+que os registros carregam no jogo.
 
 ```
 [SimTale] Scan found 2 new beds and 1 new chests. Totals: 2 beds, 1 chests
@@ -88,6 +92,14 @@ Essa linha é o rastreio de móveis que roda quando você entra em um mundo. Ela
 algo novo.
 
 ### Compilando a partir do código (Build)
+
+O build pode usar os jars da instalação local em vez dos jars antigos de fallback em `libs/`.
+Configure `hytale.server.jar`, `caskara.api.jar` e `runecore.api.jar` no seu `local.properties`, ou
+sobrescreva um deles ao compilar outra versão:
+
+```bash
+./gradlew -Phytale.server.jar=/caminho/para/pre-release/Server/HytaleServer.jar compileJava
+```
 
 ```bash
 ./gradlew deploy

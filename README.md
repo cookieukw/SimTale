@@ -71,21 +71,24 @@ This section is for **players**. If you run a server or want to work on the code
 
 | Item               | Version    | Required                                       |
 | ------------------ | ---------- | ---------------------------------------------- |
-| Hytale server      | `>= 0.6.0` | yes                                            |
-| Caskara (database) | `>= 3.0.0` | yes                                            |
-| RuneCore           | 1.0.12     | yes — used to apply damage and healing to NPCs |
+| Hytale server      | `^0.7.0` release or `^0.8.0-pre.2.1` pre-release | yes |
+| Caskara (database) | `>= 3.0.4` | yes                                            |
+| RuneCore           | `>= 1.0.12` | yes — used to apply damage and healing to NPCs |
 | Java               | 25         | only to build                                  |
 
 > **Nota:** Where these numbers come from
-> `ServerVersion` and `Dependencies` in the mod's `manifest.json`. The RuneCore dependency is not
-> declared there, but the code calls `com.cookie.runecore.api.StatHelper` — without that jar, hunger
-> cannot take or restore health.
+> `ServerVersion` and `Dependencies` in the mod's `manifest.json`. RuneCore is declared there and
+> provides `com.cookie.runecore.api.StatHelper`, which lets hunger damage and heal NPCs.
 
 ### Install
 
-1. Drop `SimTale-1.0.0.jar`, `Caskara.jar` and `RuneCore-1.0.12.jar` into the server's `Mods/` folder.
+1. Drop the SimTale, Caskara 3.0.4+ and RuneCore 1.0.12+ jars into the server's `Mods/` folder.
 2. Start the server.
 3. Join a world and craft your first Immigration Contract.
+
+On the first start after updating, SimTale moves legacy child-growth and baby-care records into
+its own Caskara shell. Caskara keeps a `default.db.migration.bak` safety copy when it migrates its
+older default database; keep that backup until you have confirmed the records load in-game.
 
 ```
 [SimTale] Scan found 2 new beds and 1 new chests. Totals: 2 beds, 1 chests
@@ -95,6 +98,14 @@ That line is the furniture scan that runs when you join a world. It only appears
 something new.
 
 ### Building from source
+
+The build can use the installed API jars instead of the older fallback jars in `libs/`. Set
+`hytale.server.jar`, `caskara.api.jar` and `runecore.api.jar` in your local `local.properties`, or
+override individual jars with `-P` when compiling another channel:
+
+```bash
+./gradlew -Phytale.server.jar=/path/to/pre-release/Server/HytaleServer.jar compileJava
+```
 
 ```bash
 ./gradlew deploy

@@ -20,6 +20,31 @@ ext {
             : "${System.getProperty("user.home")}/.local/share/hytale")
 }
 
+// Prefer the launcher's installed SDK jars when configured, while keeping the
+// local libs fallback for contributors without local.properties.
+def localBuildProps = new Properties()
+def localBuildPropsFile = project.rootProject.file('local.properties')
+if (localBuildPropsFile.exists()) {
+    localBuildProps.load(localBuildPropsFile.newDataInputStream())
+}
+
+def configuredApiJars = []
+def compileLibraries = fileTree(dir: 'libs', include: ['*.jar'])
+def apiJarPatterns = [
+        'hytale.server.jar': 'HytaleServer.jar',
+        'caskara.api.jar'  : 'Caskara-*.jar',
+        'runecore.api.jar' : 'RuneCore-*.jar'
+]
+apiJarPatterns.each { propertyName, fallbackPattern ->
+    def configuredPath = providers.gradleProperty(propertyName).orNull
+            ?: localBuildProps.getProperty(propertyName)
+    if (configuredPath) {
+        def jarFile = file(configuredPath)
+        compileLibraries.exclude(fallbackPattern)
+        configuredApiJars.add(jarFile)
+    }
+}
+
 def manifestFile = file("$projectDir/src/main/resources/manifest.json")
 def manifestData = new groovy.json.JsonSlurper().parse(manifestFile)
 def modVersion = manifestData.Version.toString()
@@ -42,9 +67,11 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly compileLibraries
+    compileOnly files(configuredApiJars)
     testImplementation sourceSets.main.output
-    testImplementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation compileLibraries
+    testImplementation files(configuredApiJars)
 }
 
 tasks.register('runTests', JavaExec) {

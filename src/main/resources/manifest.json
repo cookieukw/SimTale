@@ -10,10 +10,10 @@
   ],
 
   "Dependencies": {
-    "Cookieukw:Caskara": ">=3.0.0",
+    "Cookieukw:Caskara": ">=3.0.4",
     "Cookieukw:RuneCore": ">=1.0.12"
   },
-  "ServerVersion": "^0.7.0",
+  "ServerVersion": "^0.7.0 || ^0.8.0-pre.2.1",
   "OptionalDependencies": {},
   "DisabledByDefault": false,
   "Main": "com.cookieukw.SimTale.SimTale",
