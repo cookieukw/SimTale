@@ -15,6 +15,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.joml.Vector3d;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Restores a persisted travelling merchant once when a world is first entered. */
@@ -42,18 +43,47 @@ public final class MerchantVisitorPersistenceManager {
             Vector3d pos = new Vector3d(transform.getPosition()).add(2, 0, 2);
             world.execute(() -> {
                 var identity = data.toIdentity();
-                var ref = SimNPCFactory.spawnNPC(store, pos, identity.npcType(), 1.0f, identity.variant());
-                SimNPCComponent npc = store.getComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE);
+                UUID savedEntityId = parseUuid(visitId);
+                SimNPCComponent npc = savedEntityId != null ? SimTale.findNpc(savedEntityId) : null;
+                var ref = npc != null && npc.entityRef != null && npc.entityRef.isValid()
+                        ? npc.entityRef : null;
+                if (ref == null) {
+                    ref = savedEntityId != null ? world.getEntityStore().getRefFromUUID(savedEntityId) : null;
+                    if (ref != null && ref.isValid()) {
+                        npc = store.getComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE);
+                    }
+                }
+                if (ref == null || !ref.isValid() || npc == null) {
+                    ref = SimNPCFactory.spawnNPC(store, pos, identity.npcType(), 1.0f, identity.variant());
+                    npc = store.getComponent(ref, SimTale.SIM_NPC_COMPONENT_TYPE);
+                }
                 if (npc == null) return;
                 npc.profession = Profession.MERCHANT;
                 npc.gender = identity.gender();
                 npc.name = identity.name();
                 SimNPCFactory.refreshNameplate(store, ref, npc.name);
-                var visitor = new MerchantVisitorComponent(visitId, data.seed, identity.name(),
+                String actualVisitId = npc.entityId != null ? npc.entityId.toString() : visitId;
+                var visitor = new MerchantVisitorComponent(actualVisitId, data.seed, identity.name(),
                         identity.specialty().key(), identity.gender().name(), identity.variant(),
                         data.departureTick, data.toStock());
                 store.putComponent(ref, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE, visitor);
+                if (!actualVisitId.equals(visitId)) {
+                    UUID oldId = parseUuid(visitId);
+                    if (oldId != null) com.cookieukw.SimTale.db.SimNPCPersistence.deleteNPC(oldId);
+                    MerchantVisitPersistence.save(world, actualVisitId, MerchantVisitData.of(visitor, world));
+                }
+                // Merchants are temporary visitors; their durable record lives in the visit shell,
+                // never in the permanent villager roster.
+                if (npc.entityId != null) com.cookieukw.SimTale.db.SimNPCPersistence.deleteNPC(npc.entityId);
             });
+        }
+    }
+
+    private static UUID parseUuid(String value) {
+        try {
+            return value == null ? null : UUID.fromString(value);
+        } catch (IllegalArgumentException ignored) {
+            return null;
         }
     }
 }

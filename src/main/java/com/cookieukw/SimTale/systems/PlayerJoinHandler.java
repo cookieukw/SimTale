@@ -95,8 +95,6 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
                 LOGGER.debug("[SimTale] Error loading houses: " + e.getMessage());
             }
         }
-        MerchantVisitorPersistenceManager.restore(player.getWorld(), playerRef.getStore());
-
         /* Same gap the houses had, on the growth records: they were written to disk but nothing
         ever read them back into the in-memory list every age check consults. A restart left it
         empty, which froze every child's growth and hid the parent-only interactions.
@@ -133,6 +131,10 @@ public class PlayerJoinHandler implements Consumer<PlayerReadyEvent> {
         } catch (Exception e) {
             LOGGER.warn("[SimTale] Error reassembling active NPCs: " + e.getMessage());
         }
+
+        // Reattach a persisted merchant visit to its original NPC after ordinary NPCs are loaded;
+        // restoring it before this pass could spawn a second copy of the same temporary merchant.
+        MerchantVisitorPersistenceManager.restore(player.getWorld(), playerRef.getStore());
 
         /* Repair houses whose owner list was lost, then move homeless residents into valid empty
         houses. Bed claiming from the idle loop is unreliable when NPCs are busy or their chunks

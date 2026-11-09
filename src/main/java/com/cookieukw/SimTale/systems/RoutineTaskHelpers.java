@@ -14,6 +14,7 @@ import java.util.*;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
+import com.cookieukw.SimTale.core.MerchantVisitorComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.SimNPCFactory;
@@ -28,6 +29,7 @@ import com.hypixel.hytale.server.core.command.system.CommandManager;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.db.MerchantVisitPersistence;
 
 /**
  * Split out of {@link RoutineAISystem}#tick(), which had grown to 1478 lines handling every
@@ -205,6 +207,11 @@ final class RoutineTaskHelpers {
                         }
                     });
                     if (dyingNpc != null && dyingNpc.entityId != null) {
+                        MerchantVisitorComponent merchantVisit = store.getComponent(
+                                dyingRef, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE);
+                        if (merchantVisit != null) {
+                            MerchantVisitPersistence.delete(world, merchantVisit.visitId);
+                        }
                         PlumbobSystem.removePlumbob(dyingNpc.entityId);
                         EmoteBubbleSystem.removeThought(dyingNpc.entityId);
                         /* Save once more before archiving, so lastDamageCause and the current

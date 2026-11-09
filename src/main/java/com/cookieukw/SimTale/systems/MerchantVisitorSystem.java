@@ -2,7 +2,9 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.MerchantVisitorComponent;
+import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.MerchantVisitPersistence;
+import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.query.Query;
@@ -27,6 +29,8 @@ public final class MerchantVisitorSystem extends EntityTickingSystem<EntityStore
         if (chunk.getReferenceTo(index).isValid()
                 && store.getExternalData().getWorld().getTick() >= visitor.departureTick) {
             MerchantVisitPersistence.delete(store.getExternalData().getWorld(), visitor.visitId);
+            SimNPCComponent npc = chunk.getComponent(index, SimTale.SIM_NPC_COMPONENT_TYPE);
+            if (npc != null) SimNPCPersistence.deleteNPC(npc.entityId);
             commandBuffer.removeEntity(chunk.getReferenceTo(index), com.hypixel.hytale.component.RemoveReason.REMOVE);
         }
     }

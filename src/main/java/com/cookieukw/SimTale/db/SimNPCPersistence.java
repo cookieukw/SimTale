@@ -220,6 +220,17 @@ public class SimNPCPersistence {
         if (component.entityId == null)
             return;
 
+        /* A travelling merchant has its own visit record, including departure time and stock.
+        Saving it as a normal villager makes it permanent after the visit ends and causes a new
+        copy to be restored on every world re-entry. The initial spawn write is removed by the
+        merchant creation path; all subsequent autosaves stop here.
+        */
+        if (component.entityRef != null && component.entityRef.isValid()
+                && component.entityRef.getStore().getComponent(component.entityRef,
+                        SimTale.MERCHANT_VISITOR_COMPONENT_TYPE) != null) {
+            return;
+        }
+
         /* Guard against writing a placeholder over real data. Since SimNPCComponent is now
         persisted by Hytale with a codec that only carries id and name, a reloaded entity
         arrives with a component whose remaining fields came from the default constructor —

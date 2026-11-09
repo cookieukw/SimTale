@@ -13,6 +13,7 @@ import com.cookieukw.SimTale.systems.FarmlandRegistry;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.db.MerchantVisitPersistence;
 import com.cookieukw.SimTale.logic.MerchantInteractionHelper;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.hypixel.hytale.component.Ref;
@@ -584,9 +585,10 @@ public class SimTaleCommand extends AbstractPlayerCommand {
                 }
             }
             int purged = SimNPCPersistence.deleteAll();
+            int visitsPurged = MerchantVisitPersistence.deleteAll(world);
 
             ctx.sendMessage(Message.raw("Removed " + count + " NPCs from the world and "
-                    + purged + " bank records."));
+                    + purged + " bank records; cleared " + visitsPurged + " saved merchant visit(s)."));
         }
     }
 

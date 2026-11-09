@@ -57,4 +57,19 @@ public final class MerchantVisitPersistence {
             LOGGER.atWarning().log("SimTale: failed to delete merchant visit: " + e.getMessage());
         }
     }
+
+    /** Deletes every temporary merchant visit for a world, e.g. for the explicit clearall command. */
+    public static int deleteAll(World world) {
+        List<MerchantVisitData> visits = list(world);
+        int deleted = 0;
+        for (MerchantVisitData visit : visits) {
+            if (visit == null) continue;
+            String id = visit.visitId != null && !visit.visitId.isBlank()
+                    ? visit.visitId : visit.merchantName;
+            if (id == null || id.isBlank()) continue;
+            delete(world, id);
+            deleted++;
+        }
+        return deleted;
+    }
 }

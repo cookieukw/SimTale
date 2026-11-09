@@ -57,6 +57,9 @@ public final class MerchantCommand extends AbstractPlayerCommand {
                 visitIdentity.specialty().key(), visitIdentity.gender().name(),
                 visitIdentity.variant(), departureTick, stock);
         store.putComponent(merchantRef, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE, visitor);
+        // spawnNPC writes a general SimNPCData row before this visitor tag exists. Remove that
+        // provisional permanent-roster entry; visitor save/expiry is handled by the visit shell.
+        com.cookieukw.SimTale.db.SimNPCPersistence.deleteNPC(merchant.entityId);
         MerchantVisitPersistence.save(world, visitId, MerchantVisitData.of(visitor, world));
         return merchant;
     }
