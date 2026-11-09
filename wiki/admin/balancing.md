@@ -17,6 +17,7 @@ so you know what the numbers mean before you touch them.
 | `villageChestDepositChance` | `0.30` | Chance a worker chooses a village/global chest even when her home chest has room |
 | `villageSafeZoneEnabled` | `true` | Cancels all damage to SimTale NPCs inside the village boundary |
 | `villageRegenEnabled` | `true` | Gives players a RuneCore regeneration effect while inside the village |
+| `hostileMobsCanAttackNpcs` | `false` | Allows recognized hostile mobs to damage NPCs outside the safe zone. When off, all game damage is blocked; NPCs only die through the Grim Reaper flow (or an admin command) |
 
 The JSON file is read at boot; restart after editing.
 

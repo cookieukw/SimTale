@@ -441,7 +441,7 @@ Every NPC carries five needs, all starting at 100 and decaying over time.
 | **Energy** | Going to bed |
 | **Social** | Seeking out other NPCs to talk to |
 | **Fun** | Going off to do a hobby. (All work and no play makes the NPC a dull villager) |
-| **Hygiene** | Getting into water to bathe. (Removing the pool ladder won't actually trap them) |
+| **Hygiene** | Seeking water or a placed SimTale Bathtub to bathe. NPCs sit in the bathtub while washing. |
 
 Traits change the rates. A `LAZY` NPC burns energy twice as fast; a `FUNNY` one loses fun at half
 speed.
@@ -907,6 +907,7 @@ All items can be crafted at their respective workstations:
 | **Immigration Contract** | Inventory (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll, 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather |
 | **Town Bell** | <img src="https://simtale.kukkie.org/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 3x Gold Bar, 2x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks |
 | **Birthday Cake** | Cookingbench | 1x Apple Pie (`Food_Pie_Apple`), 1x Orange Light Source / Candle (`Build_Lightsource_Orange`) |
+| **SimTale Bathtub** | Furniture Bench (Furniture_Misc) | 8x Softwood Planks, 4x Copper Bars, 2x Iron Bars |
 
 #### Item Icons
 

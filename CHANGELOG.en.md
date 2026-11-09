@@ -7,6 +7,15 @@
 - Fixed unscoped chest keys and added migration for the legacy `_x_y_z` keys.
 - Updated recipes to use `TimeSeconds`, accepted by the current Hytale schema.
 - Updated the compatibility target to release 0.7.x and pre-release 0.8.0-pre.2.1.
+- Added `hostileMobsCanAttackNpcs` (off by default): game damage cannot kill NPCs unless enabled;
+  when enabled, only recognized hostile mobs can attack them outside the safe zone.
+- Default protection also uses Hytale's native invulnerability component. Guards are the only
+  residents who fight hostiles; everyone else heads home for cover.
+- Added a craftable bathtub with its own collision, seat and NPC hygiene routine. Bathtubs now have
+  map markers, and map markers re-register after a world instance is recreated.
+- The graveyard records and displays death dates, sorts the newest deaths first and shows the cause
+  when available.
+- Reviving child NPCs now preserves their life stage, scale and visual variant.
 
 ## [1.4.0] — 2026-11-06
 

@@ -14,7 +14,7 @@ NPC and restored when the server starts again, so hunger is cumulative across se
 | <img src="/img/need_energy.svg" width="22" height="22" align="absmiddle" /> **Energy** | Going to bed |
 | <img src="/img/need_social.svg" width="22" height="22" align="absmiddle" /> **Social** | Seeking out other NPCs to talk to |
 | <img src="/img/need_fun.svg" width="22" height="22" align="absmiddle" /> **Fun** | Going off to do a hobby. (All work and no play makes the NPC a dull villager) |
-| <img src="/img/need_hygiene.svg" width="22" height="22" align="absmiddle" /> **Hygiene** | Getting into water to bathe. (Removing the pool ladder won't actually trap them) |
+| <img src="/img/need_hygiene.svg" width="22" height="22" align="absmiddle" /> **Hygiene** | Seeking water or a placed SimTale Bathtub to bathe. NPCs sit in the bathtub while washing. |
 
 Traits change the rates. A `LAZY` NPC burns energy twice as fast; a `FUNNY` one loses fun at half
 speed.

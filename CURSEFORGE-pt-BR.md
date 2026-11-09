@@ -434,7 +434,7 @@ Todo NPC possui cinco necessidades, todas começando em 100 e caindo com o tempo
 | **Energia** | Ir para a cama |
 | **Social** | Procurar outros NPCs para conversar |
 | **Diversão** | Sair para praticar um hobby. (Muito trabalho e pouca diversão fazem do NPC um aldeão muito chato) |
-| **Higiene** | Entrar na água para tomar banho. (Remover a escada da piscina não vai prendê-los lá dentro de verdade) |
+| **Higiene** | Procurar água ou uma Banheira SimTale colocada para tomar banho. O NPC senta na banheira enquanto se lava. |
 
 Os traços alteram a velocidade. Um NPC `PREGUIÇOSO` (`LAZY`) gasta energia duas vezes mais rápido; um `ENGRAÇADO` (`FUNNY`) perde diversão pela metade da velocidade.
 
@@ -901,6 +901,7 @@ Todos os itens podem ser craftados em suas respectivas bancadas:
 | **Contrato de Imigração** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll), 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
 | **Sino da Cidade** | <img src="https://simtale.kukkie.org/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 3x Barra de Ouro (Gold Bar), 2x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks) |
 | **Bolo de Aniversário** | Bancada de Culinária (Cookingbench) | 1x Torta de Maçã (`Food_Pie_Apple`), 1x Fonte de Luz / Vela Laranja (`Build_Lightsource_Orange`) |
+| **Banheira SimTale** | Bancada de Mobília (Furniture Bench - Furniture_Misc) | 8x Tábuas de Madeira Macia, 4x Barras de Cobre, 2x Barras de Ferro |
 
 #### Ícones dos Itens
 

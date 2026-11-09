@@ -21,6 +21,11 @@ SimTale adds a set of craftable tools. They exist so the village can be understo
 | <img src="/img/WeddingRing.png" width="32" align="absmiddle"/> Wedding Ring | a villager | Proposes marriage (requires 80 Romance, 70 Friendship) |
 | <img src="/img/Baby.png" width="32" align="absmiddle"/> Baby | nothing | A carried infant that will eventually spawn as a child NPC |
 | <img src="/img/BirthdayCake.png" width="32" align="absmiddle"/> Birthday Cake | a nearby villager | Celebrates with a villager, maximizing happiness (Mood EXCITED), filling hunger, and boosting affinity |
+| <img src="/img/SimTale_Bathtub.png" width="32" align="absmiddle"/> SimTale Bathtub | placed as furniture | A usable bathtub: NPCs sit in it while bathing and restoring Hygiene; players can use its seat interaction too |
+
+## SimTale Bathtub
+
+Craft the bathtub at a **Furniture Bench** in the `Furniture_Misc` category: **8 Softwood Planks, 4 Copper Bars and 2 Iron Bars**. Place it in the world; NPCs with low Hygiene can seek it out and sit in it while they bathe. The block also has a seat interaction for players.
 
 ## Town Bell
 

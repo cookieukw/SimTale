@@ -524,7 +524,7 @@ Every NPC carries five needs, all starting at 100 and decaying over time.
 | **Energy**  | Going to bed                                                                                                 |
 | **Social**  | Seeking out other NPCs to talk to                                                                            |
 | **Fun**     | Going off to do a hobby. (All work and no play makes the NPC a dull villager)                                |
-| **Hygiene** | Getting into water to bathe. (Removing the pool ladder won't actually trap them)                             |
+| **Hygiene** | Seeking water or a placed SimTale Bathtub to bathe. NPCs sit in the bathtub while washing.                             |
 
 Traits change the rates. A `LAZY` NPC burns energy twice as fast; a `FUNNY` one loses fun at half
 speed.
@@ -991,6 +991,7 @@ All items can be crafted at their respective workstations:
 | **Immigration Contract**  | Inventory (Fieldcraft)                                                                   | 1x <img src="wiki/static/img/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll, 1x <img src="wiki/static/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="wiki/static/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather                                              |
 | **Town Bell**             | <img src="wiki/static/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench  | 3x Gold Bar, 2x <img src="wiki/static/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks                                                                                                                                                                                                               |
 | **Birthday Cake**         | Cookingbench                                                                             | 1x Apple Pie (`Food_Pie_Apple`), 1x Orange Light Source / Candle (`Build_Lightsource_Orange`)                                                                                                                                                                                                                                    |
+| **SimTale Bathtub**       | Furniture Bench (Furniture_Misc)                                                        | 8x Softwood Planks, 4x Copper Bars, 2x Iron Bars |
 
 #### Item Icons
 
@@ -1077,7 +1078,8 @@ Yes. Edit `simtale-config.json` in the save folder:
   "hungerDecayMultiplier": 1.0,
   "villageChestDepositChance": 0.3,
   "villageSafeZoneEnabled": true,
-  "villageRegenEnabled": true
+  "villageRegenEnabled": true,
+  "hostileMobsCanAttackNpcs": false
 }
 ```
 
@@ -1085,6 +1087,9 @@ Restart the server after editing. `hungerDecayMultiplier` defaults to `1.0` (abo
 to 70). Set it to `10.0` to reach the first food-search threshold in roughly 25 minutes, or `0` to
 freeze hunger. The deposit chance controls how often workers choose a village/global chest over
 their own pantry when both have room.
+`hostileMobsCanAttackNpcs` defaults to `false`, so game damage cannot kill villagers. Set it to
+`true` to allow recognized hostile mobs to attack them outside the safe zone; player and environmental
+damage remain blocked.
 
 #### How do I make NPCs do hobbies?
 
