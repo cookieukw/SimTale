@@ -9,6 +9,7 @@ import com.cookieukw.SimTale.core.lifecycle.LifecycleManager;
 import com.cookieukw.SimTale.core.lifecycle.PregnancyComponent;
 import com.cookieukw.SimTale.db.SimNPCData;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareData;
 
 import com.cookieukw.SimTale.core.lifecycle.GrowthComponent;
@@ -46,6 +47,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
 /**
  * Test runner: {@code ./gradlew runTests}.
@@ -55,13 +62,30 @@ import java.util.UUID;
  * is deliberate, not a gap.
  */
 public class SimTaleTests {
+    private static File caskaraTestFolder;
 
     public static void main(String[] args) {
         System.out.println("========================================");
         System.out.println("SimTale — unit tests");
         System.out.println("========================================");
 
+        if (args.length > 0 && args[0].equals("--caskara-persistence")) {
+            try {
+                initializeTestCaskara();
+                testDatabaseShellIsolation();
+                System.out.println("Caskara persistence checks passed (" + Assert.checks + " assertions).");
+            } catch (Throwable t) {
+                t.printStackTrace();
+                cleanupTestCaskara();
+                System.exit(1);
+            }
+            cleanupTestCaskara();
+            return;
+        }
+
         try {
+            initializeTestCaskara();
+
             System.out.println("Asset ids");
             AssetIdsTests.run();
 
@@ -114,8 +138,37 @@ public class SimTaleTests {
             System.out.println("TEST FAILURE");
             t.printStackTrace();
             System.out.println("========================================");
+            cleanupTestCaskara();
             System.exit(1);
         }
+
+        cleanupTestCaskara();
+    }
+
+    private static void initializeTestCaskara() {
+        try {
+            caskaraTestFolder = Files.createTempDirectory("simtale-caskara-tests-").toFile();
+            com.cookie.caskara.Caskara.init("caskara", caskaraTestFolder);
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not create temporary Caskara test folder", e);
+        }
+    }
+
+    private static void cleanupTestCaskara() {
+        if (caskaraTestFolder == null) return;
+        com.cookie.caskara.Caskara.shutdown();
+        try (Stream<Path> paths = Files.walk(caskaraTestFolder.toPath())) {
+            paths.sorted(Comparator.reverseOrder()).forEach(path -> {
+                try {
+                    Files.deleteIfExists(path);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Could not remove temporary test path " + path, e);
+                }
+            });
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not clean temporary Caskara test folder", e);
+        }
+        caskaraTestFolder = null;
     }
 
     private static void testPlumbobBedsAndSeating() {
@@ -144,14 +197,70 @@ public class SimTaleTests {
 
     private static void testDatabaseShellIsolation() {
         System.out.print("Testing Database Shell Isolation (simtale.db)... ");
-        
-        // Initialize temporary Caskara
-        java.io.File testFolder = new java.io.File("scratch/test_db");
-        com.cookie.caskara.Caskara.init(testFolder);
-        
+
         // Validate SimTale Shell instantiation
         assertEqual(SimNPCPersistence.DB_SHELL != null, true, "DB_SHELL must be instantiated");
         assertEqual(SimNPCPersistence.DB_SHELL.getFile().getName(), "simtale.db", "Database file name");
+        assertEqual(com.cookie.caskara.Caskara.shell().getFile().getName(), "caskara.db",
+                "Caskara's default shell is distinct from SimTale's shell");
+
+        UUID legacyChildId = UUID.randomUUID();
+        GrowthComponent legacyGrowth = new GrowthComponent();
+        legacyGrowth.childId = legacyChildId;
+        legacyGrowth.name = "Legacy Child";
+        com.cookie.caskara.db.Shell legacyCaskaraShell = com.cookie.caskara.Caskara.shell("caskara");
+        legacyCaskaraShell.core(GrowthComponent.class)
+                .preserve("child_" + legacyChildId, legacyGrowth);
+
+        BabyCareData legacyCare = new BabyCareData(legacyChildId.toString(), "mother", "father");
+        legacyCaskaraShell.core(BabyCareData.class)
+                .preserve("babycare_" + legacyChildId, legacyCare);
+
+        UUID legacyDefaultChildId = UUID.randomUUID();
+        GrowthComponent legacyDefaultGrowth = new GrowthComponent();
+        legacyDefaultGrowth.childId = legacyDefaultChildId;
+        legacyDefaultGrowth.name = "Legacy Default Child";
+        com.cookie.caskara.db.Shell legacyDefaultShell = com.cookie.caskara.Caskara.shell("default");
+        legacyDefaultShell.core(GrowthComponent.class)
+                .preserve("child_" + legacyDefaultChildId, legacyDefaultGrowth);
+        BabyCareData legacyDefaultCare = new BabyCareData(
+                legacyDefaultChildId.toString(), "legacy-mother", "legacy-father");
+        legacyDefaultShell.core(BabyCareData.class)
+                .preserve("babycare_" + legacyDefaultChildId, legacyDefaultCare);
+
+        SimTaleLifecyclePersistence.MigrationResult migration =
+                SimTaleLifecyclePersistence.migrateLegacyData();
+        assertEqual(migration.alreadyMigrated(), false, "First legacy migration runs");
+        assertEqual(migration.growthRecordsCopied() >= 1, true,
+                "Growth records copied from the legacy Caskara shell");
+        assertEqual(migration.babyCareRecordsCopied(), 1, "Baby-care records copied");
+        assertEqual(SimTaleLifecyclePersistence.load("child_" + legacyChildId, GrowthComponent.class).name,
+                "Legacy Child", "Growth record is available in the SimTale shell");
+        assertEqual(SimTaleLifecyclePersistence.load("child_" + legacyDefaultChildId, GrowthComponent.class).name,
+                "Legacy Default Child", "Legacy default.db growth record is available in the SimTale shell");
+        assertEqual(SimTaleLifecyclePersistence.load("babycare_" + legacyDefaultChildId, BabyCareData.class) != null,
+                true, "Legacy default.db baby-care record is available in the SimTale shell");
+        assertEqual(new File(new File(caskaraTestFolder, "global"), "default.db.migration.bak").isFile(),
+                true, "Caskara keeps a safety backup of the legacy default database");
+        assertEqual(SimTaleLifecyclePersistence.load("babycare_" + legacyChildId, BabyCareData.class) != null,
+                true, "Baby-care record is available in the SimTale shell");
+        assertEqual(legacyCaskaraShell.core(GrowthComponent.class).extract("child_" + legacyChildId).sync().isPresent(),
+                true, "Migration retains the old growth record");
+
+        SimTaleLifecyclePersistence.MigrationResult repeatedMigration =
+                SimTaleLifecyclePersistence.migrateLegacyData();
+        assertEqual(repeatedMigration.alreadyMigrated(), true, "Repeated migration is a no-op");
+        assertEqual(repeatedMigration.growthRecordsCopied(), 0, "Repeated migration does not recopy growth records");
+
+        UUID newChildId = UUID.randomUUID();
+        GrowthComponent newGrowth = new GrowthComponent();
+        newGrowth.childId = newChildId;
+        newGrowth.name = "New SimTale Child";
+        SimTaleLifecyclePersistence.save("child_" + newChildId, newGrowth);
+        assertEqual(SimTaleLifecyclePersistence.load("child_" + newChildId, GrowthComponent.class).name,
+                "New SimTale Child", "New lifecycle writes use the SimTale shell");
+        assertEqual(legacyCaskaraShell.core(GrowthComponent.class).extract("child_" + newChildId).sync().isEmpty(),
+                true, "New lifecycle writes no longer enter Caskara's default shell");
 
         // Prepare dummy data
         UUID npcId = UUID.randomUUID();

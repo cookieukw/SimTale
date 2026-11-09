@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.systems;
 
-import com.cookie.caskara.Caskara;
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
+
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.lifecycle.BabyCareData;
@@ -131,7 +132,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
 
                                 BabyCareManager.addCarriedBaby(spouseNpc.entityId, invBabyChildId);
 
-                                GrowthComponent child = Caskara.load("child_" + care.childId, GrowthComponent.class);
+                                GrowthComponent child = SimTaleLifecyclePersistence.load("child_" + care.childId, GrowthComponent.class);
                                 Message childMsg = child != null ? Message.raw(child.getFullName()) : Message.translation("general.baby.generic");
                                 playerRef.sendMessage(Message.translation("general.baby.custody.spouse_taken")
                                     .param("spouse", spouseNpc.name)
@@ -140,7 +141,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
                                 // Early swap rejection feedback (cooldown check)
                                 long lastMsg = MESSAGE_COOLDOWNS.getOrDefault(playerUuid, 0L);
                                 if (nowMs - lastMsg > 10000) {
-                                    GrowthComponent child = Caskara.load("child_" + care.childId, GrowthComponent.class);
+                                    GrowthComponent child = SimTaleLifecyclePersistence.load("child_" + care.childId, GrowthComponent.class);
                                     Message childMsg = child != null ? Message.raw(child.getFullName()) : Message.translation("general.baby.generic");
                                     playerRef.sendMessage(Message.translation("npc-dialogues.baby.custody.spouse_reject")
                                         .param("spouse", spouseNpc.name)
@@ -175,7 +176,7 @@ public class BabyCareTickSystem extends EntityTickingSystem<EntityStore> {
                         // Cache update
                         BabyCareManager.removeCarriedBaby(spouseNpc.entityId, npcChildId);
 
-                        GrowthComponent child = Caskara.load("child_" + care.childId, GrowthComponent.class);
+                        GrowthComponent child = SimTaleLifecyclePersistence.load("child_" + care.childId, GrowthComponent.class);
                         Message childMsg = child != null ? Message.raw(child.getFullName()) : Message.translation("general.baby.generic");
                         playerRef.sendMessage(Message.translation("general.baby.custody.taken_back")
                             .param("name", childMsg)

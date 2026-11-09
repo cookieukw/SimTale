@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale.logic;
 
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
+
 
 import java.util.function.Consumer;
 import com.cookie.runecore.api.RuneCoreItemManager;
@@ -262,11 +264,11 @@ public class SimTaleItemRegistry {
 
             // If child with BabyNeeds, grant affection and feed bonus
             if (nearestNpc.entityId != null) {
-                GrowthComponent gc = com.cookie.caskara.Caskara.load("child_" + nearestNpc.entityId, GrowthComponent.class);
+                GrowthComponent gc = SimTaleLifecyclePersistence.load("child_" + nearestNpc.entityId, GrowthComponent.class);
                 if (gc != null && gc.babyNeeds != null) {
                     gc.babyNeeds.showAffection(30f);
                     gc.babyNeeds.feed(30f);
-                    com.cookie.caskara.Caskara.save("child_" + gc.childId, gc);
+                    SimTaleLifecyclePersistence.save("child_" + gc.childId, gc);
                 }
             }
 

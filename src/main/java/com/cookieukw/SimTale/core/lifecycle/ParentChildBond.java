@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
-import com.cookie.caskara.Caskara;
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
+
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.Relationship;
 
@@ -39,7 +40,7 @@ public final class ParentChildBond {
             }
         }
 
-        GrowthComponent direct = Caskara.load("child_" + npc.entityId, GrowthComponent.class);
+        GrowthComponent direct = SimTaleLifecyclePersistence.load("child_" + npc.entityId, GrowthComponent.class);
         if (direct != null && (playerUuid.equals(direct.motherId) || playerUuid.equals(direct.fatherId))) {
             return direct;
         }

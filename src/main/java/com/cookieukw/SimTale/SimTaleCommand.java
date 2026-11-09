@@ -569,9 +569,8 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             /* Sweep the database as well. Removing the entities is not enough: records for NPCs
             that are not currently tracked (unloaded chunks, entities already gone, leftovers
-            from earlier sessions) would otherwise survive and be resurrected. This used to be
-            guaranteed to leak, because Caskara.delete() targeted the "default" shell while
-            the records live in "simtale".
+            from earlier sessions) would otherwise survive and be resurrected. The old cleanup
+            path used Caskara's static delete helper, which targeted "default" instead of "simtale".
 
             Archived first, one by one, so the untracked ones reach the graveyard too instead of
             being the only NPCs the command can still destroy for good.

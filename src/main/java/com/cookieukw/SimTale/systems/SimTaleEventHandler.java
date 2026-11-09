@@ -1,7 +1,8 @@
 package com.cookieukw.SimTale.systems;
 
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
 
-import com.cookie.caskara.Caskara;
+
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.systems.NPCMovementHelper;
 import com.cookieukw.SimTale.animals.WhiteCatManager;
@@ -311,7 +312,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
 
             // Update baby state and persist
             childComp.pickUp(playerRefComp.getUuid());
-            Caskara.save("child_" + childComp.childId.toString(), childComp);
+            SimTaleLifecyclePersistence.save("child_" + childComp.childId.toString(), childComp);
 
             // Remove the baby entity from the world
             store.removeEntity(targetRef, RemoveReason.REMOVE);
@@ -364,7 +365,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
             }
         }
         if (childComp == null) {
-            childComp = Caskara.load("child_" + childId, GrowthComponent.class);
+            childComp = SimTaleLifecyclePersistence.load("child_" + childId, GrowthComponent.class);
             if (childComp != null) {
                 LifecycleManager.ACTIVE_CHILDREN.add(childComp);
             }
@@ -428,7 +429,7 @@ public class SimTaleEventHandler implements Consumer<PlayerMouseButtonEvent> {
         childComp.currentScale = LifecycleManager.calculateTargetScale(childComp, WorldUtil.tick());
 
         childComp.putDown();
-        Caskara.save("child_" + childComp.childId.toString(), childComp);
+        SimTaleLifecyclePersistence.save("child_" + childComp.childId.toString(), childComp);
 
         InventoryComponent.Hotbar hotbarComponent = store.getComponent(playerRef, InventoryComponent.Hotbar.getComponentType());
         if (hotbarComponent != null && hotbarComponent.getActiveSlot() != -1) {

@@ -102,8 +102,8 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             UUIDComponent uuidComp = chunk.getComponent(index, UUIDComponent.getComponentType());
             if (uuidComp != null) {
                 UUID uuid = uuidComp.getUuid();
-                /* Caskara.load() resolves to the "default" shell; NPC data lives in "simtale".
-                This used to always return null, so this whole re-attach path never ran.
+                /* NPC data lives in SimTalePersistence's named "simtale" shell. The old static
+                Caskara.load() path resolved to "default" and always returned null here.
                 */
                 SimNPCData data = SimNPCPersistence.loadData(uuid);
                 if (data != null) {
@@ -499,12 +499,3 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         }
     }
 }
-
-
-    
-    
-        
-    
-                            
-
-                    

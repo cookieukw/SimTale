@@ -1,8 +1,9 @@
 package com.cookieukw.SimTale.logic;
 
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
+
 import com.cookieukw.SimTale.core.AssetIds;
 
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookie.runecore.api.StatHelper;
 import com.cookieukw.SimTale.ai.AiConfigManager;
@@ -602,11 +603,11 @@ public class InteractionManager {
     private static InteractionOutcome handleChildGift(SimNPCComponent npc, String itemId, String itemName) {
         boolean isFood = FOOD_KEYWORDS.stream().anyMatch(itemId::contains);
         if (isFood) {
-            GrowthComponent childComp = Caskara.load("child_" + npc.entityId.toString(), GrowthComponent.class);
+            GrowthComponent childComp = SimTaleLifecyclePersistence.load("child_" + npc.entityId.toString(), GrowthComponent.class);
             World world = npc.entityRef != null ? WorldUtil.fromEntityRef(npc.entityRef) : null;
             if (childComp != null && world != null) {
                 childComp.birthTick -= 24000;
-                Caskara.save("child_" + npc.entityId.toString(), childComp);
+                SimTaleLifecyclePersistence.save("child_" + npc.entityId.toString(), childComp);
                 LifecycleManager.tickGrowth(childComp, world.getTick());
             }
             return InteractionOutcome.ofItem(0, 0, 0, 0, 

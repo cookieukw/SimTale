@@ -1,10 +1,11 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
+
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimPlayerComponent;
@@ -95,7 +96,7 @@ public class BabyCareManager {
     /** Drops a superseded growth record so the pile shrinks instead of being filtered forever. */
     private static void discardRecord(GrowthComponent child) {
         try {
-            Caskara.delete("child_" + child.childId, GrowthComponent.class);
+            SimTaleLifecyclePersistence.delete("child_" + child.childId, GrowthComponent.class);
         } catch (Exception e) {
             LOGGER.atWarning().log("SimTale: Failed to delete duplicate growth record: " + e.getMessage());
         }
@@ -105,7 +106,7 @@ public class BabyCareManager {
         LifecycleState.markLoaded();
         LifecycleState.ACTIVE_CHILDREN.clear();
         try {
-            List<GrowthComponent> all = Caskara.list(GrowthComponent.class);
+            List<GrowthComponent> all = SimTaleLifecyclePersistence.list(GrowthComponent.class);
             if (all == null) return;
 
             int restored = 0;
@@ -132,7 +133,7 @@ public class BabyCareManager {
                         child.stage = GrowthStage.TODDLER;
                         child.currentScale = Math.max(0.45f, child.currentScale);
                         child.birthTick = WorldUtil.tick() - (GrowthStage.TODDLER.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
-                        Caskara.save("child_" + child.childId, child);
+                        SimTaleLifecyclePersistence.save("child_" + child.childId, child);
                         LOGGER.atInfo().log("SimTale: Restored child " + child.getFullName() + " from BABY back to TODDLER (entity exists)");
                     } else if (load(child.childId) == null) {
                         orphans++;
@@ -144,7 +145,7 @@ public class BabyCareManager {
                 long currentTick = WorldUtil.tick();
                 if (child.birthTick > currentTick) {
                     child.birthTick = currentTick - (child.stage.getStartDay() * PregnancyComponent.TICKS_PER_DAY);
-                    Caskara.save("child_" + child.childId, child);
+                    SimTaleLifecyclePersistence.save("child_" + child.childId, child);
                 }
 
                 /* One record per person, keeping the most advanced stage.
@@ -189,7 +190,7 @@ public class BabyCareManager {
     public static void loadCache() {
         NPC_CARRIED_BABIES.clear();
         try {
-            List<BabyCareData> all = Caskara.list(BabyCareData.class);
+            List<BabyCareData> all = SimTaleLifecyclePersistence.list(BabyCareData.class);
             if (all != null) {
                 for (BabyCareData data : all) {
                     if (data.currentHolderId != null && !data.currentHolderId.equals("none")) {
@@ -208,12 +209,12 @@ public class BabyCareManager {
 
     public static void save(BabyCareData data) {
         if (data == null || data.childId == null) return;
-        Caskara.save("babycare_" + data.childId, data);
+        SimTaleLifecyclePersistence.save("babycare_" + data.childId, data);
     }
 
     public static BabyCareData load(UUID childId) {
         if (childId == null) return null;
-        return Caskara.load("babycare_" + childId, BabyCareData.class);
+        return SimTaleLifecyclePersistence.load("babycare_" + childId, BabyCareData.class);
     }
 
     /**
@@ -251,7 +252,7 @@ public class BabyCareManager {
         String playerUuidStr = playerComp.playerUuid.toString();
         List<BabyCareData> allCares;
         try {
-            allCares = Caskara.list(BabyCareData.class);
+            allCares = SimTaleLifecyclePersistence.list(BabyCareData.class);
         } catch (Exception e) {
             LOGGER.atWarning().log("SimTale: Failed to load offline care records: " + e.getMessage());
             return;
@@ -466,7 +467,7 @@ public class BabyCareManager {
 
                             PlayerRef pRef = LifecycleUtils.getPlayerRef(playerUuid);
                             if (pRef != null) {
-                                GrowthComponent child = Caskara.load("child_" + childId, GrowthComponent.class);
+                                GrowthComponent child = SimTaleLifecyclePersistence.load("child_" + childId, GrowthComponent.class);
                                 Message childMsg = child != null ? Message.raw(child.getFullName()) : Message.translation("general.baby.generic");
                                 pRef.sendMessage(Message.translation("general.baby.custody.taken").param("name", childMsg));
                             }
@@ -490,7 +491,7 @@ public class BabyCareManager {
 
                             PlayerRef pRef = LifecycleUtils.getPlayerRef(playerUuid);
                             if (pRef != null) {
-                                GrowthComponent child = Caskara.load("child_" + childId, GrowthComponent.class);
+                                GrowthComponent child = SimTaleLifecyclePersistence.load("child_" + childId, GrowthComponent.class);
                                 Message childMsg = child != null ? Message.raw(child.getFullName()) : Message.translation("general.baby.generic");
                                 pRef.sendMessage(Message.translation("general.baby.custody.given").param("name", childMsg));
                             }
