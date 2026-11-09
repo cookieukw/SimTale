@@ -17,6 +17,8 @@ import com.hypixel.hytale.server.npc.util.InventoryHelper;
  */
 public final class NPCToolHelper {
 
+    private static final String REAPER_SCYTHE = "Weapon_Battleaxe_Scythe_Void";
+
     private NPCToolHelper() {
     }
 
@@ -43,7 +45,7 @@ public final class NPCToolHelper {
     public static void ensureToolEquipped(Ref<EntityStore> ref, SimNPCComponent npc, Store<EntityStore> store) {
         if (ref == null || !ref.isValid() || npc == null || store == null) return;
 
-        String itemId = toolFor(npc.profession);
+        String itemId = npc.isReaper ? REAPER_SCYTHE : toolFor(npc.profession);
         if (itemId == null) return;
 
         /* If the tool is already somewhere in the hotbar, just select it. Otherwise prefer an

@@ -217,7 +217,7 @@ public class SimNPCFactory {
             simComponent.gender = Math.random() > 0.5 ? Gender.MALE : Gender.FEMALE;
         }
 
-        if (type == NPCType.CHILD_MALE || type == NPCType.CHILD_FEMALE) {
+        if (type == NPCType.CHILD_MALE || type == NPCType.CHILD_FEMALE || type == NPCType.REAPER) {
             simComponent.profession = Profession.UNEMPLOYED;
         }
 
