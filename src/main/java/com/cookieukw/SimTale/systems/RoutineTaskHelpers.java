@@ -16,6 +16,7 @@ import java.util.*;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.MerchantVisitorComponent;
+import com.cookieukw.SimTale.logic.InteractionManager;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
 import com.cookieukw.SimTale.core.SimNPCFactory;
