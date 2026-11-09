@@ -261,7 +261,7 @@ public class BedPlaceBlockEventSystem extends EntityEventSystem<EntityStore, Pla
 
         if (BathRegistry.isBathId(placedId)) {
             Vector3i bathAnchor = FurnitureAnchorHelper.anchorOf(world, pos.x, pos.y, pos.z);
-            BathRegistry.add(bathAnchor.x, bathAnchor.y, bathAnchor.z);
+            BathRegistry.add(world, bathAnchor.x, bathAnchor.y, bathAnchor.z);
         }
 
         if (LeisureRegistry.isLeisureId(placedId)) {

@@ -55,11 +55,16 @@ public final class BedWorldBootstrap {
     private static final class Before {
         final World world;
         final int beds;
-        Before(World world) { this.world = world; this.beds = BedRegistry.size(world); }
+        final int baths;
+        Before(World world) {
+            this.world = world;
+            this.beds = BedRegistry.size(world);
+            this.baths = BathRegistry.size(world);
+        }
         final int chests = ChestRegistry.size(),
                 fishing = FishingPostRegistry.POSTS.size(), lumber = LumberPostRegistry.POSTS.size(),
                 farmPosts = FarmPostRegistry.POSTS.size(), farmland = FarmlandRegistry.FARMLAND.size(),
-                crops = CropRegistry.CROPS.size(), baths = BathRegistry.BATHS.size(),
+                crops = CropRegistry.CROPS.size(),
                 leisure = LeisureRegistry.LEISURE_BLOCKS.size();
         int markers;
 
@@ -71,7 +76,7 @@ public final class BedWorldBootstrap {
             int newFarmPosts = FarmPostRegistry.POSTS.size() - farmPosts;
             int newFarmland = FarmlandRegistry.FARMLAND.size() - farmland;
             int newCrops = CropRegistry.CROPS.size() - crops;
-            int newBaths = BathRegistry.BATHS.size() - baths;
+            int newBaths = BathRegistry.size(world) - baths;
             int newLeisure = LeisureRegistry.LEISURE_BLOCKS.size() - leisure;
             if (markers > 0) {
                 LOGGER.info("[SimTale] Scan restored {} blueprint marker preview(s) from blocks left in the world", markers);
@@ -84,7 +89,7 @@ public final class BedWorldBootstrap {
                 LOGGER.info("[SimTale] Scan found {} new beds, {} new chests, {} new fishing posts, {} new lumber posts, {} new farm posts, {} new farmland, {} new crops, {} new baths, {} new leisure. Totals: {} beds, {} chests, {} fishing, {} lumber, {} farm, {} farmland, {} crops, {} baths, {} leisure",
                         newBeds, newChests, newFishingPosts, newLumberPosts, newFarmPosts, newFarmland, newCrops, newBaths, newLeisure,
                         BedRegistry.size(world), ChestRegistry.size(), FishingPostRegistry.POSTS.size(), LumberPostRegistry.POSTS.size(), FarmPostRegistry.POSTS.size(),
-                        FarmlandRegistry.FARMLAND.size(), CropRegistry.CROPS.size(), BathRegistry.BATHS.size(), LeisureRegistry.LEISURE_BLOCKS.size());
+                        FarmlandRegistry.FARMLAND.size(), CropRegistry.CROPS.size(), BathRegistry.size(world), LeisureRegistry.LEISURE_BLOCKS.size());
             } else {
                 LOGGER.debug("[SimTale-DEBUG] Scan finished: nothing new. Totals: "
                         + BedRegistry.size(world) + " beds, " + ChestRegistry.size() + " chests");
@@ -179,7 +184,7 @@ public final class BedWorldBootstrap {
 
                     if ((f & F_BATH) != 0) {
                         Vector3i bathAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);
-                        BathRegistry.add(bathAnchor.x, bathAnchor.y, bathAnchor.z);
+                        BathRegistry.add(world, bathAnchor.x, bathAnchor.y, bathAnchor.z);
                     }
                     if ((f & F_LEISURE) != 0) {
                         Vector3i leisureAnchor = FurnitureAnchorHelper.anchorOf(world, x, y, z);

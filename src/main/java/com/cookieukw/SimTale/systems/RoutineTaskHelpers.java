@@ -72,7 +72,7 @@ final class RoutineTaskHelpers {
             int sz = (int) pos.z;
             boolean found = false;
 
-            Vector3i nearestBath = BathRegistry.nearestTo(pos.x, pos.y, pos.z, npc.entityId);
+            Vector3i nearestBath = BathRegistry.nearestTo(world, pos.x, pos.y, pos.z, npc.entityId);
             if (nearestBath != null) {
                 double dx = nearestBath.x - sx;
                 double dz = nearestBath.z - sz;

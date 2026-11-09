@@ -64,7 +64,7 @@ public class BedBlockEventSystem extends EntityEventSystem<EntityStore, BreakBlo
         FarmlandRegistry.removeAt(pos.x, pos.y, pos.z);
         FishingPostRegistry.removeAt(world, pos.x, pos.y, pos.z);
         LumberPostRegistry.removeAt(world, pos.x, pos.y, pos.z);
-        BathRegistry.removeAt(anchor.x, anchor.y, anchor.z);
+        BathRegistry.removeAt(world, anchor.x, anchor.y, anchor.z);
         LeisureRegistry.removeAt(anchor.x, anchor.y, anchor.z);
         ChairRegistry.removeAt(anchor.x, anchor.y, anchor.z);
         /* The post itself may still stand while its registered tree gets chopped (by a player or
