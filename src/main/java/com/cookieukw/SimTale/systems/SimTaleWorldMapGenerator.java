@@ -17,7 +17,9 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 
 /**
@@ -28,6 +30,7 @@ import javax.annotation.Nonnull;
 public class SimTaleWorldMapGenerator implements IWorldMap {
 
     private static final SimLog LOGGER = SimLog.forClass(SimTaleWorldMapGenerator.class);
+    private static final Set<String> OVERLAY_TRACE_REPORTED = ConcurrentHashMap.newKeySet();
 
     // Color constants in Hytale's packed RGBA format: (r << 24) | (g << 16) | (b << 8) | a
     // Village tint: warm golden amber (R: 255, G: 205, B: 60)
@@ -68,7 +71,33 @@ public class SimTaleWorldMapGenerator implements IWorldMap {
             try {
                 Long2ObjectMap<MapImage> chunks = worldMap.getChunks();
                 if (chunks != null && !chunks.isEmpty()) {
-                     applyVillageOverlay(world, chunks);
+                    int overlaid = applyVillageOverlay(world, chunks);
+                    var villages = VillageManager.villages(world);
+                    LOGGER.debug("[MAP-OVERLAY] world='{}' images={} villages={} territoryImages={}",
+                            world.getName(), chunks.size(), villages.size(), overlaid);
+                    if (!villages.isEmpty() && overlaid == 0
+                            && OVERLAY_TRACE_REPORTED.add(world.getName())) {
+                        StringBuilder generated = new StringBuilder();
+                        for (Long2ObjectMap.Entry<MapImage> image : chunks.long2ObjectEntrySet()) {
+                            if (generated.length() > 0) generated.append(',');
+                            long idx = image.getLongKey();
+                            generated.append(ChunkUtil.xOfChunkIndex(idx)).append(':')
+                                    .append(ChunkUtil.zOfChunkIndex(idx));
+                            if (generated.length() > 100) break;
+                        }
+                        StringBuilder territory = new StringBuilder();
+                        for (Village village : villages) {
+                            for (long idx : village.chunkIndices()) {
+                                if (territory.length() > 0) territory.append(',');
+                                territory.append(ChunkUtil.xOfChunkIndex(idx)).append(':')
+                                        .append(ChunkUtil.zOfChunkIndex(idx));
+                                if (territory.length() > 100) break;
+                            }
+                            if (territory.length() > 100) break;
+                        }
+                        LOGGER.debug("[MAP-OVERLAY-TRACE] world='{}' generatedChunks=[{}] villageChunks=[{}]",
+                                world.getName(), generated, territory);
+                    }
                 }
             } catch (Throwable t) {
                 LOGGER.error("[SimTale] Error applying village overlay to map chunks: {}", t.toString());
@@ -91,7 +120,8 @@ public class SimTaleWorldMapGenerator implements IWorldMap {
     /**
      * Intercepts the generated MapImage for every chunk and applies the village tint and boundary.
      */
-    private void applyVillageOverlay(World world, Long2ObjectMap<MapImage> chunks) {
+    private int applyVillageOverlay(World world, Long2ObjectMap<MapImage> chunks) {
+        int overlaid = 0;
         for (Long2ObjectMap.Entry<MapImage> entry : chunks.long2ObjectEntrySet()) {
             long chunkIdx = entry.getLongKey();
             int chunkX = ChunkUtil.xOfChunkIndex(chunkIdx);
@@ -109,7 +139,9 @@ public class SimTaleWorldMapGenerator implements IWorldMap {
             boolean southBorder = VillageManager.getVillageForChunk(world, chunkX, chunkZ + 1) != village;
 
             tintAndBorderChunk(image, westBorder, eastBorder, northBorder, southBorder);
+            overlaid++;
         }
+        return overlaid;
     }
 
     /**

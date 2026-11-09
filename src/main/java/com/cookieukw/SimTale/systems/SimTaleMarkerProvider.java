@@ -95,19 +95,21 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
      * <p>Same shape as the {@code register} versus {@code registerGlobal} bug documented next to
      * that loop: a registration call that silently succeeds while attaching to nothing.
      *
-     * <p>Called from the join handler, which by definition has a world in hand.
+     * <p>Called from the join handler and snapshot capture. The latter retries the generator
+     * wrapper in case the world-map manager did not have its generator ready on the first join.
      */
     public static void ensureRegistered(World world) {
         if (world == null) return;
 
         String worldName = world.getName();
-        if (!REGISTERED_WORLDS.add(worldName)) return;
-
         WorldMapManager manager = world.getWorldMapManager();
+        if (REGISTERED_WORLDS.add(worldName)) {
+            manager.addMarkerProvider(PROVIDER_ID, new SimTaleMarkerProvider());
+            LOGGER.info("[SimTale] Map markers registered in world '{}'", worldName);
+        }
 
-        manager.addMarkerProvider(PROVIDER_ID, new SimTaleMarkerProvider());
-        LOGGER.info("[SimTale] Map markers registered in world '{}'", worldName);
-
+        // Do not return early for an already-registered provider: the map generator can be
+        // initialized after PlayerReadyEvent. Snapshot capture calls this again and wraps it then.
         IWorldMap currentGen = manager.getGenerator();
         if (currentGen != null && !(currentGen instanceof SimTaleWorldMapGenerator)) {
             manager.setGenerator(new SimTaleWorldMapGenerator(currentGen));
@@ -198,6 +200,8 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
      */
     public static void captureSnapshot(World world, Store<EntityStore> store) {
         if (world == null || store == null) return;
+
+        ensureRegistered(world);
 
         long tick = world.getTick();
         String worldName = world.getName();
