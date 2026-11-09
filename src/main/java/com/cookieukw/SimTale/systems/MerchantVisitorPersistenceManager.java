@@ -75,6 +75,10 @@ public final class MerchantVisitorPersistenceManager {
                 // Merchants are temporary visitors; their durable record lives in the visit shell,
                 // never in the permanent villager roster.
                 if (npc.entityId != null) com.cookieukw.SimTale.db.SimNPCPersistence.deleteNPC(npc.entityId);
+                // spawnNPC broadcasts its randomly rolled name before this restore applies the
+                // persisted merchant identity. Re-broadcast the final name after the asynchronous
+                // restore so the tab/player list matches the map marker and the world entity.
+                SimNpcPlayerListHelper.broadcastAdd(npc);
             });
         }
     }

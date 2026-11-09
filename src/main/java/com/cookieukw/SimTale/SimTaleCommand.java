@@ -10,9 +10,11 @@ import com.cookieukw.SimTale.vehicles.CalhambequeManager;
 import com.cookieukw.SimTale.logic.PlayerGenderPage;
 import com.cookieukw.SimTale.systems.FarmPostRegistry;
 import com.cookieukw.SimTale.systems.FarmlandRegistry;
+import com.cookieukw.SimTale.systems.SimTaleMarkerProvider;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.db.MerchantVisitData;
 import com.cookieukw.SimTale.db.MerchantVisitPersistence;
 import com.cookieukw.SimTale.logic.MerchantInteractionHelper;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
@@ -76,6 +78,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
         this.addSubCommand(new InteractSubCommand());
         this.addSubCommand(new TpAllSubCommand());
         this.addSubCommand(new ClearAllSubCommand());
+        this.addSubCommand(new ClearMerchantsSubCommand());
         this.addSubCommand(new ForceSpawnSubCommand());
         this.addSubCommand(new ForceSleepSubCommand());
         this.addSubCommand(new DiagnosticsCommands.DebugLogSubCommand());
@@ -146,7 +149,7 @@ public class SimTaleCommand extends AbstractPlayerCommand {
     }
 
     private static void sendUsage(CommandContext ctx) {
-        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|forcespawn|forcesleep|forcesocial|forceplay|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|despawnnearest|respawnmissing|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown|costume|car|cat>"));
+        ctx.sendMessage(Message.raw("Usage: /simtale <spawn|interact|tpall|clearall|clearmerchants|forcespawn|forcesleep|forcesocial|forceplay|testflirt|testshove|testgreet|forcepreg|forcebirth|setstage|marry|debugbeds|pregnancy|debugnear|setmood|search|toggleai|housecheck|chestcheck|chaircheck|despawnnearest|respawnmissing|forceeat|forcework|forceplant|setgender|camdebug|unstick|npcstate|forcebabyswap|forcekill|aistatus|setprofession|rescan|growbaby|forceplacebaby|forceconstruct|graveyard|putdown|costume|car|cat>"));
     }
 
     // --- SUBCOMMANDS ---
@@ -589,6 +592,47 @@ public class SimTaleCommand extends AbstractPlayerCommand {
 
             ctx.sendMessage(Message.raw("Removed " + count + " NPCs from the world and "
                     + purged + " bank records; cleared " + visitsPurged + " saved merchant visit(s)."));
+        }
+    }
+
+    /** Clears only temporary travelling merchants and their visit records, leaving residents intact. */
+    private static class ClearMerchantsSubCommand extends AbstractPlayerCommand {
+        ClearMerchantsSubCommand() {
+            super("clearmerchants", "Removes temporary travelling merchants and clears their saved visits");
+        }
+
+        @Override
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+            int removedEntities = 0;
+            for (SimNPCComponent npc : new ArrayList<>(SimTale.ACTIVE_NPCS)) {
+                if (npc.entityId == null || npc.entityRef == null || !npc.entityRef.isValid()) continue;
+                var visit = store.getComponent(npc.entityRef, SimTale.MERCHANT_VISITOR_COMPONENT_TYPE);
+                if (visit == null) continue;
+
+                SimTale.untrackNpc(npc);
+                PlumbobSystem.removePlumbob(npc.entityId);
+                com.cookieukw.SimTale.systems.EmoteBubbleSystem.removeThought(npc.entityId);
+                SimNPCPersistence.deleteNPC(npc.entityId);
+                store.removeEntity(npc.entityRef, RemoveReason.REMOVE);
+                removedEntities++;
+            }
+
+            // Remove orphaned permanent-roster rows left by older versions as well as the visit rows.
+            for (MerchantVisitData visit : MerchantVisitPersistence.list(world)) {
+                if (visit == null) continue;
+                String id = visit.visitId != null && !visit.visitId.isBlank()
+                        ? visit.visitId : visit.merchantName;
+                try {
+                    if (id != null) SimNPCPersistence.deleteNPC(UUID.fromString(id));
+                } catch (IllegalArgumentException ignored) {
+                    // A legacy non-UUID visit key has no matching SimNPCData id.
+                }
+            }
+            int removedVisits = MerchantVisitPersistence.deleteAll(world);
+            SimTaleMarkerProvider.requestRefresh();
+            ctx.sendMessage(Message.raw("Removed " + removedEntities + " active merchant(s) and "
+                    + removedVisits + " saved merchant visit(s). Other NPCs were left untouched."));
         }
     }
 
