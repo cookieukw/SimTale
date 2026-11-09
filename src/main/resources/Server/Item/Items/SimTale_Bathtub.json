@@ -7,7 +7,7 @@
   "Categories": [
     "Furniture.Benches"
   ],
-  "Icon": "Icons/ItemsGenerated/SimTale_Bathtub.png",
+  "Icon": "Icons/Items/SimTale_Bathtub.png",
   "BlockType": {
     "BlockParticleSetId": "Stone",
     "BlockSoundSetId": "Stone",
@@ -26,7 +26,7 @@
         "GatherType": "Stone"
       }
     },
-    "HitboxType": "Bed_Crude",
+    "HitboxType": "SimTale_Bathtub",
     "Material": "Solid",
     "Opacity": "Transparent",
     "Support": {

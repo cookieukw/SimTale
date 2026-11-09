@@ -117,7 +117,7 @@ final class RoutineTaskHelpers {
                 return true;
             }
             Vector3d pos = transform.getPosition();
-            Vector3d bathSeat = bathSeatPosition(ai.targetBlockPosition);
+            Vector3d bathSeat = bathSeatPosition(ai.targetBlockPosition, npc);
             double dx = bathSeat.x - pos.x;
             double dz = bathSeat.z - pos.z;
             if (dx * dx + dz * dz < 2.0 * 2.0) {
@@ -176,8 +176,11 @@ final class RoutineTaskHelpers {
         return false;
     }
 
-    private static Vector3d bathSeatPosition(Vector3i bathPos) {
-        return new Vector3d(bathPos.x + 0.5, bathPos.y + 0.65, bathPos.z + 0.5);
+    private static Vector3d bathSeatPosition(Vector3i bathPos, SimNPCComponent npc) {
+        /* The child model is scaled down, and its seated pose otherwise drops into the basin floor.
+        Match the same 0.35-block seat lift used by NPCSeatingHelper for children on chairs. */
+        double childSeatLift = InteractionManager.isNpcAChild(npc) ? 0.35 : 0.0;
+        return new Vector3d(bathPos.x + 0.5, bathPos.y + 0.65 + childSeatLift, bathPos.z + 0.5);
     }
 
     /** Clears the in-tub sitting pose and target when bathing is interrupted or the tub disappears. */

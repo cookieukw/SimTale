@@ -8,6 +8,7 @@ import com.cookieukw.SimTale.core.RelationshipStatus;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimBedData;
 import com.cookieukw.SimTale.systems.VillageManager.Village;
+import com.cookieukw.SimTale.core.HouseBlockPos;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -74,14 +75,15 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private static final String MARKER_IMAGE_VILLAGE = "Spawn.png";
     private static final String MARKER_IMAGE_HOUSE = "Home.png";
     private static final String MARKER_IMAGE_WORK = "Spawn.png";
+    private static final String MARKER_IMAGE_BATH = "SimTale_Bathtub.png";
 
     /**
-     * Worlds already carrying the provider, so a re-registration is a no-op instead of a stack.
-     *
-     * <p>Keyed by name because {@code World} exposes {@code getName()} and no id getter — checked
-     * against the server jar rather than assumed.
+     * The manager instance that already has this provider. A world can be removed and recreated
+     * with the same name; tracking names alone then suppresses registration on the new manager.
      */
-    private static final Set<String> REGISTERED_WORLDS = ConcurrentHashMap.newKeySet();
+    private static final Map<String, WorldMapManager> REGISTERED_MANAGERS = new ConcurrentHashMap<>();
+    /** Current World instance for each name, used to invalidate tick/snapshot caches on reload. */
+    private static final Map<String, World> SNAPSHOT_WORLDS = new ConcurrentHashMap<>();
 
     /**
      * Attaches the provider to {@code world}, once.
@@ -103,7 +105,8 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
 
         String worldName = world.getName();
         WorldMapManager manager = world.getWorldMapManager();
-        if (REGISTERED_WORLDS.add(worldName)) {
+        WorldMapManager previousManager = REGISTERED_MANAGERS.put(worldName, manager);
+        if (previousManager != manager) {
             manager.addMarkerProvider(PROVIDER_ID, new SimTaleMarkerProvider());
             LOGGER.info("[SimTale] Map markers registered in world '{}'", worldName);
         }
@@ -129,6 +132,7 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private static final Color COLOR_FISHING_POST = rgb(70, 170, 220);
     private static final Color COLOR_LUMBER_POST = rgb(170, 120, 65);
     private static final Color COLOR_FARM_POST = rgb(100, 190, 90);
+    private static final Color COLOR_BATHTUB = rgb(85, 205, 225);
 
     private static Color rgb(int r, int g, int b) {
         Color color = new Color();
@@ -160,9 +164,12 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
     private record GlobalChestMapMarker(String id, Vector3d position, int count) {
     }
 
+    private record BathMapMarker(String id, Vector3d position) {
+    }
+
     private record WorldMarkerSnapshot(List<NpcMarker> npcs, List<Village> villages,
                                        List<HouseMapMarker> houses, List<WorkPostMapMarker> workPosts,
-                                       List<HouseBlockPos> unclaimedBeds,
+                                       List<HouseBlockPos> unclaimedBeds, List<BathMapMarker> baths,
                                        List<GlobalChestMapMarker> globalChests) {
     }
 
@@ -205,6 +212,19 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
 
         long tick = world.getTick();
         String worldName = world.getName();
+        World previousWorld = SNAPSHOT_WORLDS.put(worldName, world);
+        if (previousWorld != null && previousWorld != world) {
+            /* World names survive a server unload/reload, but world instances and tick counters do
+            not. A stale snapshot tick could otherwise make every capture return early while the
+            new world's tick catches the old one; the old marker snapshot could also remain visible
+            in the meantime. */
+            snapshotTicks.remove(worldName);
+            Map<String, WorldMarkerSnapshot> withoutOldWorld = new HashMap<>(snapshots);
+            withoutOldWorld.remove(worldName);
+            snapshots = Map.copyOf(withoutOldWorld);
+            snapshotDirty.set(true);
+            LOGGER.info("[SimTale] Reset map snapshot for recreated world '{}'", worldName);
+        }
         long previousTick = snapshotTicks.getOrDefault(worldName, -1L);
         if (!snapshotDirty.get() && previousTick >= 0 && tick - previousTick < SNAPSHOT_INTERVAL_TICKS) return;
         snapshotTicks.put(worldName, tick);
@@ -334,6 +354,17 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
 
         List<GlobalChestMapMarker> capturedGlobalChests = clusterGlobalChests(world);
 
+        List<BathMapMarker> capturedBaths = new ArrayList<>();
+        Set<HouseBlockPos> registeredBaths = BathRegistry.baths(world);
+        synchronized (registeredBaths) {
+            for (HouseBlockPos bath : registeredBaths) {
+                /* The bathtub model is two blocks long on Z; place the icon at its center. */
+                capturedBaths.add(new BathMapMarker(
+                        bath.x + ":" + bath.y + ":" + bath.z,
+                        new Vector3d(bath.x + 0.5, bath.y + 0.65, bath.z + 1.0)));
+            }
+        }
+
         /* A registered bed that belongs to no house is the "built but not claimed yet" state.
         Without these the map is silent exactly while the player is waiting for an NPC to take the
         room, which reads as recognition being broken. Once claimed, the same bed disappears from
@@ -353,7 +384,8 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
             }
         WorldMarkerSnapshot capturedSnapshot = new WorldMarkerSnapshot(
                 List.copyOf(captured), capturedVillages, capturedHousesSnapshot,
-                capturedWorkPostsSnapshot, List.copyOf(unclaimed), capturedGlobalChests);
+                capturedWorkPostsSnapshot, List.copyOf(unclaimed), List.copyOf(capturedBaths),
+                capturedGlobalChests);
         Map<String, WorldMarkerSnapshot> updatedSnapshots = new HashMap<>(snapshots);
         updatedSnapshots.put(world.getName(), capturedSnapshot);
         snapshots = Map.copyOf(updatedSnapshots);
@@ -516,6 +548,20 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
                 emitted++;
             } catch (RuntimeException e) {
                 LOGGER.debug("[MAP] Failed to mark house '{}': {}", house.id(), e.toString());
+            }
+        }
+
+        for (BathMapMarker bath : worldSnapshot.baths()) {
+            try {
+                collector.addIgnoreViewDistance(new MapMarkerBuilder(
+                        PROVIDER_ID + ":bath:" + bath.id(), MARKER_IMAGE_BATH,
+                        new Transform(bath.position()))
+                        .withName(Message.translation("general.map.bathtub"))
+                        .withComponent(new TintComponent(COLOR_BATHTUB))
+                        .build());
+                emitted++;
+            } catch (RuntimeException e) {
+                LOGGER.debug("[MAP] Failed to mark bathtub '{}': {}", bath.id(), e.toString());
             }
         }
 
