@@ -16,14 +16,23 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentDisplayName;
+import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
 import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageCause;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageEventSystem;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.joml.Vector3d;
 
 import javax.annotation.Nonnull;
@@ -79,6 +88,21 @@ public class NPCDamageEventSystem extends DamageEventSystem {
             return;
         }
 
+        /* NPCs are protected from every game damage source by default. Enabling the option is
+        intentionally narrow: only mobs from the same hostile model allowlist used by Guard AI can
+        hurt them. Players, neutral entities, fall/fire and other environmental damage stay blocked.
+        The Grim Reaper does not use this damage pipeline; it archives the NPC after the death flow. */
+        SimTaleConfig config = SimTaleConfigManager.getConfig();
+        boolean hostileDamageEnabled = config != null && config.hostileMobsCanAttackNpcs;
+        Damage.Source incomingSource = event.getSource();
+        boolean sourceIsHostileMob = incomingSource instanceof Damage.EntitySource entitySource
+                && NPCGuardHelper.isHostileEntity(entitySource.getRef(), store);
+        if (!hostileDamageEnabled || !sourceIsHostileMob) {
+            event.setAmount(0f);
+            event.setCancelled(true);
+            return;
+        }
+
         /* Village safe zone. A resident standing inside the village boundary cannot be damaged at
         all: hostile mobs, fall damage, fire and player hits are all cancelled. This is deliberately
         broader than "mobs only" — a safe zone that still lets a player execute someone is not a
@@ -94,22 +118,32 @@ public class NPCDamageEventSystem extends DamageEventSystem {
         }
 
         Damage.Source source = event.getSource();
-        if (source instanceof Damage.EntitySource entitySource) {
-            Ref<EntityStore> attackerRef = entitySource.getRef();
-            if (attackerRef.isValid()) {
-                Player p = store.getComponent(attackerRef, Player.getComponentType());
-                if (p != null) {
-                    victimNpc.lastDamageCause = "por um jogador";
-                } else {
-                    victimNpc.lastDamageCause = "por uma entidade";
-                }
-            } else {
-                victimNpc.lastDamageCause = "por uma entidade";
+        victimNpc.lastDamageCause = describeDamageSource(source, causeId, store);
+
+        /* The engine removes an entity as soon as its Health reaches zero. That happened before
+        RoutineAISystem's 10-second DYING window could finish, leaving only the plumbob and no
+        Reaper. Intercept the lethal hit here, keep the entity alive at 1 HP, and start the normal
+        SimTale death ceremony before the engine's health/death systems can remove it. */
+        EntityStatMap statMap = store.getComponent(chunk.getReferenceTo(index), EntityStatMap.getComponentType());
+        EntityStatValue health = statMap != null
+                ? statMap.get(DefaultEntityStatTypes.getHealth()) : null;
+        if (health != null && event.getAmount() >= health.get()) {
+            event.setAmount(0f);
+            event.setCancelled(true);
+            statMap.setStatValue(DefaultEntityStatTypes.getHealth(), Math.max(1f, health.getMax() * 0.01f));
+            RoutineAIComponent ai = store.getComponent(chunk.getReferenceTo(index), SimTale.ROUTINE_AI_COMPONENT_TYPE);
+            if (ai != null && ai.currentTask != RoutineAIComponent.TaskType.DYING
+                    && ai.currentTask != RoutineAIComponent.TaskType.DEAD
+                    && ai.currentTask != RoutineAIComponent.TaskType.REAPING) {
+                NPCMovementHelper.clearMoveTarget(chunk.getReferenceTo(index), ai);
+                ai.currentTask = RoutineAIComponent.TaskType.DYING;
+                ai.taskStartTime = victimWorld != null ? victimWorld.getTick() : 0L;
             }
-        } else {
-            victimNpc.lastDamageCause = causeId.isBlank()
-                    ? "por " + source.getClass().getSimpleName()
-                    : "por " + causeId;
+            PlumbobSystem.removePlumbob(victimNpc.entityId, commandBuffer);
+            Universe.get().getPlayers().forEach(p -> p.sendMessage(Message.raw(
+                    "O(A) aldeão(ã) " + victimNpc.name + " morreu " + victimNpc.lastDamageCause + ".")));
+            LOGGER.info("[SimTale] Lethal hit on NPC '{}' intercepted; starting Grim Reaper flow", victimNpc.name);
+            return;
         }
 
         if (!(source instanceof Damage.EntitySource entitySource)) {
@@ -183,6 +217,54 @@ public class NPCDamageEventSystem extends DamageEventSystem {
 
     private static boolean isSuffocationOrDrowning(String causeId) {
         return "Suffocation".equalsIgnoreCase(causeId) || "Drowning".equalsIgnoreCase(causeId);
+    }
+
+    /** Returns a useful, persistable description instead of the generic "an entity" label. */
+    private static String describeDamageSource(Damage.Source source, String causeId,
+                                               Store<EntityStore> store) {
+        if (source instanceof Damage.EntitySource entitySource) {
+            Ref<EntityStore> attackerRef = entitySource.getRef();
+            if (attackerRef != null && attackerRef.isValid()) {
+                PlayerRef playerRef = store.getComponent(attackerRef, PlayerRef.getComponentType());
+                if (playerRef != null && playerRef.getUsername() != null && !playerRef.getUsername().isBlank()) {
+                    return "por " + playerRef.getUsername();
+                }
+
+                SimNPCComponent simNpc = store.getComponent(attackerRef, SimTale.SIM_NPC_COMPONENT_TYPE);
+                if (simNpc != null && simNpc.name != null && !simNpc.name.isBlank()) {
+                    return "por " + simNpc.name;
+                }
+
+                PersistentDisplayName displayName = store.getComponent(attackerRef,
+                        PersistentDisplayName.getComponentType());
+                if (displayName != null && displayName.getDisplayName() != null) {
+                    String name = displayName.getDisplayName().toString();
+                    if (!name.isBlank()) return "por " + name;
+                }
+
+                NPCEntity npcEntity = store.getComponent(attackerRef, NPCEntity.getComponentType());
+                if (npcEntity != null && npcEntity.getRoleName() != null && !npcEntity.getRoleName().isBlank()) {
+                    return "por " + npcEntity.getRoleName().replace('_', ' ');
+                }
+
+                PersistentModel model = store.getComponent(attackerRef, PersistentModel.getComponentType());
+                if (model != null && model.getModelReference() != null
+                        && model.getModelReference().getModelAssetId() != null) {
+                    return "por " + model.getModelReference().getModelAssetId().replace('_', ' ');
+                }
+
+                UUIDComponent uuid = store.getComponent(attackerRef, UUIDComponent.getComponentType());
+                if (uuid != null && uuid.getUuid() != null) {
+                    return "por uma entidade (" + uuid.getUuid().toString().substring(0, 8) + ")";
+                }
+            }
+            return "por uma entidade";
+        }
+
+        if (causeId != null && !causeId.isBlank()) {
+            return "por " + causeId.replace('_', ' ');
+        }
+        return source != null ? "por " + source.getClass().getSimpleName() : "por causa desconhecida";
     }
 
     /**

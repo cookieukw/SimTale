@@ -9,5 +9,6 @@
   "hungerDecayMultiplier": 1.0,
   "villageChestDepositChance": 0.3,
   "villageSafeZoneEnabled": true,
-  "villageRegenEnabled": true
+  "villageRegenEnabled": true,
+  "hostileMobsCanAttackNpcs": false
 }

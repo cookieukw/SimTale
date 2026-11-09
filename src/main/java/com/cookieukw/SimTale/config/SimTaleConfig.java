@@ -70,4 +70,11 @@ public class SimTaleConfig {
 
     /** Grants a RuneCore regeneration effect to players standing inside the village safe zone. */
     public boolean villageRegenEnabled = true;
+
+    /**
+     * Allows known hostile mobs to damage SimTale NPCs outside the village safe zone.
+     * Disabled by default: no entity or environmental damage can kill an NPC; the Grim Reaper
+     * death flow (and explicit administrator commands) remain available.
+     */
+    public boolean hostileMobsCanAttackNpcs = false;
 }

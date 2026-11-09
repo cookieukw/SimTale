@@ -161,6 +161,14 @@ public class NPCGuardHelper {
         return false;
     }
 
+    /** Uses the same curated hostile list for combat targeting and NPC damage protection. */
+    public static boolean isHostileEntity(Ref<EntityStore> ref, Store<EntityStore> store) {
+        if (ref == null || store == null || !ref.isValid()) return false;
+        PersistentModel model = store.getComponent(ref, PersistentModel.getComponentType());
+        return model != null && model.getModelReference() != null
+                && isHostileModelId(model.getModelReference().getModelAssetId());
+    }
+
     public static void handleGuardLogic(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
             TransformComponent transform, World world, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
 
@@ -316,61 +324,50 @@ public class NPCGuardHelper {
         }
     }
 
-    /** Basic civilian self-defense: weaker, shorter-ranged and without guard bonuses. */
+    /** Civilians (including children) take cover at home; only trained Guards engage hostiles. */
     public static boolean handleCivilianDefense(Ref<EntityStore> ref, SimNPCComponent npc,
                                                 RoutineAIComponent ai, TransformComponent transform,
                                                 World world, Store<EntityStore> store,
                                                 CommandBuffer<EntityStore> commandBuffer) {
-        if (npc.profession == Profession.GUARD || !WorkEligibility.canWork(npc)) return false;
-        if (ai.currentTask == TaskType.IDLE || ai.currentTask == TaskType.WANDERING) {
-            UUID target = scanForHostile(npc, transform.getPosition(), world, store);
-            if (target == null) return false;
-            Ref<EntityStore> targetRef = world.getEntityStore().getRefFromUUID(target);
-            if (targetRef == null || !targetRef.isValid()) return false;
-            ai.workTargetEntityId = target;
-            ai.currentTask = TaskType.MOVING_TO_FIGHT;
-            ai.taskStartTime = world.getTick();
-        }
+        if (npc.profession == Profession.GUARD) return false;
 
-        if (ai.currentTask != TaskType.MOVING_TO_FIGHT && ai.currentTask != TaskType.FIGHTING) return false;
-        Ref<EntityStore> targetRef = ai.workTargetEntityId == null
-                ? null : world.getEntityStore().getRefFromUUID(ai.workTargetEntityId);
-        TransformComponent targetTransform = targetRef != null && targetRef.isValid()
-                ? store.getComponent(targetRef, TransformComponent.getComponentType()) : null;
-        if (targetTransform == null || isDead(targetRef, store)) {
-            ai.workTargetEntityId = null;
-            ai.currentTask = TaskType.IDLE;
+        boolean alreadyFighting = ai.currentTask == TaskType.MOVING_TO_FIGHT
+                || ai.currentTask == TaskType.FIGHTING;
+        boolean alreadySafe = ai.currentTask == TaskType.SLEEPING || ai.currentTask == TaskType.ENTERING_BED
+                || ai.currentTask == TaskType.WAKING || ai.currentTask == TaskType.FINDING_BED
+                || ai.currentTask == TaskType.MOVING_TO_BED || ai.currentTask == TaskType.DYING
+                || ai.currentTask == TaskType.DEAD || ai.currentTask == TaskType.REAPING
+                || ai.currentTask == TaskType.EXPEDITION;
+        boolean eligibleToCheck = !alreadySafe;
+        if (!eligibleToCheck) return false;
+
+        /* Stagger the alarm sweep across residents rather than having a large village perform a
+        world-hostile scan in one frame. Existing combat tasks are checked immediately so they can
+        be converted to cover without waiting for their phase. */
+        if (!alreadyFighting && (world.getTick() + guardPhase(npc)) % GUARD_SCAN_PERIOD_TICKS != 0) {
             return false;
         }
 
-        Vector3d pos = transform.getPosition();
-        Vector3d targetPos = targetTransform.getPosition();
-        double dx = targetPos.x - pos.x;
-        double dz = targetPos.z - pos.z;
-        double distanceSq = dx * dx + dz * dz;
-        if (distanceSq > 3.0 * 3.0) {
-            ai.currentTask = TaskType.MOVING_TO_FIGHT;
-            NPCMovementHelper.moveTo(ref, ai, world, targetPos);
-            return true;
+        UUID hostileId = scanForHostile(npc, transform.getPosition(), world, store);
+        if (hostileId == null) {
+            if (alreadyFighting) {
+                ai.workTargetEntityId = null;
+                ai.currentTask = TaskType.IDLE;
+                NPCMovementHelper.clearMoveTarget(ref, ai);
+            }
+            return false;
         }
 
-        ai.currentTask = TaskType.FIGHTING;
-        if ((world.getTick() - ai.taskStartTime) >= 30) {
-            ai.taskStartTime = world.getTick();
-            applyCivilianHit(ref, targetRef, store, commandBuffer);
-        }
-        return true;
-    }
-
-    private static void applyCivilianHit(Ref<EntityStore> attackerRef, Ref<EntityStore> targetRef,
-                                         Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
-        EntityStatMap stats = store.getComponent(targetRef, EntityStatMap.getComponentType());
-        if (stats == null) return;
-        EntityStatValue health = stats.get(DefaultEntityStatTypes.getHealth());
-        if (health == null) return;
-        float damage = Math.max(1f, health.getMax() * 0.10f);
-        commandBuffer.invoke(targetRef, new Damage(new Damage.EntitySource(attackerRef),
-                DamageCause.PHYSICAL, damage));
+        /* A village alarm is not an invitation for children or untrained residents to pile into
+        melee. Route them through the established bed/home path; Guards remain the only combatants. */
+        ai.workTargetEntityId = null;
+        ai.socializeTargetId = null;
+        NPCMovementHelper.clearMoveTarget(ref, ai);
+        ai.currentTask = TaskType.FINDING_BED;
+        ai.targetBlockPosition = null;
+        ai.taskStartTime = 0L; // bypass the ordinary bed-search retry cooldown for an active threat
+        LOGGER.info("[SimTale] Civilian NPC '{}' taking cover from hostile {}", npc.name, hostileId);
+        return true; // Stop other routines this tick; FINDING_BED is handled first next tick.
     }
 
     private static void playAttackAnimation(Ref<EntityStore> ref, SimNPCComponent npc,
@@ -619,7 +616,8 @@ public class NPCGuardHelper {
                 that same village answer. Without the second check every guard in town would
                 abandon their patrol for the same skeleton.
                 */
-                if (!answersVillageAlarm(guard, center, hostileVillage, hostile, store)) continue;
+                if (guard.profession == Profession.GUARD
+                        && !answersVillageAlarm(guard, center, hostileVillage, hostile, store)) continue;
             } else if (distSq > GUARD_SCAN_RADIUS_SQ) {
                 // Outside a village the old local-scan rule still applies.
                 continue;

@@ -20,6 +20,8 @@ import com.hypixel.hytale.server.core.modules.entity.component.Interactable;
 import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.Message;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
+import com.cookieukw.SimTale.config.SimTaleConfig;
+import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.systems.GuardStatsHelper;
 import com.cookieukw.SimTale.systems.NPCToolHelper;
@@ -30,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.hypixel.hytale.server.core.modules.entity.component.Invulnerable;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 
@@ -224,6 +227,14 @@ public class SimNPCFactory {
         // Try to load existing data if available
         if (type != NPCType.REAPER) {
             SimNPCPersistence.loadNPC(simComponent);
+        }
+
+        /* Hytale's own damage filter honors this marker before health can reach zero. Keep a
+        second line of defense in NPCDamageEventSystem, but attach it at spawn so a newly created
+        resident is protected even before its first SimTale routine tick. */
+        SimTaleConfig config = SimTaleConfigManager.getConfig();
+        if (config == null || !config.hostileMobsCanAttackNpcs) {
+            accessor.addComponent(ref, Invulnerable.getComponentType(), Invulnerable.INSTANCE);
         }
 
         /* Merchants are spawned through the same factory as residents, whose default constructor

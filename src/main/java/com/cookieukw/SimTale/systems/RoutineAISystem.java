@@ -12,6 +12,7 @@ import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.Frozen;
+import com.hypixel.hytale.server.core.modules.entity.component.Invulnerable;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
@@ -132,6 +133,17 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         Ref<EntityStore> ref = chunk.getReferenceTo(index);
         if (npc.entityRef == null || !npc.entityRef.isValid()) {
             npc.entityRef = ref;
+        }
+
+        /* Enforce the global default even for NPCs restored by the engine rather than spawned
+        through SimNPCFactory, and remove the Hytale marker after an admin enables hostile attacks. */
+        SimTaleConfig damageConfig = SimTaleConfigManager.getConfig();
+        boolean shouldBeInvulnerable = damageConfig == null || !damageConfig.hostileMobsCanAttackNpcs;
+        boolean isInvulnerable = store.getComponent(ref, Invulnerable.getComponentType()) != null;
+        if (shouldBeInvulnerable && !isInvulnerable) {
+            commandBuffer.addComponent(ref, Invulnerable.getComponentType(), Invulnerable.INSTANCE);
+        } else if (!shouldBeInvulnerable && isInvulnerable) {
+            commandBuffer.tryRemoveComponent(ref, Invulnerable.getComponentType());
         }
 
         /* Skip routine AI for babies and toddlers (cared for by parents).
@@ -330,6 +342,17 @@ once per NPC per tick for nothing.
             if (statMap != null) {
                 EntityStatValue healthVal = statMap.get(DefaultEntityStatTypes.getHealth());
                 if (healthVal != null && healthVal.get() <= 0f) {
+                    SimTaleConfig config = SimTaleConfigManager.getConfig();
+                    if (config == null || !config.hostileMobsCanAttackNpcs) {
+                        /* Last-resort protection for native/plugin health changes which bypass the
+                        DamageEventSystem. Explicit /simtale forcekill already set DYING and skips
+                        this check; only the Reaper or that administrator command can kill when
+                        hostileMobsCanAttackNpcs is disabled. */
+                        statMap.setStatValue(DefaultEntityStatTypes.getHealth(), healthVal.getMax());
+                        LOGGER.warn("[SimTale] NPC '{}' reached 0 HP while hostile damage is disabled; restored health",
+                                npc.name);
+                        return;
+                    }
                     if (NPCDamageEventSystem.isInsideVillageSafeZone(transform.getPosition())) {
                         statMap.setStatValue(DefaultEntityStatTypes.getHealth(), healthVal.getMax());
                         npc.lastDamageCause = "protegido pela zona segura da vila";
@@ -338,6 +361,7 @@ once per NPC per tick for nothing.
                         return;
                     }
                     LOGGER.info("[SimTale] NPC '{}' reached 0 HP outside of forcekill — routing into the death flow", npc.name);
+                    PlumbobSystem.removePlumbob(npc.entityId, commandBuffer);
                     if (ai.currentTask == TaskType.MOVING_TO_BATH || ai.currentTask == TaskType.BATHING) {
                         RoutineTaskHelpers.exitBath(ref, ai, store, commandBuffer);
                     }
