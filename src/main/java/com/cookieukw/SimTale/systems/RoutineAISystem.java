@@ -311,17 +311,23 @@ once per NPC per tick for nothing.
             commandBuffer.tryRemoveComponent(ref, Frozen.getComponentType());
         }
 
-        /* Same self-heal for the sleeping movement state.
-           Frozen had a guard and the sleep flag did not, so any exit path that forgot to clear it
-           left the NPC walking around playing the sleep animation. Rather than hunting every exit,
-           the invariant is asserted here: not a sleep task means not sleeping.
-        */
-        boolean inSleepTask = ai.currentTask == TaskType.SLEEPING
-                || ai.currentTask == TaskType.ENTERING_BED
-                || ai.currentTask == TaskType.WAKING;
-        if (!inSleepTask) {
-            MovementStatesComponent msc = store.getComponent(ref, MovementStatesComponent.getComponentType());
-            if (msc != null && msc.getMovementStates().sleeping) {
+        /* Keep the engine's seated and sleeping flags mutually exclusive. A BlockMount can
+        reassert sitting after mountOnBlock, which left the NPC visibly perched on the mattress
+        even though the Sleep animation/task had started. Assert the desired pose while sleeping,
+        and clear it when waking or doing anything else. */
+        boolean inBedSleepPose = ai.currentTask == TaskType.SLEEPING || ai.currentTask == TaskType.ENTERING_BED;
+        boolean wakingFromBed = ai.currentTask == TaskType.WAKING;
+        MovementStatesComponent sleepStates = store.getComponent(ref, MovementStatesComponent.getComponentType());
+        if (sleepStates != null) {
+            boolean sleepingFlag = sleepStates.getMovementStates().sleeping;
+            boolean sittingFlag = sleepStates.getMovementStates().sitting;
+            if (inBedSleepPose && (!sleepingFlag || sittingFlag)) {
+                LOGGER.info("[SimTale] NPC '{}' had a sitting/standing pose while {}; restoring lying pose",
+                        npc.name, ai.currentTask);
+                NPCMovementHelper.setSleepingState(ref, store, commandBuffer, true);
+            } else if (wakingFromBed && (sleepingFlag || sittingFlag)) {
+                NPCMovementHelper.setSleepingState(ref, store, commandBuffer, false);
+            } else if (!inBedSleepPose && !wakingFromBed && sleepingFlag) {
                 LOGGER.info("[SimTale] NPC '{}' was flagged as sleeping while doing {}; clearing", npc.name, ai.currentTask);
                 NPCMovementHelper.setSleepingState(ref, store, commandBuffer, false);
             }

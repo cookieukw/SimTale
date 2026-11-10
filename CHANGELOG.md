@@ -19,6 +19,8 @@
 - Ressurreições preservam o estágio, a escala e a variante visual de filhos NPC.
 - Unificados os diagnósticos em `/simtale debug` (`panel`, `npc`, `near`, `ai`, `map`, registros e
   `logs`); os comandos antigos continuam como atalhos compatíveis.
+- Corrigida a pose de sono: se a montagem da cama reativar `sitting`, o SimTale a limpa e reafirma
+  a pose deitado durante o sono.
 
 ## [1.4.0] — 2026-11-06
 

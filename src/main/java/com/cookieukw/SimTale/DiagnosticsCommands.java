@@ -147,9 +147,12 @@ final class DiagnosticsCommands {
                   .append(" walking=").append(m.walking)
                   .append(" running=").append(m.running)
                   .append(" onGround=").append(m.onGround)
+                  .append(" sitting=").append(m.sitting)
                   .append(" sleeping=").append(m.sleeping)
                   .append(" mounting=").append(m.mounting);
             }
+            sb.append("\n  mountedComponent=")
+              .append(store.getComponent(nref, MountedComponent.getComponentType()) != null);
 
             sb.append("\n  frozen=").append(store.getComponent(nref, Frozen.getComponentType()) != null)
               .append("  interactingUI=").append(best.isInteractingViaUI);

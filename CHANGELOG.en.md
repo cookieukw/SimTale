@@ -19,6 +19,8 @@
 - Reviving child NPCs now preserves their life stage, scale and visual variant.
 - Unified diagnostics under `/simtale debug` (`panel`, `npc`, `near`, `ai`, `map`, registries and
   `logs`); previous commands remain available as compatibility aliases.
+- Fixed the bed sleep pose: if bed mounting reasserts `sitting`, SimTale clears it and reapplies
+  the lying pose while the NPC sleeps.
 
 ## [1.4.0] — 2026-11-06
 
