@@ -175,6 +175,11 @@ public class NPCGuardHelper {
         return npc != null && position != null && scanForHostile(npc, position, world, store) != null;
     }
 
+    /** Spreads the shelter polling across ticks, using the same stable phase as Guard scans. */
+    static boolean shouldPollHostileThreat(SimNPCComponent npc, long tick) {
+        return (tick + guardPhase(npc)) % GUARD_SCAN_PERIOD_TICKS == 0;
+    }
+
     public static void handleGuardLogic(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
             TransformComponent transform, World world, Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
 
@@ -376,8 +381,21 @@ public class NPCGuardHelper {
         ai.targetBlockPosition = null;
         ai.taskStartTime = 0L; // bypass the ordinary bed-search retry cooldown for an active threat
         ai.shelteringFromHostiles = true;
-        LOGGER.info("[SimTale] Civilian NPC '{}' taking cover from hostile {}", npc.name, hostileId);
+        LOGGER.info("[SimTale] Civilian NPC '{}' taking cover from hostile {}",
+                npc.name, describeHostile(hostileId, world, store));
         return true; // Stop other routines this tick; FINDING_BED is handled first next tick.
+    }
+
+    private static String describeHostile(UUID hostileId, World world, Store<EntityStore> store) {
+        if (hostileId == null || world == null || store == null) return "<unknown>";
+        Ref<EntityStore> ref = world.getEntityStore().getRefFromUUID(hostileId);
+        if (ref == null || !ref.isValid()) return hostileId.toString();
+        PersistentModel model = store.getComponent(ref, PersistentModel.getComponentType());
+        String modelId = model != null && model.getModelReference() != null
+                ? model.getModelReference().getModelAssetId() : null;
+        TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+        return (modelId != null ? modelId : "entity") + " [" + hostileId + "]"
+                + (transform != null ? " at " + transform.getPosition() : "");
     }
 
     private static void playAttackAnimation(Ref<EntityStore> ref, SimNPCComponent npc,

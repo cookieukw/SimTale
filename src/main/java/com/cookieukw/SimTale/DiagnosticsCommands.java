@@ -159,6 +159,7 @@ final class DiagnosticsCommands {
             if (ai != null) {
                 sb.append("\n  ai task=").append(ai.currentTask)
                   .append("  target=").append(ai.targetBlockPosition)
+                  .append("  shelteringFromHostiles=").append(ai.shelteringFromHostiles)
                   .append("  lastLeash=").append(ai.lastLeashPos)
                   .append("\n  scheduledSleep=").append(ai.sleepingOnSchedule)
                   .append("  forcedByDebug=").append(ai.forcedByDebug)

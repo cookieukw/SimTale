@@ -542,10 +542,7 @@ final class RoutineSleepHelpers {
             threat on the same staggered cadence as the guard scan; once the hostile leaves, normal
             sleep completion/waking resumes. */
             if (ai.shelteringFromHostiles) {
-                long phase = npc.entityId != null
-                        ? Math.floorMod(npc.entityId.hashCode(), NPCGuardHelper.GUARD_SCAN_PERIOD_TICKS)
-                        : 0L;
-                if (Math.floorMod(world.getTick() + phase, NPCGuardHelper.GUARD_SCAN_PERIOD_TICKS) == 0L) {
+                if (NPCGuardHelper.shouldPollHostileThreat(npc, world.getTick())) {
                     TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
                     if (transform == null || !NPCGuardHelper.hasHostileThreat(
                             npc, transform.getPosition(), world, store)) {

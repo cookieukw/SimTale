@@ -465,6 +465,22 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             }
             if (!isSleepingTask) continue;
 
+            /* This second sleeping pass exists for mounted NPCs whose routine tick is skipped.
+            Keep it in sync with RoutineSleepHelpers: otherwise its daytime wake-up path ignores
+            shelterFromHostiles, removes the mount every tick, and civilians oscillate between the
+            mattress and standing while an alarm is active. */
+            if (ai.shelteringFromHostiles) {
+                if (NPCGuardHelper.shouldPollHostileThreat(npc, tick)) {
+                    TransformComponent transform = npcStore.getComponent(ref, TransformComponent.getComponentType());
+                    if (transform == null || !NPCGuardHelper.hasHostileThreat(
+                            npc, transform.getPosition(), world, npcStore)) {
+                        ai.shelteringFromHostiles = false;
+                        LOGGER.info("[SimTale] NPC '{}' left shelter; no hostile remains nearby", npc.name);
+                    }
+                }
+                if (ai.shelteringFromHostiles) continue;
+            }
+
             boolean sleepPeriodClosed = !NPCSleepHelper.isSleepPeriod(npc, world);
             boolean doneSleeping;
             if (ai.sleepingOnSchedule) {
