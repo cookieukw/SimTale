@@ -17,6 +17,8 @@
 - O cemitério registra e exibe a data da morte, ordena os NPCs do mais recente ao mais antigo e
   informa a causa quando disponível.
 - Ressurreições preservam o estágio, a escala e a variante visual de filhos NPC.
+- Unificados os diagnósticos em `/simtale debug` (`panel`, `npc`, `near`, `ai`, `map`, registros e
+  `logs`); os comandos antigos continuam como atalhos compatíveis.
 
 ## [1.4.0] — 2026-11-06
 

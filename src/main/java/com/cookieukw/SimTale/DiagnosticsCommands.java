@@ -8,11 +8,13 @@ import com.cookieukw.SimTale.db.SimNPCPersistence;
 import com.cookieukw.SimTale.logic.NPCInteractionPage;
 import com.cookieukw.SimTale.systems.BedWorldBootstrap;
 import com.cookieukw.SimTale.systems.ChildCarryHelper;
+import com.cookieukw.SimTale.systems.SimTaleMarkerProvider;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import org.joml.Vector3d;
 
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.command.system.CommandManager;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
 import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
@@ -393,33 +395,72 @@ final class DiagnosticsCommands {
      * chest, door). Without a way to turn them on in-game, investigating anything required recompiling.
      */
     static class DebugLogSubCommand extends AbstractPlayerCommand {
+        private final OptionalArg<String> actionArg;
         private final OptionalArg<String> stateArg;
 
         public DebugLogSubCommand() {
-            super("debug", "Toggles or sets SimTale debug mode and logs (on|off)");
+            super("debug", "Opens the SimTale diagnostics hub; use npc, near, ai, map, or logs");
+            this.actionArg = this.withOptionalArg("action", "panel|npc|near|ai|map|village|beds|chests|baths|logs|on|off", ArgTypes.STRING);
             this.stateArg = this.withOptionalArg("state", "on|off", ArgTypes.STRING);
         }
 
         @Override
         protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store,
                 @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
-            SimTaleConfig config = SimTaleConfigManager.getConfig();
+            String action = ctx.get(this.actionArg);
             String state = ctx.get(this.stateArg);
-            boolean newState;
-            if (state != null && !state.isEmpty()) {
-                newState = state.equalsIgnoreCase("on") || state.equalsIgnoreCase("true") || state.equalsIgnoreCase("1");
-            } else {
-                newState = !SimLog.isDebug();
+            if (action == null || action.isBlank() || action.equalsIgnoreCase("panel")) {
+                dispatch(ctx, store, ref, "simdebug");
+                return;
             }
 
-            SimLog.debugEnabled = newState;
+            switch (action.toLowerCase(java.util.Locale.ROOT)) {
+                /* Preserve the old `/simtale debug on|off` spelling while moving the toggle under
+                the named `logs` action for discoverability. */
+                case "on", "off", "true", "false", "1", "0" -> setDebugLogs(ctx, action);
+                case "logs" -> setDebugLogs(ctx, state);
+                case "npc" -> dispatch(ctx, store, ref, "simtale npcstate");
+                case "near" -> dispatch(ctx, store, ref, "simtale debugnear");
+                case "ai" -> dispatch(ctx, store, ref, "simtale aistatus");
+                case "village" -> dispatch(ctx, store, ref, "simtale village");
+                case "beds" -> dispatch(ctx, store, ref, "simtale debugbeds");
+                case "chests" -> dispatch(ctx, store, ref, "simtale debugchests");
+                case "baths" -> dispatch(ctx, store, ref, "simtale debugbaths");
+                case "map" -> {
+                    SimTaleMarkerProvider.captureSnapshot(world, store);
+                    ctx.sendMessage(Message.raw(SimTaleMarkerProvider.debugSummary(world)));
+                }
+                default -> ctx.sendMessage(Message.raw(
+                        "Uso: /simtale debug [panel|npc|near|ai|map|village|beds|chests|baths|logs [on|off]]"));
+            }
+        }
+
+        private static void dispatch(CommandContext ctx, Store<EntityStore> store,
+                                     Ref<EntityStore> ref, String command) {
+            PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
+            if (playerRef == null) {
+                ctx.sendMessage(Message.raw("[SimTale] Não foi possível localizar o jogador para executar o diagnóstico."));
+                return;
+            }
+            CommandManager.get().handleCommand(playerRef, command);
+        }
+
+        private static void setDebugLogs(CommandContext ctx, String requestedState) {
+            SimTaleConfig config = SimTaleConfigManager.getConfig();
+            boolean enabled;
+            if (requestedState == null || requestedState.isBlank()) {
+                enabled = !SimLog.isDebug();
+            } else {
+                enabled = requestedState.equalsIgnoreCase("on") || requestedState.equalsIgnoreCase("true")
+                        || requestedState.equals("1");
+            }
+            SimLog.debugEnabled = enabled;
             if (config != null) {
-                config.debugMode = newState;
+                config.debugMode = enabled;
                 SimTaleConfigManager.save();
             }
-
             ctx.sendMessage(Message.raw("[SimTale] Modo debug: "
-                    + (newState ? "ATIVADO (logs visiveis)" : "DESATIVADO (logs silenciados)")));
+                    + (enabled ? "ATIVADO (logs visíveis)" : "DESATIVADO (logs silenciados)")));
         }
     }
 

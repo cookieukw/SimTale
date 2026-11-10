@@ -194,6 +194,30 @@ public final class SimTaleMarkerProvider implements WorldMapManager.MarkerProvid
         snapshotDirty.set(true);
     }
 
+    /** Compact status line for {@code /simtale debug map}. */
+    public static String debugSummary(World world) {
+        if (world == null) return "[SimTale] Mapa: mundo indisponível.";
+        String name = world.getName();
+        WorldMapManager manager = world.getWorldMapManager();
+        WorldMarkerSnapshot snapshot = snapshots.get(name);
+        int villageChunks = 0;
+        if (snapshot != null) {
+            for (Village village : snapshot.villages()) {
+                if (village.chunkIndices() != null) villageChunks += village.chunkIndices().size();
+            }
+        }
+        boolean providerRegistered = REGISTERED_MANAGERS.get(name) == manager;
+        boolean overlayWrapped = manager.getGenerator() instanceof SimTaleWorldMapGenerator;
+        return "[SimTale] Mapa " + name + ": provider=" + (providerRegistered ? "registrado" : "ausente")
+                + ", overlay=" + (overlayWrapped ? "ativo" : "ausente")
+                + ", snapshot=" + (snapshot != null ? "pronto" : "vazio")
+                + (snapshot != null ? ", NPCs=" + snapshot.npcs().size()
+                        + ", vilas=" + snapshot.villages().size()
+                        + ", chunks de vila=" + villageChunks
+                        + ", casas=" + snapshot.houses().size()
+                        + ", banheiras=" + snapshot.baths().size() : "");
+    }
+
     /**
      * Copies what the map needs, from the world thread.
      *

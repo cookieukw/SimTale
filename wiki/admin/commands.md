@@ -26,15 +26,25 @@ rejects decimal points.
 
 | Command | What it does |
 |---|---|
-| `/simtale debug` | Turns debug logging on/off (`on` / `off`) |
+| `/simtale debug` | Opens the diagnostics hub (defaults to `panel`) |
+| `/simtale debug npc` | State of the nearest NPC: role, animation, movement, needs, shelter and cooldowns |
+| `/simtale debug near` | Nearby blocks, NPCs and modelled entities |
+| `/simtale debug ai` | AI config and provider startup status |
+| `/simtale debug map` | Map provider, village overlay and snapshot counts |
+| `/simtale debug village` | Village centres, radii and whether you are inside |
+| `/simtale debug beds`, `chests` or `baths` | Opens the corresponding furniture registry screen |
+| `/simtale debug logs [on/off]` | Toggles verbose SimTale logging; bare `logs` toggles it |
+| `/simtale debug on/off` | Legacy spelling for the logging toggle |
 | `/simtale debugbeds` | Screen listing registered beds, owners, teleport and unclaim |
 | `/simtale debugchests` | Screen listing registered chests, their house and their contents |
-| `/simtale debugnear` | Dumps nearby blocks and entities |
+| `/simtale debugnear` | Legacy alias for `/simtale debug near` |
 | `/simtale village` | Lists the villages derived from the houses: centre, radius, house count, and whether you are inside |
 | `/simtale villagestock` | Summarizes communal storage and resources in the nearest village (food, crops, wood, ores) |
 | `/simtale chestshare` | Toggles the nearest chest between **Private** (home only) and **Shared** (communal village stock). A chest inside the village and outside every house is already **Global**, so the command explains that instead of pretending it became private |
 | `/simtale graveyard` | Screen listing every NPC the Reaper collected, with the cause of death and a revive button each |
-| `/simtale npcstate` | State of the nearest NPC: role, animation, movement, needs, search cooldowns and the world clock |
+| `/simtale npcstate` | Legacy alias for `/simtale debug npc` |
+| `/simtale aistatus` | Legacy alias for `/simtale debug ai` |
+| `/simdebug` | Legacy alias for `/simtale debug panel` |
 | `/simtale search` | Finds NPCs |
 | `/simtale housecheck` | Validates the house you are aiming at, and reports what is missing |
 | `/simtale chestcheck` | Describes the nearest chest: private, explicitly shared, or village-global |

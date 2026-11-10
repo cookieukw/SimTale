@@ -26,13 +26,23 @@ rejects decimal points.
 
 | Command | What it does |
 |---|---|
-| `/simtale debug` | Turns debug logging on/off (`on` / `off`) |
+| `/simtale debug` | Abre o hub de diagnóstico (por padrão, o `panel`) |
+| `/simtale debug npc` | Estado do NPC mais próximo: papel, animação, movimento, necessidades, abrigo e recargas |
+| `/simtale debug near` | Blocos, NPCs e entidades modeladas próximas |
+| `/simtale debug ai` | Configuração de IA e estado dos provedores |
+| `/simtale debug map` | Provedor do mapa, área da vila e contagem dos marcadores |
+| `/simtale debug village` | Centro, raio das vilas e se você está dentro de uma |
+| `/simtale debug beds`, `chests` ou `baths` | Abre a tela do registro de camas, baús ou banheiras |
+| `/simtale debug logs [on/off]` | Liga/desliga logs detalhados; sem opção, alterna o estado |
+| `/simtale debug on/off` | Forma antiga de alternar os logs |
 | `/simtale debugbeds` | Screen listing registered beds, owners, teleport and unclaim |
 | `/simtale debugchests` | Screen listing registered chests, their house and their contents |
-| `/simtale debugnear` | Dumps nearby blocks and entities |
+| `/simtale debugnear` | Atalho antigo para `/simtale debug near` |
 | `/simtale village` | Lists the villages derived from the houses: centre, radius, house count, and whether you are inside |
 | `/simtale graveyard` | Tela listando cada NPC coletado pela Ceifadora, com a causa da morte e botão de ressurreição |
-| `/simtale npcstate` | State of the nearest NPC: role, animation, movement, needs, search cooldowns and the world clock |
+| `/simtale npcstate` | Atalho antigo para `/simtale debug npc` |
+| `/simtale aistatus` | Atalho antigo para `/simtale debug ai` |
+| `/simdebug` | Atalho antigo para `/simtale debug panel` |
 | `/simtale search` | Finds NPCs |
 | `/simtale housecheck` | Validates the house you are aiming at, and reports what is missing |
 | `/simtale chestcheck` | Descreve o baú mais próximo: privado, compartilhado explicitamente ou global da vila |

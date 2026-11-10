@@ -17,6 +17,8 @@
 - The graveyard records and displays death dates, sorts the newest deaths first and shows the cause
   when available.
 - Reviving child NPCs now preserves their life stage, scale and visual variant.
+- Unified diagnostics under `/simtale debug` (`panel`, `npc`, `near`, `ai`, `map`, registries and
+  `logs`); previous commands remain available as compatibility aliases.
 
 ## [1.4.0] — 2026-11-06
 
