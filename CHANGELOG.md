@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.2] — 2026-11-19
+
+- Corrigido um crash no `PlumbobSystem` ao entrar no Forgotten Temple ou trocar de mundo: o cristal
+  em cache agora é validado contra o store atual antes de ser consultado ou removido. O cristal
+  antigo é desassociado para limpeza no mundo de origem, sem acessá-lo pela instância de destino.
+
 ## [1.4.1] — 2026-11-09
 
 - Migrados os dados de crescimento e cuidados com bebês para o shell próprio do SimTale, com
