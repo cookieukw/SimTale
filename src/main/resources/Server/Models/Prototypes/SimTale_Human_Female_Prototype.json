@@ -1,0 +1,5 @@
+{
+  "Parent": "Player",
+  "Model": "Characters/Prototypes/Player_With_Face_Female_Prototype.blockymodel",
+  "EyeHeight": 1.5
+}
