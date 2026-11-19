@@ -37,6 +37,7 @@ import com.cookieukw.SimTale.systems.ChestRegistry;
 import com.cookieukw.SimTale.systems.EmoteBubbleSystem;
 import com.cookieukw.SimTale.systems.HouseManager;
 import com.cookieukw.SimTale.systems.NPCSeatingHelper;
+import com.cookieukw.SimTale.systems.PlumbobWorldTests;
 import com.cookieukw.SimTale.systems.SimTaleJuiceHelper;
 import com.cookieukw.SimTale.systems.VillageManager;
 import com.cookieukw.SimTale.systems.VillageStockManager;
@@ -57,9 +58,8 @@ import java.util.stream.Stream;
 /**
  * Test runner: {@code ./gradlew runTests}.
  *
- * <p>Only pure logic is covered. Anything needing a {@code World}, a {@code Store} or a live entity
- * is out of scope here and belongs in {@code testing_checklist.md} as an in-game check — that split
- * is deliberate, not a gap.
+ * <p>Primarily pure logic. Minimal ECS stores also cover reference ownership without starting a
+ * server; actual world transfers and portal rendering still need an in-game check.
  */
 public class SimTaleTests {
     private static File caskaraTestFolder;
@@ -129,6 +129,7 @@ public class SimTaleTests {
 
             System.out.println("Plumbob, Beds & Seating Optimizations");
             testPlumbobBedsAndSeating();
+            PlumbobWorldTests.run();
 
             System.out.println("========================================");
             System.out.println("All tests passed (" + Assert.checks + " assertions)");
