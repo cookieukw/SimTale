@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2] — 2026-11-19
+
+- Fixed a `PlumbobSystem` crash when entering the Forgotten Temple or switching worlds: cached
+  crystals are now checked against the current entity store before reading or removing them.
+  Old crystals are untracked for cleanup in their source world instead of accessing them from
+  the destination instance.
+
 ## [1.4.1] — 2026-11-09
 
 - Moved growth and baby-care data into SimTale's own Caskara shell, with repeatable migration of
