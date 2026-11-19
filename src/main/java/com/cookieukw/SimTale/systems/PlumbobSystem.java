@@ -2,7 +2,6 @@ package com.cookieukw.SimTale.systems;
 
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.SimNPCComponent;
-import com.cookieukw.SimTale.core.WorldUtil;
 import com.cookieukw.SimTale.vehicles.CalhambequePhysicsSystem;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 import com.hypixel.hytale.component.AddReason;
@@ -158,10 +157,10 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         TransformComponent entityTransform = chunk.getComponent(index, TransformComponent.getComponentType());
         if (entityTransform == null) return;
         
-        World world = WorldUtil.fromEntityRef(chunk.getReferenceTo(index));
+        World world = store.getExternalData().getWorld();
         if (world == null) return;
 
-        Ref<EntityStore> plumbobRef = playerPlumbobs.get(entityUuid);
+        Ref<EntityStore> plumbobRef = getPlumbobForStore(entityUuid, store);
         // Get Mood
         String moodModelName = "Plumbob"; // Default fallback
         if (isNpc) {
@@ -232,16 +231,37 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
                 holder.ensureComponent(UUIDComponent.getComponentType());
                 
                 Ref<EntityStore> newPlumbob = commandBuffer.addEntity(holder, AddReason.SPAWN);
-                Ref<EntityStore> replaced = playerPlumbobs.put(entityUuid, newPlumbob);
-                if (replaced != null) {
-                    trackedPlumbobRefs.remove(replaced);
-                }
-                trackedPlumbobRefs.add(newPlumbob);
+                trackPlumbob(entityUuid, newPlumbob);
                 LOGGER.atFine().log("[SimTale] Spawned Plumbob for entity " + entityUuid);
             } else {
                 LOGGER.atWarning().log("[SimTale-ERROR] Plumbob ModelAsset not found!");
             }
         }
+    }
+
+    /**
+     * A valid ref can still belong to a different world after a portal transfer.
+     * Never read it through the destination store. Untracking lets the source
+     * world's orphan sweep remove the old crystal on its own world thread.
+     */
+    static Ref<EntityStore> getPlumbobForStore(UUID entityUuid, Store<EntityStore> store) {
+        Ref<EntityStore> ref = playerPlumbobs.get(entityUuid);
+        if (ref == null) return null;
+        if (ref.getStore() != store || !ref.isValid()) {
+            if (playerPlumbobs.remove(entityUuid, ref)) {
+                trackedPlumbobRefs.remove(ref);
+            }
+            return null;
+        }
+        return ref;
+    }
+
+    static void trackPlumbob(UUID entityUuid, Ref<EntityStore> ref) {
+        Ref<EntityStore> replaced = playerPlumbobs.put(entityUuid, ref);
+        if (replaced != null) {
+            trackedPlumbobRefs.remove(replaced);
+        }
+        trackedPlumbobRefs.add(ref);
     }
 
     /**
@@ -256,7 +276,12 @@ public class PlumbobSystem extends EntityTickingSystem<EntityStore> {
         Ref<EntityStore> existing = playerPlumbobs.remove(entityUuid);
         if (existing == null) return;
         trackedPlumbobRefs.remove(existing);
-        if (existing.isValid() && pendingDespawns.add(existing)) {
+        // A mount/expedition can hide the marker immediately after a world
+        // transfer, before tick() has discarded the cached source-world ref.
+        // Leave foreign refs to their owning world's orphan sweep instead of
+        // submitting them to this world's command buffer.
+        if (existing.getStore() == commandBuffer.getStore()
+                && existing.isValid() && pendingDespawns.add(existing)) {
             commandBuffer.removeEntity(existing, RemoveReason.REMOVE);
         }
     }
