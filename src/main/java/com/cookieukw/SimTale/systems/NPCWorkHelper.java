@@ -12,7 +12,9 @@ import com.cookieukw.SimTale.core.Mood;
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.core.SimNPCFactory;
 import com.cookieukw.SimTale.core.WorldUtil;
+import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
@@ -22,6 +24,7 @@ import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.modules.entity.component.PersistentModel;
+import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
 import com.hypixel.hytale.server.core.asset.type.model.config.Model.ModelReference;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -30,6 +33,8 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 import com.cookieukw.SimTale.core.SimLog;
@@ -46,6 +51,9 @@ public class NPCWorkHelper {
      * deadline, so an unreachable target parked the NPC permanently in that state.
      */
     private static final int MOVE_TIMEOUT_TICKS = 600;
+
+    /** Guards the deferred repair so one stranded miner does not queue a model swap every tick. */
+    private static final Set<UUID> EXPEDITION_SCALE_REPAIRS = ConcurrentHashMap.newKeySet();
 
     private static final String ANIM_WALK = "Characters/Animations/Actions/Walk.blockyanim";
     private static final String ANIM_SMITH = "Characters/Animations/Actions/Smith.blockyanim";
@@ -166,7 +174,9 @@ public class NPCWorkHelper {
      * bedtime; once started it runs to completion (protected in RoutineAISystem's interrupt
      * check), because an interrupt mid-expedition would leave the shrink applied permanently.
      */
-    private static void startExpedition(Ref<EntityStore> ref, RoutineAIComponent ai, SimNPCComponent npc, World world, Store<EntityStore> store) {
+    private static void startExpedition(Ref<EntityStore> ref, RoutineAIComponent ai, SimNPCComponent npc,
+                                       World world, Store<EntityStore> store,
+                                       CommandBuffer<EntityStore> commandBuffer) {
         if (NPCSleepHelper.isSleepPeriod(npc, world)) return;
 
         PersistentModel pm = store.getComponent(ref, PersistentModel.getComponentType());
@@ -187,9 +197,41 @@ public class NPCWorkHelper {
         NPCMovementHelper.clearMoveTarget(ref, ai);
         ai.currentTask = TaskType.EXPEDITION;
         ai.taskStartTime = world.getTick();
+        PlumbobSystem.removePlumbob(npc.entityId, commandBuffer);
+        SimTaleMarkerProvider.requestRefresh();
         HytaleLogger.forEnclosingClass().atInfo().log("SimTale: " + npc.name
                 + " left on a " + (npc.profession == Profession.MINER ? "mining" : "hunting")
                 + " expedition.");
+    }
+
+    /** Repairs a saved expedition scale that outlived the expedition task (usually after reload). */
+    private static void restoreStrandedExpeditionModel(Ref<EntityStore> ref, SimNPCComponent npc,
+                                                        RoutineAIComponent ai, Store<EntityStore> store) {
+        if (npc.entityId == null || ai.currentTask == TaskType.EXPEDITION
+                || (npc.profession != Profession.MINER && npc.profession != Profession.HUNTER)
+                || !WorkEligibility.canWork(npc)) return;
+
+        PersistentModel persistent = store.getComponent(ref, PersistentModel.getComponentType());
+        if (persistent == null || persistent.getModelReference() == null) return;
+        ModelComponent drawn = store.getComponent(ref, ModelComponent.getComponentType());
+        boolean persistedTiny = persistent.getModelReference().getScale() <= EXPEDITION_SCALE * 2f;
+        boolean drawnTiny = drawn != null && drawn.getModel() != null
+                && drawn.getModel().getScale() <= EXPEDITION_SCALE * 2f;
+        if (!persistedTiny && !drawnTiny) return;
+        if (!EXPEDITION_SCALE_REPAIRS.add(npc.entityId)) return;
+
+        String modelId = persistent.getModelReference().getModelAssetId();
+        Map<String, String> attachments = persistent.getModelReference().getRandomAttachmentIds();
+        WorldUtil.execute(() -> {
+            try {
+                SimNPCFactory.applyModel(store, ref, modelId, NORMAL_NPC_SCALE, attachments);
+                SimTaleMarkerProvider.requestRefresh();
+                HytaleLogger.forEnclosingClass().atWarning().log("SimTale: restored stranded expedition model for "
+                        + npc.name + " (" + npc.entityId + ").");
+            } finally {
+                EXPEDITION_SCALE_REPAIRS.remove(npc.entityId);
+            }
+        });
     }
 
     /**
@@ -222,13 +264,16 @@ public class NPCWorkHelper {
             RoutineAIComponent ai,
             TransformComponent transform,
             World world,
-            Store<EntityStore> store
+            Store<EntityStore> store,
+            CommandBuffer<EntityStore> commandBuffer
     ) {
         /* Too young for this particular job — see WorkEligibility. Checked before the state
         machine rather than inside it so a child never enters a work state at all, instead of
         entering one and being pulled out mid-way with a claimed post or a shrunken model.
         */
         if (!WorkEligibility.canWork(npc)) return;
+
+        restoreStrandedExpeditionModel(ref, npc, ai, store);
 
         /* Evaluate Transition to Work/Deposit from IDLE
         reservedForSocialUuid: same reasoning as RoutineSleepHelpers.handleIdle -- this is a
@@ -332,7 +377,7 @@ public class NPCWorkHelper {
                         }
                     }
                 } else if (npc.profession == Profession.HUNTER || npc.profession == Profession.MINER) {
-                    startExpedition(ref, ai, npc, world, store);
+                    startExpedition(ref, ai, npc, world, store, commandBuffer);
                 } else if (npc.profession == Profession.FISHERMAN) {
                     /* Water was already resolved once, when the fishing post was placed — no
                     scan needed here, just look the post up. One NPC per post at a time.
@@ -616,6 +661,9 @@ public class NPCWorkHelper {
                 applyWorkSatisfaction(npc, world.getTick());
                 ai.currentTask = TaskType.IDLE;
                 playIdleAnim(ref, store);
+                // The NPC's scale has been queued back to normal; capture a fresh marker after
+                // the transition so the expedition presence disappears/returns with the entity.
+                SimTaleMarkerProvider.requestRefresh();
             }
         }
 

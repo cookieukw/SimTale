@@ -31,6 +31,8 @@ public final class ProximityConfigTests {
                 "villageChestDepositChance default should be 0.30");
         Assert.isTrue(cfg.villageSafeZoneEnabled, "villageSafeZoneEnabled default should be true");
         Assert.isTrue(cfg.villageRegenEnabled, "villageRegenEnabled default should be true");
+        Assert.isFalse(cfg.hostileMobsCanAttackNpcs,
+                "hostileMobsCanAttackNpcs must default to false so only the Reaper can kill NPCs");
     }
 
     private static void testConfigPersistence() {
@@ -49,6 +51,7 @@ public final class ProximityConfigTests {
             custom.villageChestDepositChance = 0.75;
             custom.villageSafeZoneEnabled = false;
             custom.villageRegenEnabled = false;
+            custom.hostileMobsCanAttackNpcs = true;
 
             SimTaleConfigManager.setConfig(custom);
             Assert.equal(SimTaleConfigManager.getConfig(), custom, "setConfig should update active config");
@@ -67,6 +70,8 @@ public final class ProximityConfigTests {
                     "villageSafeZoneEnabled should be false");
             Assert.isFalse(SimTaleConfigManager.getConfig().villageRegenEnabled,
                     "villageRegenEnabled should be false");
+            Assert.isTrue(SimTaleConfigManager.getConfig().hostileMobsCanAttackNpcs,
+                    "hostileMobsCanAttackNpcs should be true");
 
             // Save to disk and reload
             SimTaleConfigManager.save();
@@ -88,6 +93,8 @@ public final class ProximityConfigTests {
                     "loaded villageSafeZoneEnabled should match saved");
             Assert.isFalse(loaded.villageRegenEnabled,
                     "loaded villageRegenEnabled should match saved");
+            Assert.isTrue(loaded.hostileMobsCanAttackNpcs,
+                    "loaded hostileMobsCanAttackNpcs should match saved");
 
             // Null safety
             SimTaleConfigManager.setConfig(null);

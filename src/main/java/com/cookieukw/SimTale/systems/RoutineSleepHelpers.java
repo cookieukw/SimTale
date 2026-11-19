@@ -70,7 +70,9 @@ import com.hypixel.hytale.server.npc.role.support.StateSupport;
 final class RoutineSleepHelpers {
     private RoutineSleepHelpers() {}
 
-    static boolean handleIdle(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai, Store<EntityStore> store, World world, TransformComponent transform) {
+    static boolean handleIdle(Ref<EntityStore> ref, SimNPCComponent npc, RoutineAIComponent ai,
+                              Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer,
+                              World world, TransformComponent transform) {
         /* Reserved (waiting for a conversation partner to arrive) must mean actually standing
         still: reservedForSocialUuid previously only stopped OTHER NPCs' searches from picking
         this one (NPCSocialHelper.isAvailableToTalk) -- nothing stopped THIS ladder from handing
@@ -131,7 +133,7 @@ final class RoutineSleepHelpers {
             IDLE; if there is no work, leisure/social still get their turn.
             */
             if (ai.currentTask == TaskType.IDLE) {
-                NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store);
+                NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store, commandBuffer);
             }
 
             if (ai.currentTask == TaskType.IDLE && NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.FUN_ID) < NPCLeisureHelper.FUN_THRESHOLD) {
@@ -532,6 +534,29 @@ final class RoutineSleepHelpers {
                 ai.currentTask = TaskType.IDLE;
                 ai.taskStartTime = world.getTick();
                 return true;
+            }
+
+            /* Shelter uses the sleep pose/mount, but must not run the ordinary daytime wake rule.
+            Otherwise every alarm cycle gets stuck in MOVING_TO_BED -> SLEEPING -> WAKING ->
+            civilian evacuation, making the NPC visibly pop upright on the mattress. Check for the
+            threat on the same staggered cadence as the guard scan; once the hostile leaves, normal
+            sleep completion/waking resumes. */
+            if (ai.shelteringFromHostiles) {
+                if (NPCGuardHelper.shouldPollHostileThreat(npc, world.getTick())) {
+                    TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+                    if (transform == null || !NPCGuardHelper.hasHostileThreat(
+                            npc, transform.getPosition(), world, store)) {
+                        ai.shelteringFromHostiles = false;
+                        RoutineAISystem.LOGGER.info("[SimTale] NPC '{}' left shelter; no hostile remains nearby",
+                                npc.name);
+                    }
+                }
+                if (ai.shelteringFromHostiles) {
+                    if (world.getTick() % 40 == 0) {
+                        NPCMovementHelper.setSleepingState(ref, store, commandBuffer, true);
+                    }
+                    return true;
+                }
             }
 
             NeedsHelper.setNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID, Math.min(100f, NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) + 0.045f));

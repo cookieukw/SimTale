@@ -67,6 +67,7 @@ jobs:
             git checkout -B l10n_crowdin origin/l10n_crowdin
           fi
           python3 tools/merge_crowdin_keys.py --base origin/main
+          python3 tools/normalize_crowdin_escapes.py
           if git diff --quiet; then
             echo "No missing keys; nothing to restore."
             exit 0

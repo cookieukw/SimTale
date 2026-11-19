@@ -260,15 +260,36 @@ public final class VillageManager {
             if (universe == null) return;
             LongSet set = new LongOpenHashSet(chunkIndices);
             if (targetWorld != null) {
-                targetWorld.getWorldMapManager().clearImagesInChunks(set);
+                invalidateWorldMap(targetWorld, set);
                 return;
             }
             for (World world : universe.getWorlds().values()) {
-                if (world != null) world.getWorldMapManager().clearImagesInChunks(set);
+                if (world != null) invalidateWorldMap(world, set);
             }
         } catch (Throwable t) {
             LOGGER.debug("[SimTale] Map chunk invalidation skipped: {}", t.toString());
         }
+    }
+
+    private static void invalidateWorldMap(World world, LongSet chunks) {
+        // Drop server-side generated images. This method is thread-safe and is also called from
+        // the WorldMap generation thread when a lazy village rebuild happens there.
+        world.getWorldMapManager().clearImagesInChunks(chunks);
+
+        /* The manager cache is only half of the cache: each player's WorldMapTracker separately
+        remembers which chunk images it already received. If we clear only the manager cache, an
+        open map keeps those chunks marked loaded and never asks for the newly tinted images. Reset
+        that per-player loaded set on the world thread; the next tracker tick requests fresh images
+        from the wrapped generator.
+        */
+        LongSet trackerChunks = new LongOpenHashSet(chunks);
+        world.execute(() -> {
+            for (var player : world.getPlayers()) {
+                if (player != null && player.getWorldMapTracker() != null) {
+                    player.getWorldMapTracker().clearChunks(trackerChunks);
+                }
+            }
+        });
     }
 
     private static Village toVillage(List<HouseBlockPos> cluster) {

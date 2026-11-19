@@ -1,5 +1,7 @@
 package com.cookieukw.SimTale;
 
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
+
 
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.cookieukw.SimTale.db.SimNPCPersistence;
@@ -21,7 +23,6 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
-import com.cookie.caskara.Caskara;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
@@ -398,7 +399,7 @@ final class LifecycleCommands {
                 }
             }
             if (childComp == null) {
-                childComp = Caskara.load("child_" + childId, GrowthComponent.class);
+                childComp = SimTaleLifecyclePersistence.load("child_" + childId, GrowthComponent.class);
                 if (childComp != null) {
                     LifecycleManager.ACTIVE_CHILDREN.add(childComp);
                 }
@@ -421,7 +422,7 @@ final class LifecycleCommands {
             from the enum table was overwritten within a frame.
             */
             childComp.currentScale = LifecycleManager.calculateTargetScale(childComp, world.getTick());
-            Caskara.save("child_" + childId, childComp);
+            SimTaleLifecyclePersistence.save("child_" + childId, childComp);
 
             /* No BABY case any more: none of the accepted values map to it, precisely because
             placeBabyFromHeldItem refuses a newborn and the command would be reporting success on

@@ -21,6 +21,11 @@ SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a
 | <img src="/img/WeddingRing.png" width="32" align="absmiddle"/> Aliança de Casamento (Wedding Ring) | um morador | Pede em casamento (requer 80 Romance, 70 Amizade) |
 | <img src="/img/Baby.png" width="32" align="absmiddle"/> Bebê (Baby) | nada | Um bebê carregado no inventário que eventualmente nascerá como um NPC criança |
 | <img src="/img/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake) | qualquer coisa | Pode ser craftado, mas ainda não tem função |
+| <img src="/img/SimTale_Bathtub.png" width="32" align="absmiddle"/> Banheira SimTale | colocada como mobília | Banheira funcional: NPCs sentam nela para tomar banho e recuperar Higiene; jogadores também podem usar a interação de assento |
+
+## Banheira SimTale
+
+Faça a banheira na **Bancada de Mobília** (Furniture Bench), na categoria `Furniture_Misc`: **8 Tábuas de Madeira Macia, 4 Barras de Cobre e 2 Barras de Ferro**. Coloque-a no mundo; NPCs com pouca Higiene podem procurá-la e sentar nela para tomar banho. O bloco também oferece interação de assento para jogadores.
 
 ## Aliança de Casamento (Wedding Ring)
 

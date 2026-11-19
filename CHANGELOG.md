@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.4.1] — 2026-11-09
+
+- Migrados os dados de crescimento e cuidados com bebês para o shell próprio do SimTale, com
+  cópia repetível dos registros antigos e preservação do backup de `default.db` do Caskara.
+- Corrigida a chave dos baús sem mundo e adicionada migração das chaves antigas `_x_y_z`.
+- Atualizadas as receitas para usar `TimeSeconds`, aceito pelo schema atual do Hytale.
+- Atualizado o alvo de compatibilidade para a release 0.7.x e a pre-release 0.8.0-pre.2.1.
+- Adicionada a opção `hostileMobsCanAttackNpcs` (desligada por padrão); sem ela, dano do jogo não
+  mata NPCs. Quando ativada, apenas mobs hostis reconhecidos podem atacá-los fora da zona segura.
+- A proteção padrão também usa o componente nativo de invulnerabilidade do Hytale; guardas são os
+  únicos moradores que enfrentam hostis, enquanto os demais procuram abrigo em casa e permanecem
+  deitados até a ameaça passar, sem alternar entre dormir e levantar durante o dia.
+- Adicionada uma banheira craftável com colisão própria, assento e rotina de higiene dos NPCs; o
+  mapa agora marca banheiras colocadas e volta a registrar os marcadores após recriar o mundo.
+- O cemitério registra e exibe a data da morte, ordena os NPCs do mais recente ao mais antigo e
+  informa a causa quando disponível.
+- Ressurreições preservam o estágio, a escala e a variante visual de filhos NPC.
+- Unificados os diagnósticos em `/simtale debug` (`panel`, `npc`, `near`, `ai`, `map`, registros e
+  `logs`); os comandos antigos continuam como atalhos compatíveis.
+- Corrigida a pose de sono: se a montagem da cama reativar `sitting`, o SimTale a limpa e reafirma
+  a pose deitado durante o sono.
+
 ## [1.4.0] — 2026-11-06
 
 Esta versão reúne tudo o que foi adicionado depois da 1.3.1. A versão 1.3.2 foi um build interno

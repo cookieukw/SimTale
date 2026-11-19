@@ -16,6 +16,7 @@ pacing and the village deposit chance are exposed in `simtale-config.json`.
 | `villageChestDepositChance` | `0.30` | Chance a worker chooses a village/global chest even when her home chest has room |
 | `villageSafeZoneEnabled` | `true` | Cancela todo dano a NPCs do SimTale dentro da fronteira da vila |
 | `villageRegenEnabled` | `true` | Concede regeneração RuneCore ao jogador dentro da vila |
+| `hostileMobsCanAttackNpcs` | `false` | Permite que mobs hostis reconhecidos causem dano aos NPCs fora da zona segura. Desligado, todo dano do jogo é bloqueado; só o fluxo do Grim Reaper (ou comando administrativo) pode matá-los |
 
 The JSON file is read at boot; restart after editing.
 

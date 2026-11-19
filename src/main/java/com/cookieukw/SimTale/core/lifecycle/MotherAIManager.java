@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
-import com.cookie.caskara.Caskara;
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
+
 import com.cookieukw.SimTale.core.SimNPCComponent;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.Message;
@@ -73,7 +74,7 @@ public class MotherAIManager {
             if (acted) {
                 careData.lastInteractionTime = System.currentTimeMillis();
                 BabyCareManager.save(careData);
-                Caskara.save("child_" + baby.childId.toString(), baby);
+                SimTaleLifecyclePersistence.save("child_" + baby.childId.toString(), baby);
             }
         }
     }
@@ -120,7 +121,7 @@ public class MotherAIManager {
             if (acted) {
                 careData.lastInteractionTime = System.currentTimeMillis();
                 BabyCareManager.save(careData);
-                Caskara.save("child_" + toddler.childId.toString(), toddler);
+                SimTaleLifecyclePersistence.save("child_" + toddler.childId.toString(), toddler);
             }
         }
     }

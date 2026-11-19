@@ -1,8 +1,9 @@
 package com.cookieukw.SimTale.logic;
 
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
+
 import com.cookieukw.SimTale.core.AssetIds;
 
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookie.runecore.api.StatHelper;
 import com.cookieukw.SimTale.ai.AiConfigManager;
@@ -87,11 +88,6 @@ public class InteractionManager {
 
     private record DailyState(boolean cooldownActive, boolean missedLongTime) {}
 
-    private static final Set<String> FOOD_KEYWORDS = Set.of(
-        "food", "apple", "bread", "meat", "fish", "carrot", 
-        "potato", "soup", "fruit", "berry", "cookie", "pie"
-    );
-
     private enum GiftCategory {
         TRASH(
             Set.of("dirt", "soil_sand", "rock_stone", "spiderweb", "gravel", "deco_trash",
@@ -156,7 +152,7 @@ public class InteractionManager {
         any legitimate outcome that happened to have no friendship/affinity delta.
         */
         Store<EntityStore> store = npc.entityRef != null ? npc.entityRef.getStore() : null;
-        long tick = System.currentTimeMillis() / 50;
+        long tick = currentWorldTick(npc);
 
         if (outcome.rejected() || (type == InteractionType.ROMANTIC && outcome.affinity() < 0)) {
             if (type == InteractionType.ROMANTIC) {
@@ -486,7 +482,7 @@ public class InteractionManager {
         }
 
         if (isChild) {
-            return handleChildGift(npc, itemId, itemName);
+            return handleChildGift(npc, heldItem, itemName);
         }
 
         if (isWeddingRing(heldItem.getItemId())) {
@@ -599,17 +595,32 @@ public class InteractionManager {
         }
     }
 
-    private static InteractionOutcome handleChildGift(SimNPCComponent npc, String itemId, String itemName) {
-        boolean isFood = FOOD_KEYWORDS.stream().anyMatch(itemId::contains);
-        if (isFood) {
-            GrowthComponent childComp = Caskara.load("child_" + npc.entityId.toString(), GrowthComponent.class);
+    private static InteractionOutcome handleChildGift(SimNPCComponent npc, ItemStack heldItem, String itemName) {
+        int tier = NPCFoodHelper.tierOf(heldItem);
+        if (tier != NPCFoodHelper.NOT_FOOD) {
+            boolean favorite = NPCFoodHelper.isFavorite(heldItem, npc.preferences);
+            boolean hated = NPCFoodHelper.isHated(heldItem, npc.preferences);
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID,
+                    NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.HUNGER_ID)
+                            + NPCFoodHelper.hungerRestored(tier));
+            NeedsHelper.setNeed(null, npc.entityRef, NeedsHelper.FUN_ID,
+                    NeedsHelper.getNeed(null, npc.entityRef, NeedsHelper.FUN_ID)
+                            + (hated ? -10f : favorite ? 10f : 5f));
+
+            GrowthComponent childComp = SimTaleLifecyclePersistence.load("child_" + npc.entityId.toString(), GrowthComponent.class);
             World world = npc.entityRef != null ? WorldUtil.fromEntityRef(npc.entityRef) : null;
+            long tick = world != null ? world.getTick() : 0L;
             if (childComp != null && world != null) {
                 childComp.birthTick -= 24000;
-                Caskara.save("child_" + npc.entityId.toString(), childComp);
+                SimTaleLifecyclePersistence.save("child_" + npc.entityId.toString(), childComp);
                 LifecycleManager.tickGrowth(childComp, world.getTick());
             }
-            return InteractionOutcome.ofItem(0, 0, 0, 0, 
+            int friendship = hated ? -2 : favorite ? 12 : 8;
+            int trust = hated ? -1 : favorite ? 10 : 6;
+            int affinity = hated ? -5 : favorite ? 30 : 18;
+            npc.forceEmotion(hated ? Mood.SAD : favorite ? Mood.EXCITED : Mood.HAPPY,
+                    hated ? 0.6f : 0.8f, hated ? "child_hated_food" : "child_food_gift", tick);
+            return InteractionOutcome.ofItem(friendship, 0, trust, affinity,
                 pickRandomTranslation("npc-dialogues.gift.accelerated", 3, npc.name).param("item", itemName), 
                 MemoryEvent.GIFTED, true);
         }
@@ -787,13 +798,13 @@ public class InteractionManager {
     public static InteractionOutcome buildProfessionAcceptance(SimNPCComponent npc, Message profName, String itemName, Message prefix, ProfessionContext ctx) {
         if (isProfLiked(ctx)) {
             Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.liked", 9, npc.name).param("profName", profName).param("itemName", itemName);
-            npc.setEmotion(Mood.EXCITED, 0.9f, "dream_job", System.currentTimeMillis());
+            npc.setEmotion(Mood.EXCITED, 0.9f, "dream_job", currentWorldTick(npc));
             return InteractionOutcome.ofItem(15, 0, 10, 25, prefix.insert(reaction), MemoryEvent.CHATTED, true);
         }
 
         if (npc.personality.traits.contains(Trait.LOYAL) || npc.personality.traits.contains(Trait.FUNNY)) {
             Message reaction = pickRandomTranslation("npc-dialogues.prof.assign.easy", 3, npc.name).param("profName", profName).param("itemName", itemName);
-            npc.setEmotion(Mood.HAPPY, 0.7f, "accepted_job", System.currentTimeMillis());
+            npc.setEmotion(Mood.HAPPY, 0.7f, "accepted_job", currentWorldTick(npc));
             return InteractionOutcome.ofItem(10, 0, 8, 18, prefix.insert(reaction), MemoryEvent.CHATTED, true);
         }
 
@@ -913,7 +924,11 @@ public class InteractionManager {
         }
         
         if (outcome.memoryEvent() == MemoryEvent.GIFTED) {
-            if (outcome.affinity() >= 20) {
+            if (isChild && outcome.affinity() > 0) {
+                // Keep the child's positive food-gift reaction distinct from the adult gift
+                // response so passive need moods do not immediately replace it.
+                npc.forceEmotion(Mood.HAPPY, 1.0f, "child_food_gift", tick);
+            } else if (outcome.affinity() >= 20) {
                 npc.setEmotion(Mood.HAPPY, 1.0f, "gift_loves", tick);
             } else if (outcome.affinity() < 0) {
                 if (npc.personality.traits.contains(Trait.AGGRESSIVE)) {
@@ -945,6 +960,13 @@ public class InteractionManager {
                 }
             }
         }
+    }
+
+    /** Emotion timestamps must share the server world's tick domain, not wall-clock millis. */
+    private static long currentWorldTick(SimNPCComponent npc) {
+        World world = npc != null && npc.entityRef != null
+                ? WorldUtil.fromEntityRef(npc.entityRef) : null;
+        return world != null ? world.getTick() : 0L;
     }
 
     /**
@@ -981,11 +1003,23 @@ public class InteractionManager {
      * is how two callers end up disagreeing about who is a child.
      */
     public static boolean isNpcAChild(SimNPCComponent npc) {
-        if (npc.entityRef != null) {
-            NPCEntity npcEntity = npc.entityRef.getStore().getComponent(npc.entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
-            if (npcEntity != null && npcEntity.getRoleName() != null && 
-                npcEntity.getRoleName().toLowerCase(Locale.ROOT).contains("child")) {
-                return true;
+        if (npc == null) return false;
+        Ref<EntityStore> entityRef = npc.entityRef;
+        if (entityRef != null) {
+            try {
+                if (entityRef.isValid()) {
+                    Store<EntityStore> store = entityRef.getStore();
+                    if (store != null && entityRef.isValid()) {
+                        NPCEntity npcEntity = store.getComponent(
+                                entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
+                        if (npcEntity != null && npcEntity.getRoleName() != null
+                                && npcEntity.getRoleName().toLowerCase(Locale.ROOT).contains("child")) {
+                            return true;
+                        }
+                    }
+                }
+            } catch (IllegalStateException ignored) {
+                // The live entity can disappear between the validity check and component lookup.
             }
         }
         for (GrowthComponent child : LifecycleManager.ACTIVE_CHILDREN) {

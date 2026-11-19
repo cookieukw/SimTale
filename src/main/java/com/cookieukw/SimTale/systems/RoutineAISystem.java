@@ -12,6 +12,7 @@ import com.cookieukw.SimTale.config.SimTaleConfigManager;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.Frozen;
+import com.hypixel.hytale.server.core.modules.entity.component.Invulnerable;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
@@ -132,6 +133,17 @@ public class RoutineAISystem extends EntityTickingSystem<EntityStore> {
         Ref<EntityStore> ref = chunk.getReferenceTo(index);
         if (npc.entityRef == null || !npc.entityRef.isValid()) {
             npc.entityRef = ref;
+        }
+
+        /* Enforce the global default even for NPCs restored by the engine rather than spawned
+        through SimNPCFactory, and remove the Hytale marker after an admin enables hostile attacks. */
+        SimTaleConfig damageConfig = SimTaleConfigManager.getConfig();
+        boolean shouldBeInvulnerable = damageConfig == null || !damageConfig.hostileMobsCanAttackNpcs;
+        boolean isInvulnerable = store.getComponent(ref, Invulnerable.getComponentType()) != null;
+        if (shouldBeInvulnerable && !isInvulnerable) {
+            commandBuffer.addComponent(ref, Invulnerable.getComponentType(), Invulnerable.INSTANCE);
+        } else if (!shouldBeInvulnerable && isInvulnerable) {
+            commandBuffer.tryRemoveComponent(ref, Invulnerable.getComponentType());
         }
 
         /* Skip routine AI for babies and toddlers (cared for by parents).
@@ -299,17 +311,23 @@ once per NPC per tick for nothing.
             commandBuffer.tryRemoveComponent(ref, Frozen.getComponentType());
         }
 
-        /* Same self-heal for the sleeping movement state.
-           Frozen had a guard and the sleep flag did not, so any exit path that forgot to clear it
-           left the NPC walking around playing the sleep animation. Rather than hunting every exit,
-           the invariant is asserted here: not a sleep task means not sleeping.
-        */
-        boolean inSleepTask = ai.currentTask == TaskType.SLEEPING
-                || ai.currentTask == TaskType.ENTERING_BED
-                || ai.currentTask == TaskType.WAKING;
-        if (!inSleepTask) {
-            MovementStatesComponent msc = store.getComponent(ref, MovementStatesComponent.getComponentType());
-            if (msc != null && msc.getMovementStates().sleeping) {
+        /* Keep the engine's seated and sleeping flags mutually exclusive. A BlockMount can
+        reassert sitting after mountOnBlock, which left the NPC visibly perched on the mattress
+        even though the Sleep animation/task had started. Assert the desired pose while sleeping,
+        and clear it when waking or doing anything else. */
+        boolean inBedSleepPose = ai.currentTask == TaskType.SLEEPING || ai.currentTask == TaskType.ENTERING_BED;
+        boolean wakingFromBed = ai.currentTask == TaskType.WAKING;
+        MovementStatesComponent sleepStates = store.getComponent(ref, MovementStatesComponent.getComponentType());
+        if (sleepStates != null) {
+            boolean sleepingFlag = sleepStates.getMovementStates().sleeping;
+            boolean sittingFlag = sleepStates.getMovementStates().sitting;
+            if (inBedSleepPose && (!sleepingFlag || sittingFlag)) {
+                LOGGER.info("[SimTale] NPC '{}' had a sitting/standing pose while {}; restoring lying pose",
+                        npc.name, ai.currentTask);
+                NPCMovementHelper.setSleepingState(ref, store, commandBuffer, true);
+            } else if (wakingFromBed && (sleepingFlag || sittingFlag)) {
+                NPCMovementHelper.setSleepingState(ref, store, commandBuffer, false);
+            } else if (!inBedSleepPose && !wakingFromBed && sleepingFlag) {
                 LOGGER.info("[SimTale] NPC '{}' was flagged as sleeping while doing {}; clearing", npc.name, ai.currentTask);
                 NPCMovementHelper.setSleepingState(ref, store, commandBuffer, false);
             }
@@ -330,6 +348,17 @@ once per NPC per tick for nothing.
             if (statMap != null) {
                 EntityStatValue healthVal = statMap.get(DefaultEntityStatTypes.getHealth());
                 if (healthVal != null && healthVal.get() <= 0f) {
+                    SimTaleConfig config = SimTaleConfigManager.getConfig();
+                    if (config == null || !config.hostileMobsCanAttackNpcs) {
+                        /* Last-resort protection for native/plugin health changes which bypass the
+                        DamageEventSystem. Explicit /simtale forcekill already set DYING and skips
+                        this check; only the Reaper or that administrator command can kill when
+                        hostileMobsCanAttackNpcs is disabled. */
+                        statMap.setStatValue(DefaultEntityStatTypes.getHealth(), healthVal.getMax());
+                        LOGGER.warn("[SimTale] NPC '{}' reached 0 HP while hostile damage is disabled; restored health",
+                                npc.name);
+                        return;
+                    }
                     if (NPCDamageEventSystem.isInsideVillageSafeZone(transform.getPosition())) {
                         statMap.setStatValue(DefaultEntityStatTypes.getHealth(), healthVal.getMax());
                         npc.lastDamageCause = "protegido pela zona segura da vila";
@@ -338,6 +367,10 @@ once per NPC per tick for nothing.
                         return;
                     }
                     LOGGER.info("[SimTale] NPC '{}' reached 0 HP outside of forcekill — routing into the death flow", npc.name);
+                    PlumbobSystem.removePlumbob(npc.entityId, commandBuffer);
+                    if (ai.currentTask == TaskType.MOVING_TO_BATH || ai.currentTask == TaskType.BATHING) {
+                        RoutineTaskHelpers.exitBath(ref, ai, store, commandBuffer);
+                    }
                     NPCMovementHelper.clearMoveTarget(ref, ai);
                     ai.currentTask = TaskType.DYING;
                     ai.taskStartTime = world.getTick();
@@ -485,6 +518,8 @@ once per NPC per tick for nothing.
 
             if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
                 NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
+            } else if (ai.currentTask == TaskType.MOVING_TO_BATH || ai.currentTask == TaskType.BATHING) {
+                RoutineTaskHelpers.exitBath(ref, ai, store, commandBuffer);
             }
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
@@ -522,6 +557,8 @@ once per NPC per tick for nothing.
 
             if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
                 NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
+            } else if (ai.currentTask == TaskType.MOVING_TO_BATH || ai.currentTask == TaskType.BATHING) {
+                RoutineTaskHelpers.exitBath(ref, ai, store, commandBuffer);
             }
             ai.currentTask = TaskType.FINDING_FOOD;
             ai.targetBlockPosition = null;
@@ -538,6 +575,8 @@ once per NPC per tick for nothing.
             npc.forceSleep = false;
             if (ai.currentTask == TaskType.SITTING || ai.currentTask == TaskType.MOVING_TO_CHAIR) {
                 NPCSeatingHelper.exitSitting(ref, store, commandBuffer, npc, ai);
+            } else if (ai.currentTask == TaskType.MOVING_TO_BATH || ai.currentTask == TaskType.BATHING) {
+                RoutineTaskHelpers.exitBath(ref, ai, store, commandBuffer);
             }
             ai.currentTask = TaskType.FINDING_BED;
             ai.targetBlockPosition = null;
@@ -562,7 +601,7 @@ once per NPC per tick for nothing.
         */
         if (handleFollowing(ref, ai, transform, world, store)) return;
 
-        if (RoutineSleepHelpers.handleIdle(ref, npc, ai, store, world, transform)) return;
+        if (RoutineSleepHelpers.handleIdle(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
         /* FINDING_BED */
         if (RoutineSleepHelpers.handleFindingBed(ref, npc, ai, store, world, transform)) return;
@@ -589,7 +628,7 @@ once per NPC per tick for nothing.
 
         /* Crop Harvesting & Hunting Logic (Delegado ao NPCWorkHelper) 
         */
-        NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store);
+        NPCWorkHelper.handleWorkLogic(ref, npc, ai, transform, world, store, commandBuffer);
 
         /* `forcedByDebug` only means "outrank the sleep/hunger interrupts for the tick a debug
          command just set the task on" — every read site above (the interrupt checks, and
@@ -650,9 +689,9 @@ once per NPC per tick for nothing.
         */
         if (RoutineTaskHelpers.handleFindingBath(ref, npc, ai, store, world, transform)) return;
 
-        if (RoutineTaskHelpers.handleMovingToBath(ref, npc, ai, store, world, transform)) return;
+        if (RoutineTaskHelpers.handleMovingToBath(ref, npc, ai, store, commandBuffer, world, transform)) return;
 
-        if (RoutineTaskHelpers.handleBathing(ref, npc, ai, store, world)) return;
+        if (RoutineTaskHelpers.handleBathing(ref, npc, ai, store, commandBuffer, world)) return;
 
         /* REAPING 
         */
@@ -1309,7 +1348,7 @@ once per NPC per tick for nothing.
         ai.playPartnerId = null;
         ai.playRoundsLeft = 0;
         if (ai.targetChairPos != null) {
-            ChairRegistry.releaseChair(ai.targetChairPos);
+            ChairRegistry.releaseChair(ai.targetChairPos, npc.entityId);
             ai.targetChairPos = null;
         }
     }

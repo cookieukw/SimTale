@@ -6,7 +6,7 @@
 
 $T = "../SimTaleTheme.ui";
 
-@RowH    = 76;
+@RowH    = 92;
 @RowBtnW = 148;
 @RowBtnH = 38;
 
@@ -31,6 +31,11 @@ $T = "../SimTaleTheme.ui";
       Text: "—";
       Anchor: (Height: 24);
       Style: (...$T.@BodyStyle, FontSize: 13, TextColor: $T.@TextMuted);
+    }
+    Label #DeathDate {
+      Text: "—";
+      Anchor: (Height: 20);
+      Style: (...$T.@BodyStyle, FontSize: 12, TextColor: $T.@TextMuted);
     }
   }
 

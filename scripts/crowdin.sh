@@ -144,6 +144,8 @@ download_translations() {
   # Crowdin omits untranslated strings. Restore keys that already exist in the
   # current commit so a download cannot silently delete fallback translations.
   python3 tools/merge_crowdin_keys.py --base HEAD
+  # The API export can still leave Properties escapes in Hytale's .lang files.
+  python3 tools/normalize_crowdin_escapes.py
   echo
   echo "Review the result with:"
   echo "  git diff -- src/main/resources/Server/Languages"

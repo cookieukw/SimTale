@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.4.1] — 2026-11-09
+
+- Moved growth and baby-care data into SimTale's own Caskara shell, with repeatable migration of
+  legacy records and retention of Caskara's `default.db` safety backup.
+- Fixed unscoped chest keys and added migration for the legacy `_x_y_z` keys.
+- Updated recipes to use `TimeSeconds`, accepted by the current Hytale schema.
+- Updated the compatibility target to release 0.7.x and pre-release 0.8.0-pre.2.1.
+- Added `hostileMobsCanAttackNpcs` (off by default): game damage cannot kill NPCs unless enabled;
+  when enabled, only recognized hostile mobs can attack them outside the safe zone.
+- Default protection also uses Hytale's native invulnerability component. Guards are the only
+  residents who fight hostiles; everyone else heads home and stays down until the threat passes,
+  rather than cycling between sleeping and standing during the day.
+- Added a craftable bathtub with its own collision, seat and NPC hygiene routine. Bathtubs now have
+  map markers, and map markers re-register after a world instance is recreated.
+- The graveyard records and displays death dates, sorts the newest deaths first and shows the cause
+  when available.
+- Reviving child NPCs now preserves their life stage, scale and visual variant.
+- Unified diagnostics under `/simtale debug` (`panel`, `npc`, `near`, `ai`, `map`, registries and
+  `logs`); previous commands remain available as compatibility aliases.
+- Fixed the bed sleep pose: if bed mounting reasserts `sitting`, SimTale clears it and reapplies
+  the lying pose while the NPC sleeps.
+
 ## [1.4.0] — 2026-11-06
 
 This release collects everything added after 1.3.1. Version 1.3.2 was an internal build used

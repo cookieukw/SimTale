@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
-import com.cookie.caskara.Caskara;
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
+
 import com.cookie.runecore.api.EffectHelper;
 import com.cookie.runecore.api.StatHelper;
 import com.cookieukw.SimTale.SimTale;
@@ -136,7 +137,7 @@ public class PregnancyManager {
             child.pickUp(mother.entityId);
 
             LifecycleState.ACTIVE_CHILDREN.add(child);
-            Caskara.save("child_" + child.childId.toString(), child);
+            SimTaleLifecyclePersistence.save("child_" + child.childId.toString(), child);
             BabyCareManager.initializeForChild(child);
             /* initializeForChild only persists BabyCareData; the in-memory cache that drives the
             inventory sync needs the same starting holder or the "Baby" item never appears until
@@ -314,7 +315,7 @@ public class PregnancyManager {
 
             child.pickUp(playerComp.playerUuid);
             LifecycleState.ACTIVE_CHILDREN.add(child);
-            Caskara.save("child_" + child.childId.toString(), child);
+            SimTaleLifecyclePersistence.save("child_" + child.childId.toString(), child);
             BabyCareManager.initializeForChild(child);
 
             EffectHelper.modifyMovement(playerRef, s -> s.baseSpeed = EffectHelper.DEFAULT_SPEED);

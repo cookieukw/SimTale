@@ -31,7 +31,7 @@ particular direction.
 |---|---|---|
 | `BedRegistry.BEDS` | `BedPos` (position + lying-axis yaw) | anchor |
 | `ChestRegistry.CHESTS` | `HouseBlockPos` | anchor |
-| `BathRegistry.BATHS` | `HouseBlockPos` | anchor |
+| `BathRegistry.baths(world)` | `HouseBlockPos` | anchor, separado por mundo |
 | `CropRegistry.CROPS` | `HouseBlockPos` | anchor |
 | `FarmlandRegistry.FARMLAND` | `HouseBlockPos` | anchor |
 | `FishingPostRegistry.POSTS` | `FishingPost` (post pos + water pos) | anchor |

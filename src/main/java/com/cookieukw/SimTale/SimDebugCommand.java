@@ -16,12 +16,12 @@ import javax.annotation.Nonnull;
 
 /**
  * Debug command to inspect and control NPC behaviors.
- * Usage: /simdebug
+ * Legacy alias for {@code /simtale debug panel}.
  */
 public class SimDebugCommand extends AbstractPlayerCommand {
 
     public SimDebugCommand() {
-        super("simdebug", "Opens the SimTale debug panel");
+        super("simdebug", "Legacy alias: opens the SimTale diagnostics panel");
         this.setPermissionGroups("Adventure");
     }
 

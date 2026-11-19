@@ -127,6 +127,9 @@ public class SimNPCPersistence {
         try {
             SimNPCData data = worldShell().core(SimNPCData.class).extract(entityId.toString()).sync().orElse(null);
             if (data != null) {
+                if (data.deathTimestamp <= 0L) {
+                    data.deathTimestamp = System.currentTimeMillis();
+                }
                 graveyardShell().core(SimNPCData.class).preserve(entityId.toString(), data);
             }
             worldShell().core(SimNPCData.class).discard(entityId.toString());
@@ -153,7 +156,7 @@ public class SimNPCPersistence {
         }
     }
 
-    /** Every archived record in the graveyard, newest-first ordering not guaranteed. Never null. */
+    /** Every archived record in the graveyard. Consumers choose a stable order. Never null. */
     public static List<SimNPCData> listGraveyard() {
         try {
             List<SimNPCData> all = graveyardShell().core(SimNPCData.class).extractAll();
@@ -219,6 +222,17 @@ public class SimNPCPersistence {
     public static void saveNPC(SimNPCComponent component) {
         if (component.entityId == null)
             return;
+
+        /* A travelling merchant has its own visit record, including departure time and stock.
+        Saving it as a normal villager makes it permanent after the visit ends and causes a new
+        copy to be restored on every world re-entry. The initial spawn write is removed by the
+        merchant creation path; all subsequent autosaves stop here.
+        */
+        if (component.entityRef != null && component.entityRef.isValid()
+                && component.entityRef.getStore().getComponent(component.entityRef,
+                        SimTale.MERCHANT_VISITOR_COMPONENT_TYPE) != null) {
+            return;
+        }
 
         /* Guard against writing a placeholder over real data. Since SimNPCComponent is now
         persisted by Hytale with a codec that only carries id and name, a reloaded entity

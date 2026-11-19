@@ -48,6 +48,8 @@ import com.cookieukw.SimTale.systems.BedPlaceBlockEventSystem;
 import com.cookieukw.SimTale.systems.BabyBabbleSystem;
 import com.cookieukw.SimTale.systems.GrowthTickSystem;
 import com.cookieukw.SimTale.systems.NPCDamageEventSystem;
+import com.cookieukw.SimTale.systems.SimTaleAttitudeBridge;
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
 import com.cookieukw.SimTale.systems.ConstructionPreviewSweepSystem;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.component.ComponentType;
@@ -120,6 +122,7 @@ public class SimTale extends JavaPlugin {
      */
     public static void trackNpc(SimNPCComponent npc) {
         if (npc == null) return;
+        SimTaleAttitudeBridge.ensureRegistered(npc.entityRef);
         if (npc.entityId != null) {
             SimNPCComponent previous = NPCS_BY_ID.put(npc.entityId, npc);
             if (previous != null && previous != npc) {
@@ -172,6 +175,24 @@ public class SimTale extends JavaPlugin {
     @Override
     protected void setup() {
         LOGGER.atInfo().log("Setting up SimTale registries...");
+
+        try {
+            SimTaleLifecyclePersistence.MigrationResult migration =
+                    SimTaleLifecyclePersistence.migrateLegacyData();
+            if (migration.alreadyMigrated()) {
+                LOGGER.atInfo().log("SimTale Caskara lifecycle-data migration already completed.");
+            } else {
+                LOGGER.atInfo().log("SimTale copied lifecycle data from the legacy caskara shell: "
+                        + migration.growthRecordsCopied() + " growth records, "
+                        + migration.babyCareRecordsCopied() + " baby-care records."
+                        + " Caskara's default.db migration preserves its safety backup.");
+            }
+        } catch (Exception e) {
+            // Caskara backs up default.db before its own migration; SimTale's explicit
+            // copy leaves the named caskara shell untouched and retries next startup.
+            LOGGER.atWarning().withCause(e).log("SimTale could not migrate legacy Caskara lifecycle data; "
+                    + "the Caskara backup is retained and migration will retry next startup.");
+        }
 
         // Load local JSON configuration
         SimTaleConfigManager.load();

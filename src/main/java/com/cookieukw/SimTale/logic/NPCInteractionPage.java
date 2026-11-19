@@ -1,8 +1,9 @@
 package com.cookieukw.SimTale.logic;
 
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
+
 import com.hypixel.hytale.math.vector.Rotation3f;
 import java.util.Locale;
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.ai.RoutineAIComponent;
 import com.cookieukw.SimTale.ai.RoutineAIComponent.TaskType;
@@ -396,7 +397,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
 
         
         if (InteractionManager.isNpcAChild(npc)) {
-            GrowthComponent gc = (npc.entityId != null) ? Caskara.load("child_" + npc.entityId, GrowthComponent.class) : null;
+            GrowthComponent gc = (npc.entityId != null) ? SimTaleLifecyclePersistence.load("child_" + npc.entityId, GrowthComponent.class) : null;
             Message stageName = (gc != null && gc.stage != null)
                 ? Message.translation("ui.stage." + gc.stage.name().toLowerCase())
                 : Message.translation("ui.stage.child");
@@ -481,7 +482,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
         buildNeedsLine(commandBuilder, npc);
 
         GrowthComponent npcGrowth = (npc.entityId != null)
-                ? Caskara.load("child_" + npc.entityId, GrowthComponent.class)
+                ? SimTaleLifecyclePersistence.load("child_" + npc.entityId, GrowthComponent.class)
                 : null;
         boolean isOwnChild = ownChild
                 || (npcGrowth != null && (playerRefComp.getUuid().equals(npcGrowth.motherId) || playerRefComp.getUuid().equals(npcGrowth.fatherId)));
@@ -546,7 +547,7 @@ public class NPCInteractionPage extends InteractiveCustomUIPage<String> {
             for (Child c : npc.family.children) {
                 if (c.id == null) continue;
                 if (!first) childrenMsg = childrenMsg.insert(Message.raw(", "));
-                GrowthComponent gc = Caskara.load("child_" + c.id, GrowthComponent.class);
+                GrowthComponent gc = SimTaleLifecyclePersistence.load("child_" + c.id, GrowthComponent.class);
                 Message stageName = gc != null 
                     ? Message.translation("ui.stage." + gc.stage.name().toLowerCase()) 
                     : Message.translation("ui.stage.adult");

@@ -102,8 +102,8 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             UUIDComponent uuidComp = chunk.getComponent(index, UUIDComponent.getComponentType());
             if (uuidComp != null) {
                 UUID uuid = uuidComp.getUuid();
-                /* Caskara.load() resolves to the "default" shell; NPC data lives in "simtale".
-                This used to always return null, so this whole re-attach path never ran.
+                /* NPC data lives in SimTalePersistence's named "simtale" shell. The old static
+                Caskara.load() path resolved to "default" and always returned null here.
                 */
                 SimNPCData data = SimNPCPersistence.loadData(uuid);
                 if (data != null) {
@@ -266,11 +266,20 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             }
         }
 
+        // A child's accepted food gift should be visible as a positive reaction before ongoing
+        // needs-based moods resume. Higher-priority attack/insult reactions below still win.
+        boolean recentChildFoodGift = InteractionManager.isNpcAChild(npc)
+                && "child_food_gift".equals(npc.emotionSource)
+                && absoluteTick >= npc.lastEmotionChangeTick
+                && absoluteTick - npc.lastEmotionChangeTick < 200;
+
         // Apply needs-based passive emotion triggers
         if (npc.memory.remembers(MemoryEvent.ATTACKED, null, 30000)) {
             npc.setEmotion(Mood.SCARED, 0.9f, "damage", absoluteTick);
         } else if (npc.memory.remembers(MemoryEvent.INSULTED, null, 30000)) {
             npc.setEmotion(Mood.ANGRY, 0.8f, "insult", absoluteTick);
+        } else if (recentChildFoodGift) {
+            // Preserve the just-applied happy response for ten seconds.
         } else {
             if (npc.personality.traits.contains(Trait.AGGRESSIVE) && (NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.HUNGER_ID) < 50 || NeedsHelper.getNeed(store, npc.entityRef, NeedsHelper.ENERGY_ID) < 50)) {
                 npc.setEmotion(Mood.ANGRY, 0.7f, "needs", absoluteTick);
@@ -456,6 +465,22 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
             }
             if (!isSleepingTask) continue;
 
+            /* This second sleeping pass exists for mounted NPCs whose routine tick is skipped.
+            Keep it in sync with RoutineSleepHelpers: otherwise its daytime wake-up path ignores
+            shelterFromHostiles, removes the mount every tick, and civilians oscillate between the
+            mattress and standing while an alarm is active. */
+            if (ai.shelteringFromHostiles) {
+                if (NPCGuardHelper.shouldPollHostileThreat(npc, tick)) {
+                    TransformComponent transform = npcStore.getComponent(ref, TransformComponent.getComponentType());
+                    if (transform == null || !NPCGuardHelper.hasHostileThreat(
+                            npc, transform.getPosition(), world, npcStore)) {
+                        ai.shelteringFromHostiles = false;
+                        LOGGER.info("[SimTale] NPC '{}' left shelter; no hostile remains nearby", npc.name);
+                    }
+                }
+                if (ai.shelteringFromHostiles) continue;
+            }
+
             boolean sleepPeriodClosed = !NPCSleepHelper.isSleepPeriod(npc, world);
             boolean doneSleeping;
             if (ai.sleepingOnSchedule) {
@@ -499,12 +524,3 @@ public class SimTaleTickSystem extends EntityTickingSystem<EntityStore> {
         }
     }
 }
-
-
-    
-    
-        
-    
-                            
-
-                    

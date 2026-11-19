@@ -1,9 +1,10 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
+
 import com.cookieukw.SimTale.systems.PlumbobSystem;
 import com.hypixel.hytale.builtin.mounts.MountedComponent;
 
-import com.cookie.caskara.Caskara;
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Gender;
 import com.cookieukw.SimTale.core.Profession;
@@ -259,8 +260,8 @@ public class GrowthManager {
             UUID newEntityId = Objects.requireNonNull(childRef.getStore().getComponent(childRef, UUIDComponent.getComponentType())).getUuid();
             
             child.childId = newEntityId;
-            Caskara.delete("child_" + oldChildId.toString(), GrowthComponent.class);
-            Caskara.save("child_" + newEntityId, child);
+            SimTaleLifecyclePersistence.delete("child_" + oldChildId.toString(), GrowthComponent.class);
+            SimTaleLifecyclePersistence.save("child_" + newEntityId, child);
             
             SimNPCComponent toddlerNpc = store.getComponent(childRef, SimTale.SIM_NPC_COMPONENT_TYPE);
             if (toddlerNpc != null) {
@@ -275,7 +276,7 @@ public class GrowthManager {
             }
             
             if (care != null) {
-                Caskara.delete("babycare_" + oldChildId, BabyCareData.class);
+                SimTaleLifecyclePersistence.delete("babycare_" + oldChildId, BabyCareData.class);
                 care.childId = newEntityId.toString();
                 BabyCareManager.save(care);
             }
@@ -421,8 +422,8 @@ public class GrowthManager {
         
         UUID oldChildId = child.childId;
         child.childId = newEntityId;
-        Caskara.delete("child_" + oldChildId.toString(), GrowthComponent.class);
-        Caskara.save("child_" + newEntityId, child);
+        SimTaleLifecyclePersistence.delete("child_" + oldChildId.toString(), GrowthComponent.class);
+        SimTaleLifecyclePersistence.save("child_" + newEntityId, child);
 
         /* The body just removed above had its own Plumbob, tracked under oldChildId. Nothing
         ever ticks that UUID again once the entity is gone, so PlumbobSystem's own orphan
@@ -477,7 +478,7 @@ public class GrowthManager {
         /simtale setstage jumping a child straight to ADULT. But the record itself has to
         survive on disk: ParentChildBond.findChildOf answers "is this NPC my child, at any
         life stage" (see its own javadoc), and once ACTIVE_CHILDREN has dropped this entry
-        its ONLY remaining path is Caskara.load("child_" + npc.entityId, ...) reading this
+        its ONLY remaining path is SimTaleLifecyclePersistence.load("child_" + child.childId, ...) reading this
         exact key back. Deleting it here — which is what this used to do — reads as "an
         adult is done growing, so the growth record is garbage now", but it silently deletes
         the one thing that still says "this adult IS your child": Scold/Insult on the panel,
@@ -488,7 +489,7 @@ public class GrowthManager {
         just because GrowthTickSystem no longer needs to tick it.
         */
         LifecycleState.ACTIVE_CHILDREN.remove(child);
-        Caskara.save("child_" + child.childId.toString(), child);
+        SimTaleLifecyclePersistence.save("child_" + child.childId.toString(), child);
         
         Ref<EntityStore> childRef = LifecycleUtils.getEntityRef(child.childId);
         if (childRef != null && childRef.isValid()) {

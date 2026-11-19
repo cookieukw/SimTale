@@ -102,6 +102,12 @@ public final class ChairRegistry {
         OCCUPIED.remove(pos);
     }
 
+    /** Releases a seat only if it is still held by the caller. */
+    public static synchronized void releaseChair(Vector3i pos, UUID npcId) {
+        if (pos == null || npcId == null) return;
+        OCCUPIED.remove(pos, npcId);
+    }
+
     public static synchronized void releaseAllForNpc(UUID npcId) {
         if (npcId == null) return;
         OCCUPIED.values().removeIf(id -> id.equals(npcId));

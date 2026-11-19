@@ -23,6 +23,9 @@ import org.joml.Vector3d;
 
 import java.util.List;
 import java.util.UUID;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import javax.annotation.Nonnull;
 
 /**
@@ -36,6 +39,8 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
 
     private static final SimLog LOGGER = SimLog.forClass(SimGraveyardPage.class);
     private static final int ROWS_PER_PAGE = 5;
+    private static final DateTimeFormatter DEATH_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
 
     private final Player player;
     private final PlayerRef playerRefComp;
@@ -83,6 +88,10 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
                     .param("index", recordIndex + 1)
                     .param("name", data.name != null ? data.name : "?"));
             cmd.set(row + " #Detail.TextSpans", buildDetail(data));
+            cmd.set(row + " #DeathDate.TextSpans", Message.translation("ui.graveyard.died")
+                    .param("date", data.deathTimestamp > 0L
+                            ? Message.raw(DEATH_DATE_FORMAT.format(Instant.ofEpochMilli(data.deathTimestamp)))
+                            : Message.translation("ui.graveyard.dateUnknown")));
 
             /* Keyed by UUID rather than by list position: reviving reorders the list, and a stale
             index would revive whoever slid into that slot.
@@ -116,11 +125,10 @@ public class SimGraveyardPage extends InteractiveCustomUIPage<String> {
         */
         Message detail = profession.insert(Message.raw(" · "))
                 .insert(Message.translation("ui.graveyard.detail").param("children", children));
-        if (data.deathCause != null && !data.deathCause.isBlank()) {
-            detail = detail.insert(Message.raw(" · "))
-                    .insert(Message.translation("ui.graveyard.cause").param("cause", data.deathCause));
-        }
-        return detail;
+        Message cause = data.deathCause != null && !data.deathCause.isBlank()
+                ? Message.translation("ui.graveyard.cause").param("cause", data.deathCause)
+                : Message.translation("ui.graveyard.causeUnknown");
+        return detail.insert(Message.raw(" · ")).insert(cause);
     }
 
     @Override

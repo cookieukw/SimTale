@@ -88,14 +88,15 @@ public class SimBathDebugPage extends InteractiveCustomUIPage<String> {
     }
 
     private List<HouseBlockPos> getBaths(World world) {
-        synchronized (BathRegistry.BATHS) {
-            int before = BathRegistry.BATHS.size();
+        var registeredBaths = BathRegistry.baths(world);
+        synchronized (registeredBaths) {
+            int before = registeredBaths.size();
             if (world != null) {
                 /* Self-healing, same rule as the bed/chest pages: only prune a tile whose chunk is
                 actually loaded and confirmed to no longer be a bath block. An unloaded chunk
                 cannot be checked, so it is assumed to still be there.
                 */
-                BathRegistry.BATHS.removeIf(bp -> {
+                registeredBaths.removeIf(bp -> {
                     WorldChunk chunk = world.getChunkStore().getChunkComponent(ChunkUtil.indexChunkFromBlock(bp.x, bp.z), WorldChunk.getComponentType());
                     if (chunk != null) {
                         BlockType type = NPCMovementHelper.getBlockTypeSafe(world, bp.x, bp.y, bp.z);
@@ -104,11 +105,12 @@ public class SimBathDebugPage extends InteractiveCustomUIPage<String> {
                     return false;
                 });
             }
-            int pruned = before - BathRegistry.BATHS.size();
+            int pruned = before - registeredBaths.size();
             if (pruned > 0) {
-                LOGGER.info("[SimTale] Bath page pruned {} stale bath(s), {} left", pruned, BathRegistry.BATHS.size());
+                LOGGER.info("[SimTale] Bath page pruned {} stale bath(s) in world '{}', {} left",
+                        pruned, world != null ? world.getName() : "?", registeredBaths.size());
             }
-            List<HouseBlockPos> list = new ArrayList<>(BathRegistry.BATHS);
+            List<HouseBlockPos> list = new ArrayList<>(registeredBaths);
             list.sort((a, b) -> {
                 if (a.x != b.x) return Integer.compare(a.x, b.x);
                 if (a.y != b.y) return Integer.compare(a.y, b.y);
@@ -260,7 +262,7 @@ public class SimBathDebugPage extends InteractiveCustomUIPage<String> {
                 int index = Integer.parseInt(eventData.substring(eventData.indexOf("forget_") + 7));
                 if (index >= 0 && index < baths.size()) {
                     HouseBlockPos bp = baths.get(index);
-                    BathRegistry.removeAt(bp.x, bp.y, bp.z);
+                    BathRegistry.removeAt(world, bp.x, bp.y, bp.z);
                     playerRefComp.sendMessage(Message.translation("ui.debugbaths.msgForgetSuccess").param("index", index + 1));
                 }
             } catch (RuntimeException e) {

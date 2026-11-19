@@ -1,6 +1,7 @@
 package com.cookieukw.SimTale.core.lifecycle;
 
-import com.cookie.caskara.Caskara;
+import com.cookieukw.SimTale.db.SimTaleLifecyclePersistence;
+
 import com.cookieukw.SimTale.SimTale;
 import com.cookieukw.SimTale.core.Child;
 import com.cookieukw.SimTale.core.HouseData;
@@ -178,7 +179,7 @@ public final class FamilyBonds {
             }
         }
         if (growth == null && child.entityId != null) {
-            growth = Caskara.load("child_" + child.entityId, GrowthComponent.class);
+            growth = SimTaleLifecyclePersistence.load("child_" + child.entityId, GrowthComponent.class);
         }
 
         if (growth != null) {
@@ -246,7 +247,7 @@ public final class FamilyBonds {
             }
         }
         if (growth == null) {
-            growth = Caskara.load("child_" + child.entityId, GrowthComponent.class);
+            growth = SimTaleLifecyclePersistence.load("child_" + child.entityId, GrowthComponent.class);
         }
         if (growth != null) {
             if (parent.entityId.equals(growth.motherId) || parent.entityId.equals(growth.fatherId)) {
@@ -269,7 +270,7 @@ public final class FamilyBonds {
         for (GrowthComponent c : LifecycleManager.ACTIVE_CHILDREN) {
             if (npc.entityId.equals(c.childId)) return c;
         }
-        return Caskara.load("child_" + npc.entityId, GrowthComponent.class);
+        return SimTaleLifecyclePersistence.load("child_" + npc.entityId, GrowthComponent.class);
     }
 
     private static boolean sameParent(UUID p1, UUID p2) {

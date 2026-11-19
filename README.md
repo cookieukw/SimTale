@@ -71,21 +71,24 @@ This section is for **players**. If you run a server or want to work on the code
 
 | Item               | Version    | Required                                       |
 | ------------------ | ---------- | ---------------------------------------------- |
-| Hytale server      | `>= 0.6.0` | yes                                            |
-| Caskara (database) | `>= 3.0.0` | yes                                            |
-| RuneCore           | 1.0.12     | yes — used to apply damage and healing to NPCs |
+| Hytale server      | `^0.7.0` release or `^0.8.0-pre.2.1` pre-release | yes |
+| Caskara (database) | `>= 3.0.4` | yes                                            |
+| RuneCore           | `>= 1.0.12` | yes — used to apply damage and healing to NPCs |
 | Java               | 25         | only to build                                  |
 
 > **Nota:** Where these numbers come from
-> `ServerVersion` and `Dependencies` in the mod's `manifest.json`. The RuneCore dependency is not
-> declared there, but the code calls `com.cookie.runecore.api.StatHelper` — without that jar, hunger
-> cannot take or restore health.
+> `ServerVersion` and `Dependencies` in the mod's `manifest.json`. RuneCore is declared there and
+> provides `com.cookie.runecore.api.StatHelper`, which lets hunger damage and heal NPCs.
 
 ### Install
 
-1. Drop `SimTale-1.0.0.jar`, `Caskara.jar` and `RuneCore-1.0.12.jar` into the server's `Mods/` folder.
+1. Drop the SimTale, Caskara 3.0.4+ and RuneCore 1.0.12+ jars into the server's `Mods/` folder.
 2. Start the server.
 3. Join a world and craft your first Immigration Contract.
+
+On the first start after updating, SimTale moves legacy child-growth and baby-care records into
+its own Caskara shell. Caskara keeps a `default.db.migration.bak` safety copy when it migrates its
+older default database; keep that backup until you have confirmed the records load in-game.
 
 ```
 [SimTale] Scan found 2 new beds and 1 new chests. Totals: 2 beds, 1 chests
@@ -95,6 +98,14 @@ That line is the furniture scan that runs when you join a world. It only appears
 something new.
 
 ### Building from source
+
+The build can use the installed API jars instead of the older fallback jars in `libs/`. Set
+`hytale.server.jar`, `caskara.api.jar` and `runecore.api.jar` in your local `local.properties`, or
+override individual jars with `-P` when compiling another channel:
+
+```bash
+./gradlew -Phytale.server.jar=/path/to/pre-release/Server/HytaleServer.jar compileJava
+```
 
 ```bash
 ./gradlew deploy
@@ -513,7 +524,7 @@ Every NPC carries five needs, all starting at 100 and decaying over time.
 | **Energy**  | Going to bed                                                                                                 |
 | **Social**  | Seeking out other NPCs to talk to                                                                            |
 | **Fun**     | Going off to do a hobby. (All work and no play makes the NPC a dull villager)                                |
-| **Hygiene** | Getting into water to bathe. (Removing the pool ladder won't actually trap them)                             |
+| **Hygiene** | Seeking water or a placed SimTale Bathtub to bathe. NPCs sit in the bathtub while washing.                             |
 
 Traits change the rates. A `LAZY` NPC burns energy twice as fast; a `FUNNY` one loses fun at half
 speed.
@@ -980,6 +991,7 @@ All items can be crafted at their respective workstations:
 | **Immigration Contract**  | Inventory (Fieldcraft)                                                                   | 1x <img src="wiki/static/img/Deco_Scroll.png" width="24" align="absmiddle"/> Scroll, 1x <img src="wiki/static/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Inkwell, 1x <img src="wiki/static/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Light Leather                                              |
 | **Town Bell**             | <img src="wiki/static/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench  | 3x Gold Bar, 2x <img src="wiki/static/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks                                                                                                                                                                                                               |
 | **Birthday Cake**         | Cookingbench                                                                             | 1x Apple Pie (`Food_Pie_Apple`), 1x Orange Light Source / Candle (`Build_Lightsource_Orange`)                                                                                                                                                                                                                                    |
+| **SimTale Bathtub**       | Furniture Bench (Furniture_Misc)                                                        | 8x Softwood Planks, 4x Copper Bars, 2x Iron Bars |
 
 #### Item Icons
 
@@ -1066,7 +1078,8 @@ Yes. Edit `simtale-config.json` in the save folder:
   "hungerDecayMultiplier": 1.0,
   "villageChestDepositChance": 0.3,
   "villageSafeZoneEnabled": true,
-  "villageRegenEnabled": true
+  "villageRegenEnabled": true,
+  "hostileMobsCanAttackNpcs": false
 }
 ```
 
@@ -1074,6 +1087,9 @@ Restart the server after editing. `hungerDecayMultiplier` defaults to `1.0` (abo
 to 70). Set it to `10.0` to reach the first food-search threshold in roughly 25 minutes, or `0` to
 freeze hunger. The deposit chance controls how often workers choose a village/global chest over
 their own pantry when both have room.
+`hostileMobsCanAttackNpcs` defaults to `false`, so game damage cannot kill villagers. Set it to
+`true` to allow recognized hostile mobs to attack them outside the safe zone; player and environmental
+damage remain blocked.
 
 #### How do I make NPCs do hobbies?
 
