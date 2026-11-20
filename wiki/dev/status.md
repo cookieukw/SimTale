@@ -188,7 +188,7 @@ behavior wired to their use at all**:
 |---|---|
 | Wedding ring, Baby, Pregnancy test, Immigration contract | ✅ has behavior |
 | House blueprint, Innkeeper's ledger, Inspector's journal | 🔧 implemented later, needs retest |
-| Quartermaster's glass, Town bell, Birthday cake | ⬜ no behavior yet |
+| Quartermaster's Glass, Town Bell, Birthday Cake | 🔧 implemented, needs a fresh in-game confirmation |
 
 Held-item hand appearance for the newer items (fixed by matching the game's own root-node naming
 convention) is ✅ visually confirmed; the behavior behind most of them is separate and tracked

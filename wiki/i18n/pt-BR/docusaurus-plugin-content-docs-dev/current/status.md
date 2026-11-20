@@ -188,7 +188,7 @@ nenhum comportamento ligado ao uso**:
 |---|---|
 | Aliança de casamento, Bebê, Teste de gravidez, Contrato de Imigração | ✅ tem comportamento |
 | Planta da Casa, Registro do Estalajadeiro, Diário do Inspetor | 🔧 implementado depois, precisa de reteste |
-| Luneta do Almoxarife, Sino da Vila, Bolo de Aniversário | ⬜ ainda sem comportamento |
+| Lupa do Intendente, Sino da Vila, Bolo de Aniversário | 🔧 implementado, precisa de nova confirmação em jogo |
 
 A aparência na mão dos itens mais novos (corrigida ao seguir a convenção de nome do nó raiz que o
 próprio jogo usa) está ✅ confirmada visualmente; o comportamento por trás da maioria deles é

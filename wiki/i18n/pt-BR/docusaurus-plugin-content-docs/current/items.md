@@ -20,7 +20,7 @@ SimTale adiciona um conjunto de ferramentas craftáveis. Elas existem para que a
 | <img src="/img/TownBell.png" width="32" align="absmiddle"/> Sino da Cidade (Town Bell) | qualquer coisa | Toca o sino da cidade, alertando os moradores próximos |
 | <img src="/img/WeddingRing.png" width="32" align="absmiddle"/> Aliança de Casamento (Wedding Ring) | um morador | Pede em casamento (requer 80 Romance, 70 Amizade) |
 | <img src="/img/Baby.png" width="32" align="absmiddle"/> Bebê (Baby) | nada | Um bebê carregado no inventário que eventualmente nascerá como um NPC criança |
-| <img src="/img/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake) | qualquer coisa | Pode ser craftado, mas ainda não tem função |
+| <img src="/img/BirthdayCake.png" width="32" align="absmiddle"/> Bolo de Aniversário (Birthday Cake) | um morador próximo | Comemora com o morador, enche fome e diversão, aumenta afinidade e coloca o humor em EXCITED |
 | <img src="/img/SimTale_Bathtub.png" width="32" align="absmiddle"/> Banheira SimTale | colocada como mobília | Banheira funcional: NPCs sentam nela para tomar banho e recuperar Higiene; jogadores também podem usar a interação de assento |
 
 ## Banheira SimTale
@@ -49,7 +49,7 @@ O Bebê é um item único que representa um recém-nascido. Ele não pode ser cr
   <img src="/img/BirthdayCake.png" width="128" style={{imageRendering: 'pixelated'}} />
 </div>
 
-Um bolo festivo que pode ser feito na Bancada de Trabalho. Atualmente, o Bolo de Aniversário é apenas um item decorativo e ainda não possui uma função especial, mas quem sabe o que o futuro reserva para as festas da vila!
+Um bolo festivo feito na Bancada de Culinária. Use-o perto de um morador para celebrar: ele enche fome e diversão, aumenta amizade/afinidade, gera partículas e coloca o humor em EXCITED.
 
 ## Moedas e o mercador viajante
 
@@ -123,12 +123,12 @@ Administradores podem forçar uma visita de teste com:
 
 ## Receitas de Criação (Crafting)
 
-Todos os itens podem ser craftados em suas respectivas bancadas:
+As ferramentas e os itens com receita podem ser craftados em suas respectivas bancadas. O Baby é gerado pelo nascimento e não é craftável:
 
 | Item | Bancada | Ingredientes |
 |---|---|---|
 | **Teste de Gravidez** | <img src="/img/Bench_Alchemy.png" width="24" align="absmiddle"/> Bancada de Alquimia (Alchemybench) | 1x <img src="/img/Plant_Flower_Common_White.png" width="24" align="absmiddle"/> Flor Branca (White Flower), 1x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="/img/Ingredient_Life_Essence_Cauliflower.png" width="24" align="absmiddle"/> Couve-flor (Cauliflower) |
-| **Projeto de Casa** | Inventário (Fieldcraft) | 1x <img src="/img/Deco_Map.png" width="24" align="absmiddle"/> Mapa (Map), 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll) |
+| **Projeto de Casa** | Inventário (Fieldcraft) | 2x <img src="/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho Antigo (Old Scroll), 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell) |
 | **Livro do Estalajadeiro** | Inventário (Fieldcraft) | 1x <img src="/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
 | **Lupa do Intendente** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 1x <img src="/img/Rock_Crystal_White.png" width="24" align="absmiddle"/> Cristal Branco (White Crystal), 1x <img src="/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Barra de Cobre (Copper Bar) |
 | **Diário do Inspetor** | Inventário (Fieldcraft) | 1x <img src="/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell) |
@@ -140,7 +140,7 @@ Todos os itens podem ser craftados em suas respectivas bancadas:
 | **1 Moeda de Tório** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho | 100x <img src="/img/SimTale_Coin_Copper.png" width="24" align="absmiddle"/> Moedas de Cobre |
 | **1 Moeda de Ouro** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho | 100x <img src="/img/SimTale_Coin_Thorium.png" width="24" align="absmiddle"/> Moedas de Tório |
 | **Porquinho** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho | 4x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia, 2x <img src="/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Barras de Cobre |
-| **Bolo de Aniversário** | Bancada de Trabalho (Workbench) | 1x Torta de Maçã (Apple Pie), 1x Fonte de Luz Laranja (Orange Light Source) |
+| **Bolo de Aniversário** | Bancada de Culinária (Cookingbench) | 1x <img src="/img/Food_Pie_Apple.png" width="24" align="absmiddle"/> Torta de Maçã (`Food_Pie_Apple`), 1x <img src="/img/Build_Lightsource_Orange.png" width="24" align="absmiddle"/> Fonte de Luz / Vela Laranja (`Build_Lightsource_Orange`) |
 
 ### Ícones dos Itens
 

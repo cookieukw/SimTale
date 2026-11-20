@@ -50,7 +50,7 @@ O caminho mais curto entre "Instalei o mod" e "Tenho uma vila viva".
 ### 1. Traga um NPC
 
 Você precisa convidar um residente para iniciar sua vila. Faça (craft) um <img src="https://simtale.kukkie.org/img/ImmigrationContract.png" width="24" align="absmiddle"/> **Contrato de Imigração** (Immigration Contract) em uma bancada Fieldcraft usando:
-- 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="22" align="absmiddle"/> Mapa/Pergaminho (`Deco_Scroll`)
+- 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="22" align="absmiddle"/> Pergaminho Antigo (`Deco_Scroll`)
 - 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="22" align="absmiddle"/> Tinteiro (`Deco_Inkwell`)
 - 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="22" align="absmiddle"/> Couro Leve (`Ingredient_Leather_Light`)
 
@@ -889,18 +889,18 @@ Um bolo festivo para comemorar com os moradores. Aproxime-se de um colono com o 
 
 ### Receitas de Criação (Crafting)
 
-Todos os itens podem ser craftados em suas respectivas bancadas:
+As ferramentas e os itens com receita podem ser craftados em suas respectivas bancadas. O Bebê é gerado pelo nascimento e não é craftável:
 
 | Item | Bancada | Ingredientes |
 |---|---|---|
 | **Teste de Gravidez** | <img src="https://simtale.kukkie.org/img/Bench_Alchemy.png" width="24" align="absmiddle"/> Bancada de Alquimia (Alchemybench) | 1x <img src="https://simtale.kukkie.org/img/Plant_Flower_Common_White.png" width="24" align="absmiddle"/> Flor Branca (White Flower), 1x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="https://simtale.kukkie.org/img/Ingredient_Life_Essence_Cauliflower.png" width="24" align="absmiddle"/> Couve-flor (Cauliflower) |
-| **Projeto de Casa** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Map.png" width="24" align="absmiddle"/> Mapa (Map), 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll) |
+| **Projeto de Casa** | Inventário (Fieldcraft) | 2x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho Antigo (Old Scroll), 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell) |
 | **Livro do Estalajadeiro** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks), 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
 | **Lupa do Intendente** | <img src="https://simtale.kukkie.org/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 1x <img src="https://simtale.kukkie.org/img/Rock_Crystal_White.png" width="24" align="absmiddle"/> Cristal Branco (White Crystal), 1x <img src="https://simtale.kukkie.org/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Barra de Cobre (Copper Bar) |
 | **Diário do Inspetor** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scrap_Book_Pile_Small.png" width="24" align="absmiddle"/> Pilha de Livros Pequena (Small Book Pile), 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell) |
 | **Contrato de Imigração** | Inventário (Fieldcraft) | 1x <img src="https://simtale.kukkie.org/img/Deco_Scroll.png" width="24" align="absmiddle"/> Pergaminho (Scroll), 1x <img src="https://simtale.kukkie.org/img/Deco_Inkwell.png" width="24" align="absmiddle"/> Tinteiro (Inkwell), 1x <img src="https://simtale.kukkie.org/img/Ingredient_Leather_Light.png" width="24" align="absmiddle"/> Couro Leve (Light Leather) |
 | **Sino da Cidade** | <img src="https://simtale.kukkie.org/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Bancada de Trabalho (Workbench) | 3x Barra de Ouro (Gold Bar), 2x <img src="https://simtale.kukkie.org/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Tábuas de Madeira Macia (Softwood Planks) |
-| **Bolo de Aniversário** | Bancada de Culinária (Cookingbench) | 1x Torta de Maçã (`Food_Pie_Apple`), 1x Fonte de Luz / Vela Laranja (`Build_Lightsource_Orange`) |
+| **Bolo de Aniversário** | Bancada de Culinária (Cookingbench) | 1x <img src="https://simtale.kukkie.org/img/Food_Pie_Apple.png" width="24" align="absmiddle"/> Torta de Maçã (`Food_Pie_Apple`), 1x <img src="https://simtale.kukkie.org/img/Build_Lightsource_Orange.png" width="24" align="absmiddle"/> Fonte de Luz / Vela Laranja (`Build_Lightsource_Orange`) |
 | **Banheira SimTale** | Bancada de Mobília (Furniture Bench - Furniture_Misc) | 8x Tábuas de Madeira Macia, 4x Barras de Cobre, 2x Barras de Ferro |
 
 #### Ícones dos Itens
