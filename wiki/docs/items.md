@@ -151,7 +151,7 @@ Craftable tools and items use their respective workstations. The Baby is generat
 | **100 Gold Coins** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 1x <img src="/img/Ingredient_Bar_Gold.png" width="24" align="absmiddle"/> Gold Bar |
 | **1 Thorium Coin** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 100x <img src="/img/SimTale_Coin_Copper.png" width="24" align="absmiddle"/> Copper Coins |
 | **1 Gold Coin** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 100x <img src="/img/SimTale_Coin_Thorium.png" width="24" align="absmiddle"/> Thorium Coins |
-| **Piggy Bank** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 4x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks, 2x <img src="/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Copper Bars |
+| **Piggy Bank** | <img src="/img/Bench_WorkBench.png" width="24" align="absmiddle"/> Workbench | 4x <img src="/img/Wood_Softwood_Planks.png" width="24" align="absmiddle"/> Softwood Planks, 2x <img src="/img/Ingredient_Copper_Bar.png" width="24" align="absmiddle"/> Copper Bars, 1,000x <img src="/img/SimTale_Coin_Gold.png" width="24" align="absmiddle"/> Gold Coins, 25x <img src="/img/Ingredient_Bar_Gold.png" width="24" align="absmiddle"/> Gold Bars |
 | **Birthday Cake** | Cookingbench | 1x <img src="/img/Food_Pie_Apple.png" width="24" align="absmiddle"/> Apple Pie (`Food_Pie_Apple`), 1x <img src="/img/Build_Lightsource_Orange.png" width="24" align="absmiddle"/> Orange Light Source / Candle (`Build_Lightsource_Orange`) |
 
 ### Item Icons
