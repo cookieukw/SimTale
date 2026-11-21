@@ -1,0 +1,12 @@
+{
+  "Layers": [{
+    "Files": [
+      "Sounds/SimTale/Guide/Guide_IndexFlip_01.ogg",
+      "Sounds/SimTale/Guide/Guide_IndexFlip_02.ogg",
+      "Sounds/SimTale/Guide/Guide_IndexFlip_03.ogg",
+      "Sounds/SimTale/Guide/Guide_IndexFlip_04.ogg"
+    ],
+    "RoundRobinHistorySize": 4,
+    "Volume": 0.7
+  }]
+}

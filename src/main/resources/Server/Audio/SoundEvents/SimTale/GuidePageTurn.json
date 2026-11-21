@@ -1,0 +1,12 @@
+{
+  "Layers": [{
+    "Files": [
+      "Sounds/SimTale/Guide/Guide_PageTurn_01.ogg",
+      "Sounds/SimTale/Guide/Guide_PageTurn_02.ogg",
+      "Sounds/SimTale/Guide/Guide_PageTurn_03.ogg",
+      "Sounds/SimTale/Guide/Guide_PageTurn_04.ogg"
+    ],
+    "RoundRobinHistorySize": 4,
+    "Volume": 0.75
+  }]
+}

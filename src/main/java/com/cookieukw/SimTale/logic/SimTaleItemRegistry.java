@@ -48,6 +48,9 @@ public class SimTaleItemRegistry {
     private static final int MAX_ACTIVE_NPCS = 10;
 
     public static void init() {
+        RuneCoreItemManager.register("SimTaleGuide", (player, playerRef) ->
+                openPage(player, playerRef, (_, _) -> new SimTaleGuidePage(playerRef, player)));
+
         RuneCoreItemManager.register("TownBell", (player, playerRef) -> {
             long now = System.currentTimeMillis();
             if (now < lastBellTimeMs + 300000) { // 5 minute cooldown (1/4 ingame day)

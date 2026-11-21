@@ -1,0 +1,16 @@
+{
+  "TranslationProperties": {
+    "Name": "item.simtale_guide.name",
+    "Description": "item.simtale_guide.description"
+  },
+  "Icon": "Icons/Items/InspectorsJournal.png",
+  "Model": "Resources/InspectorsJournal/InspectorsJournal.blockymodel",
+  "Texture": "Resources/InspectorsJournal/InspectorsJournal_texture.png",
+  "Quality": "Common",
+  "Categories": ["Items.Tools"],
+  "Tags": {"Type": ["Tool"]},
+  "PlayerAnimationsId": "Item",
+  "Scale": 1.0,
+  "MaxStack": 1,
+  "Interactions": {"Secondary": "RuneCore_GenericItemUse"}
+}

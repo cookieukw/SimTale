@@ -2,54 +2,61 @@ $T = "SimTaleTheme.ui";
 
 Group {
   LayoutMode: MiddleCenter;
-  Background: #0C0806(0.75);
-
+  Background: #0C0806(0.78);
   SceneBlur {}
 
   Group #GuideContainer {
-    Anchor: (Width: 800, Height: 550);
-    Background: "textures/BookBackground.png";
-    LayoutMode: MiddleCenter;
-    
+    Anchor: (Width: 820, Height: 560);
+    Background: #E8D7B5;
+    LayoutMode: Left;
+    Padding: (Horizontal: 30, Vertical: 28);
+
     Group #LeftPage {
-      Anchor: (Width: 365, Height: 480, Left: 30, Top: 35);
+      Anchor: (Width: 370, Height: 504, Right: 10);
+      Background: #F3E7CB;
+      Padding: (Horizontal: 24, Vertical: 22);
 
-      Label #Title {
-        Anchor: (Top: 40, Left: 20, Right: 20, Height: 50);
-        Style: (...$T.@TitleStyle, TextColor: #2e1d0f, FontSize: 32);
-        Text: "SimTale";
+      Label #LeftTitle {
+        Anchor: (Height: 58, Bottom: 8);
+        Style: (...$T.@TitleStyle, FontSize: 25, TextColor: #352317, Wrap: true);
       }
-      
-      Label #Subtitle {
-        Anchor: (Top: 90, Left: 20, Right: 20, Height: 30);
-        Style: (...$T.@SubtitleStyle, TextColor: #4a3420, FontSize: 20);
-        Text: "Manual de Sobrevivência NPC";
-      }
-
-      Label #Content1 {
-        Anchor: (Top: 160, Bottom: 20, Left: 30, Right: 30);
-        Style: (...$T.@BodyStyle, TextColor: #2e1d0f, FontSize: 17, Wrap: true);
-        Text: "Bem-vindo ao SimTale! Seus NPCs agora possuem vontade própria. O RoutineAISystem controla as necessidades deles com base no EntityStats do Hytale. Preste atenção nas barras de Fome (Hunger), Energia (Energy), Higiene (Hygiene) e Diversão (Fun). Um NPC faminto não trabalhará na fazenda e pode desmaiar!";
+      Label #LeftText {
+        Anchor: (Top: 98, Bottom: 18);
+        Style: (...$T.@BodyStyle, FontSize: 16, TextColor: #493426, Wrap: true);
       }
     }
 
     Group #RightPage {
-      Anchor: (Width: 365, Height: 480, Right: 30, Top: 35);
-      
-      Label #Content2 {
-        Anchor: (Top: 40, Bottom: 80, Left: 30, Right: 30);
-        Style: (...$T.@BodyStyle, TextColor: #2e1d0f, FontSize: 17, Wrap: true);
-        Text: "Quando o NPC ficar sujo (Higiene abaixo de 40), ele interromperá o que estiver fazendo para procurar o bloco de água mais próximo, tocando a animação 'Bath'. Caso a Energia zere, ele vai dormir no chão imediatamente, custe o que custar. Construa camas e locais de banho perto dos postos de trabalho para otimizar o tempo deles.";
+      Anchor: (Width: 370, Height: 504);
+      Background: #F3E7CB;
+      Padding: (Horizontal: 24, Vertical: 22);
+
+      Label #RightTitle {
+        Anchor: (Height: 58, Bottom: 8);
+        Style: (...$T.@TitleStyle, FontSize: 25, TextColor: #352317, Wrap: true);
+      }
+      Label #RightText {
+        Anchor: (Top: 82, Bottom: 70);
+        Style: (...$T.@BodyStyle, FontSize: 16, TextColor: #493426, Wrap: true);
       }
 
-      Button #NextPage {
-        Anchor: (Width: 100, Height: 40, Bottom: 30, Right: 30);
-        Style: $T.@BtnNeutral;
-        
-        Label {
-          Anchor: (Full: 0);
-          Style: (...$T.@ButtonLabelStyle, TextColor: #f2ebd9);
-          Text: "Avançar";
+      Group #Nav {
+        Anchor: (Height: 44, Bottom: 0);
+        LayoutMode: Left;
+        Button #Previous {
+          Anchor: (Width: 105, Height: 42, Right: 8);
+          Style: $T.@BtnSecondary;
+          Label { Anchor: (Full: 0); Text: %ui.guide.previous; Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
+        }
+        Button #Next {
+          Anchor: (Width: 105, Height: 42, Right: 8);
+          Style: $T.@BtnSecondary;
+          Label { Anchor: (Full: 0); Text: %ui.guide.next; Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
+        }
+        Button #Close {
+          Anchor: (Width: 105, Height: 42);
+          Style: $T.@BtnTertiary;
+          Label { Anchor: (Full: 0); Text: %ui.guide.close; Style: (...$T.@ButtonLabelStyle, FontSize: 13); }
         }
       }
     }

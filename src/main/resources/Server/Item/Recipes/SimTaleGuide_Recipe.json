@@ -1,0 +1,14 @@
+{
+  "Input": [
+    {"ItemId": "Deco_Book_Pile_Small", "Quantity": 1},
+    {"ItemId": "Deco_Inkwell", "Quantity": 1},
+    {"ItemId": "Wood_Softwood_Planks", "Quantity": 1}
+  ],
+  "PrimaryOutput": {"ItemId": "SimTaleGuide", "Quantity": 1},
+  "BenchRequirement": [{
+    "Id": "Fieldcraft",
+    "Type": "Crafting",
+    "Categories": ["Tools"]
+  }],
+  "TimeSeconds": 2
+}
